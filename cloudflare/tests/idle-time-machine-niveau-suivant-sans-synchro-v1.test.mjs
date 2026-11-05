@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
  */
 const ui = lireUiComplet();
 const debut = ui.indexOf("      function actualiserCompteReboursTimeMachineIdleV1_(){");
-const fin = ui.indexOf("      function patcherBarresTimeMachineIdleV1_(j){");
+const fin = ui.indexOf("      function patcherBarresTimeMachineIdleV1_(j,depuisMaintenant){");
 assert.ok(debut > 0 && fin > debut);
 const source = ui.slice(debut, fin);
 

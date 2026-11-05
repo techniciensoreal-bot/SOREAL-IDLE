@@ -6,7 +6,7 @@ const ui = lireUiComplet();
 
 assert.match(
   ui,
-  /function patcherBarresTimeMachineIdleV1_\(j\)/,
+  /function patcherBarresTimeMachineIdleV1_\(j(,depuisMaintenant)?\)/,
   "le client doit avoir un patch DOM dédié aux barres Time Machine"
 );
 

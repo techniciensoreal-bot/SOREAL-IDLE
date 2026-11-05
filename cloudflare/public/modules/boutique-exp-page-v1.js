@@ -536,7 +536,7 @@
           items.map(function(it){
             const fini=it.nextCost==null;
             return `<div class="soreal-idle-exp-stat-v210"><div class="soreal-idle-exp-stat-head-v210"><span class="soreal-idle-exp-titrebloc-v1">${idleExpTitreAvecImageIdleV1_(H.idleHtml_(it.name))}${idleExpPointIdleV1_(it.id)}${idleExpInfoIIdleV1_(it,'bouton')}</span><div class="soreal-idle-exp-current-v211"><small>Cap requis</small><strong>${H.formatGrandNombreIdleV70_(it.requiredCap||0)} ${it.resource==='magic'?'Magic':'Energy'}</strong></div></div>${idleExpInfoIIdleV1_(it,'bloc')}`+
-              (fini?'<div class="soreal-idle-exp-max-v210">✔ Acheté : activation automatique et gratuite</div>':idleExpPrixCarteIdleV1_([{q:1,gain:'',cout:H.formatGrandNombreIdleV70_(it.nextCost)}],'EXP')+`<div class="soreal-idle-exp-actions-v210"><button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterExpShopIdleV1__('${H.idleHtml_(it.id)}',1)">Acheter</button></div>`)+
+              (fini?'<div class="soreal-idle-exp-max-v210">✔ Acheté : activation automatique et gratuite</div>':idleExpPrixCarteIdleV1_([{q:1,gain:'',cout:H.formatGrandNombreIdleV70_(it.nextCost)}],'EXP')+`<div class="soreal-idle-exp-actions-v210"><button type="button" class="soreal-idle-exp-buy-v210" onclick="window.__acheterAutoYggIdleV1__('${H.idleHtml_(it.id)}',${Number(it.requiredCap)||0},'${it.resource==='magic'?'magic':'energy'}')">Acheter</button></div>`)+
               '</div>';
           }).join('');
       }
@@ -717,6 +717,13 @@
         actionMetaIdleV130_({action:'buyExpShop',item:String(item),quantity:Math.max(1,Math.floor(Number(quantite))||1)});
       }
       window.__acheterExpShopIdleV1__=acheterExpShopIdleV1_;
+
+      /* Activation auto Yggdrasil (Norman, 2026-11-05) : on retient le cap requis ; si le moteur refuse, un popup dit le prérequis. */
+      window.__acheterAutoYggIdleV1__=function(item,cap,ressource){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        window.__SOREAL_IDLE_CAP_AUTO_YGG__={texte:H.formatGrandNombreIdleV70_(Number(cap)||0),nom:ressource==='magic'?'Magie':'Énergie'};
+        acheterExpShopIdleV1_(item,1);
+      };
 
       function acheterRichJerksIdleV1_(stat,niveaux){
         actionMetaIdleV130_({action:'richJerks',stat:String(stat),levels:Math.max(1,Math.floor(Number(niveaux))||1)});

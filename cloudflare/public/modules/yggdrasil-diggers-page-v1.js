@@ -67,7 +67,7 @@
             const ressource=noms[def.resource]||H.idleHtml_(def.resource||'energy');
             const auto=e.autoActivate
               ?'<span style="color:#8fe0a0">⚡ Auto-Activate</span>'
-              :(e.autoShopId?'<button type="button" class="soreal-idle-expand-button-v25" '+(exp>=(e.autoCost||0)?'':'disabled ')+'title="Cap '+ressource+' total requis : '+H.formatGrandNombreIdleV70_(e.autoRequiredCap||0)+'" onclick="window.__acheterExpShopIdleV1__(\''+H.idleHtml_(e.autoShopId)+'\',1)">Auto-Activate · '+H.formatGrandNombreIdleV70_(e.autoCost||0)+' EXP</button>':'');
+              :(e.autoShopId?'<button type="button" class="soreal-idle-expand-button-v25" '+(exp>=(e.autoCost||0)?'':'disabled ')+'title="Cap '+ressource+' total requis : '+H.formatGrandNombreIdleV70_(e.autoRequiredCap||0)+'" onclick="window.__acheterAutoYggIdleV1__(\''+H.idleHtml_(e.autoShopId)+'\','+(Number(e.autoRequiredCap)||0)+',\''+(def.resource==='magic'?'magic':'energy')+'\')">Auto-Activate · '+H.formatGrandNombreIdleV70_(e.autoCost||0)+' EXP</button>':'');
             return '<div class="soreal-idle-section-v8" style="margin:0">'+
               '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+H.idleHtml_(emojiNomIdleV1_('yggdrasil',def.id,def.name||def.id))+'</b><span>Tier '+tier+'</span></div>'+
               '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+

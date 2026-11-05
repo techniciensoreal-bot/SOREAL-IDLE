@@ -37,6 +37,7 @@ var DEFAUTS={
     '{C}Oh bordel, pas encore…',
     '{C}Ah ben voilà.. Forcément que ça allait arriver un jour.',
     '{C}Oh merde. Ne me regardez pas',
+    '{C}J’crois que j’me suis chié dessus.',
     '{V}Je t’en supplie, nettoie-la, elle pue.',
     '{V}Elle a encore vomi… nettoie-la, par pitié.',
     '{V}Ça sent le vomi ici ! Nettoie-la !',

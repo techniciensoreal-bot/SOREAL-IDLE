@@ -630,10 +630,21 @@ export function idleNguBonusesLectureV1(raw) {
 function idleNguBonusesMemoV1(state, sansCopie) {
   return span("bonus", () => idleNguBonusesMemoInterneV1(state, sansCopie));
 }
+/*
+ * Clé du mémo des bonus (2026-11-05, Norman : « un calcul qui met trop de temps », mesuré sur sa partie : 55 clés par opération, 0,6 ms chacune = 28 % d'une allocation) : l'état SANS les deux blocs que le calcul des bonus ne lit
+ * jamais -- les préférences d'interface (uiPrefs, 10 Ko) et le journal d'idempotence des actions (recentClientMutations, dans l'état et dans l'état d'Aventure, ~6 Ko chacun). Copies superficielles seulement : l'état n'est pas
+ * touché. Si un jour un bonus lisait l'un de ces blocs, SOREAL_IDLE_VERIF_BONUS=1 (comparaison à un recalcul) le dirait.
+ */
+function cleSansDonneesInertesV1(state) {
+  if (!state || typeof state !== "object") return state;
+  const copie = Object.assign({}, state, { uiPrefs: undefined, recentClientMutations: undefined });
+  if (state.adventure && typeof state.adventure === "object") copie.adventure = Object.assign({}, state.adventure, { recentClientMutations: undefined });
+  return copie;
+}
 function idleNguBonusesMemoInterneV1(state, sansCopie) {
   if (__nguCtx.__sansMemoV1) return macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
   let cle = null;
-  try { cle = JSON.stringify(state); } catch (_e) { cle = null; }
+  try { cle = JSON.stringify(cleSansDonneesInertesV1(state)); } catch (_e) { cle = null; }
   const maintenant = Date.now();
   if (cle !== null && __bonusMemoV1.valeur !== null && __bonusMemoV1.cle === cle && maintenant - __bonusMemoV1.at <= BONUS_MEMO_MS_V1) {
     const copie = sansCopie ? __bonusMemoV1.valeur : structuredClone(__bonusMemoV1.valeur);

@@ -16,6 +16,24 @@ import { cloreCombatBossClassementV1_ } from "./idle-runtime-joueurs.js";
 import { compterVictoireBossV1_ } from "./idle-victoires-boss-v1.js";
 import { facteurExpBossPerkSorealIdle_ } from "./idle-runtime-combat.js";
 
+/*
+ * Instant d'une répartition d'énergie / de magie (Norman, 2026-11-05 : « la barre avance sans énergie »). Avant d'appliquer l'action, le moteur synchronise l'état du joueur JUSQU'À MAINTENANT avec l'ancienne
+ * allocation : si l'ordre est traité 0,1 à 0,4 s après le clic, la barre gagnait ce temps-là après un « 0 ». agirProgressionSorealIdle pose ici l'instant du clic (clientAt, heure du serveur) ; la synchro d'avant
+ * l'action s'arrête à cet instant (jamais dans le futur, jamais plus de 5 s dans le passé, jamais avant la dernière mise à jour de l'état) et idle-ngu-actions.js crédite la nouvelle allocation du clic à maintenant.
+ */
+let instantSyncAllocationV1 = 0;
+export function definirInstantSyncAllocationV1(ms) { instantSyncAllocationV1 = Number(ms) || 0; }
+/* Instant à utiliser : celui du clic s'il est valide (jamais dans le futur, jamais plus de 5 s dans le passé, jamais avant 'minimum' = dernière mise à jour de l'état), sinon maintenant. */
+export function instantClicValideV1(clic, minimum) {
+  const maintenant = Date.now();
+  const c = Number(clic);
+  if (!Number.isFinite(c) || c <= 0 || c > maintenant || maintenant - c > 5000) return maintenant;
+  const min = Number(minimum);
+  return Number.isFinite(min) ? Math.max(c, Math.min(min, maintenant)) : c;
+}
+function instantSyncNguV1_(metaNgu) { return instantClicValideV1(instantSyncAllocationV1, metaNgu && metaNgu.updatedAt); }
+
+
 /**
  * V40.7 — production d'énergie réellement discrète.
  *
@@ -505,7 +523,7 @@ function appliquerProgressionEnergieSorealIdle__p1(feuille, ligne){
         statsRessourceV55,
         collectionRessourceV55
       ),
-      Date.now()
+      instantSyncNguV1_(statsRessourceV55.metaNgu)
     );
 
   /* Titans tués par l'Auto-Kill depuis la dernière synchronisation : [{ id, n }] (le client n'affiche que ceux qu'il connaît). */
@@ -569,7 +587,7 @@ function appliquerProgressionEnergieSorealIdle__p1(feuille, ligne){
     );
 
   const maintenantEntrainementV41 =
-    Date.now();
+    instantClicValideV1(instantSyncAllocationV1, statsRessourceV55.entrainementBase && statsRessourceV55.entrainementBase.lastUpdateMs);
 
   const entrainementAvantV176=
     normalizeBasicTrainingStateV411(

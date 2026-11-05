@@ -318,6 +318,10 @@ async function idlePurgerVoixAdminV1(request, env, url) {
   for (const t of [].concat(Array.isArray(textes.popups) ? textes.popups : [], (Array.isArray(textes.boss) ? textes.boss : []).map((b) => b && b.surcharge).filter(Boolean))) {
     for (const hash of Array.isArray(t.voix) ? t.voix : []) utiles.add(String(hash));
   }
+  /* Voix ENTIÈRES des chroniques définitives (Norman, 2026-11-05) : jamais supprimées par la purge. */
+  const entieresDefinitives = [];
+  for (const d of Object.values(textes.definitives && typeof textes.definitives === "object" ? textes.definitives : {})) for (const p of Object.values((d && d.plans) || {})) if (p && p.entier) entieresDefinitives.push(String(p.entier));
+  for (const h of entieresDefinitives) utiles.add(h);
   /*
    * Voix pré-générées des textes du jeu (public/voice/manifest.json, stockées au même endroit sur R2) : jamais supprimées non plus. Avant ce
    * garde, une purge effaçait aussi les ~900 voix du tutoriel et des popups, qui n'appartiennent à aucune histoire.
@@ -353,6 +357,7 @@ async function idlePurgerVoixAdminV1(request, env, url) {
     for (const t of [].concat(Array.isArray(textes.popups) ? textes.popups : [], (Array.isArray(textes.boss) ? textes.boss : []).map((b) => b && b.surcharge).filter(Boolean))) {
       for (const h of Array.isArray(t.voix) ? t.voix : []) declareesSeules.add(String(h));
     }
+    for (const h of entieresDefinitives) declareesSeules.add(h);
     const manifesteSeul = new Set(manifesteVoix);
     const plan = planPurgeVoixStrictV1({ fichiers, declarees: declareesSeules, manifeste: manifesteSeul, liees: corps.liees });
     const simulation = url.searchParams.get("dry") === "1" || corps.confirmer !== plan.aSupprimer.length;

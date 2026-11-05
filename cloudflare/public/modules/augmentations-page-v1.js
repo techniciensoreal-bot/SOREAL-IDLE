@@ -203,6 +203,8 @@
         if(payload.action==='clearAugmentAllocations'){
           Array.from(R.file.keys()).forEach(function(c){if(c.indexOf('allocateAugment:')===0)R.file.delete(c);});
         }
+        /* Instant du CLIC (heure du serveur) : le moteur crédite l'ancienne répartition jusqu'à cet instant, pas jusqu'à celui où il traite l'ordre (Norman, 2026-11-05 : « la barre avance sans énergie »). */
+        if(payload&&typeof payload==='object')payload.clientAt=typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
         const cle=cleAllocRapideV1_(payload);
         const O=window.__allocOrdreIdleV1__;
         if(O&&!O.meta){O.meta=++O.n;O.metaAt=Date.now();}
@@ -250,6 +252,7 @@
             envoi={action:'allocateAugments',items:lot.map(function(x){return {pair:x[1].pair,upgrade:Boolean(x[1].upgrade),value:x[1].value};})};
           }
         }
+        envoi=Object.assign({},envoi,{clientAt:cles.reduce(function(m,c){const p=c===cle?payload:R.file.get(c);return Math.max(m,Number(p&&p.clientAt)||0);},0)||undefined});
         const payloads=cles.map(function(c){return c===cle?payload:R.file.get(c);});
         cles.forEach(function(c){R.file.delete(c);});
         R.enCours=true;
@@ -1083,7 +1086,7 @@
         vue[piste+'Fraction']=nouveau.progress;
         vue[piste+'ProgressSeconds']=nouveau.seconds>0?nouveau.progress*nouveau.seconds:progSec;
         vue[piste+'EtaSeconds']=nouveau.seconds>0?Math.max(0,(1-nouveau.progress)*nouveau.seconds):null;
-        if(typeof H.patcherBarresTimeMachineIdleV1_==='function')H.patcherBarresTimeMachineIdleV1_(j);
+        if(typeof H.patcherBarresTimeMachineIdleV1_==='function')H.patcherBarresTimeMachineIdleV1_(j,true);
       }
 
       function ajusterTimeMachineIdleV1_(ressource,mode){

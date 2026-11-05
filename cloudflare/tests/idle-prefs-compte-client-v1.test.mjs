@@ -73,11 +73,12 @@ const joueur = (prefs) => ({ nom: "Norman", systemes: { uiPrefs: prefs } });
 }
 // 3. Première fois sur un appareil : ses réglages existants montent au compte (rien de perdu), le compte l'emporte en cas de conflit.
 {
-  const d = appareil({ soreal_idle_volume_musique_v1: "0.3", soreal_idle_montant_input_v1: "5", soreal_idle_session_v1: "SECRET" });
-  d.api.appliquer(joueur({ soreal_idle_montant_input_v1: "99" }));
+  const d = appareil({ soreal_idle_cible_test_v1: "0.3", soreal_idle_volume_musique_v1: "0.3", soreal_idle_son_actif_v1_voix: "0", soreal_idle_effet_feu_v1: "0", soreal_idle_montant_input_v1: "5", soreal_idle_session_v1: "SECRET" });
+  d.api.appliquer(joueur({ soreal_idle_montant_input_v1: "99", soreal_idle_volume_voix_v3: "0.9" }));
   assert.equal(d.local.getItem("soreal_idle_montant_input_v1"), "99", "conflit : le compte l'emporte");
+  assert.equal(d.local.getItem("soreal_idle_volume_voix_v3"), null, "volume du compte jamais appliqué : propre à l'appareil");
   await d.tourner();
-  assert.deepEqual(plat(d.getServeur()), { soreal_idle_volume_musique_v1: "0.3" }, "réglage local inconnu du compte envoyé ; session jamais");
+  assert.deepEqual(plat(d.getServeur()), { soreal_idle_cible_test_v1: "0.3" }, "réglage local inconnu du compte envoyé ; session, volumes, sons et effets jamais (propres à l'appareil)");
 }
 // 4. Un changement fait ici et pas encore envoyé n'est pas écrasé par une réponse du serveur ; clé trop grosse jamais supprimée ; panne : on réessaie.
 {

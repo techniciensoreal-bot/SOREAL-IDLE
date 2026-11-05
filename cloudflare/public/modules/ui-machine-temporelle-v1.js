@@ -251,7 +251,8 @@
         idleLissageTmV1=requestAnimationFrame(image);
       }
 
-      function patcherBarresTimeMachineIdleV1_(j){
+      /* depuisMaintenant : les chiffres viennent d'un calcul LOCAL à l'instant même (clic), pas d'une réponse du moteur : l'ancre est maintenant, jamais l'instant d'une réponse précédente. */
+      function patcherBarresTimeMachineIdleV1_(j,depuisMaintenant){
         if(
           REG.idleMenuActifV28!=='machine' ||
           !j ||
@@ -314,7 +315,11 @@
             const etaValide=Number.isFinite(Number(entree[2]));
             eta.dataset.tmEtaSeconds=etaValide?String(Math.max(0,idleNombre_(entree[2]))):'';
             /* Les chiffres ont été produits par le serveur un demi aller-retour avant leur arrivée. */
-            eta.dataset.tmEtaAt=String(Date.now()-(typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0)/2);
+            /* Norman (2026-11-05, « plus jamais un recul de barre ») : les chiffres du moteur datent du DÉBUT de son calcul (100 à 200 ms avant leur arrivée sur un gros compte) ; l'ancre est la réception CALÉE (__recuPerfV1, qui retranche cet âge), la même que celle du tick plus haut. Avec l'heure d'arrivée, la barre était posée trop en arrière du moteur de (retard x vitesse), d'où un recul à chaque changement d'allocation, énorme quand la barre va vite. */
+            const rttTm=typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0;
+            const recuCaleTm=Number(j&&j.__recuPerfV1);
+            const ancrePatchTm=(!depuisMaintenant&&recuCaleTm>0&&recuCaleTm<=performance.now()?recuCaleTm:performance.now())-(depuisMaintenant?0:rttTm/2);
+            eta.dataset.tmEtaAt=String(Date.now()-(performance.now()-ancrePatchTm));
             eta.dataset.tmEtaLast='';
             eta.textContent=etaValide
               ?'Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(entree[2])+(palierPatch>0?' · '+(1/palierPatch<0.005?'< 0,01':Math.min(50,1/palierPatch).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}))+' niv/s':'')

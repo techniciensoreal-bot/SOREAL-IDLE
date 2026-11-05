@@ -29,7 +29,7 @@ import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, co
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
-import { activateYggFruit, bloodRitualMagicV1, castBloodSpell, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
+import { advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 
 /* Cinématiques que l'on peut revoir : identifiant -> code (nombre, les records sont des compteurs). */
 export const IDLE_CINEMATIQUES_V1 = Object.freeze({ intro: 1 });
@@ -67,9 +67,25 @@ function ajouterBoostPalierV1(state, result, avant) {
   return Object.assign({}, result, { boostPalier: { niveaux: apres - avant, gainPct, totalPct: Math.min(39, apres) * 2 } });
 }
 
+/*
+ * Instant d'une répartition d'énergie / de magie (Norman, 2026-11-05 : « la barre avance sans énergie »). Mesuré sur sa partie : clic « 0 » à 32 304 ms, allocation à 0 à l'écran à 32 308 ms, mais le moteur n'a traité
+ * l'ordre que 0,1 à 0,4 s plus tard et a crédité l'ancienne allocation (max) jusqu'à CET instant : la barre gagnait 12 points après le « 0 ». Le client envoie l'instant du clic (heure du serveur, clientAt) : le moteur crédite
+ * l'ancienne allocation jusqu'au clic, applique la nouvelle, puis crédite la nouvelle du clic à maintenant. Jamais dans le futur, jamais plus de 5 s dans le passé, jamais avant la dernière mise à jour de l'état ; sans
+ * clientAt (ancien client) : l'instant du traitement, comme avant.
+ */
+/* Actions qui arrêtent, démarrent ou redistribuent une production (revue de tous les menus, 2026-11-05) : le temps écoulé jusqu'au clic compte avec l'ANCIEN réglage, celui d'après avec le nouveau. */
+export const ACTIONS_DE_RYTHME_V1 = /^(allocate|clear[A-Za-z]*Allocations$|reclaimResource$|toggle$|toggleDigger$|setDiggerLevel$|selectRitual$|selectTrack$)/;
+function instantClicAllocationV1(action, payload, raw, t) {
+  if (!ACTIONS_DE_RYTHME_V1.test(action)) return t;
+  const demande = Number(payload && payload.clientAt);
+  const derniere = Number(raw && raw.updatedAt);
+  if (!Number.isFinite(demande) || demande > t || t - demande > 5000) return t;
+  return Number.isFinite(derniere) ? Math.max(demande, Math.min(derniere, t)) : demande;
+}
+
 export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.now()) {
   const t = nowMs(now);
-  const state = syncIdleNguState(raw, context, t); const boostsMaxesAvantV1 = boostsMaxesV1(state); /* palier de boosts gagné PAR CE GESTE (l'Auto Merge/Boost tombe dans la synchro ci-dessus) */
+  const tClic = instantClicAllocationV1(String((payload && payload.action) || "").trim(), payload, raw, t); const state = syncIdleNguState(raw, context, tClic); const boostsMaxesAvantV1 = boostsMaxesV1(state); /* palier de boosts gagné PAR CE GESTE (l'Auto Merge/Boost tombe dans la synchro ci-dessus) */
   payload = coffreVersGarderieV1(state, payload);
   const action = String(payload.action || "").trim();
   let result = {};
@@ -509,7 +525,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     throw new Error("ACTION_META_INCONNUE");
   }
 
-  result = ajouterBoostPalierV1(state, result, boostsMaxesAvantV1); state.updatedAt = t;
+  result = ajouterBoostPalierV1(state, result, boostsMaxesAvantV1); state.updatedAt = tClic; if (tClic < t) advanceIdleNguState(state, (t - tClic) / 1000, context, t, true); state.updatedAt = t; /* la nouvelle allocation travaille du clic à maintenant */
   state.rebirth = refreshRebirthState(state, context, t);
   if (clientMutationId) {
     state.recentClientMutations.push({ id: clientMutationId, result: result === undefined ? null : clone(result) });

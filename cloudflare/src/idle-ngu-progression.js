@@ -204,7 +204,7 @@ export { HACK_HARD_CAP_V1, idleNguTimeMachineGoldPerSecond, idleNguTimeMachineGr
 export { IDLE_TROLL_INTERVALS_S_V1, advanceIdleNguState } from "./idle-ngu-systemes.js";
 export { avecProjectionSansMemoV1, idleNguBonuses, idleNguMemoNouvelleRequeteV1, syncIdleNguState } from "./idle-ngu-bonus.js";
 export { idleNguSnapshot } from "./idle-ngu-snapshot.js";
-export { IDLE_NGU_EXP_SHOP_V1, applyIdleNguAction, idleNguDifficultyUnlockRequirementsV1, rebirthIdleNguState } from "./idle-ngu-actions.js";
+export { IDLE_NGU_EXP_SHOP_V1, ACTIONS_DE_RYTHME_V1, applyIdleNguAction, idleNguDifficultyUnlockRequirementsV1, rebirthIdleNguState } from "./idle-ngu-actions.js";
 
 /*
  * SOREAL IDLE — early game NGU parity engine.

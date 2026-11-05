@@ -44,5 +44,5 @@ assert.equal(r2.state.skills.attaque_reguliere.allocation, 20000);
 
 // Le serveur amène l'entraînement à l'instant présent avant d'appliquer la répartition.
 const rt = lireSrc("idle-sqlite-runtime.js");
-assert.ok(/stats\.entrainementBase =\s*advanceBasicTrainingStateV411\(\s*stats\.entrainementBase,\s*Date\.now\(\),/.test(rt) && rt.includes("{ autoAdvance: autoAvance }\n      );"));
+assert.ok(/stats\.entrainementBase =\s*advanceBasicTrainingStateV411\(\s*stats\.entrainementBase,\s*(Date\.now\(\)|instantClicBt),/.test(rt) && rt.includes("{ autoAdvance: autoAvance }\n      );"));
 console.log("idle-bt-surplus-deblocage-course-v1: OK");

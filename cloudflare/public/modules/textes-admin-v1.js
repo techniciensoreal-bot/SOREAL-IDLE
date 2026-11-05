@@ -40,7 +40,7 @@ var enChargement=false;
 var essais=0;
 var abonnes=[];
 var registre={};                    // clés déclarées par le jeu : {groupe, libelle, champs, original(), texteLu(valeurs)}
-var admin={charge:false,enCharge:false,erreur:'',boss:[],popups:[],filtre:'',page:0,validations:{}};
+var admin={charge:false,enCharge:false,erreur:'',boss:[],popups:[],filtre:'',page:0,validations:{},definitives:{}};
 var edition=null;                   // {cle, def, voix[], estBoss, numero}
 var studio={ok:null,texte:''};
 var generation={enCours:false,annule:false};
@@ -183,6 +183,7 @@ function charger_(){
     surcharges={popups:res.popups&&typeof res.popups==='object'?res.popups:{},voix:Array.isArray(res.voix)?res.voix:[]};
     chargees=true;
     enregistrerVoix_(surcharges.voix);
+    try{var tE=tts_();if(tE&&typeof tE.enregistrerEntieres==='function')tE.enregistrerEntieres(res.entieres);}catch(_e){}
     notifier_();
   }).catch(function(){
     enChargement=false;
@@ -215,6 +216,55 @@ function changerFeu_(cle){
     majFeux_();
     afficherEtat_('Validation non enregistrée : '+(e&&e.message?e.message:e),true);
   });
+}
+
+/*
+ * Case « Définitive » (Norman, 2026-11-05) : une chronique de boss cochée voit ses blocs de voix fusionnés en UN fichier entier (mêmes blocs, mêmes silences) par l'outil cloudflare/tools/fusionner-chroniques-definitives.mjs ;
+ * après l'écoute et l'accord de Norman, les blocs séparés sont supprimés. La coche enregistre le PLAN exact de la lecture séparée (blocs et silences), avec le nom du boss lu puis sans (lecteur enchaîné).
+ */
+function estCleBoss_(cle){return /^boss:\d+(:en)?$/.test(String(cle||''));}
+function planDefinitive_(){
+  var t=tts_();
+  if(!t||!edition||typeof t.planEntier!=='function'||typeof edition.def.texteLuSans!=='function')return null;
+  var v=lireChamps_();
+  var a=t.planEntier(t.retirerParentheses(edition.def.texteLu(v))),b=t.planEntier(t.retirerParentheses(edition.def.texteLuSans(v)));
+  if(a.rot||b.rot)return {erreur:'Cette chronique contient un rot synthétisé : elle ne peut pas être fusionnée.'};
+  if(!a.etapes.length||!b.etapes.length)return {erreur:'Rien à lire dans ce texte.'};
+  return {plans:{avec:{entier:a.entier,etapes:a.etapes},sans:{entier:b.entier,etapes:b.etapes}},entier:a.entier};
+}
+function statutDefinitive_(cle){
+  var d=admin.definitives&&admin.definitives[cle];
+  if(!d)return '';
+  var p=planDefinitive_();
+  if(p&&p.plans&&d.plans&&d.plans.avec&&d.plans.avec.entier!==p.plans.avec.entier)return 'texte modifié depuis la coche : décoche puis recoche';
+  if(d.separeesSupprimees)return 'fichier entier seul conservé';
+  return d.pret?'fichier entier prêt, blocs séparés encore là':'en attente de la fusion des fichiers';
+}
+function definitiveHtml_(cle){
+  if(!estCleBoss_(cle))return '';
+  var d=admin.definitives&&admin.definitives[cle];
+  return '<label class="stx-def" title="Fusionne tous les blocs de voix de cette chronique en un seul fichier, avec exactement les mêmes silences."><input type="checkbox" data-stx-def="'+esc_(cle)+'"'+(d?' checked':'')+'> Définitive<small data-stx-def-etat="'+esc_(cle)+'">'+esc_(statutDefinitive_(cle))+'</small></label>';
+}
+function majDefinitive_(cle){
+  var e=document.querySelector('[data-stx-def-etat="'+cle+'"]');
+  if(e)e.textContent=statutDefinitive_(cle);
+}
+function changerDefinitive_(cle,coche,caseHtml){
+  var avant=admin.definitives&&admin.definitives[cle];
+  var retour=function(msg){if(caseHtml)caseHtml.checked=Boolean(avant);afficherEtat_(msg,true);};
+  if(!coche&&avant&&avant.separeesSupprimees){retour('Les blocs séparés ont été supprimés : seule la voix entière existe, impossible de décocher.');return;}
+  var plan=null;
+  if(coche){
+    plan=planDefinitive_();
+    if(!plan||plan.erreur){retour((plan&&plan.erreur)||'Lecture vocale indisponible.');return;}
+  }
+  appel_('definirChroniqueDefinitiveAdminSorealIdle',[{cle:cle,definitive:coche,plans:plan?plan.plans:undefined}]).then(function(res){
+    if(!res||res.ok===false)throw new Error((res&&res.message)||'Réponse invalide.');
+    if(!admin.definitives)admin.definitives={};
+    if(coche&&res.definitive)admin.definitives[cle]=res.definitive;else delete admin.definitives[cle];
+    majDefinitive_(cle);
+    afficherEtat_(coche?'Chronique définitive : lance la fusion des fichiers (outil du dépôt), puis écoute avant de supprimer les blocs séparés.':'Chronique non définitive.');
+  }).catch(function(e){retour('Case non enregistrée : '+(e&&e.message?e.message:e));});
 }
 
 /*
@@ -324,6 +374,7 @@ function installerStyle_(){
     '.stx-pastille.modif{background:rgba(255,216,74,.16);color:#ffd84a}'+
     /* Feu de validation de la voix (Norman, 2026-10-28) : rouge = pas validée, jaune = validée mais peut mieux faire, vert = totalement validée. Aucun texte, seulement la couleur. */
     '.stx-feu{display:inline-block;box-sizing:border-box;flex:0 0 auto;width:18px;height:18px;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.55);background:#e03131;box-shadow:0 0 8px 1px rgba(224,49,49,.75)}'+
+    '.stx-def{display:inline-flex;flex-direction:column;align-items:flex-start;gap:1px;margin-right:8px;font:800 12px/1.1 "Russo One",sans-serif;color:#fff;cursor:pointer}.stx-def input{width:18px;height:18px;margin:0 6px 0 0;vertical-align:middle}.stx-def small{display:block;max-width:150px;font:600 10px/1.1 sans-serif;opacity:.8}'+
     '.stx-feu[data-etat="1"]{background:#f5b800;box-shadow:0 0 8px 1px rgba(245,184,0,.75)}'+
     '.stx-feu[data-etat="2"]{background:#2fbf4a;box-shadow:0 0 8px 1px rgba(47,191,74,.75)}'+
     'button.stx-feu{width:34px;height:34px;cursor:pointer;margin-right:4px}button.stx-feu:active{transform:scale(.92)}'+
@@ -981,6 +1032,7 @@ function dessinerEditeur_(){
       '<div class="stx-barre">'+
         '<div style="flex:1;min-width:0"><h3>✏️ '+esc_(d.libelle)+'</h3>'+
           '<div class="stx-sous">'+(enAnglais_()?'<span class="stx-pastille">English</span> ':'')+(edition.surcharge?'<span class="stx-pastille modif">texte modifié</span>':'<span class="stx-pastille">texte d’origine</span>')+'</div></div>'+
+        definitiveHtml_(edition.cle)+
         feuHtml_(edition.cle,true)+
         '<button type="button" class="stx-icone" data-stx-act="reduire" title="Réduire : tu peux continuer à jouer pendant que les voix se génèrent">➖</button>'+
         '<button type="button" class="stx-icone" data-stx-act="fermer" title="Fermer">✕</button>'+
@@ -1520,6 +1572,12 @@ function defBoss_(numero,nom){
       var t=tts_();
       var nomLu=String(v.nom||'').replace(/\s+/g,' ').trim()||nom;
       return t&&typeof t.composerChronique==='function'?t.composerChronique(nomLu,v.texte):nomLu+' '+v.texte;
+    },
+    /* Variante du lecteur de chroniques (sans le nom en tête) : sert à la voix entière « Définitive ». */
+    texteLuSans:function(v){
+      var t=tts_();
+      var nomLu=String(v.nom||'').replace(/\s+/g,' ').trim()||nom;
+      return t&&typeof t.composerChronique==='function'?t.composerChronique(nomLu,v.texte,true):v.texte;
     }
   };
 }
@@ -1553,6 +1611,7 @@ function chargerAdmin_(apres){
     admin.boss=Array.isArray(res.boss)?res.boss:[];
     admin.popups=Array.isArray(res.popups)?res.popups:[];
     admin.validations=res.validations&&typeof res.validations==='object'?res.validations:{};
+    admin.definitives=res.definitives&&typeof res.definitives==='object'?res.definitives:{};
     admin.charge=true;
     rafraichirListe_();
     if(apres)apres();
@@ -1596,6 +1655,8 @@ function hashesLiesAuxTextes_(apres){
       try{if(def&&typeof def.original==='function')plat(/:en$/.test(p.cle)?originauxL_(def.original()):def.original(),l);}catch(_e){}
       l.forEach(ajouter);
     });
+    /* Voix ENTIÈRES des chroniques définitives : jamais purgées. */
+    Object.keys(admin.definitives||{}).forEach(function(k){var d=admin.definitives[k];['avec','sans'].forEach(function(v){if(d&&d.plans&&d.plans[v]&&d.plans[v].entier)out[d.plans[v].entier]=1;});});
     apres(Object.keys(out));
   });
 }
@@ -1761,6 +1822,8 @@ document.addEventListener('click',function(ev){
       if(pr.getAttribute('data-stx-pron')==='tester'){if(listePr[kPr])essayerPrononciation_(listePr[kPr].dit);return;}
       if(pr.getAttribute('data-stx-pron')==='suppr'&&listePr[kPr]){supprimerPrononciation_(kPr);return;}
     }
+    var caseDef=ev.target.closest&&ev.target.closest('input[data-stx-def]');
+    if(caseDef){changerDefinitive_(caseDef.getAttribute('data-stx-def'),caseDef.checked,caseDef);return;}
     var a=ev.target.closest('[data-stx-act]');
     if(a){
       var act=a.getAttribute('data-stx-act');

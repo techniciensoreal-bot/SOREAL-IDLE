@@ -189,7 +189,7 @@ function afficher(c){
   box.innerHTML=html(c);
   box.addEventListener('click',function(e){if(e.target===box||(e.target.classList&&e.target.classList.contains('pe-bouton-v1')))fermer();});
   document.body.appendChild(box);
-  try{if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.play==='function')window.__SOREAL_IDLE_AUDIO_V199__.play('achievement');}catch(_e){}
+  try{if(window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.play==='function')window.__SOREAL_IDLE_AUDIO_V199__.play(c.son||'achievement');}catch(_e){}
 }
 
 function annoncer(spec){
@@ -218,5 +218,11 @@ function apres(payload,res){
   return true;
 }
 
-window.__SOREAL_IDLE_POPUP_EFFET_V1__={apres:apres,construire:construire,annoncer:annoncer,fermer:fermer,html:html,duree:duree,fmt:fmt,etat:function(){return {courant:courant,file:file.slice()};}};
+/* Achat d'une activation auto Yggdrasil refusé : le cap d'Énergie ou de Magie n'est pas atteint (Norman, 2026-11-05). */
+function refusCap(info){
+  if(!info)return false;
+  return annoncer({cle:'cap-auto-ygg',icone:'🌱',son:'purchaseRefused',titre:'Achat impossible',phrase:[['Il te faut d’abord un cap total de','t'],[info.texte+' '+info.nom,'v'],['pour acheter cette activation auto.','t']],rows:[['Cap requis',info.texte+' '+info.nom]]});
+}
+
+window.__SOREAL_IDLE_POPUP_EFFET_V1__={refusCap:refusCap,apres:apres,construire:construire,annoncer:annoncer,fermer:fermer,html:html,duree:duree,fmt:fmt,etat:function(){return {courant:courant,file:file.slice()};}};
 })();

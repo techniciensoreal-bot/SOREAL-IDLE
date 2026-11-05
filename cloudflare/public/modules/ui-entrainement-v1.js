@@ -708,13 +708,16 @@
           })
           .definirAllocationsEntrainementSorealIdle(
             SOREAL_SESSION,
-            payload
+            payload,
+            REG.idleBasicTrainingClicAtV1||undefined
           );
       }
 
       function programmerEnvoiBasicTrainingIdleV120_(
         delai
       ){
+        /* Instant du dernier changement (heure du serveur) : le moteur crédite l'ancienne répartition jusqu'à cet instant (Norman, 2026-11-05). */
+        REG.idleBasicTrainingClicAtV1=typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
         REG.idleBasicTrainingDirtyV120=true;
         if(!REG.idleAllocOrdreV1.bt){
           REG.idleAllocOrdreV1.bt=++REG.idleAllocOrdreV1.n;

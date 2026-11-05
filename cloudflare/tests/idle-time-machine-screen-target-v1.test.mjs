@@ -4,6 +4,7 @@ import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, applyIdleNguAction, advanceIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
+const sansClicV1 = (x) => { const o = JSON.parse(JSON.stringify(x)); delete o.clientAt; return o; }; /* l'instant du clic accompagne les allocations (idle-allocation-instant-clic-v1) */
 
 /*
  * Norman (2026-09-25), capture de « Broken Time Machine » dans NGU : deux pistes (Machine Speed vert / Gold Multiplier jaune) avec barre,
@@ -195,7 +196,8 @@ let etat = null;
   etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 5000 };
   window.__ajusterTimeMachineIdleV1__("energy", "plus");
   await attendreEnvoi();
-  assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1250 });
+  const envoyee = JSON.parse(JSON.stringify(actions.pop())); assert.equal(typeof envoyee.clientAt, "number", "instant du clic joint"); delete envoyee.clientAt;
+  assert.deepEqual(envoyee, { action: "allocate", system: "timeMachine", resource: "energy", value: 1250 });
   /*
    * 2026-09-29 : ajusterTimeMachineIdleV1_ est désormais optimiste (mutation locale immédiate de
    * s.state.allocation, comme Basic Training/Augmentation) -- l'appel "+" ci-dessus a donc déjà fait
@@ -206,10 +208,10 @@ let etat = null;
   etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 5000 };
   window.__ajusterTimeMachineIdleV1__("energy", "moins");
   await attendreEnvoi();
-  assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 750 });
+  assert.deepEqual(sansClicV1(actions.pop()), { action: "allocate", system: "timeMachine", resource: "energy", value: 750 });
   window.__cibleTimeMachineIdleV1__("gold", "33");
   await attendreEnvoi();
-  assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "setTimeMachineTarget", track: "gold", value: 33 });
+  assert.deepEqual(sansClicV1(actions.pop()), { action: "setTimeMachineTarget", track: "gold", value: 33 });
 
   /*
    * Norman (2026-09-29) : « Dans Time machine, Il me permet d'ajouter de l'énergie même si je n'en
@@ -223,14 +225,14 @@ let etat = null;
     etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 0 };
     window.__ajusterTimeMachineIdleV1__("energy", "plus");
     await attendreEnvoi();
-    assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1000 }, "aucune énergie libre -> l'allocation ne doit pas bouger, jamais 1250 puis corrigée");
+    assert.deepEqual(sansClicV1(actions.pop()), { action: "allocate", system: "timeMachine", resource: "energy", value: 1000 }, "aucune énergie libre -> l'allocation ne doit pas bouger, jamais 1250 puis corrigée");
 
     // Moins d'énergie libre que l'Input demandé (250) : plafonné à ce qui est réellement libre (60), jamais 250.
     s.systems.timeMachine.allocation.energy = 1000;
     etat = { systemes: idleNguSnapshot(s, ctx, 0), energie: 60 };
     window.__ajusterTimeMachineIdleV1__("energy", "plus");
     await attendreEnvoi();
-    assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "energy", value: 1060 }, "plafonné à l'énergie libre réelle (60), jamais l'Input demandé en entier (250)");
+    assert.deepEqual(sansClicV1(actions.pop()), { action: "allocate", system: "timeMachine", resource: "energy", value: 1060 }, "plafonné à l'énergie libre réelle (60), jamais l'Input demandé en entier (250)");
 
     // Même plafond côté Magic (resources.magic.current, déjà porté par idleNguSnapshot).
     const sMagicRare = etatTm();
@@ -239,7 +241,7 @@ let etat = null;
     etat = { systemes: idleNguSnapshot(sMagicRare, ctx, 0), energie: 5000 };
     window.__ajusterTimeMachineIdleV1__("magic", "plus");
     await attendreEnvoi();
-    assert.deepEqual(JSON.parse(JSON.stringify(actions.pop())), { action: "allocate", system: "timeMachine", resource: "magic", value: 520 }, "plafonné à la Magic libre réelle (20), jamais l'Input demandé en entier (250)");
+    assert.deepEqual(sansClicV1(actions.pop()), { action: "allocate", system: "timeMachine", resource: "magic", value: 520 }, "plafonné à la Magic libre réelle (20), jamais l'Input demandé en entier (250)");
   }
 }
 

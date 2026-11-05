@@ -255,5 +255,79 @@ export function surchargesPourJoueurV1(sql, langue) {
     if (t.supprime) { popups[cle] = { champs: {}, parle: {}, voix: [], supprime: true }; continue; }
     if (!IDLE_TEXTE_BOSS_RE_V1.test(cle)) popups[cle] = { champs: t.champs, parle: t.parle, voix: t.voix };
   }
-  return { popups, voix: Array.from(voix) };
+  return { popups, voix: Array.from(voix), entieres: entieresPourJoueurV1(sql, langue) };
+}
+
+/*
+ * Chroniques « DÉFINITIVES » (Norman, 2026-11-05 : « sur chaque chronique de boss, je veux pouvoir cocher définitive. Une fois fait, les fichiers audio ne sont remis qu'en un seul, avec exactement les mêmes temps d'arrêt que
+ * quand on le lit de manière séparée ; ensuite les voix séparées sont supprimées et seule l'entière est conservée »). Table à part, administrateur seulement (comme la validation de la voix).
+ * Une ligne par clé (boss:<N> ou boss:<N>:en) : { plans: { avec, sans }, pret, separeesSupprimees }.
+ *  - plans.avec / plans.sans : { entier, etapes } -- `entier` = empreinte du fichier ENTIER (calculée par le navigateur sur le texte lu complet, voir tutorial-tts-v202.js entierDe), `etapes` = la liste exacte des blocs
+ *    { h: empreinte } et des silences { p: millisecondes } que la lecture séparée joue. Avec = nom du boss lu en tête ; sans = lecteur enchaîné.
+ *  - pret : le fichier entier est sur R2 (posé par l'outil cloudflare/tools/fusionner-chroniques-definitives.mjs) ; seul alors le joueur reçoit son empreinte et la lit à la place des blocs.
+ *  - separeesSupprimees : les blocs séparés ont été supprimés de R2 (après l'écoute et l'accord de Norman).
+ */
+const IDLE_DEFINITIVE_VARIANTES_V1 = ["avec", "sans"];
+export function assurerDefinitivesV1(sql) {
+  sql.exec("CREATE TABLE IF NOT EXISTS idle_voix_definitives(cle TEXT PRIMARY KEY, json TEXT NOT NULL, maj INTEGER NOT NULL)");
+}
+function nettoyerPlanDefinitiveV1(p) {
+  if (!p || typeof p !== "object" || !IDLE_TEXTE_HASH_RE_V1.test(String(p.entier || ""))) return null;
+  const etapes = [];
+  for (const e of (Array.isArray(p.etapes) ? p.etapes : []).slice(0, 400)) {
+    if (e && IDLE_TEXTE_HASH_RE_V1.test(String(e.h || ""))) etapes.push({ h: String(e.h) });
+    else if (e && Number.isFinite(Number(e.p)) && Number(e.p) >= 0 && Number(e.p) <= 60000) etapes.push({ p: Math.round(Number(e.p)) });
+    else return null;
+  }
+  return etapes.some((e) => e.h) ? { entier: String(p.entier), etapes } : null;
+}
+function nettoyerDefinitiveV1(d) {
+  const plans = {};
+  for (const v of IDLE_DEFINITIVE_VARIANTES_V1) {
+    const p = nettoyerPlanDefinitiveV1(d && d.plans && d.plans[v]);
+    if (p) plans[v] = p;
+  }
+  return { plans, pret: Boolean(d && d.pret), separeesSupprimees: Boolean(d && d.separeesSupprimees) };
+}
+/* { cle: { plans, pret, separeesSupprimees } } */
+export function lireDefinitivesV1(sql) {
+  assurerDefinitivesV1(sql);
+  const out = {};
+  for (const r of sqlRows(sql.exec("SELECT cle,json FROM idle_voix_definitives"))) {
+    if (!IDLE_TEXTE_CLE_RE_V1.test(String(r.cle))) continue;
+    const d = nettoyerDefinitiveV1(safeJson(r.json, null));
+    if (Object.keys(d.plans).length) out[String(r.cle)] = d;
+  }
+  return out;
+}
+/* Coche (plans fournis) ou décoche (definitive = false) : une nouvelle coche remet « pret » à faux tant que l'outil n'a pas posé les fichiers entiers. */
+export function definirDefinitiveV1(sql, cle, definitive, plans, maintenant = Date.now()) {
+  const k = String(cle == null ? "" : cle);
+  if (!IDLE_TEXTE_CLE_RE_V1.test(k) || !/^boss:\d+(:en)?$/.test(k)) throw new Error("TEXTE_CLE_INVALIDE");
+  assurerDefinitivesV1(sql);
+  if (!definitive) { sql.exec("DELETE FROM idle_voix_definitives WHERE cle=?", k); return null; }
+  const d = nettoyerDefinitiveV1({ plans });
+  if (!Object.keys(d.plans).length) throw new Error("TEXTE_DEFINITIVE_PLAN_INVALIDE");
+  sql.exec("INSERT OR REPLACE INTO idle_voix_definitives(cle,json,maj) VALUES(?,?,?)", k, JSON.stringify(d), maintenant);
+  return d;
+}
+/* Posé par l'outil de fusion : les fichiers entiers sont sur R2 (pret) et, plus tard, les blocs séparés sont supprimés. Les empreintes `entiers` doivent être exactement celles des plans enregistrés. */
+export function marquerDefinitivePreteV1(sql, cle, pret, separeesSupprimees, maintenant = Date.now()) {
+  const k = String(cle == null ? "" : cle);
+  const d = lireDefinitivesV1(sql)[k];
+  if (!d) throw new Error("TEXTE_DEFINITIVE_ABSENTE");
+  d.pret = Boolean(pret);
+  d.separeesSupprimees = d.pret && Boolean(separeesSupprimees);
+  sql.exec("INSERT OR REPLACE INTO idle_voix_definitives(cle,json,maj) VALUES(?,?,?)", k, JSON.stringify(d), maintenant);
+  return d;
+}
+/* Empreintes des fichiers ENTIERS prêts d'une langue : ce que reçoit tout joueur (identifiants opaques, comme les empreintes de voix). */
+export function entieresPourJoueurV1(sql, langue) {
+  const en = langue === "en";
+  const out = [];
+  for (const [cle, d] of Object.entries(lireDefinitivesV1(sql))) {
+    if (!d.pret || estCleEnV1(cle) !== en) continue;
+    for (const v of IDLE_DEFINITIVE_VARIANTES_V1) if (d.plans[v]) out.push(d.plans[v].entier);
+  }
+  return out;
 }

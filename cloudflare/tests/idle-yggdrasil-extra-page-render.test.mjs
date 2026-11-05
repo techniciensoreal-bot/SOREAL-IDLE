@@ -55,7 +55,7 @@ assert.ok(html.includes("window.__utiliserFruitYggIdleV1__('gold','eat')"));
 assert.ok(html.includes("window.__basculerPoopYggIdleV1__('gold',this.checked)"));
 assert.ok(!/🔒|Troll Challenge|Fruit of Numbers/.test(html), "Fruit of Numbers verrouillé : absent (anti-spoil)");
 assert.ok(html.includes("⚡ Auto-Activate"), "Pomegranate : Auto-Activate acheté");
-assert.ok(html.includes("window.__acheterExpShopIdleV1__('yggAutoGold',1)"), "achat de l'Auto-Activate du Fruit of Gold");
+assert.ok(html.includes("window.__acheterAutoYggIdleV1__('yggAutoGold',"), "achat de l'Auto-Activate du Fruit of Gold");
 for (const nom of ["Fruit of Power δ", "Watermelon", "Fruit of Quirks"]) assert.ok(html.includes(nom), nom);
 
 // Case Poop cochée : envoyée avec Manger, puis décochée.

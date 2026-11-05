@@ -153,7 +153,8 @@ export function idleAdventureEquipmentStatsV47(raw){
 }
 function idleAdventureEquipmentStatsMemoV47(raw){
   let cle=null;
-  try{cle=raw&&typeof raw==="object"?JSON.stringify(raw):null}catch(_e){cle=null}
+  /* Clé sans le journal d'idempotence des actions (recentClientMutations, jamais lu par le calcul d'équipement : ~6 Ko sur 67) : copie superficielle, l'état n'est pas touché (Norman, 2026-11-05 : calcul trop long). */
+  try{cle=raw&&typeof raw==="object"?JSON.stringify(Object.assign({},raw,{recentClientMutations:undefined})):null}catch(_e){cle=null}
   const maintenant=Date.now();
   if(cle!==null&&__equipStatsMemoV1.valeur!==null&&__equipStatsMemoV1.cle===cle&&maintenant-__equipStatsMemoV1.at<=5000){
     const copie=structuredClone(__equipStatsMemoV1.valeur);

@@ -3,7 +3,7 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
-import { idleNguResourceBudget, IDLE_NGU_META_VERSION, applyIdleNguAction, idleNguResourceGenerationPerSecond, rebirthIdleNguState } from "./idle-ngu-progression.js";
+import { idleNguResourceBudget, IDLE_NGU_META_VERSION, ACTIONS_DE_RYTHME_V1, applyIdleNguAction, idleNguResourceGenerationPerSecond, rebirthIdleNguState } from "./idle-ngu-progression.js";
 import { defiTropTotV1, minRebirthSecondsV1 } from "./idle-ngu-snapshot.js";
 import { advanceBasicTrainingStateV411, applyBasicTrainingAllocationsV411, BASIC_TRAINING_V411, rebirthBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_, verifierAccesSorealIdle_ } from "./idle-runtime-acces.js";
@@ -11,7 +11,7 @@ import { LockService, SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js
 import { ameliorationsSorealIdle_, autoAvanceEntrainementSorealIdle_, bonusAmeliorationsSorealIdle_, coutAmeliorationSorealIdle_, initialiserModeleJoueurSorealIdleV41SiNecessaire_, niveauxParBarreEntrainementSorealIdle_ } from "./idle-runtime-aventure.js";
 import { CONFIG_SOREAL_IDLE, nombreSorealIdle_, plafondHorsLigneSorealIdle_ } from "./idle-runtime-config.js";
 import { parserJsonSorealIdle_, statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
-import { appliquerProgressionEnergieSorealIdle_, contexteMetaNguSorealIdle_ } from "./idle-runtime-progression.js";
+import { appliquerProgressionEnergieSorealIdle_, contexteMetaNguSorealIdle_, definirInstantSyncAllocationV1, instantClicValideV1 } from "./idle-runtime-progression.js";
 import { ajouterCoutsEntrainementEtatSorealIdle_, construireEtatJoueurSorealIdle_ } from "./idle-runtime-etat.js";
 import { definitionBossSorealIdle_, nomBossSorealIdle_, pvMaxBossSorealIdle_, recalculerPuissanceCompleteSorealIdle_ } from "./idle-runtime-boss.js";
 
@@ -609,7 +609,8 @@ export function testerAccesSorealIdle(
  */
 export function definirAllocationsEntrainementSorealIdle(
   sessionToken,
-  allocations
+  allocations,
+  clientAt
 ) {
   const acces =
     exigerAccesSorealIdle_(
@@ -638,10 +639,14 @@ export function definirAllocationsEntrainementSorealIdle(
       ligne
     );
 
-    appliquerProgressionEnergieSorealIdle_(
-      feuille,
-      ligne
-    );
+    /* Instant du clic (clientAt, heure du serveur) : l'ancienne répartition travaille jusqu'au clic, la nouvelle du clic à maintenant (Norman, 2026-11-05 : « la barre avance sans énergie » ; revue de tous les menus). */
+    definirInstantSyncAllocationV1(clientAt);
+    try{
+      appliquerProgressionEnergieSorealIdle_(
+        feuille,
+        ligne
+      );
+    }finally{definirInstantSyncAllocationV1(0);}
 
     const c =
       CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
@@ -673,10 +678,11 @@ export function definirAllocationsEntrainementSorealIdle(
 
     /* L'entraînement est amené à l'instant présent AVANT d'appliquer la répartition : sinon les déblocages se jugeaient sur le dernier chiffre de la synchro (de quelques secondes en retard). */
     const autoAvance = autoAvanceEntrainementSorealIdle_(stats);
+    const instantClicBt = instantClicValideV1(clientAt, stats.entrainementBase && stats.entrainementBase.lastUpdateMs);
     stats.entrainementBase =
       advanceBasicTrainingStateV411(
         stats.entrainementBase,
-        Date.now(),
+        instantClicBt,
         plafondHorsLigneSorealIdle_(stats.metaNgu),
         niveauxParBarreEntrainementSorealIdle_(stats),
         { autoAdvance: autoAvance }
@@ -690,6 +696,17 @@ export function definirAllocationsEntrainementSorealIdle(
         Math.max(0,nombreSorealIdle_(row[c.ENERGIE_MAX - 1],0)-reserveMetaEnergie),
         { autoAdvance: autoAvance }
       );
+    /* La nouvelle répartition travaille du clic jusqu'à maintenant. */
+    const maintenantBt = Date.now();
+    if (instantClicBt < maintenantBt) {
+      resultat.state = advanceBasicTrainingStateV411(
+        resultat.state,
+        maintenantBt,
+        plafondHorsLigneSorealIdle_(stats.metaNgu),
+        niveauxParBarreEntrainementSorealIdle_(stats),
+        { autoAdvance: autoAvance }
+      ).state;
+    }
 
     stats.modeleJeuVersion =
       BASIC_TRAINING_V411.version;
@@ -823,7 +840,9 @@ export function agirProgressionSorealIdle(
   try {
     const feuille = obtenirFeuilleJoueursSorealIdle_();
     const ligne = trouverLigneJoueurSorealIdle_(feuille,acces);
-    appliquerProgressionEnergieSorealIdle_(feuille,ligne);
+    /* Répartition d'énergie / de magie : la synchro d'avant l'action s'arrête à l'instant du clic (voir definirInstantSyncAllocationV1). */
+    definirInstantSyncAllocationV1(action&&ACTIONS_DE_RYTHME_V1.test(String(action.action||''))?action.clientAt:0);
+    try{appliquerProgressionEnergieSorealIdle_(feuille,ligne);}finally{definirInstantSyncAllocationV1(0);}
 
     const c = CONFIG_SOREAL_IDLE.COLONNES_JOUEURS;
     const row = feuille.getRange(ligne,1,1,c.STATS_JSON).getValues()[0];

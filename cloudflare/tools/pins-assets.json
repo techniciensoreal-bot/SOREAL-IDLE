@@ -80,8 +80,8 @@
   "sha": "fdd64062157b6fcf7c99ca2438b15c07a502029f"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 38,
-  "sha": "51d637523698f25d6f9936c5500d255b9d35a3da"
+  "pin": 40,
+  "sha": "fb685ab1fd0cfcc42b5fc8d272b1f5a3c0f668fc"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 12,
@@ -116,8 +116,8 @@
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
  },
  "/modules/boutique-exp-page-v1.js": {
-  "pin": 10,
-  "sha": "cab48b13383a31cf9278454e061c7c785712da79"
+  "pin": 11,
+  "sha": "083da6c742865a8eea4840734f3b0074fad12807"
  },
  "/modules/boutique-info-i-v1.js": {
   "pin": 1,
@@ -172,8 +172,8 @@
   "sha": "deae5981fbba589d224f71bd23fe657d270fe02a"
  },
  "/modules/coffre-digestion-v1.js": {
-  "pin": 26,
-  "sha": "e0b1224620461120326920f95e960cd77ea39908"
+  "pin": 27,
+  "sha": "00cd0cef49c6eb3e0b41425d25f116b06aea7062"
  },
  "/modules/coffre-sommeil-v1.js": {
   "pin": 30,
@@ -468,8 +468,8 @@
   "sha": "385b300138a35ff85d43426763cc45ec5a69379c"
  },
  "/modules/meta-progression-v130.js": {
-  "pin": 202610175,
-  "sha": "432a3226b4460974140d40545739e2791c2ebbb8"
+  "pin": 202610178,
+  "sha": "c942ee1454d7107e64980df30603b4d4499b54db"
  },
  "/modules/mineurs-page-v1.js": {
   "pin": 8,
@@ -500,8 +500,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 163,
-  "sha": "6ebb556606a054319f3df15983a44ca83b997f5a"
+  "pin": 169,
+  "sha": "cf251e90361f15b1057e836801ff931fae830d84"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -548,20 +548,20 @@
   "sha": "d79dbd81079aca81d94bf499a40d1a66bd136452"
  },
  "/modules/phrases-coffre-valise-v1.js": {
-  "pin": 7,
-  "sha": "622356bd2dbe37f4fa627968f97311e9b871667b"
+  "pin": 8,
+  "sha": "4a1174a3770463e975464dd88d642ef8a585cb53"
  },
  "/modules/plein-ecran-v1.js": {
   "pin": 4,
   "sha": "d5ca766dd2619c822b691eb23a74518ade754d49"
  },
  "/modules/popup-effet-objet-v1.js": {
-  "pin": 1,
-  "sha": "707df2a3ec9cce4aa4ef065d3df63b7c51647977"
+  "pin": 3,
+  "sha": "636e0ab40966aa8c015021481a0f91474dea7501"
  },
  "/modules/prefs-compte-v1.js": {
-  "pin": 3,
-  "sha": "20602f35dc5665e88c4fb2491b372ccfa91daf31"
+  "pin": 4,
+  "sha": "3b09c8b5c29466374350f30632820a17b622259f"
  },
  "/modules/profil-badavatar-editeur-v1.js": {
   "pin": 5,
@@ -588,8 +588,8 @@
   "sha": "ea61993c5d5a2c23a485e58428fdb944f71e4e7f"
  },
  "/modules/reapparitions-v1.js": {
-  "pin": 6,
-  "sha": "998ef8922b94a8f4529482451d8547ac60617e6e"
+  "pin": 7,
+  "sha": "02d0e235d4695a41ec73cb996e48ae8d55d5d3de"
  },
  "/modules/rebirth-live-v1.js": {
   "pin": 6,
@@ -604,12 +604,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 160,
-  "sha": "ef0574c2992d4a36813d8ffe893d9ca86141a631"
+  "pin": 162,
+  "sha": "098989e98d58ee384642a22cee3ab9c84a51d2c5"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 799,
-  "sha": "914c48fb61c5c8a4163fa26e8c3b446c9e22d99e"
+  "pin": 801,
+  "sha": "36248299f56c2e1a1d030635ef6f7d43c3814873"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -664,8 +664,8 @@
   "sha": "8615ec16cf1ea2843fcb8d402dd2175aa5caf636"
  },
  "/modules/textes-admin-v1.js": {
-  "pin": 42,
-  "sha": "07653bb611a19961f3c87c7f2b980a6cdb7884e7"
+  "pin": 44,
+  "sha": "65987d3d83d5d4c0c7c099c610a680d050b9fa9d"
  },
  "/modules/the-end-ui-v1.js": {
   "pin": 3,
@@ -692,12 +692,12 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 834,
-  "sha": "9b995c6cdc2b0378905c65a9ccac4a0d263406e3"
+  "pin": 838,
+  "sha": "0bebefbfa126f1343b593d2c194c3db40a78fcd0"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 655,
-  "sha": "24adbe69a6cde120c0f6020840a7df3e87ccf502"
+  "pin": 659,
+  "sha": "f0ea6ac37fe9f5ec36a2e6633ee01c84b6171520"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -720,8 +720,8 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 271,
-  "sha": "d194bce4ce6a8da244997fe4796cb4150984f1c0"
+  "pin": 273,
+  "sha": "8e28efb039d896f31fae7031edf8cc2218c24265"
  },
  "/modules/tutoriel-v1.js": {
   "pin": 18,
@@ -772,16 +772,16 @@
   "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 9,
-  "sha": "5d3e47ebc077ad3eb2215598f81e76a63ceafd1d"
+  "pin": 10,
+  "sha": "ee6e62be23c266c547be0dc04becc01dc55569f9"
  },
  "/modules/ui-inventaire-v1.js": {
   "pin": 15,
   "sha": "56a6d9796d131bf9b0ea98a937aa12bf05d9250c"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 19,
-  "sha": "a46d2321afae7da60253c36ce944446584cab30f"
+  "pin": 20,
+  "sha": "af5c6e926324625e1df8a4b531f5ee6b509cb2b2"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 6,
@@ -812,8 +812,8 @@
   "sha": "6eb592110e9d5052d669f3dfd0ad4e8126e183b6"
  },
  "/modules/ui-synchro-v1.js": {
-  "pin": 1,
-  "sha": "8833e920e97cbe600fed96805b03e79b99df2591"
+  "pin": 2,
+  "sha": "3fc0adff9ed844697fd82d2526272ede44323989"
  },
  "/modules/ui-tutoriel-v1.js": {
   "pin": 7,
@@ -856,12 +856,12 @@
   "sha": "aae8e2ca113df910284550ddba6164f0df6345df"
  },
  "/modules/yggdrasil-diggers-page-v1.js": {
-  "pin": 2,
-  "sha": "6a3bd5a4bba1bf29abdf64b8d7ae744c0c230aed"
+  "pin": 3,
+  "sha": "23f7ad6c191a92e14c086ee809b9eaffb7331697"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 88,
-  "sha": "ebba21c2fc2ebd1e174b837f6f2afb91a386fed8"
+  "pin": 89,
+  "sha": "853dbced35caf5dbd747df1c33a720533455d61a"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 19,

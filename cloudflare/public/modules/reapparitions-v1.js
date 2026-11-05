@@ -130,9 +130,13 @@ function retirerSurcouches(X){[].slice.call(X.monde.children).forEach(function(e
 var JOUEUR=[
  {id:'galop',nom:'Galop',duree:3.2,jouer:function(X){
    /* Norman (2026-11-04) : « je veux que l'image soit toute petite au loin et arrive vers l'écran en galopant ; tagada tagada tagada » puis « un tagada en plus, donc l'arrivée moins rapide » : QUATRE foulées pendant lesquelles l'image grossit en s'approchant, rebondit au rythme du galop (de plus en plus haut), puis s'arrête à sa place. La borne et la pancarte de la chronique rebondissent en même temps (borne-led-v1.js). */
-   X.sujet.style.opacity=1;X.sujet.style.transformOrigin='50% 100%';
+   X.sujet.style.transformOrigin='50% 100%';
+   /* Norman (2026-11-05) : « on voit encore l'image complète avant qu'on revienne à cheval » : l'image était rendue visible (opacity 1) AVANT la première image d'animation, donc une image pleine grandeur avant qu'elle soit rapetissée au loin. Elle est rapetissée d'abord (même pose que la première image du galop), puis rendue visible. */
+   var H=X.H;
+   X.sujet.style.transform='translateY('+(-H*0.22*0.93).toFixed(2)+'px) scale(0.07) rotate(0deg)';
+   X.sujet.style.opacity=1;
    var B=window.__SOREAL_IDLE_BORNE_LED_V1__;try{if(B&&typeof B.galop==='function')B.galop();}catch(_e){}
-   var TOT=GALOP_FOULEES.reduce(function(a,b){return a+b;},0),H=X.H;
+   var TOT=GALOP_FOULEES.reduce(function(a,b){return a+b;},0);
    return raf(X,3.2,function(p){
      var tt=p*3.2,i=0,acc=0,u=0,m=0,k,q=cl(tt/TOT,0,1),s=0.07+0.93*(1-Math.pow(1-q,2)),haut=-H*0.22*(1-s),ro=0,y;
      if(tt<TOT){

@@ -76,6 +76,8 @@
     "supprimerMessageChatSorealIdle",
     "supprimerTexteAdminSorealIdle",
     "definirValidationVoixAdminSorealIdle",
+    "definirChroniqueDefinitiveAdminSorealIdle",
+    "marquerChroniqueEntiereAdminSorealIdle",
     "supprimerTutorielAdminSorealIdle",
     "synchroniserSorealIdle",
     "testerAccesSorealIdle"

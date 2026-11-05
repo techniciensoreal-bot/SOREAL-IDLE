@@ -93,8 +93,9 @@
       return Boolean(a&&Array.isArray(a.coffreSlots)&&a.coffreSlots.length>0);
     }catch(_e){return false;}
   }
-  /* Première réplique tirée au sort ; la seconde (« J'crois que j'me suis chié dessus. ») suit toujours. */
-  var OUVERTURES_ACCIDENT=['Oh bordel, pas encore…','Ah ben voilà.. Forcément que ça allait arriver un jour.','Oh merde. Ne me regardez pas'];
+  /* UNE SEULE phrase quand le Coffre pète (Norman, 2026-11-05 : « je ne veux qu'une phrase dans les phrases dispo. Pas 2 ») : celle tirée au sort dans la liste ; « J'crois que j'me suis chié dessus. » en fait partie (liste par défaut) et sert de repli si la liste est vide. */
+  var OUVERTURES_ACCIDENT=['Oh bordel, pas encore…','Ah ben voilà.. Forcément que ça allait arriver un jour.','Oh merde. Ne me regardez pas','J’crois que j’me suis chié dessus.'];
+  var PHRASE_REPLI_ACCIDENT='J’crois que j’me suis chié dessus.';
   function entierementVisible_(){
     var el=document.querySelector('.soreal-idle-coffre-v1 .bg-bagage-v1,.bg-bagage-v1');
     if(!el||typeof el.getBoundingClientRect!=='function'||document.hidden)return null;
@@ -119,14 +120,12 @@
   /* Les répliques ne se disent QUE devant le joueur (Norman, 2026-10-15) : si le Coffre n'est pas entièrement à l'écran, elles attendent qu'il y soit. */
   function repliques_(){
     var pc=window.__SOREAL_IDLE_PHRASES_V1__;
-    var ouverture=pc?pc.tirer('coffre','accident:C'):OUVERTURES_ACCIDENT[Math.floor(Math.random()*OUVERTURES_ACCIDENT.length)];   /* liste modifiable par l'administrateur */
+    var ouverture=(pc?pc.tirer('coffre','accident:C'):OUVERTURES_ACCIDENT[Math.floor(Math.random()*OUVERTURES_ACCIDENT.length)])||PHRASE_REPLI_ACCIDENT;   /* liste modifiable par l'administrateur */
     quandEntierementVisible_(function(coffre){
       /* Norman (2026-11-04) : « la phrase du bain de boue pour les pieds du Coffre disparaît trop vite » : chaque réplique reste à l'écran 4,4 s (au lieu de 2,2 s) et la seconde ne démarre qu'une fois la première partie. */
       var DUREE=4400;
-      if(ouverture){var b1=bulle_(coffre,ouverture,false,200);b1.className+=' bg-desole-long-v1';b1.style.animationDuration=DUREE+'ms';
-      retirer_(b1,200+DUREE+100);}
-      var b2=bulle_(coffre,'J’crois que j’me suis chié dessus.',false,200+(ouverture?DUREE+200:0));b2.className+=' bg-desole-long-v1';b2.style.animationDuration=DUREE+'ms';
-      retirer_(b2,200+(ouverture?DUREE+200:0)+DUREE+100);
+      var b1=bulle_(coffre,ouverture,false,200);b1.className+=' bg-desole-long-v1';b1.style.animationDuration=DUREE+'ms';
+      retirer_(b1,200+DUREE+100);
     });
   }
   /*

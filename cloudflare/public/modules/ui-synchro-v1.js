@@ -94,6 +94,8 @@
           if(typeof echec==='function')echec(new Error('Transport Cloudflare IDLE indisponible.'));
           return;
         }
+        /* Dernier filet (revue de tous les menus, 2026-11-05) : toute action qui arrête, démarre ou redistribue une production part avec l'instant du clic ; posé plus tôt par le menu quand il le peut (clientAt), ici au plus tard à l'envoi. */
+        if(payload&&typeof payload==='object'&&payload.clientAt===undefined&&/^(allocate|clear[A-Za-z]*Allocations$|reclaimResource$|toggle$|toggleDigger$|setDiggerLevel$|selectRitual$|selectTrack$)/.test(String(payload.action||'')))payload=Object.assign({},payload,{clientAt:typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now()});
         call('agirProgressionSorealIdle',[SOREAL_SESSION,payload||{}])
           .then(function(res){if(typeof succes==='function')succes(res);})
           .catch(function(error){if(typeof echec==='function')echec(error);});

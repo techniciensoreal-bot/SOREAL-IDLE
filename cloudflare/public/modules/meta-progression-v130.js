@@ -96,7 +96,7 @@
       let idleMetaFileV1=[];
       let idleMetaTimerFileV1=0;
       let idleMetaDernierEnvoiV1={cle:'',at:0};
-      function cleActionMetaV1_(payload){try{return JSON.stringify(payload||{});}catch(_e){return '';}}
+      function cleActionMetaV1_(payload){try{return JSON.stringify(payload||{},function(k,v){return k==='clientAt'?undefined:v;});}catch(_e){return '';}}
       function actionCombatZoneMetaV1_(payload){
         return Boolean(payload&&payload.action==='adventure'&&payload.adventure&&
           ['startZoneFight','resolveZoneFight','loseZoneFight','zoneKill'].indexOf(payload.adventure.action)!==-1);
@@ -112,6 +112,8 @@
         if(idleMetaFileV1.length&&!idleMetaTimerFileV1)idleMetaTimerFileV1=setTimeout(viderFileActionsMetaV1_,60);
       }
       function actionMetaIdleV130_(payload){
+        /* Instant du clic des répartitions d'énergie / de magie (voir envoyerAllocRapideV1_ ; Norman, 2026-11-05). */
+        if(payload&&typeof payload==='object'&&/^(allocate|clear[A-Za-z]*Allocations$|reclaimResource$|toggle$|toggleDigger$|setDiggerLevel$|selectRitual$|selectTrack$)/.test(String(payload.action||''))&&payload.clientAt===undefined)payload.clientAt=typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
         if(idleMetaBusyV130&&SOREAL_SESSION&&!actionCombatZoneMetaV1_(payload)){
           const cle=cleActionMetaV1_(payload);
           /* audit 2026-10-13 : on ne dédoublonne que contre la DERNIÈRE action en attente (ou, file vide, contre la dernière envoyée) : A, B, A rapides finissent bien à A au lieu de perdre le 3e clic */
@@ -561,6 +563,8 @@
 
             /* Installation refusée (niveaux insuffisants…) : son d'erreur d'ordinateur (Norman, 2026-10-15) */
             try{if(payload&&payload.action==='consumeWandoosCopy'&&window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.wandoosErreur==='function')window.__SOREAL_IDLE_AUDIO_V199__.wandoosErreur();}catch(_e){}
+            /* Activation auto d'Yggdrasil : cap requis non atteint -> un popup dit le prérequis (Norman, 2026-11-05). */
+            try{if(payload&&payload.action==='buyExpShop'&&res&&/CAP_RESSOURCE_INSUFFISANT/.test(String(res.message||''))&&window.__SOREAL_IDLE_POPUP_EFFET_V1__&&window.__SOREAL_IDLE_POPUP_EFFET_V1__.refusCap(window.__SOREAL_IDLE_CAP_AUTO_YGG__))return;}catch(_e){}
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
               payload&&payload.action==='consumeWandoosCopy'&&res&&res.message
                 ?messageCopieWandoosV1_(res.message)

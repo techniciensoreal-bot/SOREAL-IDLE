@@ -188,7 +188,8 @@ const passer = () => { let n = 0; while (minuteries.some((m) => m.actif) && n++ 
   assert.equal(j.energie, 4700, "énergie libre mise à jour tout de suite");
   passer();
   assert.equal(appels.length, 1, "l'allocation part au serveur, une seule fois");
-  assert.deepEqual(appels[0].payload, { action: "allocateAugment", pair: "scissors", upgrade: false, value: 400 });
+  assert.equal(typeof appels[0].payload.clientAt, "number", "l'instant du clic accompagne l'allocation");
+  assert.deepEqual(Object.assign({}, appels[0].payload, { clientAt: undefined }), { action: "allocateAugment", pair: "scissors", upgrade: false, value: 400, clientAt: undefined });
 
   // Retirer : on revient vers 0 -> plus de durée (barre à l'arrêt), aussitôt.
   elements.sorealIdleAugInputV1 = { value: "1000" };

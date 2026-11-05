@@ -10,7 +10,7 @@ import { histoireDuBossV1, histoireIntroV1, lireHistoiresV1, enregistrerHistoire
 import { annulerVictoireTitanV1 } from "./idle-adventure-v47.js";
 import { creditDejaFaitV1, lireGainsExpV1 } from "./idle-gains-v1.js";
 import { ancienTutorielActifV1, ancienMenusActifV1, guidesPourJoueurV1, lireGuidesV1, enregistrerGuideV1, supprimerGuideV1, reglerAncienMenusV1, reglerAncienTutorielV1 } from "./idle-tutoriel-v1.js";
-import { surchargesPourJoueurV1, lireTextesV1, enregistrerTexteV1, invaliderCacheTextesBossV1, supprimerTexteV1, lireValidationsVoixV1, definirValidationVoixV1 } from "./idle-textes-v1.js";
+import { surchargesPourJoueurV1, lireTextesV1, enregistrerTexteV1, invaliderCacheTextesBossV1, supprimerTexteV1, lireValidationsVoixV1, definirValidationVoixV1, lireDefinitivesV1, definirDefinitiveV1, marquerDefinitivePreteV1 } from "./idle-textes-v1.js";
 import { histoireBossFrAligneeV1, histoireBossEnOriginaleV1, nomBossEnOriginalV1 } from "./idle-traductions-v1.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_ } from "./idle-runtime-acces.js";
 import { LockService, NGU_BOSS_NAMES_FR_V1, SpreadsheetApp, __idleCtx } from "./idle-sqlite-runtime.js";
@@ -515,7 +515,7 @@ export function listerTextesAdminSorealIdle(sessionToken) {
   }
   boss.sort((a, b) => a.numero - b.numero);
   /* validations : { cle: 1 (jaune) | 2 (vert) } ; une clé absente = rouge (non validée). */
-  return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)),   /* contient aussi les « <clé>:en » (surcharges anglaises) : l'éditeur choisit selon la langue du jeu */ validations: lireValidationsVoixV1(__idleCtx.__idleSql) };
+  return { ok: true, boss, popups: textes.filter((t) => !/^boss:/.test(t.cle)),   /* contient aussi les « <clé>:en » (surcharges anglaises) : l'éditeur choisit selon la langue du jeu */ validations: lireValidationsVoixV1(__idleCtx.__idleSql), definitives: lireDefinitivesV1(__idleCtx.__idleSql) };
 }
 
 /* Validation de la voix d'un texte (rouge 0 / jaune 1 / vert 2) : le premier argument est un objet { cle, etat } (le pont ajoute la session devant un argument qui n'est pas un texte). */
@@ -524,6 +524,32 @@ export function definirValidationVoixAdminSorealIdle(sessionToken, p) {
   try {
     const etat = definirValidationVoixV1(__idleCtx.__idleSql, p && p.cle, p && p.etat);
     return { ok: true, cle: String(p.cle), etat };
+  } catch (e) {
+    const code = String(e && e.message || e);
+    if (/^TEXTE_/.test(code)) return { ok: false, code, message: code };
+    throw e;
+  }
+}
+
+/* Chronique DÉFINITIVE (case du menu Admin) : { cle, definitive, plans } -- plans calculés par le navigateur avec le vrai module de narration (voir idle-textes-v1.js, chroniques définitives). */
+export function definirChroniqueDefinitiveAdminSorealIdle(sessionToken, p) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  try {
+    const d = definirDefinitiveV1(__idleCtx.__idleSql, p && p.cle, Boolean(p && p.definitive), p && p.plans);
+    return { ok: true, cle: String(p.cle), definitive: d };
+  } catch (e) {
+    const code = String(e && e.message || e);
+    if (/^TEXTE_/.test(code)) return { ok: false, code, message: code };
+    throw e;
+  }
+}
+
+/* Posé par l'outil de fusion (cloudflare/tools/fusionner-chroniques-definitives.mjs) : { cle, pret, separeesSupprimees }. */
+export function marquerChroniqueEntiereAdminSorealIdle(sessionToken, p) {
+  exigerAdminHistoiresSorealIdle_(sessionToken);
+  try {
+    const d = marquerDefinitivePreteV1(__idleCtx.__idleSql, p && p.cle, Boolean(p && p.pret), Boolean(p && p.separeesSupprimees));
+    return { ok: true, cle: String(p.cle), definitive: d };
   } catch (e) {
     const code = String(e && e.message || e);
     if (/^TEXTE_/.test(code)) return { ok: false, code, message: code };

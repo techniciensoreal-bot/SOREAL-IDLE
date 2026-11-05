@@ -279,6 +279,25 @@
       delete blocsFichiers[h];
     });
   }
+  /*
+   * Chroniques DÉFINITIVES (Norman, 2026-11-05) : le texte lu complet a UN seul fichier (empreinte de l'ENTIER, déclarée par le serveur quand le fichier est prêt sur R2), qui reproduit exactement les blocs et les silences
+   * de la lecture séparée (outil cloudflare/tools/fusionner-chroniques-definitives.mjs). L'empreinte dépend du texte : un texte modifié depuis n'a plus de fichier entier et retombe sur les blocs.
+   */
+  var entieres={};
+  function entierDe_(texte){return hashBloc_('ENTIER'+String(texte||'').replace(/\s+/g,' ').trim());}
+  function enregistrerEntieres_(liste){
+    entieres={};
+    (Array.isArray(liste)?liste:[]).forEach(function(h){h=String(h||'');if(/^[0-9a-f]{14}$/.test(h))entieres[h]=true;});
+  }
+  /* Plan de la lecture SÉPARÉE d'un texte : { entier, etapes:[{h}|{p}], rot } -- ce que l'éditeur Admin enregistre quand on coche « Définitive ». rot = true si une étape joue un rot synthétisé (non fusionnable). */
+  function planEntier_(texte){
+    var etapes=[],rot=false;
+    planNarration_(String(texte||'')).forEach(function(e){
+      if(e.chunk!=null)etapes.push({h:hashBloc_(e.chunk)});
+      else if(e.pause!=null){if(e.rot)rot=true;etapes.push({p:Math.round(Number(e.pause)||0)});}
+    });
+    return {entier:entierDe_(texte),etapes:etapes,rot:rot};
+  }
   function chargerVoixR2_(hash){
     return fetch(VOICE_ROUTE+hash).then(function(r){
       if(!r||!r.ok)return null;
@@ -1083,6 +1102,12 @@
 
     if(mapped){
       task=playAudioPromise_(mapped,targetId,myGeneration);
+    }else if(entieres[entierDe_(text)]){
+      /* Chronique définitive : un seul fichier, mêmes silences que les blocs séparés (le silence est DANS le fichier). */
+      task=chargerVoixR2_(entierDe_(text)).then(function(blob){
+        if(!blob)throw new Error('VOIX_ENTIERE_INTROUVABLE');
+        return playBlobWebAudioPromise_(blob,targetId,myGeneration,text);
+      });
     }else{
       /*
        * Étapes = synthèses et silences (voir planNarration_). Le bloc suivant est généré PENDANT la lecture du précédent
@@ -1321,6 +1346,9 @@
     readTarget:lireCible_,
     prechauffer:prechauffer_,
     enregistrerVoixDynamiques:enregistrerVoixDynamiques_,
+    enregistrerEntieres:enregistrerEntieres_,
+    planEntier:planEntier_,
+    entierDe:entierDe_,
     blocsInterdits:blocsInterdits_,
     declarerTexteLibre:declarerTexteLibre_,
     /*

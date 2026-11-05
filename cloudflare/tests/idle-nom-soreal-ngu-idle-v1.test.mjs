@@ -7,10 +7,10 @@ const lire = (f) => fs.readFileSync(f, "utf8").replace(/\r\n/g, "\n");
 // 1. plus aucun texte affiché sous l'ancien nom (hors commentaires, hors fichiers volontairement laissés : voir le script de renommage)
 const fichiers = execSync("git ls-files cloudflare/public cloudflare/src", { encoding: "utf8" }).split("\n").filter((f) => /\.(js|html|css|webmanifest)$/.test(f) && !/moteur-local-worker-v1\.js$|^cloudflare\/public\/(fonts|icons|intro|voice|shop|perks)\//.test(f));
 const restes = [];
-for (const f of fichiers) lire(f).split("\n").forEach((l, i) => { if (l.includes("SOREAL IDLE") && !/^\s*(\*|\/\*|\/\/|<!--)/.test(l)) restes.push(f + ":" + (i + 1)); });
+for (const f of fichiers) lire(f).split("\n").forEach((l, i) => { if (l.includes("SOREAL IDLE") && !l.includes("BIENVENUE dans SOREAL IDLE") /* EXCEPTION (Norman, 2026-11-05) : la chronique du boss 4 garde l'ancien nom, sa voix enregistrée le dit et le fichier audio est retrouvé par l'empreinte du texte */ && !/^\s*(\*|\/\*|\/\/|<!--)/.test(l)) restes.push(f + ":" + (i + 1)); });
 assert.deepEqual(restes, [], "ancien nom encore affiché : " + restes.slice(0, 5).join(", "));
 const dico = JSON.parse(lire("cloudflare/public/modules/traduction-anglais-dict-v1.json"));
-assert.ok(!Object.keys(dico).some((k) => k.includes("SOREAL IDLE")) && !Object.values(dico).some((v) => String(v).includes("SOREAL IDLE")), "dictionnaire anglais : plus d'ancien nom");
+assert.ok(!Object.keys(dico).some((k) => k.includes("SOREAL IDLE") && !k.includes("BIENVENUE dans SOREAL IDLE")) && !Object.values(dico).some((v) => String(v).includes("SOREAL IDLE")), "dictionnaire anglais : plus d'ancien nom");
 assert.ok(Object.keys(dico).some((k) => k.includes("SOREAL NGU IDLE")), "dictionnaire : le nouveau nom est traduit");
 assert.match(lire("cloudflare/public/index.html"), /<title>SOREAL NGU IDLE<\/title>/);
 assert.equal(JSON.parse(lire("cloudflare/public/manifest.webmanifest")).name, "SOREAL NGU IDLE");
