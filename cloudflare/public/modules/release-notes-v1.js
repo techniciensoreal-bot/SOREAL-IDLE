@@ -42,7 +42,7 @@
             'Les panneaux LED des barres ne sont dessinés que lorsqu’ils sont à l’écran : la page est plus fluide, au défilement comme à l’ouverture.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
-            'Les barres de la Machine temporelle ne reculent plus quand tu changes une allocation, même quand elles vont très vite, et les actions d’allocation sont environ un quart plus rapides à traiter.',
+            'Les barres de la Machine temporelle ne reculent plus quand tu changes une allocation, même quand elles vont très vite, et les actions d’allocation sont environ un tiers plus rapides à traiter.',
             'Quand tu retires l’énergie ou la magie d’une barre (ou que tu changes sa répartition), elle s’arrête exactement à cet instant : plus de progression en trop ni de retour en arrière, dans tous les menus à répartition.',
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[

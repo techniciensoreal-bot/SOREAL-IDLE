@@ -3,9 +3,10 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
+import { copieJsonV1 } from "./idle-copie-json-v1.js";
 export const MAX=100, H=3600000;
 
-export const N=(v,d=0)=>Number.isFinite(+v)?+v:d,I=(v,d=0)=>Math.floor(N(v,d)),C=(v,a,b)=>Math.max(a,Math.min(b,N(v,a))),X=v=>JSON.parse(JSON.stringify(v));
+export const N=(v,d=0)=>Number.isFinite(+v)?+v:d,I=(v,d=0)=>Math.floor(N(v,d)),C=(v,a,b)=>Math.max(a,Math.min(b,N(v,a))),X=v=>v===undefined?JSON.parse(JSON.stringify(v)):copieJsonV1(v);
 
 /*
  * Norman (2026-09-16) : "mets à jour les stats des objets avant notre

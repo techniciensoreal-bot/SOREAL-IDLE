@@ -3,6 +3,7 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
+import { copieJsonV1 } from "./idle-copie-json-v1.js";
 import { bigToNumberV1, bigFromLog10V1 } from "./idle-big-number-v1.js";
 import { IDLE_YGG_MAYO_FRUITS_V1, IDLE_YGG_MAYO_ACTIVATION_COST_V1 } from "./idle-yggdrasil-extra-v1.js";
 import { IDLE_NGU_CATALOG_V1 } from "./idle-ngu-catalog-v1.js";
@@ -131,8 +132,10 @@ export function clamp(v, min, max) {
   return Math.max(min, Math.min(max, num(v, min)));
 }
 
+export { copieJsonV1 };
 export function clone(v) {
-  return JSON.parse(JSON.stringify(v));
+  if (v === undefined) return JSON.parse(JSON.stringify(v));   /* comportement d'avant : erreur */
+  return copieJsonV1(v);
 }
 
 export function nowMs(v) {
