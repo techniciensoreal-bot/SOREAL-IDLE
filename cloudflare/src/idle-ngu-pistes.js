@@ -470,6 +470,31 @@ function atEnergyTotalV1(s) {
   return Object.values(s.data?.tracks || {}).reduce((sum, x) => sum + Math.max(0, num(x?.energy, 0)), 0);
 }
 
+/*
+ * Avance d'une compétence en TEMPS (Norman, 2026-11-05 : « exactement comme NGU Idle », règle du wiki « Ticks » : un niveau par tick, 50 par seconde au plus) : le résultat ne dépend PAS de la façon dont le temps est découpé en appels.
+ * Un niveau L coûte L + 1 unités de travail, donc dure max(1/50 s, (L + 1) / taux). Tant que (L + 1) / taux <= 1/50 s (plateau), la barre gagne exactement 50 niveaux par seconde (fraction conservée) ; au-delà, coût linéaire normal.
+ * Même fonction miroir côté écran (atAvancerIdleV1_, augmentations-page-v1.js) ; test : idle-entrainement-avance-projection-moteur-v1.
+ */
+export function atAvancerTempsV1(level, p, seconds, rate) {
+  let L = Math.max(0, Math.floor(level)), frac = Math.max(0, Math.min(0.999999999, p)), dt = Math.max(0, seconds);
+  let gained = 0;
+  const tick = IDLE_TICK_SECONDS_V1;
+  const dernierPlateau = Math.floor(tick * rate + 1e-9) - 1;   /* plus haut niveau L dont la durée (L + 1) / taux tient dans un tick */
+  if (L <= dernierPlateau) {
+    const m = dernierPlateau + 1 - L;   /* niveaux à franchir pour sortir du plateau */
+    const tempsPlateau = (m - frac) * tick;
+    if (dt < tempsPlateau - 1e-12) {
+      const total = frac + dt / tick;
+      const g = Math.floor(total + 1e-9);
+      return { gained: g, p: Math.max(0, Math.min(0.999999999, total - g)) };
+    }
+    dt -= tempsPlateau; gained += m; L += m; frac = 0;
+  }
+  const step = nguLevelsFromWorkV1(L, frac * (L + 1) + rate * dt);
+  gained += step.gained;
+  return { gained, p: clamp(step.work / (L + step.gained + 1), 0, 0.999999999) };
+}
+
 function advanceAdvancedTrainingV1(state, s, tracks, seconds) {
   const wandoosOk = Boolean(state.systems.wandoos?.unlocked);
   const wandoosTrack = id => id === "wandoosEnergy" || id === "wandoosMagic";
@@ -502,15 +527,14 @@ function advanceAdvancedTrainingV1(state, s, tracks, seconds) {
       const baseSeconds = wandoosTrack(trackDef.id) ? 20000 : 10000;
       const rate = (alloc * sqrtPower * gearAtSpeed) / (baseSeconds * 1000); // unités de travail par seconde
       const level = Math.max(0, Math.floor(num(t.tempLevel, 0)));
-      const work = Math.max(0, num(t.progress, 0)) * (level + 1) + rate * seconds;
-      const step = nguLevelsFromWorkV1(level, work);
-      let gained = Math.min(step.gained, Math.floor(50 * seconds) + 1);
+      const step = atAvancerTempsV1(level, Math.max(0, num(t.progress, 0)), seconds, rate);
+      let gained = step.gained;
       const roomAt = challengeHundredLevelsRemaining(state);
       const cappedByPool = gained > roomAt;
       if (cappedByPool) gained = roomAt;
       challengeHundredLevelsConsume(state, gained);
       t.tempLevel = level + gained;
-      t.progress = cappedByPool || gained < step.gained ? 0 : clamp(step.work / (t.tempLevel + 1), 0, 0.999999999);
+      t.progress = cappedByPool ? 0 : step.p;
     }
   }
   s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);

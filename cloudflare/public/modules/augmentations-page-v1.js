@@ -1729,17 +1729,31 @@
         return {gagnes:k,reste:Math.max(0,W-total(k))};
       }
 
+      /* Miroir EXACT de atAvancerTempsV1 (idle-ngu-pistes.js) : plateau à 50 niveaux/s (un par tick), puis coût linéaire ; indépendant du découpage du temps. */
+      function atAvancerIdleV1_(L0,p0,dt,rate){
+        let L=Math.max(0,Math.floor(L0)),frac=Math.max(0,Math.min(.999999999,p0)),reste=Math.max(0,dt),gagnes=0;
+        const tick=1/50,dernier=Math.floor(tick*rate+1e-9)-1;
+        if(L<=dernier){
+          const m=dernier+1-L,temps=(m-frac)*tick;
+          if(reste<temps-1e-12){
+            const total=frac+reste/tick,g=Math.floor(total+1e-9);
+            return {gagnes:g,p:Math.max(0,Math.min(.999999999,total-g))};
+          }
+          reste-=temps;gagnes+=m;L+=m;frac=0;
+        }
+        const pas=atNiveauxDepuisTravailIdleV1_(L,frac*(L+1)+rate*reste);
+        return {gagnes:gagnes+pas.gagnes,p:Math.max(0,Math.min(.999999999,pas.reste/(L+pas.gagnes+1)))};
+      }
+
       function atSimulerIdleV1_(n0,p0,dt,alloc,taux,gratuit,cible){
         let n=n0,p=p0;
         if(gratuit){
           const gagnes=Math.floor(p0+50*dt);
           n=n0+gagnes;p=(p0+50*dt)-gagnes;
         }else if(alloc>0&&taux>0&&dt>0){
-          const travail=p0*(n0+1)+alloc*taux*dt;
-          const pas=atNiveauxDepuisTravailIdleV1_(n0,travail);
-          const gagnes=Math.min(pas.gagnes,Math.floor(50*dt)+1);
-          n=n0+gagnes;
-          p=gagnes<pas.gagnes?0:Math.min(.999999,pas.reste/(n+1));
+          const pas=atAvancerIdleV1_(n0,p0,dt,alloc*taux);
+          n=n0+pas.gagnes;
+          p=Math.min(.999999,pas.p);
         }
         if(cible>0&&n>=cible){n=Math.max(n0,cible);p=0;}
         return {n:n,p:p};

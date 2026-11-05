@@ -43,11 +43,7 @@ const agir = (run, p) => run("agirProgressionSorealIdle", p);
  * atNiveauxDepuisTravailIdleV1_, augmentations-page-v1.js, extraites telles quelles : pures, sans DOM) doit donner le même niveau et la même fraction de barre que le moteur (advanceAdvancedTrainingV1,
  * idle-ngu-pistes.js) pour un même instant, l'horloge étant gelée. L'écran part du repère de la réponse précédente (tempLevel, progress, rateParEnergie de advancedTrainingView).
  *
- * DIVERGENCE CONNUE (documentée, NON corrigée ici) : la règle du wiki « une barre gagne au plus 50 niveaux par seconde » n'est PAS appliquée comme pour la Machine temporelle et les Augmentations.
- * advanceAdvancedTrainingV1 n'utilise pas idle-tick-v1.js ; il plafonne à Math.floor(50 * secondes) + 1 niveaux par appel. Ce « +1 » (et l'arrondi vers le bas) fait que :
- *   - sur 0,5 s, jusqu'à 26 niveaux (au lieu de 25) ;
- *   - sur un appel très court (ex. 0,01 s), 1 niveau passe quand même (le plafond vaut 1) : des synchros rapprochées dépassent 50 niveaux/s (voir la mesure en bas de ce test).
- * L'écran (atSimulerIdleV1_) a EXACTEMENT le même plafond, donc moteur = écran ; les deux divergent ensemble de la règle du wiki. Le test reste vert et affiche la mesure.
+ * RÈGLE DU WIKI « Ticks » (corrigée le 2026-11-05) : une barre gagne au plus 50 niveaux par seconde, QUEL QUE SOIT le découpage du temps en appels (atAvancerTempsV1, idle-ngu-pistes.js ; miroir atAvancerIdleV1_ côté écran).
  */
 const ecran = readFileSync("cloudflare/public/modules/augmentations-page-v1.js", "utf8");
 const a0 = ecran.indexOf("function atNiveauxDepuisTravailIdleV1_(");
@@ -78,7 +74,7 @@ for (const id of ["power", "toughness", "block"]) {
       decalage += dt * 1000;
       const b = lire(run("synchroniserSorealIdle"), id);
       niveauxMax = Math.max(niveauxMax, b.n - a.n);
-      if (b.n - a.n > Math.floor(50 * dt)) plafond51 += 1;
+      if (b.n - a.n > Math.ceil(50 * dt - 1e-9) + 0) plafond51 += 1;
       ecarts.push([id, alloc, dt, a.n, b.n, a.n === b.n ? 0 : e.n - a.n, +b.p.toFixed(5), +e.p.toFixed(5)]);
       assert.equal(e.n, b.n, id + " niveau après " + dt + " s (alloc " + alloc + ") : moteur " + b.n + " / écran " + e.n);
       assert.ok(Math.abs(e.p - b.p) < 2e-3, id + " fraction après " + dt + " s (alloc " + alloc + ") : moteur " + b.p + " / écran " + e.p);
@@ -87,21 +83,15 @@ for (const id of ["power", "toughness", "block"]) {
 }
 assert.ok(niveauxMax >= 20, "le test passe vraiment des niveaux : " + niveauxMax);
 
-/* Mesure de la divergence avec la règle des 50 niveaux par seconde : 100 synchros espacées de 0,01 s (1 s au total) avec une énergie énorme. */
+/* Indépendance du découpage : 100 synchros de 0,01 s = 1 synchro de 1 s, et jamais plus de 50 niveaux en 1 s (énergie énorme, plateau). */
 {
-  const run = partie();
-  agir(run, { action: "allocateAdvancedTraining", track: "power", value: 1e15 });
-  decalage += 3000; run("synchroniserSorealIdle");
-  const a = lire(run("synchroniserSorealIdle"), "power");
+  const mk = () => { const r = partie(); agir(r, { action: "allocateAdvancedTraining", track: "power", value: 1e15 }); decalage += 3000; r("synchroniserSorealIdle"); return r; };
+  const r1 = mk(); const a = lire(r1("synchroniserSorealIdle"), "power");
   let n = a.n;
-  for (let i = 0; i < 100; i += 1) { decalage += 10; n = lire(run("synchroniserSorealIdle"), "power").n; }
-  console.log("MESURE entraînement avancé : " + (n - a.n) + " niveaux en 1 s réparties en 100 synchros de 0,01 s (règle du wiki : 50 au plus)");
-  const un = partie();
-  agir(un, { action: "allocateAdvancedTraining", track: "power", value: 1e15 });
-  decalage += 3000; un("synchroniserSorealIdle");
-  const c = lire(un("synchroniserSorealIdle"), "power");
-  decalage += 500;
-  const d = lire(un("synchroniserSorealIdle"), "power");
-  console.log("MESURE entraînement avancé : " + (d.n - c.n) + " niveaux en 0,5 s en une synchro (règle du wiki : 25 au plus)");
+  for (let i = 0; i < 100; i += 1) { decalage += 10; n = lire(r1("synchroniserSorealIdle"), "power").n; }
+  const r2 = mk(); const c = lire(r2("synchroniserSorealIdle"), "power");
+  decalage += 1000; const d = lire(r2("synchroniserSorealIdle"), "power");
+  assert.ok(n - a.n <= 50 && d.n - c.n <= 50, "au plus 50 niveaux par seconde : " + (n - a.n) + " (100 synchros) / " + (d.n - c.n) + " (1 synchro)");
+  assert.ok(Math.abs((n - a.n) - (d.n - c.n)) <= 1, "même résultat quel que soit le découpage : " + (n - a.n) + " / " + (d.n - c.n));
 }
 console.log("idle-entrainement-avance-projection-moteur-v1: OK (" + niveauxMax + " niveaux au mieux en une étape ; " + plafond51 + " étapes au-dessus de 50 niveaux/s)");
