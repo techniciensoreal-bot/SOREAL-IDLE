@@ -1,0 +1,28 @@
+<!doctype html><meta charset="utf-8"><title>Conversion visage</title>
+<body style="background:#222;color:#ccc;font:12px monospace">
+<!-- Conversion de la photo (copie temporaire _tmp-visage/photo.png, jamais versionnée) en bitmap LED : recadrage, étirement de contraste (percentiles), renforcement local, 8 niveaux, tramage Bayer 4x4.
+     Sortie : 40 rangées de 64 chiffres 0-7, enregistrées dans bitmap.txt par le serveur d'essai. -->
+<canvas id="a" style="image-rendering:pixelated;width:512px"></canvas>
+<script>
+window.convertir=function(o){return new Promise(function(ok){
+ var im=new Image();im.onload=function(){
+  var W=64,H=40,g=document.createElement('canvas');g.width=256;g.height=160;var x=g.getContext('2d');x.imageSmoothingQuality='high';
+  x.drawImage(im,o.cx,o.cy,o.cw,o.cw/1.6,0,0,256,160);
+  var h=document.createElement('canvas');h.width=W;h.height=H;var y=h.getContext('2d');y.imageSmoothingQuality='high';y.drawImage(g,0,0,W,H);
+  var d=y.getImageData(0,0,W,H).data,L=new Float32Array(W*H),i,j,k;
+  for(i=0;i<W*H;i++)L[i]=(0.299*d[i*4]+0.587*d[i*4+1]+0.114*d[i*4+2])/255;
+  /* flou local pour le renforcement */
+  var B=new Float32Array(W*H);
+  for(j=0;j<H;j++)for(i=0;i<W;i++){var s=0,n=0;for(var a=-2;a<=2;a++)for(var b=-2;b<=2;b++){var xx=i+a,yy=j+b;if(xx<0||yy<0||xx>=W||yy>=H)continue;s+=L[yy*W+xx];n++;}B[j*W+i]=s/n;}
+  for(i=0;i<W*H;i++)L[i]=L[i]+o.renf*(L[i]-B[i]);
+  var S=Array.from(L).sort(function(p,q){return p-q;}),lo=S[Math.floor(S.length*o.p0)],hi=S[Math.floor(S.length*o.p1)];
+  var BY=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]],out=[];
+  for(j=0;j<H;j++){var r='';for(i=0;i<W;i++){var v=Math.min(1,Math.max(0,(L[j*W+i]-lo)/(hi-lo)));v=Math.pow(v,o.gamma);
+    var q=Math.floor(v*7+(BY[j%4][i%4]+0.5)/16-0.0);q=Math.max(0,Math.min(7,q));r+=q;}out.push(r);}
+  var c=document.getElementById('a');c.width=W;c.height=H;var cx=c.getContext('2d'),id=cx.createImageData(W,H);
+  for(j=0;j<H;j++)for(i=0;i<W;i++){var vv=out[j][i]/7*255;k=(j*W+i)*4;id.data[k]=id.data[k+1]=vv;id.data[k+2]=Math.min(255,vv*1.1);id.data[k+3]=255;}
+  cx.putImageData(id,0,0);ok(out.join('\n'));};
+ im.src='/design/apercu-redroom-visage/_tmp-visage/photo.png';});};
+window.convertirEtSauver=async function(o,nom){var t=await window.convertir(o);await fetch('/save/'+nom+'.txt',{method:'POST',body:t});
+ var G=document.createElement('canvas');G.width=512;G.height=320;var gx=G.getContext('2d');gx.imageSmoothingEnabled=false;gx.drawImage(document.getElementById('a'),0,0,512,320);await fetch('/save/'+nom+'.png',{method:'POST',body:G.toDataURL('image/png')});return t.length;};
+</script>

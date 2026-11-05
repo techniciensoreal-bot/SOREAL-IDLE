@@ -1,0 +1,2009 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nuke : chat et chien</title>
+<style>body{margin:0;background:#0b0b10;color:#e8e8ee;font:15px/1.4 system-ui,sans-serif;padding:16px}h1{font-size:18px;margin:0 0 10px}
+.barre{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}button{background:#2b2b38;color:#fff;border:1px solid #555;border-radius:6px;padding:8px 14px;font:inherit;cursor:pointer}button.on{background:#c47a0a;border-color:#ffb24a}
+#cadre{max-width:900px;margin:0 auto}canvas{width:100%;display:block;background:#000;border:2px solid #333;border-radius:6px}.note{opacity:.7;font-size:13px;margin-top:8px}</style></head><body>
+<h1>Nuke sur l'écran LED : chat et chien (animation réelle du jeu)</h1>
+<div class="barre" id="scenes"></div><div class="barre" id="tailles"></div>
+<div id="cadre"><canvas id="cv"></canvas></div><div class="note" id="info"></div>
+<script>/*
+ * SOREAL IDLE — le panneau LED de la borne d'arcade (menu Combat de boss), posé JUSTE AU-DESSUS DE LA BARRE DE VIE DU BOSS (dans la plaque du duel) ; le fronton « NGU IDLE » est inchangé.
+ * Maquette validée par Norman (2026-11-01) : « J'aime bien tout. Mais la barre de vie du boss doit rester affichée comme elle l'est actuellement. Cet écran se situe juste au-dessus. »
+ *
+ * Principe : une matrice de points (120 x 14 sur PC, 90 x 12 sur téléphone) dessinée dans UN SEUL canvas, sans bibliothèque. Chaque scène est une FONCTION PURE
+ * du temps (secondes depuis son début) : aucune image n'est gardée d'une image à l'autre. Le panneau est purement décoratif : il lit l'état du jeu, il n'y écrit jamais et ne retarde aucun combat.
+ *
+ * Ce qui s'affiche (rien n'est inventé côté serveur, tout vient d'événements ou d'états déjà présents dans la page) :
+ *   - par défaut « #<numéro> · <NOM DU BOSS> » : les données de l'ancienne plaque du duel, qu'il REMPLACE (bossSelection, bossActuel ; le nom, traduit en anglais, est lu dans le span masqué #sorealIdleBossNomTexteV65) ; sans boss connu : « SOREAL IDLE » ;
+ *   - début d'un duel (REG.idleCombatDebutV1 change) : FIGHT ! lettre par lettre, avec secousse (aucun compte à rebours : le jeu combat déjà, rien n'est retardé) ;
+ *   - pendant TOUT le combat (idleEtat.combatBossActif, de REG.idleCombatDebutV1 jusqu'à la victoire, le K.O. ou l'arrêt) : FIGHT ! reste affiché en boucle parfaite ; par-dessus, brièvement : POW ! / BAM !, la barre de vie du JOUEUR (cœur), la mascotte qui court ; la vie du BOSS n'est PAS sur le panneau (la vraie barre, juste dessous, reste seule) ; au boss suivant (combat enchaîné) FIGHT ! reste sans clignoter ;
+ *   - un coup (le résumé de combat d'une seconde, REG.idleCombatLogDernierResumeV70, un sur trois) : POW ! / BAM ! en alternance (aucun « critique » n'existe côté client : aucun n'est affiché) ;
+ *   - victoire (window.__SOREAL_IDLE_VICTOIRE_EN_COURS__ : même condition que l'écran de victoire arcade) : la ola puis VICTOIRE ! ;
+ *   - défaite (REG.idleCombatEnPauseApresDefaiteV1) : K.O. puis RECOMMENCE ? (simple texte, aucun clic) ;
+ *   - entre deux combats : le tableau des scores (numéro du boss, victoires : jamais de total) ;
+ *   - la caméra de stade (objet rare) N'EST PAS branchée : aucun événement « objet rare obtenu » fiable et neutre n'existe côté client.
+ *
+ * Règle n°2 : jamais le nom d'un boss non découvert (même source que la plaque) ; les phrases ne parlent de rien de verrouillé ; aucun dénominateur.
+ * Règle n°3 : chaque scène s'allume et s'éteint en fondu (0,2 s) ; les motifs qui défilent sont fondus à leurs deux bouts ; prefers-reduced-motion = images fixes (aucune animation).
+ * Règle n°4 : le canvas est ajouté PAR CE MODULE dans l'hôte `.bn-led` du HTML de la page, avec data-morph-garder (jamais retiré) et data-morph-vivant (ses attributs ne sont jamais retirés) ;
+ *   un redessin de la page ne le remplace donc pas ; le module se rattache après chaque redessin (window.__SOREAL_IDLE_APRES_REDESSIN_V1__), dans la même tâche.
+ * Performance : arrêt quand l'onglet est masqué (visibilitychange), quand la borne n'est pas à l'écran (IntersectionObserver) ou quand elle n'existe plus ; 30 images/s au plus sur téléphone.
+ * Les textes sont dessinés dans le canvas (le traducteur de la page ne les voit pas) : petit dictionnaire interne français / anglais selon la langue du jeu (soreal_idle_langue_v1).
+ *
+ *   window.__SOREAL_IDLE_BORNE_LED_V1__ = { ensure(), etat() }
+ */
+(function(){
+'use strict';
+if(window.__SOREAL_IDLE_BORNE_LED_V1__)return;
+
+/* ------------------------------------------------------------------ couleurs */
+var AMB=1,ROU=2,BLA=3,VER=4,BLE=5,ROS=6,BARRE=7;
+/* BARRE = la couleur de la barre de vie du boss : la teinte de CE boss (paletteBarreBossIdleV1_, ui-combat-1-v1.js), violet-rose par défaut (#a23fd6) ; recalculée à chaque changement de boss */
+var RGB=[null,[255,168,28],[255,48,40],[255,246,222],[56,255,110],[70,150,255],[255,80,180],[162,63,214]];
+
+/* ------------------------------------------------------------------ police pixel 5x7 (majuscules, chiffres, ponctuation) */
+var F={
+  'A':'01110 10001 10001 11111 10001 10001 10001','B':'11110 10001 10001 11110 10001 10001 11110',
+  'C':'01110 10001 10000 10000 10000 10001 01110','D':'11110 10001 10001 10001 10001 10001 11110',
+  'E':'11111 10000 10000 11110 10000 10000 11111','F':'11111 10000 10000 11110 10000 10000 10000',
+  'G':'01110 10001 10000 10111 10001 10001 01111','H':'10001 10001 10001 11111 10001 10001 10001',
+  'I':'01110 00100 00100 00100 00100 00100 01110','J':'00111 00010 00010 00010 00010 10010 01100',
+  'K':'10001 10010 10100 11000 10100 10010 10001','L':'10000 10000 10000 10000 10000 10000 11111',
+  'M':'10001 11011 10101 10101 10001 10001 10001','N':'10001 11001 10101 10011 10001 10001 10001',
+  'O':'01110 10001 10001 10001 10001 10001 01110','P':'11110 10001 10001 11110 10000 10000 10000',
+  'Q':'01110 10001 10001 10001 10101 10010 01101','R':'11110 10001 10001 11110 10100 10010 10001',
+  'S':'01111 10000 10000 01110 00001 00001 11110','T':'11111 00100 00100 00100 00100 00100 00100',
+  'U':'10001 10001 10001 10001 10001 10001 01110','V':'10001 10001 10001 10001 10001 01010 00100',
+  'W':'10001 10001 10001 10101 10101 10101 01010','X':'10001 10001 01010 00100 01010 10001 10001',
+  'Y':'10001 10001 01010 00100 00100 00100 00100','Z':'11111 00001 00010 00100 01000 10000 11111',
+  '0':'01110 10001 10011 10101 11001 10001 01110','1':'00100 01100 00100 00100 00100 00100 01110',
+  '2':'01110 10001 00001 00010 00100 01000 11111','3':'11110 00001 00001 01110 00001 00001 11110',
+  '4':'00010 00110 01010 10010 11111 00010 00010','5':'11111 10000 11110 00001 00001 10001 01110',
+  '6':'00110 01000 10000 11110 10001 10001 01110','7':'11111 00001 00010 00100 01000 01000 01000',
+  '8':'01110 10001 10001 01110 10001 10001 01110','9':'01110 10001 10001 01111 00001 00010 01100',
+  '!':'00100 00100 00100 00100 00100 00000 00100','?':'01110 10001 00001 00010 00100 00000 00100',
+  '.':'00000 00000 00000 00000 00000 01100 01100',',':'00000 00000 00000 00000 00100 00100 01000',
+  ':':'00000 01100 01100 00000 01100 01100 00000','-':'00000 00000 00000 11111 00000 00000 00000',
+  "'":'00100 00100 01000 00000 00000 00000 00000','#':'01010 01010 11111 01010 11111 01010 01010',
+  '·':'00000 00000 00000 00100 00000 00000 00000','/':'00001 00010 00010 00100 01000 01000 10000',
+  '%':'11001 11010 00010 00100 01000 01011 10011','+':'00000 00100 00100 11111 00100 00100 00000',
+  '(':'00010 00100 01000 01000 01000 00100 00010',')':'01000 00100 00010 00010 00010 00100 01000',
+  '*':'00000 10101 01110 11111 01110 10101 00000','>':'10000 01000 00100 00010 00100 01000 10000',
+  '<':'00001 00010 00100 01000 00100 00010 00001','&':'01100 10010 10100 01000 10101 10010 01101',
+  '"':'01010 01010 01010 00000 00000 00000 00000',';':'00000 01100 01100 00000 00100 00100 01000'
+};
+/* accents : deux rangées posées 3 et 2 lignes au-dessus du haut de la lettre (un blanc les sépare) ; a = aigu, g = grave, c = circonflexe, d = tréma */
+var ACC={a:['00010','00100'],g:['01000','00100'],c:['00100','01010'],d:['01010','00000']};
+var MARQUES={'́':'a','̀':'g','̂':'c','̈':'d'};
+var GL={};
+function bitsOf(s){return s.split(' ').map(function(r){return parseInt(r,2);});}
+function mkGlyph(rows,acc){
+  var mn=5,mx=-1,r,c,all=rows.concat(acc||[]);
+  for(r=0;r<all.length;r++)for(c=0;c<5;c++)if(all[r]&(16>>c)){if(c<mn)mn=c;if(c>mx)mx=c;}
+  if(mx<0){mn=0;mx=2;}   /* espace : 3 colonnes */
+  return {rows:rows,acc:acc,x0:mn,w:mx-mn+1};
+}
+Object.keys(F).forEach(function(k){GL[k]=mkGlyph(bitsOf(F[k]));});
+GL[' ']=mkGlyph([0,0,0,0,0,0,0]);
+/* Un caractère que la police n'a pas : on le décompose (É = E + accent aigu) ; une marque inconnue (cédille, tilde, rond…) est simplement retirée (Ç devient C) ; un caractère sans équivalent est supprimé. */
+function glyphDe(ch){
+  if(GL[ch])return GL[ch];
+  var d=ch.normalize?ch.normalize('NFD'):ch,base=d.charAt(0),marque=d.length>1?MARQUES[d.charAt(1)]:null;
+  if(!F[base])return null;
+  GL[ch]=marque?mkGlyph(bitsOf(F[base]),ACC[marque].map(function(s){return parseInt(s,2);})):GL[base];
+  return GL[ch];
+}
+var REMPL={'’':"'",'‘':"'",'`':"'",'«':'"','»':'"','“':'"','”':'"','–':'-','—':'-','…':'...','Œ':'OE','Æ':'AE','ß':'SS','Ø':'O','Ł':'L','Đ':'D',' ':' ','\t':' ','_':'-','=':'-','•':'·','×':'X'};
+/* Lettres d'unité des grands nombres (K, M, AB, TG…) en couleur (Norman, 2026-11-01 : « je veux aussi les lettres en couleur, AB etc ») : mêmes couleurs que partout dans le jeu, lues dans les règles .nb-suf[data-suf="…"] de la feuille de style (aucune table recopiée) ; une couleur de plus dans la palette par unité rencontrée. */
+var SUF=null,SUF_RE=null,COUL_IDX={};
+function suffixes(){
+  if(SUF)return SUF;
+  SUF={};
+  try{
+    for(var a=0;a<document.styleSheets.length;a++){
+      var rules;try{rules=document.styleSheets[a].cssRules;}catch(_e){continue;}
+      for(var b=0;rules&&b<rules.length;b++){
+        var rg=rules[b],m=rg.selectorText&&/nb-suf\[data-suf="([A-Za-z]+)"\]/.exec(rg.selectorText),c=m&&rg.style&&/(\d+)[ ,]+(\d+)[ ,]+(\d+)/.exec(rg.style.color||'');
+        if(m&&c)SUF[m[1].toUpperCase()]=[+c[1],+c[2],+c[3]];
+      }
+    }
+  }catch(_e){}
+  var ks=Object.keys(SUF).sort(function(x,y){return y.length-x.length;});
+  SUF_RE=ks.length?new RegExp('(\\d(?:[\\d.,]*\\d)?)('+ks.join('|')+')(?![A-Za-z0-9])','g'):null;
+  return SUF;
+}
+function indexCouleur(rgb){var k=rgb.join(',');if(COUL_IDX[k])return COUL_IDX[k];if(RGB.length>=250)return AMB;RGB.push(rgb);COUL_IDX[k]=RGB.length-1;return COUL_IDX[k];}
+/* fn de text() : la couleur de l'unité pour chaque lettre d'unité, la couleur de base ailleurs */
+function fnUnites(s){
+  suffixes();
+  if(!SUF_RE)return null;
+  s=canon(s);var marques=[],m,any=false;
+  SUF_RE.lastIndex=0;
+  while((m=SUF_RE.exec(s))){var col=SUF[m[2]];if(!col)continue;var ci=indexCouleur(col),d=m.index+m[1].length;for(var i=0;i<m[2].length;i++)marques[d+i]=ci;any=true;}
+  return any?function(i){return marques[i]||0;}:null;
+}
+
+/* texte → suite de caractères que la police sait dessiner */
+function canon(s){
+  var up=String(s==null?'':s).toUpperCase(),out='',i,ch;
+  for(i=0;i<up.length;i++){
+    ch=up.charAt(i);
+    if(REMPL[ch]!==undefined)ch=REMPL[ch];
+    if(ch.length>1){out+=ch;continue;}
+    if(!glyphDe(ch))continue;
+    if(!GL[ch]||ch.normalize&&!MARQUES[ch.normalize('NFD').charAt(1)]&&ch.normalize('NFD').length>1)ch=ch.normalize('NFD').charAt(0);   /* marque inconnue (cédille, tilde…) : on garde la lettre seule */
+    out+=ch;
+  }
+  return out;
+}
+function gl(ch){return glyphDe(ch)||GL['?'];}
+
+/* ------------------------------------------------------------------ sprites 1 bit (chaque lettre = une couleur) */
+var SPR={
+  coeurP:['.XX.XX.','XXXXXXX','XXXXXXX','.XXXXX.','..XXX..','...X...'],
+  crane:['.XXX.','XXXXX','X.X.X','XXXXX','.XXX.','.X.X.'],
+  hero1:['..WWW....','.WWWWW..W','.WAWAW.W.','..WWW.W..','.AAAAAW..','AAAAAAA..','..A.A....','.A...A...'],
+  hero2:['..WWW....','.WWWWW..W','.WAWAW.W.','..WWW.W..','.AAAAAW..','AAAAAAA..','...AA....','...AA....'],
+  hero3:['..WWW....','.WWWWW..W','.WAWAW.W.','..WWW.W..','.AAAAAW..','AAAAAAA..','..AAA....','.........'],
+  pique:['.R.','RRR'],
+  epee:['......W','.....WW','....WW.','.A.WW..','..AW...','.A.A...','A......']
+};
+var PAL={X:AMB,A:AMB,W:BLA,R:ROU,G:VER,B:BLE,P:ROS};
+
+/* ------------------------------------------------------------------ dictionnaire interne (les textes du canvas échappent au traducteur de la page) */
+var TXT={
+  fr:{fight:'FIGHT !',tue:'TUÉ',fois:'FOIS',win:'VICTOIRE !',ko:'K.O.',again:'RECOMMENCE',boss:'BOSS',wins:'VICTOIRES',winsCourt:'VICT.',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOUM !',alerte:'ALERTE !',nepas:'NE PAS APPUYER',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'TOUS LES BOSS !',tousA:'TOUS LES',tousB:'BOSS !',j:'J',h:'H',min:'MIN',s:'S',
+    objets:{energyPower:'Potion d’énergie',magicPower:'Potion de magie',r3Power:'Potion de Ressource 3',energyBars:'Bar Bar d’énergie',magicBars:'Bar Bar de magie',luck:'Porte-bonheur'},
+    },
+  en:{fight:'FIGHT !',tue:'KILLED',fois:'TIMES',win:'VICTORY !',ko:'K.O.',again:'TRY AGAIN',boss:'BOSS',wins:'WINS',winsCourt:'WINS',marque:'SOREAL NGU IDLE',nuke:'NUKE !',boum:'BOOM !',alerte:'ALERT !',nepas:'DO NOT PRESS',super:'SUPER NUKE',mega:'MEGA NUKE',ultra:'ULTRA NUKE',armag:'ARMAGEDDON',tous:'ALL BOSSES !',tousA:'ALL',tousB:'BOSSES !',j:'D',h:'H',min:'MIN',s:'S',
+    objets:{energyPower:'Energy potion',magicPower:'Magic potion',r3Power:'Resource 3 potion',energyBars:'Energy Bar Bar',magicBars:'Magic Bar Bar',luck:'Lucky charm'},
+    }
+};
+var langue='fr',langueLue=-1e9;
+function langueDe(now){
+  if(now-langueLue>1000){langueLue=now;try{langue=localStorage.getItem('soreal_idle_langue_v1')==='en'?'en':'fr';}catch(_e){langue='fr';}}
+  return langue;
+}
+function T(k){return TXT[langue][k];}
+
+/* ------------------------------------------------------------------ matrice et primitives (écrivent dans le panneau P en cours de dessin) */
+var P=null;
+function clamp(x,a,b){return x<a?a:x>b?b:x;}
+function sm(x){x=clamp(x,0,1);return x*x*(3-2*x);}
+function eo(x){x=clamp(x,0,1);return 1-Math.pow(1-x,3);}
+function R(i,k){var x=Math.sin(i*127.1+k*311.7)*43758.5453;return x-Math.floor(x);}
+function px(x,y,col,v){
+  x=Math.round(x+(P.xoff||0));y=Math.round(y+P.yoff);
+  if(x<0||y<0||x>=P.W||y>=P.YM||y<P.cy0||y>P.cy1)return;
+  if(v===undefined)v=255;
+  if(v<=0)return;
+  var i=y*P.W+x;P.c[i]=col;P.v[i]=v>255?255:v;
+}
+function rect(x,y,w,h,col,v){for(var j=0;j<h;j++)for(var i=0;i<w;i++)px(x+i,y+j,col,v);}
+function box(x0,y0,x1,y1,col,v){
+  var i;for(i=x0;i<=x1;i++){px(i,y0,col,v);px(i,y1,col,v);}
+  for(i=y0+1;i<y1;i++){px(x0,i,col,v);px(x1,i,col,v);}
+}
+function sprite(rows,x,y,v,colOver){
+  for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){
+    var ch=rows[j][i];if(ch==='.'||ch===' ')continue;
+    px(x+i,y+j,colOver||PAL[ch]||AMB,v);
+  }
+}
+/* Petite police 3x5 (chiffres, + - . /, A-Z) pour la régénération sous la jauge (Norman, 2026-11-01 : « tu peux écrire la regen plus petit ? ») : 5 rangées au lieu de 7, 3 colonnes au lieu de 5. */
+var MINI={'0':'111101101101111','1':'010110010010111','2':'111001111100111','3':'111001111001111','4':'101101111001001','5':'111100111001111','6':'111100111101111','7':'111001010010010','8':'111101111101111','9':'111101111001111','.':'000000000000010','+':'000010111010000','-':'000000111000000','/':'001001010100100','A':'010101111101101','B':'110101110101110','C':'011100100100011','D':'110101101101110','E':'111100110100111','F':'111100110100100','G':'011100101101011','H':'101101111101101','I':'111010010010111','J':'001001001101010','K':'101101110101101','L':'100100100100111','M':'101111111101101','N':'110101101101101','O':'010101101101010','P':'110101110100100','Q':'010101101111011','R':'110101110101101','S':'011100010001110','T':'111010010010010','U':'101101101101111','V':'101101101101010','W':'101101111111101','X':'101101010101101','Y':'101101010010010','Z':'111001010100111'};
+function miniWidth(s){s=canon(s);return Math.max(0,s.length*4-1);}
+function miniText(s,x,bt,col,v,fn){
+  s=canon(s);
+  for(var i=0;i<s.length;i++){
+    var g=MINI[s[i]];
+    if(g)for(var r=0;r<5;r++)for(var c=0;c<3;c++)if(g[r*3+c]==='1'){var cc=fn?(fn(i)||col):col;px(x+i*4+c,bt+r,cc,v);}
+  }
+}
+function twidth(s,sc){s=canon(s);var w=0;for(var i=0;i<s.length;i++)w+=gl(s[i]).w+1;return Math.max(0,(w-1))*sc;}
+function rwidth(segs,sc){var w=0;segs.forEach(function(g,i){w+=twidth(g[0],sc)+(i?sc*2:0);});return w;}
+/* bt = ligne du HAUT de la lettre (sans l'accent) ; opt.fn(i,gx,gy) -> couleur ou [couleur, luminosité] ; opt.edge={a,b,f} fondu latéral */
+function text(s,x,bt,col,sc,v,opt){
+  s=canon(s);sc=sc||1;if(v===undefined)v=255;opt=opt||{};
+  var cx=x,i,r,c,g,bits;
+  for(i=0;i<s.length;i++){
+    g=gl(s[i]);
+    for(r=-3;r<7;r++){
+      if(r<0){if(!g.acc||r>-2)continue;bits=g.acc[r+3];}else bits=g.rows[r];
+      if(!bits)continue;
+      for(c=0;c<5;c++){
+        if(!(bits&(16>>c)))continue;
+        for(var sy=0;sy<sc;sy++)for(var sx=0;sx<sc;sx++){
+          var gx=cx+(c-g.x0)*sc+sx,gy=bt+r*sc+sy,cc=col,vv=v;
+          if(opt.fn){var q=opt.fn(i,gx,gy);if(q instanceof Array){cc=q[0]||col;vv=q[1]*v/255;}else cc=q||col;}
+          if(opt.edge)vv*=clamp((gx-opt.edge.a)/opt.edge.f,0,1)*clamp((opt.edge.b-gx)/opt.edge.f,0,1);
+          px(gx,gy,cc,vv);
+        }
+      }
+    }
+    cx+=(g.w+1)*sc;
+  }
+  return cx-x-sc;
+}
+function rich(segs,x,bt,sc,v,opt){var cx=x;segs.forEach(function(g){cx+=text(g[0],cx,bt,g[1],sc,v,opt)+sc*2;});return cx-x;}
+
+/* ------------------------------------------------------------------ état lu dans le jeu (rempli avant chaque image ; les scènes ne font que le lire) */
+var S={num:0,nom:'',nomJ:'',morts:0,vic:0,boss:false,combat:false,bar:{v:1,g:1,gv:0},obj:{},now:0,pv:null};
+
+/* ------------------------------------------------------------------ scènes (fonctions pures du temps t en secondes depuis le début de la scène) */
+function bigSc(s){return P.H>=14&&twidth(s,2)<=P.W-4?2:1;}   /* lettres doublées (échelle entière, jamais fractionnaire) quand la hauteur et la largeur le permettent, sinon taille simple */
+function cb(){return Math.round((P.H-7)/2);}                       /* haut d'une ligne d'écriture centrée */
+function chase(t,v,col){                                           /* guirlande de points qui courent sur le bord haut/bas (période 0,4 s) */
+  var o=P.reduced?0:Math.floor(t*10)%4,x;
+  for(x=0;x<P.W;x++){
+    var a=(x-o+40)%4===0;
+    px(x,0,col||AMB,a?230*v:28);px(P.W-1-x,P.H-1,col||AMB,a?230*v:28);
+  }
+}
+function burst(cx,cy,u,n,seed,speed,life,cols,grav){
+  if(u<0||u>life)return;
+  for(var i=0;i<n;i++){
+    var ang=R(i,seed)*6.2832,sp=speed*(0.35+0.65*R(i,seed+1));
+    var x=cx+Math.cos(ang)*sp*u*1.6,y=cy+Math.sin(ang)*sp*u*0.8+0.5*grav*u*u;
+    px(x,y,cols[Math.floor(R(i,seed+2)*cols.length)],255*Math.pow(1-u/life,1.2));
+  }
+}
+
+/* 1. Affichage de base : « #n · NOM » (ou « SOREAL IDLE » quand aucun boss n'est connu) */
+function sBase(t){
+  var segs=S.boss?[['#'+S.num,BLA],['·',ROU],[S.nom,AMB]]:[[T('marque'),AMB]],W=P.W,bt=cb(),tw=rwidth(segs,1);
+  chase(t,1);
+  if(tw<=W-8){                                                     /* tient : fixe, avec un reflet blanc qui passe et un léger scintillement */
+    var x0=Math.floor((W-tw)/2),xs=P.reduced?-99:((t/3.2)%1)*(W+40)-20;
+    rich(segs,x0,bt,1,255,{fn:function(i,gx,gy){
+      var vv=P.reduced?255:205+50*Math.sin(6.2832*(t/2+R(gx,gy)));
+      return Math.abs(gx-xs)<4.5?[BLA,255]:[0,vv];
+    }});
+  }else{                                                           /* trop long : défile, fondu aux deux bouts */
+    var per=tw+26,off=P.reduced?0:(t*26)%per;
+    for(var k=0;k<2;k++)rich(segs,4-off+k*per,bt,1,255,{edge:{a:3,b:W-3,f:6}});
+  }
+}
+
+/* 1 ter. Le NOM du boss s'ÉCRIT lettre par lettre dès qu'un nouveau boss apparaît (Norman, 2026-11-02 : « dès que le boss suivant apparaît, ça doit écrire son nom »), puis FIGHT ! ; un nom trop long pour l'écran défile comme sur l'affichage de base. */
+function nomSegs(){return [['#'+S.num,BLA],['·',ROU],[S.nom,AMB]];}
+function nomLongueur(){return String(S.num).length+2+S.nom.length+2;}
+function sNom(t){
+  var segs=nomSegs(),W=P.W,bt=cb(),tw=rwidth(segs,1),n=P.reduced?999:Math.floor(t*20),out=[],k=0,i;
+  if(tw>W-8){sBase(t);return;}
+  chase(t,1);
+  for(i=0;i<segs.length&&k<n;i++){var g=segs[i],tx=String(g[0]),take=Math.min(tx.length,n-k);out.push([tx.slice(0,take),g[1]]);k+=take+1;}
+  var x0=Math.floor((W-tw)/2),dx=rich(out,x0,bt,1,255);
+  if(!P.reduced&&k<=n+2&&Math.floor(t*6)%2===0)for(i=0;i<7;i++)px(x0+dx,bt+i,AMB,255);   /* curseur qui clignote tant que le nom s'écrit */
+}
+
+/* 1 bis. « TUÉ N FOIS » (Norman, 2026-11-01 : « la bande passante au-dessus doit indiquer le nombre de fois qu'on l'a tué ») : nombre de victoires du boss COURANT (bestiaire.entrees[].victoires, la donnée de sa carte), jamais de total ; la scène n'existe pas à 0. */
+function sMorts(t){
+  var W=P.W,bt=cb(),n=String(Math.min(S.morts,999999)),num=[['#'+S.num,BLA],['·',ROU]];
+  var cands=[num.concat([[T('tue')+' ',AMB],[n+' ',BLA],[T('fois'),AMB]]),[[T('tue')+' ',AMB],[n+' ',BLA],[T('fois'),AMB]],[['X ',AMB],[n,BLA]]],i,segs=cands[0],w=0;
+  chase(t,1);
+  for(i=0;i<cands.length;i++){w=11+rwidth(cands[i],1);if(w<=W-8){segs=cands[i];break;}if(i===cands.length-1){segs=cands[i];w=11+rwidth(segs,1);}}
+  var x0=w<=W-8?Math.floor((W-w)/2):4;
+  sprite(SPR.epee,x0,bt,255);
+  rich(segs,x0+11,bt,1,255);
+}
+
+/* 2. FIGHT ! : affiché TOUT LE TEMPS du combat. À l'apparition (u < ~1 s) : lettre par lettre, secousse, anneau, cadre qui clignote ; ensuite une boucle PARFAITE de 2 s (reflet blanc qui traverse, luminosité qui respire ;
+   début = fin, le reflet part et finit hors des lettres). u = temps depuis le début du combat : il continue pendant les interludes (coups, barre de vie, mascotte), le panneau revient donc à FIGHT ! sans repartir de zéro. */
+function ring(p,col){
+  var hx=6+(P.W/2-7)*p,hy=3+(P.H/2-4)*p,cx=P.W/2,cy=P.H/2;
+  box(Math.round(cx-hx),Math.round(cy-hy),Math.round(cx+hx),Math.round(cy+hy),col,255*(1-p));
+}
+function sFight(t){
+  var W=P.W,H=P.H,u=t,str=T('fight'),c=canon(str),sc=bigSc(str),tw=twidth(str,sc),bt=Math.round((H-7*sc)/2);
+  var n=Math.min(c.length,Math.floor(u/0.07)+1),ap=!P.reduced&&u<1.1;
+  var sh=ap&&u<0.6?Math.round(Math.sin(u*70)*1.3):0;
+  var vv=P.reduced?255:255-sm((u-0.8)/0.5)*55*(0.5-0.5*Math.cos(6.2832*u/2));
+  var xs=P.reduced?-99:((u/2)%1)*(W+30)-15;
+  text(c.slice(0,n),Math.floor((W-tw)/2)+sh,bt,ROU,sc,vv,{fn:function(i,gx){
+    if(ap&&u<0.6)return Math.floor(u/0.075)%2?BLA:ROU;
+    return Math.abs(gx-xs)<3?[BLA,255]:[ROU,255];}});
+  if(ap&&u<0.7)ring(clamp(u/0.7,0,1),ROU);
+  if(ap&&u<1.1&&Math.floor(u/0.15)%2===0)box(0,0,W-1,H-1,ROU,220*(1-sm((u-0.8)/0.3)));
+}
+
+/* 3. Barre de vie à LED : UNIQUEMENT celle du joueur (cœur) ; la vie du boss n'est jamais sur le panneau */
+function sBars(t){
+  var W=P.W,H=P.H,bh=H>=18?5:4,y=Math.round((H-bh)/2),x0=11,len=W-3-x0,b=S.bar,x,j;
+  chase(t,0.55,VER);
+  for(x=0;x<len;x++){
+    var f=(x+0.5)/len,seg=(x%5===4)?0.42:1,col,v;
+    if(f<=b.v){col=b.v>0.5?VER:b.v>0.25?AMB:ROU;v=255;if(b.v<0.25&&!P.reduced&&Math.floor(t*4)%2)v=110;}
+    else if(f<=b.g&&b.gv>0){col=BLA;v=255*b.gv;}
+    else{col=AMB;v=34;seg=1;}
+    for(j=0;j<bh;j++)px(x0+x,y+j,col,v*seg);
+  }
+  sprite(SPR.coeurP,2,y+Math.floor((bh-6)/2),255,b.v>0.5?VER:b.v>0.25?AMB:ROU);
+}
+
+/* 4. Messages de coups : POW ! / BAM ! (mot choisi au déclenchement, p.mot) */
+function sHits(t){
+  var W=P.W,H=P.H,s=P.p.mot||'POW !',sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((H-7*sc)/2),u=t;
+  var y=u<0.22?bt-Math.pow(1-u/0.22,2)*H:bt;
+  var sh=u>0.22&&u<0.62?Math.round(Math.sin(u*90)*1.6*(1-(u-0.22)/0.4)):0;
+  var col=AMB,vv=255*(1-sm((u-1.1)/0.35));
+  if(u<0.5&&u>=0.22)col=BLA;
+  text(s,Math.floor((W-tw)/2)+sh,y,col,sc,vv);
+  var uu=u-0.22;
+  burst(W/2,H/2,uu,26,10+(P.p.n||0)*7,26,0.9,[BLA,AMB,ROU],26);
+  if(uu>=0&&uu<0.16){
+    var Lg=2+uu*40;
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function(d){for(var q=0;q<3;q++)px(W/2+d[0]*(Lg+q)*1.5,H/2+d[1]*(Lg+q)*0.6,BLA,255*(1-uu/0.16));});
+  }
+}
+
+/* 5. Mascotte qui court et saute (boucle sans à-coup : la période des piques est celle du saut).
+   Norman (2026-11-02) : elle court dans l'AUTRE sens (vers la gauche), calée sur le bout de la piste de vie du boss (comme le héros à la tronçonneuse : elle avance à mesure que la vie descend) ; quand la barre est vide elle SORT de l'écran, comme si elle avait terminé le niveau.
+   Hors boss (pas de piste de vie) : position fixe d'origine. Les piques restent ancrées à la mascotte (même phase de saut qu'avant, symétrique). */
+/* Fin de niveau, clin d'œil à Mario (Norman, 2026-11-02 : « sur la fin du stage, on voit un château et il entre dedans, avec des feux d'artifice ») : le château glisse depuis la gauche quand la vie du boss est presque vide, la mascotte entre par sa porte (elle disparaît à la porte), puis les feux d'artifice partent au-dessus. */
+var CHATEAU=['......W......','......WRR....','......W......','..A.A.A.A.A..','.AAAAAAAAAAA.','.AAAAAAAAAAA.','.AAWAAAAAWAA.','.AAAAAAAAAAA.','.AAAA...AAAA.','.AAAA...AAAA.','.AAAA...AAAA.','.AAAA...AAAA.'];
+function spriteDepuis(rows,x,y,v,xMin){
+  for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){
+    var ch=rows[j][i];if(ch==='.'||ch===' '||x+i<xMin)continue;
+    px(x+i,y+j,PAL[ch]||AMB,v);
+  }
+}
+function sMascot(t){
+  var W=P.W,H=P.H,sp=30,per=50,T0=per/sp,phi=(t%T0),pc=11/sp,jt=(phi-(pc-0.36))/0.72,air=jt>0&&jt<1,pp=P.p;
+  var jy=air?Math.min(8,H-10)*4*jt*(1-jt):0,fl=H-2,i,x0=2,len=W-4,vie=P.p.fin?0:(S.pv?clamp(S.pv.pct,0,1):-1),hx;
+  if(vie<0)hx=14;
+  else{
+    var n=Math.round(vie*len);
+    if(vie<=0.002){if(pp.te==null||pp.te===undefined)pp.te=t;hx=x0-Math.round(sp*(t-pp.te));}   /* barre vide : la mascotte quitte l'écran par la gauche */
+    else{pp.te=null;hx=Math.min(x0+n,W-10);}
+  }
+  /* Norman (2026-11-02) : quand le château est à son emplacement final, le SOL ARRÊTE de bouger (sol, étoiles) ; seul le bonhomme continue de marcher jusqu'à entrer dedans. tg = le temps du décor : il se fige à l'arrivée du château. */
+  var chat=vie>=0&&vie<0.14,arrive=chat&&vie<=0.06,tg=t;
+  if(arrive){if(pp.tArr==null)pp.tArr=t;tg=pp.tArr;}else pp.tArr=null;
+  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
+  if(vie>=0){var nn=Math.round(vie*len);for(i=0;i<nn;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl+1<H?fl+1:fl,BARRE,255);}}   /* la piste de vie du boss, sous ses pieds */
+  for(i=0;i<6;i++){                                                /* étoiles de fond (parallaxe lente, vers la droite) */
+    var sx=((R(i,3)*W+tg*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));
+    px(sx,sy,BLA,70+120*(0.5+0.5*Math.sin(6.2832*(t/2+R(i,5)))));
+  }
+  var cx0=chat?Math.round(-13+14*sm((0.14-vie)/0.08)):-99,porte=cx0+6;
+  if(!chat)for(var k=-1;k<Math.ceil(W/per)+1;k++){var ox=hx-6+sp*phi-k*per;sprite(SPR.pique,Math.round(ox),fl-2,255);}   /* plus de piques devant le château */
+  if(chat){sprite(CHATEAU,cx0,fl-12,255);if(vie<=0.002&&!P.reduced){var uf=t-pp.te,fx=cx0+6;   /* feux d'artifice au-dessus du château, l'un après l'autre */
+    for(i=0;i<4;i++)burst(fx+[-5,7,1,10][i],[5,3,7,4][i],uf-0.25-i*0.5,30,11+i*7,22,0.9,[BLA,AMB,ROU,VER],14);}}
+  var fr=(chat&&vie<=0.002)?SPR.hero3:air?SPR.hero3:(Math.floor(t/0.12)%2?SPR.hero1:SPR.hero2);
+  spriteDepuis(fr.map(function(r){return r.split('').reverse().join('');}),hx,Math.round(fl-8-(chat?0:jy)),255,chat?porte:-1e9);
+  if(air&&jt>0.3&&jt<0.7)px(hx-1,fl-8-jy-1,BLA,255);              /* éclat sur l'épée */
+}
+
+/* 5 bis. Le héros à la tronçonneuse (Norman, 2026-11-02 : « un bonhomme qui balaie au fur et à mesure que la vie du boss descend, il suit la ligne de fin de vie » ; « une tronçonneuse plutôt qu'un balai, bien visible, il peut être plus grand » ; « je voulais le même personnage qui saute mais en plus grand, et ses yeux noirs au lieu de jaunes »).
+   Le MÊME personnage que la mascotte (tête blanche, corps ambre), dessiné deux fois plus grand, de profil vers la gauche ; yeux = deux trous noirs. Une piste de LED à la longueur de la vie du boss : il se tient à son bout, la lame (dents de chaîne qui défilent) sur la dernière LED, et il recule vers la gauche à mesure que la vie descend. */
+var HEROS_TRONCO=(function(){
+  var tete=['..WWW..','.WWWWW.','.W.W.W.','..WWW..','.AAAAA.','AAAAAAA','..A.A..','.A...A.'];    /* hero1 sans l'épée ; yeux = trous noirs */
+  var moteur={6:'RRR',7:'RRR'},rows=[],j;
+  for(j=0;j<8;j++){
+    var l='.........'.split('');                                      /* colonnes 0-8 : lame (0-5, dessinée par le code) puis moteur (6-8) */
+    if(moteur[j])for(var i=0;i<3;i++)l[6+i]=moteur[j][i];
+    rows.push(l.join('')+tete[j].split('').reverse().join('')+'.');   /* le héros regarde à gauche : rangée inversée */
+  }
+  /* DEUX MAINS (Norman, 2026-11-02) : une poignée au-dessus du moteur (rangée 5, colonnes 6 à 8), une main à chaque bout, reliées au corps par les avant-bras (rangée 4, colonnes 7 à 9) */
+  rows[5]=rows[5].slice(0,6)+'WAW'+rows[5].slice(9);
+  rows[4]=rows[4].slice(0,7)+'WWW'+rows[4].slice(10);
+  return rows;
+})();
+/* La danse finale (Norman, 2026-11-02 : « à la fin, le gars à la tronçonneuse tourne sur lui-même en faisant tournoyer sa tronçonneuse, comme à la fin du premier Massacre à la tronçonneuse » puis, avec quatre photos du film : « fais en sorte qu'il lui ressemble, il ne doit pas juste faire tournoyer, je t'ai mis les mouvements »).
+   Le personnage ressemble à Leatherface : cheveux noirs bouclés, masque pâle aux orbites noires et à la bouche ouverte, veste sombre ouverte, chemise et tablier crème, cravate noire. Les trois poses des photos s'enchaînent en boucle : (1) face, tronçonneuse brandie à deux mains au-dessus de la tête ;
+   (2) de dos, en silhouette, tronçonneuse haute ; (3) le grand coup de côté (un bras tendu, la lame vers le bas, la veste qui s'envole), d'abord vers la gauche puis vers la droite. Fond : ciel de coucher de soleil, soleil bas à l'horizon, silhouette noire par-dessus. */
+var DANSE_L=26,DANSE_H=24;
+var DANSE_COUL={J:[AMB,1],N:[AMB,1],K:[AMB,1],S:[BLA,215],C:[BLA,165],M:[ROU,255],T:[BLA,255],G:[BLA,200],H:[BLA,210],D:[BLA,70],R:[ROU,255],O:[AMB,255]};
+function posesDanse(){
+  function grille(){var g=[],j;for(j=0;j<DANSE_H;j++)g.push(new Array(DANSE_L+1).join('.').split(''));return g;}
+  function put(g,r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<DANSE_H&&x>=0&&x<DANSE_L&&str[i]!=='.')g[y][x]=str[i];}}
+  function corps(g,dx,face,flare){                                 /* tête, buste, jambes (centrés sur la colonne 10,5 + dx) */
+    put(g,5,dx+8,'KKKKKK');put(g,6,dx+7,'KKKKKKKK');put(g,7,dx+6,'KKKKKKKKKK');put(g,8,dx+6,'KK');put(g,8,dx+14,'KK');put(g,9,dx+7,'K');put(g,9,dx+14,'K');put(g,10,dx+7,'K');put(g,10,dx+14,'K');put(g,11,dx+8,'K');put(g,11,dx+13,'K');
+    if(face){
+      put(g,7,dx+8,'SSSSSS');put(g,8,dx+8,'SSSSSS');put(g,9,dx+8,'SSSSSS');put(g,10,dx+8,'SSSSSS');put(g,11,dx+9,'SSSS');
+      put(g,8,dx+9,'K');put(g,8,dx+12,'K');put(g,9,dx+9,'K');put(g,9,dx+12,'K');          /* orbites noires */
+      put(g,10,dx+9,'MMMM');put(g,11,dx+10,'TT');                                          /* bouche ouverte */
+      put(g,7,dx+8,'KKKK');                                                                /* mèche sur le front */
+    }else{put(g,8,dx+8,'KKKKKK');put(g,9,dx+8,'KKKKKK');put(g,10,dx+8,'KKKKKK');put(g,11,dx+9,'KKKK');}
+    put(g,12,dx+5,'KKKK');put(g,12,dx+13,'KKKK');put(g,12,dx+9,face?'CCCC':'KKKK');
+    var r;for(r=13;r<=16;r++){put(g,r,dx+4,'KKKKK');put(g,r,dx+13,'KKKKK');put(g,r,dx+9,face?'CCCC':'KKKK');}
+    if(face){put(g,13,dx+10,'K');put(g,14,dx+10,'K');put(g,15,dx+10,'K');put(g,16,dx+8,'CCCCCC');put(g,17,dx+8,'CCCCCC');put(g,18,dx+8,'CCCCCC');}
+    if(flare){put(g,14,dx+2,'KK');put(g,15,dx+1,'KKK');put(g,16,dx+0,'KKKK');put(g,17,dx+0,'KKK');put(g,14,dx+17,'KK');put(g,15,dx+17,'KKK');put(g,16,dx+18,'KKKK');put(g,17,dx+19,'KKK');}
+    put(g,17,dx+7,'KKKKKKKK');put(g,18,dx+7,'KKKKKKKK');
+    for(r=19;r<=22;r++){put(g,r,dx+7,'KKK');put(g,r,dx+12,'KKK');}
+    put(g,23,dx+6,'KKKK');put(g,23,dx+12,'KKKK');
+  }
+  function sciehaut(g,dx,dy){                                      /* tronçonneuse horizontale : poignée au-dessus du moteur (gris, bande rouge), longue lame à chaîne (dents ambre) */
+    put(g,dy,dx+10,'HHHH');put(g,dy+1,dx,'GGGGGGGGG');put(g,dy+1,dx+9,'DDDDDDD');
+    put(g,dy+2,dx,'OGOGOGOGO');put(g,dy+2,dx+9,'DRRRDDD');put(g,dy+3,dx,'GGGGGGGGG');put(g,dy+3,dx+9,'DDDDDDD');
+  }
+  function brasHauts(g,dx,mains){                                  /* deux bras levés, coudes écartés */
+    var L=[[5,4],[6,4],[7,4],[8,5],[9,6],[10,7],[11,8]],Rr=[[5,15],[6,15],[7,15],[8,14],[9,13],[10,12],[11,11]];
+    L.concat(Rr).forEach(function(q){put(g,q[0],dx+q[1],'KK');});
+    put(g,4,dx+4,mains?'SS':'KK');put(g,4,dx+14,mains?'SS':'KK');
+  }
+  var A=grille();corps(A,4,true,false);brasHauts(A,4,true);sciehaut(A,4,0);                     /* 1. face, brandie à deux mains */
+  var B=grille();corps(B,4,false,true);brasHauts(B,4,false);sciehaut(B,4,0);                    /* 2. de dos, silhouette, veste ouverte */
+  var C=grille();corps(C,8,true,true);                                                          /* 3. le grand coup de côté vers la gauche : une main sur la poignée, la lame vers le bas */
+  [[12,14],[11,14],[10,13],[9,13],[8,12],[7,12],[6,11],[5,11]].forEach(function(q){put(C,q[0],q[1],'KK');});
+  put(C,4,11,'SS');put(C,0,10,'HHHH');put(C,1,9,'DDDDDDD');put(C,2,9,'DRRRDDD');put(C,3,9,'DDDDDDD');
+  for(var k=0;k<9;k++){var yy=3+k,xx=8-k;put(C,yy,xx,k%2?'OG':'GO');}
+  [[12,23],[13,23],[14,23],[15,22]].forEach(function(q){put(C,q[0],q[1],'KK');});
+  var D=grille();corps(D,10,true,false);                                                        /* 4. il scie : tronçonneuse tenue à deux mains devant lui, la lame vers la gauche, posée sur la piste de vie */
+  [[12,14],[13,13],[14,12],[15,11],[16,10]].forEach(function(q){put(D,q[0],q[1],'KK');});
+  [[12,15],[13,14],[14,14],[15,14]].forEach(function(q){put(D,q[0],q[1],'KK');});
+  put(D,16,9,'SS');put(D,16,13,'SS');put(D,17,9,'HHHH');put(D,18,9,'DDDDDD');put(D,19,9,'DRRRDD');put(D,20,9,'DDDDDD');put(D,21,9,'DDDDDD');put(D,22,9,'DDDDDD');put(D,23,9,'DDDDDD');
+  put(D,21,0,'GGGGGGGGG');put(D,22,0,'OGOGOGOGO');put(D,23,0,'GGGGGGGGG');
+  var out=[A,B,C,D];
+  var out2=out.map(function(g){return g.map(function(r){return r.join('');});});
+  out2.push(out2[2].map(function(r){return r.split('').reverse().join('');}));                 /* le même coup vers la droite (pose 5) */
+  return out2;
+}
+var DANSE_POSES=posesDanse();
+/* LA POURSUITE (Norman, 2026-11-02 : « un peu avant Leatherface, un fourgon comme dans le film, qui roule devant lui ; il court derrière en tenant sa tronçonneuse au niveau de sa tête, bras levé ; une fille à l'arrière, représentée dessus ; si on gagne le combat, la voiture se sauve et il fait sa danse ; si on perd, Leatherface tue la fille ») :
+   le pick-up bleu de la photo (de profil, le capot à gauche), la fille dans la benne (cheveux jaunes, robe rose, bras en l'air qui s'agitent), et Leatherface de profil qui court, la tronçonneuse brandie au-dessus de la tête (plus de sang contre la barre). Même grille de lettres que les poses de la danse. */
+var CAMION_COUL={B:[BLE,235],b:[BLE,140],w:[BLE,45],W:[BLA,240],T:[BLE,70],r:[BLA,210],h:[BLA,120],O:[AMB,255],R:[ROU,255],Y:[AMB,255],S:[BLA,215],P:[ROS,255],M:[ROU,255]};
+var CAMION_L=36,CAMION_H=15;
+function camionRows(bras,phase,fille){
+  var g=[],j;for(j=0;j<CAMION_H;j++)g.push(new Array(CAMION_L+1).join('.').split(''));
+  function put(r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<CAMION_H&&x>=0&&x<CAMION_L&&str[i]!=='.')g[y][x]=str[i];}}
+  put(0,15,'BBBBBBBB');put(1,14,'BBBBBBBBBB');
+  put(2,13,'BwwwBwwwwwBB');put(3,12,'BwwwwBwwwwwBB');put(4,11,'BBBBBBBBBBBBBB');
+  put(5,2,'BBBBBBBBBBBBBBBBBBBBBBBB');
+  put(5,26,'BBBBBBBBBB');
+  for(j=6;j<=8;j++)put(j,1,'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB');
+  put(9,1,'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');put(10,1,'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb');
+  put(6,27,'bbbbbbbb');put(7,27,'bbbbbbbb');                      /* intérieur sombre de la benne */
+  put(8,0,'W');put(9,0,'W');put(10,0,'W');put(8,35,'W');put(9,35,'W');put(10,35,'W');   /* pare-chocs */
+  put(7,1,'O');put(7,35,'R');
+  function roue(cx,cy){
+    /* roue ronde (disque de 7 points, coins coupés) dont les rayons tournent d'une image à l'autre */
+    var m=['..TTT..','.TrrrT.',phase?'TrhrhrT':'TrrhrrT',phase?'TrrhrrT':'ThhrhhT',phase?'TrhrhrT':'TrrhrrT','.TrrrT.','..TTT..'],k;
+    for(k=0;k<7;k++)put(cy-3+k,cx-3,m[k]);
+  }
+  roue(8,11);roue(29,11);
+  if(fille){
+    put(1,29,'YYY');put(2,28,'Y');put(2,29,'SSS');put(2,32,'Y');put(3,30,'S');put(4,28,'PPPPP');put(3,29,'P');put(3,31,'P');
+    put(2,30,'M');
+    if(bras){put(0,27,'S');put(1,27,'S');put(2,28,'S');put(0,33,'S');put(1,33,'S');put(2,32,'S');}
+    else{put(3,26,'SSS');put(3,32,'SSS');put(4,27,'S');put(4,33,'S');}
+  }
+  return g.map(function(r){return r.join('');});
+}
+var CAMIONS={};
+function camion(fille,bras,phase){var k=(fille?1:0)+'|'+bras+'|'+phase;return CAMIONS[k]||(CAMIONS[k]=camionRows(bras,phase,fille));}
+function posesProfil(){
+  function grille(){var g=[],j;for(j=0;j<DANSE_H;j++)g.push(new Array(DANSE_L+1).join('.').split(''));return g;}
+  function put(g,r,c,str){for(var i=0;i<str.length;i++){var y=r,x=c+i;if(y>=0&&y<DANSE_H&&x>=0&&x<DANSE_L&&str[i]!=='.')g[y][x]=str[i];}}
+  /* Leatherface de PROFIL, tourné vers la gauche, avec les MÊMES vêtements que de face (Norman, 2026-11-02) : cheveux noirs en bataille, une partie du visage blanc (masque pâle) avec UN œil noir et la bouche ouverte, chemise blanche, cravate noire, veste noire, pantalon noir.
+     Le noir est « éteint » sur le ciel de coucher de soleil : le personnage se détache en silhouette, avec son visage et sa chemise blancs. */
+  function corps(g){
+    put(g,4,9,'KKKKK');put(g,5,8,'KKKKKKK');put(g,6,7,'SKKKKKKK');                                  /* cheveux : sommet, mèches, front pâle qui dépasse */
+    put(g,7,6,'SSSSKKKKK');put(g,8,5,'SKSSSKKKK');put(g,9,4,'SSKSSSKKK');put(g,10,5,'SSSSSSKK');   /* visage blanc de profil : front, œil noir (x6), nez qui dépasse (x4), joue */
+    put(g,11,5,'MMSSSSK');put(g,12,6,'SSSSK');                                                        /* bouche ouverte, menton */
+    put(g,13,7,'CCKKK');                                                                              /* col de chemise blanc, nuque noire */
+    put(g,14,6,'CCKKKKKKK');put(g,15,6,'CKCKKKKKK');put(g,16,6,'CKCKKKKKK');put(g,17,7,'CKCKKKKK');put(g,18,7,'CKCKKKKK');put(g,19,8,'CCCKKKKK');   /* chemise blanche, cravate noire au milieu, veste noire */
+    put(g,20,9,'KKKKKKK');                                                                            /* hanches */
+  }
+  function jambes(g,type){
+    var a=type===0?[[21,9],[22,8],[23,7],[21,12],[22,13],[23,14]]:type===1?[[21,10],[22,10],[23,10],[21,12],[22,13],[23,14]]:[[21,8],[22,7],[23,6],[21,12],[22,14],[23,16]];
+    a.forEach(function(p){put(g,p[0],p[1],'KK');});
+  }
+  function scieHaut(g){put(g,0,14,'HHHH');put(g,1,3,'GGGGGGGGGG');put(g,1,13,'DDDDDDD');put(g,2,3,'OGOGOGOGOG');put(g,2,13,'DRRRDDD');put(g,3,3,'GGGGGGGGGG');put(g,3,13,'DDDDDDD');}
+  function course(pas){
+    var g=grille();corps(g);jambes(g,pas);
+    [[13,13],[12,14],[11,14],[10,15],[9,15],[8,15],[7,15],[6,15]].forEach(function(p){put(g,p[0],p[1],'KK');});   /* bras levé, tronçonneuse brandie au-dessus de la tête */
+    put(g,5,15,'SS');scieHaut(g);
+    [[15,15],[16,16],[17,17],[18,18],[19,18]].forEach(function(p){put(g,p[0],p[1],'KK');});                       /* l'autre bras balance */
+    return g.map(function(r){return r.join('');});
+  }
+  /* Le coup qui coupe la tête (trois poses faites pour cela, pas la danse) : 1. armé, la scie levée en arrière à l'oblique ; 2. le coup, bras tendus, la lame à l'horizontale à hauteur du cou de la fille ; 3. l'élan, la scie retombe en bas à gauche */
+  function arme(){
+    var g=grille();corps(g);jambes(g,2);
+    [[13,13],[12,14],[11,15],[10,16],[9,17],[8,18]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    put(g,7,18,'SS');
+    for(var k=0;k<9;k++){put(g,6-Math.floor(k*0.55),19+k>25?25:19+k,k%2?'G':'O');}   /* lame levée vers l'arrière-haut */
+    put(g,3,15,'HHH');put(g,4,15,'DDDDD');put(g,5,15,'DRRRD');put(g,6,15,'DDDDD');
+    [[16,15],[17,16],[18,17],[19,17]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    return g.map(function(r){return r.join('');});
+  }
+  function coup(){
+    var g=grille();corps(g);jambes(g,2);
+    [[13,13],[12,13],[11,12],[10,11],[9,10],[8,9],[7,8],[6,8],[5,8]].forEach(function(p){put(g,p[0],p[1],'KK');});   /* bras tendus vers l'avant-haut */
+    put(g,4,7,'SS');
+    scieHaut(g);
+    put(g,1,0,'GGGGGGGGGGGG');put(g,2,0,'OGOGOGOGOGOG');put(g,3,0,'GGGGGGGGGGGG');                                  /* la lame s'allonge vers la cible */
+    [[16,15],[17,16],[18,17],[19,17]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    return g.map(function(r){return r.join('');});
+  }
+  function elan(){
+    var g=grille();corps(g);jambes(g,0);
+    [[13,13],[12,12],[11,11],[10,10],[9,9],[8,8]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    put(g,7,7,'SS');
+    for(var k=0;k<10;k++){var yy=6+k,xx=7-k;if(xx>=0)put(g,yy,xx,k%2?'OG':'GO');}                                   /* la scie retombe en diagonale vers le bas-gauche */
+    put(g,5,8,'HHH');put(g,6,9,'DDDD');put(g,7,10,'DRRD');
+    [[16,15],[17,16],[18,17],[19,17]].forEach(function(p){put(g,p[0],p[1],'KK');});
+    return g.map(function(r){return r.join('');});
+  }
+  return {course:[course(0),course(1)],arme:arme(),coup:coup(),elan:elan()};
+}
+var PROFIL=posesProfil();
+var COURSE_POSES=PROFIL.course;
+/* dessin d'une grille de lettres avec une table de couleurs, mise à l'échelle au plus proche voisin (e peut dépasser 1) */
+function dessinerCoul(rows,coul,sx,sy,e){
+  var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e),i,j,r,c,q;
+  for(j=0;j<dh;j++){r=rows[Math.min(rows.length-1,Math.floor(j/e))];for(i=0;i<dw;i++){c=r[Math.min(r.length-1,Math.floor(i/e))];if(c==='.')continue;q=coul[c];if(q)px(sx+i,sy+j,q[0],q[1]);}}
+}
+/* géométrie de la poursuite à une position donnée du bout de la barre de vie xe (Norman, 2026-11-02 : « le fourgon ne doit pas s'arrêter, il continue de suivre la barre de vie ; Leatherface est derrière ; la barre de vie montre la position de la fille dans le fourgon ») :
+   la FILLE (colonne 30 du fourgon) est exactement au bout de la barre ; le fourgon roule devant, Leatherface court derrière lui (à droite). Quand la vie baisse, tout avance vers la gauche et le fourgon finit par sortir de l'écran avec la barre. */
+function geoCourse(xe){
+  var W=P.W,H=P.H,fl=H-2,es=echelleDanse(),ec=es*1.6,tw=Math.round(CAMION_L*ec),th=Math.round(CAMION_H*ec),gap=Math.max(5,Math.round(8*es));
+  var tx=xe-Math.round(30*ec),sxL=Math.min(tx+tw+gap-Math.round(3*es),W-Math.round(26*es));
+  var dhs=Math.round(DANSE_H*es);
+  return {fl:fl,es:es,ec:ec,tw:tw,th:th,gap:gap,sxL:sxL,tx:tx,sy:fl-2-(dhs-1),syT:fl-2-(th-1)};
+}
+
+function cielCouchant(fl,xc,lev,t){
+  var W=P.W,i,j,hor=fl-2,tt=t||0;
+  for(j=0;j<hor;j++){var g=j/hor,c=g<0.5?ROU:AMB,v=90+Math.round(120*g*g);for(i=0;i<W;i++)px(i,j,c,v);}     /* ciel de coucher de soleil */
+  for(var k=0;k<5;k++){                                            /* longs nuages qui dérivent lentement, bords effilés */
+    var cy=2+k*3+Math.floor(R(k,11)*2),cl=16+Math.floor(R(k,12)*18),cx=((R(k,13)*W+tt*(1.2+k*0.4))%(W+cl))-cl;
+    for(i=0;i<cl;i++){var fd=Math.sin(i/cl*3.1416);px(cx+i,cy,ROS,60+90*fd);if(fd>0.5)px(cx+i,cy+1,ROU,40+60*fd);}
+  }
+  var sunY=hor+4-Math.round(lev*10),sunX=Math.min(W-14,xc+24);
+  for(j=-13;j<=13;j++)for(i=-17;i<=17;i++){var d2=i*i/1.5+j*j;if(d2>60&&d2<=170&&sunY+j<hor)px(sunX+i,sunY+j,AMB,Math.round(170*(1-(d2-60)/110)));}   /* halo */
+  for(j=-8;j<=8;j++)for(i=-10;i<=10;i++)if(i*i/1.5+j*j<=60&&sunY+j<hor)px(sunX+i,sunY+j,BLA,j*j+i*i/2<22?255:150);
+  for(i=0;i<W;i++){                                                /* collines basses en silhouette */
+    var h=2+Math.round(1.6*Math.sin(i*0.11)+1.2*Math.sin(i*0.047+1.3));
+    for(j=0;j<h;j++)px(i,hor-1-j,AMB,1);
+  }
+  for(i=3;i<W;i+=11){for(j=0;j<5;j++)px(i,hor-1-j,AMB,1);}        /* clôture : poteaux et fil de fer */
+  for(i=0;i<W;i++)if(i%2===0)px(i,hor-4,AMB,1);
+  var tx=W-9;for(j=0;j<9;j++)px(tx,hor-1-j,AMB,1);                 /* arbre nu à droite */
+  [[-1,-5],[-2,-6],[1,-6],[2,-7],[-3,-8],[0,-9],[3,-9]].forEach(function(q){px(tx+q[0],hor+q[1],AMB,1);px(tx+q[0]*0.5,hor+q[1]+1,AMB,1);});
+}
+/* Échelle de Leatherface (Norman, 2026-11-02 : « je n'ai pas l'animation de Leatherface » : sur un écran de borne moins haut que 26 rangées, c'était l'ancien petit personnage) : réduit au plus proche voisin pour tenir dans la zone, jamais en dessous de 15 rangées. */
+function echelleDanse(){return Math.min(1,(P.H-4)/DANSE_H);}
+function dessinerPose(rows,sx,sy,e){
+  e=e||1;
+  if(e>=1){for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){var ch=rows[j][i];if(ch==='.')continue;var q=DANSE_COUL[ch];if(q)px(sx+i,sy+j,q[0],q[1]);}return;}
+  var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e);
+  for(var j2=0;j2<dh;j2++){var r=rows[Math.min(rows.length-1,Math.floor(j2/e))];for(var i2=0;i2<dw;i2++){var c2=r[Math.min(r.length-1,Math.floor(i2/e))];if(c2==='.')continue;var q2=DANSE_COUL[c2];if(q2)px(sx+i2,sy+j2,q2[0],q2[1]);}}
+}
+function danseFinale(t,fl,xc,u){
+  var W=P.W,H=P.H,i,j,lev=sm(u/2.5);
+  cielCouchant(fl,xc,lev,t);
+  var cycle=u%2.8,ph=cycle<0.8?0:cycle<1.2?2:cycle<2.0?1:4;                                              /* face, coup à gauche, de dos, coup à droite */
+  if(P.reduced)ph=0;
+  var e=echelleDanse(),dh=Math.round(DANSE_H*e);
+  var rows=DANSE_POSES[ph],sy=fl-2-(dh-1)-((!P.reduced&&Math.floor(t/0.06)%2)?1:0),sx=xc-Math.round(12*e);
+  dessinerPose(rows,sx,sy,e);
+  /* Norman (2026-11-03) : « pendant la danse de Leatherface, il ne doit pas y avoir de sang qui gicle » : plus de gerbes de sang pendant la danse (elles venaient de la tronçonneuse brandie). */
+}
+function sprite2(rows,x,y,k,v){
+  for(var j=0;j<rows.length;j++)for(var i=0;i<rows[j].length;i++){
+    var ch=rows[j][i];if(ch==='.'||ch===' ')continue;
+    for(var b=0;b<k;b++)for(var a=0;a<k;a++)px(x+i*k+a,y+j*k+b,PAL[ch]||AMB,v);
+  }
+}
+function sSweep(t){
+  var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,fin=Boolean(P.p.fin),pc=fin?0:(S.pv?clamp(S.pv.pct,0,1):1),n=Math.round(pc*len),xe=x0+n,i,K=(H>=26&&W>=17*3+4)?3:2,ch=Math.floor(t*14),j;
+  if(H>=15&&W>=30){                                                /* Leatherface, du début à la fin : il suit la fin de la vie du boss, puis fait sa danse quand elle est vide */
+    cielCouchant(fl,Math.max(14,x0+18),1,t);
+    for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
+    for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
+    var G=geoCourse(xe),bras=(!P.reduced&&Math.floor(t*3)%2)?1:0,phase=(!P.reduced&&Math.floor(t*12)%2)?1:0,rebond=(!P.reduced&&Math.floor(t/0.07)%2)?1:0;
+    if(fin){                                                       /* le combat est gagné (scène de victoire) : le fourgon se sauve par la gauche pendant que Leatherface freine et court jusqu'à sa place, puis il fait sa danse (le texte VICTOIRE s'écrit à droite) */
+      var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}
+      var uf=t-pp.te,TC=1.0,xd=clamp(x0+18,14,W-14);
+      if(uf<TC){
+        cielCouchant(fl,xd,1,t);
+        var ar=sm(uf/TC),sxr=Math.round(pp.sx0+(xd-Math.round(12*G.es)-pp.sx0)*ar);
+        dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,sxr,G.sy-rebond,G.es);
+      }else danseFinale(t,fl,xd,uf-TC);
+      dessinerCoul(camion(true,bras,phase),CAMION_COUL,G.tx-Math.round(uf*uf*40+uf*10),G.syT-rebond,G.ec);
+      return;
+    }
+    dessinerCoul(camion(true,bras,phase),CAMION_COUL,G.tx,G.syT-rebond,G.ec);                    /* le fourgon roule devant, la fille dans la benne agite les bras */
+    dessinerCoul(COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0],DANSE_COUL,G.sxL,G.sy-rebond,G.es);   /* Leatherface court derrière, tronçonneuse brandie */
+    return;
+  }
+  for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
+  for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
+  var sx2=Math.max(0,Math.min(xe,W-17*K)),sy2=fl-8*K+1;
+  sprite2(HEROS_TRONCO,sx2,sy2,K,255);
+  for(i=0;i<6*K;i++)for(j=0;j<2*K;j++)px(sx2+i,sy2+6*K+j,((i+ch)%4<2)===(j<K)?AMB:BLA,255);
+}
+
+/* 5 ter. LA RED ROOM (Norman, 2026-11-02 : « une nouvelle scène de défaite : 2 fois l'homme de la photo ; le premier court pour s'échapper (au niveau de la barre de vie), le 2e derrière lui court après ; s'il arrive au bout, il passe à travers un passage dans le rideau rouge ; si on perd, le double pose sa main sur l'épaule du premier, qui s'arrête figé ; sur le chemin : la Vénus de Milo et un nain qui danse avec des mouvements étranges »).
+   Décor 100 % LED : rideau bordeaux à plis verticaux (fixe), sol en chevrons clair / bordeaux qui défile (période de 8 colonnes, glissement d'un nombre entier de colonnes : boucle parfaite). L'homme : costume noir (point éteint, donc silhouette sur le rouge), chemise blanche, cravate noire, cheveux plaqués, de profil vers la gauche.
+   Le fuyard est au bout de la barre de vie (comme le héros et le fourgon), le poursuivant derrière lui ; la Vénus et le nain arrivent par la droite avec le sol et sortent par la gauche (hors écran aux deux bouts : aucun à-coup) ; ils passent DERRIÈRE les personnages. */
+var RR_SP=30,RR_OC=12,RR_OW=22;
+var HOMME_COUL={K:[BLE,34],S:[BLA,175],W:[BLA,255]},HOMME_COUL_NOIR={K:[AMB,1],S:[BLA,175],W:[BLA,255]};
+var VENUS_COUL={M:[BLA,165],m:[BLA,80],p:[BLA,105]};
+var NAIN_COUL={R:[ROU,255],S:[BLA,235],k:[AMB,1]},NAIN_CONTOUR={R:[BLE,34],S:[BLE,34]};
+function rrGrille(w,h){var g=[],j;for(j=0;j<h;j++)g.push(new Array(w+1).join('.').split(''));return g;}
+function rrPut(g,r,c,s){for(var i=0;i<s.length;i++){var y=r,x=c+i;if(y>=0&&y<g.length&&x>=0&&x<g[0].length&&s[i]!=='.')g[y][x]=s[i];}}
+/* f : 0 et 1 = foulées de la course, 2 = debout (figé) ; 3 = debout sans le bras avant (le poursuivant qui tend la main : le bras est dessiné à part) */
+function hommeRows(f){
+  var g=rrGrille(13,19),p=function(r,c,s){rrPut(g,r,c,s);};
+  p(0,4,'KKKKK');p(1,3,'KKKKKKK');p(2,2,'SSKKKKKK');p(3,2,'SKSSKKK');p(4,1,'SSSSSKK');p(5,2,'SSSSK');p(6,3,'SSK');p(7,3,'WWK');
+  p(8,2,'WWKKKKK');p(9,2,'WWKKKKK');p(10,2,'WKKKKKK');p(11,2,'WKKKKKK');p(12,2,'WWKKKKK');p(13,3,'KKKKKK');
+  if(f===0){
+    p(12,1,'K');p(11,1,'K');p(10,0,'K');p(9,0,'S');p(10,9,'K');p(11,9,'K');p(12,10,'K');p(13,10,'S');
+    p(14,3,'KK');p(15,2,'KK');p(16,1,'KK');p(17,0,'KK');p(18,0,'KKK');p(14,6,'KK');p(15,7,'KK');p(16,8,'KK');p(17,9,'KK');
+  }else if(f===1){
+    p(12,1,'K');p(13,0,'S');p(9,9,'K');p(8,10,'K');p(8,11,'S');
+    p(14,3,'KK');p(15,3,'KK');p(16,3,'KK');p(17,3,'KK');p(18,2,'KKK');p(14,5,'KK');p(15,6,'KK');p(16,7,'KK');p(17,8,'KK');p(16,9,'K');
+  }else{
+    if(f===2){p(10,1,'K');p(11,1,'K');p(12,1,'K');p(13,1,'S');}
+    p(10,9,'K');p(11,9,'K');p(12,9,'K');p(13,9,'S');
+    p(14,3,'KK');p(15,3,'KK');p(16,3,'KK');p(17,3,'KK');p(18,2,'KKK');p(14,5,'KK');p(15,5,'KK');p(16,5,'KK');p(17,5,'KK');p(18,5,'KKK');
+  }
+  return g.map(function(r){return r.join('');});
+}
+var HOMMES=[hommeRows(0),hommeRows(1),hommeRows(2),hommeRows(3)];
+/* La Vénus de Milo : marbre blanc, sans bras (seulement les moignons d'épaules), drapée de la taille aux pieds, sur un socle */
+var VENUS=['..MMM....','..MMM....','...M.....','.MMMMMM..','..MMMMm..','..MMMMm..','...MMm...','...MMm...','..MMMMMm.','.mmmmmmmm','.MMmMMmMm','.MMmMMmMm','.MMMmMmMM','MMmMMmMMm','MMmMmMmMM','ppppppppp','MMMMMMMMM','ppppppppp'];
+/* Le nain qui danse : costume rouge, tête claire ; quatre poses bizarres qui s'enchaînent à des rythmes irréguliers (cycle de 1,38 s, boucle sans à-coup) */
+var NAIN_POSES=[
+  ['S.SSS.S','R.SSS.R','.RRRRR.','..RRR..','..RRR..','..RRR..','.RR.RR.','RR...R.','R....R.','R...RR.'],
+  ['.SSS...','.SSS...','RRRRRRR','S.RR..S','..RRR..','..RRR..','..R.R..','..R.R..','.RR.RR.','.......'],
+  ['.......','.......','...SSS.','...SSS.','.RRRRR.','SRRRRRS','.RRRRR.','RR...RR','RR...RR','R.....R'],
+  ['..SSS.S','..SSS.R','..RRRR.','..RRR..','S.RRR..','R.RRR..','..R.R..','.R...R.','.R....R','RR.....']
+];
+var NAIN_SEQ=[[0,0.2],[2,0.12],[1,0.3],[3,0.14],[0,0.1],[3,0.24],[2,0.1],[1,0.18]],NAIN_TOT=1.38;
+function rrNainPose(t){var u=((t%NAIN_TOT)+NAIN_TOT)%NAIN_TOT,k;for(k=0;k<NAIN_SEQ.length;k++){if(u<NAIN_SEQ[k][1])return NAIN_SEQ[k][0];u-=NAIN_SEQ[k][1];}return 0;}
+function rrGeo(){var H=P.H,fh=Math.min(8,Math.round(H*0.3)),e=Math.min(1,(H-5)/19);return {fl:H-2,fh:fh,ft:H-fh,e:e,mw:Math.round(13*e),mh:Math.round(19*e)};}
+function dessinerMasque(rows,coul,sx,sy,e,xMin){
+  var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e),i,j,r,c,q;
+  for(j=0;j<dh;j++){r=rows[Math.min(rows.length-1,Math.floor(j/e))];for(i=0;i<dw;i++){if(sx+i<xMin)continue;c=r[Math.min(r.length-1,Math.floor(i/e))];if(c==='.')continue;q=coul[c];if(q)px(sx+i,sy+j,q[0],q[1]);}}
+}
+/* La clairière derrière le rideau ouvert (photo de Norman, 2026-11-02) : grands sapins vert très sombre, ciel pâle rosé au centre en haut, jeunes arbres nus clairs et fins, sol de terre brune (aiguilles), et au centre le trou bordé de cendre blanche. Une colonne à la fois ; u = colonne dans l'ouverture entière (l'ouverture est une fenêtre qui s'élargit sur ce paysage fixe). */
+function rrClairiere(x,G,t){
+  var u=x-(RR_OC-Math.floor(RR_OW/2)),H=P.H,gy=G.ft-5,y,hw,i;
+  for(y=0;y<gy;y++){
+    hw=Math.max(0,4.4-0.4*y)+((y+u)%2?0.6:0);
+    if(Math.abs(u-(RR_OW-1)/2)<=hw){px(x,y,BLE,40);if((u*5+y*11)%7===0)px(x,y,BLA,P.reduced?200:Math.round(40+215*(0.5+0.5*Math.sin(6.2832*(t/2+R(u,y))))));}   /* ciel de nuit étoilé : les étoiles scintillent en boucle parfaite (période 2 s) */
+    else px(x,y,VER,(u*7+y*3)%5===0?24:14);
+  }
+  for(y=gy;y<H;y++)px(x,y,AMB,((x*7+y*13)%6===0)?52:28);
+  /* jeunes arbres nus ÉPARPILLÉS (Norman, 2026-11-02 : « les arbres autour du trou sont mis trop parfaitement, ils doivent être éparpillés ») : positions, hauteurs, longueurs, éclairage et inclinaison irréguliers, quelques-uns plus proches (grands, clairs) et d'autres lointains (courts, ternes), jamais alignés ni espacés pareil ; [colonne, haut, bas (au-dessus du sol), éclat, pente : décalage d'une colonne à partir de la rangée indiquée (0 = droit)] */
+  var ARBRES=[[1,5,0,150,0],[3,2,1,95,0],[6,7,2,120,9],[8,3,0,170,0],[10,8,3,85,0],[13,4,1,140,6],[15,7,4,100,0],[17,2,0,165,8],[19,6,2,115,0],[21,4,1,135,5]];
+  for(i=0;i<ARBRES.length;i++){
+    var ar=ARBRES[i],bas=gy+3-ar[2];
+    for(y=ar[1];y<bas;y++){var dec=ar[4]&&y>=ar[4]?1:0;if(u===ar[0]+dec)px(x,y,BLE,ar[3]+(y%3===0?20:0));}
+    if(u===ar[0]-1&&ar[3]>=130)px(x,ar[1]+1,BLE,ar[3]-20);   /* une branche */
+    if(u===ar[0]+2&&ar[3]>=140)px(x,ar[1]+2,BLE,ar[3]-35);
+  }
+  var cu=Math.floor(RR_OW/2),hy=gy+2;
+  if(u>=cu-3&&u<=cu+3){
+    if(u>=cu-2&&u<=cu+2){px(x,hy,BLA,210);px(x,hy+1,AMB,1);px(x,hy+2,BLA,210);}
+    else{px(x,hy+1,BLA,210);}
+  }
+}
+/* rideau + sol + piste de vie ; op = ouverture du passage (0 à 1) : le rideau s'écarte sur la clairière, rien d'autre (ni bord, ni cadre, ni marge) ;
+   bleu = 0 rouge, 1 lueur bleue d'orage (défaite), 2 éclair (rideau bleu vif, sol blanc-bleuté) */
+function rrDecor(tg,G,pc,op,bleu,t){
+  var W=P.W,H=P.H,x,y,sh=Math.floor(tg*RR_SP),x0=2,len=W-4,n=Math.round(pc*len),ow=Math.round(RR_OW*op),ox0=RR_OC-Math.floor(ow/2),cr=bleu?BLE:ROU,k=bleu===2?1.9:bleu===1?0.8:1;
+  for(x=0;x<W;x++){
+    var f=Math.sin(x*0.95)+0.55*Math.sin(x*0.41+1.3);
+    for(y=0;y<G.ft;y++){var v=Math.max(24,Math.round((92+54*f/1.55)*(1-0.3*y/G.ft)))*k;px(x,y,cr,Math.min(255,Math.round(v)));}
+    px(x,G.ft-1,cr,22);
+  }
+  for(y=G.ft;y<H;y++){
+    for(x=0;x<W;x++){var q=(((x-sh)%8)+8)%8,tri=q<4?q:8-q,cl=((y-G.ft+tri)%4)<2;
+      if(bleu===2)px(x,y,cl?BLA:BLE,cl?255:150);else if(bleu===1)px(x,y,cl?BLA:BLE,cl?120:44);else px(x,y,cl?BLA:ROU,cl?150:58);}
+  }
+  for(x=ox0;x<ox0+ow;x++)rrClairiere(x,G,t);
+  for(x=0;x<len;x++){px(x0+x,G.fl,AMB,34);px(x0+x,G.fl-1,AMB,34);}
+  for(x=0;x<n;x++){px(x0+x,G.fl,BARRE,255);px(x0+x,G.fl-1,BARRE,255);}
+}
+function rrObstacles(t,tg,G,libre){
+  var W=P.W,per=W+60,off=Math.round((W+8)*0.35),e=G.e,vx,nx,po;
+  vx=Math.round(((tg*RR_SP+off)%per)-(per-W-8));   /* ils courent vers la gauche : le sol et les passants défilent vers la DROITE (Norman, 2026-11-02 : « le sol défile dans le mauvais sens »), entrent par la gauche et sortent par la droite */
+  dessinerCoul(VENUS,VENUS_COUL,vx,G.fl-2-(Math.round(18*e)-1),e);
+  /* Le nain ne passe qu'UNE SEULE FOIS dans le couloir (Norman, 2026-11-02 : « le nain ne doit être visible qu'une fois dans le couloir ») : il entre par la gauche 4 s après le début de la course (jamais présent au départ), traverse l'écran vers la droite, sort, et ne revient plus de la scène. */
+  nx=Math.round((tg-4)*RR_SP-16);
+  if(tg<4||nx>=W+8)return;
+  po=P.reduced?0:rrNainPose(t);
+  var ny=G.fl-2-(Math.round(10*e)-1),nxx=nx+((po===3)?1:0);
+  if(libre&&nxx+Math.round(7*e)>=libre[0]&&nxx<=libre[1])return;   /* après la prise : le nain ne reste pas planté entre les deux hommes */
+  [[-1,0],[1,0],[0,-1],[0,1]].forEach(function(d){dessinerCoul(NAIN_POSES[po],NAIN_CONTOUR,nxx+d[0],ny+d[1],e);});   /* contour sombre : un costume rouge sur le rideau rouge doit se lire */
+  dessinerCoul(NAIN_POSES[po],NAIN_COUL,nxx,ny,e);
+}
+/* un homme qui s'enfonce dans la clairière : plus il avance dans l'ouverture (d de 0 à 1), plus il rapetisse, remonte vers l'horizon et se rapproche du centre (le trou) ; il disparaît à d = 1 */
+/* le poursuivant à la victoire (Norman, 2026-11-02 : « le 2e perso ne doit pas sortir, il doit s'arrêter et disparaître en fondu ») : il s'arrête, debout, à la place où il courait, et s'efface en fondu (k : 1 à 0) ; il ne passe jamais le rideau */
+function rrHommeFondu(rows,sx,sy,e,k){
+  if(k<=0)return;
+  var dh=Math.round(rows.length*e),dw=Math.round(rows[0].length*e),i,j,r,c,q;
+  for(j=0;j<dh;j++){r=rows[Math.min(rows.length-1,Math.floor(j/e))];for(i=0;i<dw;i++){c=r[Math.min(r.length-1,Math.floor(i/e))];if(c==='.')continue;q=HOMME_COUL[c];if(q)px(sx+i,sy+j,q[0],Math.max(1,Math.round(q[1]*k)));}}
+}
+function rrDessinHomme(rows,fx,G,reb,op){
+  var e=G.e,ctr=fx+G.mw/2,d=op>0?clamp((RR_OC+RR_OW/2-ctr)/RR_OW,0,1):0;
+  if(d>=1)return;
+  var es=e*(1-0.7*d),c2=ctr+(RR_OC-ctr)*d,yb=(G.fl-2)+(G.ft+1-(G.fl-2))*d,w=Math.round(13*es),h=Math.round(19*es);
+  dessinerCoul(rows,HOMME_COUL,Math.round(c2-w/2),Math.round(yb-h+1+reb*(1-d)),es);
+}
+function sRedroom(t){
+  var W=P.W,H=P.H;
+  if(H<15||W<44){sMascot(t);return;}
+  var pp=P.p,fin=Boolean(pp.fin),x0=2,len=W-4,G=rrGeo(),vie=fin?0:(S.pv?clamp(S.pv.pct,0,1):1),e=G.e;
+  var chat=fin||vie<0.14,arrive=fin||vie<=0.06,tg=t,op=fin?1:(vie<0.14?sm((0.14-vie)/0.08):0),gp=Math.max(2,Math.round(4*e));
+  if(fin)tg=pp.tg0||0;
+  else if(arrive){if(pp.tArr==null)pp.tArr=t;tg=pp.tArr;}else pp.tArr=null;
+  rrDecor(tg,G,vie,op,0,t);
+  if(!fin)rrObstacles(t,tg,G);
+  var xe=x0+Math.round(vie*len),fx=fin?6-Math.round(RR_SP*0.5*t):Math.min(xe+2,W-G.mw*2-gp-2);
+  var fr=P.reduced?0:Math.floor(t/0.14)%2,reb=(!P.reduced&&fr)?-1:0;
+  if(fin)rrHommeFondu(HOMMES[2],6+G.mw+gp,G.fl-2-(G.mh-1),e,P.reduced?0:1-sm((t-0.2)/1.0));   /* à la victoire : debout, immobile à sa place, puis fondu */
+  else rrDessinHomme(HOMMES[(fr+1)%2],fx+G.mw+gp,G,reb,op);   /* le poursuivant, derrière (à droite), l'autre foulée */
+  rrDessinHomme(HOMMES[fr],fx,G,reb,op);
+}
+/* Défaite : le poursuivant rattrape le fuyard (tCatch), pose la main sur son épaule ; le fuyard s'arrête net, figé ; le sol et les passants s'arrêtent aussi. */
+function perduRedroom(t){
+  var W=P.W,H=P.H;
+  if(H<15||W<44){ecrase(t);return;}
+  var pp=P.p,x0=2,len=W-4,G=rrGeo(),e=G.e,pc=clamp(pp.pc0==null?1:pp.pc0,0,1),tCatch=1.2,tt=P.reduced?tCatch+1:t;
+  var xe=x0+Math.round(pc*len),gp=Math.max(2,Math.round(4*e)),fx=Math.min(xe+2,W-G.mw*2-gp-2);
+  var caught=tt>=tCatch,tg=(pp.tg0||0)+Math.min(tt,tCatch);
+  var tb=tt-tCatch,eclair=false,bleu=0,E=[[0,0.07],[0.14,0.2],[0.3,0.36],[0.9,0.95]],ei;   /* au contact : quelques éclairs brefs, puis la lueur bleue d'orage reste */
+  if(caught){bleu=1;if(!P.reduced)for(ei=0;ei<E.length;ei++)if(tb>=E[ei][0]&&tb<E[ei][1]){bleu=2;eclair=ei+1;}}
+  rrDecor(tg,G,pc,0,bleu,tt);
+  if(eclair){var bx=[W*0.3,W*0.62,W*0.45,W*0.8][eclair-1],by;for(by=0;by<G.ft;by++){px(Math.round(bx+Math.sin(by*1.7+eclair)*2.2),by,BLA,255);if(by%4===1)px(Math.round(bx+Math.sin(by*1.7+eclair)*2.2)+1,by,BLA,200);}}
+  var fr=caught?2:Math.floor(tt/0.14)%2,reb=(!caught&&fr)?-1:0,sy=G.fl-2-(G.mh-1)+reb;
+  var a=sm(tt/tCatch),far=G.mw+gp,near=Math.round(10*e),cx=fx+Math.round(far+(near-far)*a);
+  rrObstacles(tt,tg,G,caught?[fx-1,cx+G.mw+1]:null);
+  var hc=bleu?HOMME_COUL_NOIR:HOMME_COUL;   /* sur fond bleu, le costume est vraiment éteint */
+  dessinerMasque(HOMMES[caught?3:(fr+1)%2],hc,cx,sy,e,-1e9);
+  dessinerMasque(HOMMES[fr],hc,fx,sy,e,-1e9);
+  var ar=sm((tt-(tCatch-0.3))/0.3);
+  if(ar>0){                                                        /* le bras tendu du poursuivant : manche sombre à partir de son épaule, main pâle posée sur l'épaule du fuyard */
+    var ay=sy+Math.round(8*e),x1=cx+Math.round(2*e),xh=fx+Math.round(9*e),ln=Math.max(1,Math.round((x1-xh)*ar)),k;
+    for(k=0;k<ln;k++){px(x1-k,ay,bleu?AMB:BLE,bleu?1:34);px(x1-k,ay+1,bleu?AMB:BLE,bleu?1:34);}
+    px(x1-ln,ay,BLA,255);px(x1-ln,ay+1,BLA,225);px(x1-ln-1,ay,BLA,225);
+  }
+}
+
+/* 6. La ola puis VICTOIRE ! */
+function sWin(t){
+  var W=P.W,H=P.H,x,y,an=P.p.anim;
+  if(an){                                                          /* la fin de l'animation du combat : château et feux d'artifice, ou la danse de Leatherface ; « VICTOIRE ! » écrit dans l'espace vide à droite */
+    P.p.fin=true;if(an==='redroom')sRedroom(t);else (an==='sweep'?sSweep:sMascot)(t);
+    var tv=T('win'),sv=bigSc(tv),wv=twidth(tv,sv),gx=34,dx=P.W-2-gx;
+    if(wv>dx){sv=1;wv=twidth(tv,1);}
+    if(wv<=dx+2){var vx=gx+Math.floor((dx-wv)/2),vy=Math.round((H-7*sv)/2)-1,al=sm((t-0.6)/0.5)*(1-sm((t-8.0)/0.6));
+      if(al>0){text(tv,vx+1,vy+1,AMB,sv,Math.max(1,Math.round(255*al*0.0)+1));text(tv,vx,vy,BLA,sv,255*al,{fn:function(i,g2){return P.reduced?BLA:Math.abs(g2-(((t-1)*30)%(P.W+30)-15))<3?[ROU,255]:[BLA,255];}});}}
+    return;
+  }
+  if(!an&&t<3.0){
+    var A=sm(t/0.5)*(1-sm((t-2.3)/0.7));
+    for(x=0;x<W;x++){
+      var hgt=(0.5+0.5*Math.sin(x/W*6.2832*1.5-t*5.2))*H*A;
+      for(y=0;y<hgt;y++){var r=y/H;px(x,H-1-y,r<0.5?VER:r<0.85?AMB:BLA,255);}
+    }
+  }
+  var s=T('win'),sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((H-7*sc)/2);
+  var v=sm((t-2.8)/0.4)*(1-sm((t-6.6)/0.5));
+  if(v>0)text(s,Math.floor((W-tw)/2),bt,VER,sc,255*v,{fn:function(i,gx){return P.reduced?VER:Math.abs(gx-(((t-3)*38)%(W+30)-15))<3?[BLA,255]:[VER,255];}});
+  if(P.reduced)return;
+  var cols=[AMB,ROU,BLA,VER,BLE,ROS];
+  for(var i=0;i<46;i++){
+    var ts=3.0+R(i,1)*1.6,vy=10+14*R(i,2),u=t-ts;if(u<0)continue;
+    px(R(i,3)*W+Math.sin(u*3+R(i,4)*6)*2,-1+u*vy,cols[Math.floor(R(i,6)*6)],255);
+  }
+}
+
+/* 7. K.O. puis RECOMMENCE ? (texte seul : rien n'est cliquable, rien n'a l'allure d'un bouton) */
+/* Défaite après la poursuite (Norman, 2026-11-02 : « si on perd le combat, Leatherface tue la fille ») : le fourgon cale, Leatherface le rattrape, grand coup de tronçonneuse : une gerbe rouge, la fille disparaît de la benne ; puis il brandit sa tronçonneuse. Dessin d'ombres en pixels, sans détail. */
+function tueRie(t){
+  var W=P.W,H=P.H,fl=H-2,x0=2,len=W-4,pc=clamp(P.p.pc0==null?1:P.p.pc0,0,1),n=Math.round(pc*len),i;
+  cielCouchant(fl,Math.max(14,x0+18),1,t);
+  for(i=0;i<len;i++){px(x0+i,fl,AMB,34);px(x0+i,fl-1,AMB,34);}
+  for(i=0;i<n;i++){px(x0+i,fl,BARRE,255);px(x0+i,fl-1,BARRE,255);}
+  var G=geoCourse(x0+n),tCoup=1.3,ap=sm(t/0.7),contact=G.tx+G.tw-Math.round(3*G.es)+2,sxl=Math.round(G.sxL-(G.sxL-contact)*ap);
+  var tr=(!P.reduced&&t<0.45)?Math.floor(t*22)%2:0,phase=(!P.reduced&&t<0.45&&Math.floor(t*12)%2)?1:0,bras=(!P.reduced&&Math.floor(t*6)%2)?1:0,vivante=t<tCoup;
+  dessinerCoul(camion(vivante,bras,phase),CAMION_COUL,G.tx+tr,G.syT,G.ec);
+  /* le coup : il court, puis arme la tronçonneuse (0,3 s), puis se fend vers la gauche et frappe à l'instant tCoup, puis la scie retombe ; ensuite il reste debout, la tronçonneuse brandie */
+  var pose,lunge=0;
+  if(t<tCoup-0.45)pose=COURSE_POSES[(!P.reduced&&Math.floor(t/0.14)%2)?1:0];
+  else if(t<tCoup-0.15)pose=PROFIL.arme;
+  else if(t<tCoup+0.12){pose=PROFIL.coup;lunge=Math.round(7*G.es*sm((t-(tCoup-0.15))/0.27));}
+  else if(t<tCoup+0.5)pose=PROFIL.elan;
+  else pose=COURSE_POSES[0];
+  dessinerPose(pose,sxl-lunge,G.sy,G.es);
+  var u=t-tCoup,bx=G.tx+Math.round(30*G.ec),by=G.syT+Math.round(2.5*G.ec);
+  if(u>=0){
+    /* la TÊTE de la fille est tranchée : elle part vers la gauche, monte, retombe sur la route et rebondit une fois ; le corps reste affaissé dans la benne, du rouge jaillit du cou puis coule */
+    var he=G.ec*1.15,hh=Math.max(3,Math.round(3*he)),sol=G.fl-2-hh+1,vx=11,vy=-36,gr=95,ty=by+vy*u+0.5*gr*u*u;
+    var tChute=(-vy+Math.sqrt(vy*vy+2*gr*Math.max(1,sol-by)))/gr,hx=bx-2+vx*Math.min(u,tChute),hy=ty;   /* la tête jaillit vers le haut, retombe sur la route derrière le fourgon et y reste (un petit rebond) */
+    if(u>=tChute){var ur=u-tChute;hy=sol-(ur<0.3?Math.max(0,5*Math.sin(ur/0.3*3.1416)):0);hx+=ur<0.3?ur*10:3;}
+    dessinerCoul(['.YYY.','YSSSY','.YSY.'],CAMION_COUL,Math.round(hx),Math.round(Math.min(hy,sol)),he);
+    dessinerCoul(['PPPPP','PPPPP'],CAMION_COUL,G.tx+Math.round(28*G.ec),G.syT+Math.round(4.2*G.ec),G.ec*0.8);
+    /* BEAUCOUP de sang : trois gerbes qui retombent en pluie, une fontaine qui jaillit du cou en arcs successifs, des éclaboussures qui restent sur le fourgon, une mare qui s'étend sur la route */
+    if(!P.reduced){
+      burst(bx,by+2,u,44,5,34,1.9,[ROU,ROU,ROU,ROS],22);burst(bx-3,by+4,u-0.12,32,15,24,1.7,[ROU,ROU,ROS],26);burst(bx+3,by+1,u-0.25,28,25,40,1.5,[ROU,ROS],20);
+      if(u<1.8)for(i=0;i<16;i++){var ph=(u*2.2+i*0.17)%1,ax=(i%2?1:-1)*(3+ph*(8+(i%5)*2)),ay=-Math.sin(ph*3.1416)*(7+(i%4)*2.5)+ph*ph*14;px(bx+ax*0.9,by+3+ay,ROU,255*(1-u/1.8)*(1-ph*0.4));}
+      for(i=0;i<40;i++){var sp=Math.min(1,u*1.6);if(R(i,31)>sp)continue;px(G.tx+Math.round((6+R(i,32)*28)*G.ec),G.syT+Math.round((1+R(i,33)*9)*G.ec),ROU,150+90*R(i,34));}   /* éclaboussures sur la carrosserie */
+    }
+    var mare=Math.min(1,u/2.2),mx=Math.round(hx)+3,ml=Math.round(4+mare*14);
+    for(i=0;i<ml;i++){px(mx-ml/2+i,G.fl-1,ROU,170+60*R(i,41));if(mare>0.35&&i>2&&i<ml-2)px(mx-ml/2+i,G.fl-2,ROU,120+60*R(i,42));}
+    for(i=0;i<16;i++)px(G.tx+Math.round((26+i*0.7)*G.ec),G.syT+Math.round((5.5+(i%3)*0.8)*G.ec),ROU,210);   /* du rouge partout dans la benne */
+    for(i=0;i<5;i++){var cu=Math.min(1,Math.max(0,(u-0.6)/1.6));px(G.tx+Math.round((27+i*2.2)*G.ec),G.syT+Math.round((7+cu*(4+i%3*2))*G.ec),ROU,230);}   /* ça coule le long de la benne */
+  }
+}
+/* LA MORT DU PERSONNAGE QUI COURT (Norman, 2026-11-02 : « quand on meurt, ce truc lui tombe dessus et l'écrase avec du sang qui gicle », photo d'un Thwomp : bloc de pierre gris, sourcils froncés, yeux rouges, dents, piques tout autour) : il court à l'endroit où s'est arrêtée la vie du boss (p.pc0), le bloc apparaît en haut, tremble,
+   tombe et l'écrase ; le sang gicle de chaque côté, la flaque s'étale, le bloc remonte un peu et reste, taché de rouge. Dessin en lettres comme les autres sprites (palette THWOMP_COUL). */
+var THWOMP=['...S...S...S...','..SSS.SSS.SSS..','.SDDDDDDDDDDDS.','SSDGGGGGGGGGDSS','.SDGDGGGGGDGDS.','SSDGGWRGWRGGDSS','.SDGGGGGGGGGDS.','SSDGWWWWWWWGDSS','.SDGKKKKKKKGDS.','SSDGWWWWWWWGDSS','.SDGGGGGGGGGDS.','SSDDDDDDDDDDDSS','..SSS.SSS.SSS..','...S...S...S...'];
+var THWOMP_COUL={S:[BLA,215],D:[BLA,28],G:[BLA,92],W:[BLA,255],R:[ROU,255],K:[BLA,1]};
+function ecrase(t){
+  var W=P.W,H=P.H,fl=H-2,sp=30,i,th=THWOMP.length,tw=THWOMP[0].length;
+  var vie=clamp(P.p.pc0==null?0.5:P.p.pc0,0,1),hx=Math.min(2+Math.round(vie*(W-4)),W-10);
+  var tt=P.reduced?1.9:t,tApp=0.45,tTombe=1.0,tImp=1.22,u=tt-tImp,aplati=tt>=tImp;
+  var tg=Math.min(tt,tImp);                                          /* le décor s'arrête à l'impact */
+  for(i=0;i<W;i++){px(i,fl,AMB,70);if(((i-Math.floor(tg*sp))%4+4)%4===0)px(i,fl+1<H?fl+1:fl,AMB,120);}
+  for(i=0;i<6;i++){var sx=((R(i,3)*W+tg*7)%W+W)%W,sy=1+Math.floor(R(i,4)*(H-12));px(sx,sy,BLA,70+120*(0.5+0.5*Math.sin(6.2832*(tg/2+R(i,5)))));}
+  var tx=hx+4-Math.floor(tw/2),ty;
+  if(!aplati){
+    var fr=Math.floor(tt/0.12)%2?SPR.hero1:SPR.hero2;
+    spriteDepuis(fr.map(function(r){return r.split('').reverse().join('');}),hx,fl-8,255,-1e9);
+    if(tt<tApp)ty=-th-2;
+    else if(tt<tTombe){var a=sm((tt-tApp)/(tTombe-tApp));ty=Math.round(-th-2+a*7)+(P.reduced?0:Math.round(Math.sin(tt*70)*1));}   /* il descend un peu dans l'écran en tremblant */
+    else{var f=(tt-tTombe)/(tImp-tTombe);ty=Math.round(-th+5+f*f*(fl+1-th-(-th+5)));}                                              /* puis il tombe, de plus en plus vite */
+  }else{
+    var rise=sm((tt-tImp-0.35)/0.6);
+    ty=Math.round(fl+1-th-rise*8);
+    var w=Math.min(14,Math.round(Math.max(0,u)*18));
+    rect(hx+4-w,fl,2*w+1,1,ROU,235);                                 /* la flaque s'étale */
+    rect(hx,fl-1,9,2,ROU,255);rect(hx+1,fl-1,2,1,BLA,255);rect(hx+5,fl-1,3,1,AMB,255);   /* le bonhomme aplati : tête blanche, corps ambre, tout rouge autour */
+    if(!P.reduced){
+      burst(hx+4,fl-1,u,28,31,24,1.3,[ROU],46);burst(hx-1,fl-1,u,12,41,18,1.1,[ROU],38);burst(hx+9,fl-1,u,12,51,18,1.1,[ROU],38);burst(hx+4,fl-2,u-0.12,16,61,14,1.0,[ROU,AMB],30);
+    }
+  }
+  dessinerCoul(THWOMP,THWOMP_COUL,tx,ty,1);
+  if(aplati){for(i=0;i<9;i++)px(tx+3+i,ty+th-3+(i%3===0?1:0),ROU,255);px(tx+4,ty+th-1+Math.min(2,Math.max(0,Math.floor(u*3))),ROU,230);px(tx+10,ty+th-1+Math.min(2,Math.max(0,Math.floor(u*2.5))),ROU,230);}   /* du sang sur la pierre qui coule */
+}
+function sKO(t){
+  var W=P.W,H=P.H,an=P.p.anim==='sweep',am=P.p.anim==='mascot';
+  var rr=P.p.anim==='redroom';
+  if(an)tueRie(t);else if(am)ecrase(t);else if(rr)perduRedroom(t);
+  var tk=t-(an||am||rr?2.4:0),bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*tk),0,1);
+  t=tk;
+  var vk=sm(t/0.15)*(1-sm((t-3.0)/0.3));
+  if(vk>0){
+    var s=T('ko'),ks=bigSc(s),tw=twidth(s,ks),bt=Math.round((H-7*ks)/2),sh=t<0.6&&!P.reduced?Math.round(Math.sin(t*75)*1.5):0;
+    if(rr){var ox,oy;for(ox=-1;ox<=1;ox++)for(oy=-1;oy<=1;oy++)if(ox||oy)text(s,Math.floor((W-tw)/2)+sh+ox,bt+oy,BLA,ks,1);}   /* contour éteint : du rouge sur le rideau rouge ne se lirait pas */
+    text(s,Math.floor((W-tw)/2)+sh,bt,rr?BLA:ROU,ks,255*vk*(0.15+0.85*bl));
+    box(0,0,W-1,H-1,ROU,230*vk*bl);
+    box(1,1,W-2,H-2,ROU,90*vk*bl);
+  }
+  var v2=sm((t-3.3)/0.4);
+  if(rr)v2=0;   /* pas de « RECOMMENCE ? » non plus pendant la Red Room : la scène finit sur les deux hommes */
+  /* Pas de « RECOMMENCE ? » pendant l'animation de Leatherface (Norman, 2026-11-02 : « ne mets pas recommence pour Leatherface ») : la scène finit sur lui. */
+  if(v2>0&&!an){
+    var s2=T('again'),tw2=twidth(s2+' ?',1),bt2=cb(),x=Math.floor((W-tw2)/2);
+    if(am){var dx0,dy0;for(dx0=-1;dx0<=1;dx0++)for(dy0=-1;dy0<=1;dy0++)if(dx0||dy0){var wq0=text(s2,x+dx0,bt2+dy0,BLA,1,1);text('?',x+wq0+4+dx0,bt2+dy0,BLA,1,1);}}   /* contour éteint autour des lettres pour qu'elles se lisent sur la scène */
+    var wq=text(s2,x,bt2,AMB,1,255*v2);
+    text('?',x+wq+4,bt2,BLA,1,255*v2*(P.reduced?1:0.2+0.8*(0.5+0.5*Math.sin(6.2832*t/1.0))));
+    if(x>9){sprite(SPR.crane,2,bt2,200*v2,ROU);sprite(SPR.crane,W-7,bt2,200*v2,ROU);}
+  }
+}
+
+/* 10. Tableau des scores : chiffres qui roulent (numéro du boss, victoires ; jamais de total) */
+function digit(d,x,bt,sc,col,v){
+  var g=gl(String(d)),o=Math.floor((5-g.w)/2);
+  for(var r=0;r<7;r++)for(var c=0;c<5;c++)if(g.rows[r]&(16>>c))
+    for(var sy=0;sy<sc;sy++)for(var sx=0;sx<sc;sx++)px(x+(c-g.x0+o)*sc+sx,bt+r*sc+sy,col,v);
+}
+function oneDigitRoll(dTarget,x,bt,sc,col,p){
+  var total=dTarget+10,val=total*eo(p),n=Math.floor(val),fr=val-n,pitch=7*sc+2;
+  var oldy0=P.cy0,oldy1=P.cy1;
+  P.cy0=Math.max(P.cy0,Math.round(bt+P.yoff));P.cy1=Math.min(P.cy1,Math.round(bt+7*sc-1+P.yoff));
+  digit(n%10,x,bt-Math.round(fr*pitch),sc,col,255);
+  digit((n+1)%10,x,bt+pitch-Math.round(fr*pitch),sc,col,255);
+  P.cy0=oldy0;P.cy1=oldy1;
+}
+function pageScore(label,value,col,lt,W,H){
+  var ds=1,pas=5*ds+2,s=String(value),n=s.length,dw=n*pas-2,lw=twidth(label,1),tot=lw+6+dw,x=Math.floor((W-tot)/2);
+  text(label,x,cb(),BLA,1,255);
+  for(var j=0;j<7;j++)if(j%2===0)px(x+lw+2,cb()+j,AMB,90);
+  var bt=Math.round((H-7*ds)/2);
+  for(var i=0;i<n;i++)oneDigitRoll(+s[i],x+lw+6+i*pas,bt,ds,col,P.reduced?1:clamp((lt-0.45-i*0.15)/1.1,0,1));
+}
+/* Plus de page « VICTOIRES » (Norman, 2026-11-03 : « le Victoire 75 quand on est au boss 76 est inutile, il faut obligatoirement 75 victoires pour affronter le boss 76 ») : le numéro du boss dit déjà combien de victoires il a fallu ; seule la page du boss reste. */
+function sScore(t){
+  var W=P.W,H=P.H,num=Math.min(S.num,99999),vic=Math.min(S.vic,99999),dbl=false;
+  var wins=twidth(T('wins'),1)+6+String(vic).length*(H>=14?12:6)-2<=W-8?T('wins'):T('winsCourt');
+  var pg=[[T('boss'),num,ROU],[wins,vic,VER]];
+  if(P.reduced||!dbl){P.yoff=0;pageScore(pg[0][0],pg[0][1],pg[0][2],P.reduced?3:t,W,H);return;}
+  var tt=(t+0.5)%8,a=Math.floor(tt/4)%2,lt=tt%4,e=eo(lt/0.5),o,x;     /* la scène commence à 0,5 s : la première page est déjà en place */
+  if(lt<0.5){
+    P.yoff=H*(1-e);pageScore(pg[a][0],pg[a][1],pg[a][2],lt,W,H);
+    P.yoff=-H*e;pageScore(pg[1-a][0],pg[1-a][1],pg[1-a][2],4+lt,W,H);
+  }else{P.yoff=0;pageScore(pg[a][0],pg[a][1],pg[a][2],lt,W,H);}
+  P.yoff=0;
+  o=Math.floor(t*10)%4;for(x=0;x<W;x++)if((x-o+40)%4===0){px(x,0,ROU,60);px(W-1-x,H-1,ROU,60);}
+}
+
+/* 9. Objet actif : « PORTE-BONHEUR  1 H 20 MIN » (lucky charm, potions, Bar Bar... : les minuteurs de la valise). Les secondes restantes sont celles de l'état reçu (systemes.consommables.restant), décomptées en direct entre deux synchros (aucune requête). */
+var OBJ_ORDRE=['energyPower','magicPower','r3Power','energyBars','magicBars','luck'];
+var ICONE={luck:'trefle',energyPower:'fiole',magicPower:'fiole',r3Power:'fiole',energyBars:'etoile',magicBars:'etoile'};
+function reste(k,now){var o=S.obj[k];return o?Math.max(0,o.base-(now-o.t0)/1000):0;}
+function dureeTxt(n){
+  n=Math.max(0,Math.floor(Number(n)||0));
+  var d=Math.floor(n/86400),h=Math.floor(n%86400/3600),m=Math.floor(n%3600/60),s=n%60,U=TXT[langue];
+  if(d>0)return d+' '+U.j+' '+h+' '+U.h;
+  if(h>0)return h+' '+U.h+' '+m+' '+U.min;
+  if(m>0)return m+' '+U.min+' '+(s<10?'0':'')+s+' '+U.s;
+  return n+' '+U.s;
+}
+function sObjet(t){
+  var W=P.W,H=P.H,o=P.p.o,nom=TXT[langue].objets[o],ic=SPR[ICONE[o]];
+  if(!nom||!ic)return;
+  var dur=dureeTxt(reste(o,S.now)),x0=13,room=W-x0-4,bt=cb(),wn=twidth(nom,1),wt=twidth(dur,1);
+  chase(t,0.5,VER);
+  sprite(ic,3,Math.round((H-ic.length)/2),255);
+  if(wn+8+wt<=room){text(nom,x0,bt,AMB,1,255);text(dur,x0+wn+8,bt,VER,1,255);return;}   /* tient sur une ligne */
+  var m=2.2,ph=P.reduced||t<m?0:1,u=ph?t-m:t,v=P.reduced?1:sm(u/0.15)*(1-sm((u-(m-0.15))/0.15));
+  if(ph===0)text(nom,x0+(wn>room?-clamp((u-0.5)/1.2,0,1)*(wn-room):0),bt,AMB,1,255*v,{edge:{a:x0-1,b:W-3,f:3}});   /* le nom, puis son temps restant */
+  else{var sc=1;text(dur,x0,Math.round((H-7*sc)/2),VER,sc,255*v);}
+}
+
+/* 11. NUKE : treize petites animations muettes (une seule fois, TN s), tirées sans répétition immédiate ; puis « +N BOSS » si le client connaît le nombre (différence des boss vaincus de l'état) */
+var TN=2.7,NUKE_DUR=4.0,BOMBARDIER=13;   /* indices : 0 à 11 = scènes de base, 12 = le CHIEN, 13 = le bombardier (tirage spécial 1 sur 5), 14 à 20 = scènes réservées, 21 = finale ; le chien dure 3,6 s (NK_SCN) */
+function plein(col,v){var n=P.W*P.H;for(var i=0;i<n;i++){P.c[i]=col;P.v[i]=v>255?255:v<0?0:v;}}
+function eclair(a){if(a>0)plein(a>0.55?BLA:a>0.25?AMB:ROU,255*Math.min(1,a*1.6));}   /* blanc, puis orange, puis rouge */
+function nkTrem(){var z=Z.tier;return z?[Math.round(Math.sin(Z.u*75)*NK_TREMBLE[z]),Math.round(Math.cos(Z.u*61)*NK_TREMBLE[z]*0.6)]:[0,0];}   /* le mot tremble selon le palier */
+function motCle(cle,u,u0,coul,fn2){                              /* mot géant écrit lettre par lettre ; paliers 3 et 4 : lettres arc-en-ciel qui clignotent */
+  if(u<u0)return;
+  var s=T(cle),c=canon(s),sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((P.H-7*sc)/2),n=Math.min(c.length,Math.floor((u-u0)/0.08)+1),z=Z.tier,tr=nkTrem();
+  text(c.slice(0,n),Math.floor((P.W-tw)/2)+tr[0],bt+tr[1],coul,sc,255,{fn:function(i,gx,gy){
+    var q=fn2?fn2(i,gx,gy):((u-u0-i*0.08)<0.15?BLA:coul);
+    if(z>=3){var rc=Math.floor(Z.u*8)%4===3?BLA:nkCouleur(i,Z.u);return q instanceof Array?[rc,q[1]]:rc;}
+    return q;}});
+}
+function motNuke(u,u0,coul,fn2){motCle('nuke',u,u0,coul,fn2);}
+function haloMot(u0,u,cle){                                      /* efface un point autour des lettres du mot pour qu'elles restent lisibles dans le feu */
+  if(u<u0)return;
+  var s=T(cle||'nuke'),c=canon(s),sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((P.H-7*sc)/2),n=Math.min(c.length,Math.floor((u-u0)/0.08)+1),pts=[],i,d,k,tr=nkTrem();
+  text(c.slice(0,n),Math.floor((P.W-tw)/2)+tr[0],bt+tr[1],BLA,sc,255,{fn:function(q,gx,gy){pts.push([gx,gy]);return [BLA,0];}});
+  for(i=0;i<pts.length;i++)for(d=-1;d<=1;d++)for(k=-1;k<=1;k++){var x=pts[i][0]+k+(P.xoff||0),y=pts[i][1]+d+P.yoff;if(x>=0&&y>=0&&x<P.W&&y<P.H)P.v[y*P.W+x]=0;}
+}
+function flammes(x0,x1,u,haut){
+  for(var x=Math.max(0,x0);x<=Math.min(P.W-1,x1);x++){
+    var h=Math.round(haut*(0.4+0.6*R(x,Math.floor(u*14)))),j;
+    for(j=0;j<h;j++)px(x,P.H-1-j,j<h*0.4?BLA:j<h*0.75?AMB:ROU,255);
+  }
+}
+function disque(cx,cy,r,v){for(var j=-r;j<=r;j++)for(var i=-r*2;i<=r*2;i++){var d=Math.sqrt(i*i/4+j*j);if(d<=r)px(cx+i,cy+j,d<r*0.4?BLA:d<r*0.75?AMB:ROU,v);}}
+SPR.trefle=['.GG.GG.','GGGGGGG','.GGGGG.','GGGGGGG','.GG.GG.','...G...','...G...'];
+SPR.fiole=['.WWW.','..W..','.BBB.','BBBBB','BPPPB','BPPPB','.BBB.'];
+SPR.etoile=['...X...','...X...','XXXXXXX','.XXXXX.','..XXX..','.XX.XX.','.X...X.'];
+SPR.missile=['RR......','RWWWWWWX','RR......'];
+SPR.chat1=['.......W.W','X.XXXXXXXX','XXXXXXXWXX','.XXXXXXXXX','.X.X..X.X.','.X.X..X.X.'];
+SPR.chat2=['.......W.W','X.XXXXXXXX','XXXXXXXWXX','.XXXXXXXXX','..X.X.X..X','..X.X.X..X'];
+/* CHAT (silhouette féline, 14 colonnes, alignés par le BAS : yb = rangée des pattes) : course = corps long et bas, queue tendue, deux oreilles pointues ; saut = dos arqué, pattes avant vers le bouton, queue qui ondule ; sur le bouton = accroupi, queue relevée en S */
+SPR.chatG1=['.........X..X.','.........XXXXX','XXXXXXXXXXXWXX','..XXXXXXXXXXXW','..XXXXXXXXXXX.','.XX........XX.','X............X'];
+SPR.chatG2=['.........X..X.','.........XXXXX','XXXXXXXXXXXWXX','..XXXXXXXXXXXW','..XXXXXXXXXXX.','...XX....XX...','...X......X...'];
+SPR.chatSaut=['...XXXXX...X.X.','..XX...XXXXXXX.','.XX.....XXXWXX.','XX....XXXXXXXXW','X.....XX..XXXX.','.......X..X.XX.'];
+SPR.chatPose=['XX........X..X','.X........XXXX','.X......XXXWXX','XXXXXXXXXXXXXW','.XXXXXXXXXXXX.','..XXXXXXXXXX..','..XX.XX.XX.XX.'];
+/* CHIEN (Norman, 2026-11-03 : « un vrai chien de profil », « il ne se retourne JAMAIS » : aucun miroir, le chien reste de profil, tourné vers le bouton, du début à la fin).
+   Dessiné à la main, 24 colonnes x 15 rangées, de profil, tourné vers la DROITE. Lettres : W crème, X ambre, D brun, R rouge (collier), Y jaune (médaille), ' ' = point ÉTEINT (œil, truffe : un point noir se lit parfaitement sur le museau crème), '.' = vide.
+   Tête crème carrée posée plus haut que le dos, museau qui dépasse vers l'avant, truffe éteinte, œil éteint entouré de crème, oreille brune qui pend du haut-arrière de la tête, collier rouge, corps ambre sur le dos et la croupe, blanc sur le ventre et le poitrail,
+   quatre pattes de 2 colonnes (un vide entre l'avant et l'arrière : on voit le dessous du ventre), chaussettes blanches, pattes lointaines brunes, queue en crochet détachée du corps. */
+var DOG_TETES=[
+  ['.WWWWW...','DDDWWWW..','DDDW WW..','DDDWWWWW ','DDDWWWWWW','DD.WWWDDW'],    /* A : museau long à truffe éteinte au bout */
+  ['..WWWW...','.DDWWWWW.','DDDW WWW.','DDDWWWWWW','DDDWWWWW ','.D.WWWDDW'],    /* B : tête plus ronde, museau plus bas */
+  ['.WWWWW...','DDDWWWW..','DDDWWWW..','DDDW WWW ','DDDWWWWWW','DD.WWDDDW']     /* C : œil plus bas, gueule plus marquée */
+];
+function dogBuild(o){
+  var Wd=24,Hd=15,g=[],i,j,by=o.by||0,hy=o.hy,ft=o.pas||0,tete=DOG_TETES[o.tete||0];
+  for(j=0;j<Hd;j++){g.push([]);for(i=0;i<Wd;i++)g[j].push('.');}
+  function p(c,r,ch){if(c>=0&&c<Wd&&r>=0&&r<Hd)g[r][c]=ch;}
+  function rc(c0,r0,c1,r1,ch){var r,c;for(r=r0;r<=r1;r++)for(c=c0;c<=c1;c++)p(c,r,ch);}
+  function leg(c0,top,coul,pied){var r;for(r=top;r<=12;r++)rc(c0,r,c0+1,r,coul);rc(c0,13,c0+1,13,pied);rc(c0,14,c0+2,14,pied);}   /* patte de 2 colonnes : jambe, chaussette, pied qui avance d'un point */
+  leg(7+ft,11+by,'D','D');leg(11-ft,11+by,'D','D');                                /* pattes lointaines, brunes */
+  if(!o.lift)leg(4-ft+(o.mi?1:0),o.mi?12:11+by,'X','W');                           /* patte arrière proche : ambre, chaussette blanche */
+  leg(14+ft+(o.cp?1:0),11+by,'W','W');                                             /* patte avant proche : blanche */
+  /* corps : croupe et selle ambre, ventre et poitrail blancs */
+  rc(5,5+by,13,5+by,'X');rc(4,6+by,14,7+by,'X');rc(4,8+by,6,10+by,'X');
+  rc(7,8+by,17,9+by,'W');rc(14,7+by,17,7+by,'W');rc(7,10+by,13,10+by,'D');rc(14,10+by,16,10+by,'W');
+  if(hy>=6)rc(15,Math.min(6+by,hy)-0,18,hy+1,'W');                                  /* tête baissée : le cou descend jusqu'à elle */
+  rc(15,6+by,17,6+by,'R');p(16,7+by,'Y');                                          /* collier rouge sur une rangée + médaille */
+  var tq=o.queue?[[2,5],[2,4],[3,3],[4,3]]:[[2,5],[1,4],[1,3],[2,2]];             /* queue en crochet, détachée du corps d'un point ; elle frétille entre deux positions */
+  tq.forEach(function(q){p(q[0],q[1]+by,'X');});
+  tete.forEach(function(row,v){var u;for(u=0;u<9;u++){var ch=row.charAt(u);if(ch==='.')continue;p(15+u,hy+v,ch);}});
+  if(o.lift){rc(4,10+by,6,11+by,'X');p(7,12,'X');p(8,12,'X');p(9,11,'D');p(10,10,'D');p(11,9,'D');p(12,9,'W');p(12,10,'W');p(13,9,'W');}   /* patte arrière levée : cuisse, genou plié, jambe ambre et pied blanc qui pointent vers l'avant (côté bouton) : cuisse ambre, genou, jambe brune qui monte, pied crème */
+  return g.map(function(r){return r.join('');});
+}
+var DOGS=null;
+/* poses : a / b = renifle (museau près du sol, queue qui frétille, pas), arret = campé, mi = il soulève la patte, levee = patte arrière levée ; patte = (colonne, rangée) du pied levé */
+function dogsInit(){
+  if(DOGS)return DOGS;
+  var P9={a:{hy:8},b:{hy:7,queue:1,pas:1},arret:{hy:0,cp:1},mi:{hy:0,cp:1,by:1,mi:1,queue:1},levee:{hy:0,cp:1,by:1,lift:1}},k,res={grand:{}};
+  for(k in P9)res.grand[k]=dogBuild(P9[k]);
+  res.grand.patte=[12,9];res.grand.larg=24;res.grand.haut=15;
+  DOGS=res;return res;
+}
+PAL.D=indexCouleur([160,88,18]);PAL.Y=indexCouleur([255,225,60]);   /* brun (oreille, pattes lointaines, ventre) et jaune (médaille) */
+function spriteB(rows,x,yb,v,col){sprite(rows,x,yb-rows.length+1,v,col);}
+/* jet du chien : départ juste devant le pied de la patte arrière levée, arrivée au point juste AU-DESSUS du sommet du dôme (bx+5, H-7) ; trajectoire parabolique x = x0 + vx t, y = y0 - vy t + g t²/2 : elle monte de hr points au-dessus du départ puis redescend (cloche) en T s ;
+   le chien s'arrête à 8 points du bouton (bout du museau à bx-8) ; un seul chien, 24 x 15 (téléphone compris : il tient dès H = 16) ; le jet monte de 3 points, juste sous le museau, puis retombe sur le dôme ; AUCUN retournement du sprite : il arrive de la gauche tourné vers le bouton et le garde jusqu'au bout */
+var CHIEN_LIB=1.95,CHIEN_VOL=0.25,CHIEN_TN=3.6;
+function chienJet(W,H){
+  var set=dogsInit().grand,bx=W-16,posX=bx-8-(set.larg-1),yTop=H-2-(set.haut-1),x0=posX+set.patte[0]+1,y0=yTop+set.patte[1],xl=bx+5,yl=H-7,T=CHIEN_VOL,
+    hr=Math.max(1,Math.min(3,H-9)),a=y0-yl,sq=(Math.sqrt(2*hr)+Math.sqrt(2*hr-2*a))/T,g=sq*sq,vy=Math.sqrt(2*hr)*sq;
+  if(hr<a+1)hr=a+1;
+  return {x0:x0,y0:y0,xl:xl,yl:yl,T:T,vx:(xl-x0)/T,vy:vy,g:g,hr:hr,bx:bx,posX:posX,larg:set.larg,haut:set.haut,grand:true,yTop:yTop};
+}
+SPR.avion1=['.W......WW...X','WWWWWWWWWWWBBX','.WWWWWWWWWWW.X','...WW.........'];
+SPR.avion2=['.W......WW....','WWWWWWWWWWWBBX','.WWWWWWWWWWW..','...WW.........'];
+var NUKES=[
+  function champignon(u){                                          /* 1. champignon atomique qui monte, flash blanc */
+    var W=P.W,H=P.H,cx=W>>1,h=Math.min(1,u/1.4),sh=Math.round(h*(H-5)),cy=H-2-sh,capR=2+h*8,i,j;
+    if(u<1.5){
+      for(j=0;j<sh;j++){var w=1+(j%2);for(i=-w;i<=w;i++)px(cx+i,H-1-j,j<2?BLA:AMB,255);}
+      for(j=-3;j<=2;j++)for(i=-Math.round(capR*2);i<=Math.round(capR*2);i++)if(i*i/(capR*capR*4)+j*j/9<=1)px(cx+i,cy+j,j<0?ROU:j<2?AMB:BLA,255);
+    }else eclair(1-sm((u-1.5)/0.6));
+    motNuke(u,1.8,ROU);
+  },
+  function missile(u){                                             /* 2. missile qui traverse le panneau et explose */
+    var W=P.W,H=P.H,x=-10+u*(W+4)/1.3,y=Math.round(H/2)-1,k;
+    if(u<1.3){
+      for(k=1;k<10;k++)px(x-k+1,y+1,k%2?AMB:ROU,255-k*24);
+      sprite(SPR.missile,Math.round(x),y);
+    }else{burst(W-6,H/2,u-1.3,34,21,28,0.8,[BLA,AMB,ROU],20);eclair(1-sm((u-1.3)/0.4));}
+    motNuke(u,1.8,AMB);
+  },
+  function boum(u){                                                /* 3. « BOUM ! » géant qui explose en pixels */
+    var s=T('boum'),sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((P.H-7*sc)/2),x=Math.floor((P.W-tw)/2),pts=[],j;
+    if(u<1.0){text(s,x+Math.round(Math.sin(u*80)*1.4),bt,ROU,sc,255,{fn:function(i){return Math.floor(u/0.1+i)%2?AMB:ROU;}});return;}
+    text(s,x,bt,ROU,sc,255,{fn:function(i,gx,gy){pts.push([gx,gy]);return [ROU,0];}});
+    var uu=u-1.0,cs=[BLA,AMB,ROU];
+    for(j=0;j<pts.length;j++){
+      var a=R(j,5)*6.2832,sp=8+34*R(j,6);
+      px(pts[j][0]+Math.cos(a)*sp*uu*1.6,pts[j][1]+Math.sin(a)*sp*uu*0.8+10*uu*uu,cs[j%3],255*(1-sm(uu/0.7)));
+    }
+    eclair(1-uu/0.25);motNuke(u,1.5,BLA);
+  },
+  function bouton(u){                                              /* 4. bouton rouge « NE PAS APPUYER » qui s'enfonce */
+    var W=P.W,H=P.H,cx=W>>1,i,j;
+    if(u<1.1){var s=T('nepas'),tw=twidth(s,1);text(s,Math.floor((W-tw)/2),cb(),Math.floor(u*6)%2?BLA:ROU,1,255);return;}
+    var d=u>1.4?3:0;
+    rect(cx-10,H-3,21,3,AMB,170);
+    for(j=0;j<4;j++){var w=[4,6,7,7][j];for(i=-w;i<=w;i++)px(cx+i,H-7+j+d,j===0&&i<0?BLA:ROU,255);}
+    if(u>1.5)eclair(1-sm((u-1.5)/0.5));
+    motNuke(u,1.9,ROU);
+  },
+  function alerte(u){                                              /* 5. alerte rouge, sirène en barres, puis flash */
+    var W=P.W,H=P.H,on=Math.floor(u*5)%2===0,x,j;
+    if(u<1.7){
+      for(x=0;x<9;x++){var h=Math.round((0.5+0.5*Math.sin(u*14+x*0.7))*H);for(j=0;j<h;j++){px(x,H-1-j,ROU,200);px(W-1-x,H-1-j,ROU,200);}}
+      if(on)box(0,0,W-1,H-1,ROU,255);
+      var s=T('alerte');text(s,Math.floor((W-twidth(s,1))/2),cb(),on?ROU:BLA,1,on?255:120);
+    }else eclair(1-sm((u-1.7)/0.5));
+    motNuke(u,2.0,ROU);
+  },
+  function chat(u){                                                /* 6. un CHAT court vers le bouton nucléaire, SAUTE DESSUS et l'enfonce (Norman, 2026-11-03) : course jusqu'à 1,0 s, saut en arc de 1,0 à 1,35 s, atterrissage SUR le bouton qui s'enfonce, flash à 1,5 s ; grand chat (14 colonnes) si H >= 16, petit sinon */
+    var W=P.W,H=P.H,bx=W-16,i,j,d=u>1.35?2:0,big=H>=16,w=big?14:10,yb=H-2,yl=H-7+d,pk=clamp(H-12,2,8),k,x,y,fr,xe=bx+5-(w>>1);
+    if(u<1.5){
+      rect(bx-1,H-3,12,3,AMB,170);
+      for(j=0;j<3;j++){var ww=[2,4,5][j];for(i=-ww;i<=ww;i++)px(bx+5+i,H-6+j+d,ROU,255);}
+      if(u<1.0){x=-w+(u/1.0)*(bx-4-(w-1)+w);y=yb;fr=big?(Math.floor(u/0.1)%2?SPR.chatG2:SPR.chatG1):(Math.floor(u/0.1)%2?SPR.chat2:SPR.chat1);}   /* course : la patte avant arrive à 4 points du bouton */
+      else if(u<1.35){k=(u-1.0)/0.35;var xs=bx-4-(w-1);x=xs+(xe-xs)*k;y=yb+(H-7-yb)*k-4*pk*k*(1-k);fr=big?SPR.chatSaut:SPR.chat2;}   /* saut en arc : du pied du bouton jusqu'à son sommet */
+      else{x=xe;y=yl;fr=big?SPR.chatPose:SPR.chat1;}   /* sur le bouton, qui s'enfonce de deux rangées sous son poids */
+      spriteB(fr,Math.round(x),Math.round(y),255,big?undefined:AMB);
+    }else eclair(1-sm((u-1.5)/0.5));
+    motNuke(u,1.9,AMB);
+  },
+  function compte(u){                                              /* 7. décor : 3 - 2 - 1 (0,6 s par chiffre), rien n'est retardé */
+    var W=P.W,H=P.H,n=3-Math.floor(u/0.6);
+    if(n>=1&&u<1.8){var lu=u%0.6;text(String(n),Math.floor(W/2)-5,Math.round((H-14)/2),ROU,2,255*(1-sm((lu-0.45)/0.15)));ring(lu/0.6,AMB);}
+    else eclair(1-sm((u-1.8)/0.5));
+    motNuke(u,2.1,BLA);
+  },
+  function onde(u){                                                /* 8. onde de choc : des cercles révèlent les lettres */
+    var W=P.W,H=P.H,cx=W/2,cy=H/2,r=(u/1.8)*(W/2+14),k,a;
+    motNuke(u,0,AMB,function(i,gx,gy){return [AMB,Math.sqrt((gx-cx)*(gx-cx)+(gy-cy)*(gy-cy)*11)<r?255:0];});
+    if(u<2.0)for(k=0;k<3;k++){var rr=r-k*9;if(rr>1)for(a=0;a<6.2832;a+=0.05)px(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr/3.3,k===0?BLA:k===1?AMB:ROU,255*(1-u/2.2));}
+  },
+  function meteores(u){                                            /* 9. pluie de fusées en colonnes */
+    var W=P.W,H=P.H,i,k;
+    if(u<1.9){
+      for(i=0;i<16;i++){
+        var x=Math.floor(R(i,1)*W),t0=R(i,2)*1.3,y=(u-t0)*H*2.4;
+        if(y>=0&&y<H){px(x,y,BLA,255);for(k=1;k<5;k++)px(x,y-k,k<3?AMB:ROU,255-k*45);}
+        else if(y>=H)burst(x,H-2,(y-H)/(H*2.4),7,i*3,12,0.4,[AMB,ROU,BLA],10);
+      }
+    }else eclair(1-sm((u-1.9)/0.5));
+    motNuke(u,2.1,ROU);
+  },
+  function fissure(u){                                             /* 10. l'écran se fissure puis éclate */
+    var W=P.W,cx=W>>1,cy=P.H>>1,S0=Math.floor(Math.min(1,u/1.4)*W/2),d,s;
+    if(u<1.5){for(d=0;d<6;d++){var ang=d*1.047+R(d,9)*0.4;for(s=0;s<S0;s++)px(cx+Math.cos(ang)*s+(R(s,d)-0.5)*2,cy+Math.sin(ang)*s*0.28+(R(s,d+7)-0.5)*1.2,BLA,255);}}
+    else{burst(cx,cy,u-1.5,70,33,40,0.9,[BLA,AMB,ROU,BLE],12);eclair(1-sm((u-1.5)/0.35));}
+    motNuke(u,1.8,BLA);
+  },
+  function superNuke(u){                                           /* 11. SUPER NUKE en lettres arc-en-ciel avec secousse */
+    var s=T('super'),c=canon(s),sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((P.H-7*sc)/2),n=Math.min(c.length,Math.floor(u/0.09)+1),cs=[ROU,AMB,BLA,VER,BLE,ROS];
+    text(c.slice(0,n),Math.floor((P.W-tw)/2)+(u<2.2?Math.round(Math.sin(u*60)*1.3):0),bt,ROU,sc,255,{fn:function(i){return cs[(i+Math.floor(u*10))%6];}});
+    if(u<0.25)eclair(0.6*(1-u/0.25));
+  },
+  function chevalier(u){                                           /* 12. le chevalier fuit le mur de feu */
+    var W=P.W,H=P.H,kx=4+Math.min(u,1.9)*48*(W/120),fx=-14+Math.pow(u/1.9,1.8)*(W+4),x;
+    if(u<1.9){
+      for(x=0;x<fx;x++){var h=Math.round(3+R(x,Math.floor(u*14))*(H-3)),j;for(j=0;j<h;j++)px(x,H-1-j,j<h*0.35?BLA:j<h*0.7?AMB:ROU,255);}
+      sprite(Math.floor(u/0.1)%2?SPR.hero1:SPR.hero2,Math.round(kx),H-9);
+    }else eclair(1-sm((u-1.9)/0.5));
+    motNuke(u,2.2,ROU);
+  },
+  function chien(u){                                              /* 13. un CHIEN RENIFLE le sol en avançant par petits pas (4 reniflements, queue qui remue), s'arrête de profil près du bouton, SANS JAMAIS SE RETOURNER, LÈVE LA PATTE ARRIÈRE ; un jet jaune retombe en cloche SUR le bouton, qui s'enfonce et s'allume ; flash, NUKE ! (3,6 s) */
+    var W=P.W,H=P.H,J=chienJet(W,H),bx=J.bx,yb=H-2,i,j,k,cyc,ph,x,fr,tr,imp=CHIEN_LIB+J.T,d=u>=imp?2:0,jaune=indexCouleur([255,222,0]),creme=indexCouleur([255,246,170]),pas;
+    rect(bx-1,H-3,12,3,AMB,170);
+    for(j=0;j<3;j++){var ww=[2,4,5][j];for(i=-ww;i<=ww;i++)px(bx+5+i,H-6+j+d,(u>=imp&&u<imp+0.15)?BLA:ROU,255);}
+    var DS=dogsInit().grand,xs=-J.larg;
+    if(u<1.65){                                                    /* reniflements : 4 cycles de 0,4 s = marche de 0,15 s + reniflement de 0,25 s (nez au sol puis un peu relevé, queue qui frétille) */
+      cyc=Math.max(0,Math.min(3,Math.floor((u-0.05)/0.4)));ph=(u-0.05)-cyc*0.4;
+      pas=(J.posX-xs)/4;
+      x=xs+pas*cyc+pas*(u<0.05?0:Math.min(1,Math.max(0,ph)/0.15));
+      fr=Math.floor(u/0.075)%2?DS.b:DS.a;
+      spriteB(fr,Math.round(x),yb,255);
+    }else if(u<1.75)spriteB(DS.arret,J.posX,yb,255);                /* il s'immobilise, de profil, campé sur ses pattes (jamais de demi-tour) */
+    else if(u<CHIEN_LIB)spriteB(DS.mi,J.posX,yb,255);               /* il soulève la patte en 0,2 s */
+    else spriteB(DS.levee,J.posX,yb,255);                           /* patte arrière levée */
+    if(u>=CHIEN_LIB&&u<imp+0.55){                                  /* jet : fil de points qui s'allonge, gouttes derrière, éclaboussure à l'impact, puis la queue du jet retombe */
+      tr=u-CHIEN_LIB;var tete=Math.min(tr,J.T),queue=u>imp+0.3?u-imp-0.3:0,st;
+      for(st=queue;st<=tete;st+=0.012)px(J.x0+J.vx*st,J.y0-J.vy*st+J.g*st*st/2,jaune,255);
+      for(k=1;k<=4;k++){st=tete-0.05*k;if(st>=queue&&st>0)px(J.x0+J.vx*st,J.y0-J.vy*st+J.g*st*st/2+(k%2?1:-1),creme,230);}
+      if(tr>=J.T)burst(J.xl,J.yl,tr-J.T,10,77,12,0.45,[jaune,creme,AMB],30);
+    }
+    if(u>=2.7)for(i=0;i<W*H;i++)P.v[i]=0;                          /* le chien et le bouton disparaissent dans le flash : le mot reste seul */
+    if(u>=2.55)eclair(1-sm((u-2.55)/0.5));
+    motNuke(u,2.9,AMB);
+  },
+  function bombardier(u){                                          /* 13. un bombardier lâche des bombes, mur de feu, puis tout explose : NUKE apparaît dans les flammes */
+    var W=P.W,H=P.H,v=(W+14)/1.8,ax=-14+u*v,i,n=Math.floor(W/8);
+    if(u<1.9){
+      for(i=0;i<n;i++){
+        var bx=6+i*8,td=(bx+8)/v,f=u-td;
+        if(f<0)continue;
+        if(f<0.18){var by=3+Math.floor(f/0.06)*Math.round((H-6)/3);px(bx,by,BLA,255);px(bx,by+1,ROU,255);}
+        else{var g=f-0.18;if(g<0.2)disque(bx,H-3,Math.max(1,Math.round(g/0.2*3)),255);flammes(bx-2,bx+2,u,4+Math.min(3,Math.floor(g*8)));}
+      }
+      if(ax<W)sprite(Math.floor(u/0.07)%2?SPR.avion1:SPR.avion2,Math.round(ax),1);
+    }else{
+      var g2=u-1.9;
+      for(i=0;i<W*H;i++)if(R(i,Math.floor(u*16))<0.5*(1-sm((g2-0.2)/0.8)*0.6)){P.c[i]=R(i,2)<0.5?AMB:ROU;P.v[i]=255;}
+      flammes(0,W-1,u,Math.round(H*0.6));
+      haloMot(2.0,u);
+      eclair(1-g2/0.45);
+      motNuke(u,2.0,BLA,function(i){return u<2.4&&Math.floor(u*20+i)%2?AMB:BLA;});
+      if(u<2.4)for(i=0;i<W*H;i++)if(R(i,Math.floor(u*18)+3)<0.18*(2.4-u)/0.4){P.c[i]=ROU;P.v[i]=255;}   /* quelques flammes passent encore devant les lettres */
+    }
+  }
+,
+  /* ---- SCÈNES RÉSERVÉES aux paliers hauts (indices 13 à 19 : NK_RESERVEES dit à quel palier chacune appartient, jamais jouée plus bas) ---- */
+  function megaNuke(u){                                            /* 14. (palier 2) trois explosions en arc, flammes, MEGA NUKE */
+    var W=P.W,H=P.H,i,e;
+    for(i=0;i<3;i++){
+      e=u-0.2-i*0.35;
+      if(e>=0&&e<0.9){disque(Math.round(W*(0.2+0.3*i)),H>>1,Math.min(1+Math.round(e*14),Math.max(2,H>>2)),255*(1-e/0.9));burst(W*(0.2+0.3*i),H/2,e,26,40+i,22,0.9,[BLA,AMB,ROU],14);}
+    }
+    if(u>1.2)flammes(0,W-1,u,Math.round(H*0.35*sm((u-1.2)/0.6)));
+    haloMot(1.4,u,'mega');motCle('mega',u,1.4,BLA);
+  },
+  function chaineNuke(u){                                          /* 15. (palier 2) sept explosions en chaîne de gauche à droite, puis NUKE */
+    var W=P.W,H=P.H,i,e,n=7,ex,ey;
+    for(i=0;i<n;i++){
+      e=u-0.15-i*0.22;ex=Math.round((i+0.5)*W/n);ey=H-3-Math.round(R(i,2)*(H/3));
+      if(e>=0&&e<0.8){disque(ex,ey,Math.min(1+Math.floor(e*16),Math.max(2,H>>2)),255*(1-e/0.8));burst(ex,ey,e,20,i*5,22,0.8,[BLA,AMB,ROU],14);}
+    }
+    if(u>1.7)flammes(0,W-1,u,Math.round(H*0.5*sm((u-1.7)/0.5)));
+    if(u>1.9&&u<2.3)eclair(1-(u-1.9)/0.4);
+    haloMot(2.2,u);motCle('nuke',u,2.2,BLA);
+  },
+  function ultraNuke(u){                                           /* 16. (palier 3) flash, mur de flammes, trois ondes de choc, ULTRA NUKE arc-en-ciel */
+    var W=P.W,H=P.H,k,a,r;
+    if(u<0.3)eclair(1-u/0.3);
+    flammes(0,W-1,u,Math.round(H*0.7*sm(u/1.6)));
+    for(k=0;k<3;k++){r=(u-0.2-k*0.35)*30;if(r>1&&r<W/2+12)for(a=0;a<6.2832;a+=0.05)px(W/2+Math.cos(a)*r,H/2+Math.sin(a)*r/3.3,k===0?BLA:k===1?AMB:ROU,255*(1-r/(W/2+12)));}
+    haloMot(0.6,u,'ultra');motCle('ultra',u,0.6,BLA);
+  },
+  function pluieFusees(u){                                         /* 17. (palier 3) une pluie de fusées sur TOUTE la largeur, qui éclatent au sol, puis NUKE */
+    var W=P.W,H=P.H,n=Math.min(44,Math.max(20,W>>2)),i,k,x,t0,y;
+    if(u>2.3&&u<2.7)eclair(1-(u-2.3)/0.4);
+    for(i=0;i<n;i++){
+      x=Math.floor(R(i,41)*W);t0=R(i,42)*1.7;y=(u-t0)*H*2.6;
+      if(y>=0&&y<H){px(x,y,BLA,255);for(k=1;k<6;k++)px(x,y-k,k<3?AMB:ROU,255-k*40);}
+      else if(y>=H)burst(x,H-2,(y-H)/(H*2.6),10,i*3,14,0.5,[AMB,ROU,BLA],10);
+    }
+    if(u>1.8)flammes(0,W-1,u,Math.round(H*0.55*sm((u-1.8)/0.8)));
+    haloMot(2.6,u);motCle('nuke',u,2.6,BLA);
+  },
+  function glitchNuke(u){                                          /* 18. (palier 3) l'écran « bug » : bandes décalées, blocs, coupures, puis se reconstitue */
+    var W=P.W,H=P.H,b,a;
+    motCle('nuke',u,0,ROU,function(i){return Math.floor(u*8+i)%3?ROU:BLA;});
+    for(b=0;b<10;b++){var g=Math.floor(u*12);rect(Math.floor(R(b,g)*W),Math.floor(R(b,g+1)*H),6+Math.floor(R(b,g+2)*10),1+Math.floor(R(b,g+3)*3),1+Math.floor(R(b,g+4)*5),200*Math.min(1,u*2));}
+    a=u<1.0?0.6*sm(u):u<2.2?0.6+0.4*sm((u-1.0)/0.4):1-sm((u-2.2)/1.0);
+    glitchLignes(a,u);
+  },
+  function armageddon(u){                                          /* 19. (palier 4) fissures, pluie de météores, onze explosions en chaîne, quatre ondes, disque géant, ARMAGEDDON */
+    var W=P.W,H=P.H,cx=W>>1,cy=H>>1,i,d,s,e,k,a,r,S0=Math.floor(Math.min(1,u/1.2)*W/2);
+    if(u>2.7&&u<3.0)eclair(1-(u-2.7)/0.3);
+    if(u<2.0)for(d=0;d<8;d++){var ang=d*0.785+R(d,9)*0.3;for(s=0;s<S0;s++)px(cx+Math.cos(ang)*s+(R(s,d)-0.5)*2,cy+Math.sin(ang)*s*0.28+(R(s,d+7)-0.5)*1.2,BLA,255);}
+    if(u<2.6)for(i=0;i<40;i++){var x=Math.floor(R(i,51)*W),y=(u-R(i,52)*2.2)*H*2.8;if(y>=0&&y<H){px(x,y,BLA,255);for(k=1;k<5;k++)px(x,y-k,k<3?AMB:ROU,255-k*45);}}
+    for(i=0;i<11;i++){e=u-1.0-i*0.14;if(e>=0&&e<0.8){var ex=Math.round(R(i,5)*W),ey=Math.round(H*(0.2+0.6*R(i,6)));disque(ex,ey,Math.min(1+Math.floor(e*16),Math.max(2,H/3|0)),255*(1-e/0.8));burst(ex,ey,e,22,i*9,24,0.8,[BLA,AMB,ROU],14);}}
+    for(k=0;k<4;k++){r=(u-1.6-k*0.22)*30;if(r>1&&r<W/2+12)for(a=0;a<6.2832;a+=0.05)px(cx+Math.cos(a)*r,cy+Math.sin(a)*r/3.3,k%2?AMB:BLA,255*(1-r/(W/2+12)));}
+    if(u>1.4)flammes(0,W-1,u,Math.round(H*0.8*sm((u-1.4)/1.0)));
+    if(u>1.8&&u<2.8)disque(cx,cy,Math.round((u-1.8)*(H/2)),170);
+    haloMot(3.0,u,'armag');motCle('armag',u,3.0,BLA);
+  },
+  function fissureBombardier(u){                                   /* 20. (palier 4) l'écran se fissure, puis le bombardier enchaîne : la fissure à 1,3 s, le bombardier dure 2,7 s */
+    if(u<1.3)NUKES[9](u*1.1538);
+    else{if(u<1.5)eclair(1-(u-1.3)/0.2);NUKES[BOMBARDIER](u-1.3);}
+  },
+  function finale(u){                                              /* 21. FINALE (le Nuke a franchi le dernier boss) : six actes, 8,4 s ; jamais tirée au sort, seulement quand le moteur annonce dernierBoss */
+    var W=P.W,H=P.H,cx=W>>1,cy=H>>1,i,k,e,g,a;
+    if(u<1.0){                                                     /* acte 1 : amorce silencieuse, un cadre qui respire, des points qui convergent */
+      box(0,0,W-1,H-1,ROU,60+150*(0.5-0.5*Math.cos(u*9.42))*sm(u/0.4));
+      for(i=0;i<24;i++){a=R(i,3)*6.2832;g=(1-sm(u))*(W/2)*(0.4+0.6*R(i,4));px(cx+Math.cos(a)*g,cy+Math.sin(a)*g*0.35,AMB,200*sm(u/0.3));}
+    }else if(u<2.4){                                               /* acte 2 : 3 - 2 - 1, une barre de charge qui monte, secousse croissante */
+      e=u-1.0;k=3-Math.floor(e/0.45);g=e%0.45;
+      rect(0,H-2,Math.round(W*clamp(e/1.4,0,1)),2,ROU,255);
+      if(k>=1&&k<=3){text(String(k),cx-5,Math.round((H-14)/2),k===1?BLA:k===2?AMB:ROU,2,255*(1-sm((g-0.35)/0.1)));ring(g/0.45,k===1?BLA:AMB);}
+      P.xoff=Math.round(Math.sin(u*90)*e*0.9);
+    }else if(u<4.2){                                               /* acte 3 : explosions en chaîne sur tout l'écran, puis trois ondes de choc */
+      g=u-2.4;
+      for(i=0;i<14;i++){
+        e=g-i*0.11;
+        if(e>=0&&e<0.7){var ex=Math.round(R(i,5)*W),ey=Math.round(H*(0.2+0.6*R(i,6)));disque(ex,ey,Math.min(1+Math.floor(e*18),Math.max(2,Math.round(H/3))),255*(1-e/0.7));burst(ex,ey,e,22,i*9,24,0.8,[BLA,AMB,ROU],14);}
+      }
+      for(k=0;k<3;k++){e=(g-1.0-k*0.25)*32;if(e>1&&e<W/2+12)for(a=0;a<6.2832;a+=0.05)px(cx+Math.cos(a)*e,cy+Math.sin(a)*e/3.3,k===0?BLA:k===1?AMB:ROU,255*(1-e/(W/2+12)));}
+      flammes(0,W-1,u,Math.round(H*0.3*sm(g/1.2)));
+      P.xoff=Math.round(Math.sin(u*80)*2);P.yoff=Math.round(Math.cos(u*70)*1);
+    }else if(u<5.2){                                               /* acte 4 : l'écran se déchire (bandes décalées, coupures), puis se reconstitue */
+      g=u-4.2;
+      flammes(0,W-1,u,Math.round(H*0.5));
+      for(i=0;i<12;i++){k=Math.floor(u*14);rect(Math.floor(R(i,k)*W),Math.floor(R(i,k+1)*H),6+Math.floor(R(i,k+2)*14),1+Math.floor(R(i,k+3)*3),1+Math.floor(R(i,k+4)*5),220);}
+      glitchLignes(Math.sin(g*3.1416),u);
+    }else if(u<6.4){                                               /* acte 5 : pluie de météores, puis le grand flash blanc (plein de 6,0 à 6,4 s) */
+      g=u-5.2;
+      for(i=0;i<Math.min(36,Math.max(18,W>>2));i++){var x=Math.floor(R(i,61)*W),y=(u-5.2-R(i,62)*0.7)*H*3;if(y>=0&&y<H){px(x,y,BLA,255);for(k=1;k<6;k++)px(x,y-k,k<3?AMB:ROU,255-k*40);}}
+      if(u>=5.7&&u<6.0)eclair(0.5*sm((u-5.7)/0.3));
+      if(u>=6.0)plein(BLA,255*(1-(u-6.0)/0.4));
+    }else{                                                         /* acte 6 : le mot, dans les flammes */
+      flammes(0,W-1,u,Math.round(H*0.5*(1-sm((u-6.4)/1.0))));
+      if(twidth(T('tous'),bigSc(T('tous')))<=W-4){haloMot(6.5,u,'tous');motCle('tous',u,6.5,BLA);}
+      else{var cle=u<7.1?'tousA':'tousB',u0=u<7.1?6.5:7.1;haloMot(u0,u,cle);motCle(cle,u,u0,BLA);}
+    }
+  }
+];
+/* ------------------------------------------------------------------ PALIERS D'INTENSITÉ du NUKE (Norman, 2026-11-03 : « plus on tue de boss et plus l'animation doit être folle »)
+   n = nombre de boss franchis par CE Nuke, donné par le moteur (res.nuke.defeated.length) : il n'existe côté client qu'à la RÉPONSE, jamais avant (le combat de chaque boss se joue côté moteur). Le clic démarre donc tout de suite une AMORCE
+   neutre (cadre rouge + anneau, 0,2 s au moins, 1,5 s au plus) ; dès que ui-combat-2-v1.js envoie l'événement `soreal-nuke-resultat` ({n, dernierBoss}), la bonne scène démarre. n = 0 (NUKE refusé) : la scène est annulée.
+   PALIERS (seuils NK_SEUILS) : 0 = 1-2 boss (animation de base) ; 1 = 3-9 (intense) ; 2 = 10-49 (furieux) ; 3 = 50-199 (démentiel) ; 4 = 200 et plus (apocalypse). Un palier de plus = plus de gerbes et d'éclairs, secousse, double/triple flash, ondes de choc,
+   lettres arc-en-ciel (3 et 4), durée plus longue (NK_TN) et, à partir du palier 2, des scènes réservées (NK_RESERVEES). Ces seuils sont un choix de conception (la répartition réelle de n chez les joueurs n'est pas mesurable ici).
+   JALONS : chaque tranche de 10 boss franchis ajoute une salve (compteur ×10, ×20…, anneau de flammes, feu d'artifice, pluie d'or, flash de plus en plus fort) : dizaines = floor(n / 10), durée 0,5 + 0,3 par dizaine, plafonnée à 2,2 s ; durée totale
+   maximale 7,5 s (palier 4 : 4,0 + 2,2 + 1,3).
+   FINALE : jouée seulement si le moteur dit dernierBoss (CE Nuke a franchi le dernier boss du catalogue ; simple drapeau, aucun total n'est jamais transmis ni affiché) : 8,4 s + « +N BOSS » 1,4 s, sans jalons.
+   OUTILS DE RÉGLAGE (console, jamais enregistrés) : window.__SOREAL_IDLE_BORNE_NUKE_PALIER_FORCE__ = 0..4 ; window.__SOREAL_IDLE_BORNE_NUKE_N_FORCE__ = nombre de boss simulés (palier, dizaines) ;
+   window.__SOREAL_IDLE_BORNE_NUKE_FINALE_FORCEE__ = true ; window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__ = indice de scène ; puis window.__SOREAL_IDLE_BORNE_LED_V1__.jouerNuke() lance un Nuke d'essai sans tuer de boss. */
+var NK_SEUILS=[1,3,10,50,200],NK_TN=[2.7,3.0,3.4,3.7,4.0],NK_SEC=[0,1,1,2,3],NK_TREMBLE=[0,1,1,2,3];
+var NK_QUEUE=1.3,NK_FIN_TN=8.4,NK_FIN_QUEUE=1.4,NK_JALON_MAX=2.2,NK_FINALE=21,NK_RESERVEES={14:2,15:2,16:3,17:3,18:3,19:4,20:4},NK_SCN={12:CHIEN_TN};   /* NK_SCN : durée propre d'une scène plus longue que 2,7 s */
+function nukePalier(n){var t=0,i;for(i=1;i<NK_SEUILS.length;i++)if(n>=NK_SEUILS[i])t=i;return t;}
+function nukeDizaines(n){return Math.floor(Math.max(0,n)/10);}                                   /* dizaines COMPLÈTES franchies : 10-19 -> 1, 20-29 -> 2… ; moins de 10 boss : aucun jalon */
+function nukeJalonDuree(d){return d>0?Math.min(NK_JALON_MAX,0.5+0.3*d):0;}
+function nukeDuree(tier,d,fin,tn){return fin?NK_FIN_TN+NK_FIN_QUEUE:(tn||NK_TN[tier])+nukeJalonDuree(d)+NK_QUEUE;}
+function nkFinScene(v,tn){return NK_SCN[v]||(v>BOMBARDIER?tn:TN);}   /* instant où la scène se fige (puis le mot reste jusqu'à la fin du palier) */
+var Z={tier:0,u:0};                                                /* palier et temps de la scène en cours (lus par motCle / haloMot) */
+var nukeRes=null;                                                  /* dernier résultat du moteur : {n, dernier, at} */
+function nkCouleur(i,u){return 1+((i+Math.floor(u*9))%6);}         /* arc-en-ciel : ambre, rouge, blanc, vert, bleu, rose */
+function nkForce(){var w=window;return typeof w.__SOREAL_IDLE_BORNE_NUKE_N_FORCE__==='number'||typeof w.__SOREAL_IDLE_BORNE_NUKE_PALIER_FORCE__==='number'||w.__SOREAL_IDLE_BORNE_NUKE_FINALE_FORCEE__===true;}
+/* fixe palier, dizaines, durée et variante d'un Nuke dont le nombre de boss est connu (les outils de réglage de la console l'emportent) */
+function nukeInit(p,n,fin,ts){
+  var w=window,fn=w.__SOREAL_IDLE_BORNE_NUKE_N_FORCE__,fp=w.__SOREAL_IDLE_BORNE_NUKE_PALIER_FORCE__,fv=w.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__,pf=typeof fp==='number'&&fp>=0&&fp<=4;
+  if(typeof fn==='number'&&fn>=0)n=Math.floor(fn);else if(pf)n=NK_SEUILS[Math.floor(fp)];
+  if(w.__SOREAL_IDLE_BORNE_NUKE_FINALE_FORCEE__===true){fin=true;if(!(n>0))n=12;}
+  p.n=n;p.fin=Boolean(fin);p.tier=p.fin?4:pf?Math.floor(fp):nukePalier(n);p.d=p.fin?0:nukeDizaines(n);
+  p.v=p.fin?NK_FINALE:(typeof fv==='number'&&fv>=0&&fv<NUKES.length-1)?Math.floor(fv):nukeVariante(p.tier);
+  p.tn=p.fin?NK_FIN_TN:Math.max(NK_TN[p.tier],NK_SCN[p.v]||0);
+  p.res=true;p.ts=ts;
+  if(cur&&cur.p===p)cur.dur=ts+nukeDuree(p.tier,p.d,p.fin,p.tn);   /* la durée compte depuis le CLIC : amorce (ts) + scène */
+}
+function nkAmorce(t){                                              /* avant la réponse du moteur : un cadre rouge qui clignote et un anneau, neutre pour tous les paliers */
+  box(0,0,P.W-1,P.H-1,ROU,Math.floor(t*10)%2?255:110);ring((t%0.4)/0.4,AMB);chase(t,1,ROU);
+}
+function nkAvant(u){                                               /* avant la scène : secousse de l'écran (décalage) et flashs de fond supplémentaires */
+  var z=Z.tier,a=NK_SEC[z],k,w,ws;
+  if(a&&u>0.9){k=Math.floor(u*30);P.xoff=Math.round((R(k,3)-0.5)*3*a);P.yoff=Math.round((R(k,4)-0.5)*1.6*a);}
+  /* aucun flash de fond supplémentaire (photosensibilité) : l amplitude des paliers vient du mouvement, des couleurs et du nombre d explosions */
+}
+function nkApres(u){                                               /* après la scène : éclairs, gerbes, ondes de choc, lettres arc-en-ciel (coût borné : au plus ~400 points par image + une passe sur la grille aux paliers 3 et 4) */
+  var z=Z.tier,W=P.W,H=P.H,i,k,b,x,y,nb,a,r,cols=[BLA,AMB,ROU,BLE];
+  if(z<1||u<0.5)return;
+  nb=[0,1,2,3,5][z];k=Math.floor(u*8);
+  for(b=0;b<nb;b++){
+    if(R(k*9+b,17)>0.6)continue;
+    x=R(k*9+b,11)*W;
+    for(y=0;y<H;y++){x+=(R(y,k+b)-0.5)*3;px(x,y,BLA,255);if(z>=3)px(x+1,y,BLE,200);}
+  }
+  nb=[0,2,2,4,6][z];
+  for(b=0;b<nb;b++){var ph=(u+b*0.37)%0.9,sd=Math.floor((u+b*0.37)/0.9)*13+b;burst(R(sd,1)*W,H*(0.15+0.6*R(sd,2)),ph,14+6*z,sd,14+4*z,0.8,cols,12);}
+  nb=[0,0,2,3,4][z];
+  for(k=0;k<nb;k++){r=(u-0.4-k*0.25)*30;if(r>1&&r<W/2+12)for(a=0;a<6.2832;a+=0.06)px(W/2+Math.cos(a)*r,H/2+Math.sin(a)*r/3.3,cols[k%4],255*(1-r/(W/2+12)));}
+  if(z>=3){var n=W*H,o=Math.floor(u*10);for(i=0;i<n;i++)if(P.v[i]&&P.c[i]!==BLA&&P.c[i]<=6)P.c[i]=1+((P.c[i]+((i%W)>>3)+o)%6);}
+}
+var nkTmpC=null,nkTmpV=null;
+function glitchLignes(a,u){                                        /* « bug » : des bandes de rangées décalées de côté, quelques coupures et couleurs corrompues ; a = force de 0 à 1 */
+  var W=P.W,H=P.H,y,s,k,i,j,base,b=Math.floor(u*16);
+  if(a<=0.02)return;
+  if(!nkTmpC||nkTmpC.length<W){nkTmpC=new Uint8Array(W);nkTmpV=new Uint8Array(W);}
+  for(y=0;y<H;y++){
+    k=(y>>1)+b*7;
+    if(R(k,21)>a*0.9)continue;
+    s=Math.round((R(k,22)-0.5)*W*0.6*a);base=y*W;
+    for(i=0;i<W;i++){nkTmpC[i]=P.c[base+i];nkTmpV[i]=P.v[base+i];}
+    for(i=0;i<W;i++){j=((i-s)%W+W)%W;P.c[base+i]=nkTmpC[j];P.v[base+i]=nkTmpV[j];}
+    if(R(k,23)<0.12*a)for(i=0;i<W;i++)P.v[base+i]=0;
+    else if(R(k,24)<0.3*a)for(i=0;i<W;i++)if(P.v[base+i])P.c[base+i]=R(k,25)<0.5?BLE:ROS;
+  }
+}
+function nkJalons(q,d,J){                                          /* jalons : une salve par dizaine franchie (compteur ×10, ×20…), de plus en plus forte ; au plus 6 salves visibles à la fois */
+  var W=P.W,H=P.H,per=J/d,k=Math.min(d,Math.floor(q/per)+1),kk,g,sd,w=Math.floor(q/0.25),loc=q-w*0.25;
+  /* pas de flash plein écran dans les jalons (photosensibilité) : anneaux, feux d artifice et compteur coloré seulement */
+  for(kk=Math.max(1,k-5);kk<=k;kk++){
+    g=q-(kk-1)*per;if(g<0)continue;sd=kk*17;
+    if(g<0.35)ring(clamp(g/0.35,0,1),kk%2?AMB:ROU);                /* anneau de flammes */
+    burst(R(sd,1)*W,H*(0.2+0.5*R(sd,2)),g,16+Math.min(14,kk),sd,20,0.75,[BLA,AMB,ROU,BLE,VER],10);   /* feu d'artifice */
+    burst(R(sd,3)*W,0,g,10,sd+5,5,0.9,[AMB],70);                    /* pluie d'or */
+  }
+  var s='x'+(k*10),sc=bigSc(s),sh=Math.min(3,1+Math.floor(k/5));
+  text(s,Math.floor((W-twidth(s,sc))/2)+Math.round(Math.sin(q*80)*sh),Math.round((H-7*sc)/2)+Math.round(Math.cos(q*67)*sh*0.5),AMB,sc,255,{fn:function(i){return nkCouleur(i+k,q);}});
+}
+function nukeFixe(){                                               /* prefers-reduced-motion : image fixe « NUKE ! » (dans les flammes pour le bombardier), cadres en plus selon le palier */
+  var p=P.p,r=nukeRes,W=P.W,H=P.H,n=p.essai?p.n:(r?r.n:0),fin=p.essai?Boolean(p.fin):Boolean(r&&r.dernier),z=fin?4:nukePalier(n),v=(p.v|0)>=BOMBARDIER+1?0:(p.v|0),s0,sc0;
+  if(cur&&cur.p===p)cur.dur=NUKE_DUR;
+  if(v===BOMBARDIER)flammes(0,W-1,0,H-2);
+  s0=T(fin?(twidth(T('tous'),1)<=W-4?'tous':'tousA'):'nuke');sc0=bigSc(s0);
+  text(s0,Math.floor((W-twidth(s0,sc0))/2),Math.round((H-7*sc0)/2),v===BOMBARDIER?BLA:fin?BLA:ROU,sc0,255);
+  if(z>=2)box(0,0,W-1,H-1,ROU,255);if(z>=3)box(1,1,W-2,H-2,AMB,255);if(z>=4)box(2,2,W-3,H-3,BLA,255);
+}
+/* PHOTOSENSIBILITÉ (demande de Norman, 2026-11-03) : le panneau ne clignote jamais. Un régulateur passe sur CHAQUE image de la scène du Nuke, après le dessin, et borne la luminosité moyenne de l'écran :
+   montée d'au moins NK_MONTEE s (0 à 100 %), descente d'au moins NK_DESCENTE s (pas de coupure franche : un voile s'ajoute pour tenir la descente), et au moins NK_ESPACE s entre deux changements de plus de 30 % (au plus 3 par seconde,
+   donc au plus 1 flash et demi par seconde). Un flash plein écran trop brutal est donc étalé, jamais supprimé ; deux flashs rapprochés ne peuvent pas exister. Test : idle-borne-nuke-photosensible-v1 (60 images par seconde). */
+var NK_MONTEE=0.1,NK_DESCENTE=0.28,NK_ESPACE=0.34,NK_SEUIL_LUM=0.3;
+function nkLuminosite(n){var s=0,i;for(i=0;i<n;i++)s+=P.v[i];return s/(255*n);}
+function nkGouverneur(t){
+  var p=P.p,g=p.gv,W=P.W,n=W*P.H,i,Lr=nkLuminosite(n),dt,lo,hi,Lo,f,h,cnt,tot,w,col,Lm;
+  if(!g)g=p.gv={t:t-1/60,ref:0.03,tr:t-1,Lo:0.03};                 /* départ de la scène : on part du noir */
+  if(t<=g.t){g.t=t;return;}
+  dt=Math.min(t-g.t,0.05);
+  lo=g.Lo-dt/NK_DESCENTE;hi=g.Lo+dt/NK_MONTEE;
+  if(t-g.tr<NK_ESPACE){lo=Math.max(lo,g.ref-(NK_SEUIL_LUM-0.01));hi=Math.min(hi,g.ref+(NK_SEUIL_LUM-0.01));}
+  Lo=Lr<lo?lo:Lr>hi?hi:Lr;
+  if(Lo<Lr-1e-6){f=Lo/Lr;for(i=0;i<n;i++)P.v[i]=Math.floor(P.v[i]*f);}   /* montée trop brusque : tout est atténué */
+  else if(Lo>Lr+1e-6){                                              /* descente trop brusque : un voile uniforme retient la luminosité (plus petit plancher w tel que la moyenne atteigne Lo) */
+    h=new Uint32Array(256);for(i=0;i<n;i++)h[P.v[i]]++;
+    tot=0;cnt=0;w=0;
+    for(w=0;w<=255;w++){var s2=0,c2=0,b;for(b=0;b<256;b++){if(h[b]){if(b<w){c2+=h[b];s2+=h[b]*w;}else s2+=h[b]*b;}}if(s2/(255*n)>=Lo)break;}
+    col=Lo>0.55?BLA:Lo>0.25?AMB:ROU;
+    for(i=0;i<n;i++)if(P.v[i]<w){P.c[i]=col;P.v[i]=w;}
+  }
+  Lm=nkLuminosite(n);
+  if(Math.abs(Lm-g.ref)>NK_SEUIL_LUM){g.ref=Lm;g.tr=t;}
+  g.Lo=Lm;g.t=t;
+}
+function sNuke(t){sNukeBrut(t);if(!P.reduced&&!P.p.annule&&!P.p.essai)nkGouverneur(t);}
+function sNukeBrut(t){
+  var p=P.p,W=P.W,H=P.H,u,tn,d,J,uq,i,k,z,r;
+  if(P.reduced){nukeFixe();return;}
+  if(p.annule)return;
+  if(!p.res){
+    if(p.essai)nukeInit(p,p.n==null?1:p.n,Boolean(p.fin),0);
+    else if((nukeRes||nkForce())&&t>=0.2){
+      r=nukeRes||{n:1,dernier:false};nukeRes=null;
+      if(r.n<=0&&!nkForce()){p.res=true;p.annule=true;if(cur&&cur.p===p)cur.dur=t+0.25;return;}   /* NUKE refusé par le moteur : aucune scène */
+      nukeInit(p,r.n,r.dernier,t);
+    }else if(t>=1.5){nukeInit(p,Math.max(0,S.vic-(p.base||0)),false,t);}   /* repli : aucun résultat reçu */
+    if(!p.res){nkAmorce(t);return;}
+  }
+  u=t-p.ts;tn=p.tn;d=p.d;J=nukeJalonDuree(d);z=p.tier;Z.tier=p.fin&&u<2.4?0:z;Z.u=Math.min(u,tn);   /* finale : amorce et compte à rebours sans effets de palier */
+  if(u<=tn){
+    nkAvant(u);
+    NUKES[p.v](Math.min(u,nkFinScene(p.v,tn)));
+    nkApres(u);
+    P.xoff=0;P.yoff=0;
+    return;
+  }
+  uq=u-tn;
+  k=1-sm(uq/0.25);
+  if(k>0){NUKES[p.v](Math.min(tn,nkFinScene(p.v,tn)));for(i=0;i<W*H;i++)P.v[i]*=k;}   /* la scène s'efface en 0,25 s */
+  if(d>0&&uq<J){nkJalons(uq,d,J);return;}
+  if(p.n>0){                                                       /* nombre de boss franchis, donné par le moteur (jamais de total) */
+    var s='+'+Math.min(p.n,99999)+' '+T('boss'),sc=bigSc(s),vv=sm((uq-(d>0?J:0.15))/0.25),sh=z>=2||p.fin?(z>=3||p.fin?2:1):0;
+    if(vv>0)text(s,Math.floor((W-twidth(s,sc))/2)+Math.round(Math.sin(uq*70)*sh),Math.round((H-7*sc)/2),VER,sc,255*vv,z>=3||p.fin?{fn:function(i){return nkCouleur(i,uq);}}:undefined);
+  }
+}
+/* tirage sans répétition immédiate : liste mélangée puis parcourue ; le bombardier sort environ une fois sur cinq */
+var nukeSac=[],nukeDernier=-1;
+function melanger(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function nukeChoix(){
+  var v;
+  if(nukeDernier!==BOMBARDIER&&Math.random()<0.2)v=BOMBARDIER;
+  else{
+    if(!nukeSac.length)nukeSac=melanger(NUKES.slice(0,BOMBARDIER).map(function(_f,i){return i;}));
+    v=nukeSac.pop();
+    if(v===nukeDernier){if(nukeSac.length){var w=nukeSac.pop();nukeSac.push(v);v=w;}else v=(v+1)%BOMBARDIER;}
+  }
+  nukeDernier=v;return v;
+}
+/* scène selon le palier : 0 et 1 = les treize de base ; 2 = une fois sur deux une des scènes réservées au palier 2 ; 3 et 4 = uniquement celles de leur palier */
+function nukeVariante(tier){
+  var pool=[],k,v;
+  for(k in NK_RESERVEES)if(NK_RESERVEES[k]===tier)pool.push(Number(k));
+  if(tier<2||(tier===2&&Math.random()<0.5))return nukeChoix();
+  v=pool[Math.floor(Math.random()*pool.length)];
+  if(pool.length>1&&v===nukeDernier)v=pool[(pool.indexOf(v)+1)%pool.length];
+  nukeDernier=v;return v;
+}
+function lancerNuke(now){                                          /* un Nuke part : amorce tout de suite, la bonne scène dès que le moteur répond */
+  var pn=window.performance&&performance.now?performance.now():0;
+  if(!(nukeRes&&nukeRes.at>=pn-300))nukeRes=null;
+  pousser('nuke',now,{base:S.vic});
+}
+window.addEventListener('soreal-nuke-resultat',function(e){var d=e&&e.detail||{};nukeRes={n:Math.max(0,Math.floor(Number(d.n)||0)),dernier:Boolean(d.dernierBoss),at:window.performance&&performance.now?performance.now():0};});
+
+
+
+/* ------------------------------------------------------------------ barre de vie du boss, dessinée SUR l'écran (Norman, 2026-11-01 : « en écran de jeu quoi » ; mêmes données que l'ancienne barre rose, maintenant masquée) :
+   cœur à gauche, jauge de segments qui se vide de droite à gauche, « PV / PV max » centré en police LED, « +régénération/s » en vert sous la jauge, à droite. Valeurs lues dans l'état client (bossPv, bossPvMax, regenBoss), formatées comme
+   l'ancienne barre (formaterPvFixeIdleV1_) ; jamais de boss inconnu (même source que la plaque). */
+function hsl2rgb(h,s,l){
+  h=(((h%360)+360)%360)/360;
+  var q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
+  function f(x){x=(x+1)%1;return x<1/6?p+(q-p)*6*x:x<0.5?q:x<2/3?p+(q-p)*(2/3-x)*6:p;}
+  return [Math.round(f(h+1/3)*255),Math.round(f(h)*255),Math.round(f(h-1/3)*255)];
+}
+/* assombrit d'un contour d'un point les cellules autour de pts (comme l'ombre noire du texte d'origine) sans effacer la jauge */
+function contour(pts,y0,y1){for(var i=0;i<pts.length;i++)for(var j=-1;j<=1;j++)for(var x=-1;x<=1;x++){var xx=pts[i][0]+x,yy=pts[i][1]+j;if(xx>=0&&xx<P.W&&yy>=y0&&yy<y1){var k=yy*P.W+xx;P.v[k]=Math.round(P.v[k]*0.3);}}}
+function barre(t){
+  var W=P.W,y0=P.H,pv=S.pv,x,j,gy=y0+2,GH=9;
+  for(x=0;x<W;x+=2)px(x,y0,AMB,60);                                 /* rainure : fine ligne de points entre les scènes et la vie du boss */
+  if(!pv)return;
+  var x0=1,len=W-2,lit=Math.round(pv.pct*len);
+  if(pv.pct>0&&lit<1)lit=1;
+  for(x=0;x<len;x++){
+    var on=x<lit,seam=1;   /* barre pleine, sans traits qui la coupent (Norman, 2026-11-01) */
+    for(j=0;j<GH;j++)px(x0+x,gy+j,BARRE,(on?255:30)*seam);
+  }
+  var hx=x0+2,hy=gy+Math.floor((GH-6)/2),hp=[],r,q,txt=pv.cur+' / '+pv.max,lr=gy+GH+2;   /* le petit cœur, à gauche dans la jauge */
+  for(r=0;r<SPR.coeurP.length;r++)for(q=0;q<SPR.coeurP[r].length;q++)if(SPR.coeurP[r][q]!=='.')hp.push([hx+q,hy+r]);
+  contour(hp,gy,gy+GH);sprite(SPR.coeurP,hx,hy,255,ROS);
+  /* Norman (2026-11-02, dernier mot) : la régénération du boss est inutile ; la vie est CENTRÉE sous la jauge, toujours au format « 10 / 10 » (compact « 10/10 » puis la vie seule si la place manque), en petite police 3x5 */
+  txt=pv.cur+' / '+pv.max;
+  var room=W-3;
+  if(miniWidth(txt)>room)txt=pv.cur+'/'+pv.max;
+  if(miniWidth(txt)>room)txt=pv.cur;
+  miniText(txt,Math.max(1,Math.floor((W-miniWidth(txt))/2)),lr,BLA,255,fnUnites(txt));
+}
+var cbId=-1;
+function couleurBarre(r,e){
+  var id=e?Math.max(0,Math.floor(nombre(e.bossId))):0,st='',m;
+  if(id===cbId)return;
+  cbId=id;
+  try{st=typeof r.styleCouleurBarreBossIdleV1_==='function'?String(r.styleCouleurBarreBossIdleV1_(id)):'';}catch(_e){st='';}
+  m=/--bc-b:hsl\((\d+),/.exec(st);
+  RGB[BARRE]=m?hsl2rgb(Number(m[1]),0.85,0.56):[162,63,214];
+  if(panel&&panel.cell)panel.sprites();
+}
+
+/* ------------------------------------------------------------------ catalogue : durée, priorité (un événement de combat l'emporte sur le reste), instant de l'image fixe (prefers-reduced-motion) */
+var SC={
+  base:{fn:sBase,dur:10,prio:0,cap:1.0},
+  nom:{fn:sNom,dur:function(){return Math.max(1.4,Math.min(2.6,nomLongueur()/20+0.6));},prio:0,cap:3.0},
+  mascot:{fn:sMascot,dur:3.2,prio:0,cap:0.5},
+  sweep:{fn:sSweep,dur:9,prio:0,cap:0.5},
+  redroom:{fn:sRedroom,dur:9,prio:0,cap:0.5},
+  bars:{fn:sBars,dur:2.6,prio:1,cap:1.0},
+  objet:{fn:sObjet,dur:4.4,prio:1,cap:0.5},
+  nuke:{fn:sNuke,dur:12,prio:4,cap:3.0}   /* la durée réelle est fixée dès que le moteur a répondu (nukeInit) ; 12 s = plafond de sécurité de l'amorce */,
+  morts:{fn:sMorts,dur:4,prio:1,cap:1.0},
+  score:{fn:sScore,dur:4,prio:1,cap:2.0},
+  hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
+  fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
+  win:{fn:sWin,dur:function(p){return p.anim?8.6:7.2;},prio:5,cap:4.2},
+  ko:{fn:sKO,dur:function(p){return p.anim?8.8:6.4;},prio:5,cap:3.9}
+};
+/* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */
+var COUPE={win:5.0,ko:4.2};
+/* Temps minimum avant que le combat suivant (et le nom de son boss) puisse couper la scène : la victoire AVEC animation (Leatherface qui danse, ou le personnage qui saute) est vue EN ENTIER (Norman, 2026-11-02 : « je veux que l'animation de victoire soit montrée en entier avant »). */
+function coupeApres(s){return s.id==='win'&&s.p&&s.p.anim?s.dur:COUPE[s.id];}
+
+/* ------------------------------------------------------------------ rendu : un seul canvas */
+var BARH=19;   /* rangées sous la zone des scènes : rainure (1), vide (1), jauge (9), vide (0), régénération (7) ; tout est lu dans l'état du jeu, jamais écrit */
+/* Fluidité (2026-11-02) : canvas opaque (le fond est toujours dessiné plein) ; `neuf` = rien d'affiché au bon format, tout est à redessiner (voir Panel.draw : seules les cellules qui ont changé sont repeintes) */
+function Panel(canvas,W,H,sansBarre){this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.extra=sansBarre?0:BARH;this.setGrid(W,H);this.reduced=false;this.cell=0;this.p={};}
+Panel.prototype.setGrid=function(W,H){this.W=W;this.H=H;this.HT=H+this.extra;this.YM=H;var n=W*this.HT;this.c=new Uint8Array(n);this.v=new Uint8Array(n);this.pc=new Uint8Array(n);this.pl=new Uint8Array(n);this.pg=new Uint8Array(n);this.dm=new Uint8Array(n);this.sm=new Uint8Array(n);this.ch=new Int32Array(n);this.neuf=true;this.nd=0;this.yoff=0;this.cy0=0;this.cy1=H-1;this.cell=0;};
+/* Écran plus grand = PLUS DE LED, jamais un dessin agrandi (Norman, 2026-11-01) : la TAILLE d'un point est fixe (4 px CSS sur PC, 3 px sur téléphone, arrondie à un nombre ENTIER de pixels d'écran pour rester net) ;
+   c'est le nombre de colonnes et de rangées qui s'adapte à l'hôte (taille()). Rendu 1:1 : le canvas est affiché à sa taille exacte canvas.width/dpr x canvas.height/dpr (jamais étiré par le CSS, donc jamais
+   rééchantillonné) et centré dans l'hôte noir sur un nombre entier de pixels d'écran ; le petit reste devient des marges noires symétriques. */
+Panel.prototype.fit=function(cell,cssW,cssH){
+  var dpr=window.devicePixelRatio||1,cv=this.canvas,st=cv.style,changed=cell!==this.cell||dpr!==this.dpr;
+  this.dpr=dpr;
+  if(changed){
+    this.cell=cell;cv.width=cell*this.W;cv.height=cell*this.HT;this.neuf=true;
+    this.sprites();this.bg();
+  }
+  if(st){
+    var wd=cv.width,hd=cv.height;
+    st.width=(wd/dpr)+'px';st.height=(hd/dpr)+'px';st.imageRendering='pixelated';
+    if(cssH>0){
+      st.position='absolute';st.left=(Math.max(0,Math.floor((cssW*dpr-wd)/2))/dpr)+'px';st.top=(Math.max(0,Math.floor((cssH*dpr-hd)/2))/dpr)+'px';
+    }else{st.margin='0 auto';}
+  }
+  return changed;
+};
+/* grille FIXE (aperçu de l'éditeur Admin) : la plus grande cellule entière qui tient dans la largeur */
+Panel.prototype.resize=function(cssW,cssH){
+  var dpr=window.devicePixelRatio||1;
+  return this.fit(Math.max(3,Math.floor(cssW*dpr/this.W+1e-6)),cssW,cssH);
+};
+Panel.prototype.sprites=function(){
+  this.core=[];this.glow=[];this.neuf=true;   /* les sprites changent (couleur du boss) : tout est repeint */
+  for(var c=1;c<=7;c++)this.mk(c);
+};
+/* sprites d'une couleur de la palette (les 7 de base d'office, les couleurs d'unités de nombres à la demande) */
+Panel.prototype.mk=function(c){
+  var cell=this.cell,core=[],glow=[],l;
+  {
+    core=[];glow=[];
+    for(l=1;l<=8;l++){
+      var I=l/8,rgb=RGB[c],k=document.createElement('canvas'),g=document.createElement('canvas'),x;
+      k.width=k.height=cell;x=k.getContext('2d');
+      var hot=rgb.map(function(q){return Math.round(q+(255-q)*0.5);});
+      x.fillStyle='rgba('+rgb+','+I+')';x.beginPath();x.arc(cell/2,cell/2,cell*0.4,0,6.2832);x.fill();   /* bord franc : Norman, 2026-11-01 « ça m'a l'air flou » */
+      x.fillStyle='rgba('+hot+','+I+')';x.beginPath();x.arc(cell/2,cell/2,cell*0.24,0,6.2832);x.fill();
+      g.width=g.height=cell*3;x=g.getContext('2d');
+      var gg=x.createRadialGradient(cell*1.5,cell*1.5,cell*0.2,cell*1.5,cell*1.5,cell*1.5);
+      gg.addColorStop(0,'rgba('+rgb+','+(0.16*I)+')');gg.addColorStop(1,'rgba('+rgb+',0)');
+      x.fillStyle=gg;x.fillRect(0,0,cell*3,cell*3);
+      core[l]=k;glow[l]=g;
+    }
+  }
+  this.core[c]=core;this.glow[c]=glow;
+};
+Panel.prototype.bg=function(){
+  var cell=this.cell,b=document.createElement('canvas'),x;b.width=this.canvas.width;b.height=this.canvas.height;x=b.getContext('2d');
+  x.fillStyle='#020202';x.fillRect(0,0,b.width,b.height);
+  for(var j=0;j<this.HT;j++)for(var i=0;i<this.W;i++){
+    x.fillStyle='#0b0907';x.beginPath();x.arc(i*cell+cell/2,j*cell+cell/2,cell*0.38,0,6.2832);x.fill();   /* point éteint presque noir, sans petit reflet */
+  }
+  this.bgc=b;
+};
+Panel.prototype.draw=function(fn,t,gain,params){
+  P=this;this.p=params||{};this.c.fill(0);this.v.fill(0);this.yoff=0;this.xoff=0;this.cy0=0;this.cy1=this.H-1;this.YM=this.H;
+  fn(t);
+  this.xoff=0;
+  if(this.extra){this.yoff=0;this.cy0=0;this.cy1=this.HT-1;this.YM=this.HT;barre(t);this.YM=this.H;this.cy1=this.H-1;}   /* la vie du boss est dessinée APRÈS la scène, hors du fondu : elle reste toujours affichée */
+  var ctx=this.ctx,cell=this.cell,W=this.W,HT=this.HT,i,n=W*this.HT,ns=W*this.H,v,l,x,y;
+  /* Fluidité (2026-11-02) : on compare la grille à celle déjà affichée (couleur, niveau du coeur, niveau du halo de chaque point) ; rien de changé = aucun dessin ; sinon seules les cellules changées
+     (et leurs voisines, le halo déborde d'une cellule) sont repeintes, dans un rectangle de découpe : le résultat est identique pixel pour pixel à un redessin complet. La vie du boss, immobile presque toujours, n'est plus repeinte. */
+  var pc=this.pc,pl=this.pl,pg=this.pg,nc=0,ch=this.ch,cc=this.c,vv=this.v,L2,G2,col;
+  for(i=0;i<n;i++){
+    v=vv[i]*(i<ns?gain:1);
+    L2=v<=0?0:Math.max(1,Math.min(8,Math.ceil(v/255*8)));G2=v<70?0:Math.min(8,Math.ceil(v/255*8));col=L2?cc[i]:0;
+    if(L2&&!this.core[col])this.mk(col);
+    if(col!==pc[i]||L2!==pl[i]||G2!==pg[i]){ch[nc++]=i;pc[i]=col;pl[i]=L2;pg[i]=G2;}
+  }
+  this.nd=(this.nd||0)+1;
+  if(nc===0&&!this.neuf&&this.nd%240!==0){P=null;return;}   /* rien n'a changé : le canvas reste tel quel (un redessin complet de sécurité toutes les 240 images) */
+  if(this.neuf||this.nd%240===0||nc*3>n){
+    this.neuf=false;
+    ctx.globalCompositeOperation='source-over';ctx.drawImage(this.bgc,0,0);
+    ctx.globalCompositeOperation='lighter';
+    for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<70)continue;l=Math.min(8,Math.ceil(v/255*8));x=(i%W)*cell;y=((i/W)|0)*cell;if(!this.glow[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.glow[this.c[i]][l],x-cell,y-cell);}
+    ctx.globalCompositeOperation='source-over';
+    for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<=0)continue;l=Math.max(1,Math.min(8,Math.ceil(v/255*8)));if(!this.core[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.core[this.c[i]][l],(i%W)*cell,((i/W)|0)*cell);}
+    P=null;return;
+  }
+  var dm=this.dm,sm=this.sm,k,j,cx,cy,a,b,run;
+  dm.fill(0);sm.fill(0);
+  for(k=0;k<nc;k++){
+    i=ch[k];cx=i%W;cy=(i/W)|0;
+    for(b=-2;b<=2;b++){y=cy+b;if(y<0||y>=HT)continue;for(a=-2;a<=2;a++){x=cx+a;if(x<0||x>=W)continue;if(a>=-1&&a<=1&&b>=-1&&b<=1)dm[y*W+x]=1;sm[y*W+x]=1;}}   /* dm = cellules à repeindre (voisines comprises) ; sm = cellules dont le halo peut les toucher */
+  }
+  ctx.save();ctx.beginPath();
+  for(y=0;y<HT;y++){
+    run=-1;
+    for(x=0;x<=W;x++){
+      if(x<W&&dm[y*W+x]){if(run<0)run=x;}
+      else if(run>=0){ctx.rect(run*cell,y*cell,(x-run)*cell,cell);run=-1;}
+    }
+  }
+  ctx.clip();
+  ctx.globalCompositeOperation='source-over';ctx.drawImage(this.bgc,0,0);
+  ctx.globalCompositeOperation='lighter';
+  for(i=0;i<n;i++){if(!sm[i]||pg[i]===0)continue;x=(i%W)*cell;y=((i/W)|0)*cell;ctx.drawImage(this.glow[pc[i]][pg[i]],x-cell,y-cell);}
+  ctx.globalCompositeOperation='source-over';
+  for(i=0;i<n;i++){if(!dm[i]||pl[i]===0)continue;ctx.drawImage(this.core[pc[i]][pl[i]],(i%W)*cell,((i/W)|0)*cell);}
+  ctx.restore();
+  P=null;
+};
+
+/* ------------------------------------------------------------------ lecture de l'état du jeu (jamais d'écriture) */
+function reg(){return window.__SOREAL_IDLE_REG__||{};}
+function nombre(v){var n=Number(v);return isFinite(n)?n:0;}
+var histPv=[];                                                     /* [instant ms, ratio de vie du joueur] sur les 0,6 dernières secondes : tranche perdue en blanc */
+function lire(now){
+  var r=reg(),e=r.idleEtat||null;
+  langueDe(now);
+  S.combat=Boolean(e&&e.combatBossActif);
+  S.num=e?Math.max(0,Math.floor(nombre(e.bossSelection))):0;
+  S.vic=e?Math.max(0,Math.floor(nombre(e.bossVaincus))):0;
+  S.nomJ=e?String(e.nom||'Joueur').trim().replace(/\s+/g,' '):'';
+  /* victoires du boss COURANT : la même donnée que la carte du boss (bestiaire.entrees[].victoires) ; 0 = rien d'affiché */
+  S.morts=0;
+  if(e&&e.bestiaire&&Array.isArray(e.bestiaire.entrees)){var sel=Math.floor(nombre(e.bossSelection)),en=e.bestiaire.entrees;for(var q=0;q<en.length;q++){var x=en[q];if(x&&x.source==='boss'&&x.decouvert&&Math.floor(nombre(x.numero))===sel){S.morts=Math.max(0,Math.floor(nombre(x.victoires)));break;}}}
+  /* même source que la plaque du duel : le nom du boss sélectionné, tel qu'elle l'affiche (traduit si le jeu est en anglais) ; rien tant que le jeu ne connaît pas de boss */
+  var nom=e?String(e.bossActuel||'').trim():'';
+  if(nom){var pl=document.getElementById('sorealIdleBossNomTexteV65');if(pl&&pl.textContent.trim())nom=pl.textContent.trim().replace(/\s+/g,' ');}
+  S.boss=Boolean(nom&&S.num>0);
+  S.nom=S.boss?nom:'';
+  S.now=now;
+  var fmt=r.formaterPvFixeIdleV1_,bpm=e?nombre(e.bossPvMax):0,bp=e?nombre(e.bossPv):0;
+  /* vie du boss : mêmes champs et même mise en forme que l'ancienne barre (ui-boucle-v1.js : bossPv, bossPvMax, regenBoss) ; rien pour un boss inconnu */
+  S.pv=(S.boss&&bpm>0&&typeof fmt==='function')?{pct:clamp(bp/bpm,0,1),cur:String(fmt(bp)),max:String(fmt(bpm)),regen:(bp>0&&nombre(e.regenBoss)>0)?'+'+fmt(nombre(e.regenBoss))+'/s':''}:null;
+  couleurBarre(r,e);
+  var cons=e&&e.systemes&&e.systemes.consommables,rs=cons&&cons.restant||{};   /* mêmes secondes que la valise ; compte à rebours local entre deux synchros */
+  OBJ_ORDRE.forEach(function(k){var v=Math.floor(nombre(rs[k]));if(v>0){var o=S.obj[k];if(!o||o.base!==v)S.obj[k]={base:v,t0:now};}else delete S.obj[k];});
+  var max=e?nombre(e.pvJoueurMax):0,ratio=max>0?clamp(nombre(e.pvJoueur)/max,0,1):1;
+  var h=histPv;
+  if(!h.length||h[h.length-1][1]!==ratio)h.push([now,ratio]);
+  while(h.length>1&&now-h[0][0]>600)h.shift();
+  var gmax=ratio,tg=now;
+  for(var i=0;i<h.length;i++)if(h[i][1]>gmax){gmax=h[i][1];tg=h[i][0];}
+  S.bar={v:ratio,g:gmax,gv:gmax>ratio+0.002?clamp(1-(now-tg)/600,0,1):0};
+}
+
+/* ------------------------------------------------------------------ gestionnaire de scènes : une à la fois, priorité aux événements de combat, retour automatique à l'affichage de base */
+var L={ok:false,debut:0,res:0,hitN:0,mot:0,vic:false,def:false,combat:false,nuke:false};
+var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1};
+/* UNE SEULE ANIMATION PAR COMBAT (Norman, 2026-11-02 : « soit c'est le personnage qui court du début à la fin du combat, soit c'est Leatherface du début à la fin ») : tirée au début du combat, elle reste à l'écran jusqu'à la victoire,
+   où elle joue sa fin (château et feux d'artifice, ou la danse de Leatherface) avant « VICTOIRE ! ». Seuls les coups (POW !), la barre de vie du joueur et les objets s'intercalent un instant. */
+var combatAnim='',animChoisie='',animDecision=0,combatT0=0,combatNum=0,pct0=-1;   /* animChoisie : tirée au début ; combatAnim : seulement quand le combat est jugé assez long (6 s au moins, voir majAnimation) */
+var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1},GRACE_FIN_S=2.5,graceFin=0;
+var cur=null,pend=false,rot=0,jk=0,last='',fightT0=0,interAt=0,interN=0,objAt=0,objTour=0,objI=0;
+function enCombat(s){return Boolean(s&&(EN_COMBAT[s.id]||(s.id==='objet'&&s.p.inter)));}
+/* objets actifs (ordre fixe), avec au moins une seconde restante */
+function actifs(now){return OBJ_ORDRE.filter(function(k){return reste(k,now)>=1;});}
+function objetDu(now){return (objTour>0||now>=objAt)&&actifs(now).length>0;}
+/* une annonce d'objet actif toutes les ~28 s, 4,4 s chacune ; hors combat tous les objets défilent un par un, pendant le combat un seul s'intercale entre deux FIGHT ! */
+function objetSuivant(now,inter){
+  var l=actifs(now);
+  if(!l.length){objTour=0;return null;}
+  if(objTour<=0)objTour=inter?1:l.length;
+  var k=l[objI%l.length];objI+=1;objTour-=1;
+  if(objTour<=0)objAt=now+4400+(inter?26000:25000);
+  return mk('objet',now,{o:k,inter:Boolean(inter)});
+}
+function mk(id,now,p){
+  var d=SC[id].dur;p=p||{};
+  if(id==='win')p.anim=combatAnim;
+  if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}
+  if(id==='ko'&&combatAnim==='redroom'){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}
+  if((id==='win'||id==='ko')&&combatAnim==='redroom'&&cur&&cur.id==='redroom'&&cur.p)p.tg0=cur.p.tArr!=null?cur.p.tArr:(now-cur.t0)/1000;   /* le sol reprend là où la course s'est arrêtée */
+  if(p.long)d=1e9;
+  return {id:id,t0:(id==='fight'||p.long)?fightT0:now,p:p,prio:SC[id].prio,dur:typeof d==='function'?d(p,panel?panel.W:120):d};
+}
+function demarrer(s){cur=s;}
+/* le combat commence (ou reprend après un message) : FIGHT ! ; `neuf` = nouvelle apparition (lettre par lettre), sinon on reprend la boucle là où elle en était */
+function combatFight(now,neuf){
+  var dedans=enCombat(cur);
+  if(neuf||!dedans){
+    fightT0=now;combatT0=now;combatNum=S.num;pct0=S.pv?S.pv.pct:-1;interAt=now+9000;objTour=0;if(objAt<now+8000)objAt=now+8000;
+    var forcee=window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__;   /* outil de réglage (console, jamais enregistré) : window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__='redroom' | 'sweep' | 'mascot' impose l'animation des prochains combats ; supprimer la variable pour revenir au tirage */
+    animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom')?forcee:['mascot','sweep','redroom'][Math.min(2,Math.floor(Math.random()*3))];combatAnim='';animDecision=0;
+    if(neuf&&S.boss&&S.nom){demarrer(mk('nom',now));return;}   /* le nom du nouveau boss s'écrit d'abord ; FIGHT ! suit (voir image) */
+  }
+  if(!neuf&&dedans&&combatAnim&&S.pv)demarrer(mk(combatAnim,now,{long:true}));
+  else demarrer(mk('fight',now));
+}
+/* Une animation (mascotte ou Leatherface) seulement pour un combat qui durera 6 s au moins (Norman, 2026-11-02) : durée estimée = temps écoulé + vie restante / vitesse à laquelle elle baisse depuis le début ; FIGHT ! ne reste alors qu'UNE seconde. Sans baisse mesurable au bout de 4 s : pas d'animation. */
+/* Durée minimale PRÉVUE d'un combat pour qu'une animation longue (mascotte, Leatherface, Red Room) et sa scène de fin se voient (Norman, 2026-11-03 : « les animations de la borne ne se lancent presque plus ; elles doivent se déclencher même si on va perdre, même si on va gagner, dès que possible : si le combat dure assez longtemps pour que l'animation reste au moins 3 secondes à l'écran » : le seuil historique de 6 s écartait presque tous les combats ; l'animation part dès la première image du combat, elle se voit donc pendant toute la durée prévue) */
+var ANIM_DUREE_MIN_S=3,FUREUR_SEUIL_PCT=30;   /* FUREUR_SEUIL_PCT : même défaut que BOSS_FUREUR_SEUIL_PCT du moteur (idle-runtime-boss.js, multiplicateurAttaqueBossSorealIdle_) */
+/* Issue et durée PRÉVUES du combat de boss, avec les formules du moteur (idle-runtime-progression.js, étape p5 ; idle-runtime-boss.js) à partir des champs de l'état que le moteur envoie déjà :
+   dégâts au boss = max(0, puissance − defenseBoss) × (paralysie, bouclier, sceau) − regenBoss ; dégâts au joueur = max(0, attaqueBoss × fureur sous 30 % de PV − defense) − defense/20.
+   Fonction pure : {issue:'victoire'|'defaite'|'inconnue', secondes} ; « inconnue » (secondes null) si un champ manque ou si le combat ne peut pas se terminer. Les sorts de Magie lancés pendant le combat ne sont pas prévisibles. */
+function prevoirCombatBossV1(e){
+  var inconnu={issue:'inconnue',secondes:null};
+  if(!e||typeof e!=='object')return inconnu;
+  var num=function(v){return (typeof v==='number'||(typeof v==='string'&&v.trim()!==''))&&isFinite(Number(v))?Number(v):NaN;};
+  var puis=num(e.puissance),defB=num(e.defenseBoss),att=num(e.attaqueBoss),def=num(e.defense),regB=num(e.regenBoss),pv=num(e.bossPv),pvm=num(e.bossPvMax),pj=num(e.pvJoueur),pjm=num(e.pvJoueurMax);
+  if([puis,defB,att,def,regB,pv,pvm,pj].some(function(x){return isNaN(x);})||pv<=0||pvm<=0||pj<=0)return inconnu;
+  var caps=Array.isArray(e.bossCapacites)?e.bossCapacites:[],mDps=1,mSceau=1,mFureur=1,aFureur=false;
+  caps.forEach(function(c){
+    if(!c||typeof c!=='object')return;
+    var type=String(c.type||'').trim().toLowerCase(),inter=Math.max(0.01,nombre(c.intervalle)),duree=Math.max(0,nombre(c.duree)),val=nombre(c.valeur);
+    if(type==='paralysie'&&inter>0)mDps*=Math.max(0.05,1-Math.min(0.85,duree/inter));
+    if(type==='bouclier'&&inter>0)mDps*=Math.max(0.05,1-Math.max(0,Math.min(0.95,val/100))*Math.max(0,Math.min(0.85,duree/inter)));
+    if(type==='sceau')mSceau=Math.max(0.05,1-Math.min(95,Math.max(0,c.valeur==null?70:val))/100);
+    if(type==='fureur'){aFureur=true;mFureur*=1+Math.max(0,val)/100;}
+  });
+  mDps=Math.max(0.02,mDps);
+  var dps=Math.max(0,Math.max(0,puis-defB)*mDps*mSceau-Math.max(0,regB)),regJ=Math.max(0,def)/20,cap=Math.max(pj,isNaN(pjm)?0:pjm);
+  var seuil=pvm*FUREUR_SEUIL_PCT/100;
+  /* phases de PV du boss, chacune avec l'attaque qu'il y exerce : avant la fureur, puis sous le seuil de fureur */
+  var ph=(aFureur&&pv>seuil)?[{span:pv-seuil,a:att},{span:seuil,a:att*mFureur}]:[{span:pv,a:(aFureur&&pv<=seuil)?att*mFureur:att}];
+  var hp=pj,t=0;
+  for(var i=0;i<ph.length;i++){
+    var net=Math.max(0,ph[i].a-def)-regJ,d=dps>1e-6?ph[i].span/dps:Infinity;   /* net > 0 : le joueur perd cette vie par seconde ; net < 0 : il en regagne */
+    if(net>1e-6){
+      var tm=hp/net;
+      if(tm<d)return {issue:'defaite',secondes:Math.round((t+tm)*1000)/1000};
+      hp-=net*d;
+    }else if(isFinite(d))hp=Math.min(cap,hp-net*d);
+    if(!isFinite(d))return inconnu;   /* le boss ne perd plus de vie et le joueur tient : le combat ne se termine pas */
+    t+=d;
+  }
+  return {issue:'victoire',secondes:Math.round(t*1000)/1000};
+}
+function majAnimation(now){
+  if(animDecision!==0||!S.combat||!S.pv||!cur||cur.id!=='fight')return;
+  if(S.pv.pct>pct0){pct0=S.pv.pct;combatT0=now;}                    /* la vie d'un nouveau boss arrive après le début : la référence suit */
+  /* PRÉVISION (Norman, 2026-11-03 : « le jeu sait déjà si on va gagner ou perdre le combat ; il ne doit mettre les animations longues que quand le temps le permet ») : décidée dès la première image avec la durée PRÉVUE du combat (victoire comme défaite) ; l'observation de la barre ci-dessous ne sert que si la prévision est « inconnue » */
+  var pr=prevoirCombatBossV1(reg().idleEtat);
+  if(pr.issue!=='inconnue'){
+    if(pr.secondes>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;demarrer(mk(combatAnim,now,{long:true}));}else animDecision=-1;
+    return;
+  }
+  if(now-fightT0<500)return;
+  var el=(now-combatT0)/1000,chute=pct0-S.pv.pct;
+  if(chute>1e-6&&el>0){
+    var total=el+S.pv.pct/(chute/el);
+    if(total>=ANIM_DUREE_MIN_S){animDecision=1;combatAnim=animChoisie;demarrer(mk(combatAnim,now,{long:true}));}else animDecision=-1;
+  }else if(el>=2)animDecision=-1;
+}
+function suivante(now){
+  if(S.combat){combatFight(now,false);return cur;}
+  if(objetDu(now)){var so=objetSuivant(now,false);if(so)return so;}
+  var seq=S.boss?(S.morts>0?['base','morts','score','base']:['base','score','base']):['base'],id=seq[rot%seq.length];rot+=1;
+  return mk(id,now);
+}
+function pousser(id,now,p){
+  if(id==='fight'){
+    if(cur&&cur.id==='nom'&&S.num===combatNum)return;
+    if(enCombat(cur)&&S.num===combatNum)return;           /* même boss, déjà en combat : rien ne clignote ; un NOUVEAU boss (numéro différent) repart par l'écriture de son nom */
+    if(cur&&COUPE[cur.id]&&(now-cur.t0)/1000<coupeApres(cur)){pend=true;return;}
+    /* Le combat suivant peut démarrer AVANT que le drapeau de victoire (ou de défaite) soit lu : le nom du boss remplaçait alors l'animation longue juste avant sa scène de fin (Norman, 2026-11-03 : « l'animation de victoire du bonhomme qui saute a été interrompue par le nom du boss suivant ») ; on attend la scène de fin au plus GRACE_FIN_S secondes. */
+    if(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]){if(!graceFin)graceFin=now+GRACE_FIN_S*1000;pend=true;return;}
+    pend=false;graceFin=0;combatFight(now,true);return;
+  }
+  if(id==='nuke'&&cur&&cur.prio>=5)return;                         /* une victoire ou un K.O. déjà en cours n'est pas interrompu */
+  var s=mk(id,now,p);
+  if(id==='hit'){if(cur&&cur.prio>=3)return;demarrer(s);return;}
+  pend=false;graceFin=0;demarrer(s);                               /* victoire ou défaite : passe devant tout */
+}
+function evenements(now){
+  var r=reg(),e=r.idleEtat||null;
+  var debut=nombre(r.idleCombatDebutV1),res=r.idleCombatLogDernierResumeV70,vic=Boolean(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__),def=Boolean(r.idleCombatEnPauseApresDefaiteV1);
+  if(!L.ok){L.ok=true;L.debut=debut;L.res=res;L.vic=vic;L.def=def;L.combat=S.combat;L.nuke=Boolean(r.idleNukeEnCoursV1);return;}   /* première lecture (ou reprise) : on se cale sans jouer d'événement ancien */
+  if(S.combat&&!L.combat){rot=0;L.hitN=0;}
+  if(debut&&debut!==L.debut)pousser('fight',now);
+  if(!debut)L.hitN=0;
+  L.debut=debut;
+  /* Norman (2026-11-02) : « l'animation ne doit pas être interrompue par des BAM et compagnie, on doit la voir du début à la fin » : plus de POW ! / BAM ! (la scène 'hit' n'est plus jamais déclenchée) */
+  L.res=res;
+  var nk=Boolean(r.idleNukeEnCoursV1);                              /* un NUKE part (même drapeau que la victoire arcade ignore) : une animation parmi treize */
+  if(nk&&!L.nuke)lancerNuke(now);
+  L.nuke=nk;
+  if(vic&&!L.vic)pousser('win',now);
+  L.vic=vic;
+  if((def&&!L.def)||(L.combat&&!S.combat&&e&&nombre(e.pvJoueur)<=0&&!(cur&&cur.id==='ko')))pousser('ko',now);
+  L.def=def;L.combat=S.combat;
+}
+
+/* ------------------------------------------------------------------ canvas, observation, boucle */
+var panel=null,host=null,io=null,ro=null,onScreen=true,raf=0,timer=0,lastTs=0;
+function reduit(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
+/* Fluidité téléphone (audit 2026-11-03, MESURÉ : profil de 10 s en combat, processeur x4, 5,3 s sur 11 s dans CETTE seule fonction) : lire window.innerWidth oblige le navigateur à refaire la mise en page tout de suite si elle est
+   « sale ». boucle() l'appelait à CHAQUE image, juste après le tick de jeu qui venait d'écrire le DOM : une mise en page forcée par image. Le résultat n'est relu qu'au changement de taille de la fenêtre. */
+var MOBILE_CACHE=null;
+function mobile(){if(MOBILE_CACHE===null)MOBILE_CACHE=(window.innerWidth||1000)<=700;return MOBILE_CACHE;}
+window.addEventListener('resize',function(){MOBILE_CACHE=null;});
+window.addEventListener('orientationchange',function(){MOBILE_CACHE=null;});
+var CELL_PC=4,CELL_TEL=3,W_MAX=240,W_MIN=60,ROWS_MAX=72;   /* taille d'un point en px CSS ; plafonds de la grille (perf) */
+/* nombre de colonnes et de rangées pour un hôte donné : floor(taille de l'hôte en pixels d'écran / taille d'un point) ; la zone des scènes = toutes les rangées moins les 19 de la vie du boss */
+function grille(cssW,cssH,dpr){
+  var cell=Math.max(2,Math.round((mobile()?CELL_TEL:CELL_PC)*(dpr||1)));
+  var W=clamp(Math.floor(cssW*(dpr||1)/cell),W_MIN,W_MAX),R=clamp(Math.floor(cssH*(dpr||1)/cell),BARH+8,ROWS_MAX);
+  return {cell:cell,W:W,H:R-BARH};
+}
+
+function dessiner(now){
+  var s=cur,sc=SC[s.id],u=(now-s.t0)/1000,rm=reduit(),g=1;
+  panel.reduced=rm;
+  if(rm){
+    var sig=s.id+'|'+S.num+'|'+S.nom+'|'+S.vic+'|'+Math.round(S.bar.v*50)+'|'+langue+'|'+(s.id==='nuke'&&nukeRes?nukeRes.n+(nukeRes.dernier?'f':''):'')+'|'+panel.cell+'|'+panel.W+'|'+(S.pv?S.pv.pct.toFixed(3)+S.pv.cur+S.pv.max+S.pv.regen+(S.combat?'c':''):'')+RGB[BARRE].join();
+    if(sig===last)return;
+    last=sig;panel.draw(sc.fn,sc.cap,1,s.p);return;
+  }
+  var f=s.id==='hit'?0.08:0.2;
+  g=s.id==='fight'?1:clamp(Math.min(u,s.dur-u)/f,0,1);
+  last='';
+  panel.draw(sc.fn,u,g,s.p);
+}
+function image(now){
+  lire(now);
+  evenements(now);
+  if(pend&&(!cur||!COUPE[cur.id]||(now-cur.t0)/1000>=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}
+  if(!cur||(now-cur.t0)/1000>=cur.dur){
+    if(cur&&cur.id==='nom'&&S.combat){fightT0=now;demarrer(mk('fight',now));}
+    else if(cur&&(cur.id==='mascot'||cur.id==='sweep'||cur.id==='redroom'||cur.id==='bars'||cur.id==='hit'||(cur.id==='objet'&&cur.p.inter))&&S.combat)combatFight(now,false);
+    else demarrer(suivante(now));
+  }else if(S.combat&&(cur.id==='base'||cur.id==='score'||(cur.id==='objet'&&!cur.p.inter)))combatFight(now,true);
+  else if(!S.combat&&enCombat(cur)){
+    /* Fin du combat (Norman, 2026-11-03 : « l'animation de victoire est encore coupée par le nom du boss ; juste 1 seconde ensuite on voit la fin de l'animation ») : le drapeau de victoire (ou de défaite) n'est lu qu'environ 1 s APRÈS la fin du combat ; quitter l'animation longue tout de suite lui substituait la scène de base, le nom du boss suivant passait devant, puis la scène de fin réapparaissait. L'animation longue reste donc à l'écran, dans son état final, jusqu'à l'arrivée de la scène de fin (au plus GRACE_FIN_S secondes). */
+    if(cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]){if(!graceFin)graceFin=now+GRACE_FIN_S*1000;if(now>=graceFin){graceFin=0;demarrer(suivante(now));}}
+    else demarrer(suivante(now));
+  }
+  else majAnimation(now);   /* FIGHT ! une seconde, puis l'animation du combat si celui-ci doit durer 6 s au moins */
+  /* aucun interlude pendant un combat : ni POW ! / BAM !, ni annonce d'objet, ni barre de vie du joueur ; l'animation du combat se voit du début à la fin (Norman, 2026-11-02) */
+  dessiner(now);
+  try{dessinerMinis(now);}catch(_e){}
+}
+/* ------------------------------------------------------------------ petits écrans LED du duel (Norman, 2026-11-01 : « le nom du joueur doit aussi être sur un écran LED », « l'information avec le nombre de fois qu'on a déjà tué ce boss doit passer aussi »)
+   Même moteur de points, mêmes polices et même rendu 1:1 que le grand panneau ; hôte `.bn-led-mini.bn-led-joueur` du HTML de la page, canvas ajouté ici avec data-morph-garder.
+   Seul le nom du joueur est ici ; le nombre de fois que le boss a été tué est dans la rotation du grand panneau (scène « morts »).
+   Texte ambre ; trop long = va-et-vient avec pause aux deux bouts (immobile, tronqué, si l'animation est réduite). */
+var minis=[];
+function sMini(){
+  var p=P.p,bt=Math.max(0,Math.floor((P.H-7)/2)),x=p.x;   /* texte centré en hauteur (Norman, 2026-11-01 : « il est collé sur le bas du cadre ») : le nombre de rangées est impair, donc marges haut et bas égales */
+  if(p.spr){sprite(SPR[p.spr],x,bt,255);x+=9;}
+  rich(p.segs,x,bt,1,255);
+}
+function contenuMini(m){
+  if(!S.nomJ)return null;
+  var seg=[[S.nomJ,AMB]];return {segs:seg,spr:null,w:rwidth(seg,1)};
+}
+function tailleMini(m){
+  var h=m.host,w=h.clientWidth,hh=h.clientHeight;
+  if(!(w>0)||!(hh>0))return;
+  var dpr=window.devicePixelRatio||1,cell=Math.max(2,Math.round((mobile()?CELL_TEL:CELL_PC)*dpr));
+  var W=clamp(Math.floor(w*dpr/cell),20,W_MAX),H=clamp(Math.floor(hh*dpr/cell),9,40);if((H-7)%2!==0)H-=1;
+  if(W!==m.panel.W||H!==m.panel.H)m.panel.setGrid(W,H);
+  m.panel.fit(cell,w,hh);m.sig='';
+}
+function syncMinis(){
+  var hs=document.querySelectorAll('.bn-led-mini'),i,j;
+  for(i=minis.length-1;i>=0;i--)if(!minis[i].host.isConnected||Array.prototype.indexOf.call(hs,minis[i].host)<0){if(minis[i].ro)minis[i].ro.disconnect();minis.splice(i,1);}
+  for(i=0;i<hs.length;i++){
+    var h=hs[i],m=null;
+    for(j=0;j<minis.length;j++)if(minis[j].host===h)m=minis[j];
+    var cv=h.querySelector('canvas.bn-led-canvas');
+    if(!cv){
+      cv=document.createElement('canvas');cv.className='bn-led-canvas';
+      cv.setAttribute('data-morph-garder','');cv.setAttribute('data-morph-vivant','');cv.setAttribute('data-steam-visible','');cv.setAttribute('aria-hidden','true');
+      h.appendChild(cv);m=null;
+    }
+    if(m&&m.panel.canvas!==cv){if(m.ro)m.ro.disconnect();minis.splice(minis.indexOf(m),1);m=null;}
+    if(!m){
+      m={host:h,kind:'joueur',panel:new Panel(cv,60,11,true),sig:'',t0:performance.now(),ro:null};
+      minis.push(m);
+      try{if(typeof ResizeObserver==='function'){m.ro=new ResizeObserver(function(){tailleMini(m);});m.ro.observe(h);}}catch(_e){}
+      tailleMini(m);
+    }
+  }
+}
+function dessinerMinis(now){
+  var rm=reduit();
+  for(var i=0;i<minis.length;i++){
+    var m=minis[i],pn=m.panel,c;
+    if(!(pn.cell>0))continue;
+    c=contenuMini(m);
+    var x,off=0,sig;
+    if(!c){sig='vide|'+pn.W+'|'+pn.cell;if(sig!==m.sig){m.sig=sig;pn.draw(function(){},0,1,{segs:[],x:0});}continue;}
+    var dispo=pn.W-6;
+    if(c.w<=dispo)x=Math.floor((pn.W-c.w)/2);
+    else{
+      var trajet=c.w-dispo,pause=1.5,vit=14,tt=trajet/vit,per=2*(pause+tt),u=rm?0:((now-m.t0)/1000)%per;
+      var d=u<pause?0:u<pause+tt?(u-pause)/tt:u<2*pause+tt?1:1-(u-2*pause-tt)/tt;
+      off=Math.round(clamp(d,0,1)*trajet);x=3-off;
+    }
+    sig=m.kind+'|'+c.segs.map(function(g){return g[0];}).join(' ')+'|'+x+'|'+pn.W+'x'+pn.H+'|'+pn.cell+'|'+langue;
+    if(sig===m.sig)continue;
+    m.sig=sig;pn.draw(sMini,0,1,{segs:c.segs,spr:c.spr,x:x});
+  }
+}
+function actif(){return Boolean(panel&&host&&host.isConnected&&onScreen&&!document.hidden);}
+function boucle(ts){
+  raf=0;
+  if(!actif())return;
+  if(!mobile()||ts-lastTs>=32){lastTs=ts;try{image(performance.now());}catch(_e){}}
+  raf=requestAnimationFrame(boucle);
+}
+function relancer(){
+  if(raf||timer||!actif())return;
+  L.ok=false;cur=null;pend=false;last='';
+  if(reduit()){
+    var pas=function(){timer=0;if(!actif())return;try{image(performance.now());}catch(_e){}timer=setTimeout(pas,250);};
+    pas();
+  }else{lastTs=0;raf=requestAnimationFrame(boucle);}
+}
+function arreter(){if(raf){cancelAnimationFrame(raf);raf=0;}if(timer){clearTimeout(timer);timer=0;}}
+
+function taille(){
+  if(!panel||!host)return;
+  var w=host.clientWidth;
+  if(!(w>0))return;
+  var hh=host.clientHeight;
+  if(!(hh>0))return;
+  var g=grille(w,hh,window.devicePixelRatio||1);
+  var grille2=g.W!==panel.W||g.H!==panel.H;
+  if(grille2)panel.setGrid(g.W,g.H);
+  var neuf=panel.fit(g.cell,w,hh);
+  last='';
+  /* Norman (2026-11-01) : « l'écran devient noir par moment » : changer la grille ou la taille d'un point efface le canvas ; on le redessine DANS LA MÊME TÂCHE (jamais d'image noire en attendant la prochaine image d'animation). */
+  if(grille2||neuf){try{image(performance.now());}catch(_e){}}
+}
+/* appelé après chaque redessin de la page (et à la première image) : rattache le panneau à l'hôte `.bn-led`, sans jamais recréer un canvas encore valide */
+function ensure(){
+  var h=document.querySelector('.bn-led');
+  if(!h){
+    if(panel){arreter();if(io)io.disconnect();if(ro)ro.disconnect();panel=null;host=null;}
+    syncMinis();
+    return false;
+  }
+  var cv=h.querySelector('canvas.bn-led-canvas');
+  if(!cv){
+    cv=document.createElement('canvas');cv.className='bn-led-canvas';
+    cv.setAttribute('data-morph-garder','');cv.setAttribute('data-morph-vivant','');cv.setAttribute('data-steam-visible','');cv.setAttribute('aria-hidden','true');
+    h.appendChild(cv);
+  }
+  if(!panel||panel.canvas!==cv||host!==h){
+    arreter();
+    host=h;
+    panel=new Panel(cv,120,14);   /* taille(), juste après, calcule la vraie grille depuis l'hôte */
+    if(io)io.disconnect();if(ro)ro.disconnect();
+    try{
+      if(typeof IntersectionObserver==='function'){io=new IntersectionObserver(function(en){onScreen=en[en.length-1].isIntersecting;if(onScreen)relancer();else arreter();});io.observe(h);}
+      if(typeof ResizeObserver==='function'){ro=new ResizeObserver(function(){taille();});ro.observe(h);}
+    }catch(_e){}
+    taille();
+  }
+  syncMinis();
+  relancer();
+  return true;
+}
+
+window.addEventListener('resize',function(){taille();});   /* zoom de la page : le rapport de pixels change */
+document.addEventListener('visibilitychange',function(){if(document.hidden)arreter();else relancer();});
+/* Exe (Steam) : la superposition prend le focus ; le gel de la page (desktop/coeur.js) cache les canvas sauf ceux marqués data-steam-visible (les écrans LED le sont : jamais noirs). Pour ne présenter aucune image pendant la superposition, le dessin s'arrête à la perte du focus (la dernière image reste affichée) et repart au retour du focus (Norman, 2026-11-01 : « toujours noir puis ça revient »). */
+window.addEventListener('blur',function(){arreter();});
+window.addEventListener('focus',function(){relancer();});
+(window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{ensure();}catch(_e){}});
+
+
+/* Contrôle visuel d'une scène sur un canvas de test (grille W x H, instant t, vie du boss pct) : outil de vérification, jamais utilisé par le jeu */
+function dessinerSceneEssai(cv,id,t,pct,W,H,params){
+  if(!cv||!cv.getContext||!SC[id])return false;
+  var avant=S.pv,p=new Panel(cv,W||136,H||26,true);
+  S.pv={pct:pct==null?1:pct,cur:'0',max:'0',regen:''};
+  try{p.reduced=false;p.resize((cv.clientWidth||(W||136)*4));p.draw(SC[id].fn,t,1,params||{});}finally{S.pv=avant;}
+  return true;
+}
+window.__SOREAL_IDLE_BORNE_LED_V1__={dessinerSceneEssai:dessinerSceneEssai,jouerNuke:function(){lancerNuke(window.performance&&performance.now?performance.now():0);},ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};
+})();
+</script>
+<script>
+var SC=[{nom:"Chat qui saute sur le bouton",v:5,d:3.4},{nom:"Chien qui renifle puis pisse",v:12,d:4.8}],TA=[{nom:"PC (140×34)",W:140,H:34},{nom:"Téléphone (120×16)",W:120,H:16}];
+var iS=0,iT=0,t0=0,boucle=0,raf=0,cv=document.getElementById("cv");
+function rendre(t){window.__SOREAL_IDLE_BORNE_NUKE_VARIANTE_FORCEE__=SC[iS].v;try{window.__SOREAL_IDLE_BORNE_LED_V1__.dessinerSceneEssai(cv,"nuke",t,1,TA[iT].W,TA[iT].H,{essai:1,n:1});}catch(e){document.getElementById("info").textContent="Erreur : "+e.message;}}
+function lancer(){cancelAnimationFrame(raf);t0=performance.now();(function f(now){var t=(now-t0)/1000;if(t>SC[iS].d+0.8){t0=now;t=0;}rendre(t);raf=requestAnimationFrame(f);})(t0);}
+function bouton(parent,liste,cle,cb){liste.forEach(function(x,i){var b=document.createElement("button");b.textContent=x.nom;b.onclick=function(){window[cle]=i;maj();cb();};b.dataset.i=i;parent.appendChild(b);});}
+function maj(){[].forEach.call(document.querySelectorAll("#scenes button"),function(b){b.className=(+b.dataset.i===iS)?"on":"";});[].forEach.call(document.querySelectorAll("#tailles button"),function(b){b.className=(+b.dataset.i===iT)?"on":"";});}
+var bs=document.getElementById("scenes");SC.forEach(function(x,i){var b=document.createElement("button");b.textContent=x.nom;b.dataset.i=i;b.onclick=function(){iS=i;maj();lancer();};bs.appendChild(b);});
+var rb=document.createElement("button");rb.textContent="↻ Rejouer";rb.onclick=lancer;bs.appendChild(rb);
+var bt=document.getElementById("tailles");TA.forEach(function(x,i){var b=document.createElement("button");b.textContent=x.nom;b.dataset.i=i;b.onclick=function(){iT=i;maj();lancer();};bt.appendChild(b);});
+document.getElementById("info").textContent="L'animation se rejoue en boucle. Elle utilise le vrai code de la borne ; l'amorce du clic n'est pas montrée.";
+maj();lancer();
+</script></body></html>

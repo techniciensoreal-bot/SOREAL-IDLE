@@ -544,7 +544,7 @@
               const ecoule0=Math.max(0,(maintB-(bloodVisual.at||maintB))/1000);
               const eta0=idleNombre_(bloodVisual.etaSeconds);
               if(ecoule0>=eta0-1e-9){
-                const dus=Math.floor((ecoule0-eta0)/seconds)+1;
+                const dus=Math.floor((ecoule0-eta0)/seconds+1e-9)+1;   /* même tolérance que le moteur : une complétion exactement à la frontière est comptée (écart d'un rituel mesuré le 2026-11-05) */
                 /* Défi des 100 niveaux (2026-11-03) : chaque rituel rejoué sort du budget partagé ; à 0, aucun rituel de plus (barre pleine, comme faute d'Or). */
                 const faits=window.__SOREAL_IDLE_DEFI100_V1__?window.__SOREAL_IDLE_DEFI100_V1__.accorder(Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000)):Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000);
                 /* Faute d'Or, la barre attend PLEINE (repère remis à maintenant) : sinon le temps d'attente s'empile et tous ces rituels sont rejoués d'un coup quand l'Or revient (Norman, 2026-10-23) */

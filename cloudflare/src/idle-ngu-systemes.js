@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
+import { IDLE_TICK_SECONDS_V1 } from "./idle-tick-v1.js";
 import { span, enveloppeSpan } from "./idle-spans-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 import { macguffinEffectMultiplierV1, macguffinEatFruitV1, macguffinFruitLevelsV1, macguffinOnItopodKillsV1 } from "./idle-macguffins-v1.js";
@@ -86,10 +87,11 @@ function advanceBloodMagic(state, seconds, context) {
     const magic = bloodRitualMagicV1(s, ritual.id);
     if (magic <= 0) continue;
     const rs = s.data.rituals[ritual.id];
-    const secondsPerCompletion = ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier;
+    /* Un rituel dure au moins un tick (50 par seconde au plus, comme le vrai jeu : idle-tick-v1.js, Norman 2026-11-05) */
+    const secondsPerCompletion = Math.max(IDLE_TICK_SECONDS_V1, ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier);
     rebaserProgressionSecondesV1(rs, "progress", secondsPerCompletion);
     rs.progress += seconds;
-    let completions = Math.floor(rs.progress / secondsPerCompletion);
+    let completions = Math.floor(rs.progress / secondsPerCompletion + 1e-9);   /* 1e-9 : même tolérance que l'écran (une complétion exactement à la frontière est comptée) */
     if (completions <= 0) continue;
 
     const affordable = Math.floor(state.currencies.gold / ritual.gold);

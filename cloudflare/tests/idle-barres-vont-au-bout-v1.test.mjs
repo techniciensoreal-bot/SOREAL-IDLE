@@ -19,7 +19,7 @@ assert.ok(!/animation\.currentTime\s*=\s*Math\.max\(0,Math\.min\(\.999999,idleNo
 const wandoos = readFileSync(new URL("../public/modules/wandoos-retro-v1.js", import.meta.url), "utf8");
 assert.ok(wandoos.includes("var affichee=Math.min(1,f/(1-Math.min(.15,Math.max(.004,.04*v))));"), "Wandoos : la fin du cycle reste pleine");
 const ngu = readFileSync(new URL("../public/modules/ngu-labo-v1.js", import.meta.url), "utf8");
-assert.ok(ngu.includes("Math.min(1,frac/(1-Math.min(.15,Math.max(.004,.04/spl))))"), "NGU : la fin du cycle reste pleine");
+assert.ok(ngu.includes("Math.min(1,frac/(1-Math.min(.15,Math.max(.004,.04/splMaintenant))))"), "NGU : la fin du cycle reste pleine");
 const meta = lirePagesMeta();
 assert.ok(meta.includes("__atVuV1") && meta.includes("avant.p<0.97"), "Entraînement avancé : une image pleine au passage d'un niveau");
 

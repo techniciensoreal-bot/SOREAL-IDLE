@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><title>Variantes chien</title><body style="margin:0;background:#050505"><canvas id="c"></canvas>
+<script src="dog-essai2.js"></script>
+<script>
+var COL={X:'#ffa81c',D:'#a0580f',W:'#fff6de',R:'#ff3028',Y:'#ffe13c'};
+function dessin(ctx,rows,ox,oy,z){rows.forEach(function(row,r){for(var c=0;c<row.length;c++){var ch=row.charAt(c);if(ch==='.'||ch===' ')continue;ctx.fillStyle=COL[ch]||'#ffa81c';ctx.beginPath();ctx.arc((ox+c+0.5)*z,(oy+r+0.5)*z,z*0.42,0,6.3);ctx.fill();}});}
+window.variantes=async function(nom,z){
+  var cv=document.getElementById('c'),ctx;cv.width=26*3*z;cv.height=(15*2+3)*z;ctx=cv.getContext('2d');ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,cv.width,cv.height);
+  [0,1,2].forEach(function(t,i){
+    dessin(ctx,dogBuild({hy:0,cp:1,tete:t}),i*26,0,z);
+    dessin(ctx,dogBuild({hy:0,cp:1,by:1,lift:1,tete:t}),i*26,17,z);
+  });
+  var r=await fetch('/save/'+nom+'.png',{method:'POST',body:cv.toDataURL('image/png')});return r.status+' '+cv.width+'x'+cv.height;
+};
+window.poses=async function(nom,z){
+  var cv=document.getElementById('c'),ctx,D=dogsInit();var ks=['arret','p1','p2','face','fmi','flevee'];
+  cv.width=26*ks.length*z;cv.height=16*z;ctx=cv.getContext('2d');ctx.fillStyle='#0a0a0a';ctx.fillRect(0,0,cv.width,cv.height);
+  ks.forEach(function(k,i){dessin(ctx,D.grand[k],i*26,0,z);});
+  var r=await fetch('/save/'+nom+'.png',{method:'POST',body:cv.toDataURL('image/png')});return r.status+' '+cv.width+'x'+cv.height;
+};
+</script>

@@ -50,6 +50,12 @@
             'Les barres de la Machine temporelle ne reculent plus quand tu changes une allocation, même quand elles vont très vite, et les actions d’allocation sont environ un tiers plus rapides à traiter.',
             'Quand tu retires l’énergie ou la magie d’une barre (ou que tu changes sa répartition), elle s’arrête exactement à cet instant : plus de progression en trop ni de retour en arrière, dans tous les menus à répartition.',
           ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Comme dans NGU Idle, un rituel dure au moins un tick : jamais plus de 50 rituels par seconde, et le compteur ne saute plus d’un rituel quand la barre se termine pile.',
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'La barre d’un NGU suit exactement le calcul du jeu : chaque niveau coûte plus que le précédent, donc elle n’avance plus trop vite pour reculer ensuite.',
+          ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'La barre orange de chargement de l’OS ne saute plus quand une barre de niveau avance : ses rayures défilent sans interruption.',
           ]},

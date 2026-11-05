@@ -1,0 +1,899 @@
+{
+ "noeud": [
+  {
+   "name": "01-dilatation-0ms",
+   "etat": "dilatation",
+   "t": 0,
+   "pupille_px": [
+    2.64,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 7.93,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 14.3
+  },
+  {
+   "name": "02-dilatation-300ms",
+   "etat": "dilatation",
+   "t": 300,
+   "pupille_px": [
+    5.69,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 6.4,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 30.8
+  },
+  {
+   "name": "03-dilatation-600ms",
+   "etat": "dilatation",
+   "t": 600,
+   "pupille_px": [
+    12.63,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 2.93,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 68.3
+  },
+  {
+   "name": "04-dilatation-900ms",
+   "etat": "dilatation",
+   "t": 900,
+   "pupille_px": [
+    15,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 1.75,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 81.1
+  },
+  {
+   "name": "05-dilatation-1200ms",
+   "etat": "dilatation",
+   "t": 1200,
+   "pupille_px": [
+    15.52,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 1.48,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 84
+  },
+  {
+   "name": "06-contraction-120ms",
+   "etat": "contraction",
+   "t": 120,
+   "pupille_px": [
+    13.8,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 2.35,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 74.6
+  },
+  {
+   "name": "07-contraction-240ms",
+   "etat": "contraction",
+   "t": 240,
+   "pupille_px": [
+    7.62,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 5.44,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 41.2
+  },
+  {
+   "name": "08-contraction-360ms",
+   "etat": "contraction",
+   "t": 360,
+   "pupille_px": [
+    4.24,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 7.13,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 22.9
+  },
+  {
+   "name": "09-contraction-480ms",
+   "etat": "contraction",
+   "t": 480,
+   "pupille_px": [
+    2.96,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 7.77,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 16
+  },
+  {
+   "name": "10-contraction-600ms",
+   "etat": "contraction",
+   "t": 600,
+   "pupille_px": [
+    2.64,
+    15.55
+   ],
+   "iris_px": [
+    18.49,
+    18.52
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 7.93,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 14.3
+  },
+  {
+   "name": "11-repos-battement",
+   "etat": "battement",
+   "t": 1200,
+   "pupille_px": [
+    7.8,
+    15.56
+   ],
+   "iris_px": [
+    18.53,
+    18.54
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 5.37,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 42.1
+  },
+  {
+   "name": "12-zoom-ouvert",
+   "etat": "zoom",
+   "t": 0,
+   "pupille_px": [
+    15.5,
+    15.59
+   ],
+   "iris_px": [
+    18.46,
+    18.57
+   ],
+   "anneau_haut_px": 1.49,
+   "anneau_cote_px": 1.48,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 84
+  },
+  {
+   "name": "13-zoom-ferme",
+   "etat": "repos",
+   "t": 0,
+   "pupille_px": [
+    2.65,
+    15.53
+   ],
+   "iris_px": [
+    18.51,
+    18.5
+   ],
+   "anneau_haut_px": 1.48,
+   "anneau_cote_px": 7.93,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 14.3
+  }
+ ],
+ "noeud_anneauPixels": [
+  {
+   "haut": {
+    "rayon": 7.6,
+    "anneau": 4.2
+   },
+   "bas": {
+    "rayon": 7.6,
+    "anneau": 3.4
+   },
+   "gauche": {
+    "rayon": 7.4,
+    "anneau": 1.4
+   },
+   "droite": {
+    "rayon": 7.8,
+    "anneau": 1.2
+   }
+  },
+  {
+   "haut": {
+    "rayon": 7.6,
+    "anneau": 4.2
+   },
+   "bas": {
+    "rayon": 7.6,
+    "anneau": 3.4
+   },
+   "gauche": {
+    "rayon": 7.4,
+    "anneau": 1.4
+   },
+   "droite": {
+    "rayon": 7.8,
+    "anneau": 1.2
+   }
+  }
+ ],
+ "noeud_anneauZoomPixels": [
+  {
+   "haut": {
+    "rayon": 7.8,
+    "anneau": 4
+   },
+   "bas": {
+    "rayon": 7.4,
+    "anneau": 4
+   },
+   "gauche": {
+    "rayon": 6.6,
+    "anneau": 6.6
+   },
+   "droite": {
+    "rayon": 8.4,
+    "anneau": 4.6
+   }
+  },
+  {
+   "haut": {
+    "rayon": 7.8,
+    "anneau": 3.8
+   },
+   "bas": {
+    "rayon": 7.4,
+    "anneau": 3.6
+   },
+   "gauche": {
+    "rayon": 6.8,
+    "anneau": 1.4
+   },
+   "droite": {
+    "rayon": 8.4,
+    "anneau": 4.6
+   }
+  }
+ ],
+ "noel": [
+  {
+   "name": "01-dilatation-0ms",
+   "etat": "dilatation",
+   "t": 0,
+   "pupille_px": [
+    2.57,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 7.72,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 14.3
+  },
+  {
+   "name": "02-dilatation-300ms",
+   "etat": "dilatation",
+   "t": 300,
+   "pupille_px": [
+    5.54,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 6.23,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 30.8
+  },
+  {
+   "name": "03-dilatation-600ms",
+   "etat": "dilatation",
+   "t": 600,
+   "pupille_px": [
+    12.29,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 2.85,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 68.3
+  },
+  {
+   "name": "04-dilatation-900ms",
+   "etat": "dilatation",
+   "t": 900,
+   "pupille_px": [
+    14.6,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 1.7,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 81.1
+  },
+  {
+   "name": "05-dilatation-1200ms",
+   "etat": "dilatation",
+   "t": 1200,
+   "pupille_px": [
+    15.11,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 1.45,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 83.9
+  },
+  {
+   "name": "06-contraction-120ms",
+   "etat": "contraction",
+   "t": 120,
+   "pupille_px": [
+    13.43,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 2.29,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 74.6
+  },
+  {
+   "name": "07-contraction-240ms",
+   "etat": "contraction",
+   "t": 240,
+   "pupille_px": [
+    7.41,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 5.29,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 41.2
+  },
+  {
+   "name": "08-contraction-360ms",
+   "etat": "contraction",
+   "t": 360,
+   "pupille_px": [
+    4.12,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 6.94,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 22.9
+  },
+  {
+   "name": "09-contraction-480ms",
+   "etat": "contraction",
+   "t": 480,
+   "pupille_px": [
+    2.88,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 7.56,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 16
+  },
+  {
+   "name": "10-contraction-600ms",
+   "etat": "contraction",
+   "t": 600,
+   "pupille_px": [
+    2.57,
+    15.11
+   ],
+   "iris_px": [
+    18,
+    18
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 7.72,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 14.3
+  },
+  {
+   "name": "11-repos-battement",
+   "etat": "battement",
+   "t": 1200,
+   "pupille_px": [
+    7.56,
+    15.17
+   ],
+   "iris_px": [
+    17.99,
+    18.07
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 5.22,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 42
+  },
+  {
+   "name": "12-zoom-ouvert",
+   "etat": "zoom",
+   "t": 0,
+   "pupille_px": [
+    15.1,
+    15.13
+   ],
+   "iris_px": [
+    17.99,
+    18.02
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 1.44,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 83.9
+  },
+  {
+   "name": "13-zoom-ferme",
+   "etat": "repos",
+   "t": 0,
+   "pupille_px": [
+    2.57,
+    15.13
+   ],
+   "iris_px": [
+    18,
+    18.02
+   ],
+   "anneau_haut_px": 1.45,
+   "anneau_cote_px": 7.71,
+   "pupille_pct_hauteur": 83.9,
+   "pupille_pct_largeur": 14.3
+  }
+ ],
+ "noel_anneauPixels": [
+  {
+   "haut": {
+    "rayon": 7.8,
+    "anneau": 1.4
+   },
+   "bas": {
+    "rayon": 7.4,
+    "anneau": 0.4
+   },
+   "gauche": {
+    "rayon": 7.8,
+    "anneau": 1.4
+   },
+   "droite": {
+    "rayon": 8,
+    "anneau": 4.4
+   }
+  },
+  {
+   "haut": {
+    "rayon": 7.4,
+    "anneau": 1.4
+   },
+   "bas": {
+    "rayon": 7.8,
+    "anneau": 0.2
+   },
+   "gauche": {
+    "rayon": 9,
+    "anneau": 5.4
+   },
+   "droite": {
+    "rayon": 7.8,
+    "anneau": 0.4
+   }
+  }
+ ],
+ "noel_anneauZoomPixels": [
+  {
+   "haut": {
+    "rayon": 6.8,
+    "anneau": 1.4
+   },
+   "bas": {
+    "rayon": 8.4,
+    "anneau": 4
+   },
+   "gauche": {
+    "rayon": 7.8,
+    "anneau": 1.4
+   },
+   "droite": {
+    "rayon": 8,
+    "anneau": 1.4
+   }
+  },
+  {
+   "haut": {
+    "rayon": 6.6,
+    "anneau": 1.2
+   },
+   "bas": {
+    "rayon": 8.6,
+    "anneau": 5.4
+   },
+   "gauche": {
+    "rayon": 8.8,
+    "anneau": 8.8
+   },
+   "droite": {
+    "rayon": 11.6,
+    "anneau": 7.8
+   }
+  }
+ ],
+ "dore": [
+  {
+   "name": "01-dilatation-0ms",
+   "etat": "dilatation",
+   "t": 0,
+   "pupille_px": [
+    3.26,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 9.79,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 14.3
+  },
+  {
+   "name": "02-dilatation-300ms",
+   "etat": "dilatation",
+   "t": 300,
+   "pupille_px": [
+    7.03,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 7.91,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 30.8
+  },
+  {
+   "name": "03-dilatation-600ms",
+   "etat": "dilatation",
+   "t": 600,
+   "pupille_px": [
+    15.6,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 3.62,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 68.3
+  },
+  {
+   "name": "04-dilatation-900ms",
+   "etat": "dilatation",
+   "t": 900,
+   "pupille_px": [
+    18.53,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 2.16,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 81.1
+  },
+  {
+   "name": "05-dilatation-1200ms",
+   "etat": "dilatation",
+   "t": 1200,
+   "pupille_px": [
+    19.17,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 1.84,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 83.9
+  },
+  {
+   "name": "06-contraction-120ms",
+   "etat": "contraction",
+   "t": 120,
+   "pupille_px": [
+    17.04,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 2.9,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 74.6
+  },
+  {
+   "name": "07-contraction-240ms",
+   "etat": "contraction",
+   "t": 240,
+   "pupille_px": [
+    9.41,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 6.72,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 41.2
+  },
+  {
+   "name": "08-contraction-360ms",
+   "etat": "contraction",
+   "t": 360,
+   "pupille_px": [
+    5.24,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 8.81,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 22.9
+  },
+  {
+   "name": "09-contraction-480ms",
+   "etat": "contraction",
+   "t": 480,
+   "pupille_px": [
+    3.66,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 9.6,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 16
+  },
+  {
+   "name": "10-contraction-600ms",
+   "etat": "contraction",
+   "t": 600,
+   "pupille_px": [
+    3.26,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.84
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 9.79,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 14.3
+  },
+  {
+   "name": "11-repos-battement",
+   "etat": "battement",
+   "t": 1200,
+   "pupille_px": [
+    9.59,
+    19.17
+   ],
+   "iris_px": [
+    22.84,
+    22.83
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 6.63,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 42
+  },
+  {
+   "name": "12-zoom-ouvert",
+   "etat": "zoom",
+   "t": 0,
+   "pupille_px": [
+    19.18,
+    19.2
+   ],
+   "iris_px": [
+    22.86,
+    22.86
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 1.84,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 83.9
+  },
+  {
+   "name": "13-zoom-ferme",
+   "etat": "repos",
+   "t": 0,
+   "pupille_px": [
+    3.26,
+    19.18
+   ],
+   "iris_px": [
+    22.85,
+    22.83
+   ],
+   "anneau_haut_px": 1.83,
+   "anneau_cote_px": 9.79,
+   "pupille_pct_hauteur": 84,
+   "pupille_pct_largeur": 14.3
+  }
+ ],
+ "dore_anneauPixels": [
+  {
+   "haut": {
+    "rayon": 9.4,
+    "anneau": 4.6
+   },
+   "bas": {
+    "rayon": 10.2,
+    "anneau": 1.6
+   },
+   "gauche": {
+    "rayon": 9.6,
+    "anneau": 13.4
+   },
+   "droite": {
+    "rayon": 9.6,
+    "anneau": 1.6
+   }
+  },
+  {
+   "haut": {
+    "rayon": 10.4,
+    "anneau": 4
+   },
+   "bas": {
+    "rayon": 9.8,
+    "anneau": 3.2
+   },
+   "gauche": {
+    "rayon": 11,
+    "anneau": 11.6
+   },
+   "droite": {
+    "rayon": 9.2,
+    "anneau": 1.6
+   }
+  }
+ ],
+ "dore_anneauZoomPixels": [
+  {
+   "haut": {
+    "rayon": 9.2,
+    "anneau": 4.4
+   },
+   "bas": {
+    "rayon": 10,
+    "anneau": 3.6
+   },
+   "gauche": {
+    "rayon": 9.4,
+    "anneau": 2.6
+   },
+   "droite": {
+    "rayon": 9.8,
+    "anneau": 1.4
+   }
+  },
+  {
+   "haut": {
+    "rayon": 10.4,
+    "anneau": 4
+   },
+   "bas": {
+    "rayon": 9.8,
+    "anneau": 3.8
+   },
+   "gauche": {
+    "rayon": 10.8,
+    "anneau": 1.4
+   },
+   "droite": {
+    "rayon": 9.4,
+    "anneau": 1.2
+   }
+  }
+ ]
+}

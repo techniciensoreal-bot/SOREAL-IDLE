@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les touches R (énergie) et T (magie) arrêtent la barre de la Machine temporelle au moment du clic : elle ne continue plus d’avancer un instant, puis ne recule plus."
+    "Comme dans NGU Idle, un rituel dure au moins un tick : jamais plus de 50 rituels par seconde, et le compteur ne saute plus d’un rituel quand la barre se termine pile.",
+    "La barre d’un NGU suit exactement le calcul du jeu : chaque niveau coûte plus que le précédent, donc elle n’avance plus trop vite pour reculer ensuite."
   ] };
 })();

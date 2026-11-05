@@ -815,6 +815,23 @@ function majNuages_(f,spl,frac,maintenant){
   }
   if(tube&&tube.__nlD!==e.d){tube.__nlD=e.d;tube.style.setProperty('--nl-d',String(e.d));}
 }
+/*
+ * Niveaux gagnés avec un TRAVAIL donné (Norman, 2026-11-05 : « exactement comme NGU Idle », barre sans recul) : COPIE EXACTE de nguLevelsFromWorkV1 (idle-ngu-catalog-v1.js, vérifiée contre le moteur par idle-ngu-wandoos-projection-moteur-v1 et
+ * idle-ngu-niveaux-travail-v1) : le niveau L+i coûte L+i unités de travail, donc chaque niveau dure plus longtemps que le précédent. L'ancien calcul de l'écran (durée de niveau CONSTANTE) gagnait trop de niveaux (mesuré : 276 contre 202 pour
+ * 30 s) puis se recalait sur le moteur : recul de la barre.
+ */
+function niveauxDepuisTravail_(niveau,travail){
+  var L=Math.max(0,Math.floor(Number(niveau)||0)),W=Math.max(0,Number(travail)||0);
+  var salle=Math.max(0,1e9-L);   /* IDLE_NGU_MAX_LEVEL_V1 */
+  if(salle<=0)return {gained:0,work:0};
+  var a=2*L+1;
+  var k=Math.floor((2*W)/(a+Math.sqrt(a*a+8*W)));
+  var total=function(n){return (n*(2*L+n+1))/2;};
+  while(k>0&&total(k)>W)k-=1;
+  while(k<salle&&total(k+1)<=W)k+=1;
+  k=Math.min(k,salle);
+  return {gained:k,work:k>=salle?0:Math.max(0,W-total(k))};
+}
 function tick_(){
   var racine=document.querySelector('[data-nl-racine]');
   if(!racine){arreter_();return;}
@@ -844,16 +861,18 @@ function tick_(){
     var n0=Number(d.nlN),cible=Number(d.nlCible);
     if(cible>0&&n0>=cible)return;
     var ecoule=Math.max(0,(maintenant-Number(d.nlT0))/1000);
-    var total=Number(d.nlP)+ecoule/spl;
-    var gagnes=Math.floor(total);
-    var frac=total-gagnes;
-      if((1/spl)>=49.99){frac=1;gagnes=Math.floor(ecoule*Math.min(50,1/spl));}
+    var travail=(Number(d.nlP)+ecoule/spl)*(n0+1);   /* unités de travail : fraction du niveau en cours x son coût (n0 + 1), plus ce que fournit l'énergie (le niveau en cours dure spl) */
+    var rj=niveauxDepuisTravail_(n0,travail);
+    var gagnes=rj.gained;
+    var frac=Math.min(.999999999,rj.work/(n0+gagnes+1));
+    var splMaintenant=spl*(n0+gagnes+1)/(n0+1);   /* durée du niveau EN COURS : plus longue à chaque niveau gagné */
+      if((1/spl)>=49.99){frac=1;gagnes=Math.floor(ecoule*Math.min(50,1/spl));splMaintenant=spl;}
     var niveau=n0+gagnes;
     if(cible>0&&niveau>cible)niveau=cible;
     var liq=f.querySelector('[data-nl-fill]');
     if(liq){
       /* La barre touche le bout avant de repartir (Norman, 2026-11-01) : sur un cycle court, la dernière image peinte avant le retour à 0 montrait 90 % ; les derniers ~40 ms du cycle restent pleins. */
-      var v=Math.round(Math.min(1,frac/(1-Math.min(.15,Math.max(.004,.04/spl))))*500)/500;
+      var v=Math.round(Math.min(1,frac/(1-Math.min(.15,Math.max(.004,.04/splMaintenant))))*500)/500;
       if(String(v)!==liq.getAttribute('data-nl-v')){
         liq.setAttribute('data-nl-v',String(v));
         liq.style.transform='scaleX('+v+')';
@@ -861,11 +880,11 @@ function tick_(){
         if(pct)pct.textContent=Math.round(v*100)+' %';
       }
     }
-    majNuages_(f,spl,frac,maintenant);   /* le nuage avance avec le niveau (lent) ou avec l'horloge (vite) */
+    majNuages_(f,splMaintenant,frac,maintenant);   /* le nuage avance avec le niveau (lent) ou avec l'horloge (vite) */
     if(!complet)return;
     var eta=f.querySelector('[data-nl-eta]');
     if(eta){
-      var texteEta=etaTexte_(spl,frac,cible>0&&niveau>=cible,f.getAttribute('data-nl-res'));
+      var texteEta=etaTexte_(splMaintenant,frac,cible>0&&niveau>=cible,f.getAttribute('data-nl-res'));
       if(eta.__nlTexte!==texteEta){eta.__nlTexte=texteEta;eta.innerHTML=texteEta;}
     }
     var t=f.querySelector('[data-nl-niv]');

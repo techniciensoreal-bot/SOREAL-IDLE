@@ -80,6 +80,16 @@
   "energie": 0.999999996275,
   "energieMax": 25619760,
   "magie": 0,
+  "inventaire": {
+   "utilise": 0,
+   "libre": 18,
+   "empreinte": "10d19525e4ea3c9c"
+  },
+  "boss": {
+   "actuel": "Souris Fantômes",
+   "pv": 1.06155956561e+73,
+   "vaincus": null
+  },
   "combat": {
    "attaque": 1.01458606187e+60,
    "defense": 5.35314238386e+59,
@@ -194,6 +204,16 @@
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
+  "inventaire": {
+   "utilise": 0,
+   "libre": 18,
+   "empreinte": "10d19525e4ea3c9c"
+  },
+  "boss": {
+   "actuel": "Souris Fantômes",
+   "pv": 1.06155956561e+73,
+   "vaincus": null
+  },
   "combat": {
    "attaque": 1.01458606187e+60,
    "defense": 5.35314238386e+59,
@@ -227,11 +247,11 @@
    "cooking": "dd8288e6eec564f1"
   }
  },
- "apres +2 s": {
+ "apres combats d'aventure": {
   "tm": {
    "vitesse": [
     274,
-    231345689.873
+    231345695.073
    ],
    "or": [
     36,
@@ -240,9 +260,9 @@
   },
   "augments": {
    "scissors": [
-    12219,
+    12221,
     0,
-    3.95771268706,
+    0.36556606941,
     0
    ],
    "milk": [
@@ -285,7 +305,7 @@
   "entrainementAvance": {
    "power": [
     0,
-    0.0897018588402
+    0.2702438239
    ],
    "toughness": [
     0,
@@ -304,34 +324,168 @@
     0.593259366925
    ]
   },
-  "or": 28649735616400000,
+  "or": 28254475346200000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
+  "inventaire": {
+   "utilise": 0,
+   "libre": 18,
+   "empreinte": "a12ffe3be969279b"
+  },
+  "boss": {
+   "actuel": "Souris Fantômes",
+   "pv": 1.06155956561e+73,
+   "vaincus": null
+  },
   "combat": {
-   "attaque": 1.0173817147e+60,
-   "defense": 5.36789276159e+59,
-   "pvMax": 1.56519880837e+73
+   "attaque": 1.02483161439e+60,
+   "defense": 5.40719980048e+59,
+   "pvMax": 1.57997918533e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "77c403a691fec7ff",
-   "advancedTraining": "85c1e8a0785b2c31",
-   "timeMachine": "dbd2e237c53a90d7",
-   "bloodMagic": "e76da6fec904b21b",
-   "wandoos": "1808111da37d89c5",
-   "ngu": "05873ec76506dc5f",
-   "yggdrasil": "038ff3467aa0181e",
+   "augmentations": "9bbb05a485de2a9b",
+   "advancedTraining": "adac16a29399ffc9",
+   "timeMachine": "03edffd969decc28",
+   "bloodMagic": "2340983158d8d4cc",
+   "wandoos": "f89cbc98db9cdefe",
+   "ngu": "bd048b3789d96929",
+   "yggdrasil": "d8f3e6d8004adba4",
    "moneyPit": "2b2179e9636e2ebf",
    "diggers": "a5eb6d452ff8bf0b",
    "beards": "96b34c0e067ca61f",
-   "tower": "d05a9c9216e28840",
+   "tower": "c60acdc860f85744",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
    "macguffins": "8ccd4385e80fc228",
-   "daycare": "da58b586defb1b36",
+   "daycare": "5ed2b8d430306820",
+   "infinityCube": "44136fa355b3678a",
+   "questing": "44136fa355b3678a",
+   "quirks": "44136fa355b3678a",
+   "hacks": "5c676509929a349d",
+   "wishes": "57f1babf33ccd42c",
+   "cards": "91d566638dadab1f",
+   "cooking": "dd8288e6eec564f1"
+  }
+ },
+ "apres +2 s": {
+  "tm": {
+   "vitesse": [
+    274,
+    231345697.073
+   ],
+   "or": [
+    36,
+    79.0249566538
+   ]
+  },
+  "augments": {
+   "scissors": [
+    12221,
+    0,
+    2.36556606941,
+    0
+   ],
+   "milk": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "cannon": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "minigun": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "buster": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "exoskeleton": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "laserSword": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "entrainementAvance": {
+   "power": [
+    0,
+    0.156314275332
+   ],
+   "toughness": [
+    0,
+    0
+   ],
+   "block": [
+    0,
+    0
+   ],
+   "wandoosEnergy": [
+    0,
+    0.634976227455
+   ],
+   "wandoosMagic": [
+    0,
+    0.593259366925
+   ]
+  },
+  "or": 28256298412600000,
+  "energie": 18239122,
+  "energieMax": 25619760,
+  "magie": 0,
+  "inventaire": {
+   "utilise": 0,
+   "libre": 18,
+   "empreinte": "9b8c99c5ada77f48"
+  },
+  "boss": {
+   "actuel": "Souris Fantômes",
+   "pv": 1.06992206296e+73,
+   "vaincus": null
+  },
+  "combat": {
+   "attaque": 1.02763809884e+60,
+   "defense": 5.4220073278e+59,
+   "pvMax": 1.58558640734e+73
+  },
+  "systemes": {
+   "achievements": "4eda027f31ff90e2",
+   "dailySpin": "e40377802becc72f",
+   "augmentations": "b3d10d945e401ae4",
+   "advancedTraining": "406f6885076ef8cb",
+   "timeMachine": "1c6dc87e92a704ec",
+   "bloodMagic": "35c0138b09ce2395",
+   "wandoos": "d516e8e81719105b",
+   "ngu": "d1556ccd14f862e4",
+   "yggdrasil": "3d67ad6da31f344c",
+   "moneyPit": "2b2179e9636e2ebf",
+   "diggers": "a5eb6d452ff8bf0b",
+   "beards": "96b34c0e067ca61f",
+   "tower": "cd928f44a0856b19",
+   "perks": "39d41aa3b36b7220",
+   "challenges": "44136fa355b3678a",
+   "titans": "23f01312dc00f38b",
+   "macguffins": "8ccd4385e80fc228",
+   "daycare": "38a2525a37219a11",
    "infinityCube": "44136fa355b3678a",
    "questing": "44136fa355b3678a",
    "quirks": "44136fa355b3678a",
@@ -345,7 +499,7 @@
   "tm": {
    "vitesse": [
     274,
-    231345699.873
+    231345707.073
    ],
    "or": [
     36,
@@ -354,9 +508,9 @@
   },
   "augments": {
    "scissors": [
-    12222,
+    12223,
     0,
-    0.768953166463,
+    3.5719805341,
     0
    ],
    "milk": [
@@ -399,7 +553,7 @@
   "entrainementAvance": {
    "power": [
     0,
-    0.239204956907
+    0.54950467086
    ],
    "toughness": [
     0,
@@ -418,34 +572,44 @@
     0.593259366925
    ]
   },
-  "or": 28258850581800000,
+  "or": 28265413500200000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
+  "inventaire": {
+   "utilise": 0,
+   "libre": 18,
+   "empreinte": "1e35a4cde61a673c"
+  },
+  "boss": {
+   "actuel": "Souris Fantômes",
+   "pv": 1.11241697144e+73,
+   "vaincus": null
+  },
   "combat": {
-   "attaque": 1.03165641735e+60,
-   "defense": 5.44320871418e+59,
-   "pvMax": 1.59358652157e+73
+   "attaque": 1.04188411291e+60,
+   "defense": 5.49717191421e+59,
+   "pvMax": 1.61406196984e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "96947fc9528c99ab",
-   "advancedTraining": "8dfa2e5f15f8836f",
-   "timeMachine": "a5b694d80eb6331c",
-   "bloodMagic": "65e0a3dee8aebe01",
-   "wandoos": "887ebb3b9ab5b44f",
-   "ngu": "3a191bf1db0338ee",
-   "yggdrasil": "78300ef927c96180",
+   "augmentations": "ada5cd2593a7bd02",
+   "advancedTraining": "38d5bb4d4007ae2c",
+   "timeMachine": "bed20eb5537d490f",
+   "bloodMagic": "4707b41eeafb3e91",
+   "wandoos": "80dc55e11dd2401a",
+   "ngu": "9c1d524bb61f4507",
+   "yggdrasil": "5a97a3d8b732a598",
    "moneyPit": "2b2179e9636e2ebf",
    "diggers": "a5eb6d452ff8bf0b",
    "beards": "96b34c0e067ca61f",
-   "tower": "f26a7ab215ed23d3",
+   "tower": "efb9cb9a85667960",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
    "macguffins": "8ccd4385e80fc228",
-   "daycare": "b469683a466c3f12",
+   "daycare": "f1cab4fea56a6772",
    "infinityCube": "44136fa355b3678a",
    "questing": "44136fa355b3678a",
    "quirks": "44136fa355b3678a",
@@ -459,7 +623,7 @@
   "tm": {
    "vitesse": [
     274,
-    231345759.873
+    231345767.073
    ],
    "or": [
     36,
@@ -468,9 +632,9 @@
   },
   "augments": {
    "scissors": [
-    12235,
+    12237,
     0,
-    3.58025005144,
+    1.97659209252,
     0
    ],
    "milk": [
@@ -513,7 +677,7 @@
   "entrainementAvance": {
    "power": [
     0,
-    0.900812746333
+    0.945853383649
    ],
    "toughness": [
     0,
@@ -532,34 +696,44 @@
     0.593259366925
    ]
   },
-  "or": 27513540984200000,
+  "or": 27520103780100000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
+  "inventaire": {
+   "utilise": 0,
+   "libre": 18,
+   "empreinte": "4ea34bfb82e91ce8"
+  },
+  "boss": {
+   "actuel": "Souris Fantômes",
+   "pv": 1.39270448635e+73,
+   "vaincus": null
+  },
   "combat": {
-   "attaque": 1.11860636197e+60,
-   "defense": 5.90250956062e+59,
-   "pvMax": 1.76984376842e+73
+   "attaque": 1.12924905299e+60,
+   "defense": 5.95877262233e+59,
+   "pvMax": 1.79177980685e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "9a70d1ca4c7fb9ae",
-   "advancedTraining": "47b44a183b0d5350",
-   "timeMachine": "529e6c11cf1c5ca2",
-   "bloodMagic": "66ae5e91b44e4195",
-   "wandoos": "cbc8ee6f3f69633d",
-   "ngu": "4247d9fb9b53bbe1",
-   "yggdrasil": "6d974f1fda100b20",
+   "augmentations": "c0d2c4e91120a10f",
+   "advancedTraining": "3153d5ab91c5e0d8",
+   "timeMachine": "976f206319d74e27",
+   "bloodMagic": "45d52a5243e26b36",
+   "wandoos": "7bbfe6aa2d7b635c",
+   "ngu": "ead89baf23b3a405",
+   "yggdrasil": "270630a5a9aa9bbc",
    "moneyPit": "2b2179e9636e2ebf",
    "diggers": "a5eb6d452ff8bf0b",
    "beards": "96b34c0e067ca61f",
-   "tower": "09e01322c6d48ebf",
+   "tower": "15bc14f6a17e3247",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
    "macguffins": "8ccd4385e80fc228",
-   "daycare": "1f3d8ea0359fa0c1",
+   "daycare": "30d05b7568326c2a",
    "infinityCube": "44136fa355b3678a",
    "questing": "44136fa355b3678a",
    "quirks": "44136fa355b3678a",
@@ -573,7 +747,7 @@
   "tm": {
    "vitesse": [
     274,
-    231346359.873
+    231346367.073
    ],
    "or": [
     36,
@@ -582,9 +756,9 @@
   },
   "augments": {
    "scissors": [
-    12371,
+    12372,
     0,
-    1.65365442126,
+    4.40308210615,
     0
    ],
    "milk": [
@@ -627,7 +801,7 @@
   "entrainementAvance": {
    "power": [
     0,
-    0.870143050481
+    0.218954621947
    ],
    "toughness": [
     0,
@@ -646,34 +820,44 @@
     0.593259366925
    ]
   },
-  "or": 18860444173200000,
+  "or": 18867007090000000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
+  "inventaire": {
+   "utilise": 0,
+   "libre": 18,
+   "empreinte": "95da8d732ac35aaa"
+  },
+  "boss": {
+   "actuel": "Souris Fantômes",
+   "pv": 4.2334478063e+73,
+   "vaincus": null
+  },
   "combat": {
-   "attaque": 2.13218855995e+60,
-   "defense": 1.12508419297e+60,
-   "pvMax": 4.19653891063e+73
+   "attaque": 2.14576469982e+60,
+   "defense": 1.13226784768e+60,
+   "pvMax": 4.2334478063e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "e2d0f07afbc54eb1",
-   "advancedTraining": "9fe0b2a4a9d594ed",
-   "timeMachine": "6b455e121f5ce67f",
-   "bloodMagic": "53f632bbede375d6",
-   "wandoos": "da048d9d5c3957e0",
-   "ngu": "5c0a7a2d7c094269",
-   "yggdrasil": "fab1754cc76b3a57",
+   "augmentations": "e7d48c817a9fd9ca",
+   "advancedTraining": "759da4afd71b0bb6",
+   "timeMachine": "59877f555925b21c",
+   "bloodMagic": "7d53f6b2211a1ac7",
+   "wandoos": "8e2ff217176a2149",
+   "ngu": "0104f552f877bbb8",
+   "yggdrasil": "20e7c00a8456165d",
    "moneyPit": "2b2179e9636e2ebf",
    "diggers": "a5eb6d452ff8bf0b",
    "beards": "96b34c0e067ca61f",
-   "tower": "730b3d018ab3a21f",
+   "tower": "8552d62d758947be",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
    "macguffins": "8ccd4385e80fc228",
-   "daycare": "614f2d0dec07e61f",
+   "daycare": "1468e2d8e9419787",
    "infinityCube": "44136fa355b3678a",
    "questing": "44136fa355b3678a",
    "quirks": "44136fa355b3678a",

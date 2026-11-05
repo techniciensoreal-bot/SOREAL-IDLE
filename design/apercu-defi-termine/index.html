@@ -1,0 +1,9 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><link rel="stylesheet" href="/cloudflare/public/soreal-idle-themes.css"><style>body{background:#10142a;margin:0;padding:20px;font-family:system-ui}.t{color:#fff;margin:10px 0 6px}.dfi-grille{display:grid;grid-template-columns:repeat(3,260px);gap:16px}</style></head><body>
+<div class="t">Terminé (vert) · Disponible · En cours</div>
+<div class="dfi-grille" id="g"></div>
+<div class="t">Fiche : bouton Jouer d'un défi terminé</div>
+<div class="dfi-fiche fini" style="--acc:#7bd34a;position:relative;max-width:420px;padding:16px"><div class="dfi-actions"><button class="dfi-jouer dfi-jouer-gros">Jouer</button></div></div>
+<script>
+function tuile(cl,st,coche){return '<article class="dfi-tuile '+cl+'" style="--acc:#7bd34a"><span class="dfi-ruban">'+(coche?'✔ ':'')+st+'</span><div class="dfi-embleme"><i class="dfi-rayons"></i></div><h3 class="dfi-nom">100 Levels Challenge</h3><div class="dfi-niveau"><span class="dfi-compte">5 / 5</span></div><button type="button" class="dfi-jouer">Jouer</button></article>';}
+document.getElementById('g').innerHTML=tuile('fini','Terminé',true)+tuile('dispo','Disponible')+tuile('cours','En cours');
+</script></body></html>

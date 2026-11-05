@@ -1,0 +1,10 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:#222;color:#fff;font:12px sans-serif"><div id="g" style="display:flex;flex-wrap:wrap;gap:6px;padding:6px"></div>
+<script>
+var F=['014_Giant','031_A_Wide_Screen_T.V','048_The_Bouncer','065_Sunday','082_Mysterious_Figure','099_ALL_of_The_Robot_Masters._Again.','116_EVIL_Badly_Drawn_Kitty','133_Screaming_Chocolate_Fish','150_DEFEAT','167_Permanenet','184_Mimic_Mimic_Chest_Chest','201_Grandmas_Brownies','218_A_Skeleton_Inside_a_Body','235_...Goose!','252_You.','269_The_Captain','286_Intermission'];
+var q=new URLSearchParams(location.search),de=+q.get('de')||0,n=+q.get('n')||6;
+F.slice(de,de+n).forEach(function(f){var d=document.createElement('div');d.style.cssText='position:relative;width:420px;height:420px';
+ var i=new Image();i.src='/desktop/medias/idle/bosses/Boss_'+f+'.png';i.style.cssText='width:420px;height:420px;object-fit:contain;background:#444';d.appendChild(i);
+ for(var k=1;k<10;k++){var a=document.createElement('div');a.style.cssText='position:absolute;left:'+k*10+'%;top:0;bottom:0;border-left:1px solid rgba(0,255,255,.55);color:#0ff;font-size:10px';a.textContent=k*10;d.appendChild(a);var b=document.createElement('div');b.style.cssText='position:absolute;top:'+k*10+'%;left:0;right:0;border-top:1px solid rgba(255,255,0,.55);color:#ff0;font-size:10px';b.textContent=k*10;d.appendChild(b);}
+ var t=document.createElement('div');t.textContent=f;t.style.cssText='position:absolute;left:4px;bottom:2px;background:#000a';d.appendChild(t);
+ i.onload=function(){t.textContent=f+' '+i.naturalWidth+'x'+i.naturalHeight;};document.getElementById('g').appendChild(d);});
+</script>

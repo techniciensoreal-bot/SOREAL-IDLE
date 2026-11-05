@@ -1,0 +1,16 @@
+<!doctype html><meta charset="utf-8"><title>Essai visage</title>
+<body style="margin:0;background:#000"><div id="h" style="width:560px;margin:8px auto"><canvas id="cv" style="width:560px;display:block"></canvas></div>
+<script src="/cloudflare/public/modules/borne-led-v1.js"></script>
+<script>
+/* défaite en Red Room (anim 'redroom') rendue hors du jeu : instant t depuis le début de la défaite, grille W x H */
+window.rendre=function(t,W,H,wpx){var cv=document.getElementById('cv');cv.style.width=wpx+'px';document.getElementById('h').style.width=wpx+'px';
+ return window.__SOREAL_IDLE_BORNE_LED_V1__.dessinerSceneEssai(cv,'ko',t,0.55,W,H,{essai:1,anim:'redroom',pc0:0.55,tg0:3});};
+/* planche : plusieurs instants empilés, envoyés au serveur d'essai (PNG) */
+window.planche=async function(nom,instants,W,H,wpx,cols){
+  cols=cols||2;var cv=document.getElementById('cv'),out=document.createElement('canvas'),ctx,i,rows=Math.ceil(instants.length/cols);
+  for(i=0;i<instants.length;i++){window.rendre(instants[i],W,H,wpx);
+    if(!ctx){out.width=cv.width*cols+(cols-1)*6;out.height=(cv.height+6)*rows;ctx=out.getContext('2d');ctx.fillStyle='#345';ctx.fillRect(0,0,out.width,out.height);}
+    ctx.drawImage(cv,(i%cols)*(cv.width+6),Math.floor(i/cols)*(cv.height+6));}
+  var r=await fetch('/save/'+nom+'.png',{method:'POST',body:out.toDataURL('image/png')});return r.status+' '+out.width+'x'+out.height;
+};
+</script>

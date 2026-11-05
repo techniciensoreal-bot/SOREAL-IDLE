@@ -25,6 +25,8 @@ function observer(r) {
     or: s.currencies && s.currencies.gold,
     energie: j.energie, energieMax: j.energieMax,
     magie: s.resources && s.resources.magic && s.resources.magic.current,
+    inventaire: { utilise: j.inventaireUtilise, libre: j.inventaireLibre, empreinte: hash(j.aventure) },
+    boss: { actuel: j.bossActuel || j.bossNumero || null, pv: j.pvJoueur, vaincus: j.victoiresBoss || null },
     combat: { attaque: j.combatPrincipal && j.combatPrincipal.multiplicateurAttaqueTotal, defense: j.combatPrincipal && j.combatPrincipal.multiplicateurDefenseTotal, pvMax: j.pvJoueurMax },
     /* une empreinte PAR système : en cas d'écart, on voit tout de suite lequel a changé */
     systemes: Object.fromEntries(j.systemes.systems.map((x) => [x.id, hash(x.state && x.state.data)]))
@@ -49,6 +51,11 @@ function jouer(ligne) {
     ["rituel", { action: "allocateRitual", ritual: "tack", value: 3e5 }]
   ]) { try { agir(p); } catch (e) { obs["refus " + nom] = String(e && e.message || e).slice(0, 60); } }
   point("apres allocations");
+  /* combats d'Aventure (Norman, 2026-11-05 : l'avancée d'un joueur comprend ses butins) : départ puis résolution, comme le client */
+  for (let i = 0; i < 6; i++) {
+    try { agir({ action: "adventure", adventure: { action: "startZoneFight", restHp: sync().joueur.pvJoueur } }); avancer(1200); agir({ action: "adventure", adventure: { action: "resolveZoneFight", titanId: "", titanStarted: false } }); } catch (e) { obs["refus combat " + i] = String(e && e.message || e).slice(0, 60); break; }
+  }
+  point("apres combats d'aventure");
   for (const s of [2, 10, 60, 600]) { avancer(s * 1000); point("apres +" + s + " s"); }
   return JSON.parse(JSON.stringify(obs));   /* même forme que le fichier attendu (undefined disparaît) */
 }

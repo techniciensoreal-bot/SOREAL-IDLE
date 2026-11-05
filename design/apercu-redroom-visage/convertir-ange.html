@@ -1,0 +1,30 @@
+<!doctype html><meta charset="utf-8"><title>Conversion ange</title>
+<body style="background:#222;color:#ccc;font:12px monospace">
+<!-- Conversion du GIF d'origine (lu sur le serveur d'essai, jamais copié dans le dépôt) en bitmap LED 64 x 40 : même chaîne que convertir.html (recadrage, renforcement local, centiles, gamma, 8 niveaux, tramage Bayer 4x4). -->
+<canvas id="a" style="image-rendering:pixelated;width:512px"></canvas>
+<script>
+window.decoder=async function(){var r=await fetch('/gif'),b=await r.arrayBuffer(),d=new ImageDecoder({data:b,type:'image/gif'});await d.tracks.ready;window.__d=d;return d.tracks.selectedTrack.frameCount;};
+window.image=async function(n){var f=await window.__d.decode({frameIndex:n}),c=document.createElement('canvas');c.width=f.image.displayWidth;c.height=f.image.displayHeight;c.getContext('2d').drawImage(f.image,0,0);return c;};
+/* planche des images pour choisir */
+window.planche=async function(pas){var n=window.__d.tracks.selectedTrack.frameCount,L=[],i;for(i=0;i<n;i+=pas)L.push(i);var c0=await window.image(0),w=200,h=Math.round(200*c0.height/c0.width),cols=6,rows=Math.ceil(L.length/cols),o=document.createElement('canvas');o.width=cols*w;o.height=rows*(h+12);var x=o.getContext('2d');x.fillStyle='#000';x.fillRect(0,0,o.width,o.height);x.fillStyle='#fff';x.font='11px monospace';
+ for(i=0;i<L.length;i++){var c=await window.image(L[i]);x.drawImage(c,(i%cols)*w,Math.floor(i/cols)*(h+12)+12,w,h);x.fillText(String(L[i]),(i%cols)*w+2,Math.floor(i/cols)*(h+12)+10);}
+ await fetch('/save/ange-planche.png',{method:'POST',body:o.toDataURL('image/png')});return c0.width+'x'+c0.height+' n='+n;};
+window.convertir=async function(o){
+  var src=await window.image(o.frame),W=o.W,H=o.H,g=document.createElement("canvas");g.width=W*4;g.height=H*4;var x=g.getContext('2d');x.imageSmoothingQuality='high';
+  x.fillStyle="#000";x.fillRect(0,0,g.width,g.height);x.drawImage(src,o.cx,o.cy,o.cw,o.ch,0,0,g.width,g.height);
+  var h=document.createElement('canvas');h.width=W;h.height=H;var y=h.getContext('2d');y.imageSmoothingQuality='high';y.drawImage(g,0,0,W,H);
+  var d=y.getImageData(0,0,W,H).data,L=new Float32Array(W*H),i,j,k;
+  for(i=0;i<W*H;i++)L[i]=((o.wr==null?0.299:o.wr)*d[i*4]+(o.wg==null?0.587:o.wg)*d[i*4+1]+(o.wb==null?0.114:o.wb)*d[i*4+2])/255;
+  var B=new Float32Array(W*H);
+  for(j=0;j<H;j++)for(i=0;i<W;i++){var s=0,n=0;for(var a=-2;a<=2;a++)for(var b=-2;b<=2;b++){var xx=i+a,yy=j+b;if(xx<0||yy<0||xx>=W||yy>=H)continue;s+=L[yy*W+xx];n++;}B[j*W+i]=s/n;}
+  for(i=0;i<W*H;i++)L[i]=L[i]+o.renf*(L[i]-B[i]);
+  var S=Array.from(L).sort(function(p,q){return p-q;}),lo=S[Math.floor(S.length*o.p0)],hi=S[Math.floor(S.length*o.p1)];
+  var BY=[[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]],out=[];
+  for(j=0;j<H;j++){var r='';for(i=0;i<W;i++){var v=Math.min(1,Math.max(0,(L[j*W+i]-lo)/(hi-lo)));v=Math.pow(v,o.gamma);
+    var q=Math.floor(v*7+(BY[j%4][i%4]+0.5)/16);q=Math.max(0,Math.min(7,q));r+=q;}out.push(r);}
+  var c=document.getElementById('a');c.width=W;c.height=H;var cx=c.getContext('2d'),id=cx.createImageData(W,H);
+  for(j=0;j<H;j++)for(i=0;i<W;i++){var vv=out[j][i]/7*255;k=(j*W+i)*4;id.data[k]=id.data[k+1]=vv;id.data[k+2]=Math.min(255,vv*1.1);id.data[k+3]=255;}
+  cx.putImageData(id,0,0);return out.join('\n');};
+window.convertirEtSauver=async function(o,nom){var t=await window.convertir(o);await fetch('/save/'+nom+'.txt',{method:'POST',body:t});
+ var G=document.createElement('canvas');G.width=o.W*8;G.height=o.H*8;var gx=G.getContext('2d');gx.imageSmoothingEnabled=false;gx.drawImage(document.getElementById("a"),0,0,o.W*8,o.H*8);await fetch('/save/'+nom+'.png',{method:'POST',body:G.toDataURL('image/png')});return t.length;};
+</script>

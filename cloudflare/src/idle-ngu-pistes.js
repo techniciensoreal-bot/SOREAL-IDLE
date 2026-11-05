@@ -865,7 +865,7 @@ export function bloodMagicViewV1(state) {
     const rs = (s.data.rituals || {})[ritual.id] || { progress: 0 };
     const magic = Math.max(0, num(rs.magic, 0));
     const secondsPerCompletion = magic > 0
-      ? ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier
+      ? Math.max(IDLE_TICK_SECONDS_V1, ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier)
       : null;
     return {
       id: ritual.id,

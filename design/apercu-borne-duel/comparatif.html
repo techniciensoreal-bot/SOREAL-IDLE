@@ -1,0 +1,14 @@
+<!doctype html><meta charset="utf-8"><title>Borne : coins du duel</title>
+<style>body{margin:0;padding:16px;background:#1a1a22;color:#eee;font:14px/1.3 sans-serif;width:1200px}
+h2{margin:18px 0 6px;font-size:16px}.l{display:flex;gap:16px;flex-wrap:wrap}.c{flex:1}.c b{display:block;margin-bottom:4px}
+img{display:block}.z{width:330px;height:330px;image-rendering:pixelated;background-repeat:no-repeat}
+.bad{color:#ff8a8a}.ok{color:#8aff9a}</style>
+<h2>1. PC 1400 px : le duel complet</h2>
+<div class="l"><div class="c"><b class="bad">AVANT</b><img src="pc-avant.png" width="560"></div><div class="c"><b class="ok">APRES</b><img src="pc-apres.png" width="560"></div></div>
+<h2>2. PC : diagnostic (fond du cadre des images peint en magenta : tout ce qui est magenta est le coin carre visible)</h2>
+<div class="l"><div class="c"><b class="bad">AVANT : 2 226 px magenta</b><img src="mg-pc-avant.png" width="560"></div><div class="c"><b class="ok">APRES : 14 px (liseré d'anticrenelage)</b><img src="mg-pc-apres.png" width="560"></div></div>
+<h2>3. PC : zoom x6, coin haut-gauche de l'image du joueur et coin bas-droit de l'image du boss</h2>
+<div class="l"><div class="c"><b class="bad">AVANT</b><div class="l"><div class="z" style="background-image:url(pc-avant.png);background-position:-870px -3090px;background-size:9720px 8520px"></div><div class="z" style="background-image:url(pc-avant.png);background-position:-8250px -7170px;background-size:9720px 8520px"></div></div></div></div>
+<div class="l"><div class="c"><b class="ok">APRES</b><div class="l"><div class="z" style="background-image:url(pc-apres.png);background-position:-870px -3090px;background-size:9720px 8520px"></div><div class="z" style="background-image:url(pc-apres.png);background-position:-8250px -7170px;background-size:9720px 8520px"></div></div></div></div>
+<h2>4. Telephone 390 px</h2>
+<div class="l"><div class="c"><b class="bad">AVANT</b><img src="tel-avant.png" width="380"></div><div class="c"><b class="ok">APRES</b><img src="tel-apres.png" width="380"></div><div class="c"><b class="bad">Diagnostic avant : 3 019 px</b><img src="mg-tel-avant.png" width="380"></div><div class="c"><b class="ok">Diagnostic apres : 41 px</b><img src="mg-tel-apres.png" width="380"></div></div>

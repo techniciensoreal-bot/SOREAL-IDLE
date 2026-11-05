@@ -1,0 +1,3 @@
+import http from "node:http"; import fs from "node:fs"; import path from "node:path";
+const racine = path.resolve("."); const types = { ".html": "text/html;charset=utf-8", ".css": "text/css", ".js": "text/javascript" };
+http.createServer((q, r) => { const p = path.join(racine, decodeURIComponent(q.url.split("?")[0])); if (!p.startsWith(racine) || !fs.existsSync(p) || fs.statSync(p).isDirectory()) { r.writeHead(404); return r.end(); } r.writeHead(200, { "content-type": types[path.extname(p)] || "application/octet-stream" }); fs.createReadStream(p).pipe(r); }).listen(8799, () => console.log("ok 8799"));
