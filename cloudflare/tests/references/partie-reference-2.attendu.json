@@ -1,0 +1,686 @@
+{
+ "depart": {
+  "tm": {
+   "vitesse": [
+    274,
+    9.02997547209
+   ],
+   "or": [
+    36,
+    79.0249566538
+   ]
+  },
+  "augments": {
+   "scissors": [
+    12219,
+    0,
+    0.0921748407049,
+    0
+   ],
+   "milk": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "cannon": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "minigun": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "buster": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "exoskeleton": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "laserSword": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "entrainementAvance": {
+   "power": [
+    0,
+    0
+   ],
+   "toughness": [
+    0,
+    0
+   ],
+   "block": [
+    0,
+    0
+   ],
+   "wandoosEnergy": [
+    0,
+    0.634976227455
+   ],
+   "wandoosMagic": [
+    0,
+    0.593259366925
+   ]
+  },
+  "or": 28647912550000000,
+  "energie": 0.999999996275,
+  "energieMax": 25619760,
+  "magie": 0,
+  "combat": {
+   "attaque": 1.01458606187e+60,
+   "defense": 5.35314238386e+59,
+   "pvMax": 1.5596344577e+73
+  },
+  "systemes": {
+   "achievements": "4eda027f31ff90e2",
+   "dailySpin": "e40377802becc72f",
+   "augmentations": "955e7a042bc26540",
+   "advancedTraining": "5a42d37a1163f69a",
+   "timeMachine": "24e50df24be752dd",
+   "bloodMagic": "772c6db779eeca08",
+   "wandoos": "9a27fbdb91a42925",
+   "ngu": "a66f32c3db4eb498",
+   "yggdrasil": "f0200b339c43db57",
+   "moneyPit": "2b2179e9636e2ebf",
+   "diggers": "a5eb6d452ff8bf0b",
+   "beards": "96b34c0e067ca61f",
+   "tower": "ec1af01d42aa93e7",
+   "perks": "39d41aa3b36b7220",
+   "challenges": "44136fa355b3678a",
+   "titans": "23f01312dc00f38b",
+   "macguffins": "8ccd4385e80fc228",
+   "daycare": "9b722922e4603527",
+   "infinityCube": "44136fa355b3678a",
+   "questing": "44136fa355b3678a",
+   "quirks": "44136fa355b3678a",
+   "hacks": "5c676509929a349d",
+   "wishes": "57f1babf33ccd42c",
+   "cards": "91d566638dadab1f",
+   "cooking": "dd8288e6eec564f1"
+  }
+ },
+ "apres allocations": {
+  "tm": {
+   "vitesse": [
+    274,
+    9.02997547209
+   ],
+   "or": [
+    36,
+    79.0249566538
+   ]
+  },
+  "augments": {
+   "scissors": [
+    12219,
+    0,
+    0.0921748407049,
+    0
+   ],
+   "milk": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "cannon": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "minigun": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "buster": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "exoskeleton": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "laserSword": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "entrainementAvance": {
+   "power": [
+    0,
+    0
+   ],
+   "toughness": [
+    0,
+    0
+   ],
+   "block": [
+    0,
+    0
+   ],
+   "wandoosEnergy": [
+    0,
+    0.634976227455
+   ],
+   "wandoosMagic": [
+    0,
+    0.593259366925
+   ]
+  },
+  "or": 28647912550000000,
+  "energie": 18239122,
+  "energieMax": 25619760,
+  "magie": 0,
+  "combat": {
+   "attaque": 1.01458606187e+60,
+   "defense": 5.35314238386e+59,
+   "pvMax": 1.5596344577e+73
+  },
+  "systemes": {
+   "achievements": "4eda027f31ff90e2",
+   "dailySpin": "e40377802becc72f",
+   "augmentations": "6f9a2278a0f6ea63",
+   "advancedTraining": "22838a233f974ba7",
+   "timeMachine": "24e50df24be752dd",
+   "bloodMagic": "772c6db779eeca08",
+   "wandoos": "9a27fbdb91a42925",
+   "ngu": "d0ced1c3f094bca4",
+   "yggdrasil": "f0200b339c43db57",
+   "moneyPit": "2b2179e9636e2ebf",
+   "diggers": "a5eb6d452ff8bf0b",
+   "beards": "96b34c0e067ca61f",
+   "tower": "ec1af01d42aa93e7",
+   "perks": "39d41aa3b36b7220",
+   "challenges": "44136fa355b3678a",
+   "titans": "23f01312dc00f38b",
+   "macguffins": "8ccd4385e80fc228",
+   "daycare": "9b722922e4603527",
+   "infinityCube": "44136fa355b3678a",
+   "questing": "44136fa355b3678a",
+   "quirks": "44136fa355b3678a",
+   "hacks": "5c676509929a349d",
+   "wishes": "57f1babf33ccd42c",
+   "cards": "91d566638dadab1f",
+   "cooking": "dd8288e6eec564f1"
+  }
+ },
+ "apres +2 s": {
+  "tm": {
+   "vitesse": [
+    274,
+    231345689.873
+   ],
+   "or": [
+    36,
+    79.0249566538
+   ]
+  },
+  "augments": {
+   "scissors": [
+    12219,
+    0,
+    3.95771268706,
+    0
+   ],
+   "milk": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "cannon": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "minigun": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "buster": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "exoskeleton": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "laserSword": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "entrainementAvance": {
+   "power": [
+    0,
+    0.0897018588402
+   ],
+   "toughness": [
+    0,
+    0
+   ],
+   "block": [
+    0,
+    0
+   ],
+   "wandoosEnergy": [
+    0,
+    0.634976227455
+   ],
+   "wandoosMagic": [
+    0,
+    0.593259366925
+   ]
+  },
+  "or": 28649735616400000,
+  "energie": 18239122,
+  "energieMax": 25619760,
+  "magie": 0,
+  "combat": {
+   "attaque": 1.0173817147e+60,
+   "defense": 5.36789276159e+59,
+   "pvMax": 1.56519880837e+73
+  },
+  "systemes": {
+   "achievements": "4eda027f31ff90e2",
+   "dailySpin": "e40377802becc72f",
+   "augmentations": "77c403a691fec7ff",
+   "advancedTraining": "85c1e8a0785b2c31",
+   "timeMachine": "dbd2e237c53a90d7",
+   "bloodMagic": "e76da6fec904b21b",
+   "wandoos": "1808111da37d89c5",
+   "ngu": "05873ec76506dc5f",
+   "yggdrasil": "038ff3467aa0181e",
+   "moneyPit": "2b2179e9636e2ebf",
+   "diggers": "a5eb6d452ff8bf0b",
+   "beards": "96b34c0e067ca61f",
+   "tower": "d05a9c9216e28840",
+   "perks": "39d41aa3b36b7220",
+   "challenges": "44136fa355b3678a",
+   "titans": "23f01312dc00f38b",
+   "macguffins": "8ccd4385e80fc228",
+   "daycare": "da58b586defb1b36",
+   "infinityCube": "44136fa355b3678a",
+   "questing": "44136fa355b3678a",
+   "quirks": "44136fa355b3678a",
+   "hacks": "5c676509929a349d",
+   "wishes": "57f1babf33ccd42c",
+   "cards": "91d566638dadab1f",
+   "cooking": "dd8288e6eec564f1"
+  }
+ },
+ "apres +10 s": {
+  "tm": {
+   "vitesse": [
+    274,
+    231345699.873
+   ],
+   "or": [
+    36,
+    79.0249566538
+   ]
+  },
+  "augments": {
+   "scissors": [
+    12222,
+    0,
+    0.768953166463,
+    0
+   ],
+   "milk": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "cannon": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "minigun": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "buster": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "exoskeleton": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "laserSword": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "entrainementAvance": {
+   "power": [
+    0,
+    0.239204956907
+   ],
+   "toughness": [
+    0,
+    0
+   ],
+   "block": [
+    0,
+    0
+   ],
+   "wandoosEnergy": [
+    0,
+    0.634976227455
+   ],
+   "wandoosMagic": [
+    0,
+    0.593259366925
+   ]
+  },
+  "or": 28258850581800000,
+  "energie": 18239122,
+  "energieMax": 25619760,
+  "magie": 0,
+  "combat": {
+   "attaque": 1.03165641735e+60,
+   "defense": 5.44320871418e+59,
+   "pvMax": 1.59358652157e+73
+  },
+  "systemes": {
+   "achievements": "4eda027f31ff90e2",
+   "dailySpin": "e40377802becc72f",
+   "augmentations": "96947fc9528c99ab",
+   "advancedTraining": "8dfa2e5f15f8836f",
+   "timeMachine": "a5b694d80eb6331c",
+   "bloodMagic": "65e0a3dee8aebe01",
+   "wandoos": "887ebb3b9ab5b44f",
+   "ngu": "3a191bf1db0338ee",
+   "yggdrasil": "78300ef927c96180",
+   "moneyPit": "2b2179e9636e2ebf",
+   "diggers": "a5eb6d452ff8bf0b",
+   "beards": "96b34c0e067ca61f",
+   "tower": "f26a7ab215ed23d3",
+   "perks": "39d41aa3b36b7220",
+   "challenges": "44136fa355b3678a",
+   "titans": "23f01312dc00f38b",
+   "macguffins": "8ccd4385e80fc228",
+   "daycare": "b469683a466c3f12",
+   "infinityCube": "44136fa355b3678a",
+   "questing": "44136fa355b3678a",
+   "quirks": "44136fa355b3678a",
+   "hacks": "5c676509929a349d",
+   "wishes": "57f1babf33ccd42c",
+   "cards": "91d566638dadab1f",
+   "cooking": "dd8288e6eec564f1"
+  }
+ },
+ "apres +60 s": {
+  "tm": {
+   "vitesse": [
+    274,
+    231345759.873
+   ],
+   "or": [
+    36,
+    79.0249566538
+   ]
+  },
+  "augments": {
+   "scissors": [
+    12235,
+    0,
+    3.58025005144,
+    0
+   ],
+   "milk": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "cannon": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "minigun": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "buster": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "exoskeleton": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "laserSword": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "entrainementAvance": {
+   "power": [
+    0,
+    0.900812746333
+   ],
+   "toughness": [
+    0,
+    0
+   ],
+   "block": [
+    0,
+    0
+   ],
+   "wandoosEnergy": [
+    0,
+    0.634976227455
+   ],
+   "wandoosMagic": [
+    0,
+    0.593259366925
+   ]
+  },
+  "or": 27513540984200000,
+  "energie": 18239122,
+  "energieMax": 25619760,
+  "magie": 0,
+  "combat": {
+   "attaque": 1.11860636197e+60,
+   "defense": 5.90250956062e+59,
+   "pvMax": 1.76984376842e+73
+  },
+  "systemes": {
+   "achievements": "4eda027f31ff90e2",
+   "dailySpin": "e40377802becc72f",
+   "augmentations": "9a70d1ca4c7fb9ae",
+   "advancedTraining": "47b44a183b0d5350",
+   "timeMachine": "529e6c11cf1c5ca2",
+   "bloodMagic": "66ae5e91b44e4195",
+   "wandoos": "cbc8ee6f3f69633d",
+   "ngu": "4247d9fb9b53bbe1",
+   "yggdrasil": "6d974f1fda100b20",
+   "moneyPit": "2b2179e9636e2ebf",
+   "diggers": "a5eb6d452ff8bf0b",
+   "beards": "96b34c0e067ca61f",
+   "tower": "09e01322c6d48ebf",
+   "perks": "39d41aa3b36b7220",
+   "challenges": "44136fa355b3678a",
+   "titans": "23f01312dc00f38b",
+   "macguffins": "8ccd4385e80fc228",
+   "daycare": "1f3d8ea0359fa0c1",
+   "infinityCube": "44136fa355b3678a",
+   "questing": "44136fa355b3678a",
+   "quirks": "44136fa355b3678a",
+   "hacks": "5c676509929a349d",
+   "wishes": "57f1babf33ccd42c",
+   "cards": "91d566638dadab1f",
+   "cooking": "dd8288e6eec564f1"
+  }
+ },
+ "apres +600 s": {
+  "tm": {
+   "vitesse": [
+    274,
+    231346359.873
+   ],
+   "or": [
+    36,
+    79.0249566538
+   ]
+  },
+  "augments": {
+   "scissors": [
+    12371,
+    0,
+    1.65365442126,
+    0
+   ],
+   "milk": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "cannon": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "minigun": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "buster": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "exoskeleton": [
+    0,
+    0,
+    0,
+    0
+   ],
+   "laserSword": [
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "entrainementAvance": {
+   "power": [
+    0,
+    0.870143050481
+   ],
+   "toughness": [
+    0,
+    0
+   ],
+   "block": [
+    0,
+    0
+   ],
+   "wandoosEnergy": [
+    0,
+    0.634976227455
+   ],
+   "wandoosMagic": [
+    0,
+    0.593259366925
+   ]
+  },
+  "or": 18860444173200000,
+  "energie": 18239122,
+  "energieMax": 25619760,
+  "magie": 0,
+  "combat": {
+   "attaque": 2.13218855995e+60,
+   "defense": 1.12508419297e+60,
+   "pvMax": 4.19653891063e+73
+  },
+  "systemes": {
+   "achievements": "4eda027f31ff90e2",
+   "dailySpin": "e40377802becc72f",
+   "augmentations": "e2d0f07afbc54eb1",
+   "advancedTraining": "9fe0b2a4a9d594ed",
+   "timeMachine": "6b455e121f5ce67f",
+   "bloodMagic": "53f632bbede375d6",
+   "wandoos": "da048d9d5c3957e0",
+   "ngu": "5c0a7a2d7c094269",
+   "yggdrasil": "fab1754cc76b3a57",
+   "moneyPit": "2b2179e9636e2ebf",
+   "diggers": "a5eb6d452ff8bf0b",
+   "beards": "96b34c0e067ca61f",
+   "tower": "730b3d018ab3a21f",
+   "perks": "39d41aa3b36b7220",
+   "challenges": "44136fa355b3678a",
+   "titans": "23f01312dc00f38b",
+   "macguffins": "8ccd4385e80fc228",
+   "daycare": "614f2d0dec07e61f",
+   "infinityCube": "44136fa355b3678a",
+   "questing": "44136fa355b3678a",
+   "quirks": "44136fa355b3678a",
+   "hacks": "5c676509929a349d",
+   "wishes": "57f1babf33ccd42c",
+   "cards": "91d566638dadab1f",
+   "cooking": "dd8288e6eec564f1"
+  }
+ }
+}

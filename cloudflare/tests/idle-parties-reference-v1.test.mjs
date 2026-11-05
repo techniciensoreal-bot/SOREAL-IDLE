@@ -9,7 +9,7 @@ import { creerMoteur, figerLeHasard, reglerHorloge, avancer } from "./_partie-re
  * reproduire ces états À L'IDENTIQUE (progression, ressources, niveaux), sinon l'avancée d'un joueur changerait.
  * Régénérer l'attendu (uniquement pour un changement de règle voulu et validé) : SOREAL_ECRIRE_REFERENCE=1 node cloudflare/tests/idle-parties-reference-v1.test.mjs
  */
-const REFS = ["partie-reference-1"];
+const REFS = ["partie-reference-1", "partie-reference-2"];
 const arrondi = (v) => (typeof v === "number" && Number.isFinite(v) ? Number(v.toPrecision(12)) : v);
 const arrondir = (o) => (o && typeof o === "object" ? (Array.isArray(o) ? o.map(arrondir) : Object.fromEntries(Object.entries(o).map(([k, v]) => [k, arrondir(v)]))) : arrondi(o));
 const hash = (o) => crypto.createHash("sha256").update(JSON.stringify(arrondir(o))).digest("hex").slice(0, 16);
