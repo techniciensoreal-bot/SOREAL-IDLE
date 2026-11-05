@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { idleHeartsPinkCompleteV1 } from "./idle-hearts-v1.js";
+import { IDLE_TICK_SECONDS_V1 } from "./idle-tick-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idleWishAccessibleV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 import { idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
@@ -704,7 +705,9 @@ export function advanceTrackSystem(state, def, seconds) {
  * "pas de scaling par niveau" repéré par l'audit.
  */
 function tmLevelSeconds(state, resource, targetLevel, allocOverride = null) {
-  return tmSecondsFactorV1(state, resource, allocOverride) * Math.max(1, targetLevel);
+  const brut = tmSecondsFactorV1(state, resource, allocOverride) * Math.max(1, targetLevel);
+  /* Au moins un tick par niveau (50 niveaux par seconde au plus, comme le vrai jeu, voir idle-tick-v1.js) ; K (allocation forcée) reste brut, le client applique le même plancher. */
+  return allocOverride != null ? brut : Math.max(IDLE_TICK_SECONDS_V1, brut);
 }
 
 /*
@@ -829,6 +832,9 @@ export function timeMachineViewV1(state) {
     /* Prix en Or du niveau suivant de chaque piste (Norman, 2026-10-29 : « il faut le prix que coûte un niveau sur la barre ») ; celui de la Magie n'est envoyé qu'une fois Blood Magic débloqué (anti-spoil). */
     speedGoldCost: tmLevelGoldCost(speedLevel + 1),
     goldGoldCost: state.systems.bloodMagic?.unlocked ? tmLevelGoldCost(goldLevel + 1) : null,
+    /* Durée du niveau en cours SANS le plancher d'un tick (50 niveaux par seconde au plus) : l'écran en a besoin pour rejouer les niveaux (tm-projection-v1.js). */
+    speedStepBrut: finiOuNullV1(tmSecondsFactorV1(state, "energy") * Math.max(1, speedLevel + 1)),
+    goldStepBrut: state.systems.bloodMagic?.unlocked ? finiOuNullV1(tmSecondsFactorV1(state, "magic") * Math.max(1, goldLevel + 1)) : null,
     speedK: finiOuNullV1(tmLevelSeconds(state, "energy", speedLevel + 1, 1)),
     goldK: state.systems.bloodMagic?.unlocked ? finiOuNullV1(tmLevelSeconds(state, "magic", goldLevel + 1, 1)) : null,
     speedProgressSeconds: Number.isFinite(speedStep) ? fractionProgressionSecondesV1(d, "speedProgress", speedStep) * speedStep : Math.max(0, num(d.speedProgress, 0)),
@@ -905,7 +911,7 @@ export function advanceTimeMachine(state, seconds) {
   const facteurEnergie = tmSecondsFactorV1(state, "energy");
   const facteurMagie = tmSecondsFactorV1(state, "magic");
   const limiteDefi = state.challenge?.active === "hundredLevels";
-  let energyStep = facteurEnergie * Math.max(1, d.speedLevel + 1);
+  let energyStep = Math.max(IDLE_TICK_SECONDS_V1, facteurEnergie * Math.max(1, d.speedLevel + 1));
   if (Number.isFinite(energyStep)) {
     rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
     d.speedProgress += seconds;
@@ -917,7 +923,7 @@ export function advanceTimeMachine(state, seconds) {
       d.speedProgress -= energyStep;
       d.speedLevel += 1;
       challengeHundredLevelsConsume(state, 1);
-      energyStep = facteurEnergie * Math.max(1, d.speedLevel + 1);
+      energyStep = Math.max(IDLE_TICK_SECONDS_V1, facteurEnergie * Math.max(1, d.speedLevel + 1));
       if (!Number.isFinite(energyStep)) break;
       rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
     }
@@ -925,7 +931,7 @@ export function advanceTimeMachine(state, seconds) {
 
   if (state.systems.bloodMagic.unlocked) {
     guard = 0;
-    let magicStep = facteurMagie * Math.max(1, d.goldLevel + 1);
+    let magicStep = Math.max(IDLE_TICK_SECONDS_V1, facteurMagie * Math.max(1, d.goldLevel + 1));
     if (Number.isFinite(magicStep)) {
       rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
       d.goldProgress += seconds;
@@ -937,7 +943,7 @@ export function advanceTimeMachine(state, seconds) {
         d.goldProgress -= magicStep;
         d.goldLevel += 1;
         challengeHundredLevelsConsume(state, 1);
-        magicStep = facteurMagie * Math.max(1, d.goldLevel + 1);
+        magicStep = Math.max(IDLE_TICK_SECONDS_V1, facteurMagie * Math.max(1, d.goldLevel + 1));
         if (!Number.isFinite(magicStep)) break;
         rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
       }

@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { macguffinEffectMultiplierV1 } from "./idle-macguffins-v1.js";
+import { IDLE_TICK_SECONDS_V1 } from "./idle-tick-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
@@ -468,6 +469,14 @@ export function augmentationSecondsForNextLevel(state, def, upgrade = false, all
  * Durée d'un niveau en fonction du niveau VISÉ, ou null sans ressource allouée. Tous les bonus (puissance, Hacks, Perks, MacGuffins, équipement) ne dépendent pas du niveau : ils sont calculés UNE fois
  * ici. Avant, la boucle de montée de niveaux les recalculait à chaque niveau (jusqu'à 10 000 fois par barre et par appel : plus de 10 s de calcul avec de grosses sommes d'Énergie, le serveur répondait en erreur).
  */
+/* Durée du prochain niveau SANS le plancher d'un tick (le client en a besoin pour rejouer les niveaux : voir idle-tick-v1.js), ou Infinity sans ressource allouée. */
+export function augmentationSecondsBrutNextLevel(state, def, upgrade = false) {
+  const modele = augmentationSecondsModelV1(state, def, upgrade, null);
+  if (!modele) return Infinity;
+  const pair = state.systems.augmentations.data.pairs?.[def.id] || {};
+  return (modele.brut || modele)(Math.max(1, int(upgrade ? pair.upgradeLevel : pair.level, 0) + 1));
+}
+
 function augmentationSecondsModelV1(state, def, upgrade = false, allocOverride = null) {
   const pair=state.systems.augmentations.data.pairs?.[def.id]||{};
   const perTrack=Math.max(0,num(upgrade?pair.upgradeEnergy:pair.energy,0));
@@ -501,7 +510,12 @@ function augmentationSecondsModelV1(state, def, upgrade = false, allocOverride =
    * le niveau visé n, pour l'Augment comme pour son Upgrade. Il était constant.
    */
   const denominateur = Math.max(1e-12, allocation * power * challengeSpeed * gearAugmentSpeed * hackFxV1(state).augmentSpeed * perkBonusesV1(idlePerkNiveauxV1(state)).augmentSpeedMultiplier * macguffinEffectMultiplierV1(state, "augmentSpeed"));
-  return (targetLevel) => targetLevel * base * 1000 * difficultyDivider / denominateur;
+  const brut = (targetLevel) => targetLevel * base * 1000 * difficultyDivider / denominateur;
+  /* Un niveau dure au moins un tick (50 niveaux par seconde au plus, comme le vrai jeu) ; K (allocation forcée, utilisée par le client) reste brut : le client divise puis applique le même plancher. */
+  if (allocOverride != null) return brut;
+  const plancher = (targetLevel) => Math.max(IDLE_TICK_SECONDS_V1, brut(targetLevel));
+  plancher.brut = brut;
+  return plancher;
 }
 
 /*
@@ -543,17 +557,21 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
    * les niveaux que le temps ET l'Or permettent (en laissant les deux derniers à la boucle, qui règle les cas limites : Or insuffisant, progression partielle, défi des 100 niveaux). Même résultat que la boucle, sans son plafond.
    */
   try{
-    const c=modele(1);
-    const lineaire=Number.isFinite(c)&&c>0&&Math.abs(modele(7)-7*c)<=1e-9*modele(7);
+    const brutM=modele.brut||modele;   /* durée SANS plancher : linéaire en niveau ; le plancher d'un tick est appliqué par morceaux ci-dessous */
+    const c=brutM(1);
+    const lineaire=Number.isFinite(c)&&c>0&&Math.abs(brutM(7)-7*c)<=1e-9*brutM(7);
     const l0=Math.max(0,int(upgrade?pair.upgradeLevel:pair.level,0));
     if(lineaire&&remaining>0){
-      rebaserProgressionSecondesV1(pair,progressKey,c*(l0+1));
+      rebaserProgressionSecondesV1(pair,progressKey,modele(l0+1));
       const p0=Math.max(0,num(pair[progressKey],0));
-      const need1=c*(l0+1)-p0;
+      const need1=modele(l0+1)-p0;
       const baseOr=(upgrade?def.upgrade.baseGold:def.baseGold)*multCout;
       const S1=x=>x*(x+1)/2,S2=x=>x*(x+1)*(2*x+1)/6;
       const Or=k=>baseOr*(upgrade?S2(l0+k)-S2(l0):S1(l0+k)-S1(l0));
-      const Temps=k=>need1+c*(S1(l0+k)-S1(l0+1));
+      /* Durée cumulée des niveaux a à b : un tick chacun tant que c x niveau < un tick, puis c x niveau (comme le plancher du modèle). */
+      const Lc=Math.ceil(IDLE_TICK_SECONDS_V1/c);
+      const dureeNiveaux=(a,b)=>{ if(b<a)return 0; const nbPlancher=Math.max(0,Math.min(b,Lc-1)-a+1); const a2=Math.max(a,Lc); return nbPlancher*IDLE_TICK_SECONDS_V1+(b>=a2?c*(S1(b)-S1(a2-1)):0); };
+      const Temps=k=>need1+dureeNiveaux(l0+2,l0+k);
       const plafondDefi=Math.min(limiteDefi?Math.max(0,challengeHundredLevelsRemaining(state)):Infinity,cibleN>0?Math.max(0,cibleN-l0):Infinity);
       const ok=k=>k<=plafondDefi&&Temps(k)<=remaining&&Or(k)<=state.currencies.gold&&Number.isFinite(Or(k));
       if(remaining>=need1&&ok(1)){

@@ -500,18 +500,19 @@
        * Barres alimentées par une ressource (Norman, 2026-10-05) : en changeant l'allocation, la barre ne rattrape pas son retard et ne perd rien : elle garde la MÊME fraction et adopte la nouvelle vitesse
        * (durée du niveau = K / allocation). Sans ressource, la barre reste où elle est.
        */
+      /* Un niveau dure au moins un tick (50 niveaux par seconde au plus, comme le vrai jeu : wiki NGU Idle, page Energy, section Ticks ; moteur : idle-tick-v1.js) ; brut = la durée SANS ce plancher, nécessaire pour rejouer les niveaux. */
       function recalculerPisteFractionIdleV1_(k,fraction,alloc){
         const a=Math.max(0,Number(alloc)||0);
         const frac=Math.max(0,Math.min(.999999,Number(fraction)||0));
-        if(!(k>0)||!(a>0))return {seconds:0,progress:frac};
-        return {seconds:k/a,progress:frac};
+        if(!(k>0)||!(a>0))return {seconds:0,brut:0,progress:frac};
+        return {seconds:Math.max(1/50,k/a),brut:k/a,progress:frac};
       }
 
       function recalculerPisteAllocIdleV1_(k,progressSecondes,alloc){
         const a=Math.max(0,Number(alloc)||0);
         if(!(k>0)||!(a>0))return {seconds:0,progress:0};
-        const seconds=k/a;
-        return {seconds:seconds,progress:Math.max(0,Math.min(.999999,(Math.max(0,progressSecondes)||0)/seconds))};
+        const seconds=Math.max(1/50,k/a);
+        return {seconds:seconds,brut:k/a,progress:Math.max(0,Math.min(.999999,(Math.max(0,progressSecondes)||0)/seconds))};
       }
 
       /* Fait avancer d'abord les barres d'Augmentations du temps écoulé, puis repart de « maintenant » : tous les repères restent cohérents. */
@@ -548,7 +549,7 @@
           appliedRatio:1,
           src:defs,
           at:ancreSnapshotIdleV1_(etatAug),
-          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),/* Norman (2026-10-02) : « quand je retire tout d'Augmentation la barre continue à monter » -- un état serveur en retard décrit encore l'ancienne allocation : sans énergie placée (allocation affichée, après les allocations voulues), la barre ne tourne pas. */seconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).energy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel):0,upgradeSeconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).upgradeEnergy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel):0,level:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).level),upgradeLevel:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).upgradeLevel),waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))
+          defs:Object.fromEntries(defs.map(function(d){return [d.id,{progress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.progressPct),upgradeProgress:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeProgressPct),secondsBrut:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevelBrut),upgradeSecondsBrut:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevelBrut),/* Norman (2026-10-02) : « quand je retire tout d'Augmentation la barre continue à monter » -- un état serveur en retard décrit encore l'ancienne allocation : sans énergie placée (allocation affichée, après les allocations voulues), la barre ne tourne pas. */seconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).energy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.secondsPerLevel):0,upgradeSeconds:(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_((pairs[d.id]||{}).upgradeEnergy)>0)?window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeSecondsPerLevel):0,level:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).level),upgradeLevel:window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_((pairs[d.id]||{}).upgradeLevel),waiting:Boolean(d.waitingGold),upgradeWaiting:Boolean(d.upgradeWaitingGold),goldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.goldCost),upgradeGoldCost:window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(d.upgradeGoldCost),gold:gold}];}))
   };
       }
 
@@ -801,9 +802,11 @@
         const fracAvant=ancienSec>0?Math.min(1,H.idleNombre_(d[cleP])):H.idleNombre_(upgrade?def.upgradeProgressFraction:def.progressFraction);
         const nouveau=recalculerPisteFractionIdleV1_(k,fracAvant,alloc);
         d[cleS]=nouveau.seconds;
+        d[upgrade?'upgradeSecondsBrut':'secondsBrut']=nouveau.brut;
         d[cleP]=nouveau.progress;
         d[cleW]=false;
         def[upgrade?'upgradeSecondsPerLevel':'secondsPerLevel']=nouveau.seconds>0?nouveau.seconds:null;
+        def[upgrade?'upgradeSecondsPerLevelBrut':'secondsPerLevelBrut']=nouveau.brut>0?nouveau.brut:null;
         def[upgrade?'upgradeProgressPct':'progressPct']=nouveau.progress;
         const texte=document.querySelector('[data-idle-aug-parniveau-v1="'+pairId+':'+(upgrade?'upgrade':'main')+'"]');
         /* Norman (2026-10-01) : plus de « ⏱ … par niveau » : cette durée dépend de l'énergie placée, elle n'a pas lieu d'être. L'élément reste, vide. */
@@ -1086,6 +1089,7 @@
         vue[piste+'Fraction']=nouveau.progress;
         vue[piste+'ProgressSeconds']=nouveau.seconds>0?nouveau.progress*nouveau.seconds:progSec;
         vue[piste+'EtaSeconds']=nouveau.seconds>0?Math.max(0,(1-nouveau.progress)*nouveau.seconds):null;
+        vue[piste+'StepBrut']=nouveau.brut>0?nouveau.brut:null;
         if(typeof H.patcherBarresTimeMachineIdleV1_==='function')H.patcherBarresTimeMachineIdleV1_(j,true);
       }
 

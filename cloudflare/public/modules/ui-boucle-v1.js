@@ -410,7 +410,7 @@
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-40 */
           Object.keys(augVisual.defs||{}).forEach(function(id){
             const d=augVisual.defs[id]||{};
-            [['main',d.progress,d.seconds,d.waiting,d.goldCost,d.level],['upgrade',d.upgradeProgress,d.upgradeSeconds,d.upgradeWaiting,d.upgradeGoldCost,d.upgradeLevel]].forEach(function(x){
+            [['main',d.progress,d.seconds,d.waiting,d.goldCost,d.level,d.secondsBrut],['upgrade',d.upgradeProgress,d.upgradeSeconds,d.upgradeWaiting,d.upgradeGoldCost,d.upgradeLevel,d.upgradeSecondsBrut]].forEach(function(x){
               /* Les niveaux sont rejoués à chaque tick, quelle que soit la page affichée (Norman, 2026-10-16 : l'effet d'un niveau d'Augmentations sur les PV ne doit pas attendre qu'on ouvre le menu) ; seuls les éléments de la page ne sont cherchés et écrits que si elle est ouverte. */
               const surPageAug=REG.idleMenuActifV28==='augmentations';
               const el=surPageAug?elementAugIdleV1_('[data-idle-aug-bar-v215="'+id+':'+x[0]+'"]'):null;
@@ -447,7 +447,7 @@
               }else if(secondes0>0&&typeof window.__rejouerCyclesAugmentPlafonneIdleV1__==='function'){
                 /* Barre CAP (50 niveaux par seconde au plus) : les niveaux, le coût et l'Or sont eux aussi rejoués en direct (Norman, 2026-10-10). */
                 const orAvantCap=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
-                const rjCap=window.__rejouerCyclesAugmentPlafonneIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvantCap:0,plafondK:plafondDefi});
+                const rjCap=window.__rejouerCyclesAugmentPlafonneIdleV1__({niv0:niv0,sec0:(idleNombre_(x[6])>0?idleNombre_(x[6]):secondes0),cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvantCap:0,plafondK:plafondDefi});
                 if(Boolean(monnaiesLocales)&&rjCap.debit>0){monnaiesLocales.gold=Math.max(0,orAvantCap-rjCap.debit);debiteCeTick=true;}
                 k=rjCap.k;reste=rjCap.reste;bloque=rjCap.bloque;debites=rjCap.debites;
                 d[cle]=debites;

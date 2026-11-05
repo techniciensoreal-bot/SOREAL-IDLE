@@ -80,8 +80,8 @@
   "sha": "fdd64062157b6fcf7c99ca2438b15c07a502029f"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 40,
-  "sha": "fb685ab1fd0cfcc42b5fc8d272b1f5a3c0f668fc"
+  "pin": 42,
+  "sha": "adbc7896983fe105b68d821b9129ae7d9e9880ae"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 12,
@@ -500,8 +500,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 170,
-  "sha": "4020757b52a438c585baa8bb0c8838921db917a2"
+  "pin": 171,
+  "sha": "7718109263c0a7578cba23343cef5bac68c39c73"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -604,12 +604,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 164,
-  "sha": "aa17f5893f7c1f53ad5212e92f5c655d367ca90b"
+  "pin": 165,
+  "sha": "ff854b85bab3fcd442c909eb653ae662d68fb213"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 803,
-  "sha": "eb04ea62b161d1acaeceac4f66904fcf869fa51e"
+  "pin": 804,
+  "sha": "3af21048d19fba64dff4655e40e9972747ba6aa8"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -692,16 +692,16 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/tm-projection-v1.js": {
-  "pin": 1,
-  "sha": "a4052cd282bf0487981df72bef3c018c0d15d130"
+  "pin": 2,
+  "sha": "0d4fba3a1897ce72bbc76fcfc191816fd6eb6935"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 840,
-  "sha": "09954298347f96109f17b0ac0e8a78134f6ed696"
+  "pin": 841,
+  "sha": "75101bc4a3e818b1eac5691073a1d8bab12e0a5e"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 661,
-  "sha": "14b1bb4b727b5a1796141e419a62d4089814eccf"
+  "pin": 662,
+  "sha": "f3f1fa7eca27b708ba700b9c6168cac9ef02f8a7"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -752,8 +752,8 @@
   "sha": "919b537f0875f57c6ab9914afaa30c2c6b6ad006"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 30,
-  "sha": "6c94e67101f0a273e0a08036c238975226009253"
+  "pin": 31,
+  "sha": "534e36c9d9515a8ff8bdb35efd0a4ef967303776"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 3,
@@ -784,8 +784,8 @@
   "sha": "56a6d9796d131bf9b0ea98a937aa12bf05d9250c"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 22,
-  "sha": "982563942803d15a4faff142f2970a5f2f72019f"
+  "pin": 23,
+  "sha": "b550588f4e6d9c9c9bb0f5ec339da72ca9e3d315"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 6,

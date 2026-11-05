@@ -130,7 +130,7 @@
             const monnaiesTm=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies;
             const orTm0=idleNombre_(monnaiesTm&&monnaiesTm.gold);
             const PROJ_TM=window.__SOREAL_IDLE_TM_PROJECTION_V1__;
-            const proj=PROJ_TM.projeter({palier:palier,fill0:fill0,ecoule:(maintenant-at)/1000,niveau0:niveau0,or:monnaiesTm?orTm0:null,deja:deja0,plafond:plafD100});
+            const proj=PROJ_TM.projeter({palier:palier,brut:vueD100?idleNombre_(vueD100[(piste==='or'||piste==='gold')?'goldStepBrut':'speedStepBrut']):undefined,fill0:fill0,ecoule:(maintenant-at)/1000,niveau0:niveau0,or:monnaiesTm?orTm0:null,deja:deja0,plafond:plafD100});
             franchis=proj.franchis;faussesOr=proj.faussesOr;manqueOr=proj.manqueOr;bloqueDefi=proj.bloqueDefi;restant=proj.restant;palier=proj.palier;
             if(faussesOr&&!bloqueDefi)orPresent=proj.or===null?0:proj.or;
             if(D100)D100.noter(supportD100,cleD100,franchis);

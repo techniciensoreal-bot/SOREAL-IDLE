@@ -60,3 +60,8 @@ Tests de reprise à écrire AVANT l'étape 2 : (1) A joue, B se connecte, B voit
 ## Décisions à prendre par Norman
 - Valider l'ordre : Machine temporelle d'abord, puis le reste ?
 - Accepter qu'une partie de l'écran (Machine temporelle) change de fonctionnement interne avant les autres menus ?
+
+## Journal des mesures écran / moteur (barre par barre)
+- **Machine temporelle** (2026-11-05) : DIVERGENCE trouvée et corrigée (reste de barre remis à l'échelle au passage de niveau par le moteur, reporté en secondes par l'écran). Formule unique `tm-projection-v1.js`, test `idle-tm-projection-moteur-v1`.
+- **Augmentations** (2026-11-05) : l'écran (rejouerCyclesAugmentIdleV1_) donne les MÊMES niveaux et la même fraction que le moteur (jusqu'à 96 niveaux d'un coup), test `idle-augments-projection-moteur-v1`. Les barres CAP (< 0,02 s par niveau) divergent : l'écran plafonne à 50 niveaux/s (règle écrite le 2026-10-10), le moteur n'a pas de plancher (6 niveaux en 0,1 s à 0,004 s/niveau, l'écran en donne 5). DÉCISION À PRENDRE par Norman : plancher de 0,02 s dans le moteur (jeu plus lent aux très fortes allocations, plus proche de la règle écrite) ou écran aligné sur le moteur (sans plafond de 50/s).
+- À faire : Entraînement avancé, rituels de Blood Magic, NGU, Wandoos, Yggdrasil (même test).

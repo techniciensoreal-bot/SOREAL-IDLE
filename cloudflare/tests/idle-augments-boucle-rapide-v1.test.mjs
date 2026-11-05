@@ -16,11 +16,12 @@ s.systems.augmentations.unlocked = true;
 for (const p of Object.values(s.systems.augmentations.data.pairs)) { p.energy = 1e8; p.upgradeEnergy = 1e8; }
 s.updatedAt = T0;
 const t = Date.now();
-s = advanceIdleNguState(s, 20, ctx, T0 + 20000);
+/* 1 h hors ligne à toute vitesse : au plus 50 niveaux par seconde (wiki NGU Idle, page Energy, section Ticks ; Norman, 2026-11-05), soit 180 000 niveaux, bien au-delà de l'ancien plafond de 10 000 niveaux par appel */
+s = advanceIdleNguState(s, 3600, ctx, T0 + 3600000);
 const ms = Date.now() - t;
-assert.ok(ms < 3000, "20 s de jeu à toute vitesse en moins de 3 s de calcul (mesuré : " + ms + " ms)");
+assert.ok(ms < 3000, "1 h de jeu à toute vitesse en moins de 3 s de calcul (mesuré : " + ms + " ms)");
 const scissors = s.systems.augmentations.data.pairs.scissors;
-assert.ok(scissors.level > 10000, "plus de plafond de 10 000 niveaux par appel (2026-10-24 : calcul en formules fermées, hors ligne compris) : " + scissors.level);
+assert.ok(scissors.level > 100000 && scissors.level <= 3600 * 50 + 1, "plus de plafond de 10 000 niveaux par appel (2026-10-24 : formules fermées, hors ligne compris) ET jamais plus de 50 niveaux par seconde : " + scissors.level);
 assert.ok(s.currencies.gold < 1e30 && s.currencies.gold > 0, "l'Or est bien débité");
 
 // Verrou orphelin : repris au bout de 20 s (voir idle-sqlite-runtime.js).

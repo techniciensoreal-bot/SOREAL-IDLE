@@ -22,7 +22,7 @@ import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js"
 import { idleCookingSystemSnapshotV1 } from "./idle-cooking-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
 import { achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
-import { augmentationGoldCost, augmentationSecondsForNextLevel, externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceBudget, totalAllocated } from "./idle-ngu-ressources.js";
+import { augmentationGoldCost, augmentationSecondsForNextLevel, augmentationSecondsBrutNextLevel, externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceBudget, totalAllocated } from "./idle-ngu-ressources.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, ressourceDecouverteV1, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAutoEnvV1, resourceInfoV1 } from "./idle-ngu-actions.js";
 import { IDLE_AT_ORDRE_V1, beardActiveIdsV1, beardSlotsV1, beardTrackUnlocked, bloodMagicViewV1, finiOuNullV1, timeMachineViewV1, wandoosViewV1, wishSlotCountV1, wishSlotsSnapshotV1 } from "./idle-ngu-pistes.js";
@@ -273,6 +273,9 @@ function construireSnapshotNguV1(state, context, now) {
         progressFraction: fractionMain,
         upgradeProgressFraction: fractionUpgrade,
         secondsPerLevel: Number.isFinite(neededMain) ? neededMain : null,
+        /* DurÃ©e SANS le plancher d'un tick (50 niveaux par seconde au plus) : le client rejoue les niveaux d'une barre au plafond avec celle-ci. */
+        secondsPerLevelBrut: finiOuNullV1(augmentationSecondsBrutNextLevel(state, def, false)),
+        upgradeSecondsPerLevelBrut: def.upgrade ? finiOuNullV1(augmentationSecondsBrutNextLevel(state, def, true)) : null,
         upgradeSecondsPerLevel: Number.isFinite(neededUpgrade) ? neededUpgrade : null,
         /* Chantier Â« rÃ©activitÃ© Â» : durÃ©e du niveau Ã  1 Energy (K) et progression en secondes -> le client recalcule seul au clic. */
         secondsK: finiOuNullV1(augmentationSecondsForNextLevel(state, def, false, 1)),
@@ -286,7 +289,7 @@ function construireSnapshotNguV1(state, context, now) {
     augmentationsAdvance: Boolean(state.systems.augmentations?.data?.advanceEnergy),
     /* PrÃ©fÃ©rences d'interface liÃ©es au compte (idle-ui-prefs-v1.js) : le client les remet dans son stockage local. */
     uiPrefs: Object.assign({}, state.uiPrefs || {}),
-    /* Défi des 100 niveaux (2026-11-03) : budget restant du pool combiné, pour que le client n'affiche jamais un niveau que le moteur refuse. Hors défi : { actif:false } (aucun spoil). Pas de champ horodaté. */
+    /* Dï¿½fi des 100 niveaux (2026-11-03) : budget restant du pool combinï¿½, pour que le client n'affiche jamais un niveau que le moteur refuse. Hors dï¿½fi : { actif:false } (aucun spoil). Pas de champ horodatï¿½. */
     defiNiveaux100: defiNiveaux100SnapshotV1(state),
     /* Valise des consommables (haut du Coffre, 2026-10-23) : ce que le joueur a en effet ou en rÃ©serve ; seulement ce qui est > 0 (anti-spoil : rien de ce qu'il n'a pas obtenu). */
     consommables: consommablesSnapshotV1(state),
@@ -731,7 +734,7 @@ export const IDLE_MONEY_PIT_REWARDS_V1 = [
   [{ adventureStats: 300 }, { cubePower: 200 }, { cubeToughness: 200 }, { cubeBoth: 100 }, { adventureHp: 900 }, { adventureRegen: 9 }, { experience: 500 }, { wandoos: 3, wandoosMax: 100 }, { seeds: 700 }]
 ];
 
-/* Lots tirables au palier `tier` : ceux dont le système est débloqué (cube, Wandoos, Yggdrasil) ; utilisé par le tirage ET par la liste annoncée au joueur : le % affiché est donc la vraie chance (1 / nombre de lots). */
+/* Lots tirables au palier `tier` : ceux dont le systï¿½me est dï¿½bloquï¿½ (cube, Wandoos, Yggdrasil) ; utilisï¿½ par le tirage ET par la liste annoncï¿½e au joueur : le % affichï¿½ est donc la vraie chance (1 / nombre de lots). */
 export function moneyPitLotsDisponiblesV1(state, tier) {
   const sys = (id) => Boolean(state.systems[id] && state.systems[id].unlocked);
   return IDLE_MONEY_PIT_REWARDS_V1[Math.min(tier, IDLE_MONEY_PIT_REWARDS_V1.length - 1)].filter((choix) => {
@@ -812,7 +815,7 @@ export function tossMoneyPit(state, now) {
    * Les colonnes Equip/Wandoos/Cube des paliers suivants restent hors de
    * cette passe plutÃ´t que d'Ãªtre remplacÃ©es par une rÃ©compense inventÃ©e.
    */
-  /* Wiki : « It's a random chance between all available rewards » : le tirage se fait parmi les lots DISPONIBLES (systèmes débloqués), les mêmes que ceux annoncés au joueur (moneyPitLotsDisponiblesV1) : chacun a donc 1 chance sur N, N = nombre de lots annoncés (Norman, 2026-11-03 : afficher le % de chance). */
+  /* Wiki : ï¿½ It's a random chance between all available rewards ï¿½ : le tirage se fait parmi les lots DISPONIBLES (systï¿½mes dï¿½bloquï¿½s), les mï¿½mes que ceux annoncï¿½s au joueur (moneyPitLotsDisponiblesV1) : chacun a donc 1 chance sur N, N = nombre de lots annoncï¿½s (Norman, 2026-11-03 : afficher le % de chance). */
   const candidats = moneyPitLotsDisponiblesV1(state, tier);
   const choix = candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : {};
 

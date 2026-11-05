@@ -8,16 +8,18 @@
  *
  *   window.__SOREAL_IDLE_TM_PROJECTION_V1__.projeter({ palier, fill0, ecoule, niveau0, or, deja, plafond }) ->
  *     { fill, restant, palier, franchis, deja, or, faussesOr, manqueOr, bloqueDefi }
- *   palier  : durée du niveau en cours (secondes) ; fill0 : fraction de barre au départ (0 à 1) ; ecoule : secondes écoulées depuis le départ ;
+ *   palier  : durée du niveau en cours (secondes, plancher d'un tick compris) ; brut : la même SANS plancher (facultatif) ; fill0 : fraction de barre au départ (0 à 1) ; ecoule : secondes écoulées depuis le départ ;
  *   niveau0 : niveau au départ ; or : Or disponible au départ (null = pas de contrôle d'Or) ; deja : niveaux déjà débités localement (pas de double débit) ; plafond : niveaux au plus autorisés (défi), Infinity sinon.
  */
 (function(root){
 'use strict';
 if(root.__SOREAL_IDLE_TM_PROJECTION_V1__)return;
 var COUT_PAR_NIVEAU=5000000;
+var TICK=1/50;   /* un niveau dure au moins un tick : 50 niveaux par seconde au plus (wiki NGU Idle, page Energy, section Ticks ; cloudflare/src/idle-tick-v1.js) */
 function coutNiveau(niveauVise){return COUT_PAR_NIVEAU*Math.max(1,niveauVise);}
 function projeter(p){
   var step=Number(p.palier)>0?Number(p.palier):0;
+  var brut=Number(p.brut)>0?Number(p.brut):step;   /* durée du niveau en cours SANS le plancher d'un tick (speedStepBrut / goldStepBrut du moteur) */
   var fill0=Math.max(0,Math.min(1,Number(p.fill0)||0));
   var ecoule=Math.max(0,Number(p.ecoule)||0);
   var niveau0=Number(p.niveau0)||0;
@@ -38,7 +40,8 @@ function projeter(p){
       deja+=1;
     }
     franchis+=1;
-    var pas=step*(niveau0+1+franchis)/(niveau0+franchis);   /* durée du niveau suivant */
+    brut=brut*(niveau0+1+franchis)/(niveau0+franchis);
+    var pas=Math.max(TICK,brut);                             /* durée du niveau suivant, au moins un tick */
     prog=(prog-step)*pas/step;                               /* le reste est remis à l'échelle de la nouvelle durée, comme rebaserProgressionSecondesV1 */
     step=pas;
   }

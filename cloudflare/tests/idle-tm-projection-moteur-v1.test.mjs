@@ -50,7 +50,8 @@ const piste = (r, nom) => {
   const fill = energie ? v.speedFill : v.goldFill, eta = energie ? v.speedEtaSeconds : v.goldEtaSeconds;
   const niveau = energie ? d.speedLevel : d.goldLevel;
   const palier = Number.isFinite(eta) && fill < 1 ? eta / (1 - fill) : 0;
-  return { fill, eta, niveau, palier, or: Number(j.systemes.currencies.gold) };
+  const brut = energie ? v.speedStepBrut : v.goldStepBrut;
+  return { fill, eta, niveau, palier, brut, or: Number(j.systemes.currencies.gold) };
 };
 function comparer(titre, alloc, dts, orLimite) {
   const run = partie();
@@ -60,7 +61,7 @@ function comparer(titre, alloc, dts, orLimite) {
   for (const dt of dts) {
     const r0 = run("synchroniserSorealIdle"); const p0 = piste(r0, "vitesse");
     if (!(p0.palier > 0)) { ecarts.push([dt, "pas de barre"]); continue; }
-    const proj = PROJ.projeter({ palier: p0.palier, fill0: p0.fill, ecoule: dt, niveau0: p0.niveau, or: orLimite ? p0.or : null });
+    const proj = PROJ.projeter({ palier: p0.palier, brut: p0.brut, fill0: p0.fill, ecoule: dt, niveau0: p0.niveau, or: orLimite ? p0.or : null });
     decalage += dt * 1000;
     const r1 = run("synchroniserSorealIdle"); const p1 = piste(r1, "vitesse");
     ecarts.push([dt, p0.niveau, p1.niveau, proj.franchis + p0.niveau, +p1.fill.toFixed(5), +proj.fill.toFixed(5)]);
@@ -71,7 +72,7 @@ function comparer(titre, alloc, dts, orLimite) {
 }
 // 1. Barre lente puis rapide, Or illimité (la partie de test a 1e15 d'Or) : niveaux et fraction égaux
 let niveauxMax = 0;
-for (const alloc of [5e5, 5e7, 5e8, 5e9]) for (const e of comparer("or illimité", alloc, [0.5, 3, 20, 120, 600])) if (e.length === 6) niveauxMax = Math.max(niveauxMax, e[2] - e[1]);
+for (const alloc of [5e5, 5e7, 5e8, 5e9, 5e11, 5e13]) for (const e of comparer("or illimité", alloc, [0.5, 3, 20, 120, 600])) if (e.length === 6) niveauxMax = Math.max(niveauxMax, e[2] - e[1]);
 assert.ok(niveauxMax >= 20, "le test passe vraiment des niveaux (barre rapide) : " + niveauxMax + " niveaux gagnés au mieux en une étape");
 // 2. Un changement d'allocation en cours de niveau garde la FRACTION (le moteur remet les secondes à l'échelle) : la projection repart de la nouvelle durée
 {
@@ -83,7 +84,7 @@ assert.ok(niveauxMax >= 20, "le test passe vraiment des niveaux (barre rapide) :
   const apres = piste(r, "vitesse");
   assert.ok(Math.abs(apres.fill - avant.fill) < 0.05 || apres.niveau > avant.niveau, "la fraction est conservée au changement d'allocation (" + avant.fill + " -> " + apres.fill + ")");
   decalage += 2000;
-  const proj = PROJ.projeter({ palier: apres.palier, fill0: apres.fill, ecoule: 2, niveau0: apres.niveau, or: null });
+  const proj = PROJ.projeter({ palier: apres.palier, brut: apres.brut, fill0: apres.fill, ecoule: 2, niveau0: apres.niveau, or: null });
   const fin = piste(run("synchroniserSorealIdle"), "vitesse");
   assert.equal(proj.franchis + apres.niveau, fin.niveau, "niveau après changement d'allocation");
   assert.ok(Math.abs(proj.fill - fin.fill) < 1e-3, "fraction après changement d'allocation : " + fin.fill + " / " + proj.fill);

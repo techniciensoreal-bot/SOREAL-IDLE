@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "À chaque passage de niveau, la barre de la Machine temporelle suit exactement le calcul du jeu : plus de saut juste après une renaissance, quand la barre va très vite."
+    "Comme dans NGU Idle, une Augmentation gagne au plus 50 niveaux par seconde, même avec une énorme quantité d’énergie, hors ligne comme en ligne.",
+    "Comme dans NGU Idle, une barre gagne au plus 50 niveaux par seconde : le jeu tourne à 50 mises à jour par seconde, une barre ne peut pas se remplir plus d’une fois par mise à jour."
   ] };
 })();
