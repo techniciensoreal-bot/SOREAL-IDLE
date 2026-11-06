@@ -160,7 +160,7 @@ décrire ce processus de mémoire, le relire si ce fichier change) :
   `wrangler.jsonc` ou le workflow lui-même, ou manuellement
   (`workflow_dispatch`).
 - Le job (limité à la branche `main`, 30 minutes au plus) enchaîne : toute la
-  suite de tests (`for f in cloudflare/tests/*.test.mjs; do node "$f"; done`),
+  suite de tests, 4 fichiers à la fois (`xargs -P 4`, 2026-11-06 : la CI passait de 11 à ~4 minutes ; un seul échec bloque le déploiement et son journal est affiché),
   le build du frontend autonome (`build-standalone.mjs`, qui ne modifie plus aucun fichier public depuis le 2026-10-16 : le cache est immuable ; avant : injectait le SHA
   dans `IDLE_TEST_VERSION`) et `node --check` de tous les scripts publics, la
   vérification des dépendances du runtime vocal, `wrangler deploy` avec

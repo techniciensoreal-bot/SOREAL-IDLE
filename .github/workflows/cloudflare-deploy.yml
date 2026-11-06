@@ -43,13 +43,15 @@ jobs:
         with:
           node-version: "24"
 
+      # Tests EN PARALLELE (4 a la fois, Norman 2026-11-06 : la CI prenait 11 minutes). Meme garde-fou qu'avant : un seul test en echec bloque le deploiement.
+      # Les tests sont independants (verifie : suite complete locale en parallele = memes resultats qu'en serie). Le journal d'un test n'est affiche que s'il echoue.
       - name: Run test suite
+        shell: bash
         run: |
-          set -e
-          for f in cloudflare/tests/*.test.mjs; do
-            echo "=== $f ==="
-            node "$f"
-          done
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/tests-logs"
+          export LOGS="$RUNNER_TEMP/tests-logs"
+          ls cloudflare/tests/*.test.mjs | xargs -P 4 -I{} bash -c 'f="{}"; log="$LOGS/$(basename "$f").log"; if node "$f" >"$log" 2>&1; then echo "OK $f"; else echo "=== ECHEC $f ==="; cat "$log"; exit 255; fi'
 
       - name: Build standalone frontend
         run: |
