@@ -41,6 +41,7 @@
             'De temps en temps, quand tu n’as pas cliqué depuis quelques secondes, la borne a des yeux sur son écran LED : ils regardent à gauche, à droite, sont heureux, tristes, suspicieux… Un clic ou un combat les arrête.',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Le kill automatique applique maintenant le filtre de butin : un objet filtré (🚫 dans le Coffre) n’entre plus dans le sac quand il tombe en kill automatique.',
             'Le filtre d’un objet précis (le bouton 🧹 du Coffre) est maintenant le même dans toutes les zones : un objet coché n’est plus ramassé nulle part et reste coché quand tu changes de zone. Tes filtres déjà réglés par zone sont réunis, rien n’est perdu.',
           ]},
         ],

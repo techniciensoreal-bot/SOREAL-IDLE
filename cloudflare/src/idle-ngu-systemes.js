@@ -1023,6 +1023,8 @@ function advanceLateSystems(state, seconds, context, now) {
   const combatAventure = idleAdventureCombatStatsV1(gearAventure, context, idleNguBonusesLectureV1(state));
   {
     const titanChallengeBonuses = challengePermanentBonuses(state);
+    /* Butin de l'auto-kill EN LIGNE : filtre de butin, cube, transformation automatique (Norman, 2026-11-06 : « je les loote quand même toutes les heures quand je tue auto GRB » : ce butin allait directement dans le sac, sans filtre). */
+    const idsAvantTitansAuto = idleInventoryIdsV1(state.adventure);
     span("tardif:titans", () => advanceTitanAutoKillV1(state.adventure, Object.assign({}, context, {
       /* Synchro courte = joueur connecté : l'Auto-Kill donne alors le butin ; au-delà (rattrapage hors ligne) seulement EXP, Or, AP, PP, QP, comme le wiki. Même seuil que le farm hors ligne. */
       enLigne: seconds < 5 * 60,
@@ -1038,6 +1040,7 @@ function advanceLateSystems(state, seconds, context, now) {
       titanCooldownReductionEvilMs: titanChallengeBonuses.titanRespawnReductionEvilMs,
       titanCooldownReductionSadisticMs: titanChallengeBonuses.titanRespawnReductionSadisticMs
     }), seconds, now));
+    idleInventoryProcessNewDropsV1(state.adventure, idsAvantTitansAuto, inventoryAutoEnvV1(state));
   }
 
   /*
