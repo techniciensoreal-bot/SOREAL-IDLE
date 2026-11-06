@@ -472,8 +472,8 @@
   "sha": "385b300138a35ff85d43426763cc45ec5a69379c"
  },
  "/modules/mesure-reference-v1.js": {
-  "pin": 9,
-  "sha": "115767444d157e753ad0cd41c376e6b055f6f3a7"
+  "pin": 10,
+  "sha": "2be9cd1d0de510b73030a0a44ab65f32424cddf0"
  },
  "/modules/meta-progression-v130.js": {
   "pin": 202610178,
@@ -700,8 +700,8 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/tm-bulles-canvas-v1.js": {
-  "pin": 1,
-  "sha": "86c5ad1426720a7f028e0d1de1b883c6ef6f1453"
+  "pin": 2,
+  "sha": "0337a823717650df37b730e1a0b2b661386e6446"
  },
  "/modules/tm-projection-v1.js": {
   "pin": 3,

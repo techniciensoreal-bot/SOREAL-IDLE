@@ -94,7 +94,8 @@
     if(!tube)return false;
     var h=tube.clientHeight,l=cv.parentNode.clientWidth;
     if(!(h>0)||!(l>0))return false;
-    var dpr=Math.min(3,window.devicePixelRatio||1);
+    /* Densité 1x (2026-11-06) : à 3x, chaque canvas faisait ~0,5 million de pixels à effacer et renvoyer au processeur graphique à CHAQUE image ; les bulles font 2 à 4 px et sont déjà un dégradé doux, 1x suffit (9 fois moins de pixels). */
+    var dpr=1;
     if(cv.__tmH!==h||cv.__tmL!==l||cv.__tmD!==dpr){
       cv.__tmH=h;cv.__tmL=l;cv.__tmD=dpr;
       cv.width=Math.round(l*dpr);cv.height=Math.round(h*dpr);

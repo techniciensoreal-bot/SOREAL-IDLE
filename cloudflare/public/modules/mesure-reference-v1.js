@@ -22,7 +22,7 @@ var PLAN_DIAG_MACHINE=[   /* ENTRELACÉ (2026-11-06) : un téléphone chauffe et
   {id:'machine',nom:'Machine temporelle — normale (1)'},
   {id:'machine',nom:'Machine temporelle — sans bulles',variante:'bulles'},
   {id:'machine',nom:'Machine temporelle — normale (2)'},
-  {id:'machine',nom:'Machine temporelle — liquide sans conteneur de requête',variante:'sansConteneur'},
+  {id:'machine',nom:'Machine temporelle — machine entière masquée (TÉMOIN : l\'état du téléphone)',variante:'cadre'},
   {id:'machine',nom:'Machine temporelle — normale (3)'},
   {id:'machine',nom:'Machine temporelle — animations en pause',variante:'pause'},
   {id:'machine',nom:'Machine temporelle — normale (4)'}

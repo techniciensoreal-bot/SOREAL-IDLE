@@ -77,6 +77,8 @@ assert.ok(augm.includes('<canvas class="tmm-bulles-cv" data-morph-vivant="1" dat
 assert.ok(!/\.tmm-bulle\s*\{|\.tmm-bulle\./.test(css), "plus de règle d'animation appliquée à des bulles");
 assert.ok(/\.tmm-bulles-cv\{position:absolute;left:0;bottom:0;width:100%/.test(css));
 assert.ok(index.indexOf("tm-bulles-canvas-v1.js") > 0 && index.indexOf("tm-bulles-canvas-v1.js") < index.indexOf("ui-machine-temporelle-v1.js"), "chargé dans index.html");
+/* densité 1x : jamais plus de pixels que nécessaire (plan C9, mesure du téléphone) */
+assert.ok(/var dpr=1;/.test(src), "canvas des bulles en densité 1x");
 /* le dessin ne relit jamais la mise en page à chaque image (clientHeight force le calcul) */
 assert.ok(/compteur%20!==0/.test(src), "taille du tube relue toutes les 20 images seulement");
 assert.ok(src.includes("matchMedia('(prefers-reduced-motion: reduce)')"), "mouvement réduit : rien ne bouge");
