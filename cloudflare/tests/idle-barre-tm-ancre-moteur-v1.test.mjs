@@ -19,5 +19,5 @@ const bonus = readFileSync("cloudflare/src/idle-ngu-bonus.js", "utf8");
 assert.ok(bonus.includes("function cleSansDonneesInertesV1(state)") && bonus.includes("JSON.stringify(cleSansDonneesInertesV1(state))"), "clé de mémo des bonus allégée");
 assert.ok(/uiPrefs: undefined, recentClientMutations: undefined/.test(bonus), "uiPrefs et journal d'idempotence hors clé");
 const equip = readFileSync("cloudflare/src/idle-adventure-v47.js", "utf8");
-assert.ok(equip.includes("JSON.stringify(Object.assign({},raw,{recentClientMutations:undefined}))"), "clé de mémo de l'équipement allégée");
+assert.ok(equip.includes("cle=idleAdventureCleEquipementV1(raw)")&&!equip.includes("JSON.stringify(Object.assign({},raw,{recentClientMutations:undefined}))"), "clé de mémo de l'équipement allégée (clé réduite, preuve par mutation : idle-equipement-cle-v1)");
 console.log("idle-barre-tm-ancre-moteur-v1: OK");
