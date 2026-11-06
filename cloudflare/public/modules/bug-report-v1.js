@@ -136,6 +136,7 @@ function html(estAdmin){
     '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__bugReportOuvrirV1__()">🐞 Signaler un bug</button>'+
     (estAdmin?' <button type="button" class="soreal-idle-expand-button-v25" onclick="window.__bugReportVoirV1__()">📥 Signalements reçus</button>':'')+
     (estAdmin?' <button type="button" class="soreal-idle-expand-button-v25" onclick="window.__diagFluiditeOuvrirV1__&&window.__diagFluiditeOuvrirV1__()">🩺 Journal de fluidité</button>':'')+
+    (estAdmin?' <button type="button" class="soreal-idle-expand-button-v25" onclick="window.__mesureReferenceOuvrirV1__&&window.__mesureReferenceOuvrirV1__()">📏 Mesure de référence</button>':'')+
   '</div>';
 }
 
