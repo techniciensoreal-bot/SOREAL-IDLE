@@ -9,7 +9,10 @@ import fs from "node:fs";
 const chemin = "cloudflare/public/modules/mesure-reference-v1.js";
 const code = fs.readFileSync(chemin, "utf8");
 const win = {};
-new Function("window", "document", "navigator", code)(win, {}, {});
+let temps = 0, raf = null;
+const minuteries = [];
+const faux = { performance: { now: () => temps }, requestAnimationFrame: (f) => { raf = f; }, setTimeout: (f, ms) => { minuteries.push({ f, a: temps + ms }); return minuteries.length; }, clearTimeout: (i) => { if (minuteries[i - 1]) minuteries[i - 1].f = null; }, PerformanceObserver: undefined };
+new Function("window", "document", "navigator", "performance", "requestAnimationFrame", "setTimeout", "clearTimeout", "PerformanceObserver", code)(win, { hidden: false, scripts: [], querySelector: () => null }, {}, faux.performance, faux.requestAnimationFrame, faux.setTimeout, faux.clearTimeout, faux.PerformanceObserver);
 const M = win.__SOREAL_IDLE_MESURE_REF_V1__;
 assert.ok(M && typeof M.executer === "function" && typeof win.__mesureReferenceOuvrirV1__ === "function", "le module s'expose");
 
@@ -98,6 +101,33 @@ function envSimule(options = {}) {
   const r = await M.executer(env);
   assert.ok(r.notes.some((n) => /ni images longues ni tâches longues/.test(n)), "navigateur sans API : dit dans le rapport");
   assert.ok(/mode iframe/.test(M.texteRapport(r)), "mode iframe (SOREAL APP / TV) distingué du mode direct");
+}
+
+/* ---- 3 bis. images suspendues par le navigateur (page masquée) : la mesure se termine, INVALIDE, au lieu d'attendre indéfiniment ---- */
+{
+  const e = M.envReel();
+  temps = 0; raf = null; minuteries.length = 0;
+  const p = e.mesurer(20000);
+  /* aucune image ne tire : on avance l'horloge jusqu'au garde-fou (durée + 4 s) */
+  const garde = minuteries.find((m) => m.a === 24000);
+  assert.ok(garde, "un garde-fou est armé à durée + 4 s");
+  temps = 24000; garde.f();
+  const r = await p;
+  assert.equal(r.bloque, true); assert.equal(r.masque, true); assert.equal(r.durees.length, 0, "aucune image relevée");
+  /* le protocole en fait un menu INVALIDE avec un message clair */
+  const { env } = envSimule({});
+  env.mesurer = async () => ({ durees: [], loaf: [], masque: true, bloque: true });
+  const rr = await M.executer(env);
+  const m = rr.menus.find((x) => x.id === "combat");
+  assert.equal(m.valide, false); assert.ok(/suspendues par le navigateur/.test(m.invalide) && /relance/.test(m.invalide), "message : remettre la page au premier plan et relancer");
+  assert.ok(M.texteRapport(rr).includes("INVALIDE (images suspendues par le navigateur"), "le rapport le dit");
+  /* mesure normale : le garde-fou est désarmé à la fin */
+  temps = 0; raf = null; minuteries.length = 0;
+  const q = e.mesurer(100);
+  for (let t = 16.7; t < 130; t += 16.7) { temps = t; const f = raf; raf = null; if (!f) break; f(t); }
+  const ok = await q;
+  assert.equal(ok.bloque, false); assert.ok(ok.durees.length >= 5, "images relevées normalement");
+  assert.ok(minuteries.every((m) => m.f === null), "garde-fou désarmé");
 }
 
 /* ---- 4. passif et branché ---- */

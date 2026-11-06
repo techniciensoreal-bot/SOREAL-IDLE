@@ -93,7 +93,7 @@ async function executer(env,progres){
       await env.attendre(MISE_EN_PLACE_MS);
       var mes=await env.mesurer(DUREE_MENU_MS,function(reste){if(progres)progres('« '+nom+' » : encore '+Math.ceil(reste/1000)+' s — ne touche à rien, laisse cette page visible');});
       var s=statsImages(mes.durees),attendu=DUREE_MENU_MS/1000*30;
-      var invalide=mes.masque?'page masquée pendant la mesure':(s.n<attendu?'moins de 30 images par seconde en moyenne : mesure trop pauvre ('+s.n+' images)':'');
+      var invalide=mes.bloque?'images suspendues par le navigateur (page, panneau ou application masqué) : remets la page au premier plan et relance':(mes.masque?'page masquée pendant la mesure':(s.n<attendu?'moins de 30 images par seconde en moyenne : mesure trop pauvre ('+s.n+' images)':''));
       sortie.menus.push({id:id,nom:nom,stats:s,verdict:verdict(s),loaf:resumerLoaf(mes.loaf||[]),valide:!invalide,invalide:invalide});
     }
   }finally{
@@ -135,7 +135,7 @@ function envReel(){
     },
     mesurer:function(ms,rappel){
       return new Promise(function(resolve){
-        var durees=[],loaf=[],masque=false,dernier=performance.now(),debut=dernier,tic=0,obs=null,fini=false;
+        var durees=[],loaf=[],masque=false,bloque=false,dernier=performance.now(),debut=dernier,tic=0,obs=null,fini=false,garde=0;
         try{
           if(types.indexOf('long-animation-frame')>=0){obs=new PerformanceObserver(function(l){l.getEntries().forEach(function(e){
             loaf.push({duree:e.duration,scripts:(e.scripts||[]).map(function(s){return {invoker:s.invoker||s.name,fichier:String(s.sourceURL||'').split('/').pop().split('?')[0],fonction:s.sourceFunctionName,duree:s.duration};})});});});
@@ -146,9 +146,11 @@ function envReel(){
           if(document.hidden)masque=true;
           durees.push(t-dernier);dernier=t;
           if(t-debut-tic>=1000){tic+=1000;if(rappel)rappel(ms-(t-debut));}
-          if(t-debut>=ms){fini=true;if(obs)obs.disconnect();resolve({durees:durees.slice(1),loaf:loaf,masque:masque});return;}
+          if(t-debut>=ms){fini=true;clearTimeout(garde);if(obs)obs.disconnect();resolve({durees:durees.slice(1),loaf:loaf,masque:masque,bloque:false});return;}
           requestAnimationFrame(image);
         }
+        /* Garde-fou : si le navigateur suspend les images (page ou panneau masqué, application passée en arrière-plan), la mesure se termine quand même, déclarée invalide, au lieu d'attendre indéfiniment. */
+        garde=setTimeout(function(){if(fini)return;fini=true;bloque=true;if(obs)obs.disconnect();resolve({durees:durees.slice(1),loaf:loaf,masque:true,bloque:true});},ms+4000);
         requestAnimationFrame(image);
       });
     }
@@ -201,5 +203,5 @@ function ouvrir(){
     [{texte:'Lancer la mesure',fort:true,fait:function(){lancer();}},{texte:'Annuler',fait:fermer}]);
 }
 window.__mesureReferenceOuvrirV1__=ouvrir;
-window.__SOREAL_IDLE_MESURE_REF_V1__={ouvrir:ouvrir,lancer:lancer,executer:executer,statsImages:statsImages,verdict:verdict,texteRapport:texteRapport,resumerOps:resumerOps,resumerLoaf:resumerLoaf,MENUS:MENUS,BUDGET:BUDGET,VERSION_PROTOCOLE:VERSION_PROTOCOLE};
+window.__SOREAL_IDLE_MESURE_REF_V1__={ouvrir:ouvrir,lancer:lancer,executer:executer,envReel:envReel,statsImages:statsImages,verdict:verdict,texteRapport:texteRapport,resumerOps:resumerOps,resumerLoaf:resumerLoaf,MENUS:MENUS,BUDGET:BUDGET,VERSION_PROTOCOLE:VERSION_PROTOCOLE};
 })();
