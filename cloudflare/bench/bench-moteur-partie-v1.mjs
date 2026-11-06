@@ -5,8 +5,9 @@
 import fs from "node:fs";
 import { creerMoteur, figerLeHasard, reglerHorloge, avancer } from "../tests/_partie-reference.mjs";
 const nom = process.argv[2] || "partie-reference-2", tours = Number(process.argv[3] || 40);
-const brut = JSON.parse(fs.readFileSync("cloudflare/tests/references/" + nom + ".json", "utf8"));
-const ligne = Object.keys(brut).sort((a, b) => a - b).map((k) => brut[k]);
+/* un fichier « Exporter ma partie » (format soreal-idle-partie-v1) peut être donné par son chemin : jamais copié dans le dépôt */
+const brut = JSON.parse(fs.readFileSync(fs.existsSync(nom) ? nom : "cloudflare/tests/references/" + nom + ".json", "utf8"));
+const ligne = Array.isArray(brut.cells) ? brut.cells : Object.keys(brut).sort((a, b) => a - b).map((k) => brut[k]);
 figerLeHasard(); reglerHorloge(Date.parse(ligne[15]) + 60_000);
 const m = creerMoteur(ligne);
 const sync = () => m.run("synchroniserSorealIdle");
