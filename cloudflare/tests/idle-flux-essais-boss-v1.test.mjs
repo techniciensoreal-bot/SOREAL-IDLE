@@ -12,6 +12,10 @@ const lireStats = (g) => {
   return JSON.parse(ligne.find((x) => typeof x === "string" && x.includes("combatBossActif")));
 };
 
+/* Horloge FIGÉE (2026-11-06) : le moteur rejoue le temps écoulé entre deux appels ; sous la charge de la CI (tests en parallèle) assez de temps passait entre les deux « Fight » pour que le combat se termine et que le
+   second compte comme un nouvel essai. Aucun temps ne s'écoule : le test ne dépend plus de la vitesse de la machine. */
+const T0 = Date.now(); const DateReelle = Date;
+globalThis.Date = class extends DateReelle { constructor(...a) { super(...(a.length ? a : [T0])); } static now() { return T0; } };
 /* 1. Le moteur : un essai par combat qui démarre (Fight), pas par arrêt ni double clic. */
 const g = creerJoueurExterneV1("essais@example.com");
 g.op("obtenirEtatSorealIdle", "x");
