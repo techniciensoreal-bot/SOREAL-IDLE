@@ -148,8 +148,8 @@
   "sha": "99912d8d413a59dd0be04df5e17c0694918accc6"
  },
  "/modules/cache-elements-v1.js": {
-  "pin": 2,
-  "sha": "046d3739c3b561236ef97c51fc03912c2faa88a5"
+  "pin": 3,
+  "sha": "7b83a779645f69df39fc1be3e74fcd92ccaa3dbe"
  },
  "/modules/cards-page-v1.js": {
   "pin": 1,
@@ -468,8 +468,8 @@
   "sha": "cbb8cda820f410aefaad2c9a22cf7203036da398"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 14,
-  "sha": "d2cdcb3d3637a21523a919246c24a61da2b79904"
+  "pin": 15,
+  "sha": "6f8f8f9a0cb162dabc150982cbb40d8e4cd01a4e"
  },
  "/modules/maj-v1.js": {
   "pin": 3,
@@ -772,7 +772,7 @@
   "sha": "4a9f6a630b9aeabd0c921027b59e2b54d61c20b4"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 34,
+  "pin": 36,
   "sha": "a07bb0e13a9929469c6318fb9deb0c6838207ff0"
  },
  "/modules/ui-boutique-v1.js": {

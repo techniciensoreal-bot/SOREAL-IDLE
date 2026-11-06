@@ -30,34 +30,16 @@ const el = (nom) => ({ nom, isConnected: true });
   assert.ok(m.E && typeof m.E.id === "function" && typeof m.E.sel === "function", "module exposé");
   assert.ok(Array.isArray(m.window.__SOREAL_IDLE_APRES_REDESSIN_V1__) && m.window.__SOREAL_IDLE_APRES_REDESSIN_V1__.length === 1, "inscrit au redessin de la page (règle n°4)");
 
-  /* élément présent : trouvé, puis servi sans nouvelle recherche */
+  /* identifiants : recherche DIRECTE (getElementById est déjà très rapide ; un cache d'identifiants ralentissait, mesuré A/B) : toujours exactement le résultat de la recherche directe */
   const a = el("a"); m.page.set("#a", a);
   assert.equal(m.E.id("a"), a);
-  assert.equal(m.E.id("a"), a);
-  assert.equal(m.E.id("a"), a);
-  assert.equal(m.appels.id, 1, "une seule recherche réelle pour trois lectures");
-
-  /* l'élément quitte la page (remplacé par un redessin) : on ne le renvoie jamais, on cherche le nouveau */
   a.isConnected = false;
   const b = el("b"); m.page.set("#a", b);
   assert.equal(m.E.id("a"), b, "l'élément remplacé est retrouvé");
-  assert.equal(m.appels.id, 2);
-
-  /* élément absent : absence mémorisée, sans recherche, pendant 120 ms au plus */
   assert.equal(m.E.id("fantome"), null);
-  const n0 = m.appels.id;
-  for (let i = 0; i < 50; i += 1) assert.equal(m.E.id("fantome"), null);
-  assert.equal(m.appels.id, n0, "50 lectures d'un élément absent : aucune recherche de plus");
-  m.avancer(130);
   m.page.set("#fantome", el("f"));
-  assert.equal(m.E.id("fantome").nom, "f", "après 120 ms l'élément apparu est trouvé");
-
-  /* l'absence est oubliée à chaque redessin de la page : l'élément apparu est vu tout de suite */
-  assert.equal(m.E.id("tard"), null);
-  m.page.set("#tard", el("t"));
-  assert.equal(m.E.id("tard"), null, "encore mémorisé absent juste après (moins de 120 ms)");
-  m.window.__SOREAL_IDLE_APRES_REDESSIN_V1__[0]();
-  assert.equal(m.E.id("tard").nom, "t", "après un redessin : trouvé immédiatement");
+  assert.equal(m.E.id("fantome").nom, "f", "un élément qui apparaît est vu tout de suite (aucune mémoire d'absence pour les identifiants)");
+  assert.equal(m.appels.id, 4, "chaque lecture est une vraie recherche");
 
   /* sélecteurs : même comportement, tables séparées de celles des identifiants */
   const d = el("d"); m.page.set(".duel", d);
@@ -70,6 +52,11 @@ const el = (nom) => ({ nom, isConnected: true });
   const s0 = m.appels.sel;
   m.E.sel(".absent"); m.E.sel(".absent");
   assert.equal(m.appels.sel, s0, "absence de sélecteur mémorisée");
+  /* redessin : l'absence d'un sélecteur est oubliée */
+  m.E.sel(".tardif"); m.page.set(".tardif", el("t"));
+  assert.equal(m.E.sel(".tardif"), null, "encore mémorisé absent (moins de 120 ms)");
+  m.window.__SOREAL_IDLE_APRES_REDESSIN_V1__[0]();
+  assert.equal(m.E.sel(".tardif").nom, "t", "après un redessin : trouvé immédiatement");
 }
 
 /* le cache n'alloue rien par appel (mesuré : une première version avec fermeture et clé concaténée coûtait autant que les recherches qu'elle remplaçait) */

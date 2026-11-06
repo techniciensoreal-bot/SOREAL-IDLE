@@ -100,7 +100,7 @@
     for(var p=0;p<8;p++)pieces+='<g class="tmm-piece" data-rang="'+p+'"><circle cx="560.5" cy="1142" r="22" fill="url(#tmmPiece)" stroke="#0a0a0c" stroke-width="4"/><circle cx="560.5" cy="1142" r="13" fill="none" stroke="#a86a00" stroke-width="3"/></g>';
     var ecran;
     if(url){
-      ecran='<image id="tmmImage" class="tmm-mob" x="340" y="175" width="440" height="242" preserveAspectRatio="xMidYMid meet" href="'+esc(url)+'"/>';
+      ecran='<image id="tmmImage" class="tmm-mob" x="121" y="171" width="879" height="324" preserveAspectRatio="xMidYMid meet" href="'+esc(url)+'"/>';
     }else{
       /* Aucun butin d'Or encore cette renaissance : un cadran d'horloge qui attend. */
       ecran='<g id="tmmAttente" transform="translate(560.5 296)" opacity=".85"><circle r="100" fill="none" stroke="#2cff9f" stroke-opacity=".5" stroke-width="9"/><circle r="82" fill="none" stroke="#2cff9f" stroke-opacity=".25" stroke-width="3.5"/><path d="M0 -64 V0 L43 25" fill="none" stroke="#7dffd0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></g>';
@@ -112,7 +112,7 @@
       '<clipPath id="tmmClipChute"><rect x="497" y="1124" width="127" height="151"/></clipPath>'+
       /* écran : fond sombre, mob du meilleur butin, bande du bas avec le nom et le butin */
       '<g clip-path="url(#tmmClipEcran)"><rect x="121" y="171" width="879" height="324" fill="#07201a"/>'+ecran+
-      '<rect x="121" y="421" width="879" height="74" fill="#000" opacity=".66"/>'+
+      '<rect x="121" y="421" width="879" height="74" fill="#000" opacity=".5"/>'+
       '<text id="tmmNomMob" x="145" y="451" font-family="Russo One,sans-serif" font-size="'+tailleNom(nom)+'" fill="#e8f7ee" opacity=".95">'+esc(nom)+'</text>'+
       '<text x="145" y="482" font-family="Russo One,sans-serif" font-size="24" letter-spacing="3" fill="#7dffd0" opacity=".85">MEILLEUR BUTIN D’OR</text>'+
       '<text id="tmmButin" x="976" y="482" text-anchor="end" font-family="Russo One,sans-serif" font-size="46" fill="#ffd84a" stroke="#000" stroke-width="5" style="paint-order:stroke">'+esc(butin)+'</text></g>'+

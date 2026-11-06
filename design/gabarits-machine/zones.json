@@ -64,6 +64,71 @@
       }
     ]
   },
+  "1b-machine-centrale-haute": {
+    "largeur": 1200,
+    "hauteur": 1800,
+    "zones": [
+      {
+        "id": "ecran",
+        "forme": "rect",
+        "x0": 120,
+        "y0": 90,
+        "x1": 1080,
+        "y1": 790,
+        "couleur": "magenta",
+        "role": "écran du mob (grand, presque carré)"
+      },
+      {
+        "id": "lcdGauche",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 880,
+        "x1": 440,
+        "y1": 1040,
+        "couleur": "cyan",
+        "role": "afficheur gauche"
+      },
+      {
+        "id": "cadran",
+        "forme": "cercle",
+        "cx": 600,
+        "cy": 960,
+        "r": 110,
+        "couleur": "jaune",
+        "role": "cadran rond"
+      },
+      {
+        "id": "lcdDroit",
+        "forme": "rect",
+        "x0": 760,
+        "y0": 880,
+        "x1": 1110,
+        "y1": 1040,
+        "couleur": "cyan",
+        "role": "afficheur droit"
+      },
+      {
+        "id": "fenetre",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 1140,
+        "x1": 1110,
+        "y1": 1370,
+        "couleur": "vert",
+        "role": "fenêtre longue (engrenages ajoutés par le jeu)"
+      },
+      {
+        "id": "sortie",
+        "forme": "rect",
+        "x0": 420,
+        "y0": 1470,
+        "x1": 780,
+        "y1": 1660,
+        "couleur": "orange",
+        "role": "sortie du bas, VIDE (pièces ajoutées par le jeu)"
+      }
+    ]
+  },
   "2-tour-energie": {
     "largeur": 1200,
     "hauteur": 1500,

@@ -9,7 +9,8 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 
-const L = 1200, H = 1500;
+const L = 1200;
+let H = 1500;   /* hauteur de l'image en cours (la machine centrale « haute » fait 1800) */
 const COUL = { fond: [38, 38, 44], cadre: [64, 64, 74], magenta: [255, 0, 255], cyan: [0, 255, 255], jaune: [255, 255, 0], vert: [0, 255, 0], orange: [255, 128, 0], rouge: [255, 0, 0], bleu: [0, 0, 255] };
 
 function toile() { const px = Buffer.alloc(L * H * 3); for (let i = 0; i < L * H; i += 1) { px[i * 3] = COUL.fond[0]; px[i * 3 + 1] = COUL.fond[1]; px[i * 3 + 2] = COUL.fond[2]; } return px; }
@@ -53,12 +54,26 @@ const tour = (nom, tubeGauche) => {
     ]
   };
 };
-const images = [centrale, tour("2-tour-energie", true), tour("3-tour-magie", false)];
+/* MACHINE CENTRALE HAUTE (Norman, 2026-11-06 : « la machine n'est pas assez haute, l'image du boss est trop petite ») : 1200 x 1800, écran du haut presque carré (960 x 700) ; le reste est le même, décalé de 300 px vers le bas.
+   Les boutons gris de liaison doivent rester AUX MÊMES HAUTEURS que sur les tours (y = 400 à 610 et 870 à 1060 sur 1500 de haut, soit en pixels de l'image : à garder tels quels). */
+const centraleHaute = {
+  nom: "1b-machine-centrale-haute", h: 1800,
+  zones: [
+    { id: "ecran", forme: "rect", x0: 120, y0: 90, x1: 1080, y1: 790, couleur: "magenta", role: "écran du mob (grand, presque carré)" },
+    { id: "lcdGauche", forme: "rect", x0: 90, y0: 880, x1: 440, y1: 1040, couleur: "cyan", role: "afficheur gauche" },
+    { id: "cadran", forme: "cercle", cx: 600, cy: 960, r: 110, couleur: "jaune", role: "cadran rond" },
+    { id: "lcdDroit", forme: "rect", x0: 760, y0: 880, x1: 1110, y1: 1040, couleur: "cyan", role: "afficheur droit" },
+    { id: "fenetre", forme: "rect", x0: 90, y0: 1140, x1: 1110, y1: 1370, couleur: "vert", role: "fenêtre longue (engrenages ajoutés par le jeu)" },
+    { id: "sortie", forme: "rect", x0: 420, y0: 1470, x1: 780, y1: 1660, couleur: "orange", role: "sortie du bas, VIDE (pièces ajoutées par le jeu)" }
+  ]
+};
+const images = [centrale, centraleHaute, tour("2-tour-energie", true), tour("3-tour-magie", false)];
 
 const sortie = path.join("design", "gabarits-machine");
 fs.mkdirSync(sortie, { recursive: true });
 const zonesJson = {};
 for (const im of images) {
+  H = im.h || 1500;
   const px = toile();
   /* cadre sombre autour pour que les bords restent lisibles */
   rect(px, 0, 0, L, 24, COUL.cadre); rect(px, 0, H - 24, L, H, COUL.cadre); rect(px, 0, 0, 24, H, COUL.cadre); rect(px, L - 24, 0, L, H, COUL.cadre);
