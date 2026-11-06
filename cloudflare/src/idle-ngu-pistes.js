@@ -553,6 +553,11 @@ function advanceAdvancedTrainingV1(state, s, tracks, seconds) {
 /* Champ « Target » (niveau à atteindre, 0 = aucun ; même règle que la Time Machine) : à l'atteinte, l'énergie de la compétence est retirée. */
 export const IDLE_AT_ORDRE_V1 = Object.freeze(["toughness", "power", "block", "wandoosEnergy", "wandoosMagic"]);
 
+/* Cible -1 (Norman, 2026-11-06) : « ignorée » par Faire suivre l'énergie (jamais une destination) ; toute valeur négative devient -1, 0 = aucune cible. */
+function atTargetIgnoreV1(t) {
+  return Math.floor(num(t?.target, 0)) < 0;
+}
+
 function atTargetAtteintV1(t) {
   const target = Math.max(0, Math.floor(num(t?.target, 0)));
   return target > 0 && Math.floor(num(t.tempLevel, 0)) >= target;
@@ -572,7 +577,7 @@ export function atApplyTargetsV1(state) {
     const t = pistes[id];
     if (!t || !atTargetAtteintV1(t) || atTrackEnergyV1(s, id) <= 0) return;
     const suivante = s.data.advanceEnergy
-      ? IDLE_AT_ORDRE_V1.slice(index + 1).find(n => pistes[n] && (wandoosOk || !(n === "wandoosEnergy" || n === "wandoosMagic")) && !atTargetAtteintV1(pistes[n]))
+      ? IDLE_AT_ORDRE_V1.slice(index + 1).find(n => pistes[n] && (wandoosOk || !(n === "wandoosEnergy" || n === "wandoosMagic")) && !atTargetIgnoreV1(pistes[n]) && !atTargetAtteintV1(pistes[n]))
       : "";
     if (suivante) {
       pistes[suivante].energy = atTrackEnergyV1(s, suivante) + atTrackEnergyV1(s, id);

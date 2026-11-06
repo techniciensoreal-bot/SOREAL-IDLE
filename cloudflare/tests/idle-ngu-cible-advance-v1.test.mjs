@@ -35,7 +35,7 @@ const ordre = ["augments", "wandoos", "respawn", "gold", "adventureAlpha", "powe
   s = agir(s, { action: "setNguTarget", ngu: "gold", value: 12.9 });
   assert.equal(ngu(s, "gold").target, 12, "arrondi inférieur");
   s = agir(s, { action: "setNguTarget", ngu: "gold", value: -5 });
-  assert.equal(ngu(s, "gold").target, 0, "jamais négatif");
+  assert.equal(ngu(s, "gold").target, -1, "toute valeur négative devient -1 (cible ignorée, 2026-11-06)");
   assert.throws(() => agir(s, { action: "setNguTarget", ngu: "n'importe quoi", value: 1 }), /NGU_INVALIDE/);
   /* NGU de magie : même règle une fois la magie découverte (le verrou serveur MAGIC_VERROUILLEE reste le garde-fou avant). */
   s = agir(s, { action: "setNguTarget", ngu: "yggdrasil", value: 7 });

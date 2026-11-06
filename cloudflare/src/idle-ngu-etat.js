@@ -801,7 +801,7 @@ function normalizeTracks(def, rawData) {
     /* Advanced Training : énergie propre et Target de chaque compétence (voir advanceAdvancedTrainingV1). */
     if (def.id === "advancedTraining") {
       out.tracks[track.id].energy = Math.max(0, num(src.energy, 0));
-      out.tracks[track.id].target = Math.max(0, Math.floor(num(src.target, 0)));
+      { const c = Math.floor(num(src.target, 0)); out.tracks[track.id].target = c < 0 ? -1 : c; }
     }
   }
   if (def.id === "advancedTraining") out.advanceEnergy = Boolean(source.advanceEnergy);
@@ -843,8 +843,8 @@ function normalizeSystem(def, raw) {
         upgradeProgressRef: Math.max(0, num(a.upgradeProgressRef, 0)),
         energy: Math.max(0, num(a.energy, 0)),
         upgradeEnergy: Math.max(0, num(a.upgradeEnergy, 0)),
-        target: clamp(Math.floor(num(a.target, 0)), 0, 1e9),
-        upgradeTarget: clamp(Math.floor(num(a.upgradeTarget, 0)), 0, 1e9)
+        target: Math.floor(num(a.target, 0)) < 0 ? -1 : clamp(Math.floor(num(a.target, 0)), 0, 1e9),
+        upgradeTarget: Math.floor(num(a.upgradeTarget, 0)) < 0 ? -1 : clamp(Math.floor(num(a.upgradeTarget, 0)), 0, 1e9)
       };
     }
     s.data.advanceEnergy = Boolean(data.advanceEnergy);

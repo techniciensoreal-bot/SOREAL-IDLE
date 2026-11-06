@@ -137,7 +137,7 @@ export function normalizeNguDataV1(raw) {
         level: clamp(Math.floor(num(n.level, 0)), 0, IDLE_NGU_MAX_LEVEL_V1),
         work: Math.max(0, num(n.work, 0)),
         allocation: Math.max(0, num(n.allocation, 0)),
-        target: clamp(Math.floor(num(n.target, 0)), 0, IDLE_NGU_MAX_LEVEL_V1)
+        target: Math.floor(num(n.target, 0)) < 0 ? -1 : clamp(Math.floor(num(n.target, 0)), 0, IDLE_NGU_MAX_LEVEL_V1)
       };
     }
   }
@@ -302,6 +302,11 @@ function grantNguLevelsV1(state, tier, id, gained) {
  * avancé, déjà validée par Norman : le Target est le niveau à atteindre (0 = aucun) ; quand un NGU l'atteint, son énergie (ou sa magie) est rendue ; avec « Advance Energy » elle passe plutôt au NGU suivant de
  * la liste (dans l'ordre de l'écran, même ressource) qui n'a pas atteint son propre Target. Le wiki ne décrit pas ces deux champs : aucune valeur n'est inventée, seulement une règle de report.
  */
+/* Cible -1 (Norman, 2026-11-06) : « ignorée » par Faire suivre l'énergie (jamais une destination) ; toute valeur négative devient -1, 0 = aucune cible. */
+function nguCibleIgnoreeV1(n) {
+  return Math.floor(num(n?.target, 0)) < 0;
+}
+
 function nguCibleAtteinteV1(n) {
   const cible = Math.max(0, Math.floor(num(n?.target, 0)));
   return cible > 0 && Math.floor(num(n.level, 0)) >= cible;
@@ -321,7 +326,7 @@ export function applyNguTargetsV1(state) {
       const alloue = Math.max(0, num(n.allocation, 0));
       if (!nguCibleAtteinteV1(n) || alloue <= 0) return;
       const suivant = s.data.advance?.[resource]
-        ? defs.slice(index + 1).find(d => !nguCibleAtteinteV1(ngus[d.id]) && ngus[d.id].level < IDLE_NGU_MAX_LEVEL_V1)
+        ? defs.slice(index + 1).find(d => !nguCibleIgnoreeV1(ngus[d.id]) && !nguCibleAtteinteV1(ngus[d.id]) && ngus[d.id].level < IDLE_NGU_MAX_LEVEL_V1)
         : null;
       if (suivant) {
         ngus[suivant.id].allocation = Math.max(0, num(ngus[suivant.id].allocation, 0)) + alloue;
@@ -340,7 +345,8 @@ export function setNguTargetV1(state, nguId, value) {
   const def = IDLE_NGU_CATALOG_V1.find(x => x.id === nguId);
   if (!def) throw new Error("NGU_INVALIDE");
   if (def.resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
-  const cible = clamp(Math.floor(num(value, 0)), 0, IDLE_NGU_MAX_LEVEL_V1);
+  const brut = Math.floor(num(value, 0));
+  const cible = brut < 0 ? -1 : clamp(brut, 0, IDLE_NGU_MAX_LEVEL_V1);
   s.data.ngus[s.data.tier][nguId].target = cible;
   applyNguTargetsV1(state);
   return { ngu: nguId, target: cible };

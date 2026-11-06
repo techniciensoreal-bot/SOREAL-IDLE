@@ -406,7 +406,7 @@ function barreHtml_(n,ancre,rang){
   var alloc=Math.max(0,Math.floor(nombre_(n.allocation)));
   var p=Math.max(0,Math.min(0.999999,nombre_(n.progress)));
   var spl=n.secondsPerLevel!=null&&isFinite(Number(n.secondsPerLevel))&&Number(n.secondsPerLevel)>0?Number(n.secondsPerLevel):0;
-  var cible=Math.max(0,Math.floor(nombre_(n.target)));
+  var cible=Math.max(-1,Math.floor(nombre_(n.target)));
   var pleine=spl>0&&(1/spl)>=49.99;   /* 50 niveaux par seconde : le tuyau rempli de fumée (Norman, 2026-11-04 : « jusque 49, 50 étant le tuyau rempli ») */
   var effet=(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %';
   var idH=esc_(n.id);
@@ -422,7 +422,7 @@ function barreHtml_(n,ancre,rang){
     '<div class="nl-infos"><span>'+(n.resource==='magic'?'Magie':'Énergie')+' placée <b data-nl-alloc>'+format_(alloc)+'</b></span>'+
       '<span class="nl-effet" title="'+esc_(n.effect)+'">'+esc_(n.effect)+' <b>'+effet+'</b></span></div>'+
     '<div class="nl-actions">'+
-      '<label class="nl-cible"><span>Cible</span><input type="number" inputmode="numeric" min="0" step="1" value="'+cible+'" title="Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif)" onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.cible(\''+idH+'\',this.value)"></label>'+
+      '<label class="nl-cible"><span>Cible</span><input type="number" inputmode="numeric" min="-1" step="1" value="'+cible+'" title="Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif, -1 = ignoré par « Faire suivre l’énergie »)" onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.cible(\''+idH+'\',this.value)"></label>'+
       '<div class="nl-boutons">'+
         '<button type="button" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'plus\')">+</button>'+
         '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
@@ -784,7 +784,7 @@ function page(j){
         '<ol>'+
           '<li><b>Place de l’énergie.</b> Dans un tuyau, avec +. La quantité est celle de la case Input (Max, 1/2 et 1/4 la remplissent), et − la retire.</li>'+
           '<li><b>Chacun son énergie.</b> Les NGU avancent en même temps, chacun avec sa propre énergie : plus tu en donnes, plus son tuyau se remplit vite.</li>'+
-          '<li><b>Cible.</b> Le niveau à atteindre. Dès qu’il est atteint, l’énergie du NGU te revient (0 = aucun objectif).</li>'+
+          '<li><b>Cible.</b> Le niveau à atteindre. Dès qu’il est atteint, l’énergie du NGU te revient (0 = aucun objectif ; -1 = ce NGU est ignoré par « Faire suivre l’énergie »).</li>'+
           '<li><b>Faire suivre l’énergie.</b> Quand un NGU atteint sa cible, son énergie passe automatiquement au NGU suivant, comme un relais.</li>'+
           '<li><b>Renaissance.</b> Les niveaux persistent à travers les Renaissances ; l’énergie et la magie placées te sont rendues à la Renaissance.</li>'+
           (paliers.length>1?'<li><b>Paliers.</b> Un seul palier reçoit de l’énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.</li>':'')+
@@ -1005,7 +1005,7 @@ function vider(res){
   if(H&&H.rafraichirEnergieEtBoutonsIdleV9_)H.rafraichirEnergieEtBoutonsIdleV9_();
 }
 function cible(id,valeur){
-  var n=Math.max(0,Math.floor(Number(valeur)||0));
+  var n=Math.max(-1,Math.floor(Number(valeur)||0));
   var j=H_()&&H_().getIdleEtat?H_().getIdleEtat():null;
   var d=nguDe_(j,id);
   if(d)d.target=n;

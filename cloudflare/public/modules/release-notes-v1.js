@@ -40,6 +40,15 @@
             'Quand un combat est très serré, long ou court, la borne joue maintenant une de ses animations (le clown, la tronçonneuse…) au lieu de rester sur FIGHT !. Un combat qui dure encore après quelques secondes bascule aussi sur l’animation.',
             'De temps en temps, quand tu n’as pas cliqué depuis quelques secondes, la borne a des yeux sur son écran LED : ils regardent à gauche, à droite, sont heureux, tristes, suspicieux… Un clic ou un combat les arrête.',
           ]},
+          {menu:'augmentations', titre:'Augmentations', points:[
+            'Tu peux maintenant mettre -1 dans une zone « Cible » : cette ligne est ignorée par « Faire suivre l’énergie ». Quand toutes les cibles sont atteintes ou à -1, l’énergie t’est rendue.',
+          ]},
+          {menu:'avance', titre:'Entraînement avancé', points:[
+            'Tu peux maintenant mettre -1 dans une zone « Cible » : cette ligne est ignorée par « Faire suivre l’énergie ». Quand toutes les cibles sont atteintes ou à -1, l’énergie t’est rendue.',
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'Tu peux maintenant mettre -1 dans une zone « Cible » : cette ligne est ignorée par « Faire suivre l’énergie ». Quand toutes les cibles sont atteintes ou à -1, l’énergie t’est rendue.',
+          ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Le kill automatique applique maintenant le filtre de butin : un objet filtré (🚫 dans le Coffre) n’entre plus dans le sac quand il tombe en kill automatique.',
             'Le filtre d’un objet précis (le bouton 🧹 du Coffre) est maintenant le même dans toutes les zones : un objet coché n’est plus ramassé nulle part et reste coché quand tu changes de zone. Tes filtres déjà réglés par zone sont réunis, rien n’est perdu.',

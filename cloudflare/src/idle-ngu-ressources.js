@@ -655,6 +655,11 @@ function augPistesV1(state, context) {
   return out;
 }
 
+/* Cible -1 (Norman, 2026-11-06) : « ignorée » par Faire suivre l'énergie (jamais une destination) ; toute valeur négative devient -1, 0 = aucune cible. */
+function augCibleIgnoreeV1(pair, upgrade) {
+  return Math.floor(num(upgrade ? pair?.upgradeTarget : pair?.target, 0)) < 0;
+}
+
 function augCibleAtteinteV1(pair, upgrade) {
   const cible = Math.max(0, Math.floor(num(upgrade ? pair?.upgradeTarget : pair?.target, 0)));
   return cible > 0 && Math.floor(num(upgrade ? pair.upgradeLevel : pair.level, 0)) >= cible;
@@ -670,7 +675,7 @@ export function augApplyTargetsV1(state, context = {}) {
     const p = pairs[piste.id];
     if (!p || !augCibleAtteinteV1(p, piste.upgrade) || energie(p, piste.upgrade) <= 0) return;
     const suivante = s.data.advanceEnergy
-      ? pistes.slice(index + 1).find(n => pairs[n.id] && !augCibleAtteinteV1(pairs[n.id], n.upgrade))
+      ? pistes.slice(index + 1).find(n => pairs[n.id] && !augCibleIgnoreeV1(pairs[n.id], n.upgrade) && !augCibleAtteinteV1(pairs[n.id], n.upgrade))
       : null;
     if (suivante) {
       const q = pairs[suivante.id];
@@ -690,7 +695,8 @@ export function setAugmentTargetV1(state, pairId, upgrade, value, context = {}) 
   const def = IDLE_NGU_AUGMENTATIONS.find(x => x.id === pairId);
   if (!def) throw new Error("AUGMENT_INVALIDE");
   if (num(context.bosses, 0) < def.unlockBoss || (upgrade && (!def.upgrade || num(context.bosses, 0) < def.upgrade.unlockBoss))) throw new Error("AUGMENT_VERROUILLE");
-  const cible = clamp(Math.floor(num(value, 0)), 0, 1e9);
+  const brut = Math.floor(num(value, 0));
+  const cible = brut < 0 ? -1 : clamp(brut, 0, 1e9);
   s.data.pairs[pairId][upgrade ? "upgradeTarget" : "target"] = cible;
   augApplyTargetsV1(state, context);
   return { pair: pairId, upgrade: Boolean(upgrade), target: cible };

@@ -8,7 +8,7 @@ const html = readFileSync("cloudflare/public/index.html", "utf8");
 
 // le champ reste un vrai input number, mêmes attributs et même onchange
 const champ = js.slice(js.indexOf('<label class="aug-cible-v2">'), js.indexOf('<div class="soreal-idle-bt-actions-v120">'));
-assert.ok(champ.includes('<input type="number" inputmode="numeric" min="0" step="1"'), "input number conservé");
+assert.ok(champ.includes('<input type="number" inputmode="numeric" min="-1" step="1"'), "input number conservé");
 assert.ok(champ.includes("onchange=\"window.__cibleAugmentIdleV1__("), "même onchange");
 assert.ok(/:\s*'disabled'/.test(champ), "état désactivé conservé");
 

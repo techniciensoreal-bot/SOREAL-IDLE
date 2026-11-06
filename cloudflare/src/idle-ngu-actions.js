@@ -310,7 +310,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     if (!at?.unlocked) throw new Error("SYSTEME_VERROUILLE");
     const track = at.data?.tracks?.[String(payload.track || "")];
     if (!track) throw new Error("PISTE_INCONNUE");
-    track.target = Math.max(0, Math.min(1e9, Math.floor(num(payload.value, 0))));
+    { const c = Math.floor(num(payload.value, 0)); track.target = c < 0 ? -1 : Math.min(1e9, c); }
     atApplyTargetsV1(state);
   } else if (action === "reclaimResource") {
     result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
@@ -744,8 +744,8 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
       for(const augDef of IDLE_NGU_AUGMENTATIONS){
         const ancien=avantAug?.pairs?.[augDef.id];
         if(!ancien)continue;
-        s.data.pairs[augDef.id].target=Math.max(0,int(ancien.target,0));
-        s.data.pairs[augDef.id].upgradeTarget=Math.max(0,int(ancien.upgradeTarget,0));
+        s.data.pairs[augDef.id].target=int(ancien.target,0)<0?-1:int(ancien.target,0);
+        s.data.pairs[augDef.id].upgradeTarget=int(ancien.upgradeTarget,0)<0?-1:int(ancien.upgradeTarget,0);
       }
       s.data.advanceEnergy=Boolean(avantAug?.advanceEnergy);
     }
