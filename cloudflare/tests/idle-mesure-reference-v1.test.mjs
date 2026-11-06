@@ -132,18 +132,18 @@ function envSimule(options = {}) {
 
 /* ---- 3 ter. DIAGNOSTIC de la Machine temporelle : quatre passes, variantes temporaires toujours retirées ---- */
 {
-  assert.equal(M.PLAN_DIAG_MACHINE.length, 7, "sept passes entrelacées");
-  assert.deepEqual(M.PLAN_DIAG_MACHINE.map((p) => p.variante || null), [null, "bulles", null, "cadre", null, "pause", null], "chaque variante est encadrée de deux passes normales");
+  assert.equal(M.PLAN_DIAG_MACHINE.length, 11, "onze passes entrelacées");
+  assert.deepEqual(M.PLAN_DIAG_MACHINE.map((p) => p.variante || null), [null, "haut", null, "centre", null, "lcd", null, "pauseWaapi", null, "cadre", null], "chaque variante est encadrée de deux passes normales");
   assert.ok(M.PLAN_DIAG_MACHINE.every((p) => p.id === "machine"), "toutes sur la Machine temporelle");
-  assert.deepEqual(Object.keys(M.VARIANTES_CSS).sort(), ["bulles", "cadre", "decor", "pause", "pauseCss", "pauseWaapi", "sansConteneur", "sansGrosses", "sansMini", "svg"]);
+  assert.deepEqual(Object.keys(M.VARIANTES_CSS).sort(), ["bulles", "cadre", "centre", "decor", "haut", "lcd", "pause", "pauseCss", "pauseWaapi", "sansConteneur", "sansGrosses", "sansMini", "svg"]);
   const { env, journal } = envSimule({});
   const appels = [];
   env.variante = (v) => { appels.push(v); journal.push("variante:" + v); };
   const r = await M.executer(env, null, M.PLAN_DIAG_MACHINE, "diagnostic Machine temporelle");
-  assert.deepEqual(appels, [null, "bulles", null, "cadre", null, "pause", null, null], "chaque passe applique sa variante ; la dernière remise à zéro retire tout");
-  assert.equal(r.menus.length, 7); assert.equal(r.titre, "diagnostic Machine temporelle");
+  assert.deepEqual(appels, [null, "haut", null, "centre", null, "lcd", null, "pauseWaapi", null, "cadre", null, null], "chaque passe applique sa variante ; la dernière remise à zéro retire tout");
+  assert.equal(r.menus.length, 11); assert.equal(r.titre, "diagnostic Machine temporelle");
   assert.ok(M.texteRapport(r).startsWith("=== SOREAL NGU IDLE — diagnostic Machine temporelle (protocole v1) ==="), "le titre du rapport dit qu'il s'agit du diagnostic");
-  assert.ok(M.texteRapport(r).includes("[ Machine temporelle — animations en pause ]"), "chaque passe est nommée");
+  assert.ok(M.texteRapport(r).includes("[ Machine temporelle — sans afficheurs LCD ]"), "chaque passe est nommée");
   /* panne en pleine passe : la variante est retirée quand même */
   const b = envSimule({ erreurSur: "machine" }); const bap = []; b.env.variante = (v) => bap.push(v);
   await assert.rejects(() => M.executer(b.env, null, M.PLAN_DIAG_MACHINE), /panne simulée/);

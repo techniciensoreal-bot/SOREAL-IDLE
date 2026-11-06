@@ -18,14 +18,18 @@ var MENUS=[['combat','Combat de boss'],['aventure','Aventure'],['machine','Machi
 var DUREE_MENU_MS=20000,MISE_EN_PLACE_MS=3000;
 /* DIAGNOSTIC de la Machine temporelle (Norman, 2026-11-06 : sur son téléphone elle tourne à ~40 images/s, médiane 25 ms, alors que le PC est dans le budget) : la même page mesurée quatre fois, avec des parties de l'affichage retirées pour ATTRIBUER le coût :
    normale ; animations de la machine en pause ; décor (centre et haut) masqué ; machine entière masquée (reste la page autour). Les différences entre passes disent ce qui coûte. Les variantes sont temporaires (une feuille de style et des animations mises en pause), retirées à la fin. */
-var PLAN_DIAG_MACHINE=[   /* ENTRELACÉ (2026-11-06) : un téléphone chauffe et dérive d'une passe à l'autre (même la machine masquée a varié de 0,6 % à 8,3 % entre deux relevés) ; chaque variante est donc encadrée de deux passes normales et jugée contre elles */
+var PLAN_DIAG_MACHINE=[   /* SÉRIE PAR ÉLÉMENTS (2026-11-06) : chaque partie de la machine est masquée (visibility, la mise en page ne bouge pas) ou mise en pause à tour de rôle, ENCADRÉE de deux passes normales ; le témoin (machine entière masquée) dit l'état du téléphone */
   {id:'machine',nom:'Machine temporelle — normale (1)'},
-  {id:'machine',nom:'Machine temporelle — sans bulles',variante:'bulles'},
+  {id:'machine',nom:'Machine temporelle — sans l\'en-tête (orbes du haut)',variante:'haut'},
   {id:'machine',nom:'Machine temporelle — normale (2)'},
-  {id:'machine',nom:'Machine temporelle — machine entière masquée (TÉMOIN : l\'état du téléphone)',variante:'cadre'},
+  {id:'machine',nom:'Machine temporelle — sans la grande machine du centre',variante:'centre'},
   {id:'machine',nom:'Machine temporelle — normale (3)'},
-  {id:'machine',nom:'Machine temporelle — animations en pause',variante:'pause'},
-  {id:'machine',nom:'Machine temporelle — normale (4)'}
+  {id:'machine',nom:'Machine temporelle — sans afficheurs LCD',variante:'lcd'},
+  {id:'machine',nom:'Machine temporelle — normale (4)'},
+  {id:'machine',nom:'Machine temporelle — engrenages (rotations scriptées) en pause',variante:'pauseWaapi'},
+  {id:'machine',nom:'Machine temporelle — normale (5)'},
+  {id:'machine',nom:'Machine temporelle — machine entière masquée (TÉMOIN : l\'état du téléphone)',variante:'cadre'},
+  {id:'machine',nom:'Machine temporelle — normale (6)'}
 ];
 var VARIANTES_CSS={
   pause:'.tmm-machine,.tmm-machine *{animation-play-state:paused!important}',
@@ -37,7 +41,10 @@ var VARIANTES_CSS={
   svg:'.tmm-machine svg{visibility:hidden!important}',
   sansConteneur:'.tmm-liq{container-type:normal!important}',
   sansGrosses:'.tmm-bulle.gde{display:none!important}',
-  sansMini:'.tmm-bulle.mini{display:none!important}'
+  sansMini:'.tmm-bulle.mini{display:none!important}',
+  haut:'.tmm-haut{visibility:hidden!important}',
+  centre:'.tmm-centre{visibility:hidden!important}',
+  lcd:'.tmm-lcds{visibility:hidden!important}'
 };
 var BUDGET={sup20:1,sup34:0.1,max:50};   /* % d'images au-dessus de 20 ms, % au-dessus de 34 ms, pire image en ms */
 
@@ -279,7 +286,7 @@ async function lancer(plan,titre,options){
 }
 function ouvrir(){
   fenetre('📏 Mesure de référence','<div style="color:#b9c8e6">Mesure la fluidité de CET appareil avec un protocole fixe : '+MENUS.length+' menus, '+(DUREE_MENU_MS/1000)+' s chacun, environ '+Math.round(MENUS.length*(DUREE_MENU_MS+MISE_EN_PLACE_MS)/60000*10)/10+' minute(s). <b>Aucune action de jeu n\'est faite</b> : seuls les menus s\'ouvrent, et le menu actuel est rouvert à la fin. Pendant la mesure, <b>ne touche à rien</b> et laisse la page visible (ne change pas d\'application). Rien n\'est envoyé : le rapport se copie à la main.</div>',
-    [{texte:'Lancer la mesure',fort:true,fait:function(){lancer();}},{texte:'Diagnostic Machine temporelle (1,5 min)',fait:function(){lancer(PLAN_DIAG_MACHINE,'diagnostic Machine temporelle');}},{texte:'Mesure avec profil par fonction (1,5 min)',fait:function(){lancer(null,'mesure avec profil par fonction',{profil:true});}},{texte:'Annuler',fait:fermer}]);
+    [{texte:'Lancer la mesure',fort:true,fait:function(){lancer();}},{texte:'Diagnostic Machine temporelle (environ 4,5 min)',fait:function(){lancer(PLAN_DIAG_MACHINE,'diagnostic Machine temporelle');}},{texte:'Mesure avec profil par fonction (1,5 min)',fait:function(){lancer(null,'mesure avec profil par fonction',{profil:true});}},{texte:'Annuler',fait:fermer}]);
 }
 window.__mesureReferenceOuvrirV1__=ouvrir;
 window.__SOREAL_IDLE_MESURE_REF_V1__={ouvrir:ouvrir,lancer:lancer,executer:executer,envReel:envReel,resumerProfil:resumerProfil,PLAN_DIAG_MACHINE:PLAN_DIAG_MACHINE,VARIANTES_CSS:VARIANTES_CSS,statsImages:statsImages,comparaisonsAppariees:comparaisonsAppariees,verdict:verdict,texteRapport:texteRapport,resumerOps:resumerOps,resumerLoaf:resumerLoaf,MENUS:MENUS,BUDGET:BUDGET,VERSION_PROTOCOLE:VERSION_PROTOCOLE};
