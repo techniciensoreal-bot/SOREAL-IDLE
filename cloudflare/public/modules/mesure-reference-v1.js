@@ -22,12 +22,20 @@ var PLAN_DIAG_MACHINE=[
   {id:'machine',nom:'Machine temporelle — normale'},
   {id:'machine',nom:'Machine temporelle — animations de la machine en pause',variante:'pause'},
   {id:'machine',nom:'Machine temporelle — décor masqué (centre et haut)',variante:'decor'},
-  {id:'machine',nom:'Machine temporelle — machine entière masquée',variante:'cadre'}
+  {id:'machine',nom:'Machine temporelle — machine entière masquée',variante:'cadre'},
+  {id:'machine',nom:'Machine temporelle — seules les animations de style en pause',variante:'pauseCss'},
+  {id:'machine',nom:'Machine temporelle — seuls les engrenages (rotations scriptées) en pause',variante:'pauseWaapi'},
+  {id:'machine',nom:'Machine temporelle — dessin de la machine masqué (barres et boutons gardés)',variante:'svg'},
+  {id:'machine',nom:'Machine temporelle — sans bulles',variante:'bulles'}
 ];
 var VARIANTES_CSS={
   pause:'.tmm-machine,.tmm-machine *{animation-play-state:paused!important}',
   decor:'.tmm-centre,.tmm-haut{display:none!important}',
-  cadre:'.tmm-cadre{display:none!important}'
+  cadre:'.tmm-cadre{display:none!important}',
+  bulles:'.tmm-bulles,.tmm-bulle{display:none!important}',
+  pauseCss:'.tmm-machine,.tmm-machine *{animation-play-state:paused!important}',
+  pauseWaapi:'',
+  svg:'.tmm-machine svg{visibility:hidden!important}'
 };
 var BUDGET={sup20:1,sup34:0.1,max:50};   /* % d'images au-dessus de 20 ms, % au-dessus de 34 ms, pire image en ms */
 
@@ -168,7 +176,7 @@ function envReel(){
       if(!nom){if(st)st.remove();return;}
       if(!st){st=document.createElement('style');st.id='soreal-idle-mesure-ref-variante';document.head.appendChild(st);}
       st.textContent=VARIANTES_CSS[nom]||'';
-      if(nom==='pause'){try{var m=document.querySelector('.tmm-machine');if(m&&m.getAnimations)m.getAnimations({subtree:true}).forEach(function(a){if(a.playState==='running'){a.pause();envReel.__enPause.push(a);}});}catch(_e){}}
+      if(nom==='pause'||nom==='pauseWaapi'){try{var m=document.querySelector('.tmm-machine');if(m&&m.getAnimations)m.getAnimations({subtree:true}).forEach(function(a){if(a.playState==='running'&&(nom==='pause'||!(typeof CSSAnimation==='function'&&a instanceof CSSAnimation))){a.pause();envReel.__enPause.push(a);}});}catch(_e){}}
     },
     accrocherMoteur:function(rapporter){
       if(!D||typeof D.moteurTemps!=='function')return function(){};
