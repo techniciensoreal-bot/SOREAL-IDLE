@@ -130,6 +130,41 @@ function envSimule(options = {}) {
   assert.ok(minuteries.every((m) => m.f === null), "garde-fou désarmé");
 }
 
+/* ---- 3 ter. DIAGNOSTIC de la Machine temporelle : quatre passes, variantes temporaires toujours retirées ---- */
+{
+  assert.equal(M.PLAN_DIAG_MACHINE.length, 4, "quatre passes");
+  assert.deepEqual(M.PLAN_DIAG_MACHINE.map((p) => p.variante || null), [null, "pause", "decor", "cadre"]);
+  assert.ok(M.PLAN_DIAG_MACHINE.every((p) => p.id === "machine"), "toutes sur la Machine temporelle");
+  assert.deepEqual(Object.keys(M.VARIANTES_CSS).sort(), ["cadre", "decor", "pause"]);
+  const { env, journal } = envSimule({});
+  const appels = [];
+  env.variante = (v) => { appels.push(v); journal.push("variante:" + v); };
+  const r = await M.executer(env, null, M.PLAN_DIAG_MACHINE, "diagnostic Machine temporelle");
+  assert.deepEqual(appels, [null, "pause", "decor", "cadre", null], "chaque passe applique sa variante ; la dernière remise à zéro retire tout");
+  assert.equal(r.menus.length, 4); assert.equal(r.titre, "diagnostic Machine temporelle");
+  assert.ok(M.texteRapport(r).startsWith("=== SOREAL NGU IDLE — diagnostic Machine temporelle (protocole v1) ==="), "le titre du rapport dit qu'il s'agit du diagnostic");
+  assert.ok(M.texteRapport(r).includes("[ Machine temporelle — animations de la machine en pause ]"), "chaque passe est nommée");
+  /* panne en pleine passe : la variante est retirée quand même */
+  const b = envSimule({ erreurSur: "machine" }); const bap = []; b.env.variante = (v) => bap.push(v);
+  await assert.rejects(() => M.executer(b.env, null, M.PLAN_DIAG_MACHINE), /panne simulée/);
+  assert.equal(bap[bap.length - 1], null, "variante retirée après une panne");
+  /* le vrai code des variantes, sur un document simulé */
+  const elements = {}; const head = { appendChild: (e) => { elements[e.id] = e; e.remove = () => { delete elements[e.id]; }; } };
+  const anims = [{ playState: "running", pause() { this.playState = "paused"; }, play() { this.playState = "running"; } }, { playState: "paused", pause() {}, play() { throw new Error("ne doit pas être reprise"); } }];
+  const doc = { hidden: false, scripts: [], head, createElement: () => ({}), getElementById: (id) => elements[id] || null, querySelector: (q) => (q === ".tmm-machine" ? { getAnimations: () => anims } : null) };
+  const win2 = {};
+  new Function("window", "document", "navigator", "performance", "requestAnimationFrame", "setTimeout", "clearTimeout", "PerformanceObserver", code)(win2, doc, {}, faux.performance, faux.requestAnimationFrame, faux.setTimeout, faux.clearTimeout, undefined);
+  const e2 = win2.__SOREAL_IDLE_MESURE_REF_V1__.envReel();
+  e2.variante("decor");
+  assert.equal(elements["soreal-idle-mesure-ref-variante"].textContent, win2.__SOREAL_IDLE_MESURE_REF_V1__.VARIANTES_CSS.decor, "feuille de style posée");
+  e2.variante("pause");
+  assert.equal(elements["soreal-idle-mesure-ref-variante"].textContent, win2.__SOREAL_IDLE_MESURE_REF_V1__.VARIANTES_CSS.pause);
+  assert.equal(anims[0].playState, "paused", "les animations en cours sont mises en pause");
+  e2.variante(null);
+  assert.ok(!elements["soreal-idle-mesure-ref-variante"], "feuille retirée");
+  assert.equal(anims[0].playState, "running", "les animations mises en pause sont reprises ; celle qui l'était déjà n'est pas touchée");
+}
+
 /* ---- 4. passif et branché ---- */
 for (const interdit of ["callIdleV1", "agirProgression", "__actionMetaV47__", "fetch(", "XMLHttpRequest", "sendBeacon", "localStorage.setItem", "sessionStorage.setItem", "postMessage"]) {
   assert.ok(!code.includes(interdit), "mesure passive : le module ne contient jamais « " + interdit + " »");
