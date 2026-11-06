@@ -98,14 +98,27 @@
     return '/api/idle/media/item?set='+encodeURIComponent(spec.pack)+'&name='+encodeURIComponent(spec.stem);
   }
 
+  /*
+   * Index nom normalisé -> PREMIER objet qui a une fiche (même résultat que l'ancien items.find, mais construit UNE fois par rendu au lieu d'une recherche complète par emplacement : profil sur la partie de Norman, 2026-11-06,
+   * ~100 emplacements x ~200 objets x 3 normalisations par redessin). Vit le temps d'un appliquer_.
+   */
+  var indexObjets=null,indexSource=null;
+  function indexer_(items){
+    if(indexObjets&&indexSource===items)return indexObjets;
+    var idx=Object.create(null),i,item,spec,cle;
+    for(i=0;i<items.length;i++){
+      item=items[i];spec=specObjet_(item);
+      if(!spec)continue;
+      cle=normaliser_(item&&item.name||item&&item.nom||spec.label);
+      if(!(cle in idx))idx[cle]=item;
+    }
+    indexSource=items;indexObjets=idx;
+    return idx;
+  }
   function trouverObjet_(items,nom){
     var cible=normaliser_(nom);
     if(!cible)return null;
-    return items.find(function(item){
-      var spec=specObjet_(item);
-      if(!spec)return false;
-      return normaliser_(item&&item.name||item&&item.nom||spec.label)===cible;
-    })||null;
+    return indexer_(items)[cible]||null;
   }
 
   function binder_(img,fallback){
@@ -163,12 +176,18 @@
 
   function decorerCartes_(root,items){
     if(!items.length)return;
-    var labels=Array.prototype.slice.call(root.querySelectorAll('b'));
+    /* libellés <b> classés UNE fois par nom normalisé (ordre du document conservé) : plus de comparaison objet x libellé */
+    var parNom=Object.create(null);
+    Array.prototype.forEach.call(root.querySelectorAll('b'),function(label){
+      var k=normaliser_(label.textContent);
+      (parNom[k]||(parNom[k]=[])).push(label);
+    });
     items.forEach(function(item){
       var spec=specObjet_(item);
       if(!spec)return;
+      var labels=parNom[normaliser_(item.name||item.nom||spec.label)];
+      if(!labels)return;
       labels.forEach(function(label){
-        if(normaliser_(label.textContent)!==normaliser_(item.name||item.nom||spec.label))return;
         var card=label.closest('div[style*="padding:12px"]');
         if(!card)return;
         var host=card.querySelector('.soreal-idle-v77-item-card-image');
@@ -183,6 +202,7 @@
   }
 
   function appliquer_(joueur){
+    indexObjets=null;indexSource=null;   /* l'index ne vit que le temps d'un rendu */
     var root=root_();
     if(!root)return;
     var aventure=aventure_(joueur);
