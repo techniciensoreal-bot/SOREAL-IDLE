@@ -832,12 +832,22 @@ function niveauxDepuisTravail_(niveau,travail){
   k=Math.min(k,salle);
   return {gained:k,work:k>=salle?0:Math.max(0,W-total(k))};
 }
+/*
+ * Mesure du banc du haut SEULEMENT quand c'est utile (profil d'échantillonnage du téléphone émulé, 2026-11-06 : getBoundingClientRect = 43 % du temps actif de la page NGU, soit ~15 % de tout le fil principal). Avant : la condition testait
+ * __nlH sur le SOLEIL alors que mesurerHaut_ le pose sur le banc GRIS : toujours « pas encore mesuré », donc deux lectures de mise en page forcées à CHAQUE image. Maintenant : tout de suite quand le banc vient d'être posé
+ * (aucune mesure encore), puis une remesure de sécurité au plus toutes les 250 ms ; le ResizeObserver (attacherMesure_) couvre les changements de taille de la page.
+ */
+function mesureSiBesoin_(racine,maintenant){
+  if(!racine.querySelector(':scope>.nl-soleil'))return;
+  var gris=racine.querySelector(':scope>.nl-gris');
+  if(!gris||!gris.__nlH||maintenant-(racine.__nlMesureT||0)>=250){racine.__nlMesureT=maintenant;mesurerHaut_(racine);}
+}
 function tick_(){
   var racine=document.querySelector('[data-nl-racine]');
   if(!racine){arreter_();return;}
   var maintenant=typeof performance!=='undefined'?performance.now():0;
   attacherMesure_(racine);
-  var solMesure=racine.querySelector(':scope>.nl-soleil');if(solMesure&&!solMesure.__nlH)mesurerHaut_(racine);
+  mesureSiBesoin_(racine,maintenant);
   /* Textes et ciel : toutes les 100 ms suffisent ; le liquide, lui, est mis à jour à chaque image. */
   var complet=maintenant-dernierComplet>=100;
   if(complet){

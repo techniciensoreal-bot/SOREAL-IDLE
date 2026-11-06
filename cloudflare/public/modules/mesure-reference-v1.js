@@ -48,6 +48,21 @@ function verdict(s){
   if(s.max>BUDGET.max)raisons.push('pire image : '+Math.round(s.max)+' ms (budget '+BUDGET.max+' ms)');
   return {ok:raisons.length===0,raisons:raisons};
 }
+/* Profil d'échantillonnage (API JS Self-Profiling) agrégé par fonction : propre = échantillons où la fonction s'exécute elle-même, cumulé = elle ou l'un de ses appelés. Pur : testé sans navigateur. */
+function resumerProfil(tr){
+  var fr=(tr&&tr.frames)||[],st=(tr&&tr.stacks)||[],sa=(tr&&tr.samples)||[],res=(tr&&tr.resources)||[];
+  var nom=function(f){return (f.name||'(anonyme)')+' '+String(res[f.resourceId]||'').split('/').pop().split('?')[0]+(f.line?':'+f.line:'');};
+  var propre={},cumul={},actifs=0;
+  sa.forEach(function(s){
+    if(s.stackId===undefined||s.stackId===null||!st[s.stackId])return;
+    actifs+=1;
+    var f=fr[st[s.stackId].frameId];if(f){var k=nom(f);propre[k]=(propre[k]||0)+1;}
+    var vus={};
+    for(var p=s.stackId;p!==undefined&&p!==null&&st[p];p=st[p].parentId){var g=fr[st[p].frameId];if(!g)continue;var m=nom(g);if(!vus[m]){vus[m]=1;cumul[m]=(cumul[m]||0)+1;}}
+  });
+  var top=function(o){return Object.keys(o).map(function(k){return {cle:k,n:o[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,6);};
+  return {total:sa.length,actifs:actifs,propre:top(propre),cumul:top(cumul)};
+}
 function resumerOps(liste){
   var par={};
   liste.forEach(function(o){var p=par[o.op]||(par[o.op]={op:o.op,calcul:[],file:[],retour:[]});p.calcul.push(o.calcul);p.file.push(o.file);p.retour.push(o.retour);});
@@ -82,6 +97,8 @@ function texteRapport(r){
     var s=m.stats,v=m.verdict;
     l.push('[ '+m.nom+' ] '+(m.valide?'':'INVALIDE ('+m.invalide+') ')+s.n+' images · ~'+(s.mediane?Math.round(1000/s.mediane):0)+' images/s · médiane '+ent(s.mediane)+' ms · 95 % '+ent(s.p95)+' ms · pire '+Math.round(s.max)+' ms');
     l.push('   > 20 ms : '+s.sup20+' ('+ent(s.pct20,2)+' %) · > 34 ms : '+s.sup34+' ('+ent(s.pct34,2)+' %) · > 50 ms : '+s.sup50+' ('+ent(s.pct50,2)+' %) -> '+(v.ok===null?'non concluant':(v.ok?'DANS LE BUDGET':'HORS BUDGET : '+v.raisons.join(' ; '))));
+    if(m.profil&&m.profil.actifs){l.push('   profil par fonction : '+m.profil.actifs+' échantillons actifs sur '+m.profil.total+' ('+ent(m.profil.actifs/m.profil.total*100,0)+' % du temps)');l.push('     propre : '+m.profil.propre.map(function(t){return ent(t.n/m.profil.actifs*100,0)+' % '+t.cle;}).join(' · '));l.push('     cumulé : '+m.profil.cumul.map(function(t){return ent(t.n/m.profil.actifs*100,0)+' % '+t.cle;}).join(' · '));}
+    if(m.profil&&m.profil.indisponible)l.push('   profil par fonction : indisponible ('+m.profil.indisponible+')');
     if(m.loaf&&m.loaf.n){l.push('   images longues : '+m.loaf.n+' ('+Math.round(m.loaf.ms)+' ms au total)');m.loaf.tops.forEach(function(t){l.push('     '+t.cle+' ×'+t.n+' · '+Math.round(t.ms)+' ms (max '+Math.round(t.max)+')');});}
     l.push('');
   });
@@ -93,7 +110,8 @@ function texteRapport(r){
 }
 
 /* ---------- protocole (le navigateur est injecté : testé avec une horloge simulée) ---------- */
-async function executer(env,progres,plan,titre){
+async function executer(env,progres,plan,titre,options){
+  options=options||{};
   var elements=plan||MENUS.map(function(m){return {id:m[0],nom:m[1]};});
   var sortie={titre:titre||'',date:env.date(),versionClient:env.version(),mode:env.mode(),moteurLocal:env.moteurLocal(),appareil:env.appareil(),ecran:env.ecran(),coeurs:env.coeurs(),memoire:env.memoire(),reseau:env.reseau(),
     apiLoaf:env.apiLoaf(),apiLongtask:env.apiLongtask(),dureeMenu:DUREE_MENU_MS/1000,miseEnPlace:MISE_EN_PLACE_MS/1000,menus:[],ops:[],notes:[],menuDepart:env.menuActif()};
@@ -106,10 +124,10 @@ async function executer(env,progres,plan,titre){
       if(!env.cliquerMenu(id)){sortie.menus.push({id:id,nom:nom,absent:true});continue;}
       if(env.variante)env.variante(elements[i].variante||null);
       await env.attendre(MISE_EN_PLACE_MS);
-      var mes=await env.mesurer(DUREE_MENU_MS,function(reste){if(progres)progres('« '+nom+' » : encore '+Math.ceil(reste/1000)+' s — ne touche à rien, laisse cette page visible');});
+      var mes=await env.mesurer(DUREE_MENU_MS,function(reste){if(progres)progres('« '+nom+' » : encore '+Math.ceil(reste/1000)+' s — ne touche à rien, laisse cette page visible');},options.profil);
       var s=statsImages(mes.durees),attendu=DUREE_MENU_MS/1000*30;
       var invalide=mes.bloque?'images suspendues par le navigateur (page, panneau ou application masqué) : remets la page au premier plan et relance':(mes.masque?'page masquée pendant la mesure':(s.n<attendu?'moins de 30 images par seconde en moyenne : mesure trop pauvre ('+s.n+' images)':''));
-      sortie.menus.push({id:id,nom:nom,stats:s,verdict:verdict(s),loaf:resumerLoaf(mes.loaf||[]),valide:!invalide,invalide:invalide});
+      sortie.menus.push({id:id,nom:nom,stats:s,verdict:verdict(s),loaf:resumerLoaf(mes.loaf||[]),profil:mes.profil?(mes.profil.indisponible?mes.profil:resumerProfil(mes.profil)):null,valide:!invalide,invalide:invalide});
     }
   }finally{
     liberer();
@@ -158,8 +176,15 @@ function envReel(){
       D.moteurTemps=function(op,file,calcul,retour,spans){try{rapporter({op:String(op),file:Number(file)||0,calcul:Number(calcul)||0,retour:Number(retour)||0});}catch(_e){}return original.apply(this,arguments);};
       return function(){D.moteurTemps=original;};
     },
-    mesurer:function(ms,rappel){
+    mesurer:function(ms,rappel,avecProfil){
       return new Promise(function(resolve){
+        var profileur=null,raisonProfil='';
+        if(avecProfil){try{if(typeof Profiler!=='function')raisonProfil='API absente de ce navigateur';else profileur=new Profiler({sampleInterval:10,maxBufferSize:60000});}catch(e){raisonProfil=String(e&&e.message||e).slice(0,90);}}
+        function terminer(r){
+          if(!avecProfil){resolve(r);return;}
+          if(!profileur){r.profil={indisponible:raisonProfil||'indisponible'};resolve(r);return;}
+          profileur.stop().then(function(tr){r.profil=tr;resolve(r);},function(e){r.profil={indisponible:String(e&&e.message||e).slice(0,90)};resolve(r);});
+        }
         var durees=[],loaf=[],masque=false,bloque=false,dernier=performance.now(),debut=dernier,tic=0,obs=null,fini=false,garde=0;
         try{
           if(types.indexOf('long-animation-frame')>=0){obs=new PerformanceObserver(function(l){l.getEntries().forEach(function(e){
@@ -171,11 +196,11 @@ function envReel(){
           if(document.hidden)masque=true;
           durees.push(t-dernier);dernier=t;
           if(t-debut-tic>=1000){tic+=1000;if(rappel)rappel(ms-(t-debut));}
-          if(t-debut>=ms){fini=true;clearTimeout(garde);if(obs)obs.disconnect();resolve({durees:durees.slice(1),loaf:loaf,masque:masque,bloque:false});return;}
+          if(t-debut>=ms){fini=true;clearTimeout(garde);if(obs)obs.disconnect();terminer({durees:durees.slice(1),loaf:loaf,masque:masque,bloque:false});return;}
           requestAnimationFrame(image);
         }
         /* Garde-fou : si le navigateur suspend les images (page ou panneau masqué, application passée en arrière-plan), la mesure se termine quand même, déclarée invalide, au lieu d'attendre indéfiniment. */
-        garde=setTimeout(function(){if(fini)return;fini=true;bloque=true;if(obs)obs.disconnect();resolve({durees:durees.slice(1),loaf:loaf,masque:true,bloque:true});},ms+4000);
+        garde=setTimeout(function(){if(fini)return;fini=true;bloque=true;if(obs)obs.disconnect();terminer({durees:durees.slice(1),loaf:loaf,masque:true,bloque:true});},ms+4000);
         requestAnimationFrame(image);
       });
     }
@@ -211,11 +236,11 @@ function afficherRapport(texte){
     [{texte:'Copier',fort:true,fait:function(){var t=document.getElementById('soreal-idle-mesure-ref-texte');t.select();try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.value);else document.execCommand('copy');}catch(_e){}}},{texte:'Fermer',fait:fermer}]);
   document.getElementById('soreal-idle-mesure-ref-texte').value=texte;
 }
-async function lancer(plan,titre){
+async function lancer(plan,titre,options){
   if(enCours)return null;
   enCours=true;fermer();
   try{
-    var r=await executer(envReel(),function(t){pastille('📏 '+t);},plan,titre);
+    var r=await executer(envReel(),function(t){pastille('📏 '+t);},plan,titre,options);
     pastille(null);
     var texte=texteRapport(r);
     afficherRapport(texte);
@@ -225,8 +250,8 @@ async function lancer(plan,titre){
 }
 function ouvrir(){
   fenetre('📏 Mesure de référence','<div style="color:#b9c8e6">Mesure la fluidité de CET appareil avec un protocole fixe : '+MENUS.length+' menus, '+(DUREE_MENU_MS/1000)+' s chacun, environ '+Math.round(MENUS.length*(DUREE_MENU_MS+MISE_EN_PLACE_MS)/60000*10)/10+' minute(s). <b>Aucune action de jeu n\'est faite</b> : seuls les menus s\'ouvrent, et le menu actuel est rouvert à la fin. Pendant la mesure, <b>ne touche à rien</b> et laisse la page visible (ne change pas d\'application). Rien n\'est envoyé : le rapport se copie à la main.</div>',
-    [{texte:'Lancer la mesure',fort:true,fait:function(){lancer();}},{texte:'Diagnostic Machine temporelle (1,5 min)',fait:function(){lancer(PLAN_DIAG_MACHINE,'diagnostic Machine temporelle');}},{texte:'Annuler',fait:fermer}]);
+    [{texte:'Lancer la mesure',fort:true,fait:function(){lancer();}},{texte:'Diagnostic Machine temporelle (1,5 min)',fait:function(){lancer(PLAN_DIAG_MACHINE,'diagnostic Machine temporelle');}},{texte:'Mesure avec profil par fonction (1,5 min)',fait:function(){lancer(null,'mesure avec profil par fonction',{profil:true});}},{texte:'Annuler',fait:fermer}]);
 }
 window.__mesureReferenceOuvrirV1__=ouvrir;
-window.__SOREAL_IDLE_MESURE_REF_V1__={ouvrir:ouvrir,lancer:lancer,executer:executer,envReel:envReel,PLAN_DIAG_MACHINE:PLAN_DIAG_MACHINE,VARIANTES_CSS:VARIANTES_CSS,statsImages:statsImages,verdict:verdict,texteRapport:texteRapport,resumerOps:resumerOps,resumerLoaf:resumerLoaf,MENUS:MENUS,BUDGET:BUDGET,VERSION_PROTOCOLE:VERSION_PROTOCOLE};
+window.__SOREAL_IDLE_MESURE_REF_V1__={ouvrir:ouvrir,lancer:lancer,executer:executer,envReel:envReel,resumerProfil:resumerProfil,PLAN_DIAG_MACHINE:PLAN_DIAG_MACHINE,VARIANTES_CSS:VARIANTES_CSS,statsImages:statsImages,verdict:verdict,texteRapport:texteRapport,resumerOps:resumerOps,resumerLoaf:resumerLoaf,MENUS:MENUS,BUDGET:BUDGET,VERSION_PROTOCOLE:VERSION_PROTOCOLE};
 })();

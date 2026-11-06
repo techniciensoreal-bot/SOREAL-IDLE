@@ -17,5 +17,7 @@ for (const chemin of ["/modules/*", "/soreal-idle-*.js", "/soreal-idle-*.css", "
   assert.ok(i >= 0 && /immutable/.test(headers.slice(i, i + 160)), chemin + " : cache long immuable");
 }
 /* index.html lui-même ne doit PAS être immuable (il porte les numéros) */
-assert.ok(!/^\/(index\.html)?\s*$/m.test(headers), "index.html reste revalidé à chaque chargement");
+/* (une règle pour / ou /index.html est admise tant qu'elle ne touche PAS au cache : l'en-tête Document-Policy du profileur de la mesure de référence en est une) */
+const lignes = headers.split(String.fromCharCode(10));
+lignes.forEach((l, k) => { if (l === "/" || l === "/index.html") { for (let m = k + 1; m < lignes.length && lignes[m].startsWith("  "); m += 1) assert.ok(lignes[m].toLowerCase().indexOf("cache-control") < 0, "index.html reste revalidé à chaque chargement : aucune règle de cache pour " + l); } });
 console.log("idle-pins-assets-v1: OK");

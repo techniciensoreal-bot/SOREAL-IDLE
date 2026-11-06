@@ -472,8 +472,8 @@
   "sha": "385b300138a35ff85d43426763cc45ec5a69379c"
  },
  "/modules/mesure-reference-v1.js": {
-  "pin": 4,
-  "sha": "e08b7951ffd2b683d656c2799edb0467be4c9458"
+  "pin": 5,
+  "sha": "c70081a51a80598ce6dc8b1d5821cd5cca9cd31b"
  },
  "/modules/meta-progression-v130.js": {
   "pin": 202610178,
@@ -520,8 +520,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 100,
-  "sha": "dfce5980cc6c97e5ca208827adfa848519312712"
+  "pin": 101,
+  "sha": "0bca4db2178a7e7b286d26e556a8678836bd906f"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,

@@ -39,4 +39,37 @@ assert.ok(boucle.includes("window.__idleAugRateesV1__.clear()") && boucle.includ
 const tm = fs.readFileSync("cloudflare/public/modules/machine-dessin-v1.js", "utf8");
 assert.ok(tm.includes("function maj(vueMachine,apresRedessin){") && tm.includes("suivreCentre(racine,apresRedessin);") && tm.includes("}else if(apresRedessin)zonesSuivies.forEach(function(z){if(z.__tmmHors)poserPauseZone(z);});"), "getAnimations() seulement après un redessin");
 assert.ok(tm.includes("function rafraichir(){maj(null,true);}"), "le crochet « après redessin » demande la remise en pause");
+/* ---- 3. NGU : la mesure du banc du haut ne se fait plus à chaque image (profil du téléphone émulé : getBoundingClientRect = 43 % du temps actif) ---- */
+{
+  const ngu = fs.readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
+  const x = ngu.indexOf("function mesurerHaut_(racine){"), y = ngu.indexOf("function attacherMesure_(racine){", x);
+  const u = ngu.indexOf("function mesureSiBesoin_(racine,maintenant){"), v = ngu.indexOf("function tick_(){", u);
+  assert.ok(x > 0 && y > x && u > 0 && v > u, "fonctions trouvées");
+  const monter = (avecSoleil = true) => {
+    let lectures = 0, hauteur = 100;
+    const barre = { getBoundingClientRect: () => { lectures += 1; return { top: hauteur }; } };
+    const gris = { style: {} };
+    const racine = { getBoundingClientRect: () => { lectures += 1; return { top: 0 }; },
+      querySelector: (sel) => (sel === ":scope>.nl-soleil" ? (avecSoleil ? {} : null) : sel === ":scope>.nl-gris" ? gris : sel.includes(".nl-barre") ? barre : null) };
+    const f = new Function(ngu.slice(x, y) + ngu.slice(u, v) + String.fromCharCode(10) + "return mesureSiBesoin_;")();
+    return { f, racine, gris, lectures: () => lectures, hauteur: (h) => { hauteur = h; } };
+  };
+  const m = monter();
+  for (let i = 0; i < 120; i += 1) m.f(m.racine, i * 16.7);   /* 2 secondes à 60 images par seconde */
+  assert.ok(m.lectures() <= 2 * 10, "120 images : au plus ~10 mesures (2 lectures chacune), pas 120 : " + m.lectures());
+  assert.ok(m.gris.__nlH > 0 && m.gris.style.height === m.gris.__nlH + "px", "le banc a bien été mesuré et sa hauteur posée");
+  /* un banc posé en cours de route (nouveau nœud, jamais mesuré) est mesuré TOUT DE SUITE, sans attendre les 250 ms */
+  const n0 = m.lectures();
+  m.gris.__nlH = undefined; m.hauteur(140);
+  m.f(m.racine, 120 * 16.7 + 1);
+  assert.ok(m.lectures() > n0 && m.gris.__nlH === 140 + 230, "banc neuf : mesuré à l'image suivante");
+  /* la remesure de sécurité existe : un changement de position sans redimensionnement est repris sous ~250 ms */
+  m.hauteur(300); const avant = m.gris.__nlH;
+  for (let i = 0; i < 20; i += 1) m.f(m.racine, 130 * 16.7 + i * 16.7);
+  assert.ok(m.gris.__nlH === 300 + 230 && m.gris.__nlH !== avant, "remesure de sécurité sous 250 ms");
+  /* pas de soleil : rien à mesurer, aucune lecture de mise en page */
+  const sans = monter(false); for (let i = 0; i < 60; i += 1) sans.f(sans.racine, i * 16.7);
+  assert.equal(sans.lectures(), 0, "sans soleil : aucune lecture de mise en page");
+  assert.ok(ngu.includes("mesureSiBesoin_(racine,maintenant);") && !ngu.includes("solMesure.__nlH"), "tick_ appelle la mesure conditionnelle, plus la condition fausse");
+}
 console.log("idle-perf-page-profil-v1: OK");

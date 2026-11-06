@@ -165,6 +165,37 @@ function envSimule(options = {}) {
   assert.equal(anims[0].playState, "running", "les animations mises en pause sont reprises ; celle qui l'était déjà n'est pas touchée");
 }
 
+/* ---- 3 quater. PROFIL par fonction (option) : agrégation pure, passage dans le protocole, rapport, en-tête de production ---- */
+{
+  /* trace simulée : f0 = boucle(ui-boucle) -> f1 = querySelector (natif) ; f2 = decorerCartes ; 10 échantillons : 5 dans querySelector, 3 dans decorerCartes, 2 au repos */
+  const tr = { resources: ["https://x/modules/ui-boucle-v1.js?v=3", "https://x/modules/item-extra-r2-v77.js"], frames: [{ name: "frameJeu", resourceId: 0, line: 2070 }, { name: "querySelector" }, { name: "decorerCartes_", resourceId: 1, line: 164 }],
+    stacks: [{ frameId: 0 }, { frameId: 1, parentId: 0 }, { frameId: 2 }],
+    samples: [...Array(5).fill({ stackId: 1 }), ...Array(3).fill({ stackId: 2 }), {}, {}] };
+  const p = M.resumerProfil(tr);
+  assert.equal(p.total, 10); assert.equal(p.actifs, 8, "les échantillons au repos ne comptent pas");
+  assert.deepEqual(p.propre.slice(0, 2).map((t) => [t.cle, t.n]), [["querySelector ", 5], ["decorerCartes_ item-extra-r2-v77.js:164", 3]], "temps propre, sans ?v= ni chemin");
+  const boucle = p.cumul.find((t) => t.cle === "frameJeu ui-boucle-v1.js:2070"); assert.ok(boucle && boucle.n === 5, "cumulé : la fonction appelante reçoit les échantillons de ses appelés (5), sans compter deux fois une récursion");
+  assert.deepEqual(M.resumerProfil(null), { total: 0, actifs: 0, propre: [], cumul: [] }, "trace absente : vide, sans erreur");
+  /* le protocole transmet l'option à la mesure, et le rapport affiche le profil ; l'API absente est dite */
+  let vu = null;
+  const a1 = envSimule({}); const base = a1.env.mesurer;
+  a1.env.mesurer = async (ms, rappel, profil) => { vu = profil; const r = await base(ms, rappel); r.profil = profil ? tr : null; return r; };
+  const r1 = await M.executer(a1.env, null, null, "mesure avec profil par fonction", { profil: true });
+  assert.equal(vu, true, "l'option profil est transmise");
+  const t1 = M.texteRapport(r1);
+  assert.ok(t1.includes("profil par fonction : 8 échantillons actifs sur 10 (80 % du temps)") && t1.includes("propre : 63 % querySelector"), "profil dans le rapport");
+  const r0 = await M.executer(envSimule({}).env);
+  assert.ok(!M.texteRapport(r0).includes("profil par fonction"), "sans l'option : protocole standard inchangé, aucun profil");
+  const a2 = envSimule({}); const base2 = a2.env.mesurer;
+  a2.env.mesurer = async (ms, rappel, profil) => { const r = await base2(ms, rappel); r.profil = { indisponible: "API absente de ce navigateur" }; return r; };
+  const t2 = M.texteRapport(await M.executer(a2.env, null, null, "", { profil: true }));
+  assert.ok(t2.includes("profil par fonction : indisponible (API absente de ce navigateur)"), "profil indisponible : dit dans le rapport");
+  const entetes = fs.readFileSync("cloudflare/public/_headers", "utf8");
+  const nl = String.fromCharCode(10);
+  assert.ok(entetes.includes("/" + nl + "  Document-Policy: js-profiling") && entetes.includes("/index.html" + nl + "  Document-Policy: js-profiling"), "l'en-tête qui autorise le profileur est servi avec la page");
+  assert.ok(code.includes("new Profiler({sampleInterval:10"), "le vrai profileur est demandé avec un échantillon toutes les 10 ms");
+}
+
 /* ---- 4. passif et branché ---- */
 for (const interdit of ["callIdleV1", "agirProgression", "__actionMetaV47__", "fetch(", "XMLHttpRequest", "sendBeacon", "localStorage.setItem", "sessionStorage.setItem", "postMessage"]) {
   assert.ok(!code.includes(interdit), "mesure passive : le module ne contient jamais « " + interdit + " »");
