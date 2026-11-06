@@ -4,10 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Dans la barre de vie, la régénération est maintenant écrite à gauche, et à droite un compte à rebours dit dans combien de temps la vie sera pleine (✔ quand elle l’est).",
-    "L’animation du ballon, quand le bonhomme réapparaît, est beaucoup plus brève.",
-    "Quand un combat est très serré, long ou court, la borne joue maintenant une de ses animations (le clown, la tronçonneuse…) au lieu de rester sur FIGHT !. Un combat qui dure encore après quelques secondes bascule aussi sur l’animation.",
-    "De temps en temps, quand tu n’as pas cliqué depuis quelques secondes, la borne a des yeux sur son écran LED : ils regardent à gauche, à droite, sont heureux, tristes, suspicieux… Un clic ou un combat les arrête.",
-    "Le filtre d’un objet précis (le bouton 🧹 du Coffre) est maintenant le même dans toutes les zones : un objet coché n’est plus ramassé nulle part et reste coché quand tu changes de zone. Tes filtres déjà réglés par zone sont réunis, rien n’est perdu."
+    "Le jeu calcule environ 15 % plus vite à chaque synchronisation et à chaque action : moins de petits à-coups, surtout sur les parties avancées."
   ] };
 })();

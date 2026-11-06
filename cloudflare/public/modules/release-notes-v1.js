@@ -32,6 +32,7 @@
         date:'2026-11-06',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le jeu calcule environ 15 % plus vite à chaque synchronisation et à chaque action : moins de petits à-coups, surtout sur les parties avancées.',
             'Dans la barre de vie, la régénération est maintenant écrite à gauche, et à droite un compte à rebours dit dans combien de temps la vie sera pleine (✔ quand elle l’est).',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[

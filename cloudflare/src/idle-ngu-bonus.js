@@ -9,7 +9,7 @@ import { IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, IDLE_NGU_MAX_LEVEL_V1, nguEffec
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
-import { avecEquipementFigeV1, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
+import { avecEquipementFigeV1, idleAdventureCleEquipementV1, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
 import { idleHeartsApMultiplierV1, idleHeartsExpMultiplierV1, idleHeartsHackSpeedMultiplierV1 } from "./idle-hearts-v1.js";
 import { idleCardsMultiplierV1, idleCardsApplyToBonusesV1 } from "./idle-cards-v1.js";
 import { macguffinEffectMultiplierV1, macguffinApplyToBonusesV1 } from "./idle-macguffins-v1.js";
@@ -638,9 +638,12 @@ function idleNguBonusesMemoV1(state, sansCopie) {
 function cleSansDonneesInertesV1(state) {
   if (!state || typeof state !== "object") return state;
   const copie = Object.assign({}, state, { uiPrefs: undefined, recentClientMutations: undefined });
-  if (state.adventure && typeof state.adventure === "object") copie.adventure = Object.assign({}, state.adventure, { recentClientMutations: undefined });
+  /* Aventure (plan design/ARCHITECTURE-CIBLE.md, étape 1) : le sac, le coffre, la liste d'objets, les réglages d'inventaire, les emplacements, la zone, la corbeille et le dernier butin ne sont lus par le calcul des bonus QU'À TRAVERS l'équipement ;
+     ils sont remplacés par la clé réduite de l'équipement (idleAdventureCleEquipementV1 : ce que le calcul d'équipement lit). Preuve par mutation de chaque champ de ces blocs : idle-bonus-cle-v1.test.mjs. */
+  if (state.adventure && typeof state.adventure === "object") copie.adventure = Object.assign({}, state.adventure, { recentClientMutations: undefined, inventory: undefined, coffre: undefined, itemList: undefined, inventoryAuto: undefined, inventorySlots: undefined, zone: undefined, trash: undefined, dernierButinAutoKill: undefined, cleEquipementV1: idleAdventureCleEquipementV1(state.adventure) });
   return copie;
 }
+export function idleNguCleBonusesV1(state) { return JSON.stringify(cleSansDonneesInertesV1(state)); }
 function idleNguBonusesMemoInterneV1(state, sansCopie) {
   if (__nguCtx.__sansMemoV1) return macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
   let cle = null;
