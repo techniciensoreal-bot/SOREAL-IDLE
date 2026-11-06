@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Quand une information arrive dans le bandeau « En direct », l’affichage ne saccade plus : la page n’est plus recalculée en entier à ce moment-là."
+    "Chaque réponse du moteur est traitée plus légèrement par la page (la copie de sécurité de l’Aventure est faite seulement quand elle sert) : moins de petits à-coups au moment des synchronisations, surtout sur téléphone."
   ] };
 })();

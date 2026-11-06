@@ -23,6 +23,7 @@
   function fermerPopupRenaissanceIdleV63_(){return REG.fermerPopupRenaissanceIdleV63_.apply(null,arguments);}
   function journalCombatEstEnBasV70_(){return REG.journalCombatEstEnBasV70_.apply(null,arguments);}
   function cloneInventaireIdleV160_(){return REG.cloneInventaireIdleV160_.apply(null,arguments);}
+  function memoriserConfirmeeAdventureIdleV160_(){return REG.memoriserConfirmeeAdventureIdleV160_.apply(null,arguments);}
   function marquePerfInventaireIdleV160_(){return REG.marquePerfInventaireIdleV160_.apply(null,arguments);}
   function patchResumeInventaireIdleV160_(){return REG.patchResumeInventaireIdleV160_.apply(null,arguments);}
   function patchGrilleSacInventaireIdleV160_(){return REG.patchGrilleSacInventaireIdleV160_.apply(null,arguments);}
@@ -1018,8 +1019,7 @@
 
         REG.idleEtat.systemes=Object.assign({},REG.idleEtat.systemes||{});
         REG.idleEtat.systemes.adventure=prochain;
-        REG.idleInventoryConfirmedAdventureV160=
-          cloneInventaireIdleV160_(differee);
+        memoriserConfirmeeAdventureIdleV160_(differee);
         REG.idleAdventureRevisionServeurV208=Math.max(
           REG.idleAdventureRevisionServeurV208,
           revisionDifferee

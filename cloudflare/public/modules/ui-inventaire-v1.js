@@ -703,9 +703,15 @@
           REG.idleAdventureRevisionServeurV208,
           revision
         );
-        REG.idleInventoryConfirmedAdventureV160=
-          cloneInventaireIdleV160_(serveur);
+        memoriserConfirmeeAdventureIdleV160_(serveur);
         return joueur;
+      }
+
+      /* Instantané TEXTE de l'Aventure confirmée par le moteur, relu en objet seulement à la première lecture (accesseur de soreal-idle-ui.js). Repli : copie profonde si le texte est impossible. */
+      function memoriserConfirmeeAdventureIdleV160_(valeur){
+        if(valeur==null){REG.idleInventoryConfirmedAdventureV160=valeur;return;}
+        try{REG.idleInventoryConfirmedTexteV160=JSON.stringify(valeur);}
+        catch(_e){REG.idleInventoryConfirmedAdventureV160=cloneInventaireIdleV160_(valeur);}
       }
 
       function cloneInventaireIdleV160_(value){
@@ -1546,8 +1552,7 @@
 
           const serveur=aventureMetaIdleV47_(res.joueur);
           if(serveur){
-            REG.idleInventoryConfirmedAdventureV160=
-              cloneInventaireIdleV160_(serveur);
+            memoriserConfirmeeAdventureIdleV160_(serveur);
             REG.idleAdventureRevisionServeurV208=Math.max(
               REG.idleAdventureRevisionServeurV208,
               revisionAdventureServeurIdleV208_(serveur)
@@ -1621,8 +1626,7 @@
           !REG.idleInventoryMutationQueueV160.length&&
           !REG.idleInventoryBusyV160
         ){
-          REG.idleInventoryConfirmedAdventureV160=
-            cloneInventaireIdleV160_(current);
+          memoriserConfirmeeAdventureIdleV160_(current);
         }
 
         const txId=++REG.idleInventorySequenceV160;
@@ -1891,6 +1895,7 @@
     rendreCollectionEquipementIdleV1_:rendreCollectionEquipementIdleV1_,
     protegerJoueurServeurInventaireIdleV208_:protegerJoueurServeurInventaireIdleV208_,
     cloneInventaireIdleV160_:cloneInventaireIdleV160_,
+    memoriserConfirmeeAdventureIdleV160_:memoriserConfirmeeAdventureIdleV160_,
     marquePerfInventaireIdleV160_:marquePerfInventaireIdleV160_,
     signatureObjetInventaireIdleV160_:signatureObjetInventaireIdleV160_,
     patchGrilleSacInventaireIdleV160_:patchGrilleSacInventaireIdleV160_,

@@ -133,7 +133,9 @@
       Object.defineProperty(UI_PARTAGE_V1,'idleFureurActiveV70',{get:function(){return idleFureurActiveV70;},set:function(v){idleFureurActiveV70=v;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleFxSoinJusqua',{get:function(){return idleFxSoinJusqua;},set:function(v){idleFxSoinJusqua=v;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleInventoryBusyV160',{get:function(){return idleInventoryBusyV160;},set:function(v){idleInventoryBusyV160=v;},configurable:true});
-      Object.defineProperty(UI_PARTAGE_V1,'idleInventoryConfirmedAdventureV160',{get:function(){return idleInventoryConfirmedAdventureV160;},set:function(v){idleInventoryConfirmedAdventureV160=v;},configurable:true});
+      /* Copie confirmée de l'Aventure PARESSEUSE (plan C4, 2026-11-06) : une copie profonde de 158 Ko à chaque réponse coûtait ~10 ms du fil principal (jusqu'à ~25 ms sur téléphone), pour une copie lue dans de rares cas (retour arrière d'une mutation d'inventaire, état différé). L'instantané est un TEXTE (deux fois moins cher), relu en objet à la première lecture. Même contenu : l'état vient du moteur, uniquement des types JSON. */
+      Object.defineProperty(UI_PARTAGE_V1,'idleInventoryConfirmedAdventureV160',{get:function(){if(idleInventoryConfirmedAdventureV160===null&&idleInventoryConfirmedTexteV160!==null){const t=idleInventoryConfirmedTexteV160;idleInventoryConfirmedTexteV160=null;idleInventoryConfirmedAdventureV160=JSON.parse(t);}return idleInventoryConfirmedAdventureV160;},set:function(v){idleInventoryConfirmedAdventureV160=v;idleInventoryConfirmedTexteV160=null;},configurable:true});
+      Object.defineProperty(UI_PARTAGE_V1,'idleInventoryConfirmedTexteV160',{get:function(){return idleInventoryConfirmedTexteV160;},set:function(t){idleInventoryConfirmedTexteV160=t;idleInventoryConfirmedAdventureV160=null;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleInventoryDeferredPatchV160',{get:function(){return idleInventoryDeferredPatchV160;},set:function(v){idleInventoryDeferredPatchV160=v;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleInventoryMutationQueueV160',{get:function(){return idleInventoryMutationQueueV160;},set:function(v){idleInventoryMutationQueueV160=v;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'idleInventoryPerfV160',{get:function(){return idleInventoryPerfV160;},configurable:true});
@@ -1432,6 +1434,7 @@
       let idleInventoryBusyV160=false;
       let idleInventorySequenceV160=0;
       let idleInventoryConfirmedAdventureV160=null;
+      let idleInventoryConfirmedTexteV160=null;
       let idleInventoryDeferredPatchV160=false;
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-179 */

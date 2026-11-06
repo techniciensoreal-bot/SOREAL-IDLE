@@ -75,9 +75,41 @@ async function cible() {
   await aller(URL_JEU);
   await dormir(15000);
   if (RALENTI > 1) await envoyer("Emulation.setCPUThrottlingRate", { rate: RALENTI });
-  await evaluer("(function(){var M=window.__SOREAL_IDLE_MESURE_REF_V1__;window.__envB=M.envReel();return window.__envB.cliquerMenu('machine');})()");
+  await evaluer("(function(){var M=window.__SOREAL_IDLE_MESURE_REF_V1__;window.__envB=M.envReel();return window.__envB.cliquerMenu('" + arg("menu", "machine") + "');})()");
   await dormir(4000);
 
+  const PROFIL = arg("profil", "");
+  if (PROFIL) {
+    /* Profil du FIL PRINCIPAL de la page pendant DUREE secondes, menu choisi ouvert, sans aucune action : où va le temps, et combien coûte le traitement de chaque réponse du moteur */
+    await envoyer("Profiler.enable");
+    await envoyer("Profiler.setSamplingInterval", { interval: 250 });
+    await envoyer("Profiler.start");
+    await dormir(DUREE * 1000);
+    const { profile } = await envoyer("Profiler.stop");
+    const noeuds = new Map(profile.nodes.map((n) => [n.id, n]));
+    const parent = new Map();
+    for (const n of profile.nodes) for (const c of (n.children || [])) parent.set(c, n.id);
+    const soi = new Map(); let total = 0, actif = 0;
+    for (let i = 0; i < profile.samples.length; i += 1) {
+      const id = profile.samples[i], dt = profile.timeDeltas[i] / 1000; total += dt;
+      const nm = noeuds.get(id).callFrame.functionName;
+      if (nm !== "(idle)" && nm !== "(program)") actif += dt;
+      soi.set(id, (soi.get(id) || 0) + dt);
+    }
+    const nomF = (id) => { const c = noeuds.get(id).callFrame; return (c.functionName || "(anonyme)") + " " + String(c.url || "").split("/").pop().split("?")[0] + ":" + c.lineNumber; };
+    const propre = new Map(), cumul = new Map();
+    for (const [id, ms] of soi) {
+      const k = nomF(id); propre.set(k, (propre.get(k) || 0) + ms);
+      const vus = new Set(); let c = id;
+      while (c !== undefined) { const kk = nomF(c); if (!vus.has(kk)) { vus.add(kk); cumul.set(kk, (cumul.get(kk) || 0) + ms); } c = parent.get(c); }
+    }
+    const aff = (m, n) => [...m.entries()].filter(([k]) => !/^\((idle|program|root|garbage)/.test(k)).sort((x, y) => y[1] - x[1]).slice(0, n).map(([k, ms]) => String(ms.toFixed(0)).padStart(7) + " ms " + (ms / DUREE / 10).toFixed(1).padStart(5) + " %  " + k).join("\n");
+    console.log("### profil du fil principal : " + DUREE + " s, menu " + (arg("menu", "machine")) + ", actif " + (actif / DUREE / 10).toFixed(1) + " % du temps");
+    console.log("--- temps PROPRE (par fonction)\n" + aff(propre, 18));
+    console.log("--- temps CUMULÉ (fonction et ce qu'elle appelle)\n" + aff(cumul, 26));
+    await evaluer("(async()=>{const l=(await indexedDB.databases()).map(d=>d.name); for(const x of l){await new Promise(r=>{const q=indexedDB.deleteDatabase(x); q.onsuccess=q.onerror=q.onblocked=()=>r();});} localStorage.clear(); sessionStorage.clear(); return 1;})()");
+    ws.close(); await nettoyer(); return;
+  }
   const CAPTURE = arg("capture", "");
   if (CAPTURE) {
     await evaluer("Array.from(document.querySelectorAll('button')).filter(function(b){return (b.textContent||'').trim().indexOf('Super')===0;}).forEach(function(b){b.click();}); 1");
