@@ -151,10 +151,24 @@ export function idleAdventureEquipmentStatsV47(raw){
   }
   return idleAdventureEquipmentStatsMemoV47(raw);
 }
+/*
+ * Clé du mémo d'équipement (plan design/ARCHITECTURE-CIBLE.md, étape 1 ; Norman, 2026-11-05 : « un calcul qui met trop de temps » : 132 clés de 60 Ko par action, 1 ms chacune) : SEULES les données que le calcul lit entrent dans la clé :
+ * l'équipement porté (identifiants), les objets PORTÉS (ceux de l'inventaire dont l'identifiant est équipé, seconde arme comprise : le calcul filtre l'inventaire de cette façon, la normalisation ne regarde que les armes parmi les accessoires),
+ * dualWieldRatio, setRewards, permanent, cube et idleAttackBonus. Le reste de l'état d'Aventure (sac, coffre, liste d'objets, zone, filtres…, ~50 Ko) ne change jamais ce résultat : preuve par mutation de CHAQUE champ de l'état de
+ * référence (idle-equipement-cle-v1.test.mjs) et SOREAL_IDLE_VERIF_BONUS=1 (chaque réutilisation du mémo est comparée à un recalcul).
+ */
+export function idleAdventureCleEquipementV1(raw){
+  if(!raw||typeof raw!=="object")return null;
+  const e=raw.equipment&&typeof raw.equipment==="object"?raw.equipment:{};
+  const ids=[e.head,e.chest,e.legs,e.boots,e.weapon,e.weapon2,...(Array.isArray(e.accessories)?e.accessories:[])].filter(Boolean);
+  const portes=Array.isArray(raw.inventory)?raw.inventory.filter(x=>x&&ids.includes(x.id)):[];
+  /* La normalisation rejoue checkSets : les récompenses de sets dépendent de la liste d'objets (itemList), des sets complétés et du niveau de CHAQUE objet du sac (record) : ils entrent dans la clé, le sac sous forme compacte (définition, niveau). */
+  const sac=Array.isArray(raw.inventory)?raw.inventory.map(x=>x?[x.definitionId,x.level]:0):[];
+  return JSON.stringify([raw.version,e,portes,raw.dualWieldRatio,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac]);
+}
 function idleAdventureEquipmentStatsMemoV47(raw){
   let cle=null;
-  /* Clé sans le journal d'idempotence des actions (recentClientMutations, jamais lu par le calcul d'équipement : ~6 Ko sur 67) : copie superficielle, l'état n'est pas touché (Norman, 2026-11-05 : calcul trop long). */
-  try{cle=raw&&typeof raw==="object"?JSON.stringify(Object.assign({},raw,{recentClientMutations:undefined})):null}catch(_e){cle=null}
+  try{cle=idleAdventureCleEquipementV1(raw)}catch(_e){cle=null}
   const maintenant=Date.now();
   if(cle!==null&&__equipStatsMemoV1.valeur!==null&&__equipStatsMemoV1.cle===cle&&maintenant-__equipStatsMemoV1.at<=5000){
     const copie=structuredClone(__equipStatsMemoV1.valeur);

@@ -77,7 +77,7 @@ assert.ok(IDLE_ADVENTURE_ITEM_CATALOG_V1[defArme] && IDLE_ADVENTURE_ITEM_CATALOG
     assert.ok(src.includes("structuredClone("), "une copie est renvoyée");
   }
   assert.ok(ngu.includes("const BONUS_MEMO_MS_V1 = 5000;") && ngu.includes("cle = JSON.stringify(cleSansDonneesInertesV1(state))") && ngu.includes("export function idleNguMemoNouvelleRequeteV1()"));
-  assert.ok(adv.includes("cle=raw&&typeof raw===\"object\"?JSON.stringify(Object.assign({},raw,{recentClientMutations:undefined})):null"));
+  assert.ok(adv.includes("cle=idleAdventureCleEquipementV1(raw)"), "la clé du mémo d'équipement est la clé réduite (preuve par mutation : idle-equipement-cle-v1)");
 }
 
 // 4. Non-régression de performance (compte avec un sac de 300 objets) : une synchro ne doit plus normaliser l'état d'Aventure des centaines de fois.
