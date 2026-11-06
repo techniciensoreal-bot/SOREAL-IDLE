@@ -54,9 +54,9 @@
 
   function f(x){return Number(x).toFixed(2);}
   /* chemin SVG du contour (angle 0 : la rotation est faite par l'animation) */
-  function chemin(g){
-    var d='',k,pas=g.pas,hr=.30*pas,ht=.12*pas;
-    function P(rad,ang){return f(g.x+rad*Math.cos(ang))+' '+f(g.y+rad*Math.sin(ang));}
+  function chemin(g,rel){
+    var d='',k,pas=g.pas,hr=.30*pas,ht=.12*pas,ox=rel?0:g.x,oy=rel?0:g.y;
+    function P(rad,ang){return f(ox+rad*Math.cos(ang))+' '+f(oy+rad*Math.sin(ang));}
     for(k=0;k<g.n;k++){
       var c=g.phi+k*pas,cn=g.phi+(k+1)*pas;
       d+=(k===0?'M':'L')+P(g.ri,c-hr)+'L'+P(g.ro,c-ht)+'A'+f(g.ro)+' '+f(g.ro)+' 0 0 1 '+P(g.ro,c+ht)+'L'+P(g.ri,c+hr)+'A'+f(g.ri)+' '+f(g.ri)+' 0 0 1 '+P(g.ri,cn-hr);
@@ -64,17 +64,20 @@
     return d+'Z';
   }
 
-  /* SVG d'une chaîne : style = { corps:[couleur par rouage ou une seule], trait:'#000', epaisseur:3 } ; chaque rouage est un <g class="eng-g" data-n data-sens> qui tourne autour de son centre */
+  /*
+   * SVG d'une chaîne : st = { corps:[couleur par rouage ou une seule], trait:'#000', epaisseur, classe:'eng-g' }.
+   * Chaque rouage : <g translate(centre)> <g class=classe data-dents data-sens data-off> contour dessiné AUTOUR de l'origine </g> </g> : la rotation (animation) se fait autour de l'origine du groupe, sans transform-origin ni boîte de référence.
+   * Avec classe 'tmm-rot', ce sont les rouages que la machine (machine-dessin-v1.js) anime et dont elle règle la cadence : data-dents sert de rapport de vitesse (cadence proportionnelle à 1/dents).
+   */
   function svg(ch,st){
     st=st||{};
     /* épaisseur du trait proportionnelle au module (0,3 m) : le jeu entre deux dents (0,2 du pas, soit ~0,63 m sur le cercle primitif) reste plus large que le trait, les contours ne se touchent jamais */
-    var trait=st.trait||'#000',ep=st.epaisseur||((ch.rouages[0]&&ch.rouages[0].m)||4)*0.3,out='';
+    var trait=st.trait||'#000',ep=st.epaisseur||((ch.rouages[0]&&ch.rouages[0].m)||4)*0.3,cls=st.classe||'eng-g',out='';
     ch.rouages.forEach(function(g,i){
       var col=Array.isArray(st.corps)?st.corps[i%st.corps.length]:(st.corps||'#9aa3ad');
-      out+='<g class="eng-g" data-n="'+g.n+'" data-sens="'+g.sens+'" style="transform-box:view-box;transform-origin:'+f(g.x)+'px '+f(g.y)+'px">'+
-        '<path d="'+chemin(g)+'" fill="'+col+'" stroke="'+trait+'" stroke-width="'+ep+'" stroke-linejoin="round"/>'+
-        '<circle cx="'+f(g.x)+'" cy="'+f(g.y)+'" r="'+f(g.r*.26)+'" fill="'+trait+'"/>'+
-        '<circle cx="'+f(g.x)+'" cy="'+f(g.y)+'" r="'+f(g.r*.1)+'" fill="'+col+'"/></g>';
+      out+='<g transform="translate('+f(g.x)+' '+f(g.y)+')"><g class="'+cls+'" data-dents="'+g.n+'" data-sens="'+g.sens+'" data-off="0">'+
+        '<path d="'+chemin(g,true)+'" fill="'+col+'" stroke="'+trait+'" stroke-width="'+f(ep)+'" stroke-linejoin="round"/>'+
+        '<circle r="'+f(g.r*.26)+'" fill="'+trait+'"/><circle r="'+f(g.r*.1)+'" fill="'+col+'"/></g></g>';
     });
     return out;
   }
@@ -85,7 +88,7 @@
     var anims=[];
     var els=racine.querySelectorAll('.eng-g');
     for(var i=0;i<els.length;i++){
-      var e=els[i],n=Number(e.getAttribute('data-n')),s=Number(e.getAttribute('data-sens'));
+      var e=els[i],n=Number(e.getAttribute('data-dents')),s=Number(e.getAttribute('data-sens'));
       if(e.__engAnim){anims.push(e.__engAnim);continue;}
       var a=e.animate([{transform:'rotate(0deg)'},{transform:'rotate('+(360*s)+'deg)'}],{duration:n*MS_PAR_DENT,iterations:Infinity,easing:'linear'});
       e.__engAnim=a;anims.push(a);

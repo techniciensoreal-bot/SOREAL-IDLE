@@ -18,6 +18,8 @@
   Cache-Control: public, max-age=31536000, immutable
 /wandoos/*
   Cache-Control: public, max-age=31536000, immutable
+/machine-v2/*
+  Cache-Control: public, max-age=31536000, immutable
 
 # Service worker (hors ligne) : toujours revalide, jamais fige par le cache HTTP (sinon une correction ne partirait pas).
 /sw-idle-v1.js

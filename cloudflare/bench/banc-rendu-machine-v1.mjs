@@ -22,7 +22,7 @@ const vs = fs.existsSync(rac) ? fs.readdirSync(rac).filter((d) => /^chromium-\d+
 const chrome = vs.length ? path.join(rac, vs[vs.length - 1], "chrome-win64", "chrome.exe") : "";
 if (!chrome || !fs.existsSync(chrome)) { console.error("Chromium introuvable"); process.exit(2); }
 
-const ref = JSON.parse(fs.readFileSync("cloudflare/tests/references/partie-reference-2.json", "utf8"));
+const ref = JSON.parse(fs.readFileSync("cloudflare/tests/references/" + arg("partie", "partie-reference-2") + ".json", "utf8"));
 const cells = Array.isArray(ref) ? ref : Object.keys(ref).sort((a, b) => a - b).map((k) => ref[k]);
 const partie = { format: "soreal-idle-partie-v1", cells, serveurAt: Date.parse(cells[15]) };
 
@@ -62,7 +62,8 @@ async function cible() {
   };
   await envoyer("Page.enable");
   await envoyer("LayerTree.enable");
-  await envoyer("Emulation.setDeviceMetricsOverride", { width: 406, height: 813, deviceScaleFactor: 3, mobile: true });
+  const LARGEUR = Number(arg("largeur", "406"));
+  await envoyer("Emulation.setDeviceMetricsOverride", LARGEUR >= 800 ? { width: LARGEUR, height: 900, deviceScaleFactor: 1, mobile: false } : { width: 406, height: 813, deviceScaleFactor: 3, mobile: true });
   await envoyer("Emulation.setTouchEmulationEnabled", { enabled: true });
   const aller = async (url) => { await envoyer("Page.navigate", { url }); for (let i = 0; i < 80; i += 1) { await dormir(500); try { if ((await evaluer("document.readyState")) === "complete") return; } catch (_e) { /* page remplacée */ } } };
 
@@ -116,6 +117,13 @@ async function cible() {
     await dormir(2500);
     await evaluer("window.__envB.cliquerMenu('machine')");
     await dormir(3000);
+    const JS = arg("js", "");
+    if (JS) { console.log("js : " + JSON.stringify(await evaluer(JS))); }
+    const MESURE = arg("mesure", "");
+    if (MESURE) {
+      const r = await evaluer("(function(){return " + JSON.stringify(MESURE.split(",")) + ".map(function(s){var e=document.querySelector(s);if(!e)return s+' : absent';var b=e.getBoundingClientRect(),c=getComputedStyle(e);return s+' : x='+Math.round(b.left)+' y='+Math.round(b.top)+' l='+Math.round(b.width)+' h='+Math.round(b.height)+' | width='+c.width+' padding='+c.paddingLeft+'/'+c.paddingRight+' display='+c.display+' pos='+c.position;});})()");
+      console.log(r.join("\n"));
+    }
     await evaluer("(function(){var t=document.querySelector('" + arg("sel", ".tmm-tube") + "');if(t)t.scrollIntoView({block:'start'});return 1;})()");
     await dormir(1500);
     const rect = await evaluer("(function(){var l=Array.from(document.querySelectorAll('" + arg("sel", ".tmm-tube") + "')).map(function(e){return e.getBoundingClientRect();});if(!l.length)return null;var x0=Math.min.apply(null,l.map(function(r){return r.left;})),y0=Math.min.apply(null,l.map(function(r){return r.top;})),x1=Math.max.apply(null,l.map(function(r){return r.right;})),y1=Math.max.apply(null,l.map(function(r){return r.bottom;}));return {x:x0-6+window.pageXOffset,y:y0-6+window.pageYOffset,width:x1-x0+12,height:y1-y0+12,n:l.length};})()");

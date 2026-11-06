@@ -1368,8 +1368,8 @@
           /* allocation et durée K du niveau à 1 unité, lues par le dessin de la machine : les roues de la tour tournent selon allocation / K (arrêtées à 0) */
           const kTour=H.idleNombre_(cle==='vitesse'?vue.speedK:vue.goldK)||0;
           return '<section class="tmm-tour '+(gauche?'tmm-gauche':'tmm-droite')+' tmm-piste '+cle+'" data-tm-alloc="'+alloue(ressource)+'" data-tm-k="'+kTour+'" aria-label="'+H.idleHtml_(titre)+'">'+
-            '<div class="tmm-tete">'+icone+(gauche?'ÉNERGIE':'MAGIE')+'</div>'+
-            '<div class="tmm-sous">'+H.idleHtml_(SOUS_TITRES_PISTE[cle]||'')+'</div>'+
+            /* l'explication de la tour (Norman, 2026-11-06 : l'image n'a pas d'emplacement pour un texte) passe en infobulle du titre ; elle est aussi dans « À quoi ça sert ? » */
+            '<div class="tmm-tete" title="'+H.idleHtml_(SOUS_TITRES_PISTE[cle]||'')+'">'+icone+(gauche?'ÉNERGIE':'MAGIE')+'</div>'+
             '<div class="tmm-haut">'+(D?(gauche?D.hautEnergie():D.hautMagie()):'')+'</div>'+
             '<div class="tmm-corps">'+(gauche?tube+lcds:lcds+tube)+'</div>'+
           '</section>';

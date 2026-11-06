@@ -43,6 +43,7 @@
             'De temps en temps, quand tu n’as pas cliqué depuis quelques secondes, la borne a des yeux sur son écran LED : ils regardent à gauche, à droite, sont heureux, tristes, suspicieux… Un clic ou un combat les arrête.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'La Machine temporelle a un tout nouveau look : trois images, la tour Énergie (verte), la machine au centre et la tour Magie (bleue), collées bord à bord et à la bonne taille sur PC comme sur téléphone. Les engrenages s’imbriquent vraiment : chaque dent passe dans le creux du rouage voisin. La petite barre en double dans « Temps restant » est retirée, et la page est beaucoup plus légère (moitié moins d’éléments à dessiner).',
             'Les bulles des deux tubes sont dessinées d’un seul tenant au lieu d’une par une : même aspect, mais la page est plus légère à afficher, surtout sur téléphone.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[

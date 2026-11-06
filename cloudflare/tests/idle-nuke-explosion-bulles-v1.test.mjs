@@ -47,6 +47,6 @@ for (const k of ["nkFlash", "nkFeu", "nkFumee", "nkOnde", "nkEtincelle"]) {
 
 // 2. Jauges de la machine : 14 minibulles + 3 grosses qui montent, dans le tube, avec unités de conteneur pour la hauteur.
 assert.ok(augm.includes('<div class="tmm-liq" style="height:\'+largeur.toFixed(2)+\'%"><div class="tmm-bulles"><canvas class="tmm-bulles-cv" data-morph-vivant="1"'), "bulles DANS le liquide (un canvas par tube, rogné par le calque du liquide) : jamais au-dessus de sa surface");
-assert.ok(machine.includes(".tmm-liq{container-type:size;") && machine.includes(".tmm-bulles{position:absolute;inset:0;overflow:hidden;"), "le calque des bulles suit la hauteur du liquide et rogne ce qui dépasse");
+assert.ok(machine.includes(".tmm-liq{position:absolute;") && !/\.tmm-liq\{[^}]*container-type/.test(machine) && machine.includes(".tmm-bulles{position:absolute;inset:0;overflow:hidden;"), "le calque des bulles suit la hauteur du liquide et rogne ce qui dépasse ; le liquide n'est plus un conteneur de requête (plus aucun cqh appliqué à un élément, et sa taille change à chaque image)");
 assert.ok(/@keyframes tmmMonte\{0%\{opacity:0;[^}]*scale\(1\)\}[^]*?scale\(3\.8\)\}\}/.test(machine) && /@keyframes tmmFizz\{0%\{opacity:0;[^}]*\}[^]*?100%\{opacity:0/.test(machine), "courbes de référence gardées (fondu d'entrée et de sortie, les bulles grossissent en montant) ; le canvas les reproduit : test idle-tm-bulles-canvas-v1");
 console.log("idle-nuke-explosion-bulles-v1: OK");

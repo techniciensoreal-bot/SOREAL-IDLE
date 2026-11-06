@@ -100,7 +100,9 @@ for (const [nom, cfg] of Object.entries(CHAINES)) {
   const ch = E.chaine(CHAINES.paire);
   const s = E.svg(ch, { corps: ["#aaa", "#e3a23a"] });
   assert.equal((s.match(/class="eng-g"/g) || []).length, 2);
-  assert.ok(/data-n="10"/.test(s) && /data-n="8"/.test(s) && /data-sens="1"/.test(s) && /data-sens="-1"/.test(s));
-  assert.ok(/transform-origin:22\.00px 22\.00px/.test(s), "rotation autour du centre du rouage");
+  assert.ok(/data-dents="10"/.test(s) && /data-dents="8"/.test(s) && /data-sens="1"/.test(s) && /data-sens="-1"/.test(s) && /data-off="0"/.test(s));
+  assert.ok(/<g transform="translate\(22\.00 22\.00\)"><g class="eng-g"/.test(s), "rotation autour du centre du rouage (groupe translaté, contour dessiné autour de l'origine)");
+  const s2 = E.svg(ch, { classe: 'tmm-rot' });
+  assert.ok(/class="tmm-rot" data-dents="10" data-sens="1" data-off="0"/.test(s2), "balisage attendu par la machine : classe, dents, sens, décalage");
 }
 console.log("idle-engrenages-engrenent-v1: OK");

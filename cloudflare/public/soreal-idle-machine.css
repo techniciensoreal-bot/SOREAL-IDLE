@@ -1,91 +1,81 @@
 /*
- * Machine à remonter le temps (Norman, 2026-10-20 ; maquette validée : public/maquette-machine-temporelle-v1.html) : une grosse machine de laiton, l'Énergie se place sur la tour de GAUCHE, la Magie sur la tour de DROITE,
- * l'écran du milieu montre le mob du meilleur butin d'Or, les engrenages accélèrent jusqu'à 50 tiques par seconde (modules/machine-dessin-v1.js).
- * Boucles sans à-coup (AGENTS.md règle n°3) : tout ce qui monte ou tombe va toujours dans le même sens, fondu d'entrée et de sortie ; prefers-reduced-motion coupe tout.
+ * Machine à remonter le temps — NOUVEAU LOOK (Norman, 2026-11-06 : « elle est toute moche » ; trois images de sa main, détourées, sans espace entre elles : tour Énergie (verte), machine centrale, tour Magie (bleue)).
+ * Chaque carte est UNE image de fond (public/machine-v2/*.webp, ~75 Ko) ; les éléments du jeu (titre, tube, afficheurs, boutons, écran du mob, cadran, rouages) sont posés dans les emplacements VIDES de l'image, en
+ * pourcentages de la carte (positions relevées dans public/machine-v2/zones.json). Les tailles de texte sont en cqw (largeur de la carte) : tout suit la taille de l'image, sur PC (trois colonnes) comme sur téléphone
+ * (une colonne : machine, Énergie, Magie). Les boutons gris de liaison de chaque image se rejoignent côte à côte (aucun espace).
+ * Boucles sans à-coup (AGENTS.md règle n°3) ; prefers-reduced-motion coupe tout. Pas d'ombre floue ni de filtre : une carte = une texture.
  * Pas d'élément span / label / b / strong / p / li ici : les règles du thème de la page leur imposent une couleur.
  */
 /* le cadre porte la requête de conteneur (un conteneur ne peut pas styler sa propre grille) */
 .tmm-cadre{container-type:inline-size;width:100%;max-width:1180px;margin:10px auto 14px}
-.tmm-machine{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.62fr) minmax(0,1fr);gap:0;align-items:stretch;--encre:#150c06}
-.tmm-machine.tmm-sans-magie{grid-template-columns:minmax(0,1fr) minmax(0,1.62fr)}
-/* ---- les deux tours ---- */
-.tmm-tour{position:relative;padding:14px 12px 16px;color:#fff1d6;border:4px solid var(--encre);background:linear-gradient(90deg,rgba(255,255,255,.09),transparent 14%,transparent 86%,rgba(0,0,0,.25)),linear-gradient(180deg,#8c6226,#5d3d17 18%,#4a2f12 60%,#33200c);box-shadow:inset 0 0 0 3px #b98a3c,inset 0 0 0 6px #2a1a09,inset 0 10px 22px rgba(255,235,170,.12);display:flex;flex-direction:column;gap:10px;min-height:520px;font-family:"Russo One",system-ui,sans-serif}
-.tmm-gauche{border-radius:26px 0 0 26px;--c1:#1fae52;--c2:#6dff9b;--cg:rgba(70,230,120,.55)}
-.tmm-droite{border-radius:0 26px 26px 0;--c1:#2f6bff;--c2:#7fc4ff;--cg:rgba(80,160,255,.55)}
-.tmm-sans-magie .tmm-gauche{border-radius:26px 0 0 26px}
-.tmm-tour::before,.tmm-tour::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff2c0,#c08a2a 55%,#4a2c0a);box-shadow:0 0 0 2px var(--encre),0 2px 0 2px #000;top:10px}
-.tmm-tour::before{left:10px}.tmm-tour::after{right:10px}
-.tmm-tete{display:flex;align-items:center;justify-content:center;gap:8px;font-family:Bangers,cursive;letter-spacing:.1em;font-size:clamp(20px,3.4cqw,28px);color:var(--c2);text-shadow:0 2px 0 #000,0 0 14px var(--cg);margin-top:6px}
-.tmm-tete svg{width:1.2em;height:1.2em;filter:drop-shadow(0 0 6px var(--cg))}
-.tmm-sous{font-size:12px;line-height:1.35;text-align:center;color:#e8cf9d;margin:-6px 4px 0}
-.tmm-haut{display:flex;justify-content:center}
-.tmm-haut svg{width:min(150px,60%);height:auto;display:block}
-.tmm-corps{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:stretch;flex:1}
-.tmm-droite .tmm-corps{grid-template-columns:minmax(0,1fr) 34px}
-.tmm-droite .tmm-tube{order:2}
-/* tube de verre : le niveau de la barre */
-.tmm-tube{position:relative;border-radius:17px;border:3px solid var(--encre);background:linear-gradient(90deg,rgba(255,255,255,.28),rgba(255,255,255,.05) 40%,rgba(0,0,0,.35));box-shadow:inset 0 0 0 2px #7b8ba0,0 0 0 2px #b98a3c;overflow:hidden;min-height:210px}
-.tmm-liq{container-type:size;position:absolute;left:0;right:0;bottom:0;height:0%;background:linear-gradient(180deg,var(--c2),var(--c1));box-shadow:0 0 18px var(--cg)}
-.tmm-liq::before{content:"";position:absolute;left:0;right:0;top:-3px;height:6px;border-radius:50%;background:var(--c2);opacity:.9}
+.tmm-machine{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;align-items:start;--encre:#0a0a0c}
+.tmm-machine.tmm-sans-magie{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* ---- une carte = une image (format 1122 x 1402) ---- */
+.tmm-tour,.tmm-centre{position:relative;width:100%;aspect-ratio:1122/1402;container-type:inline-size;background-repeat:no-repeat;background-position:center;background-size:100% 100%;color:#fff1d6;padding:0;border:0}
+.tmm-gauche{--c1:#1fae52;--c2:#6dff9b;--lcd:#7dffb0;background-image:url(/machine-v2/tour-energie.webp?v=1)}
+.tmm-droite{--c1:#2f6bff;--c2:#7fc4ff;--lcd:#9fd0ff;background-image:url(/machine-v2/tour-magie.webp?v=1)}
+.tmm-centre{z-index:1;background-image:url(/machine-v2/centre.webp?v=1)}
+/* tailles en border-box : un rembourrage ne doit jamais élargir un élément posé dans un emplacement (mesuré : les afficheurs dépassaient de leur cadre de ~42 px en content-box) */
+.tmm-tour,.tmm-tour *,.tmm-centre,.tmm-centre *{box-sizing:border-box}
+/* ---- les deux tours : éléments posés dans les emplacements vides ---- */
+.tmm-tete{position:absolute;left:10.87%;top:12.05%;width:78.17%;height:8.56%;display:flex;align-items:center;justify-content:center;gap:2cqw;margin:0;font-family:Bangers,cursive;letter-spacing:.1em;font-size:8.2cqw;color:var(--c2);-webkit-text-stroke:.4cqw #000;paint-order:stroke fill;text-shadow:0 .5cqw 0 #000}
+.tmm-tete svg{width:1.05em;height:1.05em;flex:none}
+.tmm-droite .tmm-tete{left:11.14%;width:77.72%}
+.tmm-haut{position:absolute;left:43.85%;top:24.82%;width:12.3%;height:9.77%;display:flex}
+.tmm-haut svg{width:100%;height:100%;display:block}
+.tmm-corps,.tmm-lcds{display:contents}
+/* tube de verre : le niveau de la barre (le liquide monte avec elle) */
+.tmm-tube{position:absolute;left:9.98%;top:32.52%;width:13.82%;height:45.65%;border-radius:1.8cqw;overflow:hidden}
+.tmm-droite .tmm-tube{left:74.15%;top:32.38%;width:14.89%}
+.tmm-liq{position:absolute;left:0;right:0;bottom:0;height:0%;background:linear-gradient(180deg,var(--c2),var(--c1))}
+.tmm-liq::before{content:"";position:absolute;left:0;right:0;top:-.5cqw;height:1.1cqw;border-radius:50%;background:var(--c2);opacity:.9}
 .tmm-bulles{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .tmm-bulles-cv{position:absolute;left:0;bottom:0;width:100%;display:block;pointer-events:none}
 /* RÉFÉRENCE de la courbe des bulles : elles sont dessinées par modules/tm-bulles-canvas-v1.js, qui reproduit ces keyframes (le test idle-tm-bulles-canvas-v1 les compare). Ne plus les appliquer à des éléments (une bulle = une couche). */
 @keyframes tmmFizz{0%{opacity:0;transform:translateY(0) scale(1)}15%{opacity:.95}100%{opacity:0;transform:translateY(-34px) scale(2.2)}}
 @keyframes tmmMonte{0%{opacity:0;transform:translateY(0) translateX(0) scale(1)}8%{opacity:.95}50%{transform:translateY(-52cqh) translateX(3px) scale(2.2)}92%{opacity:.85}100%{opacity:0;transform:translateY(-98cqh) translateX(-2px) scale(3.8)}}
-.tmm-tube::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 22px,rgba(0,0,0,.45) 22px 24px);pointer-events:none}
-.tmm-lcds{display:flex;flex-direction:column;gap:9px;min-width:0}
-.tmm-lcd,.tmm-case{border-radius:10px;border:3px solid var(--encre);background:linear-gradient(180deg,#071a14,#03100c);box-shadow:inset 0 0 0 2px #46586a,inset 0 0 18px rgba(0,0,0,.8),0 0 0 2px #b98a3c;padding:6px 9px 7px;position:relative;overflow:hidden}
-.tmm-lcd::after,.tmm-case::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px);pointer-events:none}
-.tmm-lcd-titre,.tmm-case-titre{display:block;font-size:11px;letter-spacing:.14em;color:#6fd9b3;opacity:.85;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tmm-lcd-val,.tmm-case-val,.tmm-machine .tmm-case input[type=number]{display:block;font-size:clamp(17px,2.6cqw,25px);font-weight:400;color:var(--c2);text-shadow:0 0 10px var(--cg);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* fine barre de progression sous le temps restant */
-.tmm-barre{position:relative;height:7px;margin-top:5px;border-radius:999px;background:#000;border:1px solid #1d3a30;overflow:hidden}
-.tmm-rempl{height:100%;width:0;border-radius:999px;background:linear-gradient(90deg,var(--c1),var(--c2));box-shadow:0 0 8px var(--cg)}
+.tmm-tube::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(180deg,transparent 0 5.6cqw,rgba(0,0,0,.45) 5.6cqw 6.1cqw);pointer-events:none}
+/* afficheurs : posés dans les deux panneaux vides à droite du tube (à gauche pour la Magie) */
+.tmm-lcd{position:absolute;display:flex;flex-direction:column;justify-content:center;min-width:0;padding:0 6%;overflow:hidden;border:0;background:none;box-shadow:none}
+.tmm-lcds>.tmm-lcd:nth-child(1){left:30.48%;top:38.87%;width:58.29%;height:11.56%}
+.tmm-lcds>.tmm-lcd:nth-child(2){left:30.66%;top:56.42%;width:58.11%;height:16.05%}
+.tmm-droite .tmm-lcds>.tmm-lcd:nth-child(1){left:10.61%;width:56.77%;height:11.42%}
+.tmm-droite .tmm-lcds>.tmm-lcd:nth-child(2){left:10.61%;width:56.77%;height:15.91%}
+.tmm-lcd-titre,.tmm-case-titre{display:block;font-size:2.5cqw;letter-spacing:.14em;color:#8fa6b8;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tmm-lcd-val,.tmm-case-val,.tmm-machine .tmm-case input[type=number]{display:block;font-size:7.4cqw;line-height:1.05;font-weight:400;text-align:right;color:var(--lcd);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* la barre du « temps restant » faisait double emploi avec le tube (Norman, 2026-11-06) : retirée de l'affichage ; l'élément reste dans la page car le code en direct y lit et y écrit le niveau de remplissage qui pilote le tube */
+.tmm-barre{display:none}
+.tmm-rempl{height:100%;width:0}
 /* ligne de compte à rebours d'origine : lue par les lecteurs d'écran ; visible seulement quand il manque de l'Or (message d'attente) */
 .tmm-eta{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
-/* Prix en Or du niveau suivant, sous la barre (Norman, 2026-10-29) */
-.tmm-prix{display:flex;justify-content:space-between;align-items:baseline;gap:6px;margin-top:5px;font-size:11px;line-height:1.2;color:#ffe9a0;text-shadow:0 1px 0 rgba(0,0,0,.6)}
-.tmm-prix i{font-style:normal;opacity:.85;letter-spacing:.04em;text-transform:uppercase;font-size:9.5px}
+/* Prix en Or du niveau suivant (Norman, 2026-10-29) */
+.tmm-prix{display:flex;justify-content:space-between;align-items:baseline;gap:1.4cqw;margin-top:.8cqw;font-size:2.4cqw;line-height:1.2;color:#ffe9a0}
+.tmm-prix i{font-style:normal;opacity:.85;letter-spacing:.04em;text-transform:uppercase;font-size:2.2cqw}
 .tmm-prix b{font-weight:800;white-space:nowrap}
-.tmm-eta[data-tm-eta-last="or"]{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal;margin-top:6px;font-size:12px;line-height:1.3;color:#ffe1e1;font-style:normal;text-shadow:none}
-.tmm-boutons{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-.tmm-boutons button{font-family:"Bangers",cursive;font-size:19px;letter-spacing:.04em;min-height:48px;color:#2a1700;border-radius:11px;border:3px solid var(--encre);padding:6px 0 5px;cursor:pointer;background:linear-gradient(180deg,#ffe9a6,#d9a02e 55%,#8a5a12);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 4px 0 #3a2208,0 6px 8px rgba(0,0,0,.5);transition:transform .08s,box-shadow .08s}
-.tmm-boutons button:first-child,.tmm-boutons button:nth-child(2){font-family:system-ui,"Segoe UI",Arial,sans-serif;font-size:26px;font-weight:900;line-height:1}
-.tmm-boutons button:active{transform:translateY(3px);box-shadow:inset 0 2px 0 rgba(255,255,255,.4),0 1px 0 #3a2208}
-.tmm-boutons button.max{background:linear-gradient(180deg,#c9ffd9,#3fcf74 55%,#14702f)}
-.tmm-droite .tmm-boutons button.max{background:linear-gradient(180deg,#d2e8ff,#4f9cf0 55%,#1a4a9a)}
-.tmm-ligne{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.tmm-case{min-width:0}
-.tmm-machine .tmm-case input[type=number]{width:100%;font-family:inherit;background:transparent;border:0;border-radius:0;padding:0;outline:0;box-shadow:none;height:auto;min-height:0;text-align:left;position:relative;z-index:1}
+.tmm-eta[data-tm-eta-last="or"]{position:static;width:auto;height:auto;overflow:visible;clip:auto;white-space:normal;margin-top:1cqw;font-size:2.6cqw;line-height:1.3;color:#ffe1e1;font-style:normal}
+/* boutons + − Max 0 : une colonne par emplacement carré de l'image */
+.tmm-boutons{position:absolute;left:12.21%;width:75.67%;top:84.02%;height:5.85%;display:grid;grid-template-columns:repeat(4,18.6%);justify-content:space-between}
+.tmm-droite .tmm-boutons{left:12.48%;width:75.22%;top:83.95%}
+.tmm-boutons button{height:100%;min-width:0;padding:0;border:0;border-radius:1.4cqw;background:none;color:var(--c2);font-family:"Bangers",cursive;font-size:7cqw;line-height:1;letter-spacing:.04em;cursor:pointer;-webkit-text-stroke:.3cqw #000;paint-order:stroke fill}
+.tmm-boutons button:first-child,.tmm-boutons button:nth-child(2){font-family:system-ui,"Segoe UI",Arial,sans-serif;font-size:8.4cqw;font-weight:900}
+.tmm-boutons button:active{transform:translateY(.5cqw)}
+.tmm-boutons button.max{background:var(--c1);color:#fff}
+/* Cible et Allouée : deux petits afficheurs posés sur le métal, sous « temps restant » */
+.tmm-ligne{position:absolute;left:30.66%;width:58.11%;top:74.5%;height:8.2%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2%}
+.tmm-droite .tmm-ligne{left:10.61%;width:56.77%}
+.tmm-case{min-width:0;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center;padding:0 5%;border:.6cqw solid #000;border-radius:2cqw;background:#15161a}
+.tmm-case-val,.tmm-machine .tmm-case input[type=number]{font-size:5.2cqw}
+.tmm-machine .tmm-case input[type=number]{width:100%;font-family:inherit;background:transparent;border:0;border-radius:0;padding:0;outline:0;box-shadow:none;height:auto;min-height:0;text-align:right;position:relative;z-index:1}
 /* ---- le centre : la grande machine ---- */
-.tmm-centre{position:relative;z-index:1;margin:0 -2px}
-.tmm-svg{display:block;width:100%;height:auto;overflow:visible}
-.tmm-mob{filter:saturate(1.05) contrast(1.05)}
-.tmm-rouleau{animation:tmmRouleau 5.5s linear infinite}
-@keyframes tmmRouleau{0%{transform:translateY(-70px);opacity:0}12%{opacity:.55}88%{opacity:.55}100%{transform:translateY(250px);opacity:0}}
-.tmm-lampe{animation:tmmLampe 2.4s ease-in-out infinite;animation-delay:var(--d,0s)}
-@keyframes tmmLampe{0%,100%{opacity:.25}50%{opacity:1}}
-.tmm-vapeur{animation:tmmVapeur 3.4s ease-out infinite;animation-delay:var(--d,0s);transform-box:fill-box;transform-origin:50% 100%;opacity:0}
-@keyframes tmmVapeur{0%{opacity:0;transform:translateY(0) scale(.5)}15%{opacity:.7}100%{opacity:0;transform:translateY(-46px) scale(1.5)}}
+.tmm-svg{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible}
+.tmm-mob{filter:none}
 .tmm-orbe{animation:tmmOrbe 3.2s ease-in-out infinite}
 @keyframes tmmOrbe{0%,100%{opacity:.7}50%{opacity:1}}
-.tmm-etincelle{animation:tmmEtincelle 2.4s linear infinite;animation-delay:var(--d,0s);opacity:0}
-@keyframes tmmEtincelle{0%{opacity:0;transform:translateY(0)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translateY(-34px)}}
-@container (max-width:820px){
-  .tmm-machine,.tmm-machine.tmm-sans-magie{grid-template-columns:1fr 1fr}
-  .tmm-centre{grid-column:1/-1;order:-1}
-  .tmm-gauche{border-radius:0 0 0 26px}
-  .tmm-droite{border-radius:0 0 26px 0}
-  .tmm-tour{min-height:0}
-  .tmm-sans-magie .tmm-gauche{grid-column:1/-1;border-radius:0 0 26px 26px}
+/* ---- petits écrans : une colonne (machine, Énergie, Magie), cartes à 520 px au plus ---- */
+@container (max-width:900px){
+  .tmm-machine,.tmm-machine.tmm-sans-magie{grid-template-columns:minmax(0,1fr);max-width:520px;margin:0 auto}
+  .tmm-centre{order:-1}
 }
-@container (max-width:560px){
-  .tmm-machine,.tmm-machine.tmm-sans-magie{grid-template-columns:1fr}
-  .tmm-gauche{border-radius:0}
-  .tmm-droite{border-radius:0 0 26px 26px}
-  .tmm-tube{min-height:150px}
-}
-@media (prefers-reduced-motion:reduce){.tmm-rouleau,.tmm-lampe,.tmm-vapeur,.tmm-orbe,.tmm-etincelle{animation:none}}
+@media (prefers-reduced-motion:reduce){.tmm-orbe{animation:none}}
 /* Le gonflement du chiffre alloué (alloc-pop-v1) le passait en inline-block : les cases « Cible » et « Allouée » changeaient de taille à chaque ajout d'énergie (Norman, 2026-10-23). Il reste en bloc, à hauteur fixe, et gonfle depuis la gauche. */
-.tmm-machine .tmm-case .tmm-case-val.soreal-idle-alloc-pop-v1{display:block;transform-origin:left center}
-.tmm-machine .tmm-ligne{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.tmm-machine .tmm-case .tmm-case-val.soreal-idle-alloc-pop-v1{display:block;transform-origin:right center}

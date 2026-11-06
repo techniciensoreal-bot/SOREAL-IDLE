@@ -3,17 +3,17 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 458,
-  "fichiersAvecWebAnimations": 17,
+  "keyframes": 454,
+  "fichiersAvecWebAnimations": 18,
   "fichiersCanvas": 12,
-  "pointsEntreeRejouables": 253,
+  "pointsEntreeRejouables": 254,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
   "mortsNouvelles": 5,
   "effetsReglables": 4,
   "sonsEffets": 82,
-  "dossiersDeRessources": 18
+  "dossiersDeRessources": 19
  },
  "menus": [
   {
@@ -3937,30 +3937,12 @@
    ]
   },
   {
-   "nom": "tmmEtincelle",
-   "definiePar": [
-    "soreal-idle-machine.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-machine.css"
-   ]
-  },
-  {
    "nom": "tmmFizz",
    "definiePar": [
     "soreal-idle-machine.css"
    ],
    "utilisePar": [
     "modules/tm-bulles-canvas-v1.js"
-   ]
-  },
-  {
-   "nom": "tmmLampe",
-   "definiePar": [
-    "soreal-idle-machine.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-machine.css"
    ]
   },
   {
@@ -3979,24 +3961,6 @@
    ],
    "utilisePar": [
     "modules/machine-dessin-v1.js",
-    "soreal-idle-machine.css"
-   ]
-  },
-  {
-   "nom": "tmmRouleau",
-   "definiePar": [
-    "soreal-idle-machine.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-machine.css"
-   ]
-  },
-  {
-   "nom": "tmmVapeur",
-   "definiePar": [
-    "soreal-idle-machine.css"
-   ],
-   "utilisePar": [
     "soreal-idle-machine.css"
    ]
   },
@@ -4352,6 +4316,10 @@
    "appels": 1
   },
   {
+   "fichier": "modules/engrenages-v1.js",
+   "appels": 1
+  },
+  {
    "fichier": "modules/feu-v1.js",
    "appels": 2
   },
@@ -4634,6 +4602,7 @@
   "__SOREAL_IDLE_EARLY_UI_V49__": "modules/ui.js",
   "__SOREAL_IDLE_ECART_V1__": "modules/ui-combat-1-v1.js",
   "__SOREAL_IDLE_EFFETS_LEGERS_V1__": "modules/effets-legers-v1.js",
+  "__SOREAL_IDLE_ENGRENAGES_V1__": "modules/engrenages-v1.js",
   "__SOREAL_IDLE_ENTETE_MENU_V1__": "modules/entete-menu-v1.js",
   "__SOREAL_IDLE_EST_ADMIN_V1__": "modules/diag-fluidite-v1.js",
   "__SOREAL_IDLE_ETAGERE_EXPR_V1__": "modules/etagere-expression-v1.js",
@@ -4905,6 +4874,7 @@
   "garderie/yeux": 33,
   "icons": 3,
   "intro": 16,
+  "machine-v2": 3,
   "magic/boss": 299,
   "magic/fonds": 32,
   "magic/safe": 32,

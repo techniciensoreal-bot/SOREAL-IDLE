@@ -9,6 +9,8 @@ import vm from "node:vm";
 const src = readFileSync(new URL("../public/modules/machine-dessin-v1.js", import.meta.url), "utf8");
 const window = {};
 const sandbox = { window, document: { querySelector: () => null, querySelectorAll: () => [], getElementById: () => null }, matchMedia: () => ({ matches: false }), performance, requestAnimationFrame: () => 0, URLSearchParams, encodeURIComponent, WeakSet };
+/* le module d'engrenages (modules/engrenages-v1.js) est chargé avant le dessin, comme dans index.html */
+vm.runInNewContext(readFileSync(new URL("../public/modules/engrenages-v1.js", import.meta.url), "utf8"), sandbox);
 vm.runInNewContext(src, sandbox);
 const D = window.__SOREAL_IDLE_TM_DESSIN_V1__;
 assert.ok(D && ["defs", "centre", "hautEnergie", "hautMagie", "rafraichir", "maj", "urlMob"].every((k) => typeof D[k] === "function"));
@@ -40,7 +42,7 @@ assert.equal(D.urlMob(null), "");
 const piege = D.centre({ ticks: 5, mob: { zone: "forest", boss: 0, seed: 0, name: '<img src=x onerror=alert(1)>' }, butin: "<b>" });
 assert.ok(!piege.includes("<img src=x") && !piege.includes("<b>") && piege.includes("&lt;img"), "textes échappés");
 assert.ok(D.hautEnergie().includes("tmm-rot") && D.hautMagie().includes("tmm-anneau") && D.hautMagie().includes("data-morph-vivant"));
-assert.ok(D.defs().includes('id="tmmPignon"') && D.defs().includes('id="tmmOrbe"'));
+assert.ok(D.defs().includes('id="tmmPiece"') && D.defs().includes('id="tmmOrbe"') && D.defs().includes('id="tmmLueur"'), "dégradés encore utilisés (pièces, orbe, lueur)");
 
 // Le code : la phase ne saute jamais (playbackRate), vitesse lissée, mouvement réduit, 50 tiques par seconde au plafond.
 assert.ok(src.includes("playbackRate") && src.includes("iterations:Infinity") && !/\.animate\([^)]*\)[\s\S]{0,40}duration:\s*vue/.test(src), "la vitesse change par playbackRate, jamais la durée");
