@@ -132,16 +132,16 @@ function envSimule(options = {}) {
 
 /* ---- 3 ter. DIAGNOSTIC de la Machine temporelle : quatre passes, variantes temporaires toujours retirées ---- */
 {
-  assert.equal(M.PLAN_DIAG_MACHINE.length, 8, "huit passes");
-  assert.deepEqual(M.PLAN_DIAG_MACHINE.map((p) => p.variante || null), [null, "pause", "decor", "cadre", "pauseCss", "pauseWaapi", "svg", "bulles"]);
+  assert.equal(M.PLAN_DIAG_MACHINE.length, 7, "sept passes");
+  assert.deepEqual(M.PLAN_DIAG_MACHINE.map((p) => p.variante || null), [null, "pause", "cadre", "bulles", "sansConteneur", "sansGrosses", "sansMini"]);
   assert.ok(M.PLAN_DIAG_MACHINE.every((p) => p.id === "machine"), "toutes sur la Machine temporelle");
-  assert.deepEqual(Object.keys(M.VARIANTES_CSS).sort(), ["bulles", "cadre", "decor", "pause", "pauseCss", "pauseWaapi", "svg"]);
+  assert.deepEqual(Object.keys(M.VARIANTES_CSS).sort(), ["bulles", "cadre", "decor", "pause", "pauseCss", "pauseWaapi", "sansConteneur", "sansGrosses", "sansMini", "svg"]);
   const { env, journal } = envSimule({});
   const appels = [];
   env.variante = (v) => { appels.push(v); journal.push("variante:" + v); };
   const r = await M.executer(env, null, M.PLAN_DIAG_MACHINE, "diagnostic Machine temporelle");
-  assert.deepEqual(appels, [null, "pause", "decor", "cadre", "pauseCss", "pauseWaapi", "svg", "bulles", null], "chaque passe applique sa variante ; la dernière remise à zéro retire tout");
-  assert.equal(r.menus.length, 8); assert.equal(r.titre, "diagnostic Machine temporelle");
+  assert.deepEqual(appels, [null, "pause", "cadre", "bulles", "sansConteneur", "sansGrosses", "sansMini", null], "chaque passe applique sa variante ; la dernière remise à zéro retire tout");
+  assert.equal(r.menus.length, 7); assert.equal(r.titre, "diagnostic Machine temporelle");
   assert.ok(M.texteRapport(r).startsWith("=== SOREAL NGU IDLE — diagnostic Machine temporelle (protocole v1) ==="), "le titre du rapport dit qu'il s'agit du diagnostic");
   assert.ok(M.texteRapport(r).includes("[ Machine temporelle — animations de la machine en pause ]"), "chaque passe est nommée");
   /* panne en pleine passe : la variante est retirée quand même */

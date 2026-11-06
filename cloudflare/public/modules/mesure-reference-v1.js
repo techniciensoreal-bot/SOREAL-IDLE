@@ -21,12 +21,11 @@ var DUREE_MENU_MS=20000,MISE_EN_PLACE_MS=3000;
 var PLAN_DIAG_MACHINE=[
   {id:'machine',nom:'Machine temporelle — normale'},
   {id:'machine',nom:'Machine temporelle — animations de la machine en pause',variante:'pause'},
-  {id:'machine',nom:'Machine temporelle — décor masqué (centre et haut)',variante:'decor'},
   {id:'machine',nom:'Machine temporelle — machine entière masquée',variante:'cadre'},
-  {id:'machine',nom:'Machine temporelle — seules les animations de style en pause',variante:'pauseCss'},
-  {id:'machine',nom:'Machine temporelle — seuls les engrenages (rotations scriptées) en pause',variante:'pauseWaapi'},
-  {id:'machine',nom:'Machine temporelle — dessin de la machine masqué (barres et boutons gardés)',variante:'svg'},
-  {id:'machine',nom:'Machine temporelle — sans bulles',variante:'bulles'}
+  {id:'machine',nom:'Machine temporelle — sans bulles',variante:'bulles'},
+  {id:'machine',nom:'Machine temporelle — liquide sans conteneur de requête (hypothèse : la hauteur réécrite à chaque image recalcule les bulles)',variante:'sansConteneur'},
+  {id:'machine',nom:'Machine temporelle — sans les grosses bulles',variante:'sansGrosses'},
+  {id:'machine',nom:'Machine temporelle — sans les minibulles',variante:'sansMini'}
 ];
 var VARIANTES_CSS={
   pause:'.tmm-machine,.tmm-machine *{animation-play-state:paused!important}',
@@ -35,7 +34,10 @@ var VARIANTES_CSS={
   bulles:'.tmm-bulles,.tmm-bulle{display:none!important}',
   pauseCss:'.tmm-machine,.tmm-machine *{animation-play-state:paused!important}',
   pauseWaapi:'',
-  svg:'.tmm-machine svg{visibility:hidden!important}'
+  svg:'.tmm-machine svg{visibility:hidden!important}',
+  sansConteneur:'.tmm-liq{container-type:normal!important}',
+  sansGrosses:'.tmm-bulle.gde{display:none!important}',
+  sansMini:'.tmm-bulle.mini{display:none!important}'
 };
 var BUDGET={sup20:1,sup34:0.1,max:50};   /* % d'images au-dessus de 20 ms, % au-dessus de 34 ms, pire image en ms */
 
