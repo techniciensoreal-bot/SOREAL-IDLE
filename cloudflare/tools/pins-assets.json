@@ -80,8 +80,8 @@
   "sha": "fdd64062157b6fcf7c99ca2438b15c07a502029f"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 45,
-  "sha": "561e789bdfffdbba828d92d3d4bddc2aa75d003a"
+  "pin": 46,
+  "sha": "8b6d556756f05f7e99562345ff1febe82e0d4a80"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 12,
@@ -699,6 +699,10 @@
   "pin": 21,
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
+ "/modules/tm-bulles-canvas-v1.js": {
+  "pin": 1,
+  "sha": "86c5ad1426720a7f028e0d1de1b883c6ef6f1453"
+ },
  "/modules/tm-projection-v1.js": {
   "pin": 3,
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
@@ -960,8 +964,8 @@
   "sha": "d973d18828cf2c25d9e12e07614d279bc73b88ac"
  },
  "/soreal-idle-machine.css": {
-  "pin": 11,
-  "sha": "e864b9f4bc91d14a8d2b9536f8ce979d15bf7b21"
+  "pin": 12,
+  "sha": "1400d22c59e78afb41f1781543f3f9b3a4083391"
  },
  "/soreal-idle-menus-boutons-v1.css": {
   "pin": 49,

@@ -5,8 +5,8 @@
   "pages": 33,
   "keyframes": 458,
   "fichiersAvecWebAnimations": 17,
-  "fichiersCanvas": 11,
-  "pointsEntreeRejouables": 252,
+  "fichiersCanvas": 12,
+  "pointsEntreeRejouables": 253,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
@@ -3951,7 +3951,7 @@
     "soreal-idle-machine.css"
    ],
    "utilisePar": [
-    "soreal-idle-machine.css"
+    "modules/tm-bulles-canvas-v1.js"
    ]
   },
   {
@@ -3969,7 +3969,7 @@
     "soreal-idle-machine.css"
    ],
    "utilisePar": [
-    "soreal-idle-machine.css"
+    "modules/tm-bulles-canvas-v1.js"
    ]
   },
   {
@@ -4446,6 +4446,10 @@
    "contextes": 1
   },
   {
+   "fichier": "modules/tm-bulles-canvas-v1.js",
+   "contextes": 3
+  },
+  {
    "fichier": "modules/victoire-boss-arcade-v1.js",
    "contextes": 3
   }
@@ -4764,6 +4768,7 @@
   "__SOREAL_IDLE_TIME_FORMAT_V1__": "modules/time-format-v1.js",
   "__SOREAL_IDLE_TITANS_V1__": "modules/titans-v1.js",
   "__SOREAL_IDLE_TITAN_ECRAN_V1__": "modules/titans-combat-ecran-v1.js",
+  "__SOREAL_IDLE_TM_BULLES_V1__": "modules/tm-bulles-canvas-v1.js",
   "__SOREAL_IDLE_TM_DESSIN_V1__": "modules/machine-dessin-v1.js",
   "__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__": "modules/traduction-anglais-v1.js",
   "__SOREAL_IDLE_TRADUCTION_INTERFACE_V1__": "modules/traduction-interface-v1.js",

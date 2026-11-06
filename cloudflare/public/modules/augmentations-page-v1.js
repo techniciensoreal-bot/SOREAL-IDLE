@@ -1343,10 +1343,8 @@
            * Air qui arrive du bas de la jauge (Norman, 2026-10-21) : plein de minibulles très fines et très rapides au pied du tube, et seulement quelques-unes qui montent vraiment, en grossissant à mesure qu'elles s'éloignent. Les bulles vivent DANS le liquide (Norman, 2026-10-21 : « les bulles ne doivent jamais dépasser le liquide ») : calque rogné à la hauteur du liquide, elles
            * s'arrêtent à sa surface quel que soit son niveau ; tube vide = aucune bulle.
            */
-          let bulles='';
-          for(let i=0;i<14;i+=1)bulles+='<i class="tmm-bulle mini" style="--x:'+(8+((i*41+(gauche?0:17))%84))+'%;--d:-'+(((i*0.173)%0.7)).toFixed(2)+'s;--v:'+(0.55+((i*7)%5)*0.07).toFixed(2)+'s"></i>';
-          for(let i=0;i<3;i+=1)bulles+='<i class="tmm-bulle gde" style="--x:'+(24+i*26+(gauche?0:4))+'%;--d:-'+(i*0.9+(gauche?0:0.4)).toFixed(1)+'s;--v:'+(2.4+i*0.35).toFixed(2)+'s"></i>';
-          const tube='<div class="tmm-tube"><div class="tmm-liq" style="height:'+largeur.toFixed(2)+'%"><div class="tmm-bulles">'+bulles+'</div></div></div>';
+          /* Les bulles sont dessinées dans UN canvas par tube (modules/tm-bulles-canvas-v1.js, plan C9) : 17 éléments animés = 17 couches de composition par tube. */
+          const tube='<div class="tmm-tube"><div class="tmm-liq" style="height:'+largeur.toFixed(2)+'%"><div class="tmm-bulles"><canvas class="tmm-bulles-cv" data-morph-vivant="1" data-tm-gauche="'+(gauche?'1':'0')+'"></canvas></div></div></div>';
           const lcds='<div class="tmm-lcds">'+
             '<div class="tmm-lcd"><i class="tmm-lcd-titre">NIVEAU</i><div class="tmm-lcd-val" data-tm-niveau="'+cle+'">'+nombre(niveau)+'</div></div>'+
             '<div class="tmm-lcd"><i class="tmm-lcd-titre">TEMPS RESTANT</i><div class="tmm-lcd-val" data-tm-lcd-eta="'+cle+'">'+(etaValide?formaterEta(etaSecondes):'—')+'</div>'+
