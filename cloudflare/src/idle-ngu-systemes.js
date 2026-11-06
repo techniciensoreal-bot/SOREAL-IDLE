@@ -14,7 +14,7 @@ import { idleLoginCalendarOctroiV1 } from "./idle-login-calendar-v1.js";
 import { acquerirSkinsV1 } from "./idle-daycare-skins-v1.js";
 import { acquerirPortraitsV1 } from "./idle-portraits-v1.js";
 import { idleYggFruitUnlockedV1, idleYggAutoActivateV1, idleYggActivationCostV1, idleYggSeedUnitV1, idleYggUsePoopV1, idleYggMayoFruitBaseV1, idleYggFruitOfQuirksQpV1, idleYggQuickActivationV1, idleYggTierSecondsV1, idleYggItopodPoopV1 } from "./idle-yggdrasil-extra-v1.js";
-import { idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureBoostV1, zoneNormalePlusAvanceeV1, advanceTitanAutoKillV1, advanceAdventureZoneAutoFarmOfflineV1 } from "./idle-adventure-v47.js";
+import { idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleEquipementEffectifLectureV1, idleAdventureBoostV1, zoneNormalePlusAvanceeV1, advanceTitanAutoKillV1, advanceAdventureZoneAutoFarmOfflineV1 } from "./idle-adventure-v47.js";
 import { idleCardsMayoFruitProgressV1, idleCardsMayoFruitApercuV1, advanceIdleCardsV1 } from "./idle-cards-v1.js";
 import { idleInventoryReceiveDropV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1, advanceIdleInventoryAutoV1 } from "./idle-inventory-auto-v1.js";
 import { idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
@@ -382,7 +382,7 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
       s.data.runPowerAlphaValue+=Math.ceil(factor*yieldFruit);
       result.runPowerAlphaValue=s.data.runPowerAlphaValue;
     }else if(def.effect==="adventure"){
-      const baseToughness=Math.max(1,idleAdventureCombatStatsV1(idleEquipementEffectifV1(state),{},null).toughness);
+      const baseToughness=Math.max(1,idleAdventureCombatStatsV1(idleEquipementEffectifLectureV1(state),{},null).toughness);
       const gain=Math.floor(factor*Math.pow(baseToughness,0.2)*yieldFruit);
       s.data.permanent.adventurePower+=gain;
       s.data.permanent.adventureToughness+=gain;
@@ -472,7 +472,7 @@ export function apercuYggFruitV1(state,def,f,poopFactor=1){
     effets.push(["gold",Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*minutes*60]);
   }else if(def.effect==="powerAlpha")effets.push(["powerAlpha",Math.ceil(factor*yieldFruit)]);
   else if(def.effect==="adventure"){
-    const baseToughness=Math.max(1,idleAdventureCombatStatsV1(idleEquipementEffectifV1(state),{},null).toughness);
+    const baseToughness=Math.max(1,idleAdventureCombatStatsV1(idleEquipementEffectifLectureV1(state),{},null).toughness);
     effets.push(["adventure",Math.floor(factor*Math.pow(baseToughness,0.2)*yieldFruit)]);
   }else if(def.effect==="experience")effets.push(["experience",Math.max(1,Math.floor(Math.ceil(factor*5*yieldFruit)*Math.max(1,perkBonuses.fruitKnowledgeExpMultiplier)*Math.max(1,num(idleNguBonusesLectureV1(state).xpMultiplier,1))))]);
   else if(def.effect==="luck")effets.push(["luck",Math.ceil(factor*0.7*yieldFruit)*0.05]);
@@ -756,7 +756,7 @@ function advanceTowerV1(state, seconds, context) {
   d.killTime = Math.max(0, num(d.killTime, 0));
   d.apProgress = Math.max(0, num(d.apProgress, 0));
 
-  const gear = idleEquipementEffectifV1(state);
+  const gear = idleEquipementEffectifLectureV1(state);   /* lecture seule (équipement partagé et gelé) */
   const bonuses = idleNguBonusesLectureV1(state);
   const powerRaw = idleAdventureCombatStatsV1(gear, context, bonuses).power;
   /* Pour l'écran (Norman, 2026-10-04 : « les ennemis doivent prendre des coups, la vie descend progressivement quand on n'est pas assez fort pour les tuer d'un coup ») : coups nécessaires pour tuer un ennemi de l'étage en cours
@@ -1019,7 +1019,7 @@ function advanceLateSystems(state, seconds, context, now) {
    * récompenses qu'un kill manuel, à l'exception du butin (jamais accordé par Auto-Kill, cf. le commentaire
    * d'advanceTitanAutoKillV1).
    */
-  const gearAventure = idleEquipementEffectifV1(state);
+  const gearAventure = idleEquipementEffectifLectureV1(state);   /* lecture seule */
   const combatAventure = idleAdventureCombatStatsV1(gearAventure, context, idleNguBonusesLectureV1(state));
   {
     const titanChallengeBonuses = challengePermanentBonuses(state);

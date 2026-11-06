@@ -504,8 +504,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 180,
-  "sha": "991f7f7c8d35ac673be2f21a70c43dcbd4d72a90"
+  "pin": 181,
+  "sha": "f572a5d918eaf3f4f7dbbb3adfa92ddb96befdca"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -608,8 +608,8 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 175,
-  "sha": "f1c58544b9a725864c6897c0f67ff756b1040767"
+  "pin": 176,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 816,

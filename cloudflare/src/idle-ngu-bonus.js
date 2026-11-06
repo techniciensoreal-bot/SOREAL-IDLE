@@ -9,7 +9,7 @@ import { IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, IDLE_NGU_MAX_LEVEL_V1, nguEffec
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
-import { avecEquipementFigeV1, idleAdventureCleEquipementV1, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
+import { avecEquipementFigeV1, idleAdventureCleEquipementV1, idleAdventureEquipmentStatsLectureV47, idleEquipementEffectifLectureV1, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
 import { idleHeartsApMultiplierV1, idleHeartsExpMultiplierV1, idleHeartsHackSpeedMultiplierV1 } from "./idle-hearts-v1.js";
 import { idleCardsMultiplierV1, idleCardsApplyToBonusesV1 } from "./idle-cards-v1.js";
 import { macguffinEffectMultiplierV1, macguffinApplyToBonusesV1 } from "./idle-macguffins-v1.js";
@@ -230,7 +230,7 @@ export function nguTotalLevelsV1(state) {
 /* Specials cumulés (en %) de l'équipement porté ; vides sous le No Equipment Challenge. */
 export function gearSpecialsV1(state) {
   if (state.challenge?.active === "noEquipment") return {};
-  return idleEquipementEffectifV1(state).specials || {};
+  return idleEquipementEffectifLectureV1(state).specials || {};   /* lecture seule : résultat partagé et gelé (voir idleAdventureEquipmentStatsLectureV47) */
 }
 
 export const gearPctV1 = (specials, key) => 1 + Math.max(0, num(specials?.[key], 0)) / 100;
@@ -266,7 +266,7 @@ export function apWithBonusV1(state, base) {
 }
 
 export function nguSpeedMultiplierV1(state, resource) {
-  const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsV47(state.adventure);
+  const gear = state.challenge?.active === "noEquipment" ? null : idleAdventureEquipmentStatsLectureV47(state.adventure);   /* lecture seule */
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   const quirks = quirkBonusesV1(idleQuirkNiveauxV1(state));
   const fx = nguFxV1(state);
@@ -685,7 +685,7 @@ function idleNguBonusesSansMacguffinCoeurV1(state) {
   const equipmentDisabled = state.challenge.active === "noEquipment";
   const adventureGear = equipmentDisabled
     ? {power:0,toughness:0,hp:0,regen:0,specials:{}}
-    : idleAdventureEquipmentStatsV47(state.adventure);
+    : idleAdventureEquipmentStatsLectureV47(state.adventure);   /* lecture seule : le calcul des bonus ne modifie jamais l'équipement */
   const adventurePermanent = state.adventure?.permanent || {};
   const diggers = diggerBonuses(state);
   const ygg = state.systems.yggdrasil?.data || createYggdrasilData();

@@ -142,6 +142,24 @@ export function avecEquipementFigeV1(adv,fn){
     if(verif&&JSON.stringify(adv)!==avant)throw new Error("SOREAL_IDLE_EQUIP_FIGE_ETAT_MODIFIE");
   }
 }
+/*
+ * Variante LECTURE (plan design/ARCHITECTURE-CIBLE.md, étape 1 ; Norman, 2026-11-06) : mêmes valeurs, SANS copie profonde (une action en faisait ~300, 20 ms sur 100). Le résultat est PARTAGÉ et GELÉ (Object.freeze récursif) : une modification
+ * accidentelle par un appelant lève une erreur franche au lieu de corrompre le mémo en silence. Réservée aux appelants qui ne font que LIRE (audités : gearSpecialsV1, nguSpeedMultiplierV1, le calcul des bonus, advanceTower, advanceLateSystems, les stats de combat).
+ */
+function gelerV1(o){if(o&&typeof o==="object"&&!Object.isFrozen(o)){Object.freeze(o);for(const k of Object.keys(o))gelerV1(o[k]);}return o}
+export function idleAdventureEquipmentStatsLectureV47(raw){
+  if(raw&&__equipFigeV1.adv===raw){
+    if(__equipFigeV1.valeur===null)__equipFigeV1.valeur=idleAdventureEquipmentStatsMemoV47(raw);
+    gelerV1(__equipFigeV1.valeur);
+    if(typeof process!=="undefined"&&process.env&&process.env.SOREAL_IDLE_VERIF_BONUS==="1"&&JSON.stringify(idleAdventureEquipmentStatsCalculV47(raw))!==JSON.stringify(__equipFigeV1.valeur))throw new Error("SOREAL_IDLE_EQUIP_FIGE_DIVERGENT");
+    return __equipFigeV1.valeur;
+  }
+  return idleAdventureEquipmentStatsMemoV47(raw,true);
+}
+export function idleEquipementEffectifLectureV1(state){
+  if(state&&state.challenge&&state.challenge.active==="noEquipment")return{power:0,toughness:0,hp:0,regen:0,specials:{},specialsByType:{},cubePowerContribution:0,cubeToughnessContribution:0};
+  return idleAdventureEquipmentStatsLectureV47(state&&state.adventure);
+}
 export function idleAdventureEquipmentStatsV47(raw){
   if(raw&&__equipFigeV1.adv===raw){
     if(__equipFigeV1.valeur===null)__equipFigeV1.valeur=idleAdventureEquipmentStatsMemoV47(raw);
@@ -166,12 +184,12 @@ export function idleAdventureCleEquipementV1(raw){
   const sac=Array.isArray(raw.inventory)?raw.inventory.map(x=>x?[x.definitionId,x.level]:0):[];
   return JSON.stringify([raw.version,e,portes,raw.dualWieldRatio,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac]);
 }
-function idleAdventureEquipmentStatsMemoV47(raw){
+function idleAdventureEquipmentStatsMemoV47(raw,lecture){
   let cle=null;
   try{cle=idleAdventureCleEquipementV1(raw)}catch(_e){cle=null}
   const maintenant=Date.now();
   if(cle!==null&&__equipStatsMemoV1.valeur!==null&&__equipStatsMemoV1.cle===cle&&maintenant-__equipStatsMemoV1.at<=5000){
-    const copie=structuredClone(__equipStatsMemoV1.valeur);
+    const copie=lecture?gelerV1(__equipStatsMemoV1.valeur):structuredClone(__equipStatsMemoV1.valeur);
     if(typeof process!=="undefined"&&process.env&&process.env.SOREAL_IDLE_VERIF_BONUS==="1"){
       if(JSON.stringify(idleAdventureEquipmentStatsCalculV47(raw))!==JSON.stringify(copie))throw new Error("SOREAL_IDLE_EQUIP_MEMO_DIVERGENT");
     }
@@ -180,6 +198,7 @@ function idleAdventureEquipmentStatsMemoV47(raw){
   const valeur=idleAdventureEquipmentStatsCalculV47(raw);
   if(cle!==null){
     try{__equipStatsMemoV1.valeur=structuredClone(valeur);__equipStatsMemoV1.cle=cle;__equipStatsMemoV1.at=maintenant}catch(_e){__equipStatsMemoV1.valeur=null}
+    if(lecture&&__equipStatsMemoV1.valeur!==null)return gelerV1(__equipStatsMemoV1.valeur);
   }
   return valeur;
 }
