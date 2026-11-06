@@ -265,6 +265,10 @@
        * Audit de l'entraînement de base (Norman, 2026-10-05) : ce rafraîchissement tourne ~13 fois par seconde et réécrivait les 6 textes de chaque compétence à chaque passage, même identiques (chaque réécriture remplace
        * le nœud de texte : ~150 modifications de page par seconde sans rien de nouveau, qui relançaient aussi les observateurs de la page). Un texte n'est réécrit que s'il a changé.
        */
+      /* Recherche d'élément avec cache (modules/cache-elements-v1.js) : ce code tourne à chaque image, même quand la page de l'Entraînement n'est pas affichée (tout renvoie alors « absent »). */
+      function elIdleV1_(id){const E=window.__SOREAL_IDLE_EL_V1__;return E?E.id(id):document.getElementById(id);}
+      function elSelIdleV1_(s){const E=window.__SOREAL_IDLE_EL_V1__;return E?E.sel(s):document.querySelector(s);}
+
       function ecrireTexteSiChangeIdleV1_(el,texte){
         if(el&&el.textContent!==texte)el.textContent=texte;
       }
@@ -273,6 +277,10 @@
         const bt=basicTrainingIdleV120_();
 
         if(!bt)return;
+
+        /* Toutes les cases d'une compétence (niveau, allocation, cap, vitesse, barre…) sont DANS une ligne .soreal-idle-bt-row-v120 : sans aucune ligne affichée (on est dans un autre menu), chacune des ~60 recherches par image renverrait « absent ». Résultat identique, sans les recherches. */
+        const pageBt=elSelIdleV1_('.soreal-idle-bt-row-v120')!==null;
+        const elBtIdleV1_=function(id){return pageBt?elIdleV1_(id):null;};
 
         const total=
           totalAllocationBasicTrainingIdleV120_();
@@ -299,43 +307,43 @@
           }
 
           const level=
-            document.getElementById(
+            elBtIdleV1_(
               'sorealIdleBtLevelV120_'+
               skill.id
             );
 
           const allocation=
-            document.getElementById(
+            elBtIdleV1_(
               'sorealIdleBtAllocationV120_'+
               skill.id
             );
 
           const cap=
-            document.getElementById(
+            elBtIdleV1_(
               'sorealIdleBtCapV120_'+
               skill.id
             );
 
           const nextCap=
-            document.getElementById(
+            elBtIdleV1_(
               'sorealIdleBtNextCapV120_'+
               skill.id
             );
 
           const speed=
-            document.getElementById(
+            elBtIdleV1_(
               'sorealIdleBtSpeedV120_'+
               skill.id
             );
 
           const eta=
-            document.getElementById(
+            elBtIdleV1_(
               'sorealIdleBtEtaV120_'+
               skill.id
             );
 
           const bar=
-            document.getElementById(
+            elBtIdleV1_(
               'sorealIdleBtBarV120_'+
               skill.id
             );
@@ -1149,7 +1157,7 @@
             );
 
           const bar=
-            document.getElementById(
+            elIdleV1_(
               'sorealIdleBtBarV120_'+skill.id
             );
 

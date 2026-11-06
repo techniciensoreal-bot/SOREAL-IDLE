@@ -133,15 +133,29 @@
     g.globalAlpha=1;
   }
 
+  /*
+   * La boucle ne tourne QUE si un canvas de bulles est dans la page (mesuré dans le menu Aventure : ~2,5 ms/s du fil principal pour une boucle qui ne dessinait rien). Elle s'arrête après 60 images sans canvas ;
+   * elle repart au redessin de la page (liste APRES_REDESSIN, règle n°4) et, par sécurité, par une vérification toutes les 500 ms (un getElementsByClassName, aucun coût mesurable).
+   */
+  var active=false,sansCanvas=0;
   function image(){
-    requestAnimationFrame(image);
     var liste=document.getElementsByClassName('tmm-bulles-cv');
-    if(!liste.length)return;
+    if(!liste.length){
+      sansCanvas+=1;
+      if(sansCanvas>60){active=false;return;}
+      requestAnimationFrame(image);
+      return;
+    }
+    sansCanvas=0;
+    requestAnimationFrame(image);
     var t=performance.now()/1000;
     for(var i=0;i<liste.length;i++){
       var cv=liste[i];
       try{if(mesurer(cv)){if(calme){if(cv.__tmCalme!==1){cv.__tmCalme=1;cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}}else dessiner(cv,t);}}catch(_e){}
     }
   }
-  requestAnimationFrame(image);
+  function demarrer(){sansCanvas=0;if(active)return;active=true;requestAnimationFrame(image);}
+  (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(demarrer);
+  setInterval(function(){if(!active&&document.getElementsByClassName('tmm-bulles-cv').length)demarrer();},500);
+  demarrer();
 })();

@@ -13,7 +13,7 @@ const ngu = lire("modules/ngu-labo-v1.js");
 const itopod = lire("soreal-idle-itopod.css");
 
 // 1. Après une renaissance, le bouton NUKE suit l'état à chaque rafraîchissement des commandes (il restait désactivé jusqu'à un changement de menu).
-assert.ok(combat1.includes("const nuke=document.getElementById('sorealIdleBossNukeV1');") && combat1.includes("REG.bossNukableIdleV198_(REG.idleEtat)"), "NUKE rafraîchi avec les commandes");
+assert.ok(combat1.includes("const nuke=elIdleV1_('sorealIdleBossNukeV1');") && combat1.includes("REG.bossNukableIdleV198_(REG.idleEtat)"), "NUKE rafraîchi avec les commandes");
 assert.ok(combat2.includes("bossNukableIdleV198_:bossNukableIdleV198_,"), "règle du NUKE partagée");
 
 // 2. Aucun saut à l'arrivée sur un menu : les modules qui ajoutent des éléments au rendu sont rappelés dans la même tâche que le rendu complet.

@@ -32,6 +32,7 @@
         date:'2026-11-06',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Dans tous les menus, la page cherche beaucoup moins souvent ses éléments à chaque image (l’Entraînement de base, par exemple, ne se met plus à jour quand tu es ailleurs) : moins de petits à-coups, surtout sur téléphone.',
             'Chaque réponse du moteur est traitée plus légèrement par la page (la copie de sécurité de l’Aventure est faite seulement quand elle sert) : moins de petits à-coups au moment des synchronisations, surtout sur téléphone.',
             'Quand une information arrive dans le bandeau « En direct », l’affichage ne saccade plus : la page n’est plus recalculée en entier à ce moment-là.',
             'Le jeu calcule environ 15 % plus vite à chaque synchronisation et à chaque action : moins de petits à-coups, surtout sur les parties avancées.',

@@ -28,7 +28,8 @@ const fuite = noeud({ disabled: true });
 const document = { getElementById: (id) => (id === "sorealIdleBossRespawnV100" ? respawn : id === "sorealIdleBossStartV100" ? start : null), querySelector: (s) => (s.includes(".stop") ? fuite : null) };
 const etat = { combatBossActif: false, pvJoueur: 10, bossActuel: "Un Boss", bossPvMax: 100 };
 const monde = new Function("document", "idleEtat", "idleNombre_", "idlePopupBloqueCombatV102", "idlePopupActifV75", "idlePopupQueueV75", "fightEnAttenteServeurIdleV1_",
-  src + "\nreturn {actualiserCooldownBossIdleV100_,rafraichirCommandesFightBossIdleV167_};")(document, etat, (v) => Number(v) || 0, false, false, [], () => false);
+  /* recherches d'éléments par le cache commun (modules/cache-elements-v1.js) : ici, des recherches directes dans le faux document */
+  "const elIdleV1_=function(id){return document.getElementById(id);};const elSelIdleV1_=function(s){return document.querySelector(s);};\n" + src + "\nreturn {actualiserCooldownBossIdleV100_,rafraichirCommandesFightBossIdleV167_};")(document, etat, (v) => Number(v) || 0, false, false, [], () => false);
 for (let i = 0; i < 50; i += 1) monde.rafraichirCommandesFightBossIdleV167_();
 assert.equal(ecritures, 0, "aucune écriture de page quand rien ne change");
 // Un vrai changement est bien appliqué, une seule fois.

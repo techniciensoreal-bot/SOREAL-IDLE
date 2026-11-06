@@ -72,7 +72,7 @@ async function cible() {
   await aller(URL_JEU);
   await dormir(14000);
   const ch = await evaluer("(async()=>{const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__; if(!ML)return {ok:false}; return await ML.chargerFichier(" + JSON.stringify(partie) + ");})()");
-  if (!ch || !ch.ok) throw new Error("partie refusée");
+  if (!ch || !ch.ok) throw new Error("partie refusée : " + JSON.stringify(ch) + " | " + JSON.stringify(await evaluer("window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__.etatDiag()")));
   await aller(URL_JEU);
   await dormir(15000);
   if (RALENTI > 1) await envoyer("Emulation.setCPUThrottlingRate", { rate: RALENTI });
@@ -108,6 +108,19 @@ async function cible() {
     console.log("### profil du fil principal : " + DUREE + " s, menu " + (arg("menu", "machine")) + ", actif " + (actif / DUREE / 10).toFixed(1) + " % du temps");
     console.log("--- temps PROPRE (par fonction)\n" + aff(propre, 18));
     console.log("--- temps CUMULÉ (fonction et ce qu'elle appelle)\n" + aff(cumul, 26));
+    /* qui appelle les recherches DOM et les écritures coûteuses : temps propre des fonctions natives, attribué à l'appelant JS le plus proche */
+    const NATIVES = new Set(["querySelector", "querySelectorAll", "getElementById", "getBoundingClientRect", "getComputedStyle", "set textContent", "set innerHTML", "setAttribute", "set value", "closest", "getElementsByClassName"]);
+    const parNative = new Map();
+    for (const [id, ms] of soi) {
+      const nm = noeuds.get(id).callFrame.functionName;
+      if (!NATIVES.has(nm)) continue;
+      let p = parent.get(id), appelant = "?";
+      while (p !== undefined) { const f = noeuds.get(p).callFrame; if (f.url) { appelant = nomF(p); break; } p = parent.get(p); }
+      const k = nm + "  <-  " + appelant;
+      parNative.set(k, (parNative.get(k) || 0) + ms);
+    }
+    console.log("--- APPELANTS des recherches DOM et écritures coûteuses (temps propre)\n" + [...parNative.entries()].sort((x, y) => y[1] - x[1]).slice(0, 16).map(([k, ms]) => String(ms.toFixed(0)).padStart(7) + " ms " + (ms / DUREE / 10).toFixed(2).padStart(5) + " %  " + k).join("\n"));
+
     await evaluer("(async()=>{const l=(await indexedDB.databases()).map(d=>d.name); for(const x of l){await new Promise(r=>{const q=indexedDB.deleteDatabase(x); q.onsuccess=q.onerror=q.onblocked=()=>r();});} localStorage.clear(); sessionStorage.clear(); return 1;})()");
     ws.close(); await nettoyer(); return;
   }
@@ -115,7 +128,7 @@ async function cible() {
   if (CAPTURE) {
     await evaluer("Array.from(document.querySelectorAll('button')).filter(function(b){return (b.textContent||'').trim().indexOf('Super')===0;}).forEach(function(b){b.click();}); 1");
     await dormir(2500);
-    await evaluer("window.__envB.cliquerMenu('machine')");
+    await evaluer("window.__envB.cliquerMenu('" + arg("menu", "machine") + "')");
     await dormir(3000);
     const JS = arg("js", "");
     if (JS) { console.log("js : " + JSON.stringify(await evaluer(JS))); }
@@ -133,6 +146,30 @@ async function cible() {
       fs.writeFileSync(CAPTURE + "-" + k + ".png", Buffer.from(r.data, "base64"));
       await dormir(350);
     }
+    await evaluer("(async()=>{const l=(await indexedDB.databases()).map(d=>d.name); for(const x of l){await new Promise(r=>{const q=indexedDB.deleteDatabase(x); q.onsuccess=q.onerror=q.onblocked=()=>r();});} localStorage.clear(); sessionStorage.clear(); return 1;})()");
+    ws.close(); await nettoyer(); return;
+  }
+  const PEINTURE = arg("peinture", "");
+  if (PEINTURE) {
+    /* Ce que la page REPEINT par seconde (trace du navigateur, événements Paint : rectangle repeint de chaque couche), sans variante : surface totale, nombre de peintures, rectangles les plus fréquents. Mesure sans dérive. */
+    evenements.length = 0;
+    const fin2 = new Promise((r) => { finTrace = r; });
+    await envoyer("Tracing.start", { categories: "devtools.timeline,disabled-by-default-devtools.timeline", transferMode: "ReportEvents" });
+    await dormir(DUREE * 1000);
+    await envoyer("Tracing.end");
+    await fin2;
+    const DSF = LARGEUR >= 800 ? 1 : 3;
+    let total = 0, nb = 0, images2 = 0; const rects = new Map();
+    for (const e of evenements) {
+      if (e.name === "BeginMainThreadFrame") images2 += 1;
+      if (e.name !== "Paint" || e.ph !== "X" || !e.args || !e.args.data || !Array.isArray(e.args.data.clip)) continue;
+      const c = e.args.data.clip, x0 = Math.min(c[0], c[2], c[4], c[6]), x1 = Math.max(c[0], c[2], c[4], c[6]), y0 = Math.min(c[1], c[3], c[5], c[7]), y1 = Math.max(c[1], c[3], c[5], c[7]);
+      const aire = (x1 - x0) * (y1 - y0) * DSF * DSF; total += aire; nb += 1;
+      const cle = Math.round(x0) + "," + Math.round(y0) + " " + Math.round(x1 - x0) + "x" + Math.round(y1 - y0);
+      const r = rects.get(cle) || { n: 0, aire: 0 }; r.n += 1; r.aire += aire; rects.set(cle, r);
+    }
+    console.log("### repeinture : menu " + arg("menu", "machine") + ", " + DUREE + " s, écran " + (LARGEUR >= 800 ? LARGEUR + " px" : "406x813 @3x") + " : " + nb + " peintures (" + (nb / DUREE).toFixed(0) + "/s), " + (total / DUREE / 1e6).toFixed(2) + " Mpx repeints par seconde (écran entier = " + ((LARGEUR >= 800 ? LARGEUR * 900 : 406 * 813 * 9) / 1e6).toFixed(2) + " Mpx)");
+    [...rects.entries()].sort((x, y) => y[1].aire - x[1].aire).slice(0, 10).forEach(([k, v]) => console.log("  " + String(v.n).padStart(5) + " fois  " + (v.aire / DUREE / 1e6).toFixed(3).padStart(7) + " Mpx/s  " + k));
     await evaluer("(async()=>{const l=(await indexedDB.databases()).map(d=>d.name); for(const x of l){await new Promise(r=>{const q=indexedDB.deleteDatabase(x); q.onsuccess=q.onerror=q.onblocked=()=>r();});} localStorage.clear(); sessionStorage.clear(); return 1;})()");
     ws.close(); await nettoyer(); return;
   }

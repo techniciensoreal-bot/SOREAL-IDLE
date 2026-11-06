@@ -213,13 +213,17 @@
         return '--bc-a:'+p.a+';--bc-b:'+p.b+';--bc-c:'+p.c+';--bc-glow:'+p.glow+';--bc-hi:'+p.hi+';';
       }
 
+      /* Recherches d'éléments avec cache (modules/cache-elements-v1.js) : appelées à chaque image. */
+      function elIdleV1_(id){const E=window.__SOREAL_IDLE_EL_V1__;return E?E.id(id):document.getElementById(id);}
+      function elSelIdleV1_(s){const E=window.__SOREAL_IDLE_EL_V1__;return E?E.sel(s):document.querySelector(s);}
+
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-28 */
       function rafraichirCommandesFightBossIdleV167_(){
         if(!REG.idleEtat)return;
         actualiserCooldownBossIdleV100_(Date.now());
 
         /* La barre du boss prend la couleur de CE boss dès que le boss change (sans attendre un redessin de la page). */
-        const barreBoss=document.getElementById('sorealIdleBossBarV7');
+        const barreBoss=elIdleV1_('sorealIdleBossBarV7');
         if(barreBoss){
           const numeroBoss=String(Math.max(0,Math.floor(Number(REG.idleEtat.bossId)||0)));
           if(barreBoss.getAttribute('data-couleur-n')!==numeroBoss){
@@ -231,7 +235,7 @@
         }
 
         const fuite=
-          document.querySelector(
+          elSelIdleV1_(
             '.soreal-idle-boss-control-v39.stop'
           );
         if(fuite){
@@ -242,7 +246,7 @@
          * Bouton NUKE (Norman, 2026-10-21 : « après un rebirth, le bouton NUKE n'est pas cliquable alors que si je switch et que je reviens, il l'est ») : son état « désactivé » n'était calculé qu'au dessin de la page ; après une Renaissance (boss remis au début, statistiques
          * changées) rien ne le remettait à jour tant que la page n'était pas redessinée. Comme Fuite, il suit maintenant l'état à chaque rafraîchissement des commandes.
          */
-        const nuke=document.getElementById('sorealIdleBossNukeV1');
+        const nuke=elIdleV1_('sorealIdleBossNukeV1');
         if(nuke&&typeof REG.bossNukableIdleV198_==='function'){
           const nukeDesactive=Boolean(REG.idleEtat.bossBloqueRenaissance||!REG.bossNukableIdleV198_(REG.idleEtat));
           if(nuke.disabled!==nukeDesactive)nuke.disabled=nukeDesactive;
@@ -516,7 +520,7 @@
        * 0 = pleine vie, 1 = presque mort, pour chaque combattant ; les animations CSS (soreal-idle-themes.css) en tirent leur vitesse, leur amplitude et leur halo.
        */
       function actualiserAmbianceCombatIdleV1_(){
-        const duel=document.querySelector('.soreal-idle-duel-v41');
+        const duel=elSelIdleV1_('.soreal-idle-duel-v41');
         if(!duel||!REG.idleEtat)return;
         const actif=Boolean(REG.idleEtat.combatBossActif)&&!REG.idleVictoireBossLocaleV49;
         if(!actif){

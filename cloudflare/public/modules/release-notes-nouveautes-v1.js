@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "La Machine temporelle a un tout nouveau look : trois images, la tour Énergie (verte), la machine au centre et la tour Magie (bleue), collées bord à bord et à la bonne taille sur PC comme sur téléphone. Les engrenages s’imbriquent vraiment : chaque dent passe dans le creux du rouage voisin. La petite barre en double dans « Temps restant » est retirée, et la page est beaucoup plus légère (moitié moins d’éléments à dessiner)."
+    "Dans tous les menus, la page cherche beaucoup moins souvent ses éléments à chaque image (l’Entraînement de base, par exemple, ne se met plus à jour quand tu es ailleurs) : moins de petits à-coups, surtout sur téléphone."
   ] };
 })();

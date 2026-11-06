@@ -147,6 +147,10 @@
   "pin": 8,
   "sha": "99912d8d413a59dd0be04df5e17c0694918accc6"
  },
+ "/modules/cache-elements-v1.js": {
+  "pin": 2,
+  "sha": "046d3739c3b561236ef97c51fc03912c2faa88a5"
+ },
  "/modules/cards-page-v1.js": {
   "pin": 1,
   "sha": "17a35050b55468bbb6ba316719cab55770ed0acb"
@@ -616,12 +620,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 181,
-  "sha": "d7409b53f6a90ca67670594fa8b6c3cb31a09dfa"
+  "pin": 182,
+  "sha": "b09ee4fd99ea604ea7fe2086dace431d32219d90"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 821,
-  "sha": "7618fbf028c604dc96a7af03d516c48d456d9ffb"
+  "pin": 822,
+  "sha": "756a8a719d94dbdad466f611a071269757bca98f"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -704,20 +708,20 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/tm-bulles-canvas-v1.js": {
-  "pin": 3,
-  "sha": "8a40f549075f6282ab241db826776a19e279f3d6"
+  "pin": 4,
+  "sha": "37b54911bdae5c07f7f0f481f1201db4f69c5e46"
  },
  "/modules/tm-projection-v1.js": {
   "pin": 3,
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 857,
-  "sha": "8d93d81cd61cb1937f54dd6ed806057a55c702ea"
+  "pin": 858,
+  "sha": "ae5f154d904a7c0e97b35487f367a66378b5a009"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 678,
-  "sha": "dbe07b6f2588a29c95d063fde8e66fa2099c59a8"
+  "pin": 679,
+  "sha": "468d18fed92bf7232cbf36367a41b1cfa8983f59"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -780,8 +784,8 @@
   "sha": "931606eff73efca6a728bea41d48c9559d66f52b"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 29,
-  "sha": "e1739ac293fea57b108fe6a8b3def6743dd7bcef"
+  "pin": 31,
+  "sha": "a8286152fafc82d4c05b5a20687cb6a820a7b08e"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 44,
@@ -792,8 +796,8 @@
   "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 10,
-  "sha": "ee6e62be23c266c547be0dc04becc01dc55569f9"
+  "pin": 12,
+  "sha": "f72351883db089bf753517c97dfb018ece6ee119"
  },
  "/modules/ui-inventaire-v1.js": {
   "pin": 16,
