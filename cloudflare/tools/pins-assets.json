@@ -108,8 +108,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 171,
-  "sha": "16f1565b15cf24fcd860de1a33b161a03aa9d934"
+  "pin": 172,
+  "sha": "c86b6fa96a715179cc46ae3dffee172805bab835"
  },
  "/modules/borne-yeux-v1.js": {
   "pin": 2,

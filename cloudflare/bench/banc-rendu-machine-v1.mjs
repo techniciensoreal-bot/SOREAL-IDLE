@@ -109,6 +109,16 @@ async function cible() {
     console.log("--- temps PROPRE (par fonction)\n" + aff(propre, 18));
     console.log("--- temps CUMULÉ (fonction et ce qu'elle appelle)\n" + aff(cumul, 26));
     /* qui appelle les recherches DOM et les écritures coûteuses : temps propre des fonctions natives, attribué à l'appelant JS le plus proche */
+    const FICHIER = arg("fichier", "");
+    if (FICHIER) {
+      /* lignes chaudes d'un fichier : le profil donne, par fonction, le nombre d'échantillons par LIGNE (positionTicks) */
+      const lignes = new Map(); let totalTicks = 0;
+      for (const n of profile.nodes) {
+        if (!n.callFrame.url || !n.callFrame.url.includes(FICHIER) || !n.positionTicks) continue;
+        for (const p of n.positionTicks) { const k = n.callFrame.url.split("/").pop().split("?")[0] + ":" + p.line + "  (" + (n.callFrame.functionName || "anonyme") + ")"; lignes.set(k, (lignes.get(k) || 0) + p.ticks); totalTicks += p.ticks; }
+      }
+      console.log("--- LIGNES CHAUDES de " + FICHIER + " (échantillons : " + totalTicks + ")\n" + [...lignes.entries()].sort((x, y) => y[1] - x[1]).slice(0, 18).map(([k, n]) => String(n).padStart(6) + " " + (n / totalTicks * 100).toFixed(1).padStart(5) + " %  " + k).join("\n"));
+    }
     const NATIVES = new Set(["querySelector", "querySelectorAll", "getElementById", "getBoundingClientRect", "getComputedStyle", "set textContent", "set innerHTML", "setAttribute", "set value", "closest", "getElementsByClassName"]);
     const parNative = new Map();
     for (const [id, ms] of soi) {

@@ -116,7 +116,16 @@ function fnUnites(s){
 }
 
 /* texte → suite de caractères que la police sait dessiner */
+/* canon() est une fonction PURE du texte (police et table de remplacement fixes), appelée à chaque image pour les mêmes textes : résultat mémorisé (400 textes au plus, remis à zéro au-delà) */
+var CANON_MEMO=new Map();
 function canon(s){
+  var cle=typeof s==='string'?s:null,m;
+  if(cle!==null){m=CANON_MEMO.get(cle);if(m!==undefined)return m;}
+  m=canonCalcule(s);
+  if(cle!==null){if(CANON_MEMO.size>=400)CANON_MEMO.clear();CANON_MEMO.set(cle,m);}
+  return m;
+}
+function canonCalcule(s){
   var up=String(s==null?'':s).toUpperCase(),out='',i,ch;
   for(i=0;i<up.length;i++){
     ch=up.charAt(i);
@@ -2176,7 +2185,7 @@ function echelleEff(el){
   return d;
 }
 function Panel(canvas,W,H,sansBarre){this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});this.extra=sansBarre?0:BARH;this.setGrid(W,H);this.reduced=false;this.cell=0;this.p={};}
-Panel.prototype.setGrid=function(W,H){this.W=W;this.H=H;this.HT=H+this.extra;this.YM=H;var n=W*this.HT;this.c=new Uint8Array(n);this.v=new Uint8Array(n);this.pc=new Uint8Array(n);this.pl=new Uint8Array(n);this.pg=new Uint8Array(n);this.dm=new Uint8Array(n);this.sm=new Uint8Array(n);this.ch=new Int32Array(n);this.neuf=true;this.nd=0;this.yoff=0;this.cy0=0;this.cy1=H-1;this.cell=0;};
+Panel.prototype.setGrid=function(W,H){this.W=W;this.H=H;this.HT=H+this.extra;this.YM=H;var n=W*this.HT;this.c=new Uint8Array(n);this.v=new Uint8Array(n);this.pc=new Uint8Array(n);this.pl=new Uint8Array(n);this.pg=new Uint8Array(n);this.pr=new Uint8Array(n);this.pq=new Uint8Array(n);this.pgain=-1;this.dm=new Uint8Array(n);this.sm=new Uint8Array(n);this.ch=new Int32Array(n);this.neuf=true;this.nd=0;this.yoff=0;this.cy0=0;this.cy1=H-1;this.cell=0;};
 /* Écran plus grand = PLUS DE LED, jamais un dessin agrandi (Norman, 2026-11-01) : la TAILLE d'un point est fixe (4 px CSS sur PC, 3 px sur téléphone, arrondie à un nombre ENTIER de pixels d'écran pour rester net) ;
    c'est le nombre de colonnes et de rangées qui s'adapte à l'hôte (taille()). Rendu 1:1 : le canvas est affiché à sa taille exacte canvas.width/dpr x canvas.height/dpr (jamais étiré par le CSS, donc jamais
    rééchantillonné) et centré dans l'hôte noir sur un nombre entier de pixels d'écran ; le petit reste devient des marges noires symétriques. */
@@ -2242,7 +2251,10 @@ Panel.prototype.draw=function(fn,t,gain,params){
   /* Fluidité (2026-11-02) : on compare la grille à celle déjà affichée (couleur, niveau du coeur, niveau du halo de chaque point) ; rien de changé = aucun dessin ; sinon seules les cellules changées
      (et leurs voisines, le halo déborde d'une cellule) sont repeintes, dans un rectangle de découpe : le résultat est identique pixel pour pixel à un redessin complet. La vie du boss, immobile presque toujours, n'est plus repeinte. */
   var pc=this.pc,pl=this.pl,pg=this.pg,nc=0,ch=this.ch,cc=this.c,vv=this.v,L2,G2,col;
+  var pr=this.pr,pq=this.pq,memeGain=(gain===this.pgain);this.pgain=gain;
   for(i=0;i<n;i++){
+    if(memeGain&&vv[i]===pr[i]&&cc[i]===pq[i])continue;   /* même valeur brute, même couleur, même gain qu à l image précédente : mêmes niveaux, rien à recalculer */
+    pr[i]=vv[i];pq[i]=cc[i];
     v=vv[i]*(i<ns?gain:1);
     L2=v<=0?0:Math.max(1,Math.min(8,Math.ceil(v/255*8)));G2=v<70?0:Math.min(8,Math.ceil(v/255*8));col=L2?cc[i]:0;
     if(L2&&!this.core[col])this.mk(col);
@@ -2259,10 +2271,10 @@ Panel.prototype.draw=function(fn,t,gain,params){
     for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<=0)continue;l=Math.max(1,Math.min(8,Math.ceil(v/255*8)));if(!this.core[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.core[this.c[i]][l],(i%W)*cell,((i/W)|0)*cell);}
     P=null;return;
   }
-  var dm=this.dm,sm=this.sm,k,j,cx,cy,a,b,run;
-  dm.fill(0);sm.fill(0);
+  var dm=this.dm,sm=this.sm,k,j,cx,cy,a,b,run,iFin;
+  dm.fill(0);sm.fill(0);var yMin=HT,yMax=-1;
   for(k=0;k<nc;k++){
-    i=ch[k];cx=i%W;cy=(i/W)|0;
+    i=ch[k];cx=i%W;cy=(i/W)|0;if(cy-2<yMin)yMin=cy-2;if(cy+2>yMax)yMax=cy+2;
     for(b=-2;b<=2;b++){y=cy+b;if(y<0||y>=HT)continue;for(a=-2;a<=2;a++){x=cx+a;if(x<0||x>=W)continue;if(a>=-1&&a<=1&&b>=-1&&b<=1)dm[y*W+x]=1;sm[y*W+x]=1;}}   /* dm = cellules à repeindre (voisines comprises) ; sm = cellules dont le halo peut les toucher */
   }
   ctx.save();ctx.beginPath();
@@ -2276,9 +2288,9 @@ Panel.prototype.draw=function(fn,t,gain,params){
   ctx.clip();
   ctx.globalCompositeOperation='source-over';ctx.drawImage(this.bgc,0,0);
   ctx.globalCompositeOperation='lighter';
-  for(i=0;i<n;i++){if(!sm[i]||pg[i]===0)continue;x=(i%W)*cell;y=((i/W)|0)*cell;ctx.drawImage(this.glow[pc[i]][pg[i]],x-cell,y-cell);}
+  for(i=(yMin<0?0:yMin)*W,iFin=(yMax>=HT?HT:yMax+1)*W;i<iFin;i++){if(!sm[i]||pg[i]===0)continue;x=(i%W)*cell;y=((i/W)|0)*cell;ctx.drawImage(this.glow[pc[i]][pg[i]],x-cell,y-cell);}
   ctx.globalCompositeOperation='source-over';
-  for(i=0;i<n;i++){if(!dm[i]||pl[i]===0)continue;ctx.drawImage(this.core[pc[i]][pl[i]],(i%W)*cell,((i/W)|0)*cell);}
+  for(i=(yMin<0?0:yMin)*W;i<iFin;i++){if(!dm[i]||pl[i]===0)continue;ctx.drawImage(this.core[pc[i]][pl[i]],(i%W)*cell,((i/W)|0)*cell);}
   ctx.restore();
   P=null;
 };
