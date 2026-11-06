@@ -18,6 +18,6 @@ assert.ok(m.includes("new IntersectionObserver(") && m.includes("'.tmm-centre,.t
 assert.ok(m.includes("rootMargin:'120px 0px'"), "marge : les animations repartent avant d'être revisibles");
 assert.ok(m.includes("a.__tmmPause=true;a.pause();") && m.includes("else if(a.__tmmPause){a.__tmmPause=false;if(a.playState==='paused')a.play();}"), "seules les animations mises en pause par le module sont reprises");
 assert.ok(m.includes("getAnimations({subtree:true})"), "CSS et Web Animations de la zone sont couvertes");
-assert.ok(/suivreCentre\(racine\);/.test(m), "le suivi est (re)posé à chaque synchro (animations créées après un redessin)");
+assert.ok(m.includes("suivreCentre(racine,apresRedessin);") && m.includes("}else if(apresRedessin)zonesSuivies.forEach(") && m.includes("function rafraichir(){maj(null,true);}"), "le suivi est (re)posé après chaque REDESSIN de la page (animations créées par le redessin), plus à chaque synchro (profil de la partie de Norman, 2026-11-06)");
 assert.ok(/if\(!racine\|\|!racine\.querySelectorAll\|\|typeof IntersectionObserver!=='function'\|\|calme\)return;/.test(m), "rien si IntersectionObserver absent ou mouvement réduit");
 console.log("idle-fluidite-augmentations-v1: OK");

@@ -157,6 +157,7 @@ http.createServer(async (req, res) => {
   if (!fichier.startsWith(path.resolve(ROOT)) || !fs.existsSync(fichier) || fs.statSync(fichier).isDirectory()) {
     res.writeHead(404); res.end("not found"); return;
   }
-  res.writeHead(200, { "content-type": TYPES[path.extname(fichier)] || "application/octet-stream", "cache-control": "no-store" });
+  /* Banc de mesure seulement (jamais déployé) : autorise le profileur d'échantillonnage de la page (API JS Self-Profiling) pour attribuer le temps du fil principal fonction par fonction. */
+  res.writeHead(200, { "content-type": TYPES[path.extname(fichier)] || "application/octet-stream", "cache-control": "no-store", "document-policy": "js-profiling" });
   fs.createReadStream(fichier).pipe(res);
 }).listen(port, () => console.log("SOREAL IDLE local sur http://localhost:" + port));

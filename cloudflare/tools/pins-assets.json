@@ -460,8 +460,8 @@
   "sha": "cbb8cda820f410aefaad2c9a22cf7203036da398"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 11,
-  "sha": "d82558f45a3230f8d61ef95364eb3c45a03c2b29"
+  "pin": 12,
+  "sha": "49f6c92cead32eac7f301b9b9d4f818db3b4d73d"
  },
  "/modules/maj-v1.js": {
   "pin": 3,
@@ -756,8 +756,8 @@
   "sha": "4a9f6a630b9aeabd0c921027b59e2b54d61c20b4"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 32,
-  "sha": "ce81c7b8242f8497abd945e7b3d7eb2a73e3b176"
+  "pin": 33,
+  "sha": "8d9356624bb86c2cf5b4231da5cae3f8bb8044af"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 3,

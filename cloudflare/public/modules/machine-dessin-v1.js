@@ -322,7 +322,7 @@
   }
 
   /* Tient à jour les textes et attributs dynamiques de la machine (à chaque synchro) ; lance les rotations si le dessin vient d'apparaître. */
-  function maj(vueMachine){
+  function maj(vueMachine,apresRedessin){
     var racine=document.querySelector('.tmm-machine');
     if(!racine)return;
     var v=vueMachine||(window.__SOREAL_IDLE_LIRE_ETAT_V1__&&((window.__SOREAL_IDLE_LIRE_ETAT_V1__()||{}).systemes||{}).timeMachineView)||null;
@@ -333,7 +333,7 @@
     viser(ticks);
     viserTours(false);   /* allocation lue sur les tours (posée par la page) ; la boucle lisse la vitesse des roues et de l'anneau */
     if(!calme)lancerBoucle();
-    suivreCentre(racine);
+    suivreCentre(racine,apresRedessin);
     var ia=document.getElementById('tmmAiguille');if(ia)ia.style.transform='rotate('+arr(-120+240*ticks/50,1)+'deg)';
     var tv=document.getElementById('tmmVitesse');var texteV=Math.round(ticks)+' /s';if(tv&&tv.textContent!==texteV)tv.textContent=texteV;
     var multi=document.getElementById('tmmMulti');
@@ -368,7 +368,7 @@
       else if(a.__tmmPause){a.__tmmPause=false;if(a.playState==='paused')a.play();}
     }
   }
-  function suivreCentre(racine){
+  function suivreCentre(racine,apresRedessin){
     if(!racine||!racine.querySelectorAll||typeof IntersectionObserver!=='function'||calme)return;
     var zones=racine.querySelectorAll('.tmm-centre,.tmm-haut'),i,nouvelle=zones.length!==zonesSuivies.length;
     for(i=0;i<zones.length&&!nouvelle;i++)if(zones[i]!==zonesSuivies[i])nouvelle=true;
@@ -377,9 +377,9 @@
       zonesSuivies=Array.prototype.slice.call(zones);
       zonesObs=new IntersectionObserver(function(es){es.forEach(function(e){e.target.__tmmHors=!e.isIntersecting;poserPauseZone(e.target);});},{rootMargin:'120px 0px'});
       zonesSuivies.forEach(function(z){z.__tmmHors=false;zonesObs.observe(z);});
-    }else zonesSuivies.forEach(function(z){if(z.__tmmHors)poserPauseZone(z);});   /* animations créées depuis (redessin de la page) : remises en pause */
+    }else if(apresRedessin)zonesSuivies.forEach(function(z){if(z.__tmmHors)poserPauseZone(z);});   /* animations créées depuis (redessin de la page) : remises en pause. Seulement APRÈS un redessin (profil sur la partie de Norman, 2026-11-06 : getAnimations() à chaque synchro = la fonction la plus coûteuse de la page pendant une rafale d'actions) */
   }
-  function rafraichir(){maj(null);}
+  function rafraichir(){maj(null,true);}
 
   /* Après chaque redessin de la page (AGENTS.md règle n°4) : les rotations repartent dans la même tâche. */
   (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(rafraichir);

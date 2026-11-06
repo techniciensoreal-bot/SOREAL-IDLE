@@ -1339,14 +1339,19 @@
       }
 
       /* Fonction interne de mettreAJourJeuIdleLocalV7_ remontée au niveau du module (découpage d'une très grande fonction, 2026-10-16). */
+      /* Les éléments ABSENTS de la page (barres d'un autre menu) ne sont plus cherchés à chaque image : l'absence est retenue 120 ms, et oubliée à chaque redessin de la page (le nouvel élément est alors trouvé dans la même tâche). Profil sur la partie de Norman (2026-11-06) : ces recherches étaient le premier poste de la boucle de mise à jour pendant une rafale d'actions. */
       function elementAugIdleV1_(selecteur){
           const cache=window.__idleAugElsV1__||(window.__idleAugElsV1__=new Map());
           const garde=cache.get(selecteur);
           if(garde&&garde.isConnected)return garde;
+          const ratees=window.__idleAugRateesV1__||(window.__idleAugRateesV1__=new Map());
+          const maintenant=performance.now(),rate=ratees.get(selecteur);
+          if(rate!==undefined&&maintenant-rate<120)return null;
           const el=document.querySelector(selecteur);
-          if(el)cache.set(selecteur,el);else cache.delete(selecteur);
+          if(el){cache.set(selecteur,el);ratees.delete(selecteur);}else{cache.delete(selecteur);ratees.set(selecteur,maintenant);}
           return el;
         }
+      (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){if(window.__idleAugRateesV1__)window.__idleAugRateesV1__.clear();});
 
       /* Fonction interne de mettreAJourJeuIdleLocalV7_ remontée au niveau du module (découpage d'une très grande fonction, 2026-10-16). */
       function ecrireSiChangeIdleV1_(el,texte){
