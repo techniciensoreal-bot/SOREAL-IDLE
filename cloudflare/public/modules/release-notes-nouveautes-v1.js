@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les bulles des deux tubes sont dessinées d’un seul tenant au lieu d’une par une : même aspect, mais la page est plus légère à afficher, surtout sur téléphone."
+    "Quand une information arrive dans le bandeau « En direct », l’affichage ne saccade plus : la page n’est plus recalculée en entier à ce moment-là."
   ] };
 })();

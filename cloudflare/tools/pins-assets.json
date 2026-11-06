@@ -316,8 +316,8 @@
   "sha": "64a8ef29f2f7afac43b5f60a06d069ae55b49704"
  },
  "/modules/flux-v1.js": {
-  "pin": 44,
-  "sha": "c9fe5a1b562822edfcb3d9df6db09e14eebbe039"
+  "pin": 45,
+  "sha": "e727d7fb9e4a9a3838fa91628b4619882019ba87"
  },
  "/modules/fond-combat-v1.js": {
   "pin": 1,
@@ -612,12 +612,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 178,
-  "sha": "554cbf19ad295901df8831e1593b92f03c3129eb"
+  "pin": 179,
+  "sha": "7a1b3760cac4cf74e4235ff71036a8c949569201"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 818,
-  "sha": "dbe0cee7bec12f322ceb01d29b63043c33d07b25"
+  "pin": 819,
+  "sha": "14926497ed12a1efaac000c09369f6b9fe1becae"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -700,20 +700,20 @@
   "sha": "9b93dfe937de6b556d7736a8f257bfe694159b9a"
  },
  "/modules/tm-bulles-canvas-v1.js": {
-  "pin": 2,
-  "sha": "0337a823717650df37b730e1a0b2b661386e6446"
+  "pin": 3,
+  "sha": "8a40f549075f6282ab241db826776a19e279f3d6"
  },
  "/modules/tm-projection-v1.js": {
   "pin": 3,
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 854,
-  "sha": "000ca4fc22f4011c43daf2f137f6cbcb68fe6d17"
+  "pin": 855,
+  "sha": "d227117464996df43579ed79f697bfa656814380"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 675,
-  "sha": "cd27c5eeff29af643a1cce39f6830a8b5f18790f"
+  "pin": 676,
+  "sha": "2aff30e82f938495bed56e53da181048e5ba8ddb"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,

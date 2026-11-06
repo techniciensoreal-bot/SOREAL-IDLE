@@ -32,6 +32,9 @@
   let dernier=0;
   let bandeau=null;
   let piste=null;
+  let vueFlux=null;
+  let largeurPiste=0;
+  let roFlux=null;
   let x=0;
   let enPause=false;
   let tPrec=0;
@@ -519,6 +522,21 @@
     bandeau.setAttribute('aria-label','Activité des joueurs');
     bandeau.innerHTML='<div class="sif-tag">📰 EN DIRECT</div><div class="sif-vue"><div class="sif-piste"></div></div>';
     piste=bandeau.querySelector('.sif-piste');
+    vueFlux=bandeau.querySelector('.sif-vue');
+    /* Largeurs suivies par un ResizeObserver (2026-11-06) : mesuré sur téléphone, l'arrivée d'une information lisait clientWidth / scrollWidth au milieu de l'image et forçait un calcul de mise en page complet (images de 42 ms).
+       Le rappel de l'observateur arrive après la mise en page : lire une largeur n'y force rien. Sans ResizeObserver (anciens navigateurs, tests), la lecture directe d'avant reste le repli. */
+    if(typeof ResizeObserver==='function'&&vueFlux){
+      roFlux=new ResizeObserver(function(entrees){
+        let somme=false;
+        entrees.forEach(function(e){
+          const el=e.target;
+          if(el===vueFlux){const l=el.clientWidth;if(l>0)largeurVue=l;}
+          else{el.__largeurV1=el.offsetWidth;somme=true;}
+        });
+        if(somme){let s=0;for(let k=piste.firstChild;k;k=k.nextSibling)s+=k.__largeurV1||0;largeurPiste=s;}
+      });
+      roFlux.observe(vueFlux);
+    }
     ['mouseenter','touchstart','pointerdown'].forEach(function(t){bandeau.addEventListener(t,function(){enPause=true;},{passive:true});});
     ['mouseleave','touchend','touchcancel','pointerup'].forEach(function(t){bandeau.addEventListener(t,function(){enPause=false;},{passive:true});});
     document.body.appendChild(bandeau);
@@ -549,7 +567,7 @@
     /* Largeur réelle de la fenêtre de défilement, jamais une valeur de repli au milieu de l'écran : repli = largeur de la page moins l'étiquette (PC comme téléphone). */
     const vue=bandeau.querySelector('.sif-vue');
     const etiquette=bandeau.querySelector('.sif-tag');
-    largeurVue=vue.clientWidth||Math.max(0,(document.documentElement.clientWidth||window.innerWidth||0)-(etiquette?etiquette.offsetWidth:0))||largeurVue||300;
+    if(!roFlux)largeurVue=vue.clientWidth||Math.max(0,(document.documentElement.clientWidth||window.innerWidth||0)-(etiquette?etiquette.offsetWidth:0))||largeurVue||300;
     const modele=document.createElement('div');
     modele.innerHTML=htmlItem(e);
     const noeud=modele.firstChild;
@@ -557,15 +575,17 @@
       x=largeurVue;
     }else{
       /* La piste a déjà fini de défiler vers la gauche : un blanc la prolonge pour que la nouvelle information entre bien par la droite, au moment où elle arrive. */
-      const finPiste=x+piste.scrollWidth;
+      const finPiste=x+(roFlux?largeurPiste:piste.scrollWidth);
       if(finPiste<largeurVue){
         const blanc=document.createElement('span');
         blanc.className='sif-blanc';
         blanc.style.cssText='display:inline-block;flex:none;width:'+Math.ceil(largeurVue-finPiste)+'px';
         piste.appendChild(blanc);
+        if(roFlux){blanc.__largeurV1=Math.ceil(largeurVue-finPiste);largeurPiste+=blanc.__largeurV1;}
       }
     }
     piste.appendChild(noeud);
+    if(roFlux)roFlux.observe(noeud);
     piste.style.transform='translateX('+x.toFixed(1)+'px)';
     bandeau.classList.remove('sif-off');
     document.body.classList.add('soreal-idle-flux-actif-v1');
@@ -574,6 +594,8 @@
 
   function viderBandeau(){
     if(piste)piste.innerHTML='';
+    largeurPiste=0;
+    if(roFlux&&vueFlux){roFlux.disconnect();roFlux.observe(vueFlux);}   /* les informations retirées ne sont plus suivies */
     if(bandeau)bandeau.classList.add('sif-off');
     document.body.classList.remove('soreal-idle-flux-actif-v1');
     phase='repos';
@@ -602,8 +624,9 @@
     while(piste.firstChild){
       const premier=piste.firstChild;
       /* largeur mesurée une seule fois par information (avant : une mesure de mise en page à chaque image) */
-      const w=premier.__largeurV1||(premier.__largeurV1=premier.getBoundingClientRect().width);
-      if(x+w>0)break;
+      const w=roFlux?premier.__largeurV1:(premier.__largeurV1||(premier.__largeurV1=premier.getBoundingClientRect().width));
+      if(w===undefined||x+w>0)break;   /* pas encore mesurée (arrivée à l'instant) : elle est à l'écran */
+      if(roFlux){roFlux.unobserve(premier);largeurPiste=Math.max(0,largeurPiste-w);}
       piste.removeChild(premier);
       x+=w;
     }

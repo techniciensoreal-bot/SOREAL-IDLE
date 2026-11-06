@@ -79,7 +79,11 @@ assert.ok(/\.tmm-bulles-cv\{position:absolute;left:0;bottom:0;width:100%/.test(c
 assert.ok(index.indexOf("tm-bulles-canvas-v1.js") > 0 && index.indexOf("tm-bulles-canvas-v1.js") < index.indexOf("ui-machine-temporelle-v1.js"), "chargé dans index.html");
 /* densité 1x : jamais plus de pixels que nécessaire (plan C9, mesure du téléphone) */
 assert.ok(/var dpr=1;/.test(src), "canvas des bulles en densité 1x");
-/* le dessin ne relit jamais la mise en page à chaque image (clientHeight force le calcul) */
-assert.ok(/compteur%20!==0/.test(src), "taille du tube relue toutes les 20 images seulement");
+/* le dessin ne relit JAMAIS la mise en page dans la boucle d'images : taille par ResizeObserver (mesuré : une image de 14 ms à chaque relecture de clientHeight sur téléphone) */
+assert.ok(/new ResizeObserver\(/.test(src), "taille du tube suivie par un ResizeObserver");
+const boucle = src.slice(src.indexOf("function image(){"));
+assert.ok(!/clientHeight|clientWidth|offsetHeight|offsetWidth|getBoundingClientRect|scrollWidth|scrollHeight/.test(boucle), "aucune lecture de mise en page dans la boucle d'images");
+const dessin = src.slice(src.indexOf("function dessiner("), src.indexOf("function image(){"));
+assert.ok(!/clientHeight|clientWidth|offsetHeight|offsetWidth|getBoundingClientRect|scrollWidth|scrollHeight/.test(dessin), "aucune lecture de mise en page dans le dessin");
 assert.ok(src.includes("matchMedia('(prefers-reduced-motion: reduce)')"), "mouvement réduit : rien ne bouge");
 console.log("idle-tm-bulles-canvas-v1: OK");

@@ -86,14 +86,16 @@
   }
   var SPECS={vrai:specs(true),faux:specs(false)};
 
-  /* La taille du tube ne se relit que toutes les 20 images (lire clientHeight force le calcul de la mise en page) ; entre deux, la dernière mesure sert. */
-  var compteur=0;
-  function mesurer(cv){
-    if(cv.__tmH!==undefined&&compteur%20!==0)return true;
-    var tube=cv.parentNode&&cv.parentNode.parentNode&&cv.parentNode.parentNode.parentNode;   /* canvas > .tmm-bulles > .tmm-liq > .tmm-tube */
-    if(!tube)return false;
-    var h=tube.clientHeight,l=cv.parentNode.clientWidth;
-    if(!(h>0)||!(l>0))return false;
+  /*
+   * Taille du tube : JAMAIS lue dans la boucle d'images (lire clientHeight force le calcul de la mise en page : mesuré sur téléphone, une image de 14 ms à chaque relecture). Un ResizeObserver prévient quand
+   * le tube change de taille ; la lecture se fait dans son rappel, une fois la mise en page déjà calculée (donc sans la forcer).
+   */
+  var observateur=null;
+  function appliquerTaille(cv){
+    var tube=cv.__tmTube,col=cv.parentNode;
+    if(!tube||!col)return;
+    var h=tube.clientHeight,l=col.clientWidth;
+    if(!(h>0)||!(l>0))return;
     /* Densité 1x (2026-11-06) : à 3x, chaque canvas faisait ~0,5 million de pixels à effacer et renvoyer au processeur graphique à CHAQUE image ; les bulles font 2 à 4 px et sont déjà un dégradé doux, 1x suffit (9 fois moins de pixels). */
     var dpr=1;
     if(cv.__tmH!==h||cv.__tmL!==l||cv.__tmD!==dpr){
@@ -101,9 +103,17 @@
       cv.width=Math.round(l*dpr);cv.height=Math.round(h*dpr);
       cv.style.height=h+'px';
     }
-    cv.__tmTube=tube;
-    return true;
   }
+  function surveiller(cv){
+    if(cv.__tmSurv)return;
+    var tube=cv.parentNode&&cv.parentNode.parentNode&&cv.parentNode.parentNode.parentNode;   /* canvas > .tmm-bulles > .tmm-liq > .tmm-tube */
+    if(!tube)return;
+    cv.__tmSurv=true;cv.__tmTube=tube;tube.__tmCv=cv;
+    if(typeof ResizeObserver!=='function'){appliquerTaille(cv);return;}   /* navigateur sans ResizeObserver : une seule mesure */
+    if(!observateur)observateur=new ResizeObserver(function(entrees){entrees.forEach(function(e){var c=e.target.__tmCv;if(c)appliquerTaille(c);});});
+    observateur.observe(tube);
+  }
+  function mesurer(cv){surveiller(cv);return cv.__tmH>0;}
 
   function dessiner(cv,t){
     var liq=cv.parentNode.parentNode;
@@ -128,7 +138,6 @@
     var liste=document.getElementsByClassName('tmm-bulles-cv');
     if(!liste.length)return;
     var t=performance.now()/1000;
-    compteur+=1;
     for(var i=0;i<liste.length;i++){
       var cv=liste[i];
       try{if(mesurer(cv)){if(calme){if(cv.__tmCalme!==1){cv.__tmCalme=1;cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}}else dessiner(cv,t);}}catch(_e){}
