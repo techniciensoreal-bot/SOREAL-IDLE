@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maquette engrenages (engrènement réel)</title>
+<style>
+body{margin:0;padding:12px;background:#1b1d26;color:#fff;font-family:system-ui,sans-serif}
+.barre{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:14px}
+button{font:inherit;padding:7px 12px;border-radius:9px;border:2px solid #fff3;background:#222633;color:#fff;cursor:pointer}
+button[aria-pressed=true]{border-color:#ffd84a;color:#ffd84a}
+.cadre{background:#0d0e12;border:6px solid #2a2d38;border-radius:14px;padding:10px;margin:0 0 14px}
+svg{display:block;width:100%;height:auto}
+h3{margin:4px 0 8px;font-size:14px;color:#aab}
+</style></head><body>
+<div class="barre"><button id="pause" aria-pressed="false">Pause</button><label>Rythme <input id="r" type="range" min="0.1" max="8" step="0.1" value="1"> <b id="rv">1</b></label><span>Chaque dent d'un rouage passe dans un creux du voisin ; les rouages ne se chevauchent jamais.</span></div>
+<div class="cadre"><h3>Fenêtre de la machine : 7 rouages (18-12-18-12-18-12-18 dents)</h3><div id="a"></div></div>
+<div class="cadre" style="max-width:520px"><h3>Socle des tours : 2 rouages (10-8 dents)</h3><div id="b"></div></div>
+<script src="/modules/engrenages-v1.js"></script>
+<script>
+var E=window.__SOREAL_IDLE_ENGRENAGES_V1__;
+function engr(cfg,coul){var ch=E.chaine(cfg);return '<svg viewBox="'+(ch.xMin-3)+' '+(ch.yMin-3)+' '+(ch.largeur+6)+' '+(ch.hauteur+6)+'">'+E.svg(ch,{corps:coul})+'</svg>';}
+document.getElementById('a').innerHTML=engr({m:4,n:[18,12,18,12,18,12,18],y:48,x0:44},['#9aa3ad','#e3a23a']);
+document.getElementById('b').innerHTML=engr({m:3,n:[10,8],y:20,x0:20},['#9aa3ad','#e3a23a']);
+var moteur=E.animer(document.body,1);
+document.getElementById('pause').onclick=function(){var on=this.getAttribute('aria-pressed')!=='true';this.setAttribute('aria-pressed',on);if(on)moteur.pause();else moteur.reprendre();};
+document.getElementById('r').oninput=function(){document.getElementById('rv').textContent=this.value;moteur.regler(Number(this.value));};
+</script></body></html>

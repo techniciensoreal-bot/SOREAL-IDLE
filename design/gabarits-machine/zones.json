@@ -1,0 +1,257 @@
+{
+  "1-machine-centrale": {
+    "largeur": 1200,
+    "hauteur": 1500,
+    "zones": [
+      {
+        "id": "ecran",
+        "forme": "rect",
+        "x0": 120,
+        "y0": 90,
+        "x1": 1080,
+        "y1": 560,
+        "couleur": "magenta",
+        "role": "écran du mob (grand rectangle)"
+      },
+      {
+        "id": "lcdGauche",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 640,
+        "x1": 440,
+        "y1": 800,
+        "couleur": "cyan",
+        "role": "afficheur gauche"
+      },
+      {
+        "id": "cadran",
+        "forme": "cercle",
+        "cx": 600,
+        "cy": 720,
+        "r": 110,
+        "couleur": "jaune",
+        "role": "cadran rond"
+      },
+      {
+        "id": "lcdDroit",
+        "forme": "rect",
+        "x0": 760,
+        "y0": 640,
+        "x1": 1110,
+        "y1": 800,
+        "couleur": "cyan",
+        "role": "afficheur droit"
+      },
+      {
+        "id": "fenetre",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 900,
+        "x1": 1110,
+        "y1": 1130,
+        "couleur": "vert",
+        "role": "fenêtre longue (engrenages ajoutés par le jeu)"
+      },
+      {
+        "id": "sortie",
+        "forme": "rect",
+        "x0": 420,
+        "y0": 1230,
+        "x1": 780,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "sortie du bas, VIDE (pièces ajoutées par le jeu)"
+      }
+    ]
+  },
+  "2-tour-energie": {
+    "largeur": 1200,
+    "hauteur": 1500,
+    "zones": [
+      {
+        "id": "titre",
+        "forme": "rect",
+        "x0": 150,
+        "y0": 70,
+        "x1": 1050,
+        "y1": 210,
+        "couleur": "rouge",
+        "role": "plaque de titre"
+      },
+      {
+        "id": "socle",
+        "forme": "cercle",
+        "cx": 600,
+        "cy": 330,
+        "r": 90,
+        "couleur": "bleu",
+        "role": "petit socle rond"
+      },
+      {
+        "id": "tube",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 430,
+        "x1": 300,
+        "y1": 1230,
+        "couleur": "vert",
+        "role": "tube de verre vide"
+      },
+      {
+        "id": "afficheur1",
+        "forme": "rect",
+        "x0": 350,
+        "y0": 430,
+        "x1": 1110,
+        "y1": 640,
+        "couleur": "cyan",
+        "role": "afficheur du haut"
+      },
+      {
+        "id": "afficheur2",
+        "forme": "rect",
+        "x0": 350,
+        "y0": 700,
+        "x1": 1110,
+        "y1": 1010,
+        "couleur": "cyan",
+        "role": "afficheur du bas (plus grand)"
+      },
+      {
+        "id": "bouton1",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 1290,
+        "x1": 315,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "bouton carré vide n° 1"
+      },
+      {
+        "id": "bouton2",
+        "forme": "rect",
+        "x0": 355,
+        "y0": 1290,
+        "x1": 580,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "bouton carré vide n° 2"
+      },
+      {
+        "id": "bouton3",
+        "forme": "rect",
+        "x0": 620,
+        "y0": 1290,
+        "x1": 845,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "bouton carré vide n° 3"
+      },
+      {
+        "id": "bouton4",
+        "forme": "rect",
+        "x0": 885,
+        "y0": 1290,
+        "x1": 1110,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "bouton carré vide n° 4"
+      }
+    ]
+  },
+  "3-tour-magie": {
+    "largeur": 1200,
+    "hauteur": 1500,
+    "zones": [
+      {
+        "id": "titre",
+        "forme": "rect",
+        "x0": 150,
+        "y0": 70,
+        "x1": 1050,
+        "y1": 210,
+        "couleur": "rouge",
+        "role": "plaque de titre"
+      },
+      {
+        "id": "socle",
+        "forme": "cercle",
+        "cx": 600,
+        "cy": 330,
+        "r": 90,
+        "couleur": "bleu",
+        "role": "petit socle rond"
+      },
+      {
+        "id": "tube",
+        "forme": "rect",
+        "x0": 900,
+        "y0": 430,
+        "x1": 1110,
+        "y1": 1230,
+        "couleur": "vert",
+        "role": "tube de verre vide"
+      },
+      {
+        "id": "afficheur1",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 430,
+        "x1": 850,
+        "y1": 640,
+        "couleur": "cyan",
+        "role": "afficheur du haut"
+      },
+      {
+        "id": "afficheur2",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 700,
+        "x1": 850,
+        "y1": 1010,
+        "couleur": "cyan",
+        "role": "afficheur du bas (plus grand)"
+      },
+      {
+        "id": "bouton1",
+        "forme": "rect",
+        "x0": 90,
+        "y0": 1290,
+        "x1": 315,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "bouton carré vide n° 1"
+      },
+      {
+        "id": "bouton2",
+        "forme": "rect",
+        "x0": 355,
+        "y0": 1290,
+        "x1": 580,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "bouton carré vide n° 2"
+      },
+      {
+        "id": "bouton3",
+        "forme": "rect",
+        "x0": 620,
+        "y0": 1290,
+        "x1": 845,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "bouton carré vide n° 3"
+      },
+      {
+        "id": "bouton4",
+        "forme": "rect",
+        "x0": 885,
+        "y0": 1290,
+        "x1": 1110,
+        "y1": 1420,
+        "couleur": "orange",
+        "role": "bouton carré vide n° 4"
+      }
+    ]
+  }
+}

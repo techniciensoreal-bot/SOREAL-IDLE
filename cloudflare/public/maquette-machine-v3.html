@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maquette Machine temporelle v3 (images de Norman)</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+/*
+ * Maquette v3 de la MACHINE TEMPORELLE avec les trois images de Norman (2026-11-06) : tour Énergie (verte), machine centrale, tour Magie (bleue). Chaque image est UNE texture ; les éléments du jeu sont posés
+ * dans les emplacements vides (positions : machine-v2/zones.json). Mise en page : 3 colonnes égales sur PC ; sur téléphone empilées (machine, Énergie, Magie). Quelques éléments seulement, rotations en transform.
+ */
+:root{--tiq:50;--encre:#07080a}
+*{box-sizing:border-box}
+body{margin:0;padding:10px 10px 50px;background:#16171c;color:#fff;font-family:"Russo One",system-ui,sans-serif}
+.barre{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:0 0 12px;font-size:13px}
+.barre button{font:inherit;padding:7px 12px;border-radius:9px;border:2px solid #fff3;background:#222633;color:#fff;cursor:pointer}
+.barre button[aria-pressed=true]{border-color:#ffd84a;color:#ffd84a}
+.barre input{width:130px;vertical-align:middle}
+.machine{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;max-width:1300px;margin:0 auto}
+@media (max-width:820px){.machine{grid-template-columns:minmax(0,1fr);max-width:480px}.m-centre{order:-1}}
+.mv2{position:relative;width:100%;aspect-ratio:1122/1402;background-position:center;background-size:100% 100%;background-repeat:no-repeat;container-type:inline-size}
+.mv2 .z{position:absolute;overflow:hidden;display:flex;flex-direction:column;justify-content:center}
+.mv2 .z.rond{border-radius:50%}
+.mv2 .lib{font-size:2.5cqw;letter-spacing:.14em;color:#8fa6b8}
+.mv2 .val{font-size:7.4cqw;line-height:1;text-align:right;color:var(--lcd)}
+.mv2 .pad{padding:0 4%}
+.mv2 .val{white-space:nowrap}
+.m-centre .val{font-size:5.6cqw}
+.m-centre .lib{font-size:2cqw;letter-spacing:.08em;white-space:nowrap}
+.m-energie{--acc:#46e07a;--c1:#1f9d4a;--c2:#6dff9b;--lcd:#7dffb0;background-image:url(/machine-v2/tour-energie.webp)}
+.m-magie{--acc:#5aa2ff;--c1:#1e4fd0;--c2:#7db8ff;--lcd:#9fd0ff;background-image:url(/machine-v2/tour-magie.webp)}
+.m-centre{--lcd:#7dffb0;--acc:#ffd84a;background-image:url(/machine-v2/centre.webp)}
+.titre{align-items:center;font-family:Bangers,cursive;letter-spacing:.1em;font-size:8.2cqw;color:var(--acc);-webkit-text-stroke:.4cqw #000;paint-order:stroke fill;text-shadow:0 .5cqw 0 #000}
+.titre{flex-direction:row!important;justify-content:center!important;gap:2cqw}
+.tube .liq{position:absolute;left:0;right:0;bottom:0;height:62%;background:linear-gradient(180deg,var(--c2),var(--c1));border-top:.5cqw solid var(--c2)}
+.tube .bul{position:absolute;bottom:2%;width:1.4cqw;height:1.4cqw;border-radius:50%;background:#fff;opacity:0;animation:monte 2.6s linear infinite}
+@keyframes monte{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}100%{opacity:0;transform:translateY(-28cqw)}}
+.tube .grad{position:absolute;inset:0;background:linear-gradient(90deg,#fff3,#fff0 40%,#0004)}
+.barre-t{height:2.4cqw;border-radius:2cqw;background:#000a;border:.4cqw solid #000;margin:1.6cqw 0 1cqw;overflow:hidden}
+.barre-t i{display:block;height:100%;width:74%;background:linear-gradient(180deg,var(--c2),var(--c1))}
+.rang{display:flex;justify-content:space-between;font-size:2.3cqw;letter-spacing:.06em;color:#8fa6b8}
+.extra{background:#15161a;border:.6cqw solid #000;border-radius:2cqw;padding:0 3%;position:absolute;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.extra .val{font-size:5.2cqw}
+.btn{align-items:center;justify-content:center;font-size:7cqw;color:var(--acc)}
+.btn.max{color:#fff;background:var(--c1)}
+/* animations : transform seulement */
+
+
+@keyframes tourne{to{transform:rotate(360deg)}}
+.aig{transform-box:fill-box;transform-origin:50% 100%;transform:rotate(calc(-120deg + var(--tiq)*4.8deg))}
+.pause .bul,.pause .piece{animation-play-state:paused}
+.piece{animation:chute 1.6s linear infinite;opacity:0}
+@keyframes chute{0%{opacity:0;transform:translateY(-12px)}20%{opacity:1}100%{opacity:0;transform:translateY(40px)}}
+svg{display:block;width:100%;height:100%}
+</style></head><body>
+<div class="barre"><button id="pause" aria-pressed="false">Pause</button><label>Tiques/s <input id="tiq" type="range" min="1" max="50" value="50"> <b id="tiqv">50</b></label><button id="tel" aria-pressed="false">Vue téléphone</button><button id="clair" aria-pressed="false">Fond clair</button></div>
+<div class="machine" id="m"></div>
+<script src="/modules/engrenages-v1.js"></script>
+<script>
+var E=window.__SOREAL_IDLE_ENGRENAGES_V1__;
+function engr(cfg,coul){var ch=E.chaine(cfg);return '<svg viewBox="'+(ch.xMin-3)+' '+(ch.yMin-3)+' '+(ch.largeur+6)+' '+(ch.hauteur+6)+'" preserveAspectRatio="xMidYMid meet">'+E.svg(ch,{corps:coul})+'</svg>';}
+
+var Z;
+function st(zn,extra){return 'left:'+(zn.x0*100)+'%;top:'+(zn.y0*100)+'%;width:'+((zn.x1-zn.x0)*100)+'%;height:'+((zn.y1-zn.y0)*100)+'%;'+(extra||'');}
+function z(zn,cls,html,extra){return '<div class="z '+(cls||'')+(zn.cercle?' rond':'')+'" style="'+st(zn,extra)+'">'+html+'</div>';}
+function lcd(zn,lib,val){return z(zn,'pad','<span class="lib">'+lib+'</span><span class="val">'+val+'</span>');}
+function centre(zs){
+  var s='<div class="mv2 m-centre">';
+  s+=z(zs.ecran,'','<svg viewBox="0 0 880 324" preserveAspectRatio="xMidYMid slice"><rect width="880" height="324" fill="#10151f"/><rect y="230" width="880" height="94" fill="#e9d36a" opacity=".85"/><g transform="translate(560 130)"><ellipse rx="96" ry="84" fill="#ff7ab8" stroke="#000" stroke-width="7"/><circle cx="-30" cy="-14" r="17" fill="#fff" stroke="#000" stroke-width="5"/><circle cx="34" cy="-14" r="17" fill="#fff" stroke="#000" stroke-width="5"/><circle cx="-26" cy="-12" r="7" fill="#111"/><circle cx="38" cy="-12" r="7" fill="#111"/><path d="M-34 30Q0 58 36 30" fill="none" stroke="#000" stroke-width="7" stroke-linecap="round"/></g></svg><div style="position:absolute;left:3%;bottom:25%;font-family:Bangers;font-size:7.2cqw;color:#fff;-webkit-text-stroke:.5cqw #000;paint-order:stroke fill;letter-spacing:.05em">Sundae</div><div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:baseline;padding:1.2cqw 3%;background:#000c;font-size:2.4cqw;letter-spacing:.1em;color:#7dffb0"><span>MEILLEUR BUTIN D\'OR</span><b style="font-size:5.4cqw;color:#ffd84a;font-weight:400">+349K Or</b></div>');
+  s+=lcd(zs.lcdGauche,'VITESSE','50 /s')+lcd(zs.lcdDroit,'MULTIPLICATEUR','×8.36K');
+  s+=z(zs.cadran,'','<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="49" fill="#0c0d10"/><path d="M14 68A40 40 0 1 1 86 68" fill="none" stroke="#fff" stroke-width="2.5" stroke-dasharray="2.5 6"/><g class="aig"><path d="M50 54L47.5 20L52.5 20Z" fill="#ff3b2f" stroke="#000" stroke-width="1.5"/></g><circle cx="50" cy="54" r="6" fill="#aab" stroke="#000" stroke-width="2"/><text x="50" y="82" text-anchor="middle" font-size="9" font-family="Russo One" fill="#cfd8e4">TIQUES/S</text></svg>');
+  s+=z(zs.fenetre,'',engr({m:4,n:[18,12,18,12,18,12,18],y:48,x0:44},['#9aa3ad','#e3a23a']));
+  s+=z(zs.sortie,'','<svg viewBox="0 0 300 155"><path d="M30 150Q150 20 270 150Z" fill="#ffd45a" stroke="#000" stroke-width="5"/><circle cx="110" cy="122" r="9" fill="#fff4b0" stroke="#000" stroke-width="3"/><circle cx="160" cy="104" r="9" fill="#fff4b0" stroke="#000" stroke-width="3"/><circle cx="205" cy="126" r="9" fill="#fff4b0" stroke="#000" stroke-width="3"/><g class="piece"><circle cx="150" cy="10" r="9" fill="#ffd45a" stroke="#000" stroke-width="3"/></g><g class="piece" style="animation-delay:-.8s"><circle cx="165" cy="10" r="9" fill="#ffd45a" stroke="#000" stroke-width="3"/></g></svg>','overflow:visible');
+  return s+'</div>';
+}
+function tour(k,zs,nom,icone){
+  var s='<div class="mv2 m-'+k+'">';
+  s+=z(zs.titre,'titre',icone+'<span>'+nom+'</span>');
+  s+=z(zs.socle,'',engr({m:3,n:[10,8],y:20,x0:20},['#9aa3ad','#e3a23a']));
+  s+=z(zs.tube,'tube','<div class="liq"></div><div class="grad"></div><i class="bul" style="left:12%;animation-delay:-.4s"></i><i class="bul" style="left:42%;animation-delay:-1.3s"></i><i class="bul" style="left:70%;animation-delay:-.9s"></i>');
+  s+=lcd(zs.afficheur1,'NIVEAU','274');
+  s+=z(zs.afficheur2,'pad','<span class="lib">TEMPS RESTANT</span><span class="val">0 s</span><div class="rang"><span>NIVEAU SUIVANT</span><span>1.38 B Or</span></div>');
+  var a=zs.afficheur1,b=zs.afficheur2,x0=Math.min(a.x0,b.x0),x1=Math.max(a.x1,b.x1),w=(x1-x0-.02)/2,y0=.7347,y1=.8247;
+  s+='<div class="extra" style="'+st({x0:x0,y0:y0,x1:x0+w,y1:y1})+'"><span class="lib">CIBLE</span><span class="val">0</span></div><div class="extra" style="'+st({x0:x1-w,y0:y0,x1:x1,y1:y1})+'"><span class="lib">ALLOUÉE</span><span class="val">0</span></div>';
+  ['+','−','Max','0'].forEach(function(t,i){s+=z(zs['bouton'+(i+1)],'btn'+(t==='Max'?' max':''),t);});
+  return s+'</div>';
+}
+var moteur=null;
+fetch('/machine-v2/zones.json').then(function(r){return r.json();}).then(function(j){
+  document.getElementById('m').innerHTML=tour('energie',j.energie,'ÉNERGIE','<svg viewBox="0 0 24 24" width="1em" height="1em" style="width:1em;height:1em"><path d="M13 2 5 14h6l-1 8 8-12h-6z" fill="#46e07a" stroke="#000" stroke-width="2" stroke-linejoin="round"/></svg>').replace('class="mv2 m-energie"','class="mv2 m-energie m-g"')
+   +centre(j.centre)
+   +tour('magie',j.magie,'MAGIE','<svg viewBox="0 0 32 32" width="1em" height="1em" style="width:1em;height:1em"><path d="M16 2 19.5 12.5 30 16 19.5 19.5 16 30 12.5 19.5 2 16 12.5 12.5Z" fill="#5aa2ff" stroke="#000" stroke-width="2.4" stroke-linejoin="round"/></svg>');
+  moteur=E.animer(document.getElementById('m'),Number(document.getElementById('tiq').value)/10);
+});
+document.getElementById('pause').onclick=function(){var on=!document.body.classList.contains('pause');document.body.classList.toggle('pause',on);this.setAttribute('aria-pressed',on);if(moteur){if(on)moteur.pause();else moteur.reprendre();}};
+document.getElementById('tiq').oninput=function(){document.documentElement.style.setProperty('--tiq',this.value);document.getElementById('tiqv').textContent=this.value;if(moteur)moteur.regler(Number(this.value)/10);};
+document.getElementById('clair').onclick=function(){var on=this.getAttribute('aria-pressed')!=='true';this.setAttribute('aria-pressed',on);document.body.style.background=on?'#e8e8e8':'';};
+document.getElementById('tel').onclick=function(){var on=this.getAttribute('aria-pressed')!=='true';this.setAttribute('aria-pressed',on);document.getElementById('m').style.maxWidth=on?'400px':'1300px';document.getElementById('m').style.gridTemplateColumns=on?'minmax(0,1fr)':'';var c=document.querySelector('.m-centre');if(c)c.style.order=on?'-1':'';};
+</script></body></html>

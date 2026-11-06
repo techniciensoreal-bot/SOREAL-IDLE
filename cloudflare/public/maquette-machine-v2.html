@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maquettes Machine temporelle v2</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+/*
+ * Maquettes de la nouvelle MACHINE TEMPORELLE (Norman, 2026-11-06 : « elle est toute moche cette machine » ; choix 2 : nouveau look, simple et beau). Même contenu dans les trois styles, mêmes données :
+ * écran du mob au meilleur butin d'Or, cadran de tiques/s, Vitesse, Multiplicateur, engrenages, sortie d'Or, puis la section Énergie (tube, Niveau, Temps restant, boutons).
+ * Légèreté voulue : peu d'éléments, aucun filtre, aucune ombre floue, seulement des rotations et un tube qui monte. Le style retenu sera porté dans le jeu à la place du dessin actuel.
+ */
+:root{--tiq:50}
+*{box-sizing:border-box}
+body{margin:0;padding:12px 10px 60px;background:#0b0d16;color:#eee;font-family:"Russo One",system-ui,sans-serif}
+.barre{position:sticky;top:0;z-index:5;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:8px;background:#0b0d16ee;border-bottom:1px solid #ffffff22;margin:-12px -10px 12px}
+.barre button{font:inherit;font-size:14px;padding:8px 14px;border-radius:10px;border:2px solid #ffffff44;background:#1a1f33;color:#fff;cursor:pointer}
+.barre button[aria-pressed=true]{border-color:#ffd84a;background:#3a3010;color:#ffd84a}
+.barre label{font-size:12px;color:#aab}
+.barre input[type=range]{vertical-align:middle;width:120px}
+.lot{display:flex;flex-wrap:wrap;gap:18px;justify-content:center;align-items:flex-start}
+.lot > div{width:min(100%,400px);flex:none}
+.mach{width:min(100%,400px);display:none}
+.mach.vue,.cote .mach{display:block}
+.cote .lot{gap:14px}
+.etiq{font:12px "Russo One";color:#9ab;text-align:center;margin:0 0 6px}
+svg{display:block}
+
+/* ---- animations : rotations seulement (transform), mises en pause par le bouton ---- */
+.g{transform-box:fill-box;transform-origin:center;animation:tourne calc(60s/var(--tiq)*1.6) linear infinite}
+.g.r{animation-direction:reverse}
+.g.l{animation-duration:calc(60s/var(--tiq)*3.2)}
+@keyframes tourne{to{transform:rotate(360deg)}}
+.pause .g,.pause .bul{animation-play-state:paused}
+.aig{transform-box:fill-box;transform-origin:50% 90%;transform:rotate(calc(-120deg + var(--tiq)*2.4deg))}
+.bul{position:absolute;bottom:2px;width:5px;height:5px;border-radius:50%;background:#fff;opacity:0;animation:monte 2.4s linear infinite}
+@keyframes monte{0%{opacity:0;transform:translateY(0)}15%{opacity:.9}100%{opacity:0;transform:translateY(-120px)}}
+
+/* ---- structure commune ---- */
+.mach{position:relative;border-radius:var(--rc);padding:12px;background:var(--cadre);border:var(--bord);color:var(--tx)}
+.m-titre{font-family:Bangers,cursive;font-size:30px;letter-spacing:.08em;text-align:center;margin:2px 0 10px;color:var(--titre)}
+.m-ecran{position:relative;height:170px;border-radius:var(--rp);background:var(--ecran);border:var(--bordp);overflow:hidden}
+.m-ecran svg{position:absolute;inset:0;width:100%;height:100%}
+.m-nom{position:absolute;left:12px;bottom:36px;font-family:Bangers,cursive;font-size:26px;letter-spacing:.05em;color:#fff;-webkit-text-stroke:1px #000;paint-order:stroke fill}
+.m-butin{position:absolute;left:12px;right:12px;bottom:8px;display:flex;justify-content:space-between;align-items:baseline;font-size:11px;letter-spacing:.08em;color:var(--accent)}
+.m-butin b{font-size:19px;color:var(--or)}
+.m-tableau{display:grid;grid-template-columns:1fr 92px 1fr;gap:8px;align-items:center;margin:10px 0}
+.m-lcd{border-radius:var(--rp);padding:7px 10px;background:var(--lcd);border:var(--bordp)}
+.m-lcd i{display:block;font-style:normal;font-size:10px;letter-spacing:.14em;color:var(--accent)}
+.m-lcd b{display:block;font-size:24px;text-align:right;color:var(--lcdtx);font-weight:400}
+.m-cadran svg{width:92px;height:92px;margin:auto}
+.m-engr{border-radius:var(--rp);background:var(--fenetre);border:var(--bordp);padding:6px 4px;overflow:hidden}
+.m-engr svg{width:100%;height:78px}
+.m-sortie svg{width:100%;height:56px;margin-top:2px}
+.m-tour{margin-top:12px;border-radius:var(--rp);padding:12px;background:var(--tour);border:var(--bord)}
+.m-tete{font-family:Bangers,cursive;font-weight:400;font-size:26px;letter-spacing:.1em;text-align:center;margin:0 0 4px;color:var(--c2)}
+.m-sous{font-size:11px;line-height:1.35;text-align:center;margin:0 6px 8px;color:var(--soustx)}
+.m-roues svg{width:130px;height:64px;margin:0 auto 8px}
+.m-grille{display:grid;grid-template-columns:36px 1fr;gap:10px}
+.m-tube{position:relative;min-height:190px;border-radius:18px;background:var(--verre);border:var(--bordp);overflow:hidden}
+.m-liq{position:absolute;left:0;right:0;bottom:0;height:62%;background:linear-gradient(180deg,var(--c2),var(--c1))}
+.m-droite{display:grid;gap:8px;min-width:0}
+.m-barre{height:12px;border-radius:8px;background:#0007;border:var(--bordf);overflow:hidden;margin:6px 0 4px}
+.m-barre i{display:block;height:100%;width:74%;background:linear-gradient(180deg,var(--c2),var(--c1))}
+.m-rang{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.06em;color:var(--accent)}
+.m-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.m-btns span{display:block;text-align:center;font-size:20px;padding:8px 0;border-radius:11px;background:var(--bt);color:var(--btx);border:var(--bordp);box-shadow:var(--ombt)}
+.m-btns span.max{background:var(--btm);color:#fff}
+
+/* ================= A : LAITON SOBRE ================= */
+.th-a{--rc:26px;--rp:14px;--cadre:linear-gradient(180deg,#d9a548,#a56a22);--bord:4px solid #1a0e05;--bordp:3px solid #1a0e05;--bordf:2px solid #1a0e05;--tx:#fff1d6;--titre:#fff0b8;--ecran:#10151f;--accent:#5fe3ff;--or:#ffd45a;--lcd:#0b1812;--lcdtx:#7dffb0;--fenetre:#2a1a0c;--tour:linear-gradient(180deg,#8a5a24,#6a4016);--c1:#2f6bff;--c2:#5fe3ff;--soustx:#ffe7b3;--verre:linear-gradient(90deg,#ffffff3a,#ffffff10 45%,#0005);--bt:linear-gradient(180deg,#ffd978,#d39a2e);--btx:#2a1604;--btm:linear-gradient(180deg,#32c872,#15934d);--ombt:0 4px 0 #1a0e05}
+.th-a .m-titre{text-shadow:0 3px 0 #1a0e05}
+.th-a .m-tableau{padding:8px;border-radius:16px;background:#2a1a0c;border:3px solid #1a0e05}
+/* ================= B : NÉON ARCADE ================= */
+.th-b{--rc:22px;--rp:12px;--cadre:#0a0f24;--bord:3px solid #20e3ff;--bordp:2px solid #20e3ff;--bordf:2px solid #20e3ff;--tx:#e8f6ff;--titre:#20e3ff;--ecran:#050816;--accent:#ff3df0;--or:#ffe23d;--lcd:#070b1c;--lcdtx:#20e3ff;--fenetre:#070b1c;--tour:#0d1330;--c1:#7a2cff;--c2:#20e3ff;--soustx:#9fb4d8;--verre:#ffffff12;--bt:#0d1330;--btx:#20e3ff;--btm:#ff3df0;--ombt:inset 0 0 0 2px #20e3ff55}
+.th-b .m-titre{text-shadow:2px 2px 0 #ff3df0}
+.th-b .m-btns span{border-color:#20e3ff}
+.th-b .m-btns span.max{border-color:#ff3df0;color:#fff;background:#ff3df0}
+.th-b .m-ecran,.th-b .m-lcd,.th-b .m-engr,.th-b .m-tube{border-color:#20e3ff}
+/* ================= C : CARTOON BD ================= */
+.th-c{--rc:30px;--rp:16px;--cadre:#ffd84a;--bord:5px solid #111;--bordp:4px solid #111;--bordf:3px solid #111;--tx:#111;--titre:#fff;--ecran:#2ec4b6;--accent:#111;--or:#ff3b2f;--lcd:#fff;--lcdtx:#111;--fenetre:#ff8a2b;--tour:#2ec4b6;--c1:#ff3b2f;--c2:#ffd84a;--soustx:#111;--verre:#fff;--bt:#fff;--btx:#111;--btm:#ff3b2f;--ombt:0 5px 0 #111}
+.th-c .m-titre{-webkit-text-stroke:2px #111;paint-order:stroke fill;text-shadow:0 4px 0 #111}
+.th-c .m-tete{-webkit-text-stroke:1.5px #111;paint-order:stroke fill;color:#fff}
+.th-c .m-lcd i{color:#111aa}
+.th-c .m-butin{color:#111}
+.th-c .m-nom{-webkit-text-stroke:2px #111}
+.th-a .m-butin,.th-b .m-butin{left:0;right:0;bottom:0;padding:5px 12px;background:#000c}
+.th-c .m-butin{left:0;right:0;bottom:0;padding:5px 12px;background:#fff;border-top:3px solid #111}
+</style></head><body>
+<div class="barre">
+  <button data-th="a" aria-pressed="true">A · Laiton sobre</button>
+  <button data-th="b" aria-pressed="false">B · Néon arcade</button>
+  <button data-th="c" aria-pressed="false">C · Cartoon BD</button>
+  <button id="cote" aria-pressed="false">Côte à côte</button>
+  <button id="pause" aria-pressed="false">Pause</button>
+  <label>Tiques/s <input id="tiq" type="range" min="1" max="50" value="50"> <b id="tiqv">50</b></label>
+</div>
+<div class="lot" id="lot"></div>
+<script>
+/* génération des engrenages (maquette seulement : dans le jeu ce sera du balisage fixe) */
+function dents(r,n,pr){var p=[],pas=2*Math.PI/n;for(var i=0;i<n;i++){var a=i*pas;[[r-pr,a-pas*.3],[r,a-pas*.16],[r,a+pas*.16],[r-pr,a+pas*.3]].forEach(function(q){p.push((p.length?'L':'M')+(q[0]*Math.cos(q[1])).toFixed(1)+' '+(q[0]*Math.sin(q[1])).toFixed(1));});}return p.join('')+'Z';}
+function roue(cx,cy,r,n,cls,fill,stroke){var pr=r*.2;return '<g transform="translate('+cx+' '+cy+')"><g class="g '+cls+'"><path d="'+dents(r,n,pr)+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="2.5" stroke-linejoin="round"/><circle r="'+(r*.28)+'" fill="'+stroke+'"/><circle r="'+(r*.11)+'" fill="'+fill+'"/></g></g>';}
+var T={
+ a:{g1:'#e7b552',g2:'#cfd6de',trait:'#1a0e05',mob:'#7a5aa8',sol:'#e9d36a'},
+ b:{g1:'#0d1330',g2:'#0d1330',trait:'#20e3ff',mob:'#ff3df0',sol:'#20e3ff'},
+ c:{g1:'#ffd84a',g2:'#fff',trait:'#111',mob:'#ff3b2f',sol:'#fff'}
+};
+function machine(k){
+ var c=T[k];
+ return '<section class="mach th-'+k+'"><div class="m-titre">MACHINE TEMPORELLE</div>'+
+ '<div class="m-ecran"><svg viewBox="0 0 400 170" preserveAspectRatio="xMidYMid slice"><rect width="400" height="170" fill="'+(k==='c'?'#2ec4b6':k==='b'?'#050816':'#10151f')+'"/><rect y="118" width="400" height="52" fill="'+c.sol+'" opacity="'+(k==='a'?.9:.55)+'"/>'+
+  '<g transform="translate(250 70)"><ellipse rx="52" ry="46" fill="'+c.mob+'" stroke="'+c.trait+'" stroke-width="4"/><circle cx="-18" cy="-8" r="9" fill="#fff" stroke="'+c.trait+'" stroke-width="3"/><circle cx="18" cy="-8" r="9" fill="#fff" stroke="'+c.trait+'" stroke-width="3"/><circle cx="-16" cy="-7" r="4" fill="#111"/><circle cx="20" cy="-7" r="4" fill="#111"/><path d="M-20 18 Q0 34 20 18" fill="none" stroke="'+c.trait+'" stroke-width="4" stroke-linecap="round"/></g></svg>'+
+  '<div class="m-nom">Sundae</div><div class="m-butin"><span>MEILLEUR BUTIN D\'OR</span><b>+349K Or</b></div></div>'+
+ '<div class="m-tableau"><div class="m-lcd"><i>VITESSE</i><b id="v'+k+'">50 /s</b></div>'+
+  '<div class="m-cadran"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="'+(k==='b'?'#070b1c':k==='c'?'#fff':'#1b1b1b')+'" stroke="'+c.trait+'" stroke-width="'+(k==='c'?5:4)+'"/><path d="M14 66 A40 40 0 1 1 86 66" fill="none" stroke="'+(k==='b'?'#20e3ff':k==='c'?'#111':'#e7b552')+'" stroke-width="3" stroke-dasharray="3 6"/><g class="aig"><path d="M50 52 L47 22 L53 22Z" fill="'+(k==='b'?'#ff3df0':'#ff3b2f')+'" stroke="'+c.trait+'" stroke-width="1.5"/></g><circle cx="50" cy="52" r="6" fill="'+(k==='c'?'#111':'#e7b552')+'" stroke="'+c.trait+'" stroke-width="2"/><text x="50" y="82" text-anchor="middle" font-size="9" font-family="Russo One" fill="'+(k==='c'?'#111':'#ddd')+'">TIQUES/S</text></svg></div>'+
+  '<div class="m-lcd"><i>MULTIPLICATEUR</i><b>×8.36K</b></div></div>'+
+ '<div class="m-engr"><svg viewBox="0 0 380 78">'+roue(50,40,32,12,'',c.g1,c.trait)+roue(122,46,22,9,'r l',c.g2,c.trait)+roue(190,36,34,13,'',c.g1,c.trait)+roue(262,46,22,9,'r l',c.g2,c.trait)+roue(330,38,32,12,'',c.g1,c.trait)+'</svg></div>'+
+ '<div class="m-sortie"><svg viewBox="0 0 400 56"><path d="M150 0H250L228 28H172Z" fill="'+(k==='b'?'#0d1330':k==='c'?'#ff8a2b':'#6f7e91')+'" stroke="'+c.trait+'" stroke-width="'+(k==='c'?4:3)+'"/><path d="M130 56Q200 4 270 56Z" fill="'+(k==='b'?'#ffe23d':'#ffd45a')+'" stroke="'+c.trait+'" stroke-width="3"/><circle cx="170" cy="46" r="5" fill="#fff4b0"/><circle cx="205" cy="38" r="5" fill="#fff4b0"/><circle cx="232" cy="48" r="5" fill="#fff4b0"/></svg></div>'+
+ '<div class="m-tour"><h3 class="m-tete">⚡ ÉNERGIE</h3><p class="m-sous">Vitesse de la machine (Énergie + Or) : accélère la barre jusqu’au niveau 50, puis chaque niveau multiplie l’Or produit</p>'+
+  '<div class="m-roues"><svg viewBox="0 0 130 64">'+roue(40,34,26,10,'',c.g1,c.trait)+roue(88,36,26,10,'r',c.g2,c.trait)+'</svg></div>'+
+  '<div class="m-grille"><div class="m-tube"><div class="m-liq"></div>'+
+   '<i class="bul" style="left:7px;animation-delay:-.4s"></i><i class="bul" style="left:15px;animation-delay:-1.2s"></i><i class="bul" style="left:23px;animation-delay:-.9s"></i></div>'+
+   '<div class="m-droite"><div class="m-lcd"><i>NIVEAU</i><b>274</b></div>'+
+   '<div class="m-lcd"><i>TEMPS RESTANT</i><b>0 s</b><div class="m-barre"><i></i></div><div class="m-rang"><span>NIVEAU SUIVANT</span><span>1.38 B Or</span></div></div>'+
+   '<div class="m-btns"><span>+</span><span>−</span><span class="max">Max</span><span>0</span></div></div></div></div></section>';
+}
+var lot=document.getElementById('lot');lot.innerHTML=['a','b','c'].map(function(k){return '<div>'+machine(k).replace('<section','<p class="etiq">'+({a:'A · Laiton sobre',b:'B · Néon arcade',c:'C · Cartoon BD'})[k]+'</p><section')+'</div>';}).join('');
+var vues=document.querySelectorAll('#lot > div');
+function montrer(k){document.querySelectorAll('[data-th]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.th===k?'true':'false');});vues.forEach(function(d,i){var kk=['a','b','c'][i];d.querySelector('.mach').classList.toggle('vue',kk===k);d.style.display=(document.body.classList.contains('cote')||kk===k)?'block':'none';});}
+document.querySelectorAll('[data-th]').forEach(function(b){b.onclick=function(){document.body.classList.remove('cote');document.getElementById('cote').setAttribute('aria-pressed','false');montrer(b.dataset.th);};});
+document.getElementById('cote').onclick=function(){var on=!document.body.classList.contains('cote');document.body.classList.toggle('cote',on);this.setAttribute('aria-pressed',on);vues.forEach(function(d){d.style.display=on?'block':'none';});if(!on)montrer('a');else vues.forEach(function(d){d.style.display='block';});};
+document.getElementById('pause').onclick=function(){var on=!document.body.classList.contains('pause');document.body.classList.toggle('pause',on);this.setAttribute('aria-pressed',on);};
+document.getElementById('tiq').oninput=function(){document.documentElement.style.setProperty('--tiq',this.value);document.getElementById('tiqv').textContent=this.value;['a','b','c'].forEach(function(k){var e=document.getElementById('v'+k);if(e)e.textContent=document.getElementById('tiq').value+' /s';});};
+montrer('a');
+</script></body></html>
