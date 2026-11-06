@@ -18,14 +18,14 @@ var MENUS=[['combat','Combat de boss'],['aventure','Aventure'],['machine','Machi
 var DUREE_MENU_MS=20000,MISE_EN_PLACE_MS=3000;
 /* DIAGNOSTIC de la Machine temporelle (Norman, 2026-11-06 : sur son téléphone elle tourne à ~40 images/s, médiane 25 ms, alors que le PC est dans le budget) : la même page mesurée quatre fois, avec des parties de l'affichage retirées pour ATTRIBUER le coût :
    normale ; animations de la machine en pause ; décor (centre et haut) masqué ; machine entière masquée (reste la page autour). Les différences entre passes disent ce qui coûte. Les variantes sont temporaires (une feuille de style et des animations mises en pause), retirées à la fin. */
-var PLAN_DIAG_MACHINE=[
-  {id:'machine',nom:'Machine temporelle — normale'},
-  {id:'machine',nom:'Machine temporelle — animations de la machine en pause',variante:'pause'},
-  {id:'machine',nom:'Machine temporelle — machine entière masquée',variante:'cadre'},
+var PLAN_DIAG_MACHINE=[   /* ENTRELACÉ (2026-11-06) : un téléphone chauffe et dérive d'une passe à l'autre (même la machine masquée a varié de 0,6 % à 8,3 % entre deux relevés) ; chaque variante est donc encadrée de deux passes normales et jugée contre elles */
+  {id:'machine',nom:'Machine temporelle — normale (1)'},
   {id:'machine',nom:'Machine temporelle — sans bulles',variante:'bulles'},
-  {id:'machine',nom:'Machine temporelle — liquide sans conteneur de requête (hypothèse : la hauteur réécrite à chaque image recalcule les bulles)',variante:'sansConteneur'},
-  {id:'machine',nom:'Machine temporelle — sans les grosses bulles',variante:'sansGrosses'},
-  {id:'machine',nom:'Machine temporelle — sans les minibulles',variante:'sansMini'}
+  {id:'machine',nom:'Machine temporelle — normale (2)'},
+  {id:'machine',nom:'Machine temporelle — liquide sans conteneur de requête',variante:'sansConteneur'},
+  {id:'machine',nom:'Machine temporelle — normale (3)'},
+  {id:'machine',nom:'Machine temporelle — animations en pause',variante:'pause'},
+  {id:'machine',nom:'Machine temporelle — normale (4)'}
 ];
 var VARIANTES_CSS={
   pause:'.tmm-machine,.tmm-machine *{animation-play-state:paused!important}',
@@ -40,6 +40,23 @@ var VARIANTES_CSS={
   sansMini:'.tmm-bulle.mini{display:none!important}'
 };
 var BUDGET={sup20:1,sup34:0.1,max:50};   /* % d'images au-dessus de 20 ms, % au-dessus de 34 ms, pire image en ms */
+
+/* ---------- comparaison appariée : une variante contre ses deux passes normales voisines ---------- */
+function comparaisonsAppariees(menus){
+  var out=[];
+  for(var i=1;i<menus.length-1;i++){
+    var m=menus[i];if(!m||!m.variante)continue;
+    var a=menus[i-1],b=menus[i+1];
+    if(!a||!b||a.variante||b.variante||!a.stats||!b.stats||!m.stats||!a.valide||!b.valide||!m.valide){out.push({nom:m.nom,variante:m.variante,conclusion:'non concluant (passe voisine absente ou invalide)'});continue;}
+    var ref=(a.stats.pct20+b.stats.pct20)/2,v=m.stats.pct20,derive=Math.abs(a.stats.pct20-b.stats.pct20),ecart=ref-v,c;
+    if(derive>Math.max(4,ref*0.35))c='non concluant : les deux passes normales voisines diffèrent trop ('+derive.toFixed(1)+' points) — l\'appareil dérive, à refaire appareil froid';
+    else if(ecart>Math.max(derive,ref*0.25))c='AMÉLIORE : '+ecart.toFixed(1)+' points de moins que les passes normales voisines';
+    else if(-ecart>Math.max(derive,ref*0.25))c='DÉGRADE : '+(-ecart).toFixed(1)+' points de plus que les passes normales voisines';
+    else c='sans effet net (écart '+ecart.toFixed(1)+' point, dérive entre normales '+derive.toFixed(1)+')';
+    out.push({nom:m.nom,variante:m.variante,ref:ref,valeur:v,derive:derive,conclusion:c});
+  }
+  return out;
+}
 
 /* ---------- statistiques (pures : testées sans navigateur) ---------- */
 function quantile(trie,p){return trie.length?trie[Math.min(trie.length-1,Math.floor(trie.length*p))]:0;}
@@ -112,6 +129,7 @@ function texteRapport(r){
     if(m.loaf&&m.loaf.n){l.push('   images longues : '+m.loaf.n+' ('+Math.round(m.loaf.ms)+' ms au total)');m.loaf.tops.forEach(function(t){l.push('     '+t.cle+' ×'+t.n+' · '+Math.round(t.ms)+' ms (max '+Math.round(t.max)+')');});}
     l.push('');
   });
+  if(r.comparaisons&&r.comparaisons.length){l.push('comparaison appariée (images > 20 ms, variante contre la moyenne de ses deux passes normales voisines) :');r.comparaisons.forEach(function(c){l.push('   '+c.nom+' : '+(c.valeur===undefined?'':ent(c.valeur,2)+' % contre '+ent(c.ref,2)+' % — ')+c.conclusion);});l.push('');}
   l.push(r.ops.length?'moteur local, opérations pendant la mesure (calcul en ms ; file = attente avant le calcul ; retour = copie vers la page) :':'moteur local : aucune opération vue pendant la mesure');
   r.ops.forEach(function(o){l.push('   '+o.op+' ×'+o.n+' · calcul médian '+Math.round(o.calculMed)+' · max '+Math.round(o.calculMax)+' · file max '+Math.round(o.fileMax)+' · retour max '+Math.round(o.retourMax));});
   (r.notes||[]).forEach(function(n){l.push('NOTE : '+n);});
@@ -137,13 +155,14 @@ async function executer(env,progres,plan,titre,options){
       var mes=await env.mesurer(DUREE_MENU_MS,function(reste){if(progres)progres('« '+nom+' » : encore '+Math.ceil(reste/1000)+' s — ne touche à rien, laisse cette page visible');},options.profil);
       var s=statsImages(mes.durees),attendu=DUREE_MENU_MS/1000*30;
       var invalide=mes.bloque?'images suspendues par le navigateur (page, panneau ou application masqué) : remets la page au premier plan et relance':(mes.masque?'page masquée pendant la mesure':(s.n<attendu?'moins de 30 images par seconde en moyenne : mesure trop pauvre ('+s.n+' images)':''));
-      sortie.menus.push({id:id,nom:nom,stats:s,verdict:verdict(s),loaf:resumerLoaf(mes.loaf||[]),profil:mes.profil?(mes.profil.indisponible?mes.profil:resumerProfil(mes.profil)):null,valide:!invalide,invalide:invalide});
+      sortie.menus.push({id:id,nom:nom,variante:elements[i].variante||null,stats:s,verdict:verdict(s),loaf:resumerLoaf(mes.loaf||[]),profil:mes.profil?(mes.profil.indisponible?mes.profil:resumerProfil(mes.profil)):null,valide:!invalide,invalide:invalide});
     }
   }finally{
     liberer();
     if(env.variante)env.variante(null);   /* les variantes du diagnostic sont toujours retirées */
     if(depart)env.cliquerMenu(depart);   /* règle n°6 : le menu ouvert est une préférence du compte, remise comme avant */
   }
+  sortie.comparaisons=comparaisonsAppariees(sortie.menus);
   sortie.ops=resumerOps(ops);
   if(!sortie.apiLoaf&&!sortie.apiLongtask)sortie.notes.push('ce navigateur ne donne ni images longues ni tâches longues : seules les durées d\'image sont mesurées.');
   return sortie;
@@ -263,5 +282,5 @@ function ouvrir(){
     [{texte:'Lancer la mesure',fort:true,fait:function(){lancer();}},{texte:'Diagnostic Machine temporelle (1,5 min)',fait:function(){lancer(PLAN_DIAG_MACHINE,'diagnostic Machine temporelle');}},{texte:'Mesure avec profil par fonction (1,5 min)',fait:function(){lancer(null,'mesure avec profil par fonction',{profil:true});}},{texte:'Annuler',fait:fermer}]);
 }
 window.__mesureReferenceOuvrirV1__=ouvrir;
-window.__SOREAL_IDLE_MESURE_REF_V1__={ouvrir:ouvrir,lancer:lancer,executer:executer,envReel:envReel,resumerProfil:resumerProfil,PLAN_DIAG_MACHINE:PLAN_DIAG_MACHINE,VARIANTES_CSS:VARIANTES_CSS,statsImages:statsImages,verdict:verdict,texteRapport:texteRapport,resumerOps:resumerOps,resumerLoaf:resumerLoaf,MENUS:MENUS,BUDGET:BUDGET,VERSION_PROTOCOLE:VERSION_PROTOCOLE};
+window.__SOREAL_IDLE_MESURE_REF_V1__={ouvrir:ouvrir,lancer:lancer,executer:executer,envReel:envReel,resumerProfil:resumerProfil,PLAN_DIAG_MACHINE:PLAN_DIAG_MACHINE,VARIANTES_CSS:VARIANTES_CSS,statsImages:statsImages,comparaisonsAppariees:comparaisonsAppariees,verdict:verdict,texteRapport:texteRapport,resumerOps:resumerOps,resumerLoaf:resumerLoaf,MENUS:MENUS,BUDGET:BUDGET,VERSION_PROTOCOLE:VERSION_PROTOCOLE};
 })();

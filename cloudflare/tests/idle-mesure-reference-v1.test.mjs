@@ -132,18 +132,18 @@ function envSimule(options = {}) {
 
 /* ---- 3 ter. DIAGNOSTIC de la Machine temporelle : quatre passes, variantes temporaires toujours retirées ---- */
 {
-  assert.equal(M.PLAN_DIAG_MACHINE.length, 7, "sept passes");
-  assert.deepEqual(M.PLAN_DIAG_MACHINE.map((p) => p.variante || null), [null, "pause", "cadre", "bulles", "sansConteneur", "sansGrosses", "sansMini"]);
+  assert.equal(M.PLAN_DIAG_MACHINE.length, 7, "sept passes entrelacées");
+  assert.deepEqual(M.PLAN_DIAG_MACHINE.map((p) => p.variante || null), [null, "bulles", null, "sansConteneur", null, "pause", null], "chaque variante est encadrée de deux passes normales");
   assert.ok(M.PLAN_DIAG_MACHINE.every((p) => p.id === "machine"), "toutes sur la Machine temporelle");
   assert.deepEqual(Object.keys(M.VARIANTES_CSS).sort(), ["bulles", "cadre", "decor", "pause", "pauseCss", "pauseWaapi", "sansConteneur", "sansGrosses", "sansMini", "svg"]);
   const { env, journal } = envSimule({});
   const appels = [];
   env.variante = (v) => { appels.push(v); journal.push("variante:" + v); };
   const r = await M.executer(env, null, M.PLAN_DIAG_MACHINE, "diagnostic Machine temporelle");
-  assert.deepEqual(appels, [null, "pause", "cadre", "bulles", "sansConteneur", "sansGrosses", "sansMini", null], "chaque passe applique sa variante ; la dernière remise à zéro retire tout");
+  assert.deepEqual(appels, [null, "bulles", null, "sansConteneur", null, "pause", null, null], "chaque passe applique sa variante ; la dernière remise à zéro retire tout");
   assert.equal(r.menus.length, 7); assert.equal(r.titre, "diagnostic Machine temporelle");
   assert.ok(M.texteRapport(r).startsWith("=== SOREAL NGU IDLE — diagnostic Machine temporelle (protocole v1) ==="), "le titre du rapport dit qu'il s'agit du diagnostic");
-  assert.ok(M.texteRapport(r).includes("[ Machine temporelle — animations de la machine en pause ]"), "chaque passe est nommée");
+  assert.ok(M.texteRapport(r).includes("[ Machine temporelle — animations en pause ]"), "chaque passe est nommée");
   /* panne en pleine passe : la variante est retirée quand même */
   const b = envSimule({ erreurSur: "machine" }); const bap = []; b.env.variante = (v) => bap.push(v);
   await assert.rejects(() => M.executer(b.env, null, M.PLAN_DIAG_MACHINE), /panne simulée/);
@@ -206,4 +206,24 @@ const bug = fs.readFileSync("cloudflare/public/modules/bug-report-v1.js", "utf8"
 assert.ok(bug.includes("(estAdmin?' <button type=\"button\" class=\"soreal-idle-expand-button-v25\" onclick=\"window.__mesureReferenceOuvrirV1__&&window.__mesureReferenceOuvrirV1__()\">📏 Mesure de référence</button>':'')"), "bouton réservé à l'administrateur dans les Réglages");
 const index = fs.readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(/\/modules\/mesure-reference-v1\.js\?v=\d+/.test(index), "script chargé par index.html");
+/* comparaison appariée : une variante jugée contre ses deux passes normales voisines */
+{
+  const mk = (variante, pct, valide = true) => ({ nom: variante || "normale", variante, valide, stats: { pct20: pct } });
+  let c = M.comparaisonsAppariees([mk(null, 20), mk("bulles", 8), mk(null, 22)]);
+  assert.equal(c.length, 1); assert.match(c[0].conclusion, /^AMÉLIORE/);
+  c = M.comparaisonsAppariees([mk(null, 20), mk("bulles", 30), mk(null, 21)]);
+  assert.match(c[0].conclusion, /^DÉGRADE/);
+  c = M.comparaisonsAppariees([mk(null, 20), mk("bulles", 19), mk(null, 21)]);
+  assert.match(c[0].conclusion, /^sans effet net/);
+  /* l'appareil dérive : deux passes normales trop différentes => jamais de conclusion */
+  c = M.comparaisonsAppariees([mk(null, 8), mk("bulles", 2), mk(null, 27)]);
+  assert.match(c[0].conclusion, /^non concluant : les deux passes normales voisines diffèrent/);
+  /* voisine invalide ou absente */
+  c = M.comparaisonsAppariees([mk(null, 20, false), mk("bulles", 8), mk(null, 22)]);
+  assert.match(c[0].conclusion, /^non concluant/);
+  assert.deepEqual(M.comparaisonsAppariees([mk("bulles", 8), mk(null, 22)]), [], "une variante sans voisine de chaque côté n'est pas comparée");
+  /* le rapport imprime la comparaison */
+  const txt = M.texteRapport({ titre: "t", date: "d", versionClient: "5.1", mode: "direct", moteurLocal: true, appareil: "a", ecran: "e", dureeMenu: 20, miseEnPlace: 3, menus: [], ops: [], notes: [], comparaisons: [{ nom: "sans bulles", variante: "bulles", ref: 21, valeur: 8, derive: 2, conclusion: "AMÉLIORE : 13.0 points de moins que les passes normales voisines" }] });
+  assert.ok(txt.includes("comparaison appariée") && txt.includes("sans bulles : 8.00 % contre 21.00 %"));
+}
 console.log("idle-mesure-reference-v1: OK");
