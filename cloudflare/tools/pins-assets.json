@@ -612,8 +612,8 @@
   "sha": "94eb60425fd291258409755c5bb9c41e10a44cce"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 813,
-  "sha": "afaae0b2d08d07a3e189ce37b44ce03631a58b87"
+  "pin": 814,
+  "sha": "a1f9057d50e32f21fc989deaaacbf8cba25f9980"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,

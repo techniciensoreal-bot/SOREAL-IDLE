@@ -22,10 +22,28 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.0',
+    courante:'5.1',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'5.1',
+        nom:'Une borne vivante',
+        date:'2026-11-06',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Dans la barre de vie, la régénération est maintenant écrite à gauche, et à droite un compte à rebours dit dans combien de temps la vie sera pleine (✔ quand elle l’est).',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'L’animation du ballon, quand le bonhomme réapparaît, est beaucoup plus brève.',
+            'Quand un combat est très serré, long ou court, la borne joue maintenant une de ses animations (le clown, la tronçonneuse…) au lieu de rester sur FIGHT !. Un combat qui dure encore après quelques secondes bascule aussi sur l’animation.',
+            'De temps en temps, quand tu n’as pas cliqué depuis quelques secondes, la borne a des yeux sur son écran LED : ils regardent à gauche, à droite, sont heureux, tristes, suspicieux… Un clic ou un combat les arrête.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Le filtre d’un objet précis (le bouton 🧹 du Coffre) est maintenant le même dans toutes les zones : un objet coché n’est plus ramassé nulle part et reste coché quand tu changes de zone. Tes filtres déjà réglés par zone sont réunis, rien n’est perdu.',
+          ]},
+        ],
+      },
       {
         version:'5.0',
         nom:'Menus plus légers',
@@ -34,16 +52,9 @@
           {menu:'general', titre:'Général', points:[
             'Les réglages de son (volumes, cases de son, lecture automatique de la voix) et les effets sont maintenant propres à chaque appareil : couper la musique chez toi ne la coupe plus ailleurs.',
             'Les menus s’ouvrent plus légèrement, surtout sur téléphone.',
-            'Dans la barre de vie, la régénération est maintenant écrite à gauche, et à droite un compte à rebours dit dans combien de temps la vie sera pleine (✔ quand elle l’est).',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'La victoire du bonhomme qui court est plus courte : elle s’arrête dès la fin des feux d’artifice.',
-            'L’animation du ballon, quand le bonhomme réapparaît, est beaucoup plus brève.',
-            'Quand un combat est très serré, long ou court, la borne joue maintenant une de ses animations (le clown, la tronçonneuse…) au lieu de rester sur FIGHT !. Un combat qui dure encore après quelques secondes bascule aussi sur l’animation.',
-            'De temps en temps, quand tu n’as pas cliqué depuis quelques secondes, la borne a des yeux sur son écran LED : ils regardent à gauche, à droite, sont heureux, tristes, suspicieux… Un clic ou un combat les arrête.',
-          ]},
-          {menu:'aventure', titre:'Aventure', points:[
-            'Le filtre d’un objet précis (le bouton 🧹 du Coffre) est maintenant le même dans toutes les zones : un objet coché n’est plus ramassé nulle part et reste coché quand tu changes de zone. Tes filtres déjà réglés par zone sont réunis, rien n’est perdu.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
             'Comme dans NGU Idle, une Augmentation gagne au plus 50 niveaux par seconde, même avec une énorme quantité d’énergie, hors ligne comme en ligne.',
