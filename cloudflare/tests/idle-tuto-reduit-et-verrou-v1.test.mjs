@@ -12,8 +12,7 @@ assert.ok(src.includes("b.classList.toggle('reduit',!garderTaille&&!s.guide.masc
 assert.ok(src.includes("afficherEtape_(true);return;}") && src.includes("else{s.i+=1;afficherEtape_(true);}"), "Précédent / Suivant gardent la taille choisie");
 assert.ok(src.includes("b.classList.remove('reduit');"), "un clic sur l'enceinte rouvre la fenêtre");
 // Verrou de la voix et des clics
-assert.ok(src.includes("function voixVerrouille_(s)") && src.includes("tts.readText(t,null,function(){") && src.includes("if(s.jetonVoix!==jeton)return;
-      s.voixEnCours=false;"), "verrou levé à la fin de la lecture");
+assert.ok(src.includes("function voixVerrouille_(s)") && src.includes("tts.readText(t,null,function(){") && /if\(s\.jetonVoix!==jeton\)return;\s*s\.voixEnCours=false;/.test(src), "verrou levé à la fin de la lecture");
 assert.ok(src.includes("function clicRefuse_(ev)") && src.includes("if(s.sceneEnCours||voixVerrouille_(s))return true;") && src.includes("return !cible.contains(ev.target);"), "rien d'autre que la cible ne se clique, et pas même elle tant que la voix parle");
 assert.ok(src.includes("['click','pointerdown','mousedown','mouseup','pointerup','dblclick','touchstart','touchend']") && src.includes("ev.stopImmediatePropagation();"), "les clics refusés n'atteignent jamais le jeu");
 assert.ok(src.includes("if(ev.target.closest('#'+ID))return false;"), "la fenêtre du tutoriel reste cliquable (enceinte, Passer)");
