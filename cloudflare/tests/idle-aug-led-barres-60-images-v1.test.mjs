@@ -12,5 +12,6 @@ assert.ok(/Math\.round\(allume\*64\)/.test(s) && !/Math\.round\(allume\*8\)/.tes
 assert.ok(/function calques\(/.test(s) && /o\.litCtx\.drawImage\(o\.spr/.test(s) && /ctx\.drawImage\(o\.dim,0,0\)/.test(s) && /ctx\.drawImage\(o\.lit,0,0\)/.test(s), "calques en mémoire recomposés à chaque image");
 const dessiner = s.slice(s.indexOf("function dessiner(cv,tube){"), s.indexOf("function attacher(){"));
 assert.ok(!/ctx\.arc\(|ctx\.beginPath\(/.test(dessiner) && !/shadowBlur/.test(dessiner), "aucun arc ni halo recalculé à chaque image dans dessiner()");
-assert.ok(/Math\.floor\(W\/cols\)/.test(s), "colonnes de largeur entière (pas de ré-échantillonnage)");
+assert.ok(/var cw=W\/cols,ox=0,/.test(s), "les colonnes remplissent exactement le cadre : la première au bord gauche, la dernière au bord droit (Norman, 2026-11-07)");
+assert.ok(/Math\.round\(o\.ox\+i\*o\.cw-o\.m\)/.test(s) && /Math\.round\(o\.ox\+plein\*o\.cw-o\.m\)/.test(s), "calques posés à des pixels entiers");
 console.log("idle-aug-led-barres-60-images-v1: OK");

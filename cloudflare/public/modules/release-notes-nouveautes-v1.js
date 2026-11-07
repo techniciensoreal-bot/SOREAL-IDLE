@@ -4,8 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Quand les yeux de la borne regardent ta barre de vie, ils visent le bout de la partie pleine, là où elle s’arrête : vie haute, regard vers la droite ; vie basse, vers la gauche.",
-    "Les barres de la page Augmentations avancent maintenant à 60 images par seconde, avec une colonne en cours qui monte en intensité de façon continue, au lieu de saccader.",
-    "Une « Cible » à -1 reste à -1 à l’écran de l’Entraînement avancé : elle s’affichait 0 alors que le jeu la gardait bien en mémoire (elle reste liée à ton compte, comme toutes les cibles)."
+    "Magie du sang : quand un rituel dépasse 1 niveau par seconde, l’animation de la scène ne s’arrête plus un instant à chaque synchronisation : elle reste continue."
   ] };
 })();

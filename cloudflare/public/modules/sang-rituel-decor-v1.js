@@ -735,7 +735,7 @@ function poserMarque(sc,id){
   sc.__marq=0;
   if(sc.querySelector('.bm-tuyau.saigne-v1')){sc.classList.add('bm-marque');marqueVue[id]=true;}
 }
-var secVue={};
+var secVue={},secVueLe={};
 /*
  * Avancement du niveau (Norman, 2026-10-11) : la punaise (ou la feuille) se rapproche tout doucement de l'endroit où elle pique pendant TOUT le niveau, et le mouvement se termine exactement quand le chrono se termine :
  * c'est là que le coup part. Niveaux lents seulement (au-delà de PERIODE_BOUCLE) ; en boucle rapide, la scène pique déjà sans arrêt. Cycle d'un niveau (durée P) : le coup finit de se jouer (0,9 s, l'objet reste au contact),
@@ -1320,14 +1320,16 @@ function rythme(sc,id,n,avant){
   /* La vue du rituel disparaît un instant à chaque synchro avec le serveur, justement quand un niveau se termine (Norman, 2026-10-11 : « très peu de magie : l'animation ne se fait pas quand le chrono arrive à 0 ») : on garde la dernière durée connue. */
   /* (la dernière durée connue ne sert qu'au déclenchement du coup : le mode boucle, lui, suit la vue actuelle et ne continue jamais quand on retire toute la Magie) */
   var sec=v?Number(v.secondsPerCompletion):0;
-  if(sec>0)secVue[id]=sec;
+  if(sec>0){secVue[id]=sec;secVueLe[id]=performance.now();}
+  /* ANIMATION CONTINUE (Norman, 2026-11-07 : « l'animation ralentit parfois quand le rituel est au-dessus de 1 niv par seconde ; on dirait qu'elle attend ; je veux qu'elle reste en continu ») : la vue du rituel disparaît ~120 ms à CHAQUE synchro ; le mode boucle repassait alors à « repos » (animation retirée, puis relancée de zéro) à chaque synchro. Tant que le rituel progresse encore (le tuyau saigne) la boucle garde la dernière durée connue, 4 s au plus ; retirer la Magie l'arrête toujours tout de suite. */
+  var secB=sec>0?sec:((progresse&&pret&&secVue[id]>0&&performance.now()-(secVueLe[id]||0)<4000)?secVue[id]:0);
   var mode='repos';
   /* Le redessin de la page laisse ce rythme en place (règle « aucun redessin visible », AGENTS.md n°4) : le retirer arrêtait puis relançait l'animation de la scène. */
   (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]);
   if(window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__.indexOf('data-rythme')===-1)window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__.push('data-rythme');
-  if(sec>0&&sec<=PERIODE_BOUCLE&&progresse&&pret&&!attenteOr){
+  if(secB>0&&secB<=PERIODE_BOUCLE&&progresse&&pret&&!attenteOr){
     mode='boucle';
-    var t=Math.max(PERIODE_MIN,sec),act=parseFloat(sc.style.getPropertyValue('--bm-t'))||0;
+    var t=Math.max(PERIODE_MIN,secB),act=parseFloat(sc.style.getPropertyValue('--bm-t'))||0;
     if(!act||Math.abs(act-t)/t>0.04)sc.style.setProperty('--bm-t',t.toFixed(3)+'s');
   }
   if(sc.getAttribute('data-rythme')!==mode)sc.setAttribute('data-rythme',mode);

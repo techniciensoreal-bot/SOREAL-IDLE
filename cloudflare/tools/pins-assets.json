@@ -76,8 +76,8 @@
   "sha": "0e42a8581ce4e1be45deefa0d096b0e2452c63d2"
  },
  "/modules/aug-led-barres-v1.js": {
-  "pin": 5,
-  "sha": "17b875963737b1bb96a05b5c1da434fe68b1cfb3"
+  "pin": 6,
+  "sha": "e84b1dd9e7ba1c44b6d357c5d4ddbdda3d0f4282"
  },
  "/modules/augmentations-page-v1.js": {
   "pin": 52,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 199,
-  "sha": "22917163b270f8ab57bbbb227be045dd85374ffe"
+  "pin": 200,
+  "sha": "b5da9eb43c64cfbe0f53e4bbe50cb2b7389b3303"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 837,
-  "sha": "f5c746d7447e2a0189d0aabaa84f03a095283e86"
+  "pin": 838,
+  "sha": "f0973f9af9679163307a9764cccb4e71a602e87b"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -640,8 +640,8 @@
   "sha": "c34e602f716b3e1dd88f17906c9a100e890b0eb7"
  },
  "/modules/sang-rituel-decor-v1.js": {
-  "pin": 237,
-  "sha": "3f60d951848642425657ff99f23e64c2b7e86da6"
+  "pin": 238,
+  "sha": "9b91867f1a6797dd87b323869587a9d12de9f6e0"
  },
  "/modules/sans-bulles-v1.js": {
   "pin": 2,
@@ -720,12 +720,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 873,
-  "sha": "de59a4da26f7a10c8109d43faeaaea8854401fa2"
+  "pin": 874,
+  "sha": "c529e3887f4e7e463ca1cc8aba9138fc9c0b00c8"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 694,
-  "sha": "1a36c848203eb89ce40fd126f2fb6faed074fde2"
+  "pin": 695,
+  "sha": "719a2accc1554476263bca31bfd955229307788b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,

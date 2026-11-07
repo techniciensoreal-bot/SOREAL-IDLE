@@ -68,7 +68,7 @@
    */
   function calques(cv,tube,w,h,dpr,col){
     var pas=mobile()?PAS_TEL:PAS_PC,W=Math.round(w*dpr),H=Math.round(h*dpr),cols=Math.max(8,Math.floor(w/pas)),rows=Math.max(3,Math.floor((h-2)/pas));
-    var cw=Math.max(3,Math.floor(W/cols)),ox=Math.floor((W-cols*cw)/2),oy=Math.floor((H-rows*cw)/2),r=cw*0.36,m=Math.ceil(cw*0.95),c=rgb(col),i,j;
+    var cw=W/cols,ox=0,oy=(H-rows*cw)/2,r=cw*0.36,m=Math.ceil(cw*0.95),c=rgb(col),i,j;
     var cle=cols+'|'+rows+'|'+cw+'|'+col+'|'+W+'x'+H;
     if(cv.__calquesCle===cle)return cv.__calques;
     function toile(l,hh){var o=document.createElement('canvas');o.width=l;o.height=hh;return o;}
@@ -77,7 +77,7 @@
     d.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+',0.13)';
     for(i=0;i<cols;i++)for(j=0;j<rows;j++){d.beginPath();d.arc(ox+(i+0.5)*cw,oy+(j+0.5)*cw,r,0,6.2832);d.fill();}
     /* une colonne allumée complète : halo, points, reflets (le halo déborde de m pixels de chaque côté) */
-    var spr=toile(cw+2*m,H),g=spr.getContext('2d');
+    var spr=toile(Math.ceil(cw)+2*m,H),g=spr.getContext('2d');
     g.shadowColor='rgba('+c[0]+','+c[1]+','+c[2]+',0.9)';g.shadowBlur=cw*0.9;g.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+',1)';
     for(j=0;j<rows;j++){g.beginPath();g.arc(m+cw/2,oy+(j+0.5)*cw,r*1.04,0,6.2832);g.fill();}
     g.shadowBlur=0;g.fillStyle='rgba(255,255,255,0.35)';
@@ -97,12 +97,12 @@
     var ctx=cv.getContext('2d'),plein=Math.min(o.cols,Math.floor(allume)),a=allume-plein,i;
     /* colonnes pleinement allumées : ajoutées au calque (ou calque refait si la barre a reculé) */
     if(plein<o.plein){o.litCtx.clearRect(0,0,o.W,o.H);o.plein=0;}
-    for(i=o.plein;i<plein;i++)o.litCtx.drawImage(o.spr,o.ox+i*o.cw-o.m,0);
+    for(i=o.plein;i<plein;i++)o.litCtx.drawImage(o.spr,Math.round(o.ox+i*o.cw-o.m),0);
     o.plein=plein;
     ctx.clearRect(0,0,o.W,o.H);
     ctx.drawImage(o.dim,0,0);
     ctx.drawImage(o.lit,0,0);
-    if(a>0&&plein<o.cols){ctx.globalAlpha=0.25+0.75*a;ctx.drawImage(o.spr,o.ox+plein*o.cw-o.m,0);ctx.globalAlpha=1;}   /* la colonne en cours monte en intensité */
+    if(a>0&&plein<o.cols){ctx.globalAlpha=0.25+0.75*a;ctx.drawImage(o.spr,Math.round(o.ox+plein*o.cw-o.m),0);ctx.globalAlpha=1;}   /* la colonne en cours monte en intensité */
   }
 
   function attacher(){

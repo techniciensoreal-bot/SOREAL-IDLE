@@ -58,6 +58,9 @@
           {menu:'ngu', titre:'NGU', points:[
             'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
           ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Magie du sang : quand un rituel dépasse 1 niveau par seconde, l’animation de la scène ne s’arrête plus un instant à chaque synchronisation : elle reste continue.',
+          ]},
         ],
       },
       {
