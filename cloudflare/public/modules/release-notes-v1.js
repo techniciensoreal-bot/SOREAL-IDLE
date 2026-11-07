@@ -40,6 +40,7 @@
             'Réglages : une case permet de couper les aides du tutoriel.',
             'Le tutoriel du début est entièrement refait : des bulles courtes, une idée par bulle, qui passent toutes seules.',
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
+            'Les points de vie s’écrivent toujours avec deux décimales à partir du million (2,90M et non 2,9M) : les chiffres ne bougent plus quand un zéro final apparaît ou disparaît.',
             'Quand Lhu parle de la barre verte, elle est entourée.',
             'Lhu vole (ailes qui battent) quand il retourne se poser sur la borne, au lieu de glisser debout.',
             'Après le premier boss, seule la case de l’image du boss reste noire (plus toute la borne), et le nom du boss suivant n’est plus prononcé avant le départ de Lhu.',

@@ -9,9 +9,9 @@ const src = fs.readFileSync("cloudflare/public/modules/ui-aventure-1-v1.js", "ut
 const i = src.indexOf("function formaterPvEntierIdleV1_("), j = src.indexOf("function formaterDecimalesFixesIdleV1_(");
 assert.ok(i > 0 && j > i, "formateur trouvé");
 const f = new Function("idleNombre_", src.slice(i, j) + "\nreturn formaterPvEntierIdleV1_;")((v) => Number(v) || 0);
-const attendu = [[0, "0"], [0.4, "0"], [183.35, "183"], [999, "999"], [1000, "1000"], [9999.9, "9999"], [10000, "10.000"], [100000, "100.000"], [999999.9, "999.999"], [1e6, "1M"], [1.5e6, "1,5M"], [1234567, "1,23M"], [999999999.9, "1B"], [12.5e12, "12,5T"], [-5, "0"]];
+const attendu = [[0, "0"], [0.4, "0"], [183.35, "183"], [999, "999"], [1000, "1000"], [9999.9, "9999"], [10000, "10.000"], [100000, "100.000"], [999999.9, "999.999"], [1e6, "1,00M"], [1.5e6, "1,50M"], [2.9e6, "2,90M"], [1234567, "1,23M"], [999999999.9, "1,00B"], [12.5e12, "12,50T"], [-5, "0"]];
 for (const [v, t] of attendu) assert.equal(f(v), t, "format de " + v);
-assert.equal(f(1.5e6, true), "1.5M", "sur la borne : point décimal (pas de virgule dans la petite police)");
+assert.equal(f(1.5e6, true), "1.50M", "sur la borne : point décimal (pas de virgule dans la petite police)");
 assert.equal(f(100000, true), "100.000");
 /* branchement */
 const amorce = fs.readFileSync("cloudflare/public/modules/ui-amorcage-v1.js", "utf8");

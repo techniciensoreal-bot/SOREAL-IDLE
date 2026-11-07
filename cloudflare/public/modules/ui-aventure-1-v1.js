@@ -98,7 +98,8 @@
         const apres=rang-noms.length;
         const unite=rang<noms.length?noms[rang]:(apres<676?String.fromCharCode(65+Math.floor(apres/26))+String.fromCharCode(65+apres%26):null);
         if(unite===null)return n.toExponential(2);
-        return (n/Math.pow(1000,rang)).toFixed(2).replace(/\.?0+$/,'').replace('.',pointDecimal?'.':',')+unite;
+        /* toujours deux décimales (Norman, 2026-11-07 : « 2.9 au lieu de 2.90, ça fait beaucoup bouger les chiffres ») : la largeur du texte ne change plus quand un zéro final apparaît ou disparaît */
+        return (n/Math.pow(1000,rang)).toFixed(2).replace('.',pointDecimal?'.':',')+unite;
       }
 
       function formaterDecimalesFixesIdleV1_(valeur,decimales){
