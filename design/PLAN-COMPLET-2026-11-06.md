@@ -137,6 +137,8 @@ Conséquences pour les portes : (1) **P3 est franchie pour le traitement des ré
 ### C8 — Audit final
 - Plus aucun fichier hérité de l'ancien monolithe dépassant les seuils ; catalogue des visuels et références à jour ; note du jour ; empreintes en ligne vérifiées.
 
+- **C8 — audit final (2026-11-07)** : audit d'architecture sans point à corriger (312 fichiers JavaScript ; plafond `!important` 2 540, 2 539 en place) ; catalogue des visuels à jour ; suite complète (parallèle) : tout vert sauf `idle-studio-port-libre-v1` (dépend de la machine locale, échec déjà connu hors CI) ; note 5.2 du jour poussée. Non vérifié : l'état du déploiement en ligne (pas d'accès à la CI depuis cette session).
+
 ## 5. Ordre et portes de décision
 
 Ordre : **C0 -> C1 -> porte P1 -> C2 -> porte P2 -> (C3 si P2 non atteinte) -> C6 menu par menu (en parallèle possible) -> C4 / C5 sur mesure -> C7 si demandé -> C8.**
