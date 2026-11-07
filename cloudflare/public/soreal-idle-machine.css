@@ -7,7 +7,8 @@
  * Pas d'élément span / label / b / strong / p / li ici : les règles du thème de la page leur imposent une couleur.
  */
 /* le cadre porte la requête de conteneur (un conteneur ne peut pas styler sa propre grille) */
-.tmm-cadre{container-type:inline-size;width:100%;max-width:1320px;margin:10px auto 14px}
+/* sur PC la machine prend TOUTE la largeur de la page (Norman, 2026-11-07), donc elle est plus haute : les trois cartes gardent leur proportion */
+.tmm-cadre{container-type:inline-size;width:100%;max-width:none;margin:10px 0 14px}
 .tmm-machine{display:grid;grid-template-columns:576fr 762fr 580fr;gap:0;align-items:start;--encre:#0a0a0c}
 .tmm-machine.tmm-sans-magie{grid-template-columns:576fr 762fr}
 /* ---- une carte = une image (576 x 753, 762 x 753, 580 x 753) ---- */
@@ -46,7 +47,7 @@
 .tmm-droite .tmm-lcds>.tmm-lcd:nth-child(2){left:16.03%;width:53.79%}
 .tmm-lcd-titre,.tmm-case-titre{display:block;font-size:1.8cqw;font-weight:700;letter-spacing:.12em;color:#8fa6b8;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform:skewX(-8deg);transform-origin:left center}
 .tmm-lcd-val,.tmm-case-val,.tmm-machine .tmm-case input[type=number]{display:block;font-size:5.4cqw;line-height:1.05;font-weight:700;text-align:right;color:var(--lcd);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform:skewX(-8deg);transform-origin:right center;text-shadow:-.25cqw 0 rgba(0,255,255,.35),.25cqw 0 rgba(255,0,200,.3),0 0 1.4cqw var(--halo)}
-.tmm-lcd-val[data-tm-lcd-eta]{font-size:4.5cqw}
+.tmm-lcd-val[data-tm-lcd-eta]{font-size:3.8cqw}
 /* la barre du « temps restant » faisait double emploi avec le tube (Norman, 2026-11-06) : retirée de l'affichage ; l'élément reste dans la page car le code en direct y lit et y écrit le niveau de remplissage qui pilote le tube */
 .tmm-barre{display:none}
 .tmm-rempl{height:100%;width:0}
