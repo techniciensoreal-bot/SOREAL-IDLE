@@ -108,8 +108,8 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 177,
-  "sha": "5f80fe493c522c1d95dff5594aa9a51a103d927d"
+  "pin": 179,
+  "sha": "8e3c08fa3dc94ad9d2ef09e0c9e50901d228a9af"
  },
  "/modules/borne-yeux-v1.js": {
   "pin": 12,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 200,
-  "sha": "b5da9eb43c64cfbe0f53e4bbe50cb2b7389b3303"
+  "pin": 201,
+  "sha": "ecc09a89e3f5121dc83f4c36f168282dc1724a50"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 838,
-  "sha": "f0973f9af9679163307a9764cccb4e71a602e87b"
+  "pin": 839,
+  "sha": "ef57f856a86ccee6655a262bc99b23c0b328d9c3"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -720,12 +720,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 874,
-  "sha": "c529e3887f4e7e463ca1cc8aba9138fc9c0b00c8"
+  "pin": 875,
+  "sha": "4fc819c68c4a3eaba815ff1d440bf868f199fd76"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 695,
-  "sha": "719a2accc1554476263bca31bfd955229307788b"
+  "pin": 696,
+  "sha": "8c6fc166c434b78c9be9107b99b16b2b0d7f0f87"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -764,20 +764,20 @@
   "sha": "d9ecb187c82ddaa370f225763083c4797cdeacbe"
  },
  "/modules/ui-amorcage-v1.js": {
-  "pin": 15,
-  "sha": "f9639524148823504e810915b4197f4926238c7b"
+  "pin": 16,
+  "sha": "30f4f3e9ff76a92008e055587a5b328e2b39bdc7"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 24,
-  "sha": "1b83b0362f5ccd6ba1b0d249b8c38fa478f16c44"
+  "pin": 26,
+  "sha": "50a4e795d4e2000245073c307060545876cb3dbd"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 62,
   "sha": "4a9f6a630b9aeabd0c921027b59e2b54d61c20b4"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 36,
-  "sha": "a07bb0e13a9929469c6318fb9deb0c6838207ff0"
+  "pin": 37,
+  "sha": "7088a0296633fcb3af9e952492a559eaebbec9ee"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 3,

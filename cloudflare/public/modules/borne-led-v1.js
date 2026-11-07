@@ -2303,9 +2303,9 @@ function lire(now){
   S.boss=Boolean(nom&&S.num>0);
   S.nom=S.boss?nom:'';
   S.now=now;
-  var fmt=r.formaterPvFixeIdleV1_,bpm=e?nombre(e.bossPvMax):0,bp=e?nombre(e.bossPv):0;
+  var fmt=r.formaterPvFixeIdleV1_,fmtE=typeof r.formaterPvEntierIdleV1_==='function'?function(v){return r.formaterPvEntierIdleV1_(v,true);}:fmt,bpm=e?nombre(e.bossPvMax):0,bp=e?nombre(e.bossPv):0;
   /* vie du boss : mêmes champs et même mise en forme que l'ancienne barre (ui-boucle-v1.js : bossPv, bossPvMax, regenBoss) ; rien pour un boss inconnu */
-  S.pv=(S.boss&&bpm>0&&typeof fmt==='function')?{pct:clamp(bp/bpm,0,1),cur:String(fmt(bp)),max:String(fmt(bpm)),regen:(bp>0&&nombre(e.regenBoss)>0)?'+'+fmt(nombre(e.regenBoss))+'/s':''}:null;
+  S.pv=(S.boss&&bpm>0&&typeof fmt==='function')?{pct:clamp(bp/bpm,0,1),cur:String(fmtE(bp)),max:String(fmtE(bpm)),regen:(bp>0&&nombre(e.regenBoss)>0)?'+'+fmt(nombre(e.regenBoss))+'/s':''}:null;
   couleurBarre(r,e);
   var cons=e&&e.systemes&&e.systemes.consommables,rs=cons&&cons.restant||{};   /* mêmes secondes que la valise ; compte à rebours local entre deux synchros */
   OBJ_ORDRE.forEach(function(k){var v=Math.floor(nombre(rs[k]));if(v>0){var o=S.obj[k];if(!o||o.base!==v)S.obj[k]={base:v,t0:now};}else delete S.obj[k];});

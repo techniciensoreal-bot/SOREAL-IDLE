@@ -21,6 +21,7 @@
   function energieGenereeTotaleIdleV1_(){return REG.energieGenereeTotaleIdleV1_.apply(null,arguments);}
   function donneesMagieGenereeIdleV1_(){return REG.donneesMagieGenereeIdleV1_.apply(null,arguments);}
   function formaterPvFixeIdleV1_(){return REG.formaterPvFixeIdleV1_.apply(null,arguments);}
+  function formaterPvEntierIdleV1_(){return REG.formaterPvEntierIdleV1_.apply(null,arguments);}
   function regenPvFightBossNguParSecondeV164_(){return REG.regenPvFightBossNguParSecondeV164_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
   function regenReposAdventureIdleV3_(){return REG.regenReposAdventureIdleV3_.apply(null,arguments);}
@@ -351,7 +352,7 @@ window.__SOREAL_IDLE_BARRE_INFOS_V2__=function(){
       /* Bandeau : la Vie s'écrit EXACTEMENT comme la barre de Fight Boss (mêmes formats, même fonction de mise à jour). */
       /* @amorce S:window.__SOREAL_IDLE_TEXTE_PV_V2__=function(pv,max){return formaterPvFixeIdleV1_ */
 function __amorcer_49(){
-window.__SOREAL_IDLE_TEXTE_PV_V2__=function(pv,max){return formaterPvFixeIdleV1_(pv)+' / '+formaterPvFixeIdleV1_(max);};
+window.__SOREAL_IDLE_TEXTE_PV_V2__=function(pv,max){return formaterPvEntierIdleV1_(pv)+' / '+formaterPvEntierIdleV1_(max);};
 }
 
       /* @amorce S:window.__SOREAL_IDLE_TEXTE_REGEN_PV_V2__=function(r){return r>0?'+'+formaterPvFi */

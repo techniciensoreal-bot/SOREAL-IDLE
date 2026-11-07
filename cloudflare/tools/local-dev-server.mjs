@@ -136,6 +136,13 @@ http.createServer(async (req, res) => {
     });
     return;
   }
+  /* /jouer : ouvre le jeu COMPLET en local dans n'importe quel navigateur (Chrome, navigateur intégré de Claude…) sans rien taper dans la console : la session locale est posée puis on arrive sur le jeu (joueur neuf : intro, tutoriel…). /jouer?neuf=1 efface aussi la partie gardée par ce navigateur. */
+  if (url.pathname === "/jouer" && req.method === "GET") {
+    const neuf = url.searchParams.get("neuf") === "1";
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
+    res.end("<!doctype html><meta charset=utf-8><title>SOREAL NGU IDLE (local)</title><body style='background:#0b0f18;color:#cfe;font:16px system-ui;padding:24px'>Ouverture du jeu local…<script>(async function(){try{sessionStorage.setItem('soreal_idle_session_v1','local');" + (neuf ? "try{var bases=await indexedDB.databases();bases.forEach(function(b){if(/soreal/i.test(b.name||''))indexedDB.deleteDatabase(b.name);});Object.keys(localStorage).forEach(function(k){if(/^soreal|^sorealIdle/.test(k))localStorage.removeItem(k);});}catch(e){}" : "") + "}catch(e){}location.replace('/');})();</script>");
+    return;
+  }
   if (url.pathname === "/debug/js" && req.method === "POST") {
     let corps = "";
     req.on("data", (c) => { corps += c; });

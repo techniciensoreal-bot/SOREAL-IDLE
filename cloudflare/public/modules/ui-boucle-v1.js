@@ -44,6 +44,7 @@
   function ajouterLogCombatIdleV70_(){return REG.ajouterLogCombatIdleV70_.apply(null,arguments);}
   function texteCombatIdleV121_(){return REG.texteCombatIdleV121_.apply(null,arguments);}
   function formaterPvFixeIdleV1_(){return REG.formaterPvFixeIdleV1_.apply(null,arguments);}
+  function formaterPvEntierIdleV1_(){return REG.formaterPvEntierIdleV1_.apply(null,arguments);}
   function largeurBarreVieCombatIdleV163_(){return REG.largeurBarreVieCombatIdleV163_.apply(null,arguments);}
   function transitionMortBossIdleV61_(){return REG.transitionMortBossIdleV61_.apply(null,arguments);}
   function appliquerBossSuivantLocalIdleV1_(){return REG.appliquerBossSuivantLocalIdleV1_.apply(null,arguments);}
@@ -1093,9 +1094,9 @@
           texteCombatIdleV121_(
             joueurPvEl,
             '❤️ '+
-            formaterPvFixeIdleV1_(REG.idleEtat.pvJoueur)+
+            formaterPvEntierIdleV1_(REG.idleEtat.pvJoueur)+
             ' / '+
-            formaterPvFixeIdleV1_(REG.idleEtat.pvJoueurMax),
+            formaterPvEntierIdleV1_(REG.idleEtat.pvJoueurMax),
             regenJoueurVisibleV176>0?'+'+formaterPvFixeIdleV1_(regenJoueurVisibleV176)+'/s':''
           );
         }

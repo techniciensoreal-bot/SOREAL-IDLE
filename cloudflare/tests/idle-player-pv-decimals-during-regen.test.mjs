@@ -31,7 +31,8 @@ const ui = lireUiComplet();
 const start = ui.indexOf("const regenJoueurVisibleV176=");
 assert.ok(start >= 0, "bloc de calcul du PV joueur introuvable.");
 const bloc = ui.slice(start, ui.indexOf("const joueurBarre=", start));
-assert.ok(bloc.includes("formaterPvFixeIdleV1_(idleEtat.pvJoueur)") && bloc.includes("formaterPvFixeIdleV1_(idleEtat.pvJoueurMax)"));
+/* Norman (2026-11-07) : la vie du JOUEUR s'écrit maintenant en nombres entiers avant le million (formaterPvEntierIdleV1_, test idle-pv-joueur-format-entier-v1) ; la vie du boss garde les deux décimales. */
+assert.ok(bloc.includes("formaterPvEntierIdleV1_(idleEtat.pvJoueur)") && bloc.includes("formaterPvEntierIdleV1_(idleEtat.pvJoueurMax)"));
 assert.ok(bloc.includes("regenJoueurVisibleV176>0?'+'+formaterPvFixeIdleV1_(regenJoueurVisibleV176)+'/s':''"), "regen du joueur : petit texte séparé");
 const bossStart = ui.indexOf("const bossPvEl=");
 const bossBloc = ui.slice(bossStart, ui.indexOf("const barre=", bossStart));
@@ -39,7 +40,7 @@ assert.ok(bossBloc.includes("formaterPvFixeIdleV1_(idleEtat.bossPv)") && bossBlo
 assert.ok(bossBloc.includes("bossEnRegenV174?'+'+formaterPvFixeIdleV1_(idleEtat.regenBoss)+'/s':''"), "regen du boss : petit texte séparé");
 assert.ok(ui.includes("formaterPvFixeIdleV1_(j.bossPv)"), "texte initial du boss au même format");
 /* La vie du joueur s'affiche dans le bandeau du haut avec EXACTEMENT les mêmes formats (PV et régénération). */
-assert.ok(ui.includes("window.__SOREAL_IDLE_TEXTE_PV_V2__=function(pv,max){return formaterPvFixeIdleV1_(pv)+' / '+formaterPvFixeIdleV1_(max);};"), "bandeau : PV au même format");
+assert.ok(ui.includes("window.__SOREAL_IDLE_TEXTE_PV_V2__=function(pv,max){return formaterPvEntierIdleV1_(pv)+' / '+formaterPvEntierIdleV1_(max);};"), "bandeau : PV en nombres entiers (2026-11-07), même format que le duel du joueur");
 assert.ok(ui.includes("window.__SOREAL_IDLE_TEXTE_REGEN_PV_V2__=function(r){return r>0?'+'+formaterPvFixeIdleV1_(r)+'/s':'';};"), "bandeau : régénération au même format");
 
 // Mise en page : cadres à la largeur des portraits, angles de 10 px, regen vert lumineux à droite.

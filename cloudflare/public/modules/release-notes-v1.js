@@ -35,6 +35,7 @@
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Ta vie (barre du haut et duel) et le texte de vie de la borne s’écrivent maintenant en nombres entiers avant le million : 1000, 10.000, 100.000, 999.999, puis 1M, 1,5M…',
             'Quand les yeux de la borne regardent ta barre de vie, ils visent le bout de la partie pleine, là où elle s’arrête : vie haute, regard vers la droite ; vie basse, vers la gauche.',
             'Quand un combat est serré, les yeux de la borne regardent la barre de vie du boss puis la tienne, plusieurs fois, sans se presser.',
             'Les yeux de la borne se rapprochent et s’éloignent : ils arrivent d’un bond depuis le fond, reculent à chaque coup reçu, se penchent vers l’écran quand le boss faiblit, viennent tout près quand il va tomber, et à la défaite les deux croix s’éloignent dans le lointain.',

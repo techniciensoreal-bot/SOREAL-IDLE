@@ -84,6 +84,23 @@
         return (n/Math.pow(1000,rang)).toFixed(2)+unite;
       }
 
+      /*
+       * Vie du JOUEUR (barre de vie du bandeau et du duel) et texte de la BORNE d'arcade (Norman, 2026-11-07 : « avant le million, dans notre barre de vie et sur la borne d'arcade, je veux le format 1000 999.999 100.000 1M ») : nombres ENTIERS,
+       * écrits tels quels jusqu'à 9999 (« 1000 »), puis avec un point tous les trois chiffres (« 10.000 », « 100.000 », « 999.999 »), et en abrégé à partir du million (« 1M », « 1,5M », « 12,34B ») sans zéros inutiles.
+       */
+      function formaterPvEntierIdleV1_(valeur,pointDecimal){   /* pointDecimal : la petite police de la borne n'a pas de virgule, la décimale s'y écrit avec un point (« 1.5M ») */
+        const n=Math.max(0,idleNombre_(valeur));
+        if(n<10000)return String(Math.floor(n));
+        if(n<1e6)return String(Math.floor(n)).replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+        let rang=Math.floor(Math.log10(n)/3+1e-9);
+        if(parseFloat((n/Math.pow(1000,rang)).toFixed(2))>=1000)rang+=1;
+        const noms=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No','Dc','Ud','Dd','Td','Qad','Qid','Sxd','Spd','Ocd','Nod','Vg','Uvg','Dvg','Tvg','Qavg','Qivg','Sxvg','Spvg','Ocvg','Novg','Tg'];
+        const apres=rang-noms.length;
+        const unite=rang<noms.length?noms[rang]:(apres<676?String.fromCharCode(65+Math.floor(apres/26))+String.fromCharCode(65+apres%26):null);
+        if(unite===null)return n.toExponential(2);
+        return (n/Math.pow(1000,rang)).toFixed(2).replace(/\.?0+$/,'').replace('.',pointDecimal?'.':',')+unite;
+      }
+
       function formaterDecimalesFixesIdleV1_(valeur,decimales){
         const n=idleNombre_(valeur);
         if(Math.abs(n)>=1000)return formatGrandNombreIdleV70_(n,decimales);
@@ -2579,6 +2596,7 @@ function pageAventureIdleV28_(j){
     idleEntier_:idleEntier_,
     pousserEtatVersRuntimePartageIdleV1_:pousserEtatVersRuntimePartageIdleV1_,
     formaterPvFixeIdleV1_:formaterPvFixeIdleV1_,
+    formaterPvEntierIdleV1_:formaterPvEntierIdleV1_,
     poserNoteCombatAdventureIdleV1_:poserNoteCombatAdventureIdleV1_,
     surveillerEvenementsAventureIdleV1_:surveillerEvenementsAventureIdleV1_,
     rendrePendingIdleV7_:rendrePendingIdleV7_,
