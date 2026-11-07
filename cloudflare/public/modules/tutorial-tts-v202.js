@@ -345,10 +345,7 @@
     etapesPre.forEach(function(etape){
       if(!etape.chunk)return;
       var texte=etape.chunk;
-      chargerBlocFichier_(texte,interditsPre).then(function(blob){
-        if(blob||langueAnglaise_())return;
-        requestLocalNeuralAudio_(texte,'',generation,true).catch(function(){});
-      });
+      chargerBlocFichier_(texte,interditsPre);   /* seulement le fichier de voix : plus de préchauffage Piper */
     });
     return true;
   }
@@ -359,8 +356,8 @@
       if(blob){voiceStats.fichiers+=1;return blob;}
       /* Anglais sans fichier de voix : MUET (null), jamais la voix française de Piper. */
       if(langueAnglaise_()){voiceStats.muets+=1;return null;}
-      voiceStats.piper+=1;
-      return requestLocalNeuralAudio_(text,targetId,expectedGeneration,silent);
+      /* Norman (2026-11-07) : « enlève les voix de secours du jeu, ça fait ramer le jeu » : sans fichier de voix généré, le bloc reste MUET (plus de synthèse Piper dans la page). */
+      voiceStats.muets+=1;return null;
     });
   }
 

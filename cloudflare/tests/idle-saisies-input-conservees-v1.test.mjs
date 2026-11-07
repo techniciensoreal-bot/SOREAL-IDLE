@@ -177,7 +177,7 @@ const CLES_CHAMPS = ["soreal_idle_montant_input_v1", "soreal_idle_montants_menu_
     // pseudo : identité du compte (serveur)
     "ui-chroniques-v1.js": 1, "ui-popups-v1.js": 1,
     // administrateur uniquement
-    "admin-histoires-v1.js": 3, "admin-tutoriel-v1.js": 4, "textes-admin-v1.js": 5, "credit-exp-admin-v1.js": 2,
+    "admin-histoires-v1.js": 3, "admin-tutoriel-v1.js": 6, "textes-admin-v1.js": 5, "credit-exp-admin-v1.js": 2,
     // angle d'une pièce du badavatar : enregistré dans le profil du compte (serveur, bouton Enregistrer), pas dans les préférences
     "profil-badavatar-editeur-v1.js": 1,
     // sans nombre à garder

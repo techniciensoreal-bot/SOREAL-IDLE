@@ -26,10 +26,8 @@ assert.ok(setupAt < firstNodeAt, "setup-node précède toute commande node/npx")
 const order = [
   "name: Run test suite",
   "name: Build standalone frontend",
-  "name: Verify voice runtime dependencies",
   "name: Deploy SOREAL Idle Worker",
-  "name: Verify deployed Git SHA",
-  "name: Verify deployed Piper narration in Chromium"
+  "name: Verify deployed Git SHA"
 ].map((label) => workflow.indexOf(label));
 assert.ok(order.every((i) => i > 0), "toutes les étapes attendues existent");
 assert.deepEqual([...order].sort((a, b) => a - b), order, "ordre des étapes de release");

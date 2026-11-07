@@ -33,18 +33,7 @@ assert.ok(
   "frame-ancestors doit être appliqué via un VRAI en-tête HTTP côté Worker (idle-worker-entry-v1.js) -- c'est le seul endroit où les navigateurs le respectent -- et doit lister les origines TV/APP qui embarquent réellement ce frontend en iframe, pas seulement 'self'."
 );
 
-const piperMatch = html.match(
-  /<script async src="https:\/\/cdn\.jsdelivr\.net\/npm\/@diffusionstudio\/piper-wasm@1\.0\.0\/build\/piper_phonemize\.js" integrity="(sha384-[A-Za-z0-9+/]{64}=*)" crossorigin="anonymous"><\/script>/
-);
-assert.ok(
-  piperMatch,
-  "piper_phonemize.js doit avoir un attribut integrity (sha384) et crossorigin=\"anonymous\" -- sans ça, integrity est silencieusement ignoré par le navigateur."
-);
-
-// --- L'importmap (onnxruntime-web) reste sans integrity, avec l'explication (limitation navigateur réelle, pas un oubli) ---
-assert.ok(
-  html.includes("Les navigateurs ne supportent PAS encore integrity sur"),
-  "L'absence de SRI sur l'importmap doit être expliquée explicitement (limitation de la plateforme web), pas laissée comme un oubli silencieux."
-);
+// --- Plus de script externe (CDN) dans la page : la voix de secours (synthèse locale) a été supprimée le 2026-11-07, donc plus rien à protéger par integrity ---
+assert.ok(!/<script[^>]*src="https:\/\/cdn\.jsdelivr/.test(html), "aucun script CDN dans la page");
 
 console.log("index-html-csp-and-sri: OK");

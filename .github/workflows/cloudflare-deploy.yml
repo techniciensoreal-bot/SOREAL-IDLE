@@ -63,13 +63,6 @@ jobs:
           done
           node --check cloudflare/public/soreal-idle-ui.js
 
-      # Dépendances RÉELLES du runtime vocal (index.html, local-neural-piper-v1.js, idle-media-v1.js), lues dans les
-      # sources et non recopiées : empreinte SRI de piper_phonemize.js, ONNX Runtime et ses fichiers compagnons,
-      # wasm/data de piper_phonemize, modèle Tom et sa configuration. Avant le déploiement : une dépendance cassée
-      # bloque la publication au lieu d'être découverte après. Le smoke Chromium ci-dessous reste la preuve finale.
-      - name: Verify voice runtime dependencies
-        run: node cloudflare/tools/verify-voice-runtime-dependencies.mjs
-
       - name: Deploy SOREAL Idle Worker
         shell: bash
         env:
@@ -150,12 +143,3 @@ jobs:
           NODE
 
 
-      - name: Verify deployed Piper narration in Chromium
-        shell: bash
-        env:
-          SOREAL_IDLE_URL: https://soreal-idle.technicien-soreal.workers.dev/
-        run: |
-          set -euo pipefail
-          npm install --no-save --package-lock=false playwright@1.55.0
-          npx playwright install --with-deps chromium
-          node cloudflare/tests/idle-piper-production-origin.smoke.mjs

@@ -101,8 +101,7 @@ for (const f of aVerifier) lancer("node", ["--check", f], { cwd: dossier });
 console.log(aVerifier.length + " scripts publics : syntaxe valide.");
 
 // 4. runtime vocal
-etape("4/6 dépendances du runtime vocal");
-lancer("node", ["cloudflare/tools/verify-voice-runtime-dependencies.mjs"], { cwd: dossier });
+etape("4/6 (voix de secours supprimée : rien à vérifier)");
 
 if (!deployer) {
   console.log("\nSIMULATION TERMINÉE : tout est prêt, rien n'a été déployé.");

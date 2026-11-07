@@ -152,6 +152,8 @@ function suivante_(liste){
   var choix=liste[(liste.indexOf(dernier)+1)%liste.length];   /* dernier inconnu : indexOf = -1, donc la première */
   dernierMemoire_=choix;
   try{localStorage.setItem(cle,choix);}catch(_e){}
+  /* Norman (2026-11-07) : la PREMIÈRE mort du joueur (le premier combat du tutoriel) n'est jamais le rembobinage, mais une autre : la file garde « rewind » comme joué, donc rien ne se décale pour les morts suivantes. */
+  if(!dernier&&choix==='rewind'&&liste.length>1)return liste[liste.length-1];
   return choix;
 }
 

@@ -85,10 +85,9 @@ function installerStyle_(){
     /* bulle de dialogue de Lhu (Norman, 2026-11-07 : « je veux des bulles de dialogues ») : fond clair, queue qui pointe vers lui (placer_ pose data-queue et --qx) */
     '#'+ID+'.tu-bulle{background:linear-gradient(180deg,#ffffff,#fff6d6);color:#1b2238;border:3px solid #1b1630;border-radius:26px;box-shadow:0 8px 0 rgba(10,8,25,.45),0 14px 28px rgba(0,0,0,.35);width:min(300px,calc(100vw - 20px));padding:18px 18px 12px;font-family:"Comic Neue","Comic Sans MS",cursive}'+
     '#'+ID+'.tu-bulle .tu-haut,#'+ID+'.tu-bulle .tu-compte,#'+ID+'.tu-bulle .tu-indice,#'+ID+'.tu-bulle .tu-apercu{display:none}'+
-    '#'+ID+'.tu-bulle::before{content:"LHU";position:absolute;left:18px;top:-15px;padding:2px 12px 1px;border-radius:12px;border:3px solid #1b1630;background:#3fd17a;color:#10361f;font-family:Bangers,Impact,sans-serif;font-size:17px;letter-spacing:.08em;line-height:1.25;box-shadow:0 3px 0 rgba(10,8,25,.45)}'+
     '#'+ID+'.tu-bulle .tu-texte{font-size:17px;line-height:1.4;font-weight:700;color:#1b2238;max-height:none;overflow:visible}'+
     '#'+ID+'.tu-bulle .tu-texte p{margin:0 0 6px}'+
-    '#'+ID+'.tu-bulle .tu-actions{margin-top:8px;gap:8px}'+
+    '#'+ID+'.tu-bulle .tu-actions{display:none}'+
     '#'+ID+'.tu-bulle .tu-actions button{min-height:34px;font-size:15px;border-radius:999px;border:2px solid #1b1630;box-shadow:0 3px 0 rgba(10,8,25,.4)}'+
     '#'+ID+'.tu-bulle .tu-actions button.discret{background:#fff;color:#1b2238;border-color:#1b1630}'+
     '#'+ID+'.tu-bulle .tu-actions button[data-tu="prec"]{display:none}'+
@@ -129,7 +128,10 @@ function anneaux_(etape){
   while(anneaux.length<els.length){var n=document.createElement('div');n.className='tu-anneau';n.setAttribute('data-morph-garder','1');n.setAttribute('aria-hidden','true');document.body.appendChild(n);anneaux.push(n);}
   els.forEach(function(x,i){
     var r=x.getBoundingClientRect(),a=anneaux[i];
-    a.style.left=(r.left-3)+'px';a.style.top=(r.top-3)+'px';a.style.width=(r.width+6)+'px';a.style.height=(r.height+6)+'px';
+    /* le cadre ne dépasse jamais de l'écran (la barre de vie touche les bords : le cadre se serre contre eux) */
+    var VW=document.documentElement.clientWidth||window.innerWidth,VH=window.innerHeight;
+    var gl=Math.max(0,r.left-3),gt=Math.max(0,r.top-3),gr=Math.min(VW,r.right+3),gb=Math.min(VH,r.bottom+3);
+    a.style.left=gl+'px';a.style.top=gt+'px';a.style.width=Math.max(0,gr-gl)+'px';a.style.height=Math.max(0,gb-gt)+'px';
     var rad=getComputedStyle(x).borderRadius;a.style.borderRadius=rad&&rad!=='0px'?rad:'10px';
   });
 }
@@ -171,26 +173,26 @@ function placer_(bulle,cadre,etape){
     function ajouterObst(el){if(el&&visible_(el)){var q=el.getBoundingClientRect();obst.push({l:q.left-8,t:q.top-8,r:q.right+8,b:q.bottom+8});}}
     ajouterObst(cible);
     /* ce qu'on regarde dans le duel : le portrait du boss et du joueur (la bulle ne les cache pas si une autre place existe) */
-    ajouterObst(document.getElementById('sorealIdleBossImageHostV36'));
-    Array.prototype.forEach.call(document.querySelectorAll('.soreal-idle-duel-portrait-v41'),ajouterObst);
     if(etape.clignoteAussi){try{Array.prototype.forEach.call(document.querySelectorAll(etape.clignoteAussi),ajouterObst);}catch(_e){}}
     var grand=cr.height>0.4*vh;
-    if(!grand)obst.push({l:cr.left,t:cr.top,r:cr.right,b:cr.bottom});
+    obst.push({l:cr.left,t:cr.top,r:cr.right,b:cr.bottom});
     var ccx=cr.left+cr.width/2,ccy=cr.top+cr.height/2,g=18;
     var haut0=m;
     try{var hh=document.elementFromPoint(vw/2,4);while(hh&&hh!==document.body){var cs0=getComputedStyle(hh);if(cs0.position==='fixed'||cs0.position==='sticky'){var rh0=hh.getBoundingClientRect();if(rh0.bottom<vh*0.4)haut0=Math.max(haut0,rh0.bottom+6);break;}hh=hh.parentElement;}}catch(_e){}
-    var cands=grand?[{x:ccx-bw/2,y:vh-bh-m-6,q:'haut'}]:[
-      {x:ccx-bw/2,y:cr.bottom+g,q:'haut'},{x:ccx-bw/2,y:cr.top-bh-g,q:'bas'},
+    var cands=[
+      {x:ccx-bw/2,y:cr.top-bh-g,q:'bas'},{x:ccx-bw/2,y:cr.bottom+g,q:'haut'},
       {x:cr.left-bw-g,y:ccy-bh/2,q:'droite'},{x:cr.right+g,y:ccy-bh/2,q:'gauche'},
       {x:(vw-bw)/2,y:vh-bh-m-6,q:ccy<vh/2?'haut':'bas'},{x:(vw-bw)/2,y:haut0,q:ccy<vh/2?'haut':'bas'}
     ];
-    var meilleur=null,pire=1e12;
-    cands.forEach(function(c){
-      var cx=Math.max(m,Math.min(vw-bw-m,c.x)),cy=Math.max(haut0,Math.min(vh-bh-m,c.y)),aire=0;
-      obst.forEach(function(o){var w=Math.min(cx+bw,o.r)-Math.max(cx,o.l),h=Math.min(cy+bh,o.b)-Math.max(cy,o.t);if(w>0&&h>0)aire+=w*h;});
-      /* distance à Lhu : à égalité de recouvrement, la plus proche */
-      var d=Math.abs(cx+bw/2-ccx)+Math.abs(cy+bh/2-ccy)*0.5;
-      var note=aire*1000+d;
+    /* La bulle est AU-DESSUS de Lhu (Norman, 2026-11-07) ; seulement s'il n'y a pas la place au-dessus : dessous, puis les côtés, puis le haut ou le bas de l'écran. Une bulle qui n'entre pas dans l'écran ou qui recouvrirait Lhu est écartée. */
+    var meilleur=null,pire=1e15;
+    cands.forEach(function(c,rang){
+      var cx=Math.max(m,Math.min(vw-bw-m,c.x)),cy=c.y,entre=cy>=haut0&&cy+bh<=vh-m;
+      if(!entre)cy=Math.max(haut0,Math.min(vh-bh-m,cy));
+      var aire=0;
+      var lhu=0;
+      obst.forEach(function(o,k){var w=Math.min(cx+bw,o.r)-Math.max(cx,o.l),h=Math.min(cy+bh,o.b)-Math.max(cy,o.t);if(w>0&&h>0){if(k===obst.length-1)lhu=1;else aire+=w*h;}});   /* le dernier obstacle est Lhu lui-même */
+      var note=(entre?0:1e9)+lhu*1e6+rang*1e4+aire*0.001;   /* l'ordre des places prime (dessus d'abord) ; ce qui clignote ne départage que des places de même rang */
       if(note<pire){pire=note;meilleur={x:cx,y:cy,q:c.q};}
     });
     x=meilleur.x;y=meilleur.y;
@@ -287,7 +289,7 @@ function lireEtape_(s,force){
     var t=texteParle_(s.guide,s.i);
     if(!t)return;
     /* Verrou « la voix parle » (Norman, 2026-10-26) : sur une étape qui demande de cliquer (Fight), rien ne se clique tant que la voix n'a pas fini ; levé à la fin de la lecture, à son arrêt ou au plus tard après 90 s. */
-    var jeton=(s.jetonVoix||0)+1;s.jetonVoix=jeton;s.voixEnCours=true;s.voixLimite=Date.now()+90000;
+    var jeton=(s.jetonVoix||0)+1;s.jetonVoix=jeton;s.voixEnCours=true;s.voixLimite=Date.now()+(s.guide&&s.guide.mascotte?Math.min(90000,(s.tempsLecture||8000)+6000):90000);   /* bulle de Lhu : une phrase courte, jamais bloqué 90 s si la lecture ne démarre pas */
     var demarre=tts.readText(t,null,function(){if(s.jetonVoix===jeton)s.voixEnCours=false;});
     if(!demarre)s.voixEnCours=false;
   }catch(_e){s.voixEnCours=false;}
@@ -403,7 +405,7 @@ function afficherEtape_(garderTaille){
   /* Guide « sans fenêtre » (Norman, 2026-10-27 : « pour le premier tuto, rien ne doit apparaître à l'écran, ni texte ni fenêtre rétrécie ») : la fenêtre existe pour la logique (voix, clic) mais reste cachée ; le cadre lumineux de la cible n'est pas touché. */
   s.cache=s.guide.afficher===false;
   s.debutEtape=Date.now();
-  s.tempsLecture=Math.max(2500,Math.min(60000,String(e.texte||'').length*60));
+  s.tempsLecture=s.guide.mascotte?Math.max(3200,Math.min(60000,texteDyn_(e.texte||'').length*65+1500)):Math.max(2500,Math.min(60000,String(e.texte||'').length*60));   /* bulle de Lhu : le temps de lire */
   /* Scène de vol de Lhu : la fenêtre (texte, voix) n'apparaît qu'à la FIN du mouvement ; rien ne se clique avant. */
   var scene=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;
   var indiceScene=s.i;
@@ -479,10 +481,11 @@ function suivre_(){
     if(s.i>=s.guide.etapes.length-1){fermer_(true);return;}
     s.i=iEtape+1;afficherEtape_(true);return;
   }
-  /* Étape de scène sans clic demandé : elle passe seule à la suivante quand la voix a fini et que le temps de lecture est écoulé (le bouton Suivant reste là pour aller plus vite). */
-  var suivante=s.guide.etapes[s.i+1];
-  if(suivante&&suivante.scene&&suivante.scene!=='retourne'&&!s.sceneEnCours&&!s.attenteClic&&!voixParle_(s)&&Date.now()-s.debutEtape>=s.tempsLecture+1200){   /* la phrase d'avant une scène de vol : elle enchaîne seule */
-    s.i+=1;afficherEtape_(true);return;
+  /* Bulle de Lhu (Norman, 2026-11-07 : « juste une bulle avec du texte ; quand le temps prévu pour lire est passé, ça passe à la bulle suivante ; quand il nous demande de faire un truc, sa bulle disparaît ») : aucun bouton. Le temps de lecture écoulé (et la voix finie), la bulle suivante vient seule ; sur une étape qui demande un clic, la bulle se range et l'élément qui clignote reste seul. */
+  if(b.classList.contains('tu-bulle')&&!s.sceneEnCours&&!voixParle_(s)&&Date.now()-s.debutEtape>=s.tempsLecture){
+    if(s.attenteClic){if(!b.hidden)b.hidden=true;}
+    else if(s.i>=s.guide.etapes.length-1){fermer_(true);return;}
+    else{s.i+=1;afficherEtape_(true);return;}
   }
   placer_(b,c,e);
 }

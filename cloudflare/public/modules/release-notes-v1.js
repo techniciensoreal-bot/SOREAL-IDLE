@@ -32,6 +32,9 @@
         date:'2026-11-07',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'La voix de secours est supprimée du jeu : seuls les textes qui ont une voix générée sont lus (les autres restent muets), et le jeu est plus fluide.',
+            'Réglages : une case permet de couper les aides du tutoriel.',
+            'Le tutoriel du début est entièrement refait : des bulles courtes, une idée par bulle, qui passent toutes seules.',
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[

@@ -22,7 +22,7 @@
   function V(){return {W:window.innerWidth||1000,H:window.innerHeight||700};}
   /* Tailles : petit (sur sa place) et grand (zoomé, comme la mascotte du tutoriel : 66 % de la hauteur, 96 % de la largeur au plus). */
   function kPetit(){var v=V();return (v.W<700?110:140)/BASE;}
-  function kGrand(){var v=V();return Math.min(0.66*v.H,0.96*v.W)/BASE;}
+  function kGrand(){var v=V();return Math.min(0.54*v.H,0.92*v.W)/BASE;}   /* un peu moins grand : sa bulle tient AU-DESSUS de sa tête */
 
   function style(){
     if(document.getElementById(ID_STYLE))return;
@@ -111,7 +111,7 @@
     x=Math.max(4,Math.min(v.W-S-4,x));y=Math.max(4,Math.min(v.H-S-4,y));
     return {x:x,y:y,k:k};
   }
-  function placeGrand(){var v=V(),k=kGrand(),S=BASE*k;return {x:(v.W-S)/2,y:Math.max(4,0.02*v.H),k:k};}
+  function placeGrand(){var v=V(),k=kGrand(),S=BASE*k;return {x:(v.W-S)/2,y:Math.min(0.3*v.H,v.H-S-4),k:k};}
   /* Il suit sa cible quand la page défile ou change de taille (jamais de minuterie : événements seulement). */
   function suivre(selecteur){
     etat.cible=selecteur||'';

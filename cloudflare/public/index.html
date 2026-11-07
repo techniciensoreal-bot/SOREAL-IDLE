@@ -213,7 +213,7 @@
   <script defer src="/modules/sans-bulles-v1.js?v=2"></script>
   <script defer src="/modules/apk-connexion-v1.js?v=5"></script>
   <script defer src="/modules/apk-synchro-v1.js?v=7"></script>
-  <script defer src="/modules/moteur-local-v1.js?v=191"></script>
+  <script defer src="/modules/moteur-local-v1.js?v=194"></script>
   <script defer src="/standalone-bridge.js?v=27"></script>
   <script defer src="/modules/anti-copie-v1.js?v=1"></script>
   <script defer src="/modules/runtime.js?v=5"></script>
@@ -232,8 +232,8 @@
   <script defer src="/modules/text-helpers-v1.js?v=1"></script>
   <script defer src="/modules/inventory-presentation-v1.js?v=1"></script>
   <script defer src="/modules/text-transforms-v1.js?v=2"></script>
-  <script defer src="/modules/release-notes-nouveautes-v1.js?v=201"></script>
-  <script defer src="/modules/release-notes-v1.js?v=839"></script>
+  <script defer src="/modules/release-notes-nouveautes-v1.js?v=202"></script>
+  <script defer src="/modules/release-notes-v1.js?v=840"></script>
   <script defer src="/modules/flux-v1.js?v=45"></script>
   <script defer src="/modules/nouvelle-version-v1.js?v=3"></script>
   <script defer src="/modules/chat-v1.js?v=19"></script>
@@ -282,7 +282,7 @@
   <script defer src="/modules/intro-diaporama-v1.js?v=14"></script>
   <script defer src="/modules/morts-boss-nouvelles-v1.js?v=5"></script>
   <script defer src="/modules/morts-joueur-nouvelles-v1.js?v=8"></script>
-  <script defer src="/modules/mort-joueur-v1.js?v=16"></script>
+  <script defer src="/modules/mort-joueur-v1.js?v=17"></script>
   <script defer src="/modules/moqueurs-fuite-v1.js?v=6"></script>
   <script defer src="/modules/nuke-blindage-v1.js?v=4"></script>
   <script defer src="/modules/defi-niveaux-100-v1.js?v=1"></script>
@@ -349,28 +349,9 @@
   <script defer src="/modules/bt-lumieres-v1.js?v=16"></script>
   <script defer src="/modules/shop-music-v1.js?v=5"></script>
   <script defer src="/modules/long-press-v200.js?v=201"></script>
-  <!--
-    2026-09-23 (audit) : ni ort.min.mjs (via cet importmap) ni
-    piper_phonemize.js ci-dessous n'avaient de Subresource Integrity --
-    en cas de compromission de jsdelivr ou du paquet npm source
-    (typosquatting, prise de contrôle de compte mainteneur), le script
-    injecté s'exécuterait avec un accès complet au DOM/sessionStorage.
-    Les navigateurs ne supportent PAS encore integrity sur
-    <script type="importmap"> (aucune limitation côté SOREAL, une vraie
-    limitation de la plateforme web) -- seul piper_phonemize.js peut
-    être protégé ici.
-  -->
-  <script type="importmap">
-    {
-      "imports": {
-        "onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.30.0/dist/ort.min.mjs"
-      }
-    }
-  </script>
-  <script async src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-PMufGRTCTqKC0tPjOTp2UFXycN+yWWjDareOeoy106zJZAHPijaeHDAX/4Pi0I5S" crossorigin="anonymous"></script>
-  <script type="module" src="/modules/local-neural-piper-v1.js?v=15"></script>
+  <!-- Voix de secours SUPPRIMÉE le 2026-11-07 (Norman : « ça fait ramer le jeu ») : modules/local-neural-piper-v1.js n'est plus chargé par la page (il ne sert qu'à l'outil de génération hors ligne) ; seules les voix générées dans l'Admin sont lues, un texte sans voix reste muet. -->
   <script defer src="/modules/voix-expressions-v1.js?v=2"></script>
-  <script defer src="/modules/tutorial-tts-v202.js?v=274"></script>
+  <script defer src="/modules/tutorial-tts-v202.js?v=275"></script>
   <script defer src="/modules/voix-nommees-v1.js?v=6"></script>
   <script defer src="/modules/icones-v1.js?v=2"></script>
   <script defer src="/modules/voix-ui-v1.js?v=3"></script>
@@ -379,8 +360,8 @@
   <script defer src="/modules/credit-exp-admin-v1.js?v=2"></script>
   <script defer src="/modules/cthulhu-pieces-v1.js?v=5"></script>
   <script defer src="/modules/cthulhu-v1.js?v=2"></script>
-  <script defer src="/modules/cthulhu-scene-v1.js?v=12"></script>
-  <script defer src="/modules/tutoriel-v1.js?v=31"></script>
+  <script defer src="/modules/cthulhu-scene-v1.js?v=13"></script>
+  <script defer src="/modules/tutoriel-v1.js?v=38"></script>
   <script defer src="/modules/admin-histoires-v1.js?v=28"></script>
   <script defer src="/modules/admin-tutoriel-v1.js?v=13"></script>
   <script defer src="/modules/textes-admin-v1.js?v=44"></script>
@@ -444,7 +425,7 @@
   <script defer src="/modules/defilement-theme-v1.js?v=5"></script>
   <script defer src="/modules/hud-haut-v2.js?v=39"></script>
   <script defer src="/modules/traduction-interface-v1.js?v=11"></script>
-  <script defer src="/modules/traduction-anglais-v1.js?v=696"></script>
+  <script defer src="/modules/traduction-anglais-v1.js?v=697"></script>
   <script defer src="/modules/dessins-v1.js?v=3"></script>
   <script defer src="/modules/boss-reveal-v1.js?v=2"></script>
   <script defer src="/modules/nombres-couleur-v1.js?v=6"></script>

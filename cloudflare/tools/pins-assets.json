@@ -220,8 +220,8 @@
   "sha": "3257c42322cd96e4d7552c579a780f8d9d8e3c4b"
  },
  "/modules/cthulhu-scene-v1.js": {
-  "pin": 12,
-  "sha": "28c5787c7e53528f7830f5bfe640e8b25502c865"
+  "pin": 13,
+  "sha": "a2a459c90a460ee268041064ad18cfa83586780b"
  },
  "/modules/cthulhu-v1.js": {
   "pin": 2,
@@ -459,10 +459,6 @@
   "pin": 2,
   "sha": "179a5a201bfea1f5d63c1acee06dceb16ba2ae2e"
  },
- "/modules/local-neural-piper-v1.js": {
-  "pin": 15,
-  "sha": "201c4f16ea535b9dc9a1d95e21f8e84e0215b9f6"
- },
  "/modules/long-press-v200.js": {
   "pin": 201,
   "sha": "d42b016360b7df99dcfe31d963f6823f52458af4"
@@ -512,8 +508,8 @@
   "sha": "ea78d5be1f392056bead6346e26b5aba7f6cc651"
  },
  "/modules/mort-joueur-v1.js": {
-  "pin": 16,
-  "sha": "091f65fd14b46f9ff634470df442ce68bdd4eee1"
+  "pin": 17,
+  "sha": "4f560279c2fa43e46a4befc7c6dce2f12c2297d0"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
   "pin": 5,
@@ -524,8 +520,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 191,
-  "sha": "8ee9aab386250b5d28404e33bbe6c6b3be46da7e"
+  "pin": 194,
+  "sha": "aedee7f9780329b8ec7f163e363e0308a4ee9821"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -628,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 201,
-  "sha": "ecc09a89e3f5121dc83f4c36f168282dc1724a50"
+  "pin": 202,
+  "sha": "9261d2464f40d7f281ce7f5cec64bdc9076c557e"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 839,
-  "sha": "ef57f856a86ccee6655a262bc99b23c0b328d9c3"
+  "pin": 840,
+  "sha": "320024b7fdb26ff63763ec4c413532a60b957979"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -724,12 +720,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 875,
-  "sha": "4fc819c68c4a3eaba815ff1d440bf868f199fd76"
+  "pin": 876,
+  "sha": "fe148a7d0ce2289754a7d7d152a79c0cb7f04b15"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 696,
-  "sha": "8c6fc166c434b78c9be9107b99b16b2b0d7f0f87"
+  "pin": 697,
+  "sha": "ace56c77dd969c3d2ec81c0adf17967503ca93a5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -752,12 +748,12 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 274,
-  "sha": "ee93d258cc606db9c7b3542d4da01b23730d080d"
+  "pin": 275,
+  "sha": "6a567dc8674a58680d59bdc70f4e268b303e535c"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 31,
-  "sha": "cec0e83637fa6b81ed61bbad4173426ad4588f30"
+  "pin": 38,
+  "sha": "c9c0aefcab6aebea59899e45c36f4e2c9c2c43b5"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,

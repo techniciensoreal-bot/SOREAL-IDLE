@@ -71,7 +71,8 @@ assert.equal(motif.toString(), motifJeu, "même motif de notes dans l'affichage 
 
 // --- Client : fichier pré-généré d'abord, Piper en repli ---
 assert.match(tts, /blobs\[i\]=obtenirAudioBloc_\(steps\[i\]\.chunk,idCible,myGeneration,silent,interditsTexte\);/);
-assert.match(tts, /if\(blob\)\{voiceStats\.fichiers\+=1;return blob;\}(?:\s*(?:\/\*[^\n]*\*\/|if\(langueAnglaise_\(\)\)\{[^}]*\}))*\s*voiceStats\.piper\+=1;\s*return requestLocalNeuralAudio_\(/);
+/* Norman (2026-11-07) : plus de voix de secours (Piper) : sans fichier de voix généré, le bloc reste muet. */
+assert.match(tts, /if\(blob\)\{voiceStats\.fichiers\+=1;return blob;\}(?:\s*(?:\/\*[^\n]*\*\/|if\(langueAnglaise_\(\)\)\{[^}]*\}))*\s*voiceStats\.muets\+=1;return null;/);
 assert.match(tts, /VOICE_DIR\+'manifest\.json'/);
 assert.match(tts, /VOICE_ROUTE\+hash/, "les voix du jeu sont lues sur R2 (api/idle/media/voice?h=<empreinte>)");
 assert.match(tts, /catch\(function\(\)\{return \{\};\}\)/, "manifeste absent -> Piper, pas d'erreur");

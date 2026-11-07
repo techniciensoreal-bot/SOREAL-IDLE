@@ -33,16 +33,8 @@ assert.match(
 );
 
 assert.ok(
-  html.includes('<script async src="https://cdn.jsdelivr.net/npm/@diffusionstudio/piper-wasm@1.0.0/build/piper_phonemize.js" integrity="sha384-'),
-  "Piper phonemizer is async (non-blocking for the parser) and keeps its integrity attribute"
-);
-assert.ok(
-  !/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/@diffusionstudio/.test(html),
-  "no blocking (neither async nor defer) classic CDN script"
-);
-assert.ok(
-  readFileSync("cloudflare/public/modules/local-neural-piper-v1.js", "utf8").includes("attendrePhonemizer_"),
-  "local-neural-piper-v1.js must wait for the async createPiperPhonemize global"
+  !/<script[^>]*(piper|onnxruntime)/i.test(html)&&!/importmap/.test(html.replace(/<!--[\s\S]*?-->/g, "")),
+  "plus de voix de secours : aucun script Piper ni ONNX Runtime dans la page (2026-11-07)"
 );
 
 console.log("idle-initial-load-defer: OK");

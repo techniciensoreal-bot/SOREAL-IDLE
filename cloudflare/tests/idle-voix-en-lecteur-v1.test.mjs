@@ -12,11 +12,11 @@ const src = fs.readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "u
 
 // --- 1. code : muet en anglais, jamais Piper
 assert.ok(src.includes("function langueAnglaise_()") && src.includes("soreal_idle_langue_v1"), "le lecteur lit la langue du joueur");
-assert.ok(/if\(langueAnglaise_\(\)\)\{voiceStats\.muets\+=1;return null;\}\s*voiceStats\.piper\+=1;\s*return requestLocalNeuralAudio_/.test(src), "anglais sans fichier : muet, avant tout appel à Piper");
-assert.ok(/if\(blob\|\|langueAnglaise_\(\)\)return;\s*requestLocalNeuralAudio_/.test(src), "le préchauffage ne synthétise pas en anglais");
+assert.ok(/voiceStats\.muets\+=1;return null;/.test(src), "sans fichier de voix : muet (voix de secours supprimée le 2026-11-07)");
+assert.ok(!/\srequestLocalNeuralAudio_\(texte,/.test(src), "le préchauffage ne synthétise plus rien");
 assert.ok(/if\(!blob\)return null;[^\n]*\n\s*return playBlobWebAudioPromise_/.test(src), "un bloc muet est sauté, la lecture continue");
-const appelsPiper = src.match(/requestLocalNeuralAudio_\(/g).length;
-assert.equal(appelsPiper, 3, "définition + deux appels seulement (préchauffage, lecture), tous gardés par la langue");
+const appelsPiper = (src.match(/return requestLocalNeuralAudio_\(/g) || []).length;
+assert.equal(appelsPiper, 0, "plus aucun appel à la synthèse locale");
 
 // --- 2. code : textes statiques traduits en anglais, chroniques jamais retraduites
 assert.ok(/langueAnglaise_\(\)&&!panel\.hasAttribute\('data-soreal-chronique-boss-id'\)&&!panel\.hasAttribute\('data-soreal-tts-sans-traduction'\)/.test(src), "attribut say traduit en anglais sauf chronique de boss");

@@ -162,11 +162,11 @@ décrire ce processus de mémoire, le relire si ce fichier change) :
 - Le job (limité à la branche `main`, 30 minutes au plus) enchaîne : toute la
   suite de tests, 4 fichiers à la fois (`xargs -P 4`, 2026-11-06 : la CI passait de 11 à ~4 minutes ; un seul échec bloque le déploiement et son journal est affiché),
   le build du frontend autonome (`build-standalone.mjs`, qui ne modifie plus aucun fichier public depuis le 2026-10-16 : le cache est immuable ; avant : injectait le SHA
-  dans `IDLE_TEST_VERSION`) et `node --check` de tous les scripts publics, la
-  vérification des dépendances du runtime vocal, `wrangler deploy` avec
+  dans `IDLE_TEST_VERSION`) et `node --check` de tous les scripts publics,
+  `wrangler deploy` avec
   `--message "git:$GITHUB_SHA"` (secret `CLOUDFLARE_API_TOKEN`), la
-  vérification que le SHA annoté est bien celui actif à 100 % du trafic, puis
-  un smoke test Chromium (Playwright) sur l'adresse de production.
+  vérification que le SHA annoté est bien celui actif à 100 % du trafic.
+  (La voix de secours Piper, son contrôle de dépendances et son smoke test Chromium ont été supprimés le 2026-11-07 : Norman, « ça fait ramer le jeu » ; seules les voix générées dans l'Admin sont lues.)
 - `concurrency` avec `cancel-in-progress: false` (corrigé le 2026-10-10 : ce
   paragraphe disait `true`) sur le groupe `soreal-idle-cloudflare-production` —
   un run déjà commencé n'est JAMAIS annulé ; GitHub ne garde qu'un run en
