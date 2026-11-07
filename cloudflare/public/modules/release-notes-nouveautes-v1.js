@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "L’Entraînement de base est refait : chaque barre a son emblème et son habillage, de plus en plus travaillés et de plus en plus grands à chaque barre débloquée (cadre, lueur, motif dans la barre) ; les boutons de la défense sont bleus.",
-    "La barre d’outils de l’Entraînement de base (saisie, plafonds, idle, énergie placée) tient maintenant sur une seule ligne."
+    "À la première ouverture de l’Entraînement de base après une Renaissance, toutes les barres clignotent de nouveau comme des tubes néon avant de tenir."
   ] };
 })();

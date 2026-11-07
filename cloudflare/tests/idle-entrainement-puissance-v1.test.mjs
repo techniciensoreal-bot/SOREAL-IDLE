@@ -39,6 +39,10 @@ assert.ok(/soreal-idle-bt-level-v120\{[^}]*display:block[^}]*white-space:nowrap/
 assert.ok(/soreal-idle-bt-track-v120\{[^}]*clip-path:none/.test(css), "barre jamais coupée aux extrémités");
 assert.ok(!/bt-reflet/.test(css) && !/skewX/.test(css), "aucun reflet qui traverse les barres");
 assert.equal((css.match(/@keyframes/g) || []).length, 1, "une seule animation : la respiration du dernier palier");
+// l'allumage néon de la première ouverture (bt-neon-v1.js) clignote sur TOUTES les lignes : la feuille ne coupe jamais l'animation de la ligne, et l'allumage ne dépend plus d'animations de rang
+assert.ok(!/soreal-idle-bt-row-v120(?::not(.verrouille))?{[^}]*animation:none/.test(css) && !/soreal-idle-bt-row-v120.verrouille{[^}]*animation:none/.test(css), "la ligne garde son animation d'allumage néon");
+const neon = fs.readFileSync("cloudflare/public/modules/bt-neon-v1.js", "utf8");
+assert.ok(!neon.includes("rgSheenV1") && !neon.includes("rgBatV1"), "l'allumage néon joue seul sur les lignes de rang 4 et 5");
 // dette CSS : peu de !important
 assert.ok((css.match(/!important/g) || []).length <= 20, "peu de !important dans la feuille");
 // plus d'émoji devant le nom des barres

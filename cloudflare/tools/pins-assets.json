@@ -136,8 +136,8 @@
   "sha": "1238d36b62b0314fa3636bdb7f0eaacbfbfdc1dd"
  },
  "/modules/bt-neon-v1.js": {
-  "pin": 9,
-  "sha": "aedd8579afbe90ba664800aef7df54827eba93bb"
+  "pin": 10,
+  "sha": "adbae8e8bdb103324d55d00e127997eb13e00ca0"
  },
  "/modules/bug-report-v1.js": {
   "pin": 6,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 203,
-  "sha": "5e93501ea8485e3657b61092f95679ddf6e8ed25"
+  "pin": 205,
+  "sha": "e143a9b3da5c65fd51b453f4c99c4034636b6dc7"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 841,
-  "sha": "b7429ed148f85ded79e25c35f26a7643d2315a21"
+  "pin": 842,
+  "sha": "f5a46f739586bf67651c2b8ff396fe141fca2c3b"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -720,12 +720,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 878,
-  "sha": "7dae1a32d2ff251db8c9e272ef8c0d9a72d141c3"
+  "pin": 879,
+  "sha": "fb812889156f69afebc3808273c9750a768fe7da"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 699,
-  "sha": "a08daf0a1ff46000d4818f8e3d500a2ab075ca6c"
+  "pin": 700,
+  "sha": "05a365e5a8fe6481d31d196fc92d69a1b056ae89"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -968,8 +968,8 @@
   "sha": "5b9cd07112d52f66ca2b23a8ca2cb2dc630022ab"
  },
  "/soreal-idle-entrainement-puissance-v1.css": {
-  "pin": 15,
-  "sha": "edaaa2bfe428ff1a3d0b4b264707ce05923b22e3"
+  "pin": 16,
+  "sha": "7c6cbc50dc3808f86a943c75541ecf24e7167d64"
  },
  "/soreal-idle-itopod.css": {
   "pin": 350,
