@@ -40,6 +40,7 @@
             'Réglages : une case permet de couper les aides du tutoriel.',
             'Le tutoriel du début est entièrement refait : des bulles courtes, une idée par bulle, qui passent toutes seules.',
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
+            'Le texte de l’introduction ne se relit plus depuis le début à chaque nouvelle image, et ce sont bien tes nouvelles voix qui sont lues (l’ancienne voix de la page pouvait démarrer avant l’arrivée des voix par image).',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
             'Le menu Entraînement de base ne se rallume plus à chaque rechargement de la page : l’allumage néon n’a lieu qu’une seule fois par Renaissance.',

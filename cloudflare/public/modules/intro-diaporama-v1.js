@@ -80,9 +80,27 @@ function appliquerServeur(h){
     var t=String(e.affiche||'').trim()||sansBalises(e.texte);
     if(t)DIAPOS[i].t=t;
   });
+  var etaitEtape=modeEtape;
   modeEtape=Array.isArray(h.voix)&&h.voix.length>0;
   var r=racine();
-  if(r){var tx=r.querySelector('#sorealIdleIntroTexteV1');if(tx&&!chronique)tx.innerHTML=texteHtml(DIAPOS[indice].t);}
+  if(r){
+    var tx=r.querySelector('#sorealIdleIntroTexteV1');if(tx&&!chronique)tx.innerHTML=texteHtml(DIAPOS[indice].t);
+    /* Norman (2026-11-07) : « j'ai refait toutes les voix de l'intro et il lit toujours les anciennes ; à chaque changement d'image il recommence la narration au début ». La fenêtre s'affiche souvent AVANT la réponse du serveur : elle était alors posée en « voix de la page » (texte complet,
+       anciennes voix) et gardait cet attribut quand les voix par image arrivaient ; chaque changement d'image remettait à zéro l'empreinte du lecteur, qui relisait la page depuis le début. Dès que le mode « une voix par image » est connu, la voix de la page est retirée pour de bon et l'image courante repart avec SA voix. */
+    if(modeEtape&&!etaitEtape&&!langueEn()&&!chronique){
+      retirerVoixPage_(r);
+      annulerVoix();
+      if(minuterie){clearTimeout(minuterie);minuterie=0;}
+      if(!attenteSon)lancerEtape(indice);
+    }
+  }
+}
+/* Plus aucune lecture « page entière » : le lecteur ne trouve plus de texte à lire sur la scène (les voix par image la remplacent) et la lecture déjà lancée est coupée. */
+function retirerVoixPage_(r){
+  if(!r)return;
+  var avait=r.hasAttribute('data-soreal-tts-say');
+  r.removeAttribute('data-soreal-tts-say');r.setAttribute('data-soreal-tts-ignore','');
+  if(avait){var t=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;try{if(t&&typeof t.stop==='function')t.stop();}catch(_e){}}
 }
 function chargerServeur(){
   if(serveur||essaisServeur>40)return;
@@ -191,6 +209,7 @@ function afficher(i){
   var fin=i>=DIAPOS.length-1;
   r.classList.toggle('id-fin',fin);
   if(fin)installerBouton(r);
+  if(voixEtapes()&&!chronique)retirerVoixPage_(r);
   if(voixEtapes()&&!chronique&&!attenteSon)lancerEtape(i);
   else if(voixEn()&&!chronique&&!attenteSon)lancerEn(i);
 }
