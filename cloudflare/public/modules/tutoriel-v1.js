@@ -83,13 +83,21 @@ function installerStyle_(){
     '@media (prefers-reduced-motion:reduce){.tu-anneau{animation:none;box-shadow:0 0 14px 5px rgba(255,226,122,.95)}}'+
     '#'+ID+'{--tu-B:min(66vh,96vw)}'+
     /* bulle de dialogue de Lhu (Norman, 2026-11-07 : « je veux des bulles de dialogues ») : fond clair, queue qui pointe vers lui (placer_ pose data-queue et --qx) */
-    '#'+ID+'.tu-bulle{background:#fffdf3;color:#1a1a1a;border:3px solid #000;border-radius:22px;box-shadow:0 6px 0 rgba(0,0,0,.35);width:min(330px,calc(100vw - 16px))}'+
-    '#'+ID+'.tu-bulle .tu-titre{display:none}#'+ID+'.tu-bulle .tu-compte{display:none}#'+ID+'.tu-bulle .tu-haut{display:none}'+
-    '#'+ID+'.tu-bulle .tu-texte{font-size:17px;font-weight:800;color:#1a1a1a}'+
-    '#'+ID+'.tu-bulle .tu-indice{color:#0b6b82}'+
-    '#'+ID+'.tu-bulle::after{content:"";position:absolute;left:var(--qx,50%);width:22px;height:22px;background:#fffdf3;border:3px solid #000;transform:translateX(-50%) rotate(45deg);border-radius:3px}'+
-    '#'+ID+'.tu-bulle[data-queue="bas"]::after{bottom:-14px;border-top:0;border-left:0}'+
-    '#'+ID+'.tu-bulle[data-queue="haut"]::after{top:-14px;border-bottom:0;border-right:0}'+
+    '#'+ID+'.tu-bulle{background:linear-gradient(180deg,#ffffff,#fff6d6);color:#1b2238;border:3px solid #1b1630;border-radius:26px;box-shadow:0 8px 0 rgba(10,8,25,.45),0 14px 28px rgba(0,0,0,.35);width:min(300px,calc(100vw - 20px));padding:18px 18px 12px;font-family:"Comic Neue","Comic Sans MS",cursive}'+
+    '#'+ID+'.tu-bulle .tu-haut,#'+ID+'.tu-bulle .tu-compte,#'+ID+'.tu-bulle .tu-indice,#'+ID+'.tu-bulle .tu-apercu{display:none}'+
+    '#'+ID+'.tu-bulle::before{content:"LHU";position:absolute;left:18px;top:-15px;padding:2px 12px 1px;border-radius:12px;border:3px solid #1b1630;background:#3fd17a;color:#10361f;font-family:Bangers,Impact,sans-serif;font-size:17px;letter-spacing:.08em;line-height:1.25;box-shadow:0 3px 0 rgba(10,8,25,.45)}'+
+    '#'+ID+'.tu-bulle .tu-texte{font-size:17px;line-height:1.4;font-weight:700;color:#1b2238;max-height:none;overflow:visible}'+
+    '#'+ID+'.tu-bulle .tu-texte p{margin:0 0 6px}'+
+    '#'+ID+'.tu-bulle .tu-actions{margin-top:8px;gap:8px}'+
+    '#'+ID+'.tu-bulle .tu-actions button{min-height:34px;font-size:15px;border-radius:999px;border:2px solid #1b1630;box-shadow:0 3px 0 rgba(10,8,25,.4)}'+
+    '#'+ID+'.tu-bulle .tu-actions button.discret{background:#fff;color:#1b2238;border-color:#1b1630}'+
+    '#'+ID+'.tu-bulle .tu-actions button[data-tu="prec"]{display:none}'+
+    '#'+ID+'.tu-bulle.tu-bulle-apercu .tu-actions button[data-tu="prec"]{display:inline-block}'+
+    '#'+ID+'.tu-bulle::after{content:"";position:absolute;width:20px;height:20px;background:#fff6d6;border:3px solid #1b1630;transform:translateX(-50%) rotate(45deg);border-radius:4px}'+
+    '#'+ID+'.tu-bulle[data-queue="bas"]::after{left:var(--qx,50%);bottom:-13px;border-top:0;border-left:0}'+
+    '#'+ID+'.tu-bulle[data-queue="haut"]::after{left:var(--qx,50%);top:-13px;border-bottom:0;border-right:0;background:#ffffff}'+
+    '#'+ID+'.tu-bulle[data-queue="gauche"]::after{left:-13px;top:var(--qy,50%);transform:translateY(-50%) rotate(45deg);border-top:0;border-right:0}'+
+    '#'+ID+'.tu-bulle[data-queue="droite"]::after{left:auto;right:-13px;top:var(--qy,50%);transform:translateY(-50%) rotate(45deg);border-bottom:0;border-left:0}'+
     '#'+ID+' .tu-cth.tu-cth-grand{position:fixed;left:50%;top:2vh;width:var(--tu-B);height:var(--tu-B);margin-left:calc(var(--tu-B) / -2)}'+
     '#'+ID+' .tu-cth-grand .cth-v1{width:100%;height:100%;--cth-g:1}'+
     '#'+ID+'.tu-bas-cth{left:0!important;right:0!important;top:auto!important;bottom:12px!important;margin:0 auto!important}'+
@@ -158,15 +166,37 @@ function placer_(bulle,cadre,etape){
   var p=String(etape&&etape.placement||'auto');
   var cr=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__&&bulle.classList.contains('tu-bulle')?window.__SOREAL_IDLE_CTHULHU_SCENE_V1__.rect():null;
   if(cr&&cr.width>0){
-    /* bulle de dialogue : près de Lhu, la queue vers lui. Zoomé (grand) : en bas, queue vers le haut ; petit : au-dessus de sa tête, sinon à côté ou dessous. */
-    var ccx=cr.left+cr.width/2,queue='bas';
-    if(cr.height>0.4*vh){x=ccx-bw/2;y=vh-bh-m-6;queue='haut';}
-    else if(Math.max(cr.bottom,r?r.bottom:0)+bh+22<=vh-m){x=ccx-bw/2;y=Math.max(cr.bottom,r?r.bottom:0)+22;queue='haut';}   /* sous lui ET sous le bouton à cliquer */   /* de préférence SOUS lui : la bulle ne cache pas le boss */
-    else if(cr.top-bh-22>=m){x=ccx-bw/2;y=cr.top-bh-22;queue='bas';}
-    else{x=cr.left-bw-14;y=cr.top+cr.height/2-bh/2;queue='';}
-    x=Math.max(m,Math.min(vw-bw-m,x));y=Math.max(m,Math.min(vh-bh-m,y));
-    bulle.setAttribute('data-queue',queue);
-    bulle.style.setProperty('--qx',Math.round(Math.max(26,Math.min(bw-26,ccx-x)))+'px');
+    /* Bulle de dialogue (Norman, 2026-11-07 : « les choses mieux placées ») : près de Lhu, la queue vers lui, et JAMAIS sur ce qu'il faut cliquer, sur ce qui clignote ni sur Lhu : on essaie les places autour de lui (dessous, dessus, côtés) et les bandes du haut et du bas de l'écran, et on garde celle qui recouvre le moins. */
+    var obst=[];
+    function ajouterObst(el){if(el&&visible_(el)){var q=el.getBoundingClientRect();obst.push({l:q.left-8,t:q.top-8,r:q.right+8,b:q.bottom+8});}}
+    ajouterObst(cible);
+    /* ce qu'on regarde dans le duel : le portrait du boss et du joueur (la bulle ne les cache pas si une autre place existe) */
+    ajouterObst(document.getElementById('sorealIdleBossImageHostV36'));
+    Array.prototype.forEach.call(document.querySelectorAll('.soreal-idle-duel-portrait-v41'),ajouterObst);
+    if(etape.clignoteAussi){try{Array.prototype.forEach.call(document.querySelectorAll(etape.clignoteAussi),ajouterObst);}catch(_e){}}
+    var grand=cr.height>0.4*vh;
+    if(!grand)obst.push({l:cr.left,t:cr.top,r:cr.right,b:cr.bottom});
+    var ccx=cr.left+cr.width/2,ccy=cr.top+cr.height/2,g=18;
+    var haut0=m;
+    try{var hh=document.elementFromPoint(vw/2,4);while(hh&&hh!==document.body){var cs0=getComputedStyle(hh);if(cs0.position==='fixed'||cs0.position==='sticky'){var rh0=hh.getBoundingClientRect();if(rh0.bottom<vh*0.4)haut0=Math.max(haut0,rh0.bottom+6);break;}hh=hh.parentElement;}}catch(_e){}
+    var cands=grand?[{x:ccx-bw/2,y:vh-bh-m-6,q:'haut'}]:[
+      {x:ccx-bw/2,y:cr.bottom+g,q:'haut'},{x:ccx-bw/2,y:cr.top-bh-g,q:'bas'},
+      {x:cr.left-bw-g,y:ccy-bh/2,q:'droite'},{x:cr.right+g,y:ccy-bh/2,q:'gauche'},
+      {x:(vw-bw)/2,y:vh-bh-m-6,q:ccy<vh/2?'haut':'bas'},{x:(vw-bw)/2,y:haut0,q:ccy<vh/2?'haut':'bas'}
+    ];
+    var meilleur=null,pire=1e12;
+    cands.forEach(function(c){
+      var cx=Math.max(m,Math.min(vw-bw-m,c.x)),cy=Math.max(haut0,Math.min(vh-bh-m,c.y)),aire=0;
+      obst.forEach(function(o){var w=Math.min(cx+bw,o.r)-Math.max(cx,o.l),h=Math.min(cy+bh,o.b)-Math.max(cy,o.t);if(w>0&&h>0)aire+=w*h;});
+      /* distance à Lhu : à égalité de recouvrement, la plus proche */
+      var d=Math.abs(cx+bw/2-ccx)+Math.abs(cy+bh/2-ccy)*0.5;
+      var note=aire*1000+d;
+      if(note<pire){pire=note;meilleur={x:cx,y:cy,q:c.q};}
+    });
+    x=meilleur.x;y=meilleur.y;
+    bulle.setAttribute('data-queue',meilleur.q);
+    bulle.style.setProperty('--qx',Math.round(Math.max(28,Math.min(bw-28,ccx-x)))+'px');
+    bulle.style.setProperty('--qy',Math.round(Math.max(28,Math.min(bh-28,ccy-y)))+'px');
     bulle.style.left=Math.round(x)+'px';bulle.style.top=Math.round(y)+'px';
     return;
   }
@@ -381,6 +411,7 @@ function afficherEtape_(garderTaille){
   b.hidden=s.cache||s.sceneEnCours;
   var avecLhu=Boolean(scene&&(e.scene||scene.existe()));
   b.classList.toggle('tu-bulle',avecLhu);
+  b.classList.toggle('tu-bulle-apercu',Boolean(avecLhu&&s.apercu));
   /* Une étape qui commence (départ du guide, avance au clic) s'ouvre réduite en enceinte ; un clic sur Précédent / Suivant garde la taille choisie. */
   b.classList.toggle('reduit',!garderTaille&&!s.guide.mascotte);   /* Cthulhu s'affiche tout de suite, jamais réduit en enceinte */
   b.innerHTML=
@@ -449,7 +480,8 @@ function suivre_(){
     s.i=iEtape+1;afficherEtape_(true);return;
   }
   /* Étape de scène sans clic demandé : elle passe seule à la suivante quand la voix a fini et que le temps de lecture est écoulé (le bouton Suivant reste là pour aller plus vite). */
-  if(e.scene&&!s.sceneEnCours&&!s.attenteClic&&!voixParle_(s)&&Date.now()-s.debutEtape>=s.tempsLecture&&s.i<s.guide.etapes.length-1){
+  var suivante=s.guide.etapes[s.i+1];
+  if(suivante&&suivante.scene&&suivante.scene!=='retourne'&&!s.sceneEnCours&&!s.attenteClic&&!voixParle_(s)&&Date.now()-s.debutEtape>=s.tempsLecture+1200){   /* la phrase d'avant une scène de vol : elle enchaîne seule */
     s.i+=1;afficherEtape_(true);return;
   }
   placer_(b,c,e);

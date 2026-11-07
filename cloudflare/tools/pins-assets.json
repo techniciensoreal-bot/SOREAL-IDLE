@@ -12,8 +12,8 @@
   "sha": "2cfbc955db2c6c83af5835bdacd6658ab4047ffc"
  },
  "/modules/admin-tutoriel-v1.js": {
-  "pin": 12,
-  "sha": "452aa8d5f1c3e8bd90439cd74afac104e813660f"
+  "pin": 13,
+  "sha": "5c529b90545bf1784a81a9205327910eceff6119"
  },
  "/modules/adventure-fond-zone-v1.js": {
   "pin": 4,
@@ -220,8 +220,8 @@
   "sha": "3257c42322cd96e4d7552c579a780f8d9d8e3c4b"
  },
  "/modules/cthulhu-scene-v1.js": {
-  "pin": 10,
-  "sha": "ed421edb0e6341737b6c7cc106e3b36c73ffe8ef"
+  "pin": 12,
+  "sha": "28c5787c7e53528f7830f5bfe640e8b25502c865"
  },
  "/modules/cthulhu-v1.js": {
   "pin": 2,
@@ -524,8 +524,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 188,
-  "sha": "1b579f78dcd01b7670b235e4b50839e75b9c64a3"
+  "pin": 191,
+  "sha": "8ee9aab386250b5d28404e33bbe6c6b3be46da7e"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -756,8 +756,8 @@
   "sha": "ee93d258cc606db9c7b3542d4da01b23730d080d"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 27,
-  "sha": "d2b381b11fd7663c47fd75f0cb2c0c35de3e004c"
+  "pin": 31,
+  "sha": "cec0e83637fa6b81ed61bbad4173426ad4588f30"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,

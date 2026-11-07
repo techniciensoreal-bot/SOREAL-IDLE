@@ -4,7 +4,8 @@
  * Un seul Cthulhu flottant (position fixe, par-dessus la page, jamais sous le morph : data-morph-garder) animé par l'API d'animation du navigateur (Web Animations) entre des positions NOMMÉES.
  * Les scènes sont choisies par l'étape du guide (champ `scene`, menu Admin > Tutoriel) : le texte et la voix restent ceux du guide, ce module ne fait que bouger la mascotte.
  *   arrivee : entre par la droite en volant (de face), s'arrête en bas à droite avec « ??? », puis vole en zoom au centre de l'écran.
- *   pose    : se retourne (au centre), attend 1 s, vole de dos jusqu'à sa place (le bouton Nuke, sinon le bouton Fight, sinon le bas à droite), puis se retourne face au joueur.
+ *   retourne: se retourne sur place, en une image (au début de la phrase qui précède son départ).
+ *   pose    : se retourne (si ce n'est déjà fait) (au centre), attend 1 s, vole de dos jusqu'à sa place (le bouton Nuke, sinon le bouton Fight, sinon le bas à droite), puis se retourne face au joueur.
  *   place   : va directement à sa place (sans le tour de vol).
  * Règle n°3 : les mouvements sont des trajets simples (jamais de boucle) ; prefers-reduced-motion : il apparaît directement à sa place.
  * window.__SOREAL_IDLE_CTHULHU_SCENE_V1__ = { jouer(scene, options) -> Promise, enlever(), existe() }
@@ -104,6 +105,7 @@
     var r=el.getBoundingClientRect();
     /* pieds sur le haut du bouton (le bas du dessin est un peu au-dessus du bas de la boîte) */
     var nuke=el.id==='sorealIdleBossNukeV1';
+    if(!nuke){k=kPetit()*0.8;S=BASE*k;}   /* en vol près d'un bouton à cliquer : plus petit, il cache moins la page */
     var x=r.left+r.width/2-S/2,y=r.top-S+Math.round(S*(nuke?0.12:-0.02));
     if(!nuke&&y<4)y=r.bottom+6;   /* en vol : au-dessus de sa cible, sinon dessous (jamais par-dessus) */
     x=Math.max(4,Math.min(v.W-S-4,x));y=Math.max(4,Math.min(v.H-S-4,y));
@@ -171,7 +173,9 @@
     var jeton=etat.jeton;
     var g=placeGrand();
     if(!etat.racine||etat.mode!=='grand'){creer('vole');poser(g.x,g.y,g.k);}
-    return tourner('dos').then(function(){
+    /* S'il s'est déjà retourné au début de la phrase (scène « retourne »), il ne se retourne pas deux fois. */
+    var deja=etat.dos===true;etat.dos=false;
+    return (deja?Promise.resolve():tourner('dos')).then(function(){
       if(jeton!==etat.jeton)return;
       return attendre(1000);
     }).then(function(){
@@ -206,9 +210,15 @@
     var o=opt||{},sur=o.sur?String(o.sur):'';
     if(!C())return Promise.resolve();
     if(scene==='arrivee'){etat.jeton++;etat.mode='';if(etat.arretSuivi){etat.arretSuivi();etat.arretSuivi=null;}return arrivee();}
+    if(scene==='retourne'){
+      /* Demi-tour au DÉBUT de la phrase (Norman, 2026-11-07), en une image, sur place. */
+      if(!etat.racine){var gg=placeGrand();creer('vole');poser(gg.x,gg.y,gg.k);}
+      tourner('dos');etat.dos=true;etat.mode='grand';
+      return Promise.resolve();
+    }
     if(scene==='pose')return pose(sur);
     if(scene==='place'){etat.jeton++;return place(sur);}
     return Promise.resolve();
   }
-  window.__SOREAL_IDLE_CTHULHU_SCENE_V1__={jouer:jouer,enlever:enlever,partir:partir,rect:function(){var r=document.getElementById(ID);return r?r.getBoundingClientRect():null;},existe:function(){return Boolean(document.getElementById(ID));},SCENES:['arrivee','pose','place']};
+  window.__SOREAL_IDLE_CTHULHU_SCENE_V1__={jouer:jouer,enlever:enlever,partir:partir,rect:function(){var r=document.getElementById(ID);return r?r.getBoundingClientRect():null;},existe:function(){return Boolean(document.getElementById(ID));},SCENES:['arrivee','retourne','pose','place']};
 })();
