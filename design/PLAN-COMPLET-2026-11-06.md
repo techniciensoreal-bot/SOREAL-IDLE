@@ -128,6 +128,8 @@ Conséquences pour les portes : (1) **P3 est franchie pour le traitement des ré
 - **Règles touchées** : 2 (anti-spoil), 4, 5.
 - **Effort** : 1 à 2 jours par page, environ 20 pages (3 à 5 semaines). Priorité : les pages où une barre bouge.
 
+- **C6 — état au 2026-11-07** : inventaire terminé, rien de plus à convertir. Garderie : la page rejoue la barre à partir de `effectiveHoursPerLevel` publié par le moteur ; test `idle-garderie-projection-moteur-v1` (336 comparaisons écran / moteur, identiques). Yggdrasil, Diggers, Cuisine : aucune formule côté page. ITOPOD : scène cosmétique (valeurs du moteur). **Combat et Aventure client : il n'y a PAS deux modèles.** Le combat d'une zone est simulé UNE seule fois, par la page (`progresserZoneFightLocalIdleV1_`, ui-combat-2-v1.js) ; le moteur ne le re-simule pas, il valide la victoire (`resolveZoneFight` : PV du monstre à 0, idle-adventure-combat.js) et l'auto-kill des Titans est un SEUIL de statistiques (`advanceTitanAutoKillV1`), pas une simulation. Parité avec le wiki : `idle-adventure-combat-wiki-parity`. Aucun risque de recul par désaccord de formule entre page et moteur sur ce chantier.
+
 ### C7 — Dette CSS (2 539 `!important`)
 - **Aucun gain de performance mesuré.** Risque visuel élevé. **Seulement si tu le demandes**, menu par menu, avec ta validation visuelle de chacun.
 - **Effort** : 10 jours et plus.
