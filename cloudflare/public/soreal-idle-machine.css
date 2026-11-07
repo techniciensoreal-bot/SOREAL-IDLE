@@ -71,6 +71,9 @@
 .tmm-droite .tmm-ligne{left:16.21%;width:52.76%;column-gap:18.3%}
 .tmm-case{min-width:0;position:relative;overflow:hidden;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:.8cqw;padding:0 4%;border:0;border-radius:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 1px,transparent 1px 3px)}
 .tmm-case-titre{font-size:1.7cqw;letter-spacing:.12em;flex:none}
+/* « Allouée » : une icône (éclair vert pour l'Énergie, étoile bleue pour la Magie) à la place du mot (Norman, 2026-11-07 : le montant était coupé) */
+.tmm-case-icone{display:flex;align-items:center;transform:none}
+.tmm-case-icone svg{width:4.4cqw;height:4.4cqw;flex:none;display:block}
 .tmm-case-val,.tmm-machine .tmm-case input[type=number]{font-size:3.2cqw;line-height:1;flex:1 1 auto;min-width:0}
 .tmm-machine .tmm-case input[type=number]{width:100%;font-family:Orbitron,'Russo One',system-ui,sans-serif;background:transparent;border:0;border-radius:0;padding:0;outline:0;box-shadow:none;height:auto;min-height:0;text-align:right;position:relative;z-index:1}
 /* ---- le centre : la grande machine ---- */

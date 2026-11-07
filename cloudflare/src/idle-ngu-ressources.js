@@ -673,7 +673,8 @@ export function augApplyTargetsV1(state, context = {}) {
   const energie = (p, up) => Math.max(0, num(up ? p.upgradeEnergy : p.energy, 0));
   pistes.forEach((piste, index) => {
     const p = pairs[piste.id];
-    if (!p || !augCibleAtteinteV1(p, piste.upgrade) || energie(p, piste.upgrade) <= 0) return;
+    /* Cible -1 + « Faire suivre l'énergie » (Norman, 2026-11-07 : « quand une cible est à -1 elle doit juste faire passer à la ligne suivante l'énergie ») : une ligne à -1 n'est jamais une destination ET fait passer tout de suite son énergie à la ligne suivante, comme une ligne qui a atteint sa cible ; sans suivante, l'énergie est rendue. Sans « Faire suivre l'énergie », -1 ne change rien. */
+    if (!p || !(augCibleAtteinteV1(p, piste.upgrade) || (s.data.advanceEnergy && augCibleIgnoreeV1(p, piste.upgrade))) || energie(p, piste.upgrade) <= 0) return;
     const suivante = s.data.advanceEnergy
       ? pistes.slice(index + 1).find(n => pairs[n.id] && !augCibleIgnoreeV1(pairs[n.id], n.upgrade) && !augCibleAtteinteV1(pairs[n.id], n.upgrade))
       : null;

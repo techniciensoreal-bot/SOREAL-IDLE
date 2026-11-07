@@ -575,7 +575,8 @@ export function atApplyTargetsV1(state) {
   const wandoosOk = Boolean(state.systems.wandoos?.unlocked);
   IDLE_AT_ORDRE_V1.forEach((id, index) => {
     const t = pistes[id];
-    if (!t || !atTargetAtteintV1(t) || atTrackEnergyV1(s, id) <= 0) return;
+    /* Cible -1 + « Faire suivre l'énergie » (Norman, 2026-11-07 : « quand une cible est à -1 elle doit juste faire passer à la ligne suivante l'énergie ») : une ligne à -1 n'est jamais une destination ET fait passer tout de suite son énergie à la ligne suivante, comme une ligne qui a atteint sa cible ; sans suivante, l'énergie est rendue. Sans « Faire suivre l'énergie », -1 ne change rien. */
+    if (!t || !(atTargetAtteintV1(t) || (s.data.advanceEnergy && atTargetIgnoreV1(t))) || atTrackEnergyV1(s, id) <= 0) return;
     const suivante = s.data.advanceEnergy
       ? IDLE_AT_ORDRE_V1.slice(index + 1).find(n => pistes[n] && (wandoosOk || !(n === "wandoosEnergy" || n === "wandoosMagic")) && !atTargetIgnoreV1(pistes[n]) && !atTargetAtteintV1(pistes[n]))
       : "";

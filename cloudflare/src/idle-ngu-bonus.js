@@ -324,7 +324,8 @@ export function applyNguTargetsV1(state) {
     defs.forEach((def, index) => {
       const n = ngus[def.id];
       const alloue = Math.max(0, num(n.allocation, 0));
-      if (!nguCibleAtteinteV1(n) || alloue <= 0) return;
+      /* Cible -1 + « Faire suivre l'énergie » (Norman, 2026-11-07 : « quand une cible est à -1 elle doit juste faire passer à la ligne suivante l'énergie ») : une ligne à -1 n'est jamais une destination ET fait passer tout de suite son énergie à la ligne suivante, comme une ligne qui a atteint sa cible ; sans suivante, l'énergie est rendue. Sans « Faire suivre l'énergie », -1 ne change rien. */
+      if (!(nguCibleAtteinteV1(n) || (s.data.advance?.[resource] && nguCibleIgnoreeV1(n))) || alloue <= 0) return;
       const suivant = s.data.advance?.[resource]
         ? defs.slice(index + 1).find(d => !nguCibleIgnoreeV1(ngus[d.id]) && !nguCibleAtteinteV1(ngus[d.id]) && ngus[d.id].level < IDLE_NGU_MAX_LEVEL_V1)
         : null;

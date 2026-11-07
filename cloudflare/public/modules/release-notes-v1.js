@@ -39,8 +39,19 @@
             'Pendant un combat, la borne n’a plus d’animation de personnage (le bonhomme qui court, le clown, la tronçonneuse, Twin Peaks et les hommes qui rient sont retirés pour l’instant, ils reviendront plus tard) : à la place, elle a des yeux ! Ils apparaissent dès le lancement du combat et regardent la barre de vie du boss. Leur humeur suit le combat : concentrés, déterminés quand le boss faiblit, ravis quand il va tomber, inquiets puis apeurés quand ta vie baisse, avec une grimace à chaque coup reçu. Victoire : yeux heureux et étincelles. Défaite : deux croix.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'La Machine temporelle a ses propres sons : un tintement chaque fois qu’une pièce tombe dans le tas d’Or, et un balayage suivi d’une cloche quand un niveau est gagné (les boutons gardent leurs tics d’horloge).',
+            'Sur les tours Énergie et Magie, le mot « Allouée » est remplacé par une icône (éclair ou étoile) : le montant n’est plus coupé.',
             'La Machine temporelle change encore de look sur PC (nouvelle image) : un petit écran pour l’image du boss, avec un effet d’écran (lignes de balayage, bords sombres, bande lumineuse qui descend), et un autre écran pour son nom et son butin. Les afficheurs ont des écritures de science-fiction, inclinées, comme un écran qui saute dans le temps. Le tas d’Or en bas est maintenant un vrai tas de pièces, et chaque pièce entre par le haut de la sortie et tombe dedans. Le socle de l’Énergie n’a plus qu’un seul grand rouage, vert, et le cadran n’a plus que son aiguille.',
             'Quand tu mets de la Magie dans la Machine temporelle, la barre d’Énergie ne recule plus.',
+          ]},
+          {menu:'augmentations', titre:'Augmentations', points:[
+            'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
+          ]},
+          {menu:'avance', titre:'Entraînement avancé', points:[
+            'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
           ]},
         ],
       },

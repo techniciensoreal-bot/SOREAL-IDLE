@@ -6,7 +6,7 @@ const css = readFileSync(new URL("../public/soreal-idle-machine.css", import.met
 assert.ok(/\.tmm-case\{[^}]*position:relative/.test(css) && css.includes(".tmm-lcd-val,.tmm-case-val,.tmm-machine .tmm-case input[type=number]{"), "Cible et allouée : petits afficheurs posés sur le métal, même police de valeur que Niveau et Temps restant (nouveau look, images de Norman)");
 assert.ok(css.includes(".tmm-lcd-titre,.tmm-case-titre{"), "titres des écrans identiques");
 const aug = readFileSync(new URL("../public/modules/augmentations-page-v1.js", import.meta.url), "utf8");
-assert.ok(aug.includes(`<i class="tmm-case-titre" title="'+H.idleHtml_(libelleAlloc)+'">Allouée</i>`), "titre court (l'écran est étroit), libellé complet en infobulle");
+assert.ok(aug.includes(`<i class="tmm-case-titre tmm-case-icone" title="'+H.idleHtml_(libelleAlloc)+'" role="img" aria-label="'+H.idleHtml_(libelleAlloc)+'">'+icone+'</i>`), "« Allouée » : une icône (éclair / étoile) à la place du mot (2026-11-07, le montant était coupé), libellé complet en infobulle");
 const it = readFileSync(new URL("../public/soreal-idle-itopod.css", import.meta.url), "utf8");
 assert.ok(it.includes("button.clear{grid-column:var(--bt-clear-col,1/-1)!important;padding:6px 10px!important}") && it.includes(".soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120{--bt-clear-col:span 2}"), "PC et téléphone : « Tout retirer » sur la même ligne que 1/2 et 1/4");
 assert.ok(!it.includes("@media (min-width:900px){.soreal-idle-bt-toolbar-v120>.soreal-idle-bt-presets-v120{--bt-clear-col"), "plus réservé au PC");

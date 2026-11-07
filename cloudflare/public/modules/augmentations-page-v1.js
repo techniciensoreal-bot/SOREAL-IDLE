@@ -949,7 +949,7 @@
             /* tube de verre : le liquide monte avec la progression, le quadrillage donne l'échelle, le reflet ne passe que sur une piste qui porte de l'énergie */
             '<div class="aug-tube-v2"><div data-idle-aug-bar-v215="'+def.id+':'+(upgrade?'upgrade':'main')+'" class="aug-liquide-v2" style="width:100%;transform:scaleX('+(pct/100)+');transform-origin:left center;will-change:transform;transition:none"><i class="aug-reflet-v2"></i></div></div>'+
             '<div class="aug-bas-v2">'+
-              '<label class="aug-cible-v2"><span>Cible</span><input type="number" inputmode="numeric" min="-1" step="1" value="'+cible+'" '+(ok?'onchange="window.__cibleAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+cleIdUp+',this.value)"':'disabled')+' title="Niveau cible : l’énergie est retirée dès qu’il est atteint (ou passée à la piste suivante si « Faire suivre l’énergie » est coché). 0 = aucune cible. -1 = piste ignorée par « Faire suivre l’énergie »."></label>'+
+              '<label class="aug-cible-v2"><span>Cible</span><input type="number" inputmode="numeric" min="-1" step="1" value="'+cible+'" '+(ok?'onchange="window.__cibleAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+cleIdUp+',this.value)"':'disabled')+' title="Niveau cible : l’énergie est retirée dès qu’il est atteint (ou passée à la piste suivante si « Faire suivre l’énergie » est coché). 0 = aucune cible. -1 = la piste fait passer son énergie à la suivante avec « Faire suivre l’énergie »."></label>'+
               '<div class="soreal-idle-bt-actions-v120">'+[['plus','+'],['moins','−'],['max','Max'],['zero','0']].map(function(b){return '<button type="button" '+(b[0]==='zero'?'title="Retirer toute l’énergie de cette barre" ':'')+(ok?'onclick="window.__ajusterAugmentIdleV1__(\''+H.idleHtml_(def.id)+'\','+upgrade+',\''+b[0]+'\')"':'disabled')+'>'+b[1]+'</button>';}).join('')+'</div>'+
             '</div></div>';
         }
@@ -1364,7 +1364,7 @@
             '</div>'+
             '<div class="tmm-ligne">'+
               '<div class="tmm-case"><i class="tmm-case-titre">Cible</i><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(gauche?'speed':'gold')+'\',this.value)"></div>'+
-              '<div class="tmm-case"><i class="tmm-case-titre" title="'+H.idleHtml_(libelleAlloc)+'">Allouée</i><output class="tmm-case-val" id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</output></div>'+
+              '<div class="tmm-case"><i class="tmm-case-titre tmm-case-icone" title="'+H.idleHtml_(libelleAlloc)+'" role="img" aria-label="'+H.idleHtml_(libelleAlloc)+'">'+icone+'</i><output class="tmm-case-val" id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</output></div>'+
             '</div>'+
           '</div>';
           /* allocation et durée K du niveau à 1 unité, lues par le dessin de la machine : les roues de la tour tournent selon allocation / K (arrêtées à 0) */
@@ -1639,7 +1639,7 @@
             '<div class="soreal-idle-at-nom-v1"><div class="soreal-idle-at-barre-v1"><i class="soreal-idle-at-remplissage-v1" data-at-fill></i><span class="soreal-idle-at-titre-v1">'+(IDLE_AT_ICONES_V1[id]?IDLE_AT_ICONES_V1[id]+' ':'')+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</span></div><div class="soreal-idle-at-detail-v1"><span data-at-bonus></span><span data-at-eta></span></div></div>'+
             '<div class="soreal-idle-at-col-v1"><span>Niveau</span><b id="sorealIdleAtNiveau_'+idH+'">'+nombre(niveau)+'</b></div>'+
             '<div class="soreal-idle-at-col-v1"><span>Énergie placée</span><b id="sorealIdleAtAlloc_'+idH+'" data-idle-alloc-pop-v1>'+nombre(energie)+'</b></div>'+
-            '<label class="soreal-idle-at-col-v1 cible"><span>Cible</span><input type="number" inputmode="numeric" min="-1" step="1" value="'+H.idleEntier_(st.target)+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun, -1 = ignorée par « Faire suivre l’énergie »)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
+            '<label class="soreal-idle-at-col-v1 cible"><span>Cible</span><input type="number" inputmode="numeric" min="-1" step="1" value="'+H.idleEntier_(st.target)+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun, -1 = fait passer son énergie à la ligne suivante, avec « Faire suivre l’énergie »)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
             '<div class="soreal-idle-at-boutons-v1">'+
               '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'plus\')">+</button>'+
               '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'moins\')">−</button>'+
@@ -1701,7 +1701,7 @@
               '<li><b>Place de l’énergie.</b> Sur une compétence, avec +. La quantité placée est celle de la case Input (les boutons Max, 1/2 et 1/4 la remplissent d’un coup), et − la retire. C’est comme mettre des pièces dans une machine.</li>'+
               '<li><b>Chacun son énergie.</b> Les compétences s’entraînent en même temps, chacune avec sa propre énergie : plus tu en donnes, plus elle va vite. Mais chaque niveau demande plus de temps que le précédent, et les bonus grossissent de moins en moins : normal, les premiers muscles poussent vite.</li>'+
               '<li><b>Réservoir ou moteur ?</b> Ici, ta Puissance d’énergie compte moins que son nombre ne le laisse croire (seulement par sa racine carrée), alors que ton plafond d’énergie compte à plein. Moralité : un grand réservoir vaut mieux qu’un gros moteur.</li>'+
-              '<li><b>Cible.</b> Le niveau que tu veux atteindre. Dès qu’il est atteint, l’énergie de la compétence est retirée et te revient (0 = aucun objectif ; -1 = la compétence est ignorée par « Faire suivre l’énergie »). Pratique pour ne pas gaver une compétence qui a déjà fini ses pompes.</li>'+
+              '<li><b>Cible.</b> Le niveau que tu veux atteindre. Dès qu’il est atteint, l’énergie de la compétence est retirée et te revient (0 = aucun objectif ; -1 = la compétence fait passer son énergie à la suivante, avec « Faire suivre l’énergie »). Pratique pour ne pas gaver une compétence qui a déjà fini ses pompes.</li>'+
               '<li><b>Faire suivre l’énergie.</b> Quand une compétence atteint sa cible, son énergie passe automatiquement à la ligne suivante, comme un relais.</li>'+
               '<li><b>Renaissance.</b> Les niveaux sont remis à zéro à chaque Renaissance : on refait ses abdos à chaque nouvelle vie.</li>'+
             '</ol>'+
