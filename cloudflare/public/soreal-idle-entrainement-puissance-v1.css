@@ -191,3 +191,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47 .
 html body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120:is(.attack,.defense) .soreal-idle-bt-row-v120:not(.verrouille) .soreal-idle-bt-meta-v120,
 html body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120:is(.attack,.defense) .soreal-idle-bt-row-v120:not(.verrouille) .soreal-idle-bt-allocation-v120,
 html body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120:is(.attack,.defense) .soreal-idle-bt-prerequis-v1{font-family:"Russo One",Arial,sans-serif !important}
+
+/* Lisibilité (Norman, 2026-11-07 : « les écritures sous les barres sont souvent grises et fines ») : les trois lignes sous chaque barre (vitesse, Cap / prochain, durée par niveau) et les petits libellés des cadres Idle / Cap en blanc franc, gras, avec une ombre légère. */
+.soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-meta-v120 span{color:#f2f6ff;font-weight:700;font-size:13.5px;text-shadow:0 1px 2px rgba(0,0,0,.75)}
+.soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-meta-v120 strong{color:#fff;font-weight:900}
+.soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-presets-v120 span,.soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-presets-v120 small{color:#eaf0ff;font-weight:800;font-size:10.5px;text-shadow:0 1px 2px rgba(0,0,0,.75)}

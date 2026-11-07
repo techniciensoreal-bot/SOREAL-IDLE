@@ -45,10 +45,11 @@ present = true; machine.__cadencePieces = 0; appels.length = 0;
 M.balayer();   /* première lecture (niveaux mémorisés après le passage hors page) */
 assert.equal(appels.length, 0, "première lecture : aucun son");
 niv[0].textContent = "4"; M.balayer();
-assert.equal(appels.length, 1, "niveau gagné : un son");
-assert.equal(appels[0], 900, "son de niveau (balayage + cloche)");
+assert.equal(appels.length, 0, "niveau gagné : plus de « ding » (Norman, 2026-11-07), le son existe encore mais n'est jamais joué");
 niv[0].textContent = "0"; M.balayer();
-assert.equal(appels.length, 1, "retour à 0 (renaissance) : aucun son");
+assert.equal(appels.length, 0, "retour à 0 (renaissance) : aucun son");
+appels.length = 0; M.niveau();
+assert.equal(appels[0], 900, "la fonction niveau() reste disponible (balayage + cloche)");
 /* bouton sans effet : un son (jamais muet) ; les boutons + − Max ont leurs sons de mécanique dans le moteur audio */
 appels.length = 0; M.refus();
 assert.equal(appels.length, 1, "refus : un son");

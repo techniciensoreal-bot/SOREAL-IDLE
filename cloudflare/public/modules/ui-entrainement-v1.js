@@ -1559,7 +1559,7 @@
                   ${idleNombre_(skill.levelsPerSecond).toFixed(2).replace('.',',')} niv/s
                 </span>
                 <span>
-                  Cap :
+                  <span data-sans-traduction>Cap</span> :
                   <strong id="sorealIdleBtCapV120_${idleHtml_(skill.id)}">
                     ${formatEntierLisibleIdleV1_(skill.cap)}
                   </strong> ⚡

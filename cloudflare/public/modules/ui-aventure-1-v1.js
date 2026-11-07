@@ -647,6 +647,17 @@
         }
 
         const gain=Math.max(1,idleNombre_(REG.idleEtat&&REG.idleEtat.renaissance&&REG.idleEtat.renaissance.nextNumber||1));
+        const actuel=Math.max(1,idleNombre_(REG.idleEtat&&REG.idleEtat.renaissance&&REG.idleEtat.renaissance.number||1));
+        /* Le NUMBER multiplie directement l'attaque (idle-ngu-bonus.js : attackMultiplier = number * ...) : le rapport prochain / actuel est donc « x fois plus fort » (et les boss tombent à peu près x fois plus vite). */
+        const rapport=gain/actuel;
+
+        /* Menus qui se referment à chaque Renaissance (idle-ngu-actions.js : augmentations, timeMachine, bloodMagic, advancedTraining) : on ne cite que ceux que le joueur a déjà (anti-spoil, règle n°2). */
+        const refermes=[['augmentations','Augmentations'],['avance','Advanced Training'],['machine','Time Machine'],['sang','Blood Magic']].filter(function(m){
+          try{return !!document.querySelector('.soreal-idle-nav-button-v28[data-menu-id-v1="'+m[0]+'"]');}catch(e){return false;}
+        });
+
+        const api=window.__SOREAL_IDLE_RENAISSANCE_FENETRE_V1__;
+        const carteHtml=api&&typeof api.carte==='function'?api.carte({gain:gain,actuel:actuel,rapport:rapport,refermes:refermes,fmt:formatGrandNombreIdleV70_}):'';
 
         fermerPopupRenaissanceIdleV63_();
 
@@ -661,27 +672,7 @@
         modal.className=
           'soreal-idle-modal-backdrop-v63';
 
-        modal.innerHTML=
-          '<div class="soreal-idle-modal-card-v63" role="dialog" aria-modal="true" aria-label="Confirmer la Renaissance">'+
-            '<div class="soreal-idle-modal-top-v63">'+
-              '<div class="soreal-idle-modal-icon-v63">♻️</div>'+
-              '<div class="soreal-idle-modal-title-v63">Nouvelle Renaissance</div>'+
-              '<div class="soreal-idle-modal-gain-v63">+'+
-                idleEntier_(gain)+
-                ' nombre</div>'+
-            '</div>'+
-            '<div class="soreal-idle-modal-body-v63">'+
-              '<div class="soreal-idle-modal-info-v63">'+
-                '<strong>Le cycle recommence.</strong><br>'+
-                'Boss du run, niveaux de Basic Training et progressions temporaires du run seront remis à zéro.<br><br>'+
-                '<strong>Conservé :</strong> inventaire, équipement, sets, collection, progression Aventure, capacité du sac et toutes les progressions permanentes (NGU, Perks, Quirks, Hacks, Wishes, Cards, MacGuffins…).'+
-              '</div>'+
-            '</div>'+
-            '<div class="soreal-idle-modal-actions-v63">'+
-              '<button type="button" class="soreal-idle-modal-button-v63 cancel" onclick="window.__fermerPopupRenaissanceIdleV63__()">Annuler</button>'+
-              '<button type="button" class="soreal-idle-modal-button-v63 confirm" onclick="window.__executerRenaissanceIdleV63__()">♻️ Renaître</button>'+
-            '</div>'+
-          '</div>';
+        modal.innerHTML=carteHtml;
 
         modal.addEventListener(
           'click',

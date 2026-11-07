@@ -3,10 +3,10 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 458,
-  "fichiersAvecWebAnimations": 19,
+  "keyframes": 464,
+  "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 12,
-  "pointsEntreeRejouables": 257,
+  "pointsEntreeRejouables": 258,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
@@ -2804,6 +2804,7 @@
     "modules/profil-badavatar-editeur-v1.js",
     "modules/rebirth-live-v1.js",
     "modules/release-notes-v1.js",
+    "modules/renaissance-fenetre-v1.js",
     "modules/sang-rituel-decor-v1.js",
     "modules/story-engine-v1.js",
     "modules/textes-admin-v1.js",
@@ -2859,6 +2860,60 @@
    ],
    "utilisePar": [
     "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "rnBouton",
+   "definiePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ],
+   "utilisePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ]
+  },
+  {
+   "nom": "rnLueur",
+   "definiePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ],
+   "utilisePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ]
+  },
+  {
+   "nom": "rnMote",
+   "definiePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ],
+   "utilisePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ]
+  },
+  {
+   "nom": "rnRecule",
+   "definiePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ],
+   "utilisePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ]
+  },
+  {
+   "nom": "rnRespire",
+   "definiePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ],
+   "utilisePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ]
+  },
+  {
+   "nom": "rnTourne",
+   "definiePar": [
+    "modules/renaissance-fenetre-v1.js"
+   ],
+   "utilisePar": [
+    "modules/renaissance-fenetre-v1.js"
    ]
   },
   {
@@ -4404,6 +4459,10 @@
    "appels": 1
   },
   {
+   "fichier": "modules/ui-renaissance-v1.js",
+   "appels": 8
+  },
+  {
    "fichier": "modules/wandoos-retro-v1.js",
    "appels": 2
   },
@@ -4750,6 +4809,7 @@
   "__SOREAL_IDLE_REGEN_V1__": "modules/regen-ressources-v1.js",
   "__SOREAL_IDLE_REG__": "modules/page-chroniques-v1.js",
   "__SOREAL_IDLE_RELEASE_NOTES_V1__": "modules/release-notes-v1.js",
+  "__SOREAL_IDLE_RENAISSANCE_FENETRE_V1__": "modules/renaissance-fenetre-v1.js",
   "__SOREAL_IDLE_ROUE_V1__": "modules/roue-journaliere-v1.js",
   "__SOREAL_IDLE_RTT_V1__": "modules/augmentations-page-v1.js",
   "__SOREAL_IDLE_RUNTIME_V1__": "modules/runtime.js",

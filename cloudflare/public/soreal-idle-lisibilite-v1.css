@@ -1,0 +1,12 @@
+/*
+ * Lisibilité des petits textes sous les barres et dans les cadres (Norman, 2026-11-07 : « rends les écritures plus lisibles en dessous des barres de tous les menus, c'est souvent une police grise et fine »).
+ * Relevé fait dans le jeu, menu par menu (textes de 14,5 px ou moins, gris ou pâles, graisse 500 ou moins) : seuls ceux-ci restaient fins ; les autres menus avaient déjà du blanc gras.
+ * Aucune déclaration forcée : le préfixe .soreal-idle-page-root-v28 suffit à passer devant les règles à une seule classe. L'Entraînement de base a sa propre règle (soreal-idle-entrainement-puissance-v1.css).
+ */
+.soreal-idle-page-root-v28 .bm-etagere-lib{color:#ffe9e1;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.soreal-idle-page-root-v28 .ygg-note{color:#f1fae6;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.soreal-idle-page-root-v28 .soreal-idle-note-v4{color:#eaf1fd;font-weight:700}
+.soreal-idle-page-root-v28 .soreal-idle-money-action-note-v206{color:#e8f0fd;font-weight:700}
+.soreal-idle-page-root-v28 .rb-leg span,.soreal-idle-page-root-v28 .rb-leg em{color:#f4f8ff;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.7)}
+.soreal-idle-page-root-v28 .mn-gal em{font-weight:800}
+.soreal-idle-page-root-v28[data-menu="beards"] small{font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.7)}

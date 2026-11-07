@@ -69,6 +69,16 @@
     percee_quai:'demarrage5',charge_logistique:'demarrage5',
     ultime_soreal:'demarrage6',ultime_logistique:'demarrage6'
   };
+  /* Rang de la barre (Norman, 2026-11-07 : « le premier son des barres, amélioré pour chacune des suivantes, le même son mais plus impressionnant ») : 0 = première barre, 5 = dernière ; la jumelle de défense a le même rang. */
+  var RANG_PAR_BARRE={
+    attaque_passive:0,blocage:0,
+    attaque_reguliere:1,defense_renforcee:1,
+    attaque_renforcee:2,recuperation:2,
+    contre_palette:3,boost_offensif:3,
+    percee_quai:4,charge_logistique:4,
+    ultime_soreal:5,ultime_logistique:5
+  };
+  function rangPourBarre(id){var v=RANG_PAR_BARRE[String(id||'')];return typeof v==='number'?v:0;}
   function variantePourBarre(id){return DEMARRAGE_PAR_BARRE[String(id||'')]||DEMARRAGE_PAR_DEFAUT;}
   /* Identifiants des compétences, dans le même ordre que allocations(). */
   function idsCompetences(){
@@ -93,7 +103,7 @@
     if(maintenant-dernierDemarrage<1500)return false;
     dernierDemarrage=maintenant;
     vaciller(presents[Math.floor(Math.random()*presents.length)],undefined,true);
-    sonner('allume');   /* Norman (2026-10-22) : l'ancien son du néon qui s'allume, pour le premier point de n'importe quelle barre */
+    sonner('allume',rangPourBarre(idBarre));   /* Norman (2026-10-22) : le son du néon qui s'allume pour le premier point de n'importe quelle barre ; 2026-11-07 : plus impressionnant à chaque barre suivante */
     return true;
   }
   /* Motif d'un vacillement : un ou deux coups. Deux coups = deux extinctions très rapprochées (le second arrive avant la fin du premier « tzzzzt » et le coupe). */
@@ -181,16 +191,17 @@
         src.connect(f);f.connect(g);g.connect(sortie);src.start(t+decal);
       },
       /* petit « ping » de tube qui prend */
-      ping:function(decal,gain){
+      ping:function(decal,gain,f){
+        var h=f||1900;
         var o=c.createOscillator();o.type='sine';
-        o.frequency.setValueAtTime(1900,t+decal);o.frequency.exponentialRampToValueAtTime(1500,t+decal+0.05);
+        o.frequency.setValueAtTime(h,t+decal);o.frequency.exponentialRampToValueAtTime(h*0.79,t+decal+0.05);
         var g=c.createGain(); g.gain.value=gain;
         g.gain.setValueAtTime(gain,t+decal);g.gain.exponentialRampToValueAtTime(0.0001,t+decal+0.07);
         o.connect(g);g.connect(sortie);o.start(t+decal);o.stop(t+decal+0.09);
       }
     };
   }
-  function construire_(c,sortie,t,type,alea){
+  function construire_(c,sortie,t,type,alea,rang){
     var a=typeof alea==='function'?alea:Math.random;
     var o=outils_(c,sortie,t,a);
     var m=/^demarrage([1-6])$/.exec(String(type));
@@ -240,16 +251,41 @@
       o.souffle(0,0.17,2400,1500,0.17);
       o.ballast(0,0.17,122,110,0.10);
     }else if(type==='allume'){
-      /* Néon qui s'allume (≈ 0,9 s) : trois amorces qui hésitent (« tik »), puis la décharge qui prend, un petit « ping » et le bourdonnement qui s'installe et faiblit. */
-      [0,0.12,0.26].forEach(function(d,i){
-        o.arc(d,0.05+i*0.015);
-        o.souffle(d,0.045+i*0.012,2600,2000,0.12,0.015);
+      /*
+       * Néon qui s'allume (≈ 0,9 s au rang 0) : amorces qui hésitent (« tik »), puis la décharge qui prend, un « ping » et le bourdonnement qui s'installe et faiblit.
+       * Rang 1 à 5 (Norman, 2026-11-07) : LE MÊME SON, de plus en plus impressionnant : plus d'amorces, une décharge plus forte, un accord de « pings » de plus en plus riche, un ballast plus grave et plus long
+       * avec un battement de basse (rang 2), une octave au-dessus (rang 3), un balayage de montée en puissance (rang 4), un carillon et un crépitement final (rang 5).
+       */
+      var r=Math.max(0,Math.min(5,Math.floor(Number(rang)||0)));
+      var k=1+0.14*r;
+      var amorces=[0,0.12,0.26];
+      if(r>=1)amorces.push(0.19);
+      if(r>=2)amorces.push(0.05);
+      if(r>=4)amorces.push(0.33);
+      amorces.sort(function(x,y){return x-y;}).forEach(function(d,i){
+        o.arc(d,(0.05+(i%3)*0.015)*k);
+        o.souffle(d,0.045+(i%3)*0.012,2600+r*120,2000,0.12*k,0.015);
       });
-      o.souffle(0.40,0.16,2200,1500,0.17,0.03);          /* la décharge qui prend */
-      o.arc(0.40,0.07);
-      o.ping(0.43,0.05);
-      o.ballast(0.40,0.55,96,118,0.12,0.45);              /* le ballast : monte puis se stabilise en ronronnant */
-      o.souffle(0.56,0.34,1900,1400,0.05,0.14);           /* crépitement qui s'éteint, le tube est chaud */
+      o.souffle(0.40,0.16+0.03*r,2200,1500,0.17*(1+0.18*r),0.03);   /* la décharge qui prend */
+      o.arc(0.40,0.07*(1+0.2*r));
+      o.ping(0.43,0.05*(1+0.1*r));
+      if(r>=1)o.ping(0.45,0.035+0.004*r,2850);
+      if(r>=2)o.ping(0.47,0.03+0.004*r,3800);
+      if(r>=3)[[0.52,2400],[0.57,3200],[0.62,4300]].forEach(function(p){o.ping(p[0],0.03+0.004*r,p[1]);});
+      if(r>=5)[[0.66,3600],[0.70,4800],[0.74,6000]].forEach(function(p){o.ping(p[0],0.03,p[1]);});
+      o.ballast(0.40,0.55+0.14*r,96-r*4,118-r*3,0.12*(1+0.25*r),0.45);   /* le ballast : monte puis se stabilise en ronronnant */
+      if(r>=2)o.ton('sine',50,54,0.40,0.9+0.2*r,0.09+0.02*r,320);        /* battement de basse */
+      if(r>=3)o.ballast(0.40,0.7+0.1*r,192,236,0.05*r,0.4);              /* l'octave au-dessus */
+      if(r>=4){
+        o.bruit(0.28,0.7,300,3400,0.7,0.07+0.01*r);                      /* montée en puissance */
+        o.ton('sawtooth',72,150,0.34,0.6,0.06,900);
+      }
+      if(r>=5){
+        o.ton('sine',3136,3136,0.62,0.55,0.05,6500);                     /* carillon */
+        o.ton('sine',2093,2093,0.6,0.7,0.04,6500);
+        o.souffle(0.8,0.5,2400,1600,0.06,0.2);
+      }
+      o.souffle(0.56,0.34+0.1*r,1900,1400,0.05*k,0.14);                  /* crépitement qui s'éteint, le tube est chaud */
     }
   }
   /* Une seule voix à la fois : un nouveau son COUPE le précédent net (quelques millisecondes de fondu pour éviter un clic). */
@@ -265,7 +301,7 @@
       setTimeout(function(){try{v.disconnect();}catch(_e){}},60);
     }catch(_e){}
   }
-  function sonner(type){
+  function sonner(type,rang){
     if(type!=='eteint'&&type!=='allume'&&!/^demarrage[1-6]$/.test(String(type)))return false;
     var v=volume_();
     if(!(v>0))return false;
@@ -276,7 +312,7 @@
       couperVoix_(c);
       var maitre=c.createGain();maitre.gain.value=Math.min(1,v)*GAIN_MAITRE;(window.__SOREAL_IDLE_LIMITEUR_V1__&&window.__SOREAL_IDLE_LIMITEUR_V1__.brancher(c,maitre))||maitre.connect(c.destination);
       voixCourante=maitre;
-      construire_(c,maitre,c.currentTime+0.005,type);
+      construire_(c,maitre,c.currentTime+0.005,type,undefined,rang);
       return true;
     }catch(_e){return false;}
   }
@@ -387,6 +423,6 @@
     Array.prototype.forEach.call(document.querySelectorAll('.'+CLASSE+',.'+CLASSE_ECLAT),function(el){el.classList.remove(CLASSE);el.classList.remove(CLASSE_ECLAT);});
   }
 
-  window.__SOREAL_IDLE_BT_LUMIERES_V1__={variantePourBarre:variantePourBarre,demarrageBarre:demarrageBarre_,allocations:allocations,vaciller:vaciller,motif:motif,sonner:sonner,allumerNeon:allumerNeon,totalEnergie:totalEnergie,veiller:veiller_,demarrer:demarrer,arreter:arreter,construire:construire_,classe:CLASSE,classeEclat:CLASSE_ECLAT,selecteur:SELECTEUR,sequenceNeon:SEQUENCE_NEON};
+  window.__SOREAL_IDLE_BT_LUMIERES_V1__={variantePourBarre:variantePourBarre,rangPourBarre:rangPourBarre,demarrageBarre:demarrageBarre_,allocations:allocations,vaciller:vaciller,motif:motif,sonner:sonner,allumerNeon:allumerNeon,totalEnergie:totalEnergie,veiller:veiller_,demarrer:demarrer,arreter:arreter,construire:construire_,classe:CLASSE,classeEclat:CLASSE_ECLAT,selecteur:SELECTEUR,sequenceNeon:SEQUENCE_NEON};
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',demarrer);else demarrer();
 })();

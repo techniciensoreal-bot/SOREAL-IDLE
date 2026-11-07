@@ -32,12 +32,15 @@
         date:'2026-11-07',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les petits textes gris et fins sous les barres et dans les cadres de plusieurs menus sont plus lisibles : plus clairs et plus gras.',
             'La voix de secours est supprimée du jeu : seuls les textes qui ont une voix générée sont lus (les autres restent muets), et le jeu est plus fluide.',
             'Réglages : une case permet de couper les aides du tutoriel.',
             'Le tutoriel du début est entièrement refait : des bulles courtes, une idée par bulle, qui passent toutes seules.',
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Le son du néon qui s’allume est celui de toutes les barres, et il devient plus impressionnant à chaque barre suivante : plus d’amorces, un accord de plus en plus riche, une basse profonde, une montée en puissance et, pour la dernière barre, un carillon.',
+            'Sous chaque barre, les textes (vitesse, Cap, prochain, temps par niveau) sont en blanc franc et en gras, bien plus faciles à lire, et le mot « Cap » reste « Cap ».',
             'L’Entraînement de base est refait : chaque barre a son emblème et son habillage, de plus en plus travaillés et de plus en plus grands à chaque barre débloquée (cadre, lueur, motif dans la barre) ; les boutons de la défense sont bleus.',
             'À la première ouverture de l’Entraînement de base après une Renaissance, toutes les barres clignotent de nouveau comme des tubes néon avant de tenir.',
             'La barre d’outils de l’Entraînement de base (saisie, plafonds, idle, énergie placée) tient maintenant sur une seule ligne.',
@@ -50,7 +53,12 @@
             'L’écran LED de la borne demande moins de calcul à chaque image : même aspect, moins de petits à-coups en combat, surtout sur téléphone.',
             'Pendant un combat, la borne n’a plus d’animation de personnage (le bonhomme qui court, le clown, la tronçonneuse, Twin Peaks et les hommes qui rient sont retirés pour l’instant, ils reviendront plus tard) : à la place, elle a des yeux ! Ils apparaissent dès le lancement du combat et regardent la barre de vie du boss. Leur humeur suit le combat : concentrés, déterminés quand le boss faiblit, ravis quand il va tomber, inquiets puis apeurés quand ta vie baisse, avec une grimace à chaque coup reçu. Victoire : yeux heureux et étincelles. Défaite : deux croix.',
           ]},
+          {menu:'renaissance', titre:'Renaissance', points:[
+            'Quand tu renais, l’horloge fonce vers l’écran en emballant ses aiguilles à rebours, un éclair blanc couvre tout, puis s’ouvre en cercle sur le Combat de boss.',
+            'La fenêtre de Renaissance est refaite : un décor magique avec une horloge qui tourne à rebours, le nombre de fois où tu seras plus fort écrit clairement, les boss qui tombent plus vite, ce qui repart de zéro, ce qui se referme pour l’instant et ce que tu gardes.',
+          ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Le « ding » qui sonnait quand une barre de la Machine temporelle gagnait un niveau est retiré.',
             'La Machine temporelle a ses propres sons : les boutons + (un cliquet qui monte), − (qui redescend) et Max (la machine se charge puis se cale d’un coup sourd et d’une cloche) font des bruits de mécanique bien audibles, un bouton sans effet fait un choc sourd, et un balayage suivi d’une cloche annonce un niveau gagné.',
             'Sur les tours Énergie et Magie, le mot « Allouée » est remplacé par une icône (éclair ou étoile) : le montant n’est plus coupé.',
             'La Machine temporelle change encore de look sur PC (nouvelle image) : un petit écran pour l’image du boss, avec un effet d’écran (lignes de balayage, bords sombres, bande lumineuse qui descend), et un autre écran pour son nom et son butin. Les afficheurs ont des écritures de science-fiction, inclinées, comme un écran qui saute dans le temps. Le tas d’Or en bas est maintenant un vrai tas de pièces, et chaque pièce entre par le haut de la sortie et tombe dedans. Le socle de l’Énergie n’a plus qu’un seul grand rouage, vert, et le cadran n’a plus que son aiguille.',

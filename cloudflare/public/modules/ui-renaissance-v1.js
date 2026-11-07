@@ -134,6 +134,113 @@
         }
       }
 
+      /*
+       * Voyage dans le temps (Norman, 2026-11-07 : « une animation plein écran quand on renaît : la montre qui approche en plein écran et un effet qui fait la transition entre le menu Renaissance et le Combat de boss »).
+       * L'horloge de la fenêtre (même dessin, mêmes aiguilles, reprises à l'angle où elles étaient) quitte sa place et fonce vers l'écran, ses aiguilles s'emballent à rebours (toujours 12 tours de grande aiguille pour 1 de petite) ;
+       * un éclair doré couvre tout ; la Renaissance se joue dessous ; puis l'éclair s'ouvre en cercle depuis le centre et laisse voir le Combat de boss. Calque posé sur le body (hors de la page redessinée : règle n°4).
+       * Web Animations seulement (transform, opacity, une variable de masque) ; rien n'est lu dans la page pendant l'animation ; mouvement réduit : aucune animation.
+       */
+      function voyageTempsRenaissanceIdleV1_(){
+        const nul={fin:function(apres){try{if(apres)apres();}catch(_e){}},annuler:function(){}};
+        try{
+          const source=document.querySelector('#sorealIdleRenaissanceModalV63 .rn-icone');
+          if(!source||!document.body.animate)return nul;
+          if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return nul;
+          const masque=typeof CSS!=='undefined'&&typeof CSS.registerProperty==='function';
+          if(!document.getElementById('sorealIdleVoyageTempsStyleV1')){
+            const st=document.createElement('style');
+            st.id='sorealIdleVoyageTempsStyleV1';
+            st.textContent=
+              '@property --vt-r{syntax:"<percentage>";inherits:false;initial-value:0%}'+
+              '#sorealIdleVoyageTempsV1{position:fixed;inset:0;z-index:10090;overflow:hidden;cursor:progress;touch-action:none}'+
+              '#sorealIdleVoyageTempsV1 .vt-fond{position:absolute;inset:0;opacity:0;background:radial-gradient(circle at 50% 50%,#41298a 0%,#171038 42%,#05030f 100%)}'+
+              '#sorealIdleVoyageTempsV1 .vt-anneau{position:absolute;left:50%;top:50%;width:60vmin;height:60vmin;margin:-30vmin 0 0 -30vmin;border-radius:50%;border:2px solid rgba(232,200,120,.85);box-shadow:0 0 34px rgba(232,200,120,.6),inset 0 0 34px rgba(168,120,255,.55);opacity:0}'+
+              '#sorealIdleVoyageTempsV1 .rn-icone{position:absolute;margin:0;animation:none;will-change:transform}'+
+              '#sorealIdleVoyageTempsV1 .vt-eclair{position:absolute;inset:0;opacity:0;background:radial-gradient(circle at 50% 50%,#fffdf0 0%,#ffe9a8 38%,#b79bff 100%)}'+
+              '#sorealIdleVoyageTempsV1 .vt-eclair.vt-ouvre{-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent calc(var(--vt-r) - 14%),#000 var(--vt-r));mask-image:radial-gradient(circle at 50% 50%,transparent calc(var(--vt-r) - 14%),#000 var(--vt-r))}';
+            document.head.appendChild(st);
+          }
+          const angle=function(e){try{const m=new DOMMatrix(getComputedStyle(e).transform);return Math.atan2(m.b,m.a)*180/Math.PI;}catch(_e){return 0;}};
+          const angles=Array.prototype.map.call(source.querySelectorAll('.rn-aig'),angle);
+          const rect=source.getBoundingClientRect();
+          const vw=window.innerWidth,vh=window.innerHeight;
+          const o=document.createElement('div');
+          o.id='sorealIdleVoyageTempsV1';
+          o.setAttribute('aria-hidden','true');
+          const fond=document.createElement('div');fond.className='vt-fond';
+          o.appendChild(fond);
+          const anneaux=[];
+          for(let i=0;i<4;i++){const a=document.createElement('div');a.className='vt-anneau';o.appendChild(a);anneaux.push(a);}
+          const horloge=source.cloneNode(true);
+          horloge.removeAttribute('id');
+          horloge.style.left=rect.left+'px';horloge.style.top=rect.top+'px';horloge.style.width=rect.width+'px';horloge.style.height=rect.height+'px';
+          const aig=horloge.querySelectorAll('.rn-aig');
+          aig.forEach(function(e){e.style.animation='none';});
+          o.appendChild(horloge);
+          const eclair=document.createElement('div');eclair.className='vt-eclair';
+          o.appendChild(eclair);
+          document.body.appendChild(o);
+
+          const T=1950;   /* l'horloge grossit et tourne sans pause jusqu'à T, en se fondant sur la seconde moitié de la course pendant que l'éclair blanc monte */
+          const ease='cubic-bezier(.5,0,.85,.4)';
+          const S=Math.hypot(vw,vh)*1.15/Math.max(1,rect.width);
+          const dx=vw/2-(rect.left+rect.width/2),dy=vh/2-(rect.top+rect.height/2);
+          fond.animate([{opacity:0},{opacity:1}],{duration:450,easing:'ease-out',fill:'forwards'});
+          horloge.animate([{transform:'translate(0,0) scale(1)',opacity:1},{opacity:1,offset:.5},{transform:'translate('+dx+'px,'+dy+'px) scale('+S+')',opacity:0}],{duration:T,easing:ease,fill:'forwards'});
+          /* aiguilles : 12 tours de grande aiguille pour 1 de petite, à rebours, reprises à l'angle de départ */
+          aig.forEach(function(e,i){
+            const grande=e.classList.contains('rn-aig-m');
+            const a0=angles[i]||0;
+            e.animate([{transform:'rotate('+a0+'deg)'},{transform:'rotate('+(a0-(grande?1800:150))+'deg)'}],{duration:T,easing:ease,fill:'forwards'});
+          });
+          anneaux.forEach(function(a,i){
+            a.animate([{transform:'scale(.15)',opacity:0},{opacity:.9,offset:.25},{transform:'scale(3.4)',opacity:0}],{duration:1500,delay:i*380,easing:'ease-out',fill:'both'});
+          });
+          eclair.animate([{opacity:0},{opacity:1}],{duration:600,delay:T-600,easing:'ease-in',fill:'forwards'});
+
+          const debut=performance.now();
+          let revele=false;
+          let minuteur=setTimeout(function(){retirer();},20000);
+          function retirer(){
+            clearTimeout(minuteur);
+            if(o.parentNode)o.parentNode.removeChild(o);
+          }
+          function reveler(apres){
+            if(revele)return;
+            revele=true;
+            clearTimeout(minuteur);
+            minuteur=setTimeout(retirer,3000);
+            eclair.getAnimations().forEach(function(a){a.cancel();});
+            eclair.style.opacity='1';
+            horloge.style.display='none';fond.style.display='none';
+            anneaux.forEach(function(a){a.style.display='none';});
+            try{if(apres)apres();}catch(_e){}
+            if(masque){
+              eclair.classList.add('vt-ouvre');
+              const anim=eclair.animate([{'--vt-r':'0%'},{'--vt-r':'165%'}],{duration:1150,easing:'cubic-bezier(.45,.05,.55,.95)',fill:'forwards'});
+              anim.onfinish=retirer;
+            }else{
+              eclair.animate([{opacity:1},{opacity:0}],{duration:900,easing:'ease-in',fill:'forwards'}).onfinish=retirer;
+            }
+          }
+          return{
+            fin:function(apres){
+              const reste=Math.max(0,T+120-(performance.now()-debut));
+              setTimeout(function(){reveler(apres);},reste);
+            },
+            annuler:function(){
+              if(revele)return;
+              revele=true;
+              clearTimeout(minuteur);
+              o.animate([{opacity:1},{opacity:0}],{duration:220,fill:'forwards'}).onfinish=retirer;
+              minuteur=setTimeout(retirer,1000);
+            }
+          };
+        }catch(_e){
+          return nul;
+        }
+      }
+
       function executerRenaissanceIdleV63_(){
         if(
           REG.idleRenaissanceEnCoursV14 ||
@@ -141,6 +248,9 @@
         ){
           return;
         }
+
+        /* le calque du voyage clone l'horloge de la fenêtre : il doit être créé AVANT la fermeture de la fenêtre */
+        const voyage=voyageTempsRenaissanceIdleV1_();
 
         fermerPopupRenaissanceIdleV63_();
 
@@ -169,6 +279,8 @@
               !res.ok ||
               !res.joueur
             ){
+              voyage.annuler();
+
               toastIdleV5_(
                 res&&res.message
                   ?res.message
@@ -234,12 +346,16 @@
               setTimeout(toutEnHaut,700);
             }catch(_e){}
 
-            messageFlottantIdleV32_(
-              '♻️ Rebirth réussi · NUMBER '+formatGrandNombreIdleV70_(res.number||REG.idleEtat&&REG.idleEtat.renaissance&&REG.idleEtat.renaissance.number||1)
-            );
+            /* le message flottant n'apparaît qu'au moment où l'éclair s'ouvre sur le Combat de boss */
+            voyage.fin(function(){
+              messageFlottantIdleV32_(
+                '♻️ Rebirth réussi · NUMBER '+formatGrandNombreIdleV70_(res.number||REG.idleEtat&&REG.idleEtat.renaissance&&REG.idleEtat.renaissance.number||1)
+              );
+            });
           })
           .withFailureHandler(function(e){
             REG.idleRenaissanceEnCoursV14=false;
+            voyage.annuler();
 
             toastIdleV5_(
               e&&e.message
@@ -608,6 +724,7 @@
   Object.assign(REG,{
     fermerPopupRenaissanceIdleV63_:fermerPopupRenaissanceIdleV63_,
     executerRenaissanceIdleV63_:executerRenaissanceIdleV63_,
+    voyageTempsRenaissanceIdleV1_:voyageTempsRenaissanceIdleV1_,
     formatDureeRunIdleV1_:formatDureeRunIdleV1_,
     dureeRunSecondesIdleV1_:dureeRunSecondesIdleV1_,
     pageRenaissanceIdleV28_:pageRenaissanceIdleV28_,

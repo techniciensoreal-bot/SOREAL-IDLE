@@ -3,7 +3,7 @@
  * (window.__SOREAL_IDLE_AUDIO_V199__.synth : même volume général, mêmes réglages de son que tous les effets) :
  *   - « cling » : une pièce d'or qui tombe dans le tas, au rythme où elles tombent (1, 2, 4 ou 8 par seconde, jamais plus de 3 sons par seconde) ; COUPÉ (SON_PIECES = false) ;
  *   - « refus » : un bouton + − Max 0 sans effet (rien à placer ou à retirer) : deux chocs sourds ;
- *   - « niveau » : un niveau gagné sur la barre d'Énergie ou de Magie : un balayage qui monte (le temps qui saute) puis une cloche claire.
+ *   - « niveau » : COUPÉ (SON_NIVEAU = false) ; un niveau gagné sur la barre d'Énergie ou de Magie : un balayage qui monte (le temps qui saute) puis une cloche claire.
  * (Les boutons + − Max 0 gardent leurs tics d'horloge : tmPlus / tmMinus / tmCap, audio-effects-v199.js.)
  * Rien ne joue hors de la page Machine (ni onglet caché) ; aucun son tant que la page n'est pas affichée : un petit balayage toutes les 125 ms, sans effet sur le dessin ni sur le jeu.
  */
@@ -57,6 +57,8 @@ function refus(){
 /* surveillance : cadence des pièces (posée par machine-dessin-v1.js sur .tmm-machine) et niveaux affichés */
 /* tintement des pièces COUPÉ (Norman, 2026-11-07 : « le bruit de pièce qui tombe, bof ») : le code reste, mettre à true pour le remettre */
 var SON_PIECES=false;
+/* son de niveau gagné COUPÉ (Norman, 2026-11-07 : « quand une barre prend un niveau ça fait ding, je n'ai jamais demandé ça ») : le code reste, mettre à true pour le remettre */
+var SON_NIVEAU=false;
 var dernierCling=0,niveaux={};
 function balayer(){
   if(document.hidden)return;
@@ -75,7 +77,7 @@ function balayer(){
     niveaux[cle]=t;
     if(avant!==undefined&&t!==avant&&t!=='0'&&t!=='')joue=true;   /* un niveau gagné (jamais le retour à 0 d'une renaissance) */
   });
-  if(joue)niveau();
+  if(SON_NIVEAU&&joue)niveau();
 }
 setInterval(balayer,125);
 window.__SOREAL_IDLE_MACHINE_SONS_V1__={cling:cling,niveau:niveau,refus:refus,balayer:balayer};

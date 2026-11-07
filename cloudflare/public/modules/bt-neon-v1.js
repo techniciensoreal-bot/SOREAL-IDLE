@@ -114,18 +114,19 @@
     sk.forEach(function(b,i){
       if(!b||!b.unlocked||!(Number(b.allocation)>0))return;
       var defense=i>=6,k=i%6,d=k===0?(defense?PANNEAU_D:PANNEAU_A):(defense?1.95:1.0)+PAS*(k-1);
-      var type='allume';   /* Norman (2026-10-22) : le néon qui s'allume pour toute barre */
-      /* Une seule fois par son : une barre d'attaque et sa jumelle de défense ont le même démarrage, et les deux premières barres le même néon ; entendu deux fois, le même bruit à une seconde d'écart sonnait faux (Norman, 2026-10-22). */
-      if(vus[type])return;
-      vus[type]=1;
-      out.push({d:d,type:type});
+      var type='allume';   /* Norman (2026-10-22) : le néon qui s'allume pour toute barre ; 2026-11-07 : le même son, plus impressionnant à chaque barre suivante (rang 0 à 5) */
+      var rang=typeof L.rangPourBarre==='function'?L.rangPourBarre(b.id):k;
+      /* Une seule fois par rang : une barre d'attaque et sa jumelle de défense ont le même son ; entendu deux fois, le même bruit à une seconde d'écart sonnait faux (Norman, 2026-10-22). */
+      if(vus[rang])return;
+      vus[rang]=1;
+      out.push({d:d,type:type,rang:rang});
     });
     return out;
   }
   function sonsBarres_(c,out,t0){
     var L=window.__SOREAL_IDLE_BT_LUMIERES_V1__;
     if(!L||typeof L.construire!=='function')return;
-    barresAvecEnergie_().forEach(function(x){try{L.construire(c,out,t0+x.d,x.type);}catch(_e){}});
+    barresAvecEnergie_().forEach(function(x){try{L.construire(c,out,t0+x.d,x.type,undefined,x.rang);}catch(_e){}});
   }
   function sons_(){
     var v=volume_();
