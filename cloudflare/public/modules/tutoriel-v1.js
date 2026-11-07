@@ -299,9 +299,23 @@ function lireEtape_(s,force){
     if(!t)return;
     /* Verrou « la voix parle » (Norman, 2026-10-26) : sur une étape qui demande de cliquer (Fight), rien ne se clique tant que la voix n'a pas fini ; levé à la fin de la lecture, à son arrêt ou au plus tard après 90 s. */
     var jeton=(s.jetonVoix||0)+1;s.jetonVoix=jeton;s.voixEnCours=true;s.voixLimite=Date.now()+(s.guide&&s.guide.mascotte?Math.min(90000,(s.tempsLecture||8000)+6000):90000);   /* bulle de Lhu : une phrase courte, jamais bloqué 90 s si la lecture ne démarre pas */
-    var demarre=tts.readText(t,null,function(){if(s.jetonVoix===jeton)s.voixEnCours=false;});
+    var debutVoix=Date.now();
+    s.aVoix=false;s.voixFinieA=0;
+    var demarre=tts.readText(t,null,function(){
+      if(s.jetonVoix!==jeton)return;
+      s.voixEnCours=false;
+      /* une vraie lecture a duré (un rappel immédiat = la voix n'a pas pu partir : on garde le temps de lecture) */
+      if(Date.now()-debutVoix>=800){s.aVoix=true;s.voixFinieA=Date.now();}
+    });
     if(!demarre)s.voixEnCours=false;
   }catch(_e){s.voixEnCours=false;}
+}
+/* Bulle de Lhu : la suivante vient dès que la voix a fini de lire (Norman, 2026-11-07 : « trop de longueurs entre les bulles, ça doit s'enchaîner quand la voix a terminé »), après un souffle de 0,35 s ; sans voix, le temps de lecture prévu. */
+var SOUFFLE_APRES_VOIX_MS=350;
+function pretASuivre_(s){
+  if(voixParle_(s))return false;
+  if(s.aVoix)return Date.now()-s.voixFinieA>=SOUFFLE_APRES_VOIX_MS;
+  return Date.now()-s.debutEtape>=s.tempsLecture;
 }
 /* La voix parle encore (réglage de l'étape ignoré) : sert à finir seul une étape sans fenêtre. */
 function voixParle_(s){
@@ -491,7 +505,7 @@ function afficherEtape_(garderTaille){
   s.debutAttente=Date.now();
   /* Guide « sans fenêtre » (Norman, 2026-10-27 : « pour le premier tuto, rien ne doit apparaître à l'écran, ni texte ni fenêtre rétrécie ») : la fenêtre existe pour la logique (voix, clic) mais reste cachée ; le cadre lumineux de la cible n'est pas touché. */
   s.cache=s.guide.afficher===false;
-  s.debutEtape=Date.now();
+  s.debutEtape=Date.now();s.aVoix=false;s.voixFinieA=0;
   s.tempsLecture=s.guide.mascotte?Math.max(3200,Math.min(60000,texteDyn_(e.texte||'').length*65+1500)):Math.max(2500,Math.min(60000,String(e.texte||'').length*60));   /* bulle de Lhu : le temps de lire */
   /* Scène de vol de Lhu : la fenêtre (texte, voix) n'apparaît qu'à la FIN du mouvement ; rien ne se clique avant. */
   var scene=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;
@@ -525,7 +539,7 @@ function afficherEtape_(garderTaille){
   if(s.sceneEnCours){
     var fini=function(){
       if(etat.enCours!==s||s.i!==indiceScene)return;
-      s.sceneEnCours=false;s.debutEtape=Date.now();
+      s.sceneEnCours=false;s.debutEtape=Date.now();s.aVoix=false;s.voixFinieA=0;
       var bb=document.getElementById(ID);if(bb&&!s.cache)bb.hidden=false;
       lireEtape_(s,false);suivre_();
     };
@@ -569,7 +583,7 @@ function suivre_(){
     s.i=iEtape+1;afficherEtape_(true);return;
   }
   /* Bulle de Lhu (Norman, 2026-11-07 : « juste une bulle avec du texte ; quand le temps prévu pour lire est passé, ça passe à la bulle suivante ; quand il nous demande de faire un truc, sa bulle disparaît ») : aucun bouton. Le temps de lecture écoulé (et la voix finie), la bulle suivante vient seule ; sur une étape qui demande un clic, la bulle se range et l'élément qui clignote reste seul. */
-  if(b.classList.contains('tu-bulle')&&!s.sceneEnCours&&!voixParle_(s)&&Date.now()-s.debutEtape>=s.tempsLecture){
+  if(b.classList.contains('tu-bulle')&&!s.sceneEnCours&&pretASuivre_(s)){
     if(s.attenteClic){if(!b.hidden)b.hidden=true;}
     else if(s.i>=s.guide.etapes.length-1){fermer_(true);return;}
     else{s.i+=1;afficherEtape_(true);return;}

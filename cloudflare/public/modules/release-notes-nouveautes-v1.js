@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Dans le tutoriel de Lhu, la bulle suivante arrive dès que la voix a fini de lire (une courte respiration), au lieu d’attendre un temps fixe.",
     "Les points de vie s’écrivent toujours avec deux décimales à partir du million (2,90M et non 2,9M) : les chiffres ne bougent plus quand un zéro final apparaît ou disparaît."
   ] };
 })();
