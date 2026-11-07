@@ -14,7 +14,9 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 const window_ = {};
 vm.runInNewContext(registreSrc, { window: window_ });
 const reg = window_.__SOREAL_IDLE_VOIX_NOMMEES_V1__;
-assert.equal(reg.liste.length, 16, "les 11 voix choisies à l’écoute + le petit garçon, deux Chinois, le robot (2026-10-24) et le savant cynique (2026-10-25)");
+assert.equal(reg.liste.length, 27, "les 16 voix existantes + les 11 voix de Lhu (l'enfant et dix candidates, 2026-11-07)");
+for (const id of ["cthulhu", "cthulhu-ancien", "cthulhu-malicieux", "cthulhu-chuchote", "cthulhu-vieux-sage", "cthulhu-ado", "cthulhu-ado-garcon", "cthulhu-ado-nonchalant", "cthulhu-ado-ironique", "cthulhu-ado-casse", "cthulhu-ado-nasillard"]) assert.ok(reg.existe(id), "voix de Lhu dans la liste : " + id);
+assert.equal(reg.resoudre("Lhu ado nasillard"), "cthulhu-ado-nasillard", "reconnue par son nom dans une balise");
 assert.ok(reg.liste.every((v) => /^[a-z0-9-]{1,32}$/.test(v.id) && v.nom && ["homme", "femme"].includes(v.genre)));
 assert.equal(new Set(reg.liste.map((v) => v.id)).size, reg.liste.length, "identifiants uniques");
 assert.ok(!reg.liste.some((v) => v.id === "homme" || v.id === "femme" || v.id === "narrateur"), "pas de collision avec les voix de base");
@@ -53,7 +55,7 @@ const segmenter = moteurWindow.__SOREAL_IDLE_STORY_ENGINE_V1__.segmenter;
   assert.equal(voixDe("(jeune vieille) Salut"), "mamie");
   assert.equal(voixDe("(Folle 2) Salut"), "folle");
   assert.equal(segmenter("Salut.", "gogole").segments[0].voix, "niais", "ancien « Qui parle » enregistré");
-  assert.ok(reg.liste.every((v) => v.id.length <= 8), "identifiants courts");
+  assert.ok(reg.liste.filter((v) => !v.id.startsWith("cthulhu")).every((v) => v.id.length <= 8) && reg.liste.filter((v) => v.id.startsWith("cthulhu")).every((v) => v.id.length <= 32 && v.nom.length <= 24), "identifiants courts (les voix de Lhu portent le nom de leur fichier du studio, choisies dans la liste ; leur nom écrit en balise reste court)");
   {
     const r = segmenter("(marseille) Té ! (narrateur) Puis il partit. (Narrateur) Fin.", "cool");
     assert.equal(JSON.stringify(r.segments.map((x) => x.voix)), JSON.stringify(["marius", "homme", "homme"]), "(narrateur) ramène à la voix du narrateur");
@@ -79,7 +81,7 @@ assert.match(studio, /"voixNommees": voix_disponibles\(\)/);
 assert.match(studio, /os\.path\.join\(DOSSIER_VOIX, nom \+ "\.wav"\)/);
 assert.match(studio, /voix = donnees\.get\("voix"\) if isinstance\(donnees\.get\("voix"\), str\) and VOIX_ID_RE\.match\(donnees\.get\("voix"\)\) else "homme"/);
 const installeur = readFileSync("cloudflare/tools/voice-studio/installer_voix_nommees.py", "utf8");
-for (const v of reg.liste.filter((x) => !["garcon", "chinois1", "chinois2", "robot", "savant"].includes(x.id))) assert.ok(installeur.includes('"' + v.id + '"'), "l'installeur copie l'extrait de " + v.id);
+for (const v of reg.liste.filter((x) => !["garcon", "chinois1", "chinois2", "robot", "savant"].includes(x.id) && !x.id.startsWith("cthulhu"))) assert.ok(installeur.includes('"' + v.id + '"'), "l'installeur copie l'extrait de " + v.id);
 
 // Réglages propres à une voix (Folle 2 : expressivité 0,35 et cfg 0,3, choisis à l'écoute le 2026-10-01).
 const reglages = JSON.parse(readFileSync("cloudflare/tools/voice-studio/reglages-voix.json", "utf8"));

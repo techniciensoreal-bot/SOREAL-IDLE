@@ -37,7 +37,19 @@ var LISTE=[
   {id:'robot',nom:'Robot',genre:'homme',alias:['androide','Androïde','machine']},
   {id:'chinois1',nom:'Chinois 1',genre:'homme',alias:['chinois-1','Chinois 1','chinois']},
   {id:'chinois2',nom:'Chinois 2',genre:'homme',alias:['chinois-2','Chinois 2']},
-  {id:'folle',nom:'Folle',genre:'femme',alias:['folle-2','Folle 2']}
+  {id:'folle',nom:'Folle',genre:'femme',alias:['folle-2','Folle 2']},
+  /* Voix de Lhu (Cthulhu, la mascotte du tutoriel ; Norman, 2026-11-07 : « je ne trouve pas les voix dans la liste ») : l'enfant d'environ 10 ans déjà en place, puis les candidates fabriquées à côté (cloudflare/tools/voice-studio/creer_voix_cthulhu_candidats.py, jamais écrasées) : série 1 (ancien, malicieux, chuchoté, vieux sage, ado) et série 2, variantes de l'ado. genre = voix de repli (Piper). */
+  {id:'cthulhu',nom:'Lhu enfant',genre:'femme',alias:['lhu','Lhu','cthulhu-enfant']},
+  {id:'cthulhu-ancien',nom:'Lhu ancien',genre:'homme',alias:[]},
+  {id:'cthulhu-malicieux',nom:'Lhu malicieux',genre:'homme',alias:[]},
+  {id:'cthulhu-chuchote',nom:'Lhu chuchoté',genre:'homme',alias:[]},
+  {id:'cthulhu-vieux-sage',nom:'Lhu vieux sage',genre:'femme',alias:[]},
+  {id:'cthulhu-ado',nom:'Lhu ado',genre:'femme',alias:[]},
+  {id:'cthulhu-ado-garcon',nom:'Lhu ado garçon',genre:'femme',alias:[]},
+  {id:'cthulhu-ado-nonchalant',nom:'Lhu ado nonchalant',genre:'homme',alias:[]},
+  {id:'cthulhu-ado-ironique',nom:'Lhu ado ironique',genre:'femme',alias:[]},
+  {id:'cthulhu-ado-casse',nom:'Lhu ado voix cassée',genre:'homme',alias:[]},
+  {id:'cthulhu-ado-nasillard',nom:'Lhu ado nasillard',genre:'homme',alias:[]}
 ];
 function normaliser(t){
   return String(t==null?'':t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');

@@ -32,6 +32,7 @@
         date:'2026-11-07',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Admin : onze voix de Lhu (l’enfant et dix nouvelles, dont plusieurs « ados ») sont dans la liste des voix des textes et du tutoriel.',
             'Le titre « Rob Boss » d’une chronique n’est plus lu avec la voix anglaise quand le jeu est en français (le filtre vaut aussi pour les voix déclarées par la chronique).',
             'Les boutons « Tout retirer » s’appellent maintenant « Tout reprendre », et le mot n’est plus coupé nulle part (dans la Machine temporelle ses boutons ont aussi un fond plus sombre, plus lisible).',
             'Les petits textes gris et fins sous les barres et dans les cadres de plusieurs menus sont plus lisibles : plus clairs et plus gras.',
