@@ -53,6 +53,9 @@
             'L’écran LED de la borne demande moins de calcul à chaque image : même aspect, moins de petits à-coups en combat, surtout sur téléphone.',
             'Pendant un combat, la borne n’a plus d’animation de personnage (le bonhomme qui court, le clown, la tronçonneuse, Twin Peaks et les hommes qui rient sont retirés pour l’instant, ils reviendront plus tard) : à la place, elle a des yeux ! Ils apparaissent dès le lancement du combat et regardent la barre de vie du boss. Leur humeur suit le combat : concentrés, déterminés quand le boss faiblit, ravis quand il va tomber, inquiets puis apeurés quand ta vie baisse, avec une grimace à chaque coup reçu. Victoire : yeux heureux et étincelles. Défaite : deux croix.',
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Le filtre d’objets avancé du Coffre est gardé dans ton compte : si le jeu le remet à zéro par erreur, les objets que tu avais cochés sont remis tout seuls, et ils suivent aussi d’un appareil à l’autre.',
+          ]},
           {menu:'renaissance', titre:'Renaissance', points:[
             'Quand tu renais, l’horloge fonce vers l’écran en emballant ses aiguilles à rebours, un éclair blanc couvre tout, puis s’ouvre en cercle sur le Combat de boss.',
             'La fenêtre de Renaissance est refaite : un décor magique avec une horloge qui tourne à rebours, le nombre de fois où tu seras plus fort écrit clairement, les boss qui tombent plus vite, ce qui repart de zéro, ce qui se referme pour l’instant et ce que tu gardes.',

@@ -210,12 +210,69 @@
     return e?valeurVoulue_(e):valeurServeur;
   }
 
+  /*
+   * Filtre d'objets lié au COMPTE (Norman, 2026-11-07 : « mon filtre à objets avancé s'est reset de nouveau, il m'a retiré tout ce que j'avais coché »). Le choix du joueur est AUSSI gardé en préférence de compte
+   * (règle n°6 d'AGENTS.md : localStorage « soreal_idle_… », recopié sur le serveur et sur tous les appareils par modules/prefs-compte-v1.js), en morceaux de 6 000 caractères au plus (clé _n = nombre de morceaux).
+   * Cette liste fait foi : à chaque état reçu, si le moteur ne la reflète pas (objets décochés par une réinitialisation, un état plus ancien, un autre appareil), les différences lui sont renvoyées une à une (40 au plus par passage,
+   * 6 essais au plus par objet) ; seul le joueur la change (case cochée ou décochée ici ou sur un autre appareil). Première utilisation : la préférence prend le filtre du moteur tel qu'il est.
+   */
+  var CLE_FILTRE='soreal_idle_filtre_objets_v1';
+  var TAILLE_MORCEAU=6000;
+  function lireFiltre_(){
+    try{
+      var n=parseInt(localStorage.getItem(CLE_FILTRE+'_n'),10);
+      if(!(n>=0))return null;
+      var out=[];
+      for(var i=0;i<n;i++){String(localStorage.getItem(CLE_FILTRE+'_'+i)||'').split('|').forEach(function(x){if(x)out.push(x);});}
+      return out;
+    }catch(_e){return null;}
+  }
+  function ecrireFiltre_(liste){
+    try{
+      var ids=Array.from(new Set(liste.map(String))).sort();
+      var morceaux=[],cur='';
+      ids.forEach(function(id){if(cur&&cur.length+id.length+1>TAILLE_MORCEAU){morceaux.push(cur);cur='';}cur+=(cur?'|':'')+id;});
+      if(cur)morceaux.push(cur);
+      var ancien=parseInt(localStorage.getItem(CLE_FILTRE+'_n'),10)||0;
+      morceaux.forEach(function(m,i){localStorage.setItem(CLE_FILTRE+'_'+i,m);});
+      for(var j=morceaux.length;j<ancien;j++)localStorage.removeItem(CLE_FILTRE+'_'+j);
+      localStorage.setItem(CLE_FILTRE+'_n',String(morceaux.length));
+    }catch(_e){}
+  }
+  var essaisFiltre={},restaurationFiltre=false;
+  function reconcilierFiltre_(){
+    var s=snap(dernierEtat);
+    if(!s||!s.unlocked||!s.unlocked.lootFilterImproved||!s.lootFilter||!Array.isArray(s.lootFilter.items))return;
+    for(var k in enAttente){if(k.charAt(0)==='i')return;}   /* un choix du joueur est encore en cours d'envoi */
+    var serveur=s.lootFilter.items.map(String);
+    var voulu=lireFiltre_();
+    if(voulu===null){ecrireFiltre_(serveur);return;}
+    var sv={},vo={},decouverts={};
+    serveur.forEach(function(d){sv[d]=1;});
+    voulu.forEach(function(d){vo[d]=1;});
+    (Array.isArray(s.filterable)?s.filterable:[]).forEach(function(o){if(o&&o.definitionId!=null)decouverts[String(o.definitionId)]=1;});
+    var aFaire=[];
+    voulu.forEach(function(d){if(!sv[d]&&decouverts[d]&&(essaisFiltre[d]||0)<6)aFaire.push([d,true]);});
+    serveur.forEach(function(d){if(!vo[d]&&(essaisFiltre['-'+d]||0)<6)aFaire.push([d,false]);});
+    if(!aFaire.length){essaisFiltre={};return;}
+    if(restaurationFiltre)return;
+    restaurationFiltre=true;
+    var i=0;
+    (function suite(){
+      if(i>=aFaire.length||i>=40){restaurationFiltre=false;return;}
+      var x=aFaire[i++],cle=(x[1]?'':'-')+x[0];
+      essaisFiltre[cle]=(essaisFiltre[cle]||0)+1;
+      action('lootFilterItem',{definitionId:x[0],filtered:x[1]});
+      setTimeout(suite,200);
+    })();
+  }
+
   /* ---------- actions exposées au panneau ---------- */
   window.__inventaireAutoReglageV1__=function(cle,valeur){var p={};p[cle]=valeur;envoyerFiable_('r:'+cle,'settings',p);};
   window.__inventaireAutoModeClicV1__=function(v){modeClic=TOUCHES[v]?v:'';rendre();};
   function zoneFiltre_(){var s=snap(dernierEtat);return s&&s.lootFilterZone?String(s.lootFilterZone):'';}
   window.__inventaireAutoFiltreTypeV1__=function(slot,v){var z=zoneFiltre_();var extra={slot:String(slot),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('t:'+z+':'+slot,'lootFilterType',extra);};
-  window.__inventaireAutoFiltreObjetV1__=function(def,v){var z=zoneFiltre_();var extra={definitionId:String(def),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('i:'+z+':'+def,'lootFilterItem',extra);};
+  window.__inventaireAutoFiltreObjetV1__=function(def,v){var z=zoneFiltre_();(function(){var P=lireFiltre_();if(P===null){var sn=snap(dernierEtat);P=sn&&sn.lootFilter&&Array.isArray(sn.lootFilter.items)?sn.lootFilter.items.map(String):[];}var d=String(def),i=P.indexOf(d);if(v){if(i<0)P.push(d);}else if(i>=0)P.splice(i,1);ecrireFiltre_(P);})();var extra={definitionId:String(def),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('i:'+z+':'+def,'lootFilterItem',extra);};
   function nomConfig_(i){var s=snap(dernierEtat),lo=s&&Array.isArray(s.loadouts)?s.loadouts[i]:null;return lo&&lo.name?String(lo.name):'';}
   window.__inventaireAutoLoadoutV1__=function(op,index){
     var i=entier(index);
@@ -517,7 +574,7 @@
     rendreSansAttendre();
     var rt=window.__SOREAL_IDLE_RUNTIME_V1__;
     if(!rt||typeof rt.getState!=='function')return;
-    rt.getState().then(function(j){if(j){dernierEtat=j;rendre();}}).catch(function(){});
+    rt.getState().then(function(j){if(j){dernierEtat=j;try{reconcilierFiltre_();}catch(_e){}rendre();}}).catch(function(){});
   }
 
   /* ---------- raccourcis A / D / Q / W / E + clic ---------- */
@@ -578,5 +635,5 @@
   }
   brancher();
 
-  window.__SOREAL_IDLE_INVENTORY_AUTO_V1__={panneau:panneau,rendre:rendre,prevoirBoosts:prevoirBoosts_,expliquerAucunBoost:expliquerAucunBoost_};
+  window.__SOREAL_IDLE_INVENTORY_AUTO_V1__={reconcilierFiltre:reconcilierFiltre_,etat:function(j){dernierEtat=j;},filtreCompte:lireFiltre_,panneau:panneau,rendre:rendre,prevoirBoosts:prevoirBoosts_,expliquerAucunBoost:expliquerAucunBoost_};
 })();
