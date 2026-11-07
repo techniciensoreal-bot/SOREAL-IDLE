@@ -33,7 +33,7 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Le titre « Rob Boss » d’une chronique n’est plus lu avec la voix anglaise quand le jeu est en français (le filtre vaut aussi pour les voix déclarées par la chronique).',
-            'Les boutons « Tout retirer » s’appellent maintenant « Tout reprendre ».',
+            'Les boutons « Tout retirer » s’appellent maintenant « Tout reprendre », et le mot n’est plus coupé nulle part (dans la Machine temporelle ses boutons ont aussi un fond plus sombre, plus lisible).',
             'Les petits textes gris et fins sous les barres et dans les cadres de plusieurs menus sont plus lisibles : plus clairs et plus gras.',
             'La voix de secours est supprimée du jeu : seuls les textes qui ont une voix générée sont lus (les autres restent muets), et le jeu est plus fluide.',
             'Réglages : une case permet de couper les aides du tutoriel.',

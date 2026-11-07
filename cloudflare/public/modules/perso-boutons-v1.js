@@ -220,6 +220,14 @@
 
   /* Le morph ne retire pas la marque qui évite de redécorer le cadre à chaque redessin (voir modules/morph-v1.js). */
   (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-perso-pct-cle');
+  /* « Tout reprendre » (Norman, 2026-11-07 : « il est coupé ») : plus long que « Tout retirer », il ne tenait pas dans les deux colonnes que la grille lui donne dans certains menus. Un bouton dont le texte dépasse prend alors toute la ligne de son cadre (posé en ligne, une seule fois par bouton : le bouton redessiné est revu au prochain passage, juste après le redessin de la page). */
+  function ajusterToutReprendre_(){
+    var bs=document.querySelectorAll('.soreal-idle-page-root-v28:not([data-menu="entrainement"]) .soreal-idle-bt-presets-v120 button.clear');
+    Array.prototype.forEach.call(bs,function(b){
+      if(b.style.gridColumn)return;
+      if(b.scrollWidth>b.clientWidth+1)b.style.setProperty('grid-column','1 / -1','important');
+    });
+  }
   var enCours=false;
   function decorer(force){
     if(typeof document==='undefined'||typeof document.querySelectorAll!=='function'||document.hidden)return;
@@ -229,6 +237,7 @@
       if(c.classList.contains('soreal-idle-bt-total-v1')||c.getAttribute('data-alloc-total-v1')||c.hasAttribute('data-perso-input-rangee'))return;
       try{decorerCadre_(c,Boolean(force));}catch(_e){}
     });
+    try{ajusterToutReprendre_();}catch(_e){}
   }
   /* Après chaque redessin de la page (même tâche) : les rangées et boutons sont vérifiés tout de suite, sans attendre les 80 ms du suivi (règle n°4). */
   (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){decorer(false);});

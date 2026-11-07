@@ -94,3 +94,6 @@
 @media (prefers-reduced-motion:reduce){.tmm-orbe,.tmm-ecran-mob,.tmm-ecran-mob::after{animation:none}}
 /* Le gonflement du chiffre alloué (alloc-pop-v1) le passait en inline-block : les cases « Cible » et « Allouée » changeaient de taille à chaque ajout d'énergie (Norman, 2026-10-23). Il reste en bloc, à hauteur fixe, et gonfle depuis la gauche. */
 .tmm-machine .tmm-case .tmm-case-val.soreal-idle-alloc-pop-v1{display:block;transform-origin:right center}
+
+/* Barre d'outils de la Machine temporelle (Norman, 2026-11-07) : « Tout reprendre » était coupé (plus long que « Tout retirer » : il tient maintenant sur trois colonnes de la grille, sur la même ligne que 1/2 et 1/4) et le fond des boutons Max / 1/2 / 1/4 / Tout reprendre est plus sombre (dégradé turquoise foncé) pour que le texte blanc se lise mieux. Les teintes passent par les variables --i-a / --i-b lues par les boutons : aucune règle forcée. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="machine"] .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120{--i-a:#0d6070;--i-b:#052b34;--bt-clear-col:span 3}

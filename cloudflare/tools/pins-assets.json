@@ -564,8 +564,8 @@
   "sha": "25872a549af6da0a037b02ed5bcbcd6d60905c27"
  },
  "/modules/perso-boutons-v1.js": {
-  "pin": 19,
-  "sha": "5e4667e47a1ff43fa9e0bdcc33803befbe0771d7"
+  "pin": 20,
+  "sha": "fefd36c9fba0163d253c80c083f3551b7492e3a1"
  },
  "/modules/phrases-coffre-valise-v1.js": {
   "pin": 8,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 210,
-  "sha": "29cff1d70dc260d310eb2d2cd675a307446410c4"
+  "pin": 211,
+  "sha": "a3a36a855b33a608e2099fb2c7de79833ade308c"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 848,
-  "sha": "6690eff8e1d4fa0cdc87d66baec6ca7f911aa39b"
+  "pin": 849,
+  "sha": "7a37175e90a44c5755d56b3342ac68cb56d6a5b4"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -724,12 +724,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 887,
-  "sha": "6b0134dc99754fe58af5b83a6c10fdf2d929bc94"
+  "pin": 888,
+  "sha": "c8951ea4c38a2cc6afb72b85c441c69977ab9c4d"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 708,
-  "sha": "965f18e40ee43fcc32fba7493392c59adba91a7a"
+  "pin": 709,
+  "sha": "295365a91f7624e2e37155d98552b21fc37aeb57"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -988,8 +988,8 @@
   "sha": "34e766d1140d2c36c13d9c99072992dfc9bc6698"
  },
  "/soreal-idle-machine.css": {
-  "pin": 25,
-  "sha": "6d070db59f25c48b80b1596baf91e9f805c6dcf3"
+  "pin": 26,
+  "sha": "037ceb5f8cb9c4e7f99c50b7f8134416b6150103"
  },
  "/soreal-idle-menus-boutons-v1.css": {
   "pin": 49,
