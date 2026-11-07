@@ -1762,24 +1762,32 @@
    * Time Machine : un « tic » mécanique d'horloge (clic filtré en bande étroite, comme un rouage),
    * qui avance ou recule ; Cap = deux tics rapprochés (rattrapage) puis un carillon de cloche.
    */
+  /* Boutons de la Machine temporelle (Norman, 2026-11-07 : « j'aimerais des sons propres à la machine temporelle », « + − Max ») : des sons de MÉCANIQUE bien audibles, plus les petits tics d'horloge d'avant.
+     + : un cliquet qui monte (trois déclics) et un servomoteur qui accélère, finis par un tintement ; − : le même à l'envers (déclics qui descendent, servomoteur qui ralentit, petit choc sourd) ;
+     Max : la machine se charge (balayage qui monte, déclics), puis verrouille d'un coup sourd et d'une cloche claire. */
   function tmPlus_(){
-    return jouerWebAudio_(180,function(c){
-      bruit_(c,{duration:.03,volume:.052,filterType:"bandpass",frequency:2600,frequencyEnd:2200,decay:1.6,q:6});
-      tonal_(c,{type:"square",from:880,to:880,duration:.03,volume:.016,delay:.002});
+    return jouerWebAudio_(380,function(c){
+      [0,.05,.10].forEach(function(d,k){bruit_(c,{duration:.028,volume:.085,delay:d,filterType:"bandpass",frequency:2200+k*450,frequencyEnd:2600+k*450,decay:1.6,q:5});tonal_(c,{type:"square",from:700+k*120,to:700+k*120,duration:.02,volume:.020,delay:d});});
+      nappe_(c,{type:"sawtooth",from:170,to:430,duration:.24,volume:.036,attack:.03});
+      tonal_(c,{type:"sine",from:1760,to:1760,duration:.12,volume:.045,delay:.17});
     });
   }
   function tmMoins_(){
-    return jouerWebAudio_(180,function(c){
-      bruit_(c,{duration:.03,volume:.052,filterType:"bandpass",frequency:1900,frequencyEnd:1500,decay:1.6,q:6});
-      tonal_(c,{type:"square",from:520,to:520,duration:.03,volume:.016,delay:.002});
+    return jouerWebAudio_(380,function(c){
+      [0,.05,.10].forEach(function(d,k){bruit_(c,{duration:.028,volume:.085,delay:d,filterType:"bandpass",frequency:2000-k*350,frequencyEnd:1500-k*350,decay:1.6,q:5});tonal_(c,{type:"square",from:520-k*80,to:520-k*80,duration:.02,volume:.020,delay:d});});
+      nappe_(c,{type:"sawtooth",from:430,to:150,duration:.24,volume:.036,attack:.02});
+      tonal_(c,{type:"sine",from:240,to:120,duration:.12,volume:.070,delay:.17});
     });
   }
   function tmCap_(){
-    return jouerWebAudio_(520,function(c){
-      bruit_(c,{duration:.025,volume:.046,filterType:"bandpass",frequency:2200,frequencyEnd:2200,decay:1.8,q:6});
-      bruit_(c,{duration:.025,volume:.046,filterType:"bandpass",frequency:2200,frequencyEnd:2200,decay:1.8,q:6,delay:.09});
-      tonal_(c,{type:"sine",from:1568,to:1568,duration:.42,volume:.040,delay:.16});
-      tonal_(c,{type:"sine",from:3136,to:3136,duration:.30,volume:.015,delay:.18});
+    return jouerWebAudio_(1150,function(c){
+      nappe_(c,{type:"sawtooth",from:110,to:950,duration:.44,volume:.052,attack:.22});
+      [.10,.19,.28,.36].forEach(function(d,k){bruit_(c,{duration:.026,volume:.075,delay:d,filterType:"bandpass",frequency:2000+k*350,frequencyEnd:2000+k*350,decay:1.7,q:6});});
+      tonal_(c,{type:"sine",from:95,to:45,duration:.24,volume:.140,delay:.44});
+      bruit_(c,{duration:.12,volume:.080,delay:.44,filterType:"lowpass",frequency:600,decay:2.4});
+      tonal_(c,{type:"sine",from:1568,to:1568,duration:.62,volume:.055,delay:.46});
+      tonal_(c,{type:"sine",from:2349,to:2349,duration:.50,volume:.028,delay:.46});
+      tonal_(c,{type:"sine",from:3136,to:3136,duration:.34,volume:.012,delay:.47});
     });
   }
 

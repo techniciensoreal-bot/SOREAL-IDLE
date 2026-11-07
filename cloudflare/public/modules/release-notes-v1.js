@@ -35,11 +35,12 @@
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Les yeux de la borne se rapprochent et s’éloignent : ils arrivent d’un bond depuis le fond, reculent à chaque coup reçu, se penchent vers l’écran quand le boss faiblit, viennent tout près quand il va tomber, et à la défaite les deux croix s’éloignent dans le lointain.',
             'L’écran LED de la borne demande moins de calcul à chaque image : même aspect, moins de petits à-coups en combat, surtout sur téléphone.',
             'Pendant un combat, la borne n’a plus d’animation de personnage (le bonhomme qui court, le clown, la tronçonneuse, Twin Peaks et les hommes qui rient sont retirés pour l’instant, ils reviendront plus tard) : à la place, elle a des yeux ! Ils apparaissent dès le lancement du combat et regardent la barre de vie du boss. Leur humeur suit le combat : concentrés, déterminés quand le boss faiblit, ravis quand il va tomber, inquiets puis apeurés quand ta vie baisse, avec une grimace à chaque coup reçu. Victoire : yeux heureux et étincelles. Défaite : deux croix.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
-            'La Machine temporelle a ses propres sons : un tintement chaque fois qu’une pièce tombe dans le tas d’Or, et un balayage suivi d’une cloche quand un niveau est gagné (les boutons gardent leurs tics d’horloge).',
+            'La Machine temporelle a ses propres sons : les boutons + (un cliquet qui monte), − (qui redescend) et Max (la machine se charge puis se cale d’un coup sourd et d’une cloche) font des bruits de mécanique bien audibles, un bouton sans effet fait un choc sourd, et un balayage suivi d’une cloche annonce un niveau gagné.',
             'Sur les tours Énergie et Magie, le mot « Allouée » est remplacé par une icône (éclair ou étoile) : le montant n’est plus coupé.',
             'La Machine temporelle change encore de look sur PC (nouvelle image) : un petit écran pour l’image du boss, avec un effet d’écran (lignes de balayage, bords sombres, bande lumineuse qui descend), et un autre écran pour son nom et son butin. Les afficheurs ont des écritures de science-fiction, inclinées, comme un écran qui saute dans le temps. Le tas d’Or en bas est maintenant un vrai tas de pièces, et chaque pièce entre par le haut de la sortie et tombe dedans. Le socle de l’Énergie n’a plus qu’un seul grand rouage, vert, et le cadran n’a plus que son aiguille.',
             'Quand tu mets de la Magie dans la Machine temporelle, la barre d’Énergie ne recule plus.',

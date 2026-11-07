@@ -1161,6 +1161,7 @@
           if(typeof H.rafraichirEnergieEtBoutonsIdleV9_==='function')H.rafraichirEnergieEtBoutonsIdleV9_();
         }
 
+        if(delta===0){const MS=window.__SOREAL_IDLE_MACHINE_SONS_V1__;if(MS&&typeof MS.refus==='function')MS.refus();}   /* bouton sans effet : un choc sourd, jamais un clic muet */
         if(delta!==0)recalculerTimeMachineLocalIdleV1_(j,ressource,value);
         envoyerAllocRapideV1_({action:'allocate',system:'timeMachine',resource:ressource,value:value});
       }

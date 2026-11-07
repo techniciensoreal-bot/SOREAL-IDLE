@@ -24,14 +24,12 @@ vm.runInContext(src, ctx);
 const M = fen.__SOREAL_IDLE_MACHINE_SONS_V1__;
 assert.ok(M && typeof M.cling === "function" && typeof M.niveau === "function" && typeof intervalle === "function", "module exposé, balayage régulier");
 
-/* cadence : 8 pièces par seconde -> au plus 3 sons par seconde */
+/* le tintement des pièces est COUPÉ (Norman, 2026-11-07 : « le bruit de pièce qui tombe, bof ») : aucun son automatique, même à 8 pièces par seconde ; la fonction reste (drapeau SON_PIECES) */
 for (let t = 0; t < 2000; t += 125) { heure = 1000 + t; M.balayer(); }
-const clings = appels.filter((d) => d === 260).length;
-assert.ok(clings >= 5 && clings <= 7, "cling : 3 par seconde au plus (" + clings + " en 2 s)");
-/* cadence lente : 1 par seconde */
-appels.length = 0; machine.__cadencePieces = 1;
-for (let t = 0; t < 3000; t += 125) { heure = 10000 + t; M.balayer(); }
-assert.ok(appels.length >= 2 && appels.length <= 4, "1 pièce par seconde -> environ 1 cling par seconde (" + appels.length + ")");
+assert.equal(appels.length, 0, "aucun tintement automatique");
+M.cling();
+assert.equal(appels.length, 1, "cling() reste disponible");
+assert.ok(/var SON_PIECES=false;/.test(src), "drapeau de réactivation");
 /* hors écran, onglet caché, hors de la page : silence */
 appels.length = 0; centre.__tmmHors = true;
 for (let t = 0; t < 2000; t += 125) { heure = 20000 + t; M.balayer(); }
@@ -51,4 +49,11 @@ assert.equal(appels.length, 1, "niveau gagné : un son");
 assert.equal(appels[0], 900, "son de niveau (balayage + cloche)");
 niv[0].textContent = "0"; M.balayer();
 assert.equal(appels.length, 1, "retour à 0 (renaissance) : aucun son");
+/* bouton sans effet : un son (jamais muet) ; les boutons + − Max ont leurs sons de mécanique dans le moteur audio */
+appels.length = 0; M.refus();
+assert.equal(appels.length, 1, "refus : un son");
+const audio = fs.readFileSync("cloudflare/public/modules/audio-effects-v199.js", "utf8");
+for (const f of ["tmPlus_", "tmMoins_", "tmCap_"]) { const i = audio.indexOf("function " + f + "(){"); assert.ok(i > 0 && /nappe_\(c,\{type:"sawtooth"/.test(audio.slice(i, i + 900)), f + " : sons de mécanique (servomoteur + déclics), plus de simples tics"); }
+const aug = fs.readFileSync("cloudflare/public/modules/augmentations-page-v1.js", "utf8");
+assert.ok(aug.includes("if(delta===0){const MS=window.__SOREAL_IDLE_MACHINE_SONS_V1__;if(MS&&typeof MS.refus==='function')MS.refus();}"), "bouton sans effet : choc sourd");
 console.log("idle-machine-sons-v1: OK");

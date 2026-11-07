@@ -1,7 +1,8 @@
 /*
  * SOREAL IDLE — les SONS propres à la Machine temporelle (Norman, 2026-11-07 : « j'aimerais des sons propres à la machine temporelle »). Synthétisés (aucun fichier), joués par le moteur audio commun
  * (window.__SOREAL_IDLE_AUDIO_V199__.synth : même volume général, mêmes réglages de son que tous les effets) :
- *   - « cling » : une pièce d'or qui tombe dans le tas, au rythme où elles tombent (1, 2, 4 ou 8 par seconde, jamais plus de 3 sons par seconde) ;
+ *   - « cling » : une pièce d'or qui tombe dans le tas, au rythme où elles tombent (1, 2, 4 ou 8 par seconde, jamais plus de 3 sons par seconde) ; COUPÉ (SON_PIECES = false) ;
+ *   - « refus » : un bouton + − Max 0 sans effet (rien à placer ou à retirer) : deux chocs sourds ;
  *   - « niveau » : un niveau gagné sur la barre d'Énergie ou de Magie : un balayage qui monte (le temps qui saute) puis une cloche claire.
  * (Les boutons + − Max 0 gardent leurs tics d'horloge : tmPlus / tmMinus / tmCap, audio-effects-v199.js.)
  * Rien ne joue hors de la page Machine (ni onglet caché) ; aucun son tant que la page n'est pas affichée : un petit balayage toutes les 125 ms, sans effet sur le dessin ni sur le jeu.
@@ -43,7 +44,19 @@ function niveau(){
   });
 }
 
+/* bouton sans effet (rien à placer, rien à retirer) : deux chocs sourds, pour que le clic ne reste jamais muet */
+function refus(){
+  var a=moteur();if(!a)return;
+  a.synth(300,function(c,sortie){
+    ton(c,sortie,'sine',150,95,.09,.070,0);
+    ton(c,sortie,'sine',130,85,.10,.060,.085);
+    ton(c,sortie,'square',420,300,.025,.012,0);
+  });
+}
+
 /* surveillance : cadence des pièces (posée par machine-dessin-v1.js sur .tmm-machine) et niveaux affichés */
+/* tintement des pièces COUPÉ (Norman, 2026-11-07 : « le bruit de pièce qui tombe, bof ») : le code reste, mettre à true pour le remettre */
+var SON_PIECES=false;
 var dernierCling=0,niveaux={};
 function balayer(){
   if(document.hidden)return;
@@ -54,7 +67,7 @@ function balayer(){
   if(cad>0){
     var visible=true,c=m.querySelector('.tmm-centre');
     if(c&&c.__tmmHors)visible=false;   /* hors écran : les pièces sont en pause, donc aucun son */
-    if(visible&&maintenant-dernierCling>=1000/Math.min(cad,3)){dernierCling=maintenant;cling();}
+    if(SON_PIECES&&visible&&maintenant-dernierCling>=1000/Math.min(cad,3)){dernierCling=maintenant;cling();}
   }
   var joue=false;
   m.querySelectorAll('[data-tm-niveau]').forEach(function(e){
@@ -65,5 +78,5 @@ function balayer(){
   if(joue)niveau();
 }
 setInterval(balayer,125);
-window.__SOREAL_IDLE_MACHINE_SONS_V1__={cling:cling,niveau:niveau,balayer:balayer};
+window.__SOREAL_IDLE_MACHINE_SONS_V1__={cling:cling,niveau:niveau,refus:refus,balayer:balayer};
 })();

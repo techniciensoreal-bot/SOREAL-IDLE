@@ -18,17 +18,17 @@ var YEUX_INACTIF_MS=6000,YEUX_PAUSE_MIN_MS=22000,YEUX_PAUSE_ALEA_MS=26000,YEUX_S
 /* une expression : lt/lb = paupière haute/basse (part de la hauteur), tl = inclinaison du sourcil (+ triste, − fâché), px/py = regard (−1..1), ps = taille de la pupille, sh = arc heureux, x = croix, sw = sueur, sp = étincelles, tr = tremblement (points) */
 function ex(o){var b={lt:0,lb:0,tl:0,px:0,py:0,ps:1,sh:0,x:0,sw:0,sp:0,tr:0},k;for(k in o)b[k]=o[k];return b;}
 var YEUX_EXPR={
-  neutre:function(){return ex({});},
+  neutre:function(){return ex({z:0.84});},
   gauche:function(){return ex({px:-1});},
   droite:function(){return ex({px:1});},
   alalter:function(u){return ex({px:u<0.5?-1:1});},        /* regarde à gauche puis à droite */
   haut:function(){return ex({px:0.3,py:-1});},
-  content:function(){return ex({sh:1,sp:1});},                    /* yeux en arcs (^ ^) */
+  content:function(){return ex({sh:1,sp:1,z:0.9});},                    /* yeux en arcs (^ ^) */
   triste:function(){return ex({lt:0.18,tl:0.8,py:0.6,ps:1.15});},
-  soupcon:function(){return ex({lt:0.3,lb:0.08,tl:-0.4,px:1,ps:0.7});},
-  surpris:function(){return ex({ps:0.55});},
-  endormi:function(){return ex({lt:0.42,lb:0.04,py:0.4,ps:0.7});},
-  colere:function(){return ex({lt:0.22,tl:-0.9,py:0.1,ps:0.9});},
+  soupcon:function(){return ex({lt:0.3,lb:0.08,tl:-0.4,px:1,ps:0.7,z:0.93});},
+  surpris:function(){return ex({ps:0.55,z:0.68});},
+  endormi:function(){return ex({lt:0.42,lb:0.04,py:0.4,ps:0.7,z:0.74});},
+  colere:function(){return ex({lt:0.22,tl:-0.9,py:0.1,ps:0.9,z:0.98});},
   clin:function(u){var o=ex({});o.clin=u>0.25&&u<0.75?1:0;return o;}   /* clin d'œil de l'œil droit */
 };
 var YEUX_TIRAGE=['alalter','content','triste','soupcon','surpris','endormi','colere','clin','haut','gauche','droite'];
@@ -57,12 +57,12 @@ function clignement(t,seed){
 }
 /* petits mouvements involontaires des pupilles (déterministes, doux) */
 function frisson(t){return {x:0.07*Math.sin(t*2.3)+0.05*Math.sin(t*5.1+1),y:0.05*Math.sin(t*1.9+2)};}
-/* DESSIN d'une paire d'yeux. e : expression ; ox, oy : décalage de la paire (tremblement, saut) ; fermeture : 0..1 (clignement) */
+/* DESSIN d'une paire d'yeux. e : expression ; ox, oy : décalage de la paire (tremblement, saut) ; fermeture : 0..1 (clignement) ; e.z : distance (Norman, 2026-11-07 : « fais-le se rapprocher, s'éloigner ») : 1 = tout près, pleine taille ; les dimensions sont des nombres décimaux, donc la taille varie en douceur (taille de la paire, écart entre les yeux, pupilles). */
 function dessiner(t,e,ox,oy,ferm,petit){
-  var P=paneau(),W=P.W,H=P.H,eh=Math.max(6,Math.min(12,H-2)),ew=Math.round(eh*1.2)|1,gap=Math.round(ew*0.9),y0=Math.floor((H-eh)/2)+(oy||0),i,x,y,j,fr=P.reduced?{x:0,y:0}:frisson(t);
+  var P=paneau(),W=P.W,H=P.H,z=e.z===undefined?1:e.z,eh=Math.max(2.4,Math.max(6,Math.min(12,H-2))*z),ew=eh*1.2,gap=ew*0.9,y0=(H-eh)/2+(oy||0),i,x,y,j,fr=P.reduced?{x:0,y:0}:frisson(t);
   var a=ew/2,b=eh/2,cxs=[];
   for(i=0;i<2;i++){
-    var cx=Math.round(W/2+(i?1:-1)*(gap/2+a))-0.5+(ew%2?0.5:0)+(ox||0),cy=y0+b-0.5,ext=i?1:-1;   /* ext : côté extérieur de l'œil */
+    var cx=(W-1)/2+(i?1:-1)*(gap/2+a)+(ox||0),cy=y0+b-0.5,ext=i?1:-1;   /* ext : côté extérieur de l'œil */
     cxs.push(cx);
     var ferme=(e.clin&&i===1)?1:ferm;
     if(e.x>0.5){                                                      /* ŒIL EN CROIX (défaite) : deux diagonales épaisses */
@@ -70,7 +70,7 @@ function dessiner(t,e,ox,oy,ferm,petit){
       for(s=0;s<=N;s++){q=s/N;for(j=0;j<2;j++){px(Math.round(cx-ax+2*ax*q)+j,Math.round(cy-bx+2*bx*q),BLA,255);px(Math.round(cx+ax-2*ax*q)+j,Math.round(cy-bx+2*bx*q),BLA,255);}}
       continue;
     }
-    for(y=y0;y<y0+eh;y++){
+    for(y=Math.floor(y0-0.5);y<=Math.ceil(y0+eh);y++){
       for(x=Math.floor(cx-a-1);x<=Math.ceil(cx+a+1);x++){
         var nx=(x-cx)/a,ny=(y-cy)/b,dedans=nx*nx+ny*ny<=1.0;
         if(!dedans)continue;
@@ -106,9 +106,17 @@ function dessiner(t,e,ox,oy,ferm,petit){
     }
   }
 }
+/* distance des yeux au repos (Norman, 2026-11-07 : « il doit zoomer pour certaines raisons, pas tout le temps ; s'il est énervé il zoome et nous regarde de plus près ») : les yeux arrivent de loin d'un bond (léger dépassement), puis la distance ne change QUE selon l'expression (énervé, soupçonneux : plus près ; surpris, endormi : plus loin ; sinon distance fixe) ; ils s'éloignent avant de disparaître */
+function sortieDe(u){u=clamp(u,0,1);var v=u-1;return 1+2.70158*v*v*v+1.70158*v*v;}   /* « easeOutBack » : arrive un peu trop près, puis se replace */
+function zoomRepos(t,dur,ze){
+  var entree=clamp(t/0.8,0,1),sortie=clamp((dur-t)/0.7,0,1);
+  var z=entree<1?0.22+(ze-0.22)*sortieDe(entree):ze;
+  return Math.max(0.12,z*(0.5+0.5*sm(sortie)));
+}
 function sYeux(t){
   var P=paneau(),p=P.p,seq=p.seq||['neutre','neutre'];
-  var e=P.reduced?YEUX_EXPR.neutre(0):yeuxEtat(t,seq),bk=P.reduced?0:clignement(t,0.9);
+  var e=P.reduced?YEUX_EXPR.neutre(0):yeuxEtat(t,seq),bk=P.reduced?0:clignement(t,0.9),dur=p.dur||8;
+  e.z=P.reduced?1:zoomRepos(t,dur,e.z===undefined?0.84:e.z);
   dessiner(t,e,0,0,bk);
 }
 /* ---------------------------------------------------------------- les yeux DU COMBAT */
@@ -124,6 +132,20 @@ function humeur(t,pp,vie,pj,issue,st){
   if(tendu)return ex({tl:0.55,lt:0.08,ps:1.1,py:0.1});                                    /* inquiets */
   return ex({lt:0.1,tl:-0.2,ps:0.95});                                                    /* concentrés */
 }
+/* distance des yeux pendant le combat : fixe, sauf à des moments naturels — l'arrivée d'un bond ; un recul sec à chaque coup reçu ; un recul quand la PEUR s'installe (une seule fois, puis il se détend un peu) ; énervé (le boss faiblit) il se penche vers l'écran et nous regarde de plus près ; tout près quand le boss va tomber */
+function zoomCombat(t,vie,pj,st){
+  var z=0.82;
+  if(t<0.9)return 0.24+(0.82-0.24)*sortieDe(t/0.9);
+  if(st.coup>0&&t-st.coup<0.34)z=0.62;
+  else if(pj<0.2){if(!st.peurT)st.peurT=t;z=(t-st.peurT)<1.4?0.60:0.70;}
+  else{
+    st.peurT=0;
+    if(vie<0.12)z=1.0;
+    else if(vie<0.4&&pj>=0.4)z=0.95;
+    else if(pj<0.5)z=0.76;
+  }
+  return z;
+}
 function sCombat(t){
   var P=paneau(),pp=P.p,S=etatJeu(),W=P.W;
   if(!pp.st)pp.st={e:ex({lt:0.5,lb:0.2}),t:t,coup:0,pj:-1,regard:0};
@@ -138,11 +160,12 @@ function sCombat(t){
   if(t>CB_SURPRISE_S&&ph>6.4&&ph<7.1){gx=-0.9;cy=-0.55;}
   if(t<CB_OUVERTURE_S)cible=ex({lt:0.6,lb:0.25,px:0,py:0,ps:1});
   cible.px=gx;cible.py=cy;
+  cible.z=P.reduced?0.85:zoomCombat(t,vie,pj,st);
   if(t>=CB_OUVERTURE_S&&t<CB_SURPRISE_S){cible.px=gx*0.4;cible.py=0.2;}                  /* il lève d'abord les yeux, étonné, avant de baisser le regard vers la barre */
   /* lissage : paupières et sourcils suivent en ~0,12 s, la pupille un peu plus vite (le regard « accroche » le bout de la barre) */
   var rate=9,rateRegard=16;
   if(P.reduced){st.e={};for(k in cible)st.e[k]=cible[k];}                                  /* mouvement réduit : l'expression voulue, tout de suite et fixe */
-  for(k in cible){if(typeof cible[k]!=='number')continue;c=(k==='px'||k==='py')?rateRegard:rate;st.e[k]=(st.e[k]===undefined?cible[k]:st.e[k])+(cible[k]-(st.e[k]===undefined?cible[k]:st.e[k]))*(1-Math.exp(-dt*c));}
+  for(k in cible){if(typeof cible[k]!=='number')continue;c=(k==='px'||k==='py')?rateRegard:(k==='z'?(cible.z<st.e.z?20:11):rate);st.e[k]=(st.e[k]===undefined?cible[k]:st.e[k])+(cible[k]-(st.e[k]===undefined?cible[k]:st.e[k]))*(1-Math.exp(-dt*c));}
   var e=st.e,o={},kk;for(kk in e)o[kk]=e[kk];
   o.sh=0;o.clin=0;o.x=0;o.sw=cible.sw||0;o.sp=cible.sp||0;
   g=P.reduced?0:(cible.tr?Math.sin(t*70)*0.5:0);
@@ -154,13 +177,14 @@ function sCombat(t){
 function sFin(t,issue){
   var P=paneau(),sh=P.reduced?0:Math.sin(t*70);
   if(issue==='ko'){
-    if(t<0.3){dessiner(t,ex({ps:0.35}),0,0,0,true);return;}                                        /* le choc : yeux grands, pupilles minuscules */
-    var u=t-0.3,tr=P.reduced?0:Math.round(sh*1.5*Math.max(0,1-u/1.1));
-    dessiner(t,ex({x:1}),tr,0,0,true);
+    if(t<0.3){dessiner(t,ex({ps:0.35,z:P.reduced?1:1.0}),0,0,0,true);return;}                      /* le choc : yeux grands, pupilles minuscules */
+    var u=t-0.3,tr=P.reduced?0:Math.round(sh*1.5*Math.max(0,1-u/1.1)),zk=P.reduced?1:1.0-0.68*sm(u/2.2);   /* les croix s'éloignent dans le lointain */
+    dessiner(t,ex({x:1,z:zk}),tr,0,0,true);
     return;
   }
   var h=P.reduced?0:-Math.round(1.6*Math.abs(Math.sin(t*8.5))*Math.max(0,1-t/2.2));           /* il saute de joie, de moins en moins haut */
-  if(t<0.3)dessiner(t,ex({ps:0.55}),0,h,0,true);else dessiner(t,ex({sh:1,sp:1}),0,h,0,true);
+  var zv=P.reduced?1:0.80+0.22*sm(t/0.9)+0.05*Math.sin(t*9);                                      /* il s'approche en sautant de joie */
+  if(t<0.3)dessiner(t,ex({ps:0.55,z:zv}),0,h,0,true);else dessiner(t,ex({sh:1,sp:1,z:zv}),0,h,0,true);
 }
 /* Inactivité : instant du dernier clic / touche / toucher (au chargement : maintenant, donc jamais d'yeux dans les premières secondes) ; yeuxAt : une apparition toutes les 22 à 48 s au plus. */
 var dernierClic=(window.performance&&performance.now)?performance.now():0,yeuxAt=0;

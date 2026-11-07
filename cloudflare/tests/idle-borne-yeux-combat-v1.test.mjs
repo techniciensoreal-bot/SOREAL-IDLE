@@ -70,6 +70,22 @@ function monde() {
   assert.deepEqual([...a.keys()].sort(), [...b.keys()].sort(), "mouvement réduit : image identique à deux instants");
 }
 
+/* 5 bis. DISTANCE (Norman, 2026-11-07 : « il doit zoomer pour certaines raisons, pas tout le temps ; énervé il zoome et nous regarde de plus près ») : taille fixe au calme, plus grande quand le boss faiblit (énervé), recul quand la peur s'installe puis détente, tout près quand le boss va tomber, jamais de respiration continue */
+{
+  const largeur = (pct, pj, t, depart = 1.2) => {
+    const w = monde(); w.S.pv.pct = pct; w.S.bar.v = pj; let c;
+    for (let u = depart; u <= t; u += 0.04) c = w.image(() => w.Y.combat(u));
+    const xs = [...c.keys()].map((k) => Number(k.split(",")[0])); return Math.max(...xs) - Math.min(...xs);
+  };
+  const calme = largeur(1, 1, 3.0), calme2 = largeur(1, 1, 6.5);
+  assert.ok(Math.abs(calme - calme2) <= 1, "au calme la distance ne bouge pas (pas de respiration) : " + calme + " / " + calme2);
+  assert.ok(largeur(0.3, 1, 3.0) > calme + 1, "énervé (le boss faiblit) : plus près, yeux plus grands");
+  assert.ok(largeur(0.05, 1, 3.0) > largeur(0.3, 1, 3.0), "le boss va tomber : tout près");
+  const peurDebut = largeur(0.6, 0.12, 2.0, 1.2), peurPlusTard = largeur(0.6, 0.12, 4.5, 1.2);
+  assert.ok(peurDebut < calme - 1, "la peur s'installe : il recule");
+  assert.ok(peurPlusTard > peurDebut, "puis il se détend un peu (la peur ne le fait pas reculer en continu)");
+}
+
 /* 6. branchement dans la borne */
 const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
 assert.ok(led.includes("yeuxcb:{fn:function(t){var Y=yeuxMod();if(Y)Y.combat(t);},dur:9,prio:0,cap:1.0}"), "scène de combat enregistrée");

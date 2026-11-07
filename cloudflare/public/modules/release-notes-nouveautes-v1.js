@@ -4,8 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "La Machine temporelle a ses propres sons : un tintement chaque fois qu’une pièce tombe dans le tas d’Or, et un balayage suivi d’une cloche quand un niveau est gagné (les boutons gardent leurs tics d’horloge).",
-    "Sur les tours Énergie et Magie, le mot « Allouée » est remplacé par une icône (éclair ou étoile) : le montant n’est plus coupé.",
-    "Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre."
+    "Les yeux de la borne se rapprochent et s’éloignent : ils arrivent d’un bond depuis le fond, reculent à chaque coup reçu, se penchent vers l’écran quand le boss faiblit, viennent tout près quand il va tomber, et à la défaite les deux croix s’éloignent dans le lointain.",
+    "La Machine temporelle a ses propres sons : les boutons + (un cliquet qui monte), − (qui redescend) et Max (la machine se charge puis se cale d’un coup sourd et d’une cloche) font des bruits de mécanique bien audibles, un bouton sans effet fait un choc sourd, et un balayage suivi d’une cloche annonce un niveau gagné."
   ] };
 })();
