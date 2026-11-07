@@ -5,7 +5,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 ## Résumé
 - menus : **29**
 - pages : **33**
-- keyframes : **457**
+- keyframes : **458**
 - fichiersAvecWebAnimations : **19**
 - fichiersCanvas : **12**
 - pointsEntreeRejouables : **257**

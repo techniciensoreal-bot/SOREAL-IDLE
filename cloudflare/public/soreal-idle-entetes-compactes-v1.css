@@ -10,14 +10,14 @@
  * Aucune déclaration prioritaire ici (plafond de l'audit d'architecture) : les anciennes règles prioritaires lisent des variables --bt-* (barre-outils.css, itopod.css) que cette feuille fixe sur la barre d'outils.
  * PC large : une seule rangée [Input | Énergie | Magie] ; PC étroit : Input pleine largeur puis les groupes côte à côte ; téléphone : tout empilé, sans défilement horizontal.
  */
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-toolbar-v120,.nl-barre-outils){
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) :is(.soreal-idle-bt-toolbar-v120,.nl-barre-outils){
   --bt-btn-h:28px;--bt-btn-hh:auto;--bt-btn-fs:13px;--bt-btn-pad:2px 6px;--bt-col-min:36px;
   --bt-lbl-fs:11px;--bt-fs:12px;--bt-input-fs:14px;
   --bt-cadre-pad:4px 6px;--bt-cadre-gap:4px;--bt-gap:6px;--bt-pad:6px;--bt-total-pad:3px 10px;
   --bt-cols:repeat(var(--bt-n,1),minmax(0,1fr));
 }
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:has([data-bt-groupe-v1]~[data-bt-groupe-v1]){--bt-n:2}
-html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:has([data-bt-groupe-v1]~[data-bt-groupe-v1]~[data-bt-groupe-v1]){--bt-n:3}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120:has([data-bt-groupe-v1]~[data-bt-groupe-v1]){--bt-n:2}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120:has([data-bt-groupe-v1]~[data-bt-groupe-v1]~[data-bt-groupe-v1]){--bt-n:3}
 
 /* Cadre INPUT : champ compact et « Mes nombres » (rangée de petits boutons) dans le même petit cadre. */
 .soreal-idle-bt-entree-v1{--bt-gc:1/-1;display:grid;align-content:start;gap:4px;min-width:0;box-sizing:border-box;padding:5px;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(0,0,0,.2)}
@@ -43,18 +43,18 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 
 /* Une seule ressource (Augmentations, Entraînement…) : [Input | groupe] sur une rangée dès 800 px ; deux ressources : il faut 1360 px (voir plus bas). */
 @media (min-width:801px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1])){--bt-cols:minmax(0,.8fr) minmax(0,1.6fr)}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1]))>.soreal-idle-bt-entree-v1{--bt-gc:auto}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1])){--bt-cols:minmax(0,.8fr) minmax(0,1.6fr)}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1]))>.soreal-idle-bt-entree-v1{--bt-gc:auto}
 }
 /* PC large : tout sur UNE rangée. */
 @media (min-width:1360px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{--bt-cols:minmax(0,.8fr) repeat(var(--bt-n,1),minmax(0,1.2fr))}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-entree-v1{--bt-gc:auto}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120{--bt-cols:minmax(0,.8fr) repeat(var(--bt-n,1),minmax(0,1.2fr))}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-entree-v1{--bt-gc:auto}
 }
 
 /* Téléphone : cadres empilés pleine largeur (les deux petits cadres d'un groupe aussi), mêmes éléments compacts mais gardés faciles à toucher. */
 @media (max-width:700px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-toolbar-v120,.nl-barre-outils){--bt-btn-h:34px;--bt-btn-fs:14px;--bt-col-min:40px;--bt-input-fs:16px;--bt-fs:12px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) :is(.soreal-idle-bt-toolbar-v120,.nl-barre-outils){--bt-btn-h:34px;--bt-btn-fs:14px;--bt-col-min:40px;--bt-input-fs:16px;--bt-fs:12px}
   .soreal-idle-bt-groupe-v1,.soreal-idle-bt-groupe-v1:has(>.soreal-idle-bt-total-v1){grid-template-columns:minmax(0,1fr);grid-template-rows:none}
 }
 
@@ -74,16 +74,16 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
 /* Une seule rangée de cadres sur PC (Norman, 2026-11-02 : « descends Input tout à gauche de ces 4 cadres et gagne encore une ligne »). La colonne Input mesure au moins 360 px et « Mes nombres » tient alors sur UNE rangée (4 paires de 2 colonnes de 34 px au moins) :
    avant, ses 2 rangées rendaient le cadre Input plus haut que les cadres Plafond/Idle, donc tout l'entête. Seuils en largeur de fenêtre (la colonne de gauche du jeu retire ~380 px) : une ressource dès 1200 px, deux ressources dès 1480 px ; en dessous, l'ancienne disposition (repli propre). Téléphone et NGU (2 rangées voulues) inchangés. */
 @media (min-width:1200px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1])){--bt-cols:minmax(360px,.8fr) minmax(0,1.6fr)}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1])){--bt-cols:minmax(360px,.8fr) minmax(0,1.6fr)}
   .soreal-idle-bt-toolbar-v120:not(:has([data-bt-groupe-v1]~[data-bt-groupe-v1]))>.soreal-idle-bt-entree-v1 [data-perso-input-rangee]{--bt-col-min:34px}
 }
 @media (min-width:1480px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{--bt-cols:minmax(360px,.9fr) repeat(var(--bt-n,1),minmax(0,1.2fr))}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120{--bt-cols:minmax(360px,.9fr) repeat(var(--bt-n,1),minmax(0,1.2fr))}
   .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-entree-v1 [data-perso-input-rangee]{--bt-col-min:34px}
 }
 /* PC : plus aucun espace perdu dans les cadres (marges intérieures et écarts d'un point de moins) ; la cible tactile des boutons ne change pas (hauteur gardée par --bt-btn-h). */
 @media (min-width:1200px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-toolbar-v120{--bt-cadre-pad:3px 6px;--bt-cadre-gap:3px;--bt-total-pad:2px 10px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) .soreal-idle-bt-toolbar-v120{--bt-cadre-pad:3px 6px;--bt-cadre-gap:3px;--bt-total-pad:2px 10px}
   .soreal-idle-bt-toolbar-v120>.soreal-idle-bt-entree-v1{gap:3px;padding:4px}
   .soreal-idle-bt-toolbar-v120 .soreal-idle-bt-groupe-v1{gap:4px;padding:4px}
 }

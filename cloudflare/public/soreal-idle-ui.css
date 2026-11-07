@@ -4873,7 +4873,7 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
           }
 
           @media(prefers-reduced-motion:reduce){
-            .soreal-idle-bt-fill-v120.pulse{
+            .soreal-idle-bt-fill-v120.pulse:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){
               animation:none!important;
             }
           }
@@ -5914,7 +5914,7 @@ body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-actions-v
 }
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button.clear{background:#3d0b14}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-track-v120{background:rgba(255,255,255,.08)}
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-fill-v120{background:linear-gradient(90deg,#8f0f22,#e0243d)!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-fill-v120:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){background:linear-gradient(90deg,#8f0f22,#e0243d)!important}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 h3{border-bottom:1px solid rgba(220,50,70,.6);color:#ffd9de}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-aide-v1{background:rgba(120,15,32,.35);border-color:rgba(220,50,70,.5)}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-expand-button-v25{
@@ -5977,16 +5977,16 @@ body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-expand-butto
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-expand-button-v25:disabled{
   background:#3d1118!important;color:#b98d95!important;
 }
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button,
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-actions-v120 button{background:#5a1220!important;color:#ffe9ec!important}
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button.clear{background:#3d0b14!important}
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-toolbar-v120{background:rgba(70,10,22,.55)!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)),
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-actions-v120 button:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){background:#5a1220!important;color:#ffe9ec!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120 button.clear:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){background:#3d0b14!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-toolbar-v120:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){background:rgba(70,10,22,.55)!important}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-energy-v120,
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120,
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120{background:#2c0a12!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)),
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-presets-v120:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){background:#2c0a12!important}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-page-head-v28{background:linear-gradient(135deg,#4a0f1a,#2d0a11)!important}
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-aide-v1{background:rgba(120,15,32,.35)!important}
-body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120 input{background:#1a060a!important;color:#ffe3e7!important}
+body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-bt-input-box-v120 input:where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){background:#1a060a!important;color:#ffe3e7!important}
 /* TraÃ®nÃ©es de sang (Norman, 2026-10-01) : nombreuses, de largeurs et longueurs variÃ©es, irrÃ©guliÃ¨rement espacÃ©es, effilÃ©es en pointe (sans goutte ronde au bout) -- dessin SVG gÃ©nÃ©rÃ© (graine fixe). */
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1::before{
   height:166px!important;

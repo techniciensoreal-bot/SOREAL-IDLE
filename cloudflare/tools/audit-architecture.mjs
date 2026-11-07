@@ -73,7 +73,7 @@ for (const motif of ["/modules/*", "/soreal-idle-*.js", "/soreal-idle-*.css", "i
 
 /* Dette CSS connue : nombre de « !important » dans les feuilles de style. Cliquet : le total ne doit JAMAIS augmenter ; en retirer = baisser PLAFOND_IMPORTANT.
  * Aucun outil ne vérifie le rendu visuel : on les retire page par page, à l'œil, pas en masse. */
-const PLAFOND_IMPORTANT = 2540;
+const PLAFOND_IMPORTANT = 2517;
 let important = 0;
 for (const f of readdirSync(join(racine, "public"))) if (f.endsWith(".css")) important += (readFileSync(join(racine, "public", f), "utf8").match(/!important/g) || []).length;
 infos.push(`dette CSS : ${important} « !important » (plafond ${PLAFOND_IMPORTANT}, ne doit jamais monter)`);

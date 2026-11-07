@@ -385,16 +385,9 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[
   background:var(--pg-card)!important;border:1px solid var(--th-line)!important;border-radius:var(--pg-radius)!important;color:var(--th-dim)!important;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-summary-v28 b{color:var(--th-num)!important;text-shadow:0 0 10px var(--th-glow)}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) :is(.soreal-idle-expand-button-v25,.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,.soreal-idle-rebirth-button-v14){
-  background:var(--pg-btn)!important;color:var(--pg-btn-ink,#0b1018)!important;border:1px solid rgba(255,255,255,.25)!important;font-weight:900;letter-spacing:.04em;
-  box-shadow:0 0 12px -2px var(--th-glow);
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) :is(.soreal-idle-bt-toolbar-v120,.soreal-idle-bt-input-box-v120,.soreal-idle-bt-presets-v120,.soreal-idle-bt-energy-v120,.soreal-idle-bt-help-v120){
-  background:rgba(0,0,0,.28)!important;border:1px solid var(--th-line)!important;border-radius:var(--pg-radius)!important;color:var(--th-ink)!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28:is([data-menu="avance"],[data-menu="entrainement"],[data-menu="machine"],[data-menu="aventure"],[data-menu="renaissance"],[data-menu="moneyPit"],[data-menu="challenges"],[data-menu="titans"],[data-menu="succes"],[data-menu="shop"],[data-menu="classement"],[data-menu="bestiaire"],[data-menu="chat"],[data-menu="parametres"],[data-menu="admin"]) .soreal-idle-bt-input-box-v120 input{
-  background:rgba(0,0,0,.4)!important;color:var(--th-num)!important;border:1px solid var(--th-line)!important;
-}
+
+
+
 
 /* ====================== BASIC TRAINING : le dojo ====================== */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]{
@@ -413,19 +406,10 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.attack{border-top-color:#ff6a4a!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.defense{border-top-color:#4aa8ff!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-row-v120{
-  background:rgba(0,0,0,.22)!important;border:1px solid rgba(39,211,180,.20)!important;border-left:4px solid var(--th-a)!important;border-radius:8px!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-level-v120{
-  background:linear-gradient(180deg,#fff,#7ff3dc);-webkit-background-clip:text;background-clip:text;color:transparent!important;font-weight:1000;text-shadow:none;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-track-v120{
-  background:#06141a!important;border-radius:6px;box-shadow:inset 0 0 0 1px rgba(39,211,180,.35),inset 0 2px 5px rgba(0,0,0,.8);height:12px;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-fill-v120{
-  background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 16px),linear-gradient(90deg,#1ea0c8,#27d3b4,#9be15d)!important;
-  box-shadow:0 0 12px rgba(39,211,180,.7);
-}
+
+
+
+
 
 /* ====================== TIME MACHINE : la machine d'Or ======================
  * Norman (2026-10-04) : « retravaille le menu Machine à remonter le temps cassée pour qu'il colle plus aux autres menus ; il doit avoir sa propre identité et bien nous rappeler qu'on gagne de l'OR ».
@@ -970,28 +954,20 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]
   font-family:Georgia,"Palatino Linotype",serif;font-size:19px!important;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
   color:var(--bt-c2)!important;text-shadow:0 0 14px var(--bt-c);padding:4px 2px 10px!important;border-bottom:2px solid var(--bt-c);margin-bottom:10px!important;
 }
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.attack .soreal-idle-bt-row-v120{
-  border-left:5px solid #ff5a3c!important;border-color:rgba(255,90,60,.35)!important;background:rgba(255,90,60,.07)!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.defense .soreal-idle-bt-row-v120{
-  border-left:5px solid #3ea0ff!important;border-color:rgba(62,160,255,.35)!important;background:rgba(62,160,255,.07)!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.attack .soreal-idle-bt-fill-v120{
-  background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 16px),linear-gradient(90deg,#c1121f,#ff5a3c,#ffb347)!important;box-shadow:0 0 12px rgba(255,90,60,.7)!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.defense .soreal-idle-bt-fill-v120{
-  background:repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 16px),linear-gradient(90deg,#1d4ed8,#3ea0ff,#7de8ff)!important;box-shadow:0 0 12px rgba(62,160,255,.7)!important;
-}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.attack .soreal-idle-bt-level-v120{background:linear-gradient(180deg,#fff,#ffb199);-webkit-background-clip:text;background-clip:text}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.defense .soreal-idle-bt-level-v120{background:linear-gradient(180deg,#fff,#a8d4ff);-webkit-background-clip:text;background-clip:text}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.attack .soreal-idle-bt-actions-v120 button{border-color:#ff5a3c!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.defense .soreal-idle-bt-actions-v120 button{border-color:#3ea0ff!important}
+
+
+
+
+
+
+
+
 /* Titre de chaque section visible aussi sur téléphone (il était masqué) + boutons aux couleurs de la section. */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120{display:block!important;text-align:center}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120 strong{font-size:inherit!important;color:inherit!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120 .soreal-idle-bt-panel-head-v120 span{display:none!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.attack .soreal-idle-bt-actions-v120 button{background:linear-gradient(180deg,#ff8a6b,#d9381e)!important;color:#2a0600!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.defense .soreal-idle-bt-actions-v120 button{background:linear-gradient(180deg,#7cc4ff,#2563eb)!important;color:#03142e!important}
+
+
 
 /* Rebirth : le NUMBER au Rebirth garde sa couleur vert/rouge malgré le thème de la page (Norman, 2026-10-01). */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="renaissance"] .soreal-idle-rebirth-stat-value-v14.hausse{color:#34d399!important;-webkit-text-fill-color:#34d399!important;text-shadow:0 0 12px rgba(52,211,153,.6)!important}
@@ -1628,146 +1604,146 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"]
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120.defense{--rg-c1:#1d4ed8;--rg-c2:#3ea0ff;--rg-c3:#7de8ff;--rg-dark:#040f2e}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"]{--rg-c1:#ff2d7a;--rg-c2:#ff6a1a;--rg-c3:#ffc21a;--rg-dark:#1a0410}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"],body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"]{--rg-c1:#7a0f24;--rg-c2:#c1213d;--rg-c3:#ff6b6b;--rg-dark:#14030a}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="1"] .soreal-idle-bt-track-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="1"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="1"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="1"] .soreal-idle-bt-track-v120{height:13px!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--rg-c2) 60%,transparent),inset 0 2px 5px rgba(0,0,0,.85),0 0 6px -2px var(--rg-c2)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="1"] .soreal-idle-bt-fill-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="1"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="1"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="1"] .soreal-idle-bt-fill-v120{background:linear-gradient(180deg,rgba(255,255,255,.30),transparent 45%,rgba(0,0,0,.28)),repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 16px),linear-gradient(90deg,color-mix(in srgb,var(--rg-c1) 80%,#000),var(--rg-c2),var(--rg-c3))!important;box-shadow:0 0 14px color-mix(in srgb,var(--rg-c2) 70%,transparent)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="2"],
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="2"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="2"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="2"]{border-left-width:7px!important;background:linear-gradient(100deg,color-mix(in srgb,var(--rg-dark) 88%,transparent),rgba(0,0,0,.3) 70%)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="2"] .soreal-idle-bt-track-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="2"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="2"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="2"] .soreal-idle-bt-track-v120{height:15px!important;box-shadow:inset 0 0 0 2px var(--rg-dark),inset 0 0 0 3px color-mix(in srgb,var(--rg-c2) 70%,transparent),inset 0 2px 6px rgba(0,0,0,.9),0 0 10px -2px var(--rg-c2)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="2"] .soreal-idle-bt-fill-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="2"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="2"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="2"] .soreal-idle-bt-fill-v120{background:linear-gradient(180deg,rgba(255,255,255,.28),transparent 42%,rgba(0,0,0,.34)),repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 16px),linear-gradient(90deg,#000 0%,var(--rg-dark) 7%,var(--rg-c1) 26%,var(--rg-c2) 64%,var(--rg-c3))!important;box-shadow:0 0 18px color-mix(in srgb,var(--rg-c2) 80%,transparent)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="2"] > div:first-child b,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="2"] > div:first-child b,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="2"] > div:first-child b,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="2"] > div:first-child b{text-shadow:0 0 8px color-mix(in srgb,var(--rg-c2) 70%,transparent)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"],
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"]{border-left-width:8px!important;background:linear-gradient(100deg,color-mix(in srgb,var(--rg-dark) 92%,#000),rgba(0,0,0,.35) 75%)!important;box-shadow:inset 0 0 22px rgba(0,0,0,.6),0 0 14px -8px var(--rg-c2)}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"] .soreal-idle-bt-track-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-track-v120{height:17px!important;background:repeating-linear-gradient(135deg,#050304 0 4px,#0d0809 4px 8px)!important;box-shadow:inset 0 0 0 2px #000,inset 0 0 0 3px var(--rg-c2),inset 0 2px 7px #000,0 0 14px -1px var(--rg-c2)!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120{background:linear-gradient(180deg,rgba(255,255,255,.30),transparent 40%,rgba(0,0,0,.42)),linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%) 0 0/220% 100% no-repeat,repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 16px),linear-gradient(90deg,#000 0%,var(--rg-dark) 8%,var(--rg-c1) 30%,var(--rg-c2) 68%,var(--rg-c3))!important;box-shadow:0 0 22px var(--rg-c2)!important;animation:sorealRgFluxV1 2.6s linear infinite}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"] > div:first-child b,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] > div:first-child b,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] > div:first-child b,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] > div:first-child b{text-shadow:0 0 10px var(--rg-c2),0 1px 0 #000!important;letter-spacing:.02em}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"] .soreal-idle-bt-level-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] .soreal-idle-bt-level-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] .soreal-idle-bt-level-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-level-v120{filter:drop-shadow(0 0 5px var(--rg-c2))}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"],
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"]{position:relative;border-left-width:9px!important;background:radial-gradient(ellipse at 0% 50%,color-mix(in srgb,var(--rg-c1) 28%,transparent),transparent 60%),linear-gradient(100deg,#050203,color-mix(in srgb,var(--rg-dark) 95%,#000) 80%)!important;box-shadow:inset 0 0 28px #000,0 0 18px -6px var(--rg-c2),0 0 0 1px #000}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] .soreal-idle-bt-track-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-track-v120{height:19px!important;background:repeating-linear-gradient(135deg,#030203 0 3px,#0e0809 3px 6px)!important;box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px var(--rg-c2),inset 0 3px 8px #000,0 0 18px var(--rg-c2)!important;animation:sorealRgBatV1 1.3s ease-in-out infinite}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120{background:linear-gradient(180deg,rgba(255,255,255,.34),transparent 38%,rgba(0,0,0,.5)),linear-gradient(100deg,transparent 28%,rgba(255,255,255,.7) 50%,transparent 72%) 0 0/200% 100% no-repeat,repeating-linear-gradient(90deg,rgba(255,255,255,.22) 0 8px,transparent 8px 16px),linear-gradient(90deg,#000 0%,#000 4%,var(--rg-dark) 12%,var(--rg-c1) 34%,var(--rg-c2) 70%,var(--rg-c3))!important;box-shadow:0 0 26px var(--rg-c2),0 0 8px var(--rg-c3)!important;animation:sorealRgFluxV1 1.9s linear infinite}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] > div:first-child b,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] > div:first-child b,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] > div:first-child b,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] > div:first-child b{text-shadow:0 0 12px var(--rg-c2),0 0 3px var(--rg-c3),0 1px 0 #000!important;letter-spacing:.05em;font-weight:900}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] .soreal-idle-bt-level-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-level-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-level-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-level-v120{filter:drop-shadow(0 0 7px var(--rg-c2));transform:scale(1.06)}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"]::before,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"]::before,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"]::before,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"]::before{content:"";position:absolute;left:-2px;top:-2px;width:14px;height:14px;border-top:3px solid var(--rg-c2);border-left:3px solid var(--rg-c2);border-top-left-radius:6px;pointer-events:none;filter:drop-shadow(0 0 4px var(--rg-c2))}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"]::after,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"]::after,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"]::after,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"]::after{content:"";position:absolute;right:-2px;bottom:-2px;width:14px;height:14px;border-bottom:3px solid var(--rg-c2);border-right:3px solid var(--rg-c2);border-bottom-right-radius:6px;pointer-events:none;filter:drop-shadow(0 0 4px var(--rg-c2))}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"],
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"]{position:relative;border-left-width:11px!important;background:radial-gradient(ellipse at 0% 50%,color-mix(in srgb,var(--rg-c1) 45%,transparent),transparent 58%),radial-gradient(ellipse at 100% 100%,color-mix(in srgb,var(--rg-c2) 22%,transparent),transparent 55%),linear-gradient(100deg,#020102,#0a0508 85%)!important;box-shadow:inset 0 0 34px #000,0 0 26px -4px var(--rg-c2),0 0 0 2px #000,0 0 0 3px var(--rg-c1);animation:sorealRgBraiseV1 2.2s ease-in-out infinite}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] .soreal-idle-bt-track-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-track-v120{height:23px!important;border-radius:0!important;clip-path:polygon(9px 0,100% 0,calc(100% - 9px) 100%,0 100%);background:repeating-linear-gradient(135deg,#010101 0 3px,#0b0708 3px 6px)!important;box-shadow:inset 0 0 0 2px #000,inset 0 0 0 4px var(--rg-c3),inset 0 4px 9px #000,0 0 22px var(--rg-c2)!important;animation:sorealRgBatV1 .9s ease-in-out infinite}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120{background:linear-gradient(180deg,rgba(255,255,255,.4),transparent 36%,rgba(0,0,0,.55)),linear-gradient(100deg,transparent 25%,rgba(255,255,255,.85) 50%,transparent 75%) 0 0/190% 100% no-repeat,repeating-linear-gradient(115deg,rgba(255,255,255,.3) 0 6px,transparent 6px 14px),linear-gradient(90deg,#000 0%,#000 6%,var(--rg-dark) 14%,var(--rg-c1) 34%,var(--rg-c2) 66%,var(--rg-c3) 92%,#fff)!important;box-shadow:0 0 34px var(--rg-c2),0 0 12px var(--rg-c3)!important;animation:sorealRgFluxV1 1.3s linear infinite}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] > div:first-child b,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] > div:first-child b,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] > div:first-child b,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] > div:first-child b{background:linear-gradient(180deg,#fff,var(--rg-c3) 55%,var(--rg-c2));-webkit-background-clip:text;background-clip:text;color:transparent!important;text-shadow:none!important;filter:drop-shadow(0 0 8px var(--rg-c2)) drop-shadow(0 1px 0 #000);letter-spacing:.09em;text-transform:uppercase;font-weight:1000}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] .soreal-idle-bt-level-v120,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-level-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-level-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-level-v120{filter:drop-shadow(0 0 9px var(--rg-c2)) drop-shadow(0 0 3px var(--rg-c3));transform:scale(1.14)}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"]::before,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"]::before,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"]::before,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"]::before{content:"";position:absolute;left:-3px;top:-3px;width:18px;height:18px;border-top:4px solid var(--rg-c3);border-left:4px solid var(--rg-c3);border-top-left-radius:7px;pointer-events:none;filter:drop-shadow(0 0 6px var(--rg-c2))}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"]::after,
+
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"]::after,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"]::after,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"]::after{content:"";position:absolute;right:-3px;bottom:-3px;width:18px;height:18px;border-bottom:4px solid var(--rg-c3);border-right:4px solid var(--rg-c3);border-bottom-right-radius:7px;pointer-events:none;filter:drop-shadow(0 0 6px var(--rg-c2))}
 @keyframes sorealRgFluxV1{0%{background-position:160% 0,0 0,0 0,0 0}100%{background-position:-60% 0,0 0,0 0,0 0}}
 @keyframes sorealRgBatV1{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
 @keyframes sorealRgBraiseV1{0%,100%{box-shadow:inset 0 0 34px #000,0 0 18px -4px var(--rg-c2),0 0 0 2px #000,0 0 0 3px var(--rg-c1)}50%{box-shadow:inset 0 0 34px #000,0 0 34px -2px var(--rg-c2),0 0 0 2px #000,0 0 0 3px var(--rg-c3)}}
-@media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120,
+@media (prefers-reduced-motion:reduce){
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] .soreal-idle-bt-track-v120,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-fill-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-track-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-track-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] .soreal-idle-bt-track-v120,
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-track-v120,
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-track-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"],
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-track-v120,
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"],
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"]{animation:none!important}}
 
 /* Le nom grandit avec le rang. */
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="2"] .soreal-idle-bt-name-v120{font-size:15px!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-name-v120{font-size:16px!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-name-v120{font-size:17px!important}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-name-v120{font-size:18px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="2"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="2"] .soreal-idle-bt-name-v120{font-size:15px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="3"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="3"] .soreal-idle-bt-name-v120{font-size:16px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="4"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="4"] .soreal-idle-bt-name-v120{font-size:17px!important}
+body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="bloodMagic"] [data-rang-v1="5"] .soreal-idle-bt-name-v120,body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="sang"] [data-rang-v1="5"] .soreal-idle-bt-name-v120{font-size:18px!important}
 
 /* ====================== ADVANCED TRAINING : des barres à la couleur de chaque machine ======================
  * Norman (2026-10-04) : « Advanced Training a des barres comme Basic Training ; elles doivent être en accord avec le thème de la page, de belles couleurs, différentes suivant ce que ça fait ». Les barres étaient

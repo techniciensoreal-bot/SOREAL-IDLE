@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 457,
+  "keyframes": 458,
   "fichiersAvecWebAnimations": 19,
   "fichiersCanvas": 12,
   "pointsEntreeRejouables": 257,
@@ -988,6 +988,15 @@
    ],
    "utilisePar": [
     "soreal-idle-itopod.css"
+   ]
+  },
+  {
+   "nom": "bt-souffle",
+   "definiePar": [
+    "soreal-idle-entrainement-puissance-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-entrainement-puissance-v1.css"
    ]
   },
   {

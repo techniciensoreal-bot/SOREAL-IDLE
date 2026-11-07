@@ -18,7 +18,10 @@ assert.ok(meta.includes('data-rang-v1="\'+rangRituel+\'"') && meta.includes("con
 assert.ok(meta.includes('data-rang-v1="\'+rangAugment(def)+\'"'), "Augments");
 
 // Le CSS : un habillage par rang, de 1 à 5, dans chacun des menus concernés ; les couleurs restent celles du menu (variables --rg-*).
-for (const menu of ["entrainement", "augmentations", "bloodMagic", "sang"]) {
+/* Norman (2026-11-07) : l'Entraînement de base a son propre habillage de montée en puissance (soreal-idle-entrainement-puissance-v1.css) : six paliers par côté. */
+const cssEntrainement = readFileSync("cloudflare/public/soreal-idle-entrainement-puissance-v1.css", "utf8");
+for (let n = 0; n <= 5; n++) for (const cote of ["attack", "defense"]) assert.ok(cssEntrainement.includes(`.${cote} .soreal-idle-bt-row-v120[data-rang-v1="${n}"]`), `entrainement ${cote} : palier ${n}`);
+for (const menu of ["augmentations", "bloodMagic", "sang"]) {
   for (let n = 1; n <= 5; n++) assert.ok(css.includes(`[data-menu="${menu}"] [data-rang-v1="${n}"] .soreal-idle-bt-fill-v120`), `${menu} : rang ${n}`);
 }
 for (const v of ["--rg-c1:#c1121f", "--rg-c1:#1d4ed8", "--rg-c1:#ff2d7a", "--rg-c1:#7a0f24"]) assert.ok(css.includes(v), "palette " + v);

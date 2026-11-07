@@ -37,6 +37,10 @@
             'Le tutoriel du début est entièrement refait : des bulles courtes, une idée par bulle, qui passent toutes seules.',
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
+          {menu:'entrainement', titre:'Entraînement de base', points:[
+            'L’Entraînement de base est refait : chaque barre a son emblème et son habillage, de plus en plus travaillés et de plus en plus grands à chaque barre débloquée (cadre, lueur, motif dans la barre) ; les boutons de la défense sont bleus.',
+            'La barre d’outils de l’Entraînement de base (saisie, plafonds, idle, énergie placée) tient maintenant sur une seule ligne.',
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Ta vie (barre du haut et duel) et le texte de vie de la borne s’écrivent maintenant en nombres entiers avant le million : 1000, 10.000, 100.000, 999.999, puis 1M, 1,5M…',
             'Quand les yeux de la borne regardent ta barre de vie, ils visent le bout de la partie pleine, là où elle s’arrête : vie haute, regard vers la droite ; vie basse, vers la gauche.',

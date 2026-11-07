@@ -520,8 +520,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 194,
-  "sha": "aedee7f9780329b8ec7f163e363e0308a4ee9821"
+  "pin": 195,
+  "sha": "ac39791f2f6cf74225563ddf0d4f9e851235fab3"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 202,
-  "sha": "9261d2464f40d7f281ce7f5cec64bdc9076c557e"
+  "pin": 203,
+  "sha": "5e93501ea8485e3657b61092f95679ddf6e8ed25"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 840,
-  "sha": "320024b7fdb26ff63763ec4c413532a60b957979"
+  "pin": 841,
+  "sha": "b7429ed148f85ded79e25c35f26a7643d2315a21"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -720,12 +720,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 876,
-  "sha": "fe148a7d0ce2289754a7d7d152a79c0cb7f04b15"
+  "pin": 878,
+  "sha": "7dae1a32d2ff251db8c9e272ef8c0d9a72d141c3"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 697,
-  "sha": "ace56c77dd969c3d2ec81c0adf17967503ca93a5"
+  "pin": 699,
+  "sha": "a08daf0a1ff46000d4818f8e3d500a2ab075ca6c"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -800,8 +800,8 @@
   "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 12,
-  "sha": "f72351883db089bf753517c97dfb018ece6ee119"
+  "pin": 14,
+  "sha": "2ae0c899a6a152a17ab34ef034d77c0871e9993e"
  },
  "/modules/ui-inventaire-v1.js": {
   "pin": 16,
@@ -924,8 +924,8 @@
   "sha": "4c92d869c01294b08a2a3591b0471b32593f0cd3"
  },
  "/soreal-idle-barre-outils.css": {
-  "pin": 13,
-  "sha": "ca378d138614683399b46d56158b56e55452bcf8"
+  "pin": 14,
+  "sha": "1f79de11864d9ae85900cd80854d84748bc36b93"
  },
  "/soreal-idle-borne-joueur-v1.css": {
   "pin": 3,
@@ -956,8 +956,8 @@
   "sha": "784b4310f6581974959b9f032a34042a00362811"
  },
  "/soreal-idle-entetes-compactes-v1.css": {
-  "pin": 3,
-  "sha": "73e225068e7521c1592c6aed4c0ddbe46613c771"
+  "pin": 4,
+  "sha": "94418f125cb528d3224eea485e6611bc9bd987ce"
  },
  "/soreal-idle-entetes-d.css": {
   "pin": 8,
@@ -967,9 +967,13 @@
   "pin": 7,
   "sha": "5b9cd07112d52f66ca2b23a8ca2cb2dc630022ab"
  },
+ "/soreal-idle-entrainement-puissance-v1.css": {
+  "pin": 15,
+  "sha": "edaaa2bfe428ff1a3d0b4b264707ce05923b22e3"
+ },
  "/soreal-idle-itopod.css": {
-  "pin": 347,
-  "sha": "ca57bc3ac9d00cd6eb209f51eaf4f9b02091fdca"
+  "pin": 350,
+  "sha": "d8de691019d58f320262dabb84b64baf84313a21"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,
@@ -988,12 +992,12 @@
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 156,
-  "sha": "97c69f0e6dd91b0b190f196584c7a9dd2f23fc06"
+  "pin": 158,
+  "sha": "40b58c55b42e4a394fd55997743224eeae83fe37"
  },
  "/soreal-idle-ui.css": {
-  "pin": 76,
-  "sha": "d4056489c00510e57886a225128704117ecd381b"
+  "pin": 77,
+  "sha": "770115557e93f013196bcbc8f10ae24aba68fc5b"
  },
  "/soreal-idle-ui.js": {
   "pin": 660,

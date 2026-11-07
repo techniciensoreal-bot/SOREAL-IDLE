@@ -8,6 +8,8 @@
   const REG=window.__SOREAL_IDLE_REG__||(window.__SOREAL_IDLE_REG__={});
   if(REG.__chargé_ui_entrainement_v1)return;
   REG.__chargé_ui_entrainement_v1=true;
+  /* Règle n°4 (redessin invisible) : l'animation des barres pose cet attribut sur le remplissage ; un redessin de la page ne doit pas le retirer (audit __auditerRedessinIdleV1__('entrainement') : « attributsPerdus » vide). */
+  (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-idle-bt-duration-v220');
 
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function idleNombre_(){return REG.idleNombre_.apply(null,arguments);}
@@ -1541,7 +1543,7 @@
           >
             <div class="soreal-idle-bt-main-v120">
               <div class="soreal-idle-bt-name-v120">
-                ${idleHtml_(window.__SOREAL_IDLE_ICONES_V1__?window.__SOREAL_IDLE_ICONES_V1__.avec('basicTraining',skill.id,skill.name):skill.name)}
+                ${idleHtml_(skill.name)}
               </div>
 
               <div class="soreal-idle-bt-track-v120">
@@ -1689,7 +1691,7 @@
             </div>
 
             <div class="soreal-idle-bt-entree-v1"><div class="soreal-idle-bt-input-box-v120">
-              <label for="sorealIdleTrainingInputV120">🎚️ Input</label>
+              <label for="sorealIdleTrainingInputV120">Input</label>
               <input
                 id="sorealIdleTrainingInputV120"
                 type="text"
@@ -1720,7 +1722,7 @@
             </div>
 
             <div class="soreal-idle-bt-presets-v120">
-              <span>💤 Idle</span>
+              <span>Idle</span>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.5)">1/2</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.25)">1/4</button>
               <button type="button" class="clear" onclick="window.__viderBasicTrainingIdleV120__()">Tout retirer</button>
@@ -1732,13 +1734,13 @@
           ${groupeBasicTrainingIdleV120_(
             j,
             'attack',
-            '⚔️ Compétences d’attaque'
+            'Compétences d’attaque'
           )}
 
           ${groupeBasicTrainingIdleV120_(
             j,
             'defense',
-            '🛡️ Compétences de défense'
+            'Compétences de défense'
           )}
         `;
       }
