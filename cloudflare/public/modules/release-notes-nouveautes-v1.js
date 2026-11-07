@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Un boss renommé garde son nouveau nom partout, y compris dans le journal de combat quand il apparaît comme ennemi d’Aventure (« 743 poulets furax » ne redevient plus « 743 coucous furax »).",
     "Boss 106 : derrière son animation de mort, on voit déjà la photo du boss suivant (le même boss, transformé)."
   ] };
 })();

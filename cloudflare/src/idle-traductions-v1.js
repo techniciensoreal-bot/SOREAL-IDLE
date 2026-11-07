@@ -231,9 +231,27 @@ export function appliquerSurchargesBossEnV1(reponse, sql) {
 }
 
 /* Traduit une réponse du moteur selon la langue du joueur. Renvoie la même valeur si rien ne change. Avec `sql`, les surcharges d'administrateur ANGLAISES des boss sont ensuite appliquées (anglais seulement). */
+/*
+ * Les ennemis de la zone « Un endroit très étrange » portent les noms de boss déjà vaincus (« 743 pissed off Cuckoos »…) : un boss RENOMMÉ par l'administrateur (Norman, 2026-11-07 : « dans le journal de combat, certains boss ont leur ancien nom ;
+ * 743 poulets furax s'appelle encore 743 coucous furax ») doit porter son nouveau nom partout, y compris comme ennemi d'Aventure. Une table de plus, seulement pour les boss dont le nom d'origine est aussi celui d'un ennemi ET qui ont un nom de remplacement.
+ */
+const BOSS_NOMME_ENNEMI_V1 = BOSS_NOMS.filter((b) => b && b.nomEn && Object.prototype.hasOwnProperty.call(ENNEMIS, b.nomEn));
+function tableAvecNomsBossV1_(base, en, sql) {
+  if (!sql) return base;
+  let table = null;
+  for (const b of BOSS_NOMME_ENNEMI_V1) {
+    let nom = null;
+    try { nom = nomBossSurchargeV1(sql, b.id, en ? "en" : undefined); } catch (_e) { nom = null; }
+    if (!nom) continue;
+    if (!table) table = new Map(base);
+    table.set(b.nomEn, nom);
+  }
+  return table || base;
+}
+
 export function traduireReponseV1(reponse, langue, sql) {
   const en = idleLangueValideV1(langue) === "en";
-  const traduite = marcher_(reponse, en ? FR_VERS_EN_V1 : EN_VERS_FR_V1);
+  const traduite = marcher_(reponse, tableAvecNomsBossV1_(en ? FR_VERS_EN_V1 : EN_VERS_FR_V1, en, sql));
   return en && sql ? appliquerSurchargesBossEnV1(traduite, sql) : traduite;
 }
 

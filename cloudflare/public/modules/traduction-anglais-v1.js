@@ -14,7 +14,7 @@
   if(window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__)return;
 
   var CLE_LANGUE='soreal_idle_langue_v1';
-  var URL_DICO='/modules/traduction-anglais-dict-v1.json?v=899';
+  var URL_DICO='/modules/traduction-anglais-dict-v1.json?v=900';
   var ATTRIBUTS=['title','placeholder','aria-label','alt'];
 
   function langue_(){
