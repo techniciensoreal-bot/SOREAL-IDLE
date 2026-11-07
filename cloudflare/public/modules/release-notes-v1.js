@@ -35,6 +35,7 @@
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Quand un combat est serré, les yeux de la borne regardent la barre de vie du boss puis la tienne, plusieurs fois, sans se presser.',
             'Les yeux de la borne se rapprochent et s’éloignent : ils arrivent d’un bond depuis le fond, reculent à chaque coup reçu, se penchent vers l’écran quand le boss faiblit, viennent tout près quand il va tomber, et à la défaite les deux croix s’éloignent dans le lointain.',
             'L’écran LED de la borne demande moins de calcul à chaque image : même aspect, moins de petits à-coups en combat, surtout sur téléphone.',
             'Pendant un combat, la borne n’a plus d’animation de personnage (le bonhomme qui court, le clown, la tronçonneuse, Twin Peaks et les hommes qui rient sont retirés pour l’instant, ils reviendront plus tard) : à la place, elle a des yeux ! Ils apparaissent dès le lancement du combat et regardent la barre de vie du boss. Leur humeur suit le combat : concentrés, déterminés quand le boss faiblit, ravis quand il va tomber, inquiets puis apeurés quand ta vie baisse, avec une grimace à chaque coup reçu. Victoire : yeux heureux et étincelles. Défaite : deux croix.',

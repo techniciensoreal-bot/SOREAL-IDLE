@@ -2137,7 +2137,7 @@ function couleurBarre(r,e){
 }
 
 /* ------------------------------------------------------------------ catalogue : durée, priorité (un événement de combat l'emporte sur le reste), instant de l'image fixe (prefers-reduced-motion) */
-var YEUX=null;function yeuxMod(){if(!YEUX&&window.__SOREAL_IDLE_BORNE_YEUX_V1__)YEUX=window.__SOREAL_IDLE_BORNE_YEUX_V1__({px:px,clamp:clamp,sm:sm,BLA:BLA,P:function(){return P;},S:function(){return S;}});return YEUX;}   /* scène des yeux : modules/borne-yeux-v1.js (Norman, 2026-11-05 : de temps en temps, des yeux pleins d'expressions quand personne n'a cliqué depuis quelques secondes) */
+var YEUX=null;function yeuxMod(){if(!YEUX&&window.__SOREAL_IDLE_BORNE_YEUX_V1__)YEUX=window.__SOREAL_IDLE_BORNE_YEUX_V1__({px:px,clamp:clamp,sm:sm,BLA:BLA,P:function(){return P;},S:function(){return S;},serre:function(){return serreV1(prevoirCombatBossV1(reg().idleEtat));}});return YEUX;}   /* scène des yeux : modules/borne-yeux-v1.js (Norman, 2026-11-05 : de temps en temps, des yeux pleins d'expressions quand personne n'a cliqué depuis quelques secondes) */
 var SC={
   base:{fn:sBase,dur:10,prio:0,cap:1.0},
   yeux:{fn:function(t){var Y=yeuxMod();if(Y)Y.scene(t);},dur:function(p){return p.dur||6;},prio:0,cap:1.0},

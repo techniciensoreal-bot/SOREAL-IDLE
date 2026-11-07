@@ -156,8 +156,16 @@ function sCombat(t){
   var cible=humeur(t,pp,vie,pj,pp.issue,st);
   /* le regard : le bout de la barre de vie du boss (en bas de l'écran) ; de temps en temps un coup d'œil vers la vie du joueur (en haut à gauche), puis de nouveau la barre */
   var len=W-2,xb=1+vie*len,gx=clamp((xb/W)*2-1,-1,1)*0.95,cy=0.85;
-  var cycle=7.5,ph=(t+2)%cycle;
-  if(t>CB_SURPRISE_S&&ph>6.4&&ph<7.1){gx=-0.9;cy=-0.55;}
+  /* combat SERRÉ (Norman, 2026-11-07 : « quand c'est serré, il doit regarder la barre de vie du boss puis la nôtre plusieurs fois, mais pas trop vite pour que ce soit naturel ») : toutes les ~2,9 s (durée variable d'un tour à l'autre), il quitte la barre du boss pour regarder la nôtre un peu moins d'une seconde, puis revient ; hors combat serré : un seul coup d'œil rare vers notre vie */
+  if(st.serreT===undefined||t-st.serreT>0.5||t<st.serreT){st.serreT=t;st.serre=typeof O.serre==='function'?Boolean(O.serre()):false;}
+  var ph;
+  if(st.serre&&t>CB_SURPRISE_S){
+    var per=2.9,u0=t-CB_SURPRISE_S,tour=Math.floor(u0/per),u=u0-tour*per,dec=hash(tour+3)*0.5;
+    if(u>1.7+dec&&u<2.55+dec*0.6){gx=-0.9;cy=-0.55;}
+  }else{
+    ph=(t+2)%7.5;
+    if(t>CB_SURPRISE_S&&ph>6.4&&ph<7.1){gx=-0.9;cy=-0.55;}
+  }
   if(t<CB_OUVERTURE_S)cible=ex({lt:0.6,lb:0.25,px:0,py:0,ps:1});
   cible.px=gx;cible.py=cy;
   cible.z=P.reduced?0.85:zoomCombat(t,vie,pj,st);

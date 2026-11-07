@@ -11,7 +11,7 @@ const fen = { addEventListener() {}, performance: { now: () => 0 } };
 const ctx = vm.createContext({ window: fen, performance: fen.performance, Math, Array, Object, String, Number });
 vm.runInContext(src, ctx);
 
-function monde() {
+function monde(serre) {
   const P = { W: 120, H: 14, p: {}, reduced: false };
   const S = { pv: { pct: 1 }, bar: { v: 1 } };
   let pts = new Map();
@@ -19,7 +19,7 @@ function monde() {
     px: (x, y, c, v) => { x = Math.round(x); y = Math.round(y); if (x < 0 || y < 0 || x >= P.W || y >= P.H) return; pts.set(x + "," + y, v === undefined ? 255 : v); },
     clamp: (v, a, b) => Math.max(a, Math.min(b, v)),
     sm: (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); },
-    BLA: 7, P: () => P, S: () => S
+    BLA: 7, P: () => P, S: () => S, serre: () => Boolean(serre)
   };
   const Y = fen.__SOREAL_IDLE_BORNE_YEUX_V1__(O);
   const image = (f) => { pts = new Map(); f(); return pts; };
@@ -84,6 +84,27 @@ function monde() {
   const peurDebut = largeur(0.6, 0.12, 2.0, 1.2), peurPlusTard = largeur(0.6, 0.12, 4.5, 1.2);
   assert.ok(peurDebut < calme - 1, "la peur s'installe : il recule");
   assert.ok(peurPlusTard > peurDebut, "puis il se détend un peu (la peur ne le fait pas reculer en continu)");
+}
+
+/* 5 ter. COMBAT SERRÉ : le regard alterne barre du boss / notre vie, plusieurs fois, sans s'emballer ; sinon un coup d'œil rare */
+{
+  /* regard vers notre vie (pupilles en haut à gauche) : le centre de masse des points allumés se déplace vers la droite ; on compte les montées au-dessus de la valeur médiane */
+  const alternances = (serre) => {
+    const w = monde(serre); w.S.pv.pct = 0.5; w.S.bar.v = 0.6; const serie = [];
+    for (let t = 1.2; t <= 13; t += 0.04) {
+      const c = w.image(() => w.Y.combat(t)); let sx = 0, n = 0;
+      for (const k of c.keys()) { sx += Number(k.split(",")[0]); n += 1; }
+      serie.push([t, n ? sx / n : NaN]);
+    }
+    const valeurs = serie.map((x) => x[1]).filter((v) => Number.isFinite(v)).sort((a, b) => a - b), med = valeurs[valeurs.length >> 1];
+    let dedans = false, nbr = 0; const instants = [];
+    for (const [t, v] of serie) { const haut = Number.isFinite(v) && v > med + 0.25; if (haut && !dedans && (!instants.length || t - instants[instants.length - 1] > 1.2)) { nbr += 1; instants.push(t); } dedans = haut; }
+    return { n: nbr, instants };
+  };
+  const serre = alternances(true), calme = alternances(false);
+  assert.ok(serre.n >= 3, "combat serré : il regarde notre vie plusieurs fois en 12 s (" + serre.n + ")");
+  for (let i = 1; i < serre.instants.length; i++) assert.ok(serre.instants[i] - serre.instants[i - 1] >= 2.3, "pas trop vite : au moins 2,3 s entre deux regards vers notre vie");
+  assert.ok(calme.n <= 2, "combat calme : un coup d'œil rare (" + calme.n + ")");
 }
 
 /* 6. branchement dans la borne */
