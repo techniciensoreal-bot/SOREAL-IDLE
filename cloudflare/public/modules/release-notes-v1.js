@@ -80,6 +80,8 @@
             'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
           ]},
           {menu:'avance', titre:'Entraînement avancé', points:[
+            'Entraînement avancé : la case « Faire suivre l’énergie » est maintenant bien visible sous le titre (elle était cachée sous la barre d’énergie et de vie).',
+            'Entraînement avancé : quand le moteur te rend l’énergie d’une compétence (cible atteinte) ou la fait passer à la suivante, « Énergie placée » se met à jour tout de suite, sans attendre un clic.',
             'Une « Cible » à -1 reste à -1 à l’écran de l’Entraînement avancé : elle s’affichait 0 alors que le jeu la gardait bien en mémoire (elle reste liée à ton compte, comme toutes les cibles).',
             'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
           ]},

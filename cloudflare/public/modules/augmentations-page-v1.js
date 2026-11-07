@@ -1655,7 +1655,8 @@
           '<div class="soreal-idle-bt-presets-v120"><span>💤 Idle</span><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.5)">1/2</button><button type="button" onclick="window.__presetAugmentIdleV1__(\'idle\',.25)">1/4</button><button type="button" class="clear" onclick="window.__viderAdvancedTrainingIdleV1__()">Tout reprendre</button></div>'+(window.__SOREAL_IDLE_ALLOC_V1__?window.__SOREAL_IDLE_ALLOC_V1__.compteur('energy','advancedTraining'):'')+'</div></div>';
         return '<style>'+
           '.soreal-idle-at-v1{display:grid;gap:10px}'+
-          '.soreal-idle-at-haut-v1{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}'+
+          /* Norman (2026-11-07) : « il n'y a pas de bouton pour passer l'énergie dans Entraînement avancé » : « Faire suivre l'énergie » existait, mais dans une rangée tout en haut de la page, cachée sous la barre fixe d'énergie et de vie ; la rangée est maintenant SOUS le titre. */
+          '.soreal-idle-at-haut-v1{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:6px 0 10px}'+
           '.soreal-idle-at-aide-bouton-v1{min-height:44px;padding:6px 14px;border-radius:10px;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.12);color:inherit;font:inherit;font-weight:900;cursor:pointer}'+
           '.soreal-idle-at-avance-v1{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800;cursor:pointer}'+
           '.soreal-idle-at-avance-v1 input{width:22px;height:22px}'+
@@ -1691,11 +1692,11 @@
           '@media(max-width:620px){.soreal-idle-at-ligne-v1{grid-template-columns:1fr 1fr 1fr;grid-template-areas:"nom nom nom" "niv alloc cible" "btn btn btn"}.soreal-idle-at-nom-v1{grid-column:1/-1;text-align:center}.soreal-idle-at-boutons-v1{grid-column:1/-1;justify-content:center}.soreal-idle-at-boutons-v1 button{flex:1;max-width:140px}}'+
         '</style>'+
         '<div class="soreal-idle-at-v1">'+
+          '<header class="soreal-idle-at-entete-v1"><div class="soreal-idle-at-titre-page-v1" role="heading" aria-level="1">Entraînement avancé</div><div class="soreal-idle-at-ornement-v1" aria-hidden="true"><i></i><b>✦</b><i></i></div><p>(C’est l’heure de muscler tes coups)</p></header>'+
           '<div class="soreal-idle-at-haut-v1">'+
             '<button type="button" class="soreal-idle-at-aide-bouton-v1" onclick="window.__basculerAideAdvancedTrainingIdleV1__()">Je fais quoi ?</button>'+
             '<label class="soreal-idle-at-avance-v1"><input type="checkbox" '+(s.state.data&&s.state.data.advanceEnergy?'checked ':'')+'onchange="window.__basculerAdvanceAdvancedTrainingIdleV1__(this.checked)"> Faire suivre l’énergie</label>'+
           '</div>'+
-          '<header class="soreal-idle-at-entete-v1"><div class="soreal-idle-at-titre-page-v1" role="heading" aria-level="1">Entraînement avancé</div><div class="soreal-idle-at-ornement-v1" aria-hidden="true"><i></i><b>✦</b><i></i></div><p>(C’est l’heure de muscler tes coups)</p></header>'+
           '<div class="soreal-idle-at-aide-v1" id="sorealIdleAtAideV1" hidden>'+
             '<p><b>C’est quoi ?</b> '+(wandoosOk?'L’Entraînement avancé, c’est la salle de sport de ton héros : tu y dépenses de l’énergie pour devenir plus fort en Aventure (plus de puissance, plus d’endurance, moins de dégâts quand tu bloques, et des dumps de Wandoos plus rapides).':'L’Entraînement avancé, c’est la salle de sport de ton héros : tu y dépenses de l’énergie pour devenir plus fort en Aventure (plus de puissance, plus d’endurance, moins de dégâts quand tu bloques).')+'</p>'+
             '<ol>'+
@@ -1821,6 +1822,7 @@
         const j=H.getIdleEtat();
         const sys=j?systemeMetaParIdIdleV130_(j,'advancedTraining'):null;
         const maintenant=performance.now();
+        const caseAvance=document.querySelector('.soreal-idle-at-avance-v1 input'),avanceCochee=Boolean(caseAvance&&caseAvance.checked);
         for(let i=0;i<lignes.length;i++){
           const el=lignes[i],id=el.getAttribute('data-at-piste'),d=el.dataset;
           const taux=Number(d.atTaux)||0,gratuit=d.atGratuit==='1',cible=Number(d.atCible)||0;
@@ -1841,6 +1843,11 @@
           const travailParS=gratuit?Infinity:alloc*taux;
           const niveauxParS=gratuit?50:Math.min(50,travailParS/(etat.n+1));
           const atteint=cible>0&&etat.n>=cible;
+          /* Norman (2026-11-07) : « quand l'énergie m'est rendue, Énergie placée ne repasse pas à 0 » : l'Entraînement avancé n'est pas un menu synchronisé en continu, donc l'énergie rendue (ou passée à la ligne suivante) par le moteur n'apparaissait qu'au prochain clic. Dès qu'un Target est atteint (ou qu'une cible -1 doit passer son énergie), on demande une synchro, au plus une fois toutes les 3 s par ligne. */
+          if(alloc>0&&(atteint||(cible<0&&avanceCochee))){
+            const tSync=Date.now();
+            if(tSync-(el.__atSyncT||0)>3000){el.__atSyncT=tSync;try{const Rg=window.__SOREAL_IDLE_REG__;if(Rg&&typeof Rg.synchroniserJeuIdleV7_==='function')Rg.synchroniserJeuIdleV7_(true);}catch(_e){}}
+          }
           const pleine=!atteint&&niveauxParS>=49.9;
           if(barre)barre.classList.toggle('pleine',pleine);
           /* Le remplissage n'est PLUS écrit ici (150 ms = des à-coups) : il est dessiné à chaque image par atImagesIdleV1_ (Norman, 2026-10-10 : « les barres d'entraînement avancé avancent de manière saccadée »). */
