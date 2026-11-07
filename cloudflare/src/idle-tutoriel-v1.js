@@ -79,7 +79,7 @@ export function normaliserGuideV1(brut) {
       }
     }
     const placement = IDLE_TUTO_PLACEMENTS_V1.includes(String(etape.placement)) ? String(etape.placement) : "auto";
-    return { humeur: IDLE_TUTO_HUMEURS_V1.includes(String(etape.humeur)) ? String(etape.humeur) : "", titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible), attendreVoix: etape.attendreVoix !== false, scene: IDLE_TUTO_SCENES_V1.includes(String(etape.scene)) ? String(etape.scene) : "", mascotteSur: scenePlace(etape.mascotteSur), clignote: etape.clignote === true && Boolean(cible) };
+    return { humeur: IDLE_TUTO_HUMEURS_V1.includes(String(etape.humeur)) ? String(etape.humeur) : "", titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible), attendreVoix: etape.attendreVoix !== false, scene: IDLE_TUTO_SCENES_V1.includes(String(etape.scene)) ? String(etape.scene) : "", mascotteSur: scenePlace(etape.mascotteSur), clignote: etape.clignote === true && Boolean(cible), clignoteAussi: scenePlace(etape.clignoteAussi), attendreVictoire: etape.attendreVictoire === true };
   });
   if (!etapes.some((e) => e.texte || e.titre)) throw new Error("TUTO_ETAPES_VIDES");
   const vuBrut = String(g.vuId == null ? "" : g.vuId).trim();
@@ -109,6 +109,23 @@ export const IDLE_TUTORIEL_LHU_V1 = Object.freeze({
     { humeur: "normal", titre: "Lhu", scene: "place", mascotteSur: "button[onclick*=\"'entrainement'\"]", placement: "bas", surbrillance: false, clignote: true, avanceAuClic: true,
       cible: { selecteur: "button[onclick*=\"'entrainement'\"]", libelle: "Le menu Entraînement de base" },
       texte: "En haut tu as des menus (à gauche sur PC). Pour pouvoir vaincre les boss qui t'attendent, il va falloir devenir plus fort, et pour ça, il faut s'entraîner. Clique sur le menu « Entraînement de base » qui clignote." },
+    { humeur: "normal", titre: "Lhu", menu: "entrainement", scene: "place", mascotteSur: "button[onclick*=\"'idle',.5\"]", placement: "bas", surbrillance: false, clignote: true, avanceAuClic: true,
+      cible: { selecteur: "button[onclick*=\"'idle',.5\"]", libelle: "Le bouton 1/2 de IDLE" },
+      texte: "La barre verte en haut représente ton énergie. Vu l'état dans lequel tu es arrivé, tu récupères tout doucement ton énergie jusqu'à son maximum qui est de 500.\n\nIl faut placer l'énergie verte pour qu'elle travaille plutôt que de rester là, à ne rien faire. Tu peux écrire un chiffre dans la zone input pour choisir quelle portion d'énergie tu veux placer. Mais comme je sens que ça devient compliqué pour toi, clique juste sur le bouton 1/2 de IDLE." },
+    { humeur: "normal", titre: "Lhu", menu: "entrainement", placement: "bas", surbrillance: false, clignote: true, clignoteAussi: "#sorealIdleHudPvBarV2", avanceAuClic: true,
+      cible: { selecteur: "button[onclick*=\"'attaque_passive','plus'\"]", libelle: "Le bouton + de Attaque passive" },
+      texte: "Voilà, si tu regardes dans input, ça a automatiquement pris la moitié de ton énergie disponible. Dans ton cas c'est {input}.\n\nAssigne cette énergie en cliquant sur le bouton + de ATTAQUE PASSIVE et jette un œil sur ta barre de vie en haut." },
+    { humeur: "normal", titre: "Lhu", menu: "entrainement", placement: "bas", surbrillance: false, clignote: true, avanceAuClic: true,
+      cible: { selecteur: "button[onclick*=\"'blocage','plus'\"]", libelle: "Le bouton + de Blocage" },
+      texte: "T'as vu ça ? Comment tes PV grimpent ? Après, savoir donner des coups, c'est bien. Mais savoir en encaisser, c'est mieux. J'ai entendu ça un jour dans un film de Kung-Fu. Donc maintenant, tu vas placer l'autre moitié dans le blocage en cliquant sur le +." },
+    { humeur: "normal", titre: "Lhu", scene: "place", mascotteSur: "button[onclick*=\"'combat'\"]", placement: "bas", surbrillance: false, clignote: true, avanceAuClic: true,
+      cible: { selecteur: "button[onclick*=\"'combat'\"]", libelle: "Le menu Combat de boss" },
+      texte: "Voilà, maintenant, je pense qu'on est bon. On va rendre une petite visite à notre ami le Petit bout de peluche. Retourne dans le menu Combat de Boss." },
+    { humeur: "normal", titre: "Lhu", menu: "combat", scene: "place", mascotteSur: "#sorealIdleBossNukeV1", placement: "haut", surbrillance: false, avanceAuClic: true, attendreVictoire: true,
+      cible: { selecteur: "#sorealIdleBossStartV100", libelle: "Le bouton Fight" },
+      texte: "Allez, appuie encore sur le gros bouton rouge." },
+    { humeur: "normal", titre: "Lhu", menu: "combat", placement: "bas", attendreVoix: false,
+      texte: "Bravo ! Tu l'as défoncé cette fois. Plus le temps va passer et plus tu vas devenir fort. Même si tu fermes le jeu. Je te laisse un peu, je dois chier. Mais vas-y, t'es prêt à tuer les prochains boss." },
   ],
 });
 

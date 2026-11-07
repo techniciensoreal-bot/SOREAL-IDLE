@@ -187,7 +187,8 @@
   function place(selecteur){
     var jeton=etat.jeton;
     var el=cibleAtterrissage(selecteur);
-    if(el){var r0=el.getBoundingClientRect(),v=V();if(r0.top<60||r0.bottom>v.H-60){try{el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});}catch(_e){}}}
+    if(el&&posable(selecteur))cadrer(el);   /* sur Nuke : la page se met en place comme pour la pose */
+    else if(el){var r0=el.getBoundingClientRect(),v=V();if(r0.top<60||r0.bottom>v.H-60){try{el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});}catch(_e){}}}
     var p=placePetit(cibleAtterrissage(selecteur));
     if(!etat.racine){creer('vole');var q=placePetit(null);poser(q.x,q.y,q.k);}
     visage(posable(selecteur)?'normal':'vole');

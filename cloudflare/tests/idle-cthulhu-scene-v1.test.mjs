@@ -22,7 +22,7 @@ const sc = fs.readFileSync("cloudflare/public/modules/cthulhu-scene-v1.js", "utf
 assert.ok(/function tourner\(expr\)\{visage\(expr\);return Promise\.resolve\(\);\}/.test(sc), "demi-tour en une seule image");
 assert.ok(/attendre\(1000\)/.test(sc), "une seconde d'attente après le demi-tour");
 assert.ok(/el\.id==='sorealIdleBossNukeV1'/.test(sc) && /posable\(selecteur\)\?'normal':'vole'/.test(sc), "il ne se pose que sur le bouton Nuke");
-assert.ok(!/partir\(\)/.test(fs.readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8")), "il ne part pas à la fin du guide");
+assert.ok(/sc\.partir\(\)/.test(fs.readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8")), "il s'envole à la fin du guide (pas au clic sur Fight)");
 assert.ok(/data-morph-garder/.test(sc), "règle n°4 : le morph le laisse en place");
 const tu = fs.readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8");
 assert.ok(tu.includes("etape.surbrillance!==false&&!etape.scene"), "pas de cadre pendant une scène");

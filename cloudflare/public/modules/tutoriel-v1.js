@@ -78,9 +78,9 @@ function installerStyle_(){
     '#'+ID+' .tu-cth{position:absolute;left:8px;top:-118px;width:130px;height:130px;pointer-events:none}'+
     '#'+ID+' .tu-cth .cth-v1{width:130px;height:130px}'+
     /* Cthulhu en grand (arrive / grand / repart) : plein cadre, centré en haut, tout entier visible avec son visage ; la fenêtre de texte se cale en bas (Norman, 2026-11-04 : « il est coupé, on ne voit pas son visage »). */
-    '.tu-clignote{animation:tuClignote 1s ease-in-out infinite !important}'+
-    '@keyframes tuClignote{0%,100%{box-shadow:0 0 0 0 rgba(255,226,122,0);filter:brightness(1)}50%{box-shadow:0 0 18px 6px rgba(255,226,122,.95);filter:brightness(1.45)}}'+
-    '@media (prefers-reduced-motion:reduce){.tu-clignote{animation:none !important;box-shadow:0 0 14px 5px rgba(255,226,122,.95)}}'+
+    '.tu-anneau{position:fixed;z-index:99990;pointer-events:none;box-sizing:border-box;border:3px solid #ffe27a;animation:tuClignote 1s ease-in-out infinite}'+
+    '@keyframes tuClignote{0%,100%{box-shadow:0 0 0 0 rgba(255,226,122,0);opacity:.25}50%{box-shadow:0 0 18px 6px rgba(255,226,122,.95);opacity:1}}'+
+    '@media (prefers-reduced-motion:reduce){.tu-anneau{animation:none;box-shadow:0 0 14px 5px rgba(255,226,122,.95)}}'+
     '#'+ID+'{--tu-B:min(66vh,96vw)}'+
     /* bulle de dialogue de Lhu (Norman, 2026-11-07 : « je veux des bulles de dialogues ») : fond clair, queue qui pointe vers lui (placer_ pose data-queue et --qx) */
     '#'+ID+'.tu-bulle{background:#fffdf3;color:#1a1a1a;border:3px solid #000;border-radius:22px;box-shadow:0 6px 0 rgba(0,0,0,.35);width:min(330px,calc(100vw - 16px))}'+
@@ -110,6 +110,36 @@ function installerStyle_(){
 
 /* ---------- positionnement ---------- */
 
+/* Éléments qui clignotent (Norman, 2026-11-07 : « le menu doit clignoter », « la barre de vie et le bouton + clignotent ») : un anneau lumineux POSÉ sur chaque élément, jamais une classe sur l'élément (le redessin de la page la retirerait, règle n°4). Les anneaux vivent dans <body>, hors du morph. */
+var anneaux=[];
+function retirerAnneaux_(){anneaux.forEach(function(a){if(a.parentNode)a.parentNode.removeChild(a);});anneaux=[];}
+function anneaux_(etape){
+  var els=[];
+  if(etape&&etape.clignote&&etape.cible&&etape.cible.selecteur){var c=cibler_(etape.cible.selecteur);if(c&&visible_(c))els.push(c);}
+  if(etape&&etape.clignoteAussi){try{Array.prototype.forEach.call(document.querySelectorAll(etape.clignoteAussi),function(x){if(visible_(x))els.push(x);});}catch(_e){}}
+  while(anneaux.length>els.length){var d=anneaux.pop();if(d.parentNode)d.parentNode.removeChild(d);}
+  while(anneaux.length<els.length){var n=document.createElement('div');n.className='tu-anneau';n.setAttribute('data-morph-garder','1');n.setAttribute('aria-hidden','true');document.body.appendChild(n);anneaux.push(n);}
+  els.forEach(function(x,i){
+    var r=x.getBoundingClientRect(),a=anneaux[i];
+    a.style.left=(r.left-3)+'px';a.style.top=(r.top-3)+'px';a.style.width=(r.width+6)+'px';a.style.height=(r.height+6)+'px';
+    var rad=getComputedStyle(x).borderRadius;a.style.borderRadius=rad&&rad!=='0px'?rad:'10px';
+  });
+}
+/* Texte dynamique : {input} = le nombre écrit dans la zone de saisie de l'Entraînement de base. */
+function texteDyn_(t){
+  return String(t==null?'':t).replace(/\{input\}/g,function(){
+    var i=document.getElementById('sorealIdleTrainingInputV120');
+    return i&&i.value!==''?String(i.value):'';
+  });
+}
+/* Réglage du joueur : désactiver les aides de Cthulhu (lié au compte : clé soreal_idle_*). */
+var CLE_AIDES='soreal_idle_aides_lhu_off_v1';
+function aidesActives_(){try{return localStorage.getItem(CLE_AIDES)!=='1';}catch(_e){return true;}}
+function definirAides_(actif){
+  try{if(actif)localStorage.removeItem(CLE_AIDES);else localStorage.setItem(CLE_AIDES,'1');}catch(_e){}
+  if(!actif&&etat.enCours&&!etat.enCours.apercu)fermer_(false);
+}
+window.__basculerAidesLhuIdleV1__=function(actif){definirAides_(Boolean(actif));};
 function placer_(bulle,cadre,etape){
   var cible=etape&&etape.cible?cibler_(etape.cible.selecteur):null;
   var vw=window.innerWidth,vh=window.innerHeight,m=8;
@@ -124,11 +154,7 @@ function placer_(bulle,cadre,etape){
       }else cadre.hidden=true;
     }
   }else if(cadre)cadre.hidden=true;
-  /* clignote : l'élément à cliquer clignote (jamais de cadre) */
-  var cl=cible&&visible_(cible)&&etape&&etape.clignote?cible:null;
-  var anc=document.querySelector('.tu-clignote');
-  if(anc&&anc!==cl)anc.classList.remove('tu-clignote');
-  if(cl&&!cl.classList.contains('tu-clignote'))cl.classList.add('tu-clignote');
+  anneaux_(etape);
   var p=String(etape&&etape.placement||'auto');
   var cr=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__&&bulle.classList.contains('tu-bulle')?window.__SOREAL_IDLE_CTHULHU_SCENE_V1__.rect():null;
   if(cr&&cr.width>0){
@@ -219,6 +245,7 @@ function texteParle_(guide,i){
     if(Array.isArray(dit))dit=blocsEtape_(dit);   /* un texte dit par bloc (cadre jaune) : les blocs supprimés ne sont plus lus */
     if(typeof dit==='string'&&dit.trim())brut=dit;
   }catch(_e){}
+  brut=texteDyn_(brut);   /* {input} : le chiffre vu à l'écran, dit tel quel */
   return tts&&typeof tts.retirerParentheses==='function'?tts.retirerParentheses(brut):brut;   /* sans écraser les retours à la ligne : le même texte que l'éditeur, donc les mêmes empreintes */
 }
 function lireEtape_(s,force){
@@ -261,7 +288,8 @@ function arreterBoucle_(){if(boucle){clearInterval(boucle);boucle=0;}}
 function fermer_(vu){
   var s=etat.enCours;
   arreterBoucle_();
-  Array.prototype.forEach.call(document.querySelectorAll('.tu-clignote'),function(x){x.classList.remove('tu-clignote');});
+  retirerAnneaux_();
+  try{var sc=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;if(sc&&sc.existe())sc.partir();}catch(_e){}
   var b=document.getElementById(ID),c=document.getElementById(ID_CADRE);
   if(b&&b.parentNode)b.parentNode.removeChild(b);
   if(c&&c.parentNode)c.parentNode.removeChild(c);
@@ -337,7 +365,7 @@ function afficherEtape_(garderTaille){
   if(!b){b=document.createElement('div');b.id=ID;b.setAttribute('role','dialog');b.setAttribute('data-soreal-tts-ignore','1');b.setAttribute('aria-live','polite');document.body.appendChild(b);}
   if(!c){c=document.createElement('div');c.id=ID_CADRE;c.hidden=true;document.body.appendChild(c);}
   var nbEtapes=s.guide.etapes.length;
-  var paragraphes=String(e.texte||'').split(/\n+/).filter(function(x){return x.trim();}).map(function(x){return '<p>'+esc_(x)+'</p>';}).join('');
+  var paragraphes=texteDyn_(e.texte||'').split(/\n+/).filter(function(x){return x.trim();}).map(function(x){return '<p>'+esc_(x)+'</p>';}).join('');
   var dernier=s.i>=nbEtapes-1;
   /* « Avance au clic » : on attend le clic sur la cible (indice affiché, bouton Suivant masqué le temps du délai). */
   s.attenteClic=Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur);
@@ -363,7 +391,7 @@ function afficherEtape_(garderTaille){
     (s.attenteClic?'<div class="tu-indice">'+(e.scene||e.surbrillance===false?'👆 Clique pour continuer.':'👆 Clique sur l’élément entouré pour continuer.')+'</div>':'')+
     '<div class="tu-actions">'+
       '<button type="button" class="discret" data-tu="ecouter" title="Écouter cette étape" aria-label="Écouter cette étape">🔊</button>'+
-      '<button type="button" class="discret" data-tu="passer">'+(s.apercu?'Fermer':'Passer')+'</button>'+
+      (avecLhu&&!s.apercu?'':'<button type="button" class="discret" data-tu="passer">'+(s.apercu?'Fermer':'Passer')+'</button>')+
       '<button type="button" data-tu="prec" '+(s.i<=0?'disabled':'')+'>◀ Précédent</button>'+
       '<button type="button" class="principal" data-tu="suiv" '+(s.attenteClic?'hidden':'')+'>'+(dernier?'Terminé ✔':'Suivant ▶')+'</button>'+
     '</div>';
@@ -495,12 +523,21 @@ document.addEventListener('click',function(ev){
   var e=s.guide.etapes[s.i],cible=e&&e.cible?cibler_(e.cible.selecteur):null;
   if(!cible||!cible.contains(ev.target))return;
   var indice=s.i;
-  setTimeout(function(){
+  var suite=function(){
     var c=etat.enCours;
     if(!c||c!==s||c.i!==indice)return;
     if(c.i>=c.guide.etapes.length-1)fermer_(true);
     else{c.i+=1;afficherEtape_();}
-  },DELAI_APRES_CLIC_MS);
+  };
+  if(!e.attendreVictoire){setTimeout(suite,DELAI_APRES_CLIC_MS);return;}
+  /* « Attendre la victoire » : la bulle se range, la suite ne vient qu'une fois le boss vaincu (record de boss en hausse), 5 minutes au plus. */
+  var avant=recordBoss_(),debut=Date.now();
+  var bb=document.getElementById(ID),cc=document.getElementById(ID_CADRE);if(bb)bb.hidden=true;if(cc)cc.hidden=true;retirerAnneaux_();
+  (function sonde(){
+    var c=etat.enCours;if(!c||c!==s||c.i!==indice)return;
+    if(recordBoss_()>avant||Date.now()-debut>300000){setTimeout(suite,DELAI_APRES_CLIC_MS);return;}
+    setTimeout(sonde,500);
+  })();
 },true);
 document.addEventListener('keydown',function(ev){
   if(ev.key==='Escape'&&etat.enCours&&etat.enCours.apercu)fermer_(false);
@@ -509,11 +546,15 @@ window.addEventListener('resize',function(){if(etat.enCours)suivre_();});
 
 /* ---------- déclenchement automatique (joueurs) ---------- */
 
+function recordBoss_(){
+  try{var h=window.__SOREAL_IDLE_META_HOST_V130__,j=h&&typeof h.getIdleEtat==='function'?h.getIdleEtat():null;return Math.floor(Number(j&&j.systemes&&j.systemes.records&&j.systemes.records.highestBoss))||0;}catch(_e){return 0;}
+}
 function histoireOuModalEnCours_(){
   return Boolean(document.getElementById('sorealIdleHistoirePopupV1')||document.querySelector('.soreal-idle-modal-backdrop-v63'));
 }
 
 function demander_(cle,contexte,j){
+  if(!aidesActives_())return;
   if(etat.demandes[cle])return;
   etat.demandes[cle]=true;
   appel_('obtenirTutorielSorealIdle',[contexte]).then(function(res){
@@ -704,6 +745,8 @@ window.__SOREAL_IDLE_TUTORIEL_V1__={
   definirAncienActif:function(v){etat.ancienActif=Boolean(v);},
   definirAncienMenus:function(v){etat.ancienMenus=Boolean(v);},
   /* Outils de test. */
+  aidesActives:aidesActives_,
+  definirAides:definirAides_,
   etat:function(){return etat;},
   selecteurPour:selecteurPour_,
   libellePour:libellePour_,

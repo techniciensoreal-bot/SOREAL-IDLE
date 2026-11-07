@@ -183,7 +183,7 @@
           return '<button type="button" class="soreal-idle-expand-button-v25" aria-pressed="'+(l===code?'true':'false')+'" '+(l===code?'disabled ':'')+
             'onclick="window.__changerLangueIdleV1__(\''+code+'\')">'+libelle+'</button>';
         };
-        return '<div class="soreal-idle-section-v8">'+
+        return htmlReglagesAidesLhuIdleV1_()+'<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">🌐 Langue des objets et des textes</div>'+
           '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">'+bouton('fr','Français')+bouton('en','English')+'</div>'+
         '</div>';
@@ -277,6 +277,15 @@
         try{const v=localStorage.getItem(e.cle);return v===null?defautActif:(e.defaut===false?v==='1':v!=='0');}catch(_e){return defautActif;}
       }
 
+      function htmlReglagesAidesLhuIdleV1_(){
+        const T=window.__SOREAL_IDLE_TUTORIEL_V1__,actif=!(T&&typeof T.aidesActives==='function')||T.aidesActives();
+        return '<div class="soreal-idle-section-v8">'+
+          '<div class="soreal-idle-window-title-v31">🐙 Aides de Cthulhu</div>'+
+          '<label style="display:flex;align-items:center;gap:10px;font-size:14px;color:#dce5f3;margin-bottom:8px">'+
+            '<input type="checkbox" '+(actif?'checked ':'')+'onchange="window.__basculerAidesLhuIdleV1__(this.checked)">'+
+            '<span>Cthulhu m’explique le jeu (décoche pour ne plus avoir d’aides)</span></label>'+
+        '</div>';
+      }
       function htmlReglagesEffetsIdleV1_(){
         return '<div class="soreal-idle-section-v8">'+
           '<div class="soreal-idle-window-title-v31">✨ Effets visuels</div>'+
