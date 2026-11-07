@@ -36,6 +36,7 @@
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'L’écran LED de la borne demande moins de calcul à chaque image : même aspect, moins de petits à-coups en combat, surtout sur téléphone.',
+            'Pendant un combat, la borne ne joue plus que l’animation du bonhomme qui court : le clown, la tronçonneuse et Twin Peaks sont retirés pour l’instant (ils reviendront plus tard), ainsi que les hommes qui rient quand on abandonne un défi.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Le boss occupe maintenant toute la hauteur de l’écran du haut de la Machine temporelle (environ un tiers plus grand), et la bande de son nom est plus transparente.',

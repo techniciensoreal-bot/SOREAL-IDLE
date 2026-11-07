@@ -16,6 +16,7 @@ const c = vm.createContext({ ...fen, window: fen, document: fen.document, localS
 const idx = src.lastIndexOf("})();");
 vm.runInContext(src.slice(0, idx) + "window.__EV__=function(e){return eval(e);};" + src.slice(idx), c);
 const ev = (e) => fen.__EV__(e);
+ev("ANIMS_ACTIVES_V1.sweep=1;ANIMS_ACTIVES_V1.redroom=1;ANIMS_ACTIVES_V1.egout=1;ANIMS_ACTIVES_V1.rire=1;ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout'];");   /* les trois animations sont DÉSACTIVÉES du jeu (2026-11-07, voir ANIMS_ACTIVES_V1) : ce test garde leur code vivant en les réactivant ici */
 const prev = (e) => JSON.parse(ev("JSON.stringify(prevoirCombatBossV1(" + JSON.stringify(e) + "))"));
 const base = { puissance: 1000, defenseBoss: 0, attaqueBoss: 0, defense: 0, regenBoss: 0, bossPv: 10000, bossPvMax: 10000, pvJoueur: 100, pvJoueurMax: 100 };
 

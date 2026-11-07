@@ -67,7 +67,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 // Norman (2026-11-02) : UNE SEULE animation par combat, du début à la fin : soit la mascotte qui court (calée sur la vie, château et feux d'artifice à la victoire), soit Leatherface (tronçonneuse, danse finale à la victoire)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
-  assert.ok(led.includes("['mascot','sweep','redroom','egout'][Math.min(3,Math.floor(Math.random()*4))];"), "l'animation du combat est tirée au début du combat, parmi quatre (la scène de l'égout, 2026-11-03, s'ajoute aux trois autres)");
+  assert.ok(led.includes("ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout'].filter(") && led.includes("Math.floor(Math.random()*ANIMS_TIRAGE_V1.length)"), "l'animation du combat est tirée au début du combat, parmi quatre (la scène de l'égout, 2026-11-03, s'ajoute aux trois autres)");
   assert.ok(led.includes("demarrer(mk(combatAnim,now,{long:true}))") && led.includes("if(p.long)d=1e9;"), "elle reste à l'écran tout le combat");
   assert.ok(!led.includes("interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot'"), "plus de rotation d'animations pendant un combat");
   assert.ok(led.includes("if(id==='win')p.anim=combatAnim;") && led.includes("(an==='sweep'?sSweep:sMascot)(t)"), "la victoire joue la fin de l'animation du combat");
@@ -154,7 +154,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 }
 {
   const led5 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led5.includes("window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__") && led5.includes("animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom'||forcee==='egout')?forcee:['mascot','sweep','redroom','egout']"), "animation de la borne forçable depuis la console (jamais enregistrée) pour la voir en jeu");
+  assert.ok(led5.includes("window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__") && led5.includes("animChoisie=(ANIMS_ACTIVES_V1[forcee]&&ANIMS_TIRAGE_V1.indexOf(forcee)>=0)?forcee:ANIMS_TIRAGE_V1["), "animation de la borne forçable depuis la console (jamais enregistrée) pour la voir en jeu");
 }
 {
   const led6 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");

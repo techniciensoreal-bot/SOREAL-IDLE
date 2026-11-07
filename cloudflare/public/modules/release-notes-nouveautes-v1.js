@@ -5,6 +5,7 @@
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
     "Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.",
+    "Pendant un combat, la borne ne joue plus que l’animation du bonhomme qui court : le clown, la tronçonneuse et Twin Peaks sont retirés pour l’instant (ils reviendront plus tard), ainsi que les hommes qui rient quand on abandonne un défi.",
     "Quand tu mets de la Magie dans la Machine temporelle, la barre d’Énergie ne recule plus."
   ] };
 })();

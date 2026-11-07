@@ -2090,7 +2090,7 @@ function lancerNuke(now){
   if(!(nukeRes&&nukeRes.at>=pn-300))nukeRes=null;
   pousser('nuke',now,{base:S.vic});
 }
-window.addEventListener('soreal-defi-abandonne',function(){var pn=window.performance&&performance.now?performance.now():0;if(cur&&cur.prio>=5&&cur.id!=='rire')return;pousser('rire',pn);});
+window.addEventListener('soreal-defi-abandonne',function(){if(!ANIMS_ACTIVES_V1.rire)return;var pn=window.performance&&performance.now?performance.now():0;if(cur&&cur.prio>=5&&cur.id!=='rire')return;pousser('rire',pn);});
 window.addEventListener('soreal-nuke-resultat',function(e){var d=e&&e.detail||{};nukeRes={n:Math.max(0,Math.floor(Number(d.n)||0)),dernier:Boolean(d.dernierBoss),xp:String(d.xp||'').slice(0,18),at:window.performance&&performance.now?performance.now():0};});
 
 
@@ -2326,7 +2326,7 @@ var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1,egout:1};
 var animBossJoue=-1;   /* numéro du boss pour lequel une animation longue a DÉJÀ été jouée (Norman, 2026-11-03 : après une défaite, refaire Fight ne relance pas l'animation : le boss n'a presque plus de vie et elle révélerait la scène de victoire) ; un autre boss la libère */
 var animIssue='',animDur=0;   /* issue (victoire | defaite) et durée PRÉVUES du combat en cours : la scène de l'égout s'y règle (le bateau avance seul, la barre de vie ne le retient plus) */
 var combatAnim='',animChoisie='',animDecision=0,combatT0=0,combatNum=0,pct0=-1;   /* animChoisie : tirée au début ; combatAnim : seulement quand le combat est jugé assez long (6 s au moins, voir majAnimation) */
-var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1,egout:1},GRACE_FIN_S=2.5,graceFin=0;
+var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1,egout:1},GRACE_FIN_S=2.5,graceFin=0;/* DÉSACTIVÉES DU JEU (Norman, 2026-11-07 : « retire les animations de la borne : le clown, la tronçonneuse et Twin Peaks. Ne supprime pas, désactive totalement ; je les réintégrerai plus tard ») : egout (le clown), sweep (le héros à la tronçonneuse), redroom (Twin Peaks) et la scène « rire » (les hommes de la Red Room, à l'abandon d'un défi). TOUT le code des scènes reste en place ; pour en réintégrer une : la mettre à 1 ici. */var ANIMS_ACTIVES_V1={mascot:1,sweep:0,redroom:0,egout:0,rire:0},ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout'].filter(function(k){return ANIMS_ACTIVES_V1[k];});
 var apresVictoire=false;   /* une scène de victoire (VICTOIRE ! ou NUKE) vient d'être lancée : la première scène de repos qui suit est le nom du boss */
 var cur=null,pend=false,rot=0,jk=0,last='',fightT0=0,interAt=0,interN=0,objAt=0,objTour=0,objI=0;
 function enCombat(s){return Boolean(s&&(EN_COMBAT[s.id]||(s.id==='objet'&&s.p.inter)));}
@@ -2361,7 +2361,7 @@ function combatFight(now,neuf){
   if(neuf||!dedans){
     fightT0=now;combatT0=now;combatNum=S.num;pct0=S.pv?S.pv.pct:-1;interAt=now+9000;objTour=0;if(objAt<now+8000)objAt=now+8000;
     var forcee=window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__;   /* outil de réglage (console, jamais enregistré) : window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__='redroom' | 'sweep' | 'mascot' impose l'animation des prochains combats ; supprimer la variable pour revenir au tirage */
-    animChoisie=(forcee==='mascot'||forcee==='sweep'||forcee==='redroom'||forcee==='egout')?forcee:['mascot','sweep','redroom','egout'][Math.min(3,Math.floor(Math.random()*4))];combatAnim='';animDecision=0;
+    animChoisie=(ANIMS_ACTIVES_V1[forcee]&&ANIMS_TIRAGE_V1.indexOf(forcee)>=0)?forcee:ANIMS_TIRAGE_V1[Math.min(ANIMS_TIRAGE_V1.length-1,Math.floor(Math.random()*ANIMS_TIRAGE_V1.length))]||'';combatAnim='';animDecision=0;
     if(S.num===animBossJoue&&!serreV1(prevoirCombatBossV1(reg().idleEtat))){animDecision=-1;combatAnim='';demarrer(mk('fight',now));return;}   /* même boss qu'une animation déjà jouée (défaite puis nouveau Fight) : jamais rejouée, FIGHT ! seulement */
     /* Norman (2026-11-03) : « quand on clique sur Fight, l'animation doit être jouée tout de suite ; pas de nom de boss qui défile ; on aura le FIGHT ! si le combat sera trop court pour une scène » : la durée PRÉVUE décide ici, au clic */
     var pr=prevoirCombatBossV1(reg().idleEtat);
