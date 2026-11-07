@@ -29,6 +29,15 @@ CANDIDATS = {
     "cthulhu-ado": ("femme.wav", -1.5, 0.6, 0.4, "adolescent blasé : ton traînant, moqueur"),
 }
 
+# Deuxième série (Norman, 2026-11-07 : « plus dans le genre de l'ado, mais pas celle-là ; ajoute-les quand même, ça pourra servir ») : variantes du style « ado »
+ADOS = {
+    "cthulhu-ado-garcon": ("garcon.wav", -2.0, 0.6, 0.4, "garçon de 15 ans, voix qui mue, traînant"),
+    "cthulhu-ado-nonchalant": ("cool.wav", 1.0, 0.55, 0.4, "ado cool et nonchalant, la voix qui s'étire"),
+    "cthulhu-ado-ironique": ("femme.wav", 0.5, 0.65, 0.35, "ado fille, sarcastique, ironie qui monte en fin de phrase"),
+    "cthulhu-ado-casse": ("homme.wav", 1.5, 0.6, 0.4, "ado à la voix cassée, entre aigu et grave"),
+    "cthulhu-ado-nasillard": ("marius.wav", 2.0, 0.6, 0.4, "ado nasillard, moqueur, un peu geignard"),
+}
+
 LIGNES = [
     "Mon nom te demanderait de te mâcher la langue. Appelle-moi Lhu.",
     "Le bois ne rend pas les coups.",
@@ -54,7 +63,9 @@ def synthese(voix, texte, exag, cfg, fichier):
 
 
 if __name__ == "__main__":
-    for nom, (source, ton, exag, cfg, desc) in CANDIDATS.items():
+    import sys
+    serie = ADOS if "--ados" in sys.argv else CANDIDATS
+    for nom, (source, ton, exag, cfg, desc) in serie.items():
         cible = os.path.join(VOIX, nom + ".wav")
         if os.path.exists(os.path.join(VOIX, "cthulhu.wav")) and nom == "cthulhu":
             raise SystemExit("jamais cthulhu.wav")

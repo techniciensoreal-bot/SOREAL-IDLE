@@ -125,4 +125,17 @@ function monde({ renaissances = 0, allocation = 0, volume = 0.8, reduit = false 
   m.N.etat(); m.etatJeu.systemes.records.totalRebirths = 2; m.tick();
   assert.equal(sons.length, 3, "un son par rang de barre (3 rangs ici), jamais deux fois le même pour une barre et sa jumelle de défense");
 }
+// 7. (Norman, 2026-11-07) Rechargement de la page : tant que l'état du jeu n'est pas arrivé, rien ne bouge ; le menu ne se rallume qu'UNE fois par Renaissance.
+{
+  const m = monde({ renaissances: 5 });
+  m.magasin.soreal_idle_bt_neon_v1 = JSON.stringify({ r: 5, on: true });          // déjà allumé pour cette Renaissance
+  const vraiEtat = m.etatJeu.systemes;
+  m.etatJeu.systemes = undefined;                                                 // le rechargement : l'état du jeu n'est pas encore là
+  assert.equal(m.N.etat().on, true, "sans état du jeu : l'état mémorisé est lu tel quel");
+  assert.deepEqual(JSON.parse(m.magasin.soreal_idle_bt_neon_v1), { r: 5, on: true }, "sans état du jeu : rien n'est réécrit");
+  m.etatJeu.systemes = vraiEtat;                                                  // l'état arrive : même Renaissance
+  assert.equal(m.N.etat().on, true, "même Renaissance après chargement : toujours allumé, pas de nouvel allumage");
+  m.etatJeu.systemes.records.totalRebirths = 6;                                   // une vraie Renaissance : le menu s'éteint
+  assert.equal(m.N.etat().on, false, "nouvelle Renaissance : éteint, prêt à s'allumer une fois");
+}
 console.log("idle-bt-neon-v1: OK");

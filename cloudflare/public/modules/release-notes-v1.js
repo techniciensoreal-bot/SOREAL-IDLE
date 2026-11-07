@@ -41,6 +41,7 @@
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Le menu Entraînement de base ne se rallume plus à chaque rechargement de la page : l’allumage néon n’a lieu qu’une seule fois par Renaissance.',
             'La barre d’outils du haut de l’Entraînement de base tient sur une seule ligne et reste lisible : Input, Plafond d’énergie, Idle et la carte « Énergie placée » à droite, avec des libellés et des boutons plus grands, et des crayons discrets pour tes boutons personnalisés. Sur téléphone : Input et « Énergie placée » côte à côte, puis une ligne par rangée, avec des boutons larges.',
             'Le son du néon qui s’allume est celui de toutes les barres, et il devient plus impressionnant à chaque barre suivante : plus d’amorces, un accord de plus en plus riche, une basse profonde, une montée en puissance et, pour la dernière barre, un carillon.',
             'Sous chaque barre, les textes (vitesse, Cap, prochain, temps par niveau) sont en blanc franc et en gras, bien plus faciles à lire, et le mot « Cap » reste « Cap ».',
@@ -49,6 +50,8 @@
             'La barre d’outils de l’Entraînement de base (saisie, plafonds, idle, énergie placée) tient maintenant sur une seule ligne.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'À la fin du tutoriel, la partie du boss reste noire tant que Lhu n’est pas parti ; 2 secondes après son départ, le nouveau boss apparaît en fondu et sa chronique est lue en entier (avant, seul son nom était prononcé).',
+            'Quand tu raccourcis le tutoriel dans l’Admin, Lhu vole tout seul près du bouton à cliquer, même si l’étape qui le plaçait a été supprimée.',
             'Les yeux de la borne qui regardent la barre de vie s’arrêtent maintenant à la fin de chaque combat, même quand tu fuis ou que le combat s’arrête sans victoire ni défaite.',
             'Ta vie (barre du haut et duel) et le texte de vie de la borne s’écrivent maintenant en nombres entiers avant le million : 1000, 10.000, 100.000, 999.999, puis 1M, 1,5M…',
             'Quand les yeux de la borne regardent ta barre de vie, ils visent le bout de la partie pleine, là où elle s’arrête : vie haute, regard vers la droite ; vie basse, vers la gauche.',

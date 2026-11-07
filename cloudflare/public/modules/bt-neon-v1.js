@@ -32,7 +32,10 @@
   function reduit_(){try{return Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){return false;}}
 
   /* État par Renaissance : jamais vu = allumé (pas de surprise en pleine partie) ; la Renaissance a changé = éteint. */
+  /* Norman (2026-11-07) : « le Basic Training qui s'illumine arrive à chaque fois qu'on rafraîchit la page et qu'on y retourne ; ça ne doit arriver qu'une seule fois par Renaissance ». Au chargement, tant que l'état du jeu n'est pas arrivé, le nombre de Renaissances se lisait 0 : l'état mémorisé passait à « autre Renaissance, éteint », puis l'état arrivait et c'était encore « autre Renaissance » : le menu se rallumait à chaque rechargement. Sans état du jeu, on ne touche à rien. */
+  function jeuPret_(){try{var j=etatJeu_();return Boolean(j&&j.systemes&&j.systemes.records&&j.systemes.records.totalRebirths!==undefined&&j.systemes.records.totalRebirths!==null);}catch(_e){return false;}}
   function etat(){
+    if(!jeuPret_())return lire_()||{r:-1,on:true};
     var r=renaissances_(),s=lire_();
     if(!s||typeof s.r!=='number'){s={r:r,on:true};ecrire_(s);return s;}
     if(s.r!==r){s={r:r,on:false};ecrire_(s);}

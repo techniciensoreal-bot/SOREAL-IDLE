@@ -16,6 +16,7 @@ if(window.__SOREAL_IDLE_TUTORIEL_V1__)return;
 var ID='sorealIdleTutorielV1';
 var ID_CADRE='sorealIdleTutorielCadreV1';
 var ID_STYLE='sorealIdleTutorielStyleV1';
+var CLASSE_NOIR='soreal-lhu-boss-noir';
 var ID_PICKER='sorealIdleTutorielPickerV1';
 /* Étape « avance au clic » : le bouton Suivant revient après ce délai si le clic est impossible (jamais bloquant). */
 var DELAI_SUIVANT_MS=30000;
@@ -104,6 +105,10 @@ function installerStyle_(){
     '#'+ID+'.reduit>*{display:none}'+
     '#'+ID+'.reduit::after{content:"🔊";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:24px;animation:tuReduit 1.6s ease-in-out infinite}'+
     '@keyframes tuReduit{0%,100%{opacity:.7}50%{opacity:1}}'+
+    /* Écran du boss noir (Norman, 2026-11-07) : après la victoire sur le premier boss, le NOUVEAU boss n'apparaît qu'une fois Lhu parti (et 2 s après) ; en attendant la partie du boss reste noire et sa chronique est masquée. */
+    '#sorealLhuNoirV1{position:fixed;z-index:90000;background:#000;pointer-events:auto;opacity:1;transition:opacity .8s ease}'+
+    '#sorealLhuNoirV1.fondu{opacity:0;pointer-events:none}'+
+    'html.'+CLASSE_NOIR+' #sorealIdleBossChroniqueV206{visibility:hidden}'+
     '#'+ID+'.tu-verrou-voix .tu-indice{color:#ffd27a}'+
     '#'+ID_CADRE+'{position:fixed;z-index:99999;pointer-events:none;border-radius:12px;border:3px solid #f2c94c;box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 18px 4px rgba(242,201,76,.75);animation:tuPulse 1.3s ease-in-out infinite}'+
     '#'+ID_CADRE+'[hidden]{display:none}'+
@@ -317,11 +322,69 @@ function taire_(){
 
 function arreterBoucle_(){if(boucle){clearInterval(boucle);boucle=0;}}
 
+/*
+ * ÉCRAN DU BOSS NOIR (Norman, 2026-11-07 : « le boss ne doit apparaître que quand Cthulhu est parti ; l'écran de la partie du boss reste noir tant qu'il n'est pas parti, hors de l'écran pendant 2 secondes, puis le nouveau boss apparaît ; son texte doit être lu à ce moment-là, il n'avait prononcé que son nom »).
+ * Dès la victoire sur le premier boss le voile noir tombe sur la partie du boss ; la chronique du nouveau boss est marquée lue (elle ne se lance pas toute seule derrière le voile, ni ne se fait couper par la voix de Lhu) ; à la fin du guide Lhu s'envole, 2 secondes passent, le voile s'efface en fondu et la chronique est lue en entier, à la main (le même chemin que le bouton « Lire la chronique »).
+ */
+var noirGarde=0,noirMinuteur=0,noirSecours=0;
+function voileNoir_(){
+  var v=document.getElementById('sorealLhuNoirV1');
+  if(!v){v=document.createElement('div');v.id='sorealLhuNoirV1';v.setAttribute('aria-hidden','true');document.body.appendChild(v);}
+  return v;
+}
+/* le voile suit la carte du boss (page qui défile, redimensionnée ou redessinée) ; absente (autre menu) : voile masqué */
+function suivreVoile_(){
+  var v=document.getElementById('sorealLhuNoirV1');if(!v)return;
+  var c=document.querySelector('.soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35');
+  if(!c){v.style.display='none';return;}
+  var r=c.getBoundingClientRect();
+  v.style.display='';v.style.left=r.left+'px';v.style.top=r.top+'px';v.style.width=r.width+'px';v.style.height=r.height+'px';
+}
+function bossNoir_(on){
+  document.documentElement.classList.toggle(CLASSE_NOIR,Boolean(on));
+  if(noirGarde){clearInterval(noirGarde);noirGarde=0;}
+  var v=document.getElementById('sorealLhuNoirV1');
+  if(!on){
+    if(v){v.classList.add('fondu');setTimeout(function(){var w=document.getElementById('sorealLhuNoirV1');if(w&&w.classList.contains('fondu')&&w.parentNode)w.parentNode.removeChild(w);},900);}
+    return;
+  }
+  v=voileNoir_();v.classList.remove('fondu');suivreVoile_();
+  noirGarde=setInterval(function(){
+    suivreVoile_();
+    try{
+      var p=document.getElementById('sorealIdleBossChroniqueV206'),tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+      var id=p&&p.getAttribute('data-soreal-chronique-boss-id');
+      if(id&&tts&&typeof tts.marquerChroniqueLue==='function')tts.marquerChroniqueLue(id);
+    }catch(_e){}
+  },100);
+}
+function devoilerBoss_(){
+  clearTimeout(noirMinuteur);clearTimeout(noirSecours);noirMinuteur=0;noirSecours=0;
+  if(!document.documentElement.classList.contains(CLASSE_NOIR))return;
+  bossNoir_(false);
+  setTimeout(function(){   /* le voile s'efface en 0,8 s ; la chronique du nouveau boss se lit une fois qu'il est visible */
+    try{
+      var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__,id='sorealIdleBossChroniqueV206';
+      if(!tts||typeof tts.readTarget!=='function')return;
+      if(typeof tts.enabled==='function'&&!tts.enabled())return;
+      if(typeof tts.lectureCible==='function'&&tts.lectureCible(id))return;
+      tts.readTarget(id);
+    }catch(_e){}
+  },500);
+}
+function programmerDevoilement_(fin){
+  /* Lhu a quitté l'écran (fin = promesse de son départ) : 2 secondes de vide, puis le nouveau boss. Filet de sécurité : jamais plus de 15 s. */
+  clearTimeout(noirSecours);noirSecours=setTimeout(devoilerBoss_,15000);
+  Promise.resolve(fin).then(function(){clearTimeout(noirMinuteur);noirMinuteur=setTimeout(devoilerBoss_,2000);},function(){devoilerBoss_();});
+}
+
 function fermer_(vu){
   var s=etat.enCours;
   arreterBoucle_();
   retirerAnneaux_();
-  try{var sc=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;if(sc&&sc.existe())sc.partir();}catch(_e){}
+  var finLhu=null;
+  try{var sc=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;if(sc&&sc.existe())finLhu=sc.partir();}catch(_e){}
+  if(document.documentElement.classList.contains(CLASSE_NOIR))programmerDevoilement_(finLhu);
   var b=document.getElementById(ID),c=document.getElementById(ID_CADRE);
   if(b&&b.parentNode)b.parentNode.removeChild(b);
   if(c&&c.parentNode)c.parentNode.removeChild(c);
@@ -382,9 +445,16 @@ function reglerMascotteGrande_(b,e){
   racine.style.setProperty('--cth-dx',Math.round(sx-cx)+'px');
   racine.style.setProperty('--cth-dy',Math.round(sy-cy)+'px');
 }
+/* Lhu se place tout seul près de ce qu'il faut cliquer (Norman, 2026-11-07 : « j'ai raccourci le tuto, du coup il n'est plus placé aux bons endroits ») : une étape qui attend un clic et n'a pas de scène (la place de Lhu venait de l'étape supprimée) le fait voler près de la cible. */
+function etapeAvecPlace_(s,e){
+  var sc=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;
+  if(!e.scene&&s.guide.mascotte&&e.avanceAuClic&&e.cible&&e.cible.selecteur&&sc&&typeof sc.existe==='function'&&sc.existe())return Object.assign({},e,{scene:'place',mascotteSur:e.mascotteSur||e.cible.selecteur});
+  return e;
+}
 function afficherEtape_(garderTaille){
   var s=etat.enCours;if(!s)return;
   var e=s.guide.etapes[s.i];if(!e){fermer_(true);return;}
+  e=etapeAvecPlace_(s,e);
   installerStyle_();
   /* Le jeu se rend tout seul au menu de l'étape. */
   if(e.menu&&e.menu!==menuActif_()&&typeof window.__menuIdleV28__==='function'){try{window.__menuIdleV28__(e.menu);}catch(_e){}}
@@ -570,8 +640,8 @@ document.addEventListener('click',function(ev){
   var bb=document.getElementById(ID),cc=document.getElementById(ID_CADRE);if(bb)bb.hidden=true;if(cc)cc.hidden=true;retirerAnneaux_();
   (function sonde(){
     var c=etat.enCours;if(!c||c!==s||c.i!==indice)return;
-    if(recordBoss_()>avant||Date.now()-debut>300000){setTimeout(suite,DELAI_APRES_CLIC_MS);return;}
-    setTimeout(sonde,500);
+    if(recordBoss_()>avant||Date.now()-debut>300000){if(recordBoss_()>avant)bossNoir_(true);setTimeout(suite,DELAI_APRES_CLIC_MS);return;}
+    setTimeout(sonde,120);
   })();
 },true);
 document.addEventListener('keydown',function(ev){
@@ -783,6 +853,7 @@ window.__SOREAL_IDLE_TUTORIEL_V1__={
   aidesActives:aidesActives_,
   definirAides:definirAides_,
   etat:function(){return etat;},
+  bossNoir:bossNoir_,devoilerBoss:devoilerBoss_,programmerDevoilement:programmerDevoilement_,
   selecteurPour:selecteurPour_,
   libellePour:libellePour_,
   placer:placer_,
