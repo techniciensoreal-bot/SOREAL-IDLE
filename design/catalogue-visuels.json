@@ -3,10 +3,10 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 456,
-  "fichiersAvecWebAnimations": 18,
+  "keyframes": 457,
+  "fichiersAvecWebAnimations": 19,
   "fichiersCanvas": 12,
-  "pointsEntreeRejouables": 256,
+  "pointsEntreeRejouables": 257,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
@@ -2779,6 +2779,7 @@
     "modules/borne-led-v1.js",
     "modules/boutique-nouveautes-v1.js",
     "modules/coffre-accident-v1.js",
+    "modules/cthulhu-scene-v1.js",
     "modules/daycare-page-v1.js",
     "modules/etagere-expression-v1.js",
     "modules/fade-notice-v1.js",
@@ -3993,6 +3994,15 @@
    ]
   },
   {
+   "nom": "tuClignote",
+   "definiePar": [
+    "modules/tutoriel-v1.js"
+   ],
+   "utilisePar": [
+    "modules/tutoriel-v1.js"
+   ]
+  },
+  {
    "nom": "tuPulse",
    "definiePar": [
     "modules/tutoriel-v1.js"
@@ -4335,6 +4345,10 @@
    "appels": 1
   },
   {
+   "fichier": "modules/cthulhu-scene-v1.js",
+   "appels": 1
+  },
+  {
    "fichier": "modules/engrenages-v1.js",
    "appels": 1
   },
@@ -4598,6 +4612,7 @@
   "__SOREAL_IDLE_COPIER_STYLE_PV_V1__": "modules/ui-amorcage-v1.js",
   "__SOREAL_IDLE_CREDIT_EXP_V1__": "modules/credit-exp-admin-v1.js",
   "__SOREAL_IDLE_CTHULHU_PIECES_V1__": "modules/cthulhu-pieces-v1.js",
+  "__SOREAL_IDLE_CTHULHU_SCENE_V1__": "modules/cthulhu-scene-v1.js",
   "__SOREAL_IDLE_CTHULHU_V1__": "modules/cthulhu-v1.js",
   "__SOREAL_IDLE_CUBE_AURA_V1__": "modules/cube-aura-v1.js",
   "__SOREAL_IDLE_CUBE_PALIER_V1__": "modules/cube-palier-v1.js",

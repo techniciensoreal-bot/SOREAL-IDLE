@@ -1,0 +1,210 @@
+/*
+ * CTHULHU (« Lhu »), SCÈNES DE VOL (Norman, 2026-11-07 : « Cthulhu apparaît en bas à droite, depuis la droite de l'écran, en volant latéralement. Il s'arrête, nous regarde avec des ??? dans une bulle de pensées,
+ * puis il vole en zoom sur l'écran… il se retourne et après 1 seconde, en volant en vue arrière, il va se replacer à un endroit qui ne gêne pas le joueur… l'idéal serait qu'il se pose sur le bouton Nuke »).
+ * Un seul Cthulhu flottant (position fixe, par-dessus la page, jamais sous le morph : data-morph-garder) animé par l'API d'animation du navigateur (Web Animations) entre des positions NOMMÉES.
+ * Les scènes sont choisies par l'étape du guide (champ `scene`, menu Admin > Tutoriel) : le texte et la voix restent ceux du guide, ce module ne fait que bouger la mascotte.
+ *   arrivee : entre par la droite en volant (de face), s'arrête en bas à droite avec « ??? », puis vole en zoom au centre de l'écran.
+ *   pose    : se retourne (au centre), attend 1 s, vole de dos jusqu'à sa place (le bouton Nuke, sinon le bouton Fight, sinon le bas à droite), puis se retourne face au joueur.
+ *   place   : va directement à sa place (sans le tour de vol).
+ * Règle n°3 : les mouvements sont des trajets simples (jamais de boucle) ; prefers-reduced-motion : il apparaît directement à sa place.
+ * window.__SOREAL_IDLE_CTHULHU_SCENE_V1__ = { jouer(scene, options) -> Promise, enlever(), existe() }
+ */
+(function(){
+  'use strict';
+  var ID='soreal-idle-cth-scene-v1',ID_STYLE='soreal-idle-cth-scene-style-v1';
+  var BASE=150;   /* taille du dessin de cthulhu-v1.js (px) : toute taille passe par scale */
+  var etat={racine:null,interne:null,cible:null,k:1,x:0,y:0,suivi:false,jeton:0};
+
+  function C(){return window.__SOREAL_IDLE_CTHULHU_V1__||null;}
+  function reduit(){try{return window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;}catch(_e){return false;}}
+  function attendre(ms){return new Promise(function(ok){setTimeout(ok,ms);});}
+  function V(){return {W:window.innerWidth||1000,H:window.innerHeight||700};}
+  /* Tailles : petit (sur sa place) et grand (zoomé, comme la mascotte du tutoriel : 66 % de la hauteur, 96 % de la largeur au plus). */
+  function kPetit(){var v=V();return (v.W<700?110:140)/BASE;}
+  function kGrand(){var v=V();return Math.min(0.66*v.H,0.96*v.W)/BASE;}
+
+  function style(){
+    if(document.getElementById(ID_STYLE))return;
+    var s=document.createElement('style');s.id=ID_STYLE;
+    s.textContent='#'+ID+'{position:fixed;left:0;top:0;width:'+BASE+'px;height:'+BASE+'px;z-index:2147483000;pointer-events:none;transform-origin:0 0;will-change:transform}'+
+      '#'+ID+' .cth-sc-in{display:block;width:100%;height:100%;transform-origin:50% 50%}'+
+      '#'+ID+' .cth-v1{width:100%;height:100%}'+
+      /* « ??? » au-dessus de sa tête alors qu'il VOLE (il ne se pose que sur le bouton Nuke) */
+      '#'+ID+' .cth-sc-q{position:absolute;inset:0;width:100%;height:100%;overflow:visible;display:none}#'+ID+'[data-q] .cth-sc-q{display:block}';
+    (document.head||document.documentElement).appendChild(s);
+  }
+  function creer(expr){
+    var cth=C();if(!cth)return null;
+    style();
+    var r=document.getElementById(ID);
+    if(r&&r.parentNode)r.parentNode.removeChild(r);
+    r=document.createElement('div');r.id=ID;r.setAttribute('aria-hidden','true');r.setAttribute('data-morph-garder','1');r.setAttribute('data-soreal-tts-ignore','1');
+    r.innerHTML='<span class="cth-sc-in">'+cth.html(expr||'vole','')+'<svg class="cth-sc-q" viewBox="0 0 1254 1254" aria-hidden="true" focusable="false"><g class="cth-pt"><text x="930" y="230" font-family="Bangers,Impact,sans-serif" font-size="240" fill="#ffe27a" stroke="#6b4b0a" stroke-width="22" paint-order="stroke" text-anchor="middle">'+'?'.repeat(3)+'</text></g></svg></span>';
+    document.body.appendChild(r);
+    etat.racine=r;etat.interne=r.firstChild;
+    return r;
+  }
+  function visage(expr){
+    var cth=C(),rac=etat.racine&&etat.racine.querySelector('.cth-v1');
+    if(cth&&rac)cth.definir(rac,expr);
+  }
+  function poser(x,y,k){
+    etat.x=x;etat.y=y;etat.k=k;
+    if(etat.racine)etat.racine.style.transform='translate('+Math.round(x)+'px,'+Math.round(y)+'px) scale('+k+')';
+  }
+  /* Trajet : de la position actuelle à (x,y,k) ; le style final est écrit à la fin (pas de fill:forwards qui resterait collé). */
+  function aller(x,y,k,ms,fonction,roulis){
+    var r=etat.racine;
+    if(!r)return Promise.resolve();
+    var de='translate('+Math.round(etat.x)+'px,'+Math.round(etat.y)+'px) scale('+etat.k+')';
+    var vers='translate('+Math.round(x)+'px,'+Math.round(y)+'px) scale('+k+')';
+    var jeton=etat.jeton;
+    if(reduit()||typeof r.animate!=='function'){poser(x,y,k);return Promise.resolve();}
+    var kf=[{transform:de}];
+    if(roulis)kf.push({transform:'translate('+Math.round((etat.x+x)/2)+'px,'+Math.round(Math.min(etat.y,y)-V().H*0.04)+'px) scale('+((etat.k+k)/2)+')',offset:.5});
+    kf.push({transform:vers});
+    var a=r.animate(kf,{duration:ms,easing:fonction||'cubic-bezier(.45,0,.35,1)',fill:'both'});
+    return a.finished.then(function(){
+      if(jeton!==etat.jeton||!etat.racine)return;
+      poser(x,y,k);
+      try{a.cancel();}catch(_e){}
+    }).catch(function(){});
+  }
+  /* Demi-tour en UNE image (Norman, 2026-11-07) : la vue change d'un coup, sans transition. */
+  function tourner(expr){visage(expr);return Promise.resolve();}
+
+  /* La page se met en place (téléphone comme PC) : la barre de vie du boss (environ 70 px au-dessus de son portrait), le boss, le joueur et le bouton visé restent à l'écran ; si tout ne tient pas, le bouton passe avant. */
+  function cadrer(el){
+    if(!el)return;
+    var v=V(),haut=8;
+    /* le bandeau fixe en haut de l'écran (statistiques, vie) : tout ce qui doit rester visible commence dessous */
+    try{var h=document.elementFromPoint(v.W/2,4);while(h&&h!==document.body){var cs=getComputedStyle(h);if(cs.position==='fixed'||cs.position==='sticky'){var rh=h.getBoundingClientRect();if(rh.bottom<v.H*0.4)haut=Math.max(haut,rh.bottom+8);break;}h=h.parentElement;}}catch(_e){}
+    var por=document.getElementById('sorealIdleBossImageHostV36'),r=el.getBoundingClientRect(),d=0;
+    if(por){d=(por.getBoundingClientRect().top-70)-haut;   /* la barre de vie du boss est environ 70 px au-dessus du portrait */}
+    var bas=r.bottom-d,place=BASE*kPetit();
+    if(bas>v.H-8)d+=bas-(v.H-8);
+    if(r.top-d-place<haut&&por===null)d=0;
+    if(Math.abs(d)>1)window.scrollBy(0,Math.round(d));
+  }
+  /* Sa place : posé sur le bouton Nuke (ou à défaut le bouton Fight) ; il peut dépasser un peu sur le boss, jamais beaucoup. */
+  function cibleAtterrissage(selecteur){
+    var liste=[selecteur,'#sorealIdleBossNukeV1','#sorealIdleBossStartV100'];
+    for(var i=0;i<liste.length;i++){
+      if(!liste[i])continue;
+      var el=null;try{el=document.querySelector(liste[i]);}catch(_e){}
+      if(el){var r=el.getBoundingClientRect();if(r.width>0&&r.height>0)return el;}
+    }
+    return null;
+  }
+  /* Il ne se pose que sur le bouton Nuke (Norman, 2026-11-07) ; partout ailleurs il reste en vol, ailes qui battent. */
+  function posable(selecteur){var el=cibleAtterrissage(selecteur);return Boolean(el&&el.id==='sorealIdleBossNukeV1');}
+  function placePetit(el){
+    var v=V(),k=kPetit(),S=BASE*k;
+    if(!el)return {x:v.W-S-10,y:v.H-S-10,k:k};
+    var r=el.getBoundingClientRect();
+    /* pieds sur le haut du bouton (le bas du dessin est un peu au-dessus du bas de la boîte) */
+    var nuke=el.id==='sorealIdleBossNukeV1';
+    var x=r.left+r.width/2-S/2,y=r.top-S+Math.round(S*(nuke?0.12:-0.02));
+    if(!nuke&&y<4)y=r.bottom+6;   /* en vol : au-dessus de sa cible, sinon dessous (jamais par-dessus) */
+    x=Math.max(4,Math.min(v.W-S-4,x));y=Math.max(4,Math.min(v.H-S-4,y));
+    return {x:x,y:y,k:k};
+  }
+  function placeGrand(){var v=V(),k=kGrand(),S=BASE*k;return {x:(v.W-S)/2,y:Math.max(4,0.02*v.H),k:k};}
+  /* Il suit sa cible quand la page défile ou change de taille (jamais de minuterie : événements seulement). */
+  function suivre(selecteur){
+    etat.cible=selecteur||'';
+    if(etat.suivi)return;
+    etat.suivi=true;
+    var f=function(){
+      if(!etat.racine||etat.mode!=='pose'){return;}
+      var p=placePetit(cibleAtterrissage(etat.cible));
+      poser(p.x,p.y,p.k);
+    };
+    window.addEventListener('scroll',f,{passive:true,capture:true});
+    window.addEventListener('resize',f);
+    etat.arretSuivi=function(){window.removeEventListener('scroll',f,true);window.removeEventListener('resize',f);etat.suivi=false;};
+  }
+
+  function enlever(){
+    etat.jeton++;etat.mode='';
+    if(etat.arretSuivi){etat.arretSuivi();etat.arretSuivi=null;}
+    var r=document.getElementById(ID);if(r&&r.parentNode)r.parentNode.removeChild(r);
+    etat.racine=null;etat.interne=null;
+  }
+
+  /* Fin du guide : il s'envole par la droite (de dos, ailes qui battent) puis disparaît. */
+  function partir(){
+    var jeton=++etat.jeton;
+    if(etat.arretSuivi){etat.arretSuivi();etat.arretSuivi=null;}
+    etat.mode='';
+    if(!etat.racine)return Promise.resolve();
+    var v=V();
+    visage('dos');
+    return aller(v.W+40,etat.y-v.H*0.1,etat.k,1300,'cubic-bezier(.5,0,.9,.6)',false).then(function(){
+      if(jeton!==etat.jeton)return;
+      enlever();
+    });
+  }
+  function arrivee(){
+    var v=V(),kp=kPetit(),S=BASE*kp,jeton=etat.jeton;
+    var fin=placePetit(null);
+    creer('vole');
+    poser(v.W+30,fin.y-v.H*0.05,kp);   /* hors de l'écran, à droite */
+    return aller(fin.x,fin.y,kp,1900,'cubic-bezier(.2,.6,.3,1)',false).then(function(){
+      if(jeton!==etat.jeton)return;
+      if(etat.racine)etat.racine.setAttribute('data-q','1');   /* il vole sur place, « ??? » au-dessus de la tête */
+      return attendre(2400);
+    }).then(function(){
+      if(jeton!==etat.jeton)return;
+      if(etat.racine)etat.racine.removeAttribute('data-q');
+      var g=placeGrand();
+      return aller(g.x,g.y,g.k,1700,'cubic-bezier(.5,0,.3,1)',false);
+    }).then(function(){
+      if(jeton!==etat.jeton)return;
+      etat.mode='grand';   /* zoomé, il vole encore */
+    });
+  }
+  function pose(selecteur){
+    var jeton=etat.jeton;
+    var g=placeGrand();
+    if(!etat.racine||etat.mode!=='grand'){creer('vole');poser(g.x,g.y,g.k);}
+    return tourner('dos').then(function(){
+      if(jeton!==etat.jeton)return;
+      return attendre(1000);
+    }).then(function(){
+      if(jeton!==etat.jeton)return;
+      var el=cibleAtterrissage(selecteur);
+      cadrer(el);
+      var p=placePetit(cibleAtterrissage(selecteur));
+      return aller(p.x,p.y,p.k,2000,'cubic-bezier(.45,0,.3,1)',true);
+    }).then(function(){
+      if(jeton!==etat.jeton)return;
+      etat.mode='pose';
+      suivre(selecteur);
+      return tourner(posable(selecteur)?'normal':'vole');   /* de face : posé sur Nuke, sinon toujours en vol */
+    });
+  }
+  function place(selecteur){
+    var jeton=etat.jeton;
+    var el=cibleAtterrissage(selecteur);
+    if(el){var r0=el.getBoundingClientRect(),v=V();if(r0.top<60||r0.bottom>v.H-60){try{el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});}catch(_e){}}}
+    var p=placePetit(cibleAtterrissage(selecteur));
+    if(!etat.racine){creer('vole');var q=placePetit(null);poser(q.x,q.y,q.k);}
+    visage(posable(selecteur)?'normal':'vole');
+    return aller(p.x,p.y,p.k,1800,'cubic-bezier(.45,0,.3,1)',true).then(function(){
+      if(jeton!==etat.jeton)return;
+      etat.mode='pose';suivre(selecteur);
+    });
+  }
+
+  /* jouer(scene, {sur: sélecteur CSS de la place finale}) : promesse résolue à la fin du mouvement (le tutoriel affiche alors le texte et lance la voix). */
+  function jouer(scene,opt){
+    var o=opt||{},sur=o.sur?String(o.sur):'';
+    if(!C())return Promise.resolve();
+    if(scene==='arrivee'){etat.jeton++;etat.mode='';if(etat.arretSuivi){etat.arretSuivi();etat.arretSuivi=null;}return arrivee();}
+    if(scene==='pose')return pose(sur);
+    if(scene==='place'){etat.jeton++;return place(sur);}
+    return Promise.resolve();
+  }
+  window.__SOREAL_IDLE_CTHULHU_SCENE_V1__={jouer:jouer,enlever:enlever,partir:partir,rect:function(){var r=document.getElementById(ID);return r?r.getBoundingClientRect():null;},existe:function(){return Boolean(document.getElementById(ID));},SCENES:['arrivee','pose','place']};
+})();

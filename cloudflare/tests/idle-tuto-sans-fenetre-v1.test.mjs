@@ -15,7 +15,7 @@ const srv = readFileSync("cloudflare/src/idle-tutoriel-v1.js", "utf8");
 assert.ok(srv.includes("afficher: g.afficher !== false, mascotte: g.mascotte === true, etapes: g.etapes"), "le joueur reçoit le réglage");
 
 const moteur = readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8");
-assert.ok(moteur.includes("s.cache=s.guide.afficher===false;") && moteur.includes("b.hidden=s.cache;"), "guide sans fenêtre : ni fenêtre, ni enceinte, ni texte");
+assert.ok(moteur.includes("s.cache=s.guide.afficher===false;") && moteur.includes("b.hidden=s.cache||s.sceneEnCours;"), "guide sans fenêtre : ni fenêtre, ni enceinte, ni texte");
 assert.ok(moteur.includes("s.cache&&!s.attenteClic&&!voixParle_(s)&&Date.now()-s.debutEtape>=s.tempsLecture"), "sans clic demandé, l'étape finit quand la voix a fini");
 assert.ok(moteur.includes("'#'+ID+'[hidden]{display:none}'"), "caché pour de bon");
 // le verrou de clics (rien d'autre que la cible) reste actif sans fenêtre
@@ -31,5 +31,5 @@ assert.equal(normaliserGuideV1(brut).etapes[0].attendreVoix, true, "par défaut 
 assert.equal(normaliserGuideV1(Object.assign({}, brut, { etapes: [Object.assign({}, brut.etapes[0], { attendreVoix: false })] })).etapes[0].attendreVoix, false, "décochée : gardée");
 assert.ok(moteur.includes("if(etapeCourante&&etapeCourante.attendreVoix===false)return false;"), "décochée : la cible se clique pendant la voix");
 assert.ok(moteur.includes("!s.attenteClic&&!voixParle_(s)&&"), "sans fenêtre et sans clic, l'étape attend toujours la fin de la voix pour avancer seule");
-assert.ok(admin.includes('data-champ="attendreVoix"') && admin.includes("Attendre la fin de la phrase avant de pouvoir cliquer") && admin.includes("e.attendreVoix=c('attendreVoix').checked;") && admin.includes("attendreVoix:e.attendreVoix!==false,humeur:e.humeur||''};}),afficher"), "case dans l'éditeur, lue, enregistrée, aperçue");
+assert.ok(admin.includes('data-champ="attendreVoix"') && admin.includes("Attendre la fin de la phrase avant de pouvoir cliquer") && admin.includes("e.attendreVoix=c('attendreVoix').checked;") && admin.includes("attendreVoix:e.attendreVoix!==false,humeur:e.humeur||''"), "case dans l'éditeur, lue, enregistrée, aperçue");
 console.log("idle-tuto-sans-fenetre-v1: OK");

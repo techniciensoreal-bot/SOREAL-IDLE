@@ -31,6 +31,12 @@ export const IDLE_TUTO_MAX_ETAPES_V1 = 40;
 /* Humeurs de la mascotte Cthulhu (modules/cthulhu-v1.js) : une étape peut en choisir une ; vide = « normal ». */
 export const IDLE_TUTO_HUMEURS_V1 = Object.freeze(["normal", "content", "pense", "coucou", "surpris", "vole", "dos", "arrive", "grand", "repart"]);
 export const IDLE_TUTO_MAX_GUIDES_V1 = 200;
+/* Scènes de vol de Cthulhu (modules/cthulhu-scene-v1.js) : une étape peut en choisir une ; « mascotteSur » = sélecteur CSS de sa place finale (vide = le bouton Nuke, sinon Fight). */
+export const IDLE_TUTO_SCENES_V1 = Object.freeze(["", "arrivee", "pose", "place"]);
+function scenePlace(v) {
+  const t = String(v == null ? "" : v).trim();
+  return t && IDLE_TUTO_SELECTEUR_RE_V1.test(t) ? t : "";
+}
 const MAX_TEXTE = 1500;
 const BOSS_MAX = 999;
 
@@ -73,7 +79,7 @@ export function normaliserGuideV1(brut) {
       }
     }
     const placement = IDLE_TUTO_PLACEMENTS_V1.includes(String(etape.placement)) ? String(etape.placement) : "auto";
-    return { humeur: IDLE_TUTO_HUMEURS_V1.includes(String(etape.humeur)) ? String(etape.humeur) : "", titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible), attendreVoix: etape.attendreVoix !== false };
+    return { humeur: IDLE_TUTO_HUMEURS_V1.includes(String(etape.humeur)) ? String(etape.humeur) : "", titre: texteNettoye(etape.titre, 80), texte: texteNettoye(etape.texte, MAX_TEXTE), menu, cible, placement, surbrillance: etape.surbrillance !== false, avanceAuClic: etape.avanceAuClic === true && Boolean(cible), attendreVoix: etape.attendreVoix !== false, scene: IDLE_TUTO_SCENES_V1.includes(String(etape.scene)) ? String(etape.scene) : "", mascotteSur: scenePlace(etape.mascotteSur), clignote: etape.clignote === true && Boolean(cible) };
   });
   if (!etapes.some((e) => e.texte || e.titre)) throw new Error("TUTO_ETAPES_VIDES");
   const vuBrut = String(g.vuId == null ? "" : g.vuId).trim();
@@ -86,16 +92,43 @@ export function normaliserGuideV1(brut) {
 /* Guides d'amorçage SUPPRIMÉS (Norman, 2026-11-04) : plus aucun guide n'est créé d'office (l'ancien tutoriel de Norman & Sébastien et le nouveau, court, n'existent plus). */
 export const IDLE_TUTORIEL_SEED_V1 = [];
 
+/*
+ * Guide de départ de Lhu (Norman, 2026-11-07), créé UNE fois (clé seed_lhu_v1) : modifiable ensuite dans l'Admin (textes, voix, scènes), le supprimer ne le recrée pas.
+ * Étape 1 : arrivée en vol, « ??? », zoom, présentation. Étape 2 : demi-tour, vol de dos, posé sur le bouton Nuke ; la partie ne continue qu'au clic sur Fight.
+ */
+export const IDLE_TUTORIEL_LHU_V1 = Object.freeze({
+  id: "lhu-debut", titre: "Lhu : le premier combat", declencheur: { type: "debut" }, actif: true, afficher: true, mascotte: true, ordre: -100,
+  etapes: [
+    { humeur: "normal", titre: "Lhu", scene: "arrivee", placement: "bas", attendreVoix: false,
+      texte: "Oh... un nouvel arrivant. Salut, moi c'est Lhu, pour faire court. Mon vrai nom te demanderait de te mâcher la langue avant de l'avaler pour pouvoir le prononcer. Je vais t'apprendre à te battre. Tu vois ce petit bout de peluche ? Pète-lui la gueule !" },
+    { humeur: "normal", titre: "Lhu", scene: "pose", menu: "combat", placement: "haut", surbrillance: false, avanceAuClic: true,
+      cible: { selecteur: "#sorealIdleBossStartV100", libelle: "Le bouton Fight" },
+      texte: "Appuie sur le gros bouton rouge." },
+    { humeur: "normal", titre: "Lhu", menu: "combat", placement: "bas", attendreVoix: false,
+      texte: "Ah oui... tu es plus nul que ce que j'imaginais. Mais c'est pas grave. Tu es tombé sur le meilleur entraîneur des macro-univers." },
+    { humeur: "normal", titre: "Lhu", scene: "place", mascotteSur: "button[onclick*=\"'entrainement'\"]", placement: "bas", surbrillance: false, clignote: true, avanceAuClic: true,
+      cible: { selecteur: "button[onclick*=\"'entrainement'\"]", libelle: "Le menu Entraînement de base" },
+      texte: "En haut tu as des menus (à gauche sur PC). Pour pouvoir vaincre les boss qui t'attendent, il va falloir devenir plus fort, et pour ça, il faut s'entraîner. Clique sur le menu « Entraînement de base » qui clignote." },
+  ],
+});
+
 /* Insère le premier jet UNE fois : les supprimer ne le recrée pas. */
 function insererGraineTutorielV1(sql) {
-  const fait = sqlRows(sql.exec("SELECT v FROM idle_tutoriel_meta WHERE k='seed_v1'"))[0];
-  if (fait) return;
   const maintenant = Date.now();
-  for (const brut of IDLE_TUTORIEL_SEED_V1) {
-    const g = normaliserGuideV1(brut);
-    sql.exec("INSERT OR IGNORE INTO idle_tutoriel(id,json,maj) VALUES(?,?,?)", g.id, JSON.stringify(g), maintenant);
+  const fait = sqlRows(sql.exec("SELECT v FROM idle_tutoriel_meta WHERE k='seed_v1'"))[0];
+  if (!fait) {
+    for (const brut of IDLE_TUTORIEL_SEED_V1) {
+      const g = normaliserGuideV1(brut);
+      sql.exec("INSERT OR IGNORE INTO idle_tutoriel(id,json,maj) VALUES(?,?,?)", g.id, JSON.stringify(g), maintenant);
+    }
+    sql.exec("INSERT OR REPLACE INTO idle_tutoriel_meta(k,v) VALUES('seed_v1','1')");
   }
-  sql.exec("INSERT OR REPLACE INTO idle_tutoriel_meta(k,v) VALUES('seed_v1','1')");
+  const lhu = sqlRows(sql.exec("SELECT v FROM idle_tutoriel_meta WHERE k='seed_lhu_v1'"))[0];
+  if (!lhu) {
+    const g = normaliserGuideV1(IDLE_TUTORIEL_LHU_V1);
+    sql.exec("INSERT OR IGNORE INTO idle_tutoriel(id,json,maj) VALUES(?,?,?)", g.id, JSON.stringify(g), maintenant);
+    sql.exec("INSERT OR REPLACE INTO idle_tutoriel_meta(k,v) VALUES('seed_lhu_v1','1')");
+  }
 }
 
 export function assurerTutorielV1(sql) {

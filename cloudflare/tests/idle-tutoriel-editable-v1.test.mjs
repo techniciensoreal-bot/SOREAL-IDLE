@@ -44,7 +44,12 @@ const guide = (extra) => Object.assign({ id: "g-energie", titre: "Énergie", dec
 {
   /* Norman (2026-11-04) : l'ancien tutoriel et le nouveau (court) sont supprimés : plus aucune graine, plus aucun guide créé d'office, et SEULS les guides de Cthulhu (mascotte) sont servis aux joueurs. */
   assert.equal(IDLE_TUTORIEL_SEED_V1.length, 0, "plus de graine");
-  assert.deepEqual(lireGuidesV1(sql), [], "aucun guide au départ");
+  /* Norman (2026-11-07) : un SEUL guide créé d'office, celui de Lhu (une fois ; le supprimer ne le recrée pas). */
+  assert.deepEqual(lireGuidesV1(sql).map((g) => g.id), ["lhu-debut"], "le guide de Lhu au départ");
+  assert.equal(guidesPourJoueurV1(sql, { debut: true }).length, 1);
+  assert.equal(guidesPourJoueurV1(sql, { debut: true })[0].etapes[0].scene, "arrivee");
+  supprimerGuideV1(sql, "lhu-debut");
+  assert.deepEqual(lireGuidesV1(sql), [], "supprimé : il ne revient pas");
   assert.deepEqual(guidesPourJoueurV1(sql, { debut: true }), []);
   enregistrerGuideV1(sql, guide({ id: "sans-cthulhu", titre: "Autre", declencheur: { type: "debut" }, mascotte: false }), 500);
   assert.deepEqual(guidesPourJoueurV1(sql, { debut: true }), [], "un guide sans Cthulhu n'est jamais joué");

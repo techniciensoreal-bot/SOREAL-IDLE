@@ -78,7 +78,18 @@ function installerStyle_(){
     '#'+ID+' .tu-cth{position:absolute;left:8px;top:-118px;width:130px;height:130px;pointer-events:none}'+
     '#'+ID+' .tu-cth .cth-v1{width:130px;height:130px}'+
     /* Cthulhu en grand (arrive / grand / repart) : plein cadre, centré en haut, tout entier visible avec son visage ; la fenêtre de texte se cale en bas (Norman, 2026-11-04 : « il est coupé, on ne voit pas son visage »). */
+    '.tu-clignote{animation:tuClignote 1s ease-in-out infinite !important}'+
+    '@keyframes tuClignote{0%,100%{box-shadow:0 0 0 0 rgba(255,226,122,0);filter:brightness(1)}50%{box-shadow:0 0 18px 6px rgba(255,226,122,.95);filter:brightness(1.45)}}'+
+    '@media (prefers-reduced-motion:reduce){.tu-clignote{animation:none !important;box-shadow:0 0 14px 5px rgba(255,226,122,.95)}}'+
     '#'+ID+'{--tu-B:min(66vh,96vw)}'+
+    /* bulle de dialogue de Lhu (Norman, 2026-11-07 : « je veux des bulles de dialogues ») : fond clair, queue qui pointe vers lui (placer_ pose data-queue et --qx) */
+    '#'+ID+'.tu-bulle{background:#fffdf3;color:#1a1a1a;border:3px solid #000;border-radius:22px;box-shadow:0 6px 0 rgba(0,0,0,.35);width:min(330px,calc(100vw - 16px))}'+
+    '#'+ID+'.tu-bulle .tu-titre{display:none}#'+ID+'.tu-bulle .tu-compte{display:none}#'+ID+'.tu-bulle .tu-haut{display:none}'+
+    '#'+ID+'.tu-bulle .tu-texte{font-size:17px;font-weight:800;color:#1a1a1a}'+
+    '#'+ID+'.tu-bulle .tu-indice{color:#0b6b82}'+
+    '#'+ID+'.tu-bulle::after{content:"";position:absolute;left:var(--qx,50%);width:22px;height:22px;background:#fffdf3;border:3px solid #000;transform:translateX(-50%) rotate(45deg);border-radius:3px}'+
+    '#'+ID+'.tu-bulle[data-queue="bas"]::after{bottom:-14px;border-top:0;border-left:0}'+
+    '#'+ID+'.tu-bulle[data-queue="haut"]::after{top:-14px;border-bottom:0;border-right:0}'+
     '#'+ID+' .tu-cth.tu-cth-grand{position:fixed;left:50%;top:2vh;width:var(--tu-B);height:var(--tu-B);margin-left:calc(var(--tu-B) / -2)}'+
     '#'+ID+' .tu-cth-grand .cth-v1{width:100%;height:100%;--cth-g:1}'+
     '#'+ID+'.tu-bas-cth{left:0!important;right:0!important;top:auto!important;bottom:12px!important;margin:0 auto!important}'+
@@ -107,14 +118,35 @@ function placer_(bulle,cadre,etape){
   if(cible&&visible_(cible)){
     r=cible.getBoundingClientRect();
     if(cadre){
-      if(etape.surbrillance!==false){
+      if(etape.surbrillance!==false&&!etape.scene){   /* aucun cadre autour de ce qu'il faut cliquer pendant une scène de Lhu (Norman, 2026-11-07) */
         cadre.hidden=false;
         cadre.style.left=(r.left-5)+'px';cadre.style.top=(r.top-5)+'px';cadre.style.width=(r.width+10)+'px';cadre.style.height=(r.height+10)+'px';
       }else cadre.hidden=true;
     }
   }else if(cadre)cadre.hidden=true;
+  /* clignote : l'élément à cliquer clignote (jamais de cadre) */
+  var cl=cible&&visible_(cible)&&etape&&etape.clignote?cible:null;
+  var anc=document.querySelector('.tu-clignote');
+  if(anc&&anc!==cl)anc.classList.remove('tu-clignote');
+  if(cl&&!cl.classList.contains('tu-clignote'))cl.classList.add('tu-clignote');
   var p=String(etape&&etape.placement||'auto');
-  if(!r||p==='centre'){
+  var cr=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__&&bulle.classList.contains('tu-bulle')?window.__SOREAL_IDLE_CTHULHU_SCENE_V1__.rect():null;
+  if(cr&&cr.width>0){
+    /* bulle de dialogue : près de Lhu, la queue vers lui. Zoomé (grand) : en bas, queue vers le haut ; petit : au-dessus de sa tête, sinon à côté ou dessous. */
+    var ccx=cr.left+cr.width/2,queue='bas';
+    if(cr.height>0.4*vh){x=ccx-bw/2;y=vh-bh-m-6;queue='haut';}
+    else if(Math.max(cr.bottom,r?r.bottom:0)+bh+22<=vh-m){x=ccx-bw/2;y=Math.max(cr.bottom,r?r.bottom:0)+22;queue='haut';}   /* sous lui ET sous le bouton à cliquer */   /* de préférence SOUS lui : la bulle ne cache pas le boss */
+    else if(cr.top-bh-22>=m){x=ccx-bw/2;y=cr.top-bh-22;queue='bas';}
+    else{x=cr.left-bw-14;y=cr.top+cr.height/2-bh/2;queue='';}
+    x=Math.max(m,Math.min(vw-bw-m,x));y=Math.max(m,Math.min(vh-bh-m,y));
+    bulle.setAttribute('data-queue',queue);
+    bulle.style.setProperty('--qx',Math.round(Math.max(26,Math.min(bw-26,ccx-x)))+'px');
+    bulle.style.left=Math.round(x)+'px';bulle.style.top=Math.round(y)+'px';
+    return;
+  }
+  if(!r&&etape&&etape.scene&&p!=='centre'){
+    x=(vw-bw)/2;y=vh-bh-m;
+  }else if(!r||p==='centre'){
     x=(vw-bw)/2;y=(vh-bh)/2;
     /* Cible présente mais fenêtre « au centre » : on l'écarte pour ne pas cacher la cible. */
     if(r&&p==='centre'&&y<r.bottom&&y+bh>r.top)y=(r.top+r.height/2<vh/2)?Math.min(vh-bh-m,r.bottom+14):Math.max(m,r.top-bh-14);
@@ -229,6 +261,7 @@ function arreterBoucle_(){if(boucle){clearInterval(boucle);boucle=0;}}
 function fermer_(vu){
   var s=etat.enCours;
   arreterBoucle_();
+  Array.prototype.forEach.call(document.querySelectorAll('.tu-clignote'),function(x){x.classList.remove('tu-clignote');});
   var b=document.getElementById(ID),c=document.getElementById(ID_CADRE);
   if(b&&b.parentNode)b.parentNode.removeChild(b);
   if(c&&c.parentNode)c.parentNode.removeChild(c);
@@ -272,6 +305,8 @@ function attendreChronique_(s,suite){
 function mascotteHtml_(e){
   var C=window.__SOREAL_IDLE_CTHULHU_V1__;
   if(!C||typeof C.html!=='function')return '';
+  var SC=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;
+  if(e&&(e.scene||(SC&&SC.existe())))return '';   /* une scène de vol : c'est le Cthulhu flottant (cthulhu-scene-v1.js) qui joue, pas celui de la fenêtre */
   var grand=/^(arrive|grand|repart)$/.test(e&&e.humeur||'');
   return '<div class="tu-cth'+(grand?' tu-cth-grand':'')+'">'+C.html(e&&e.humeur||'normal',/^(arrive|grand|repart)$/.test(e&&e.humeur||'')?'':'cth-entre')+'</div>';
 }
@@ -311,7 +346,13 @@ function afficherEtape_(garderTaille){
   s.cache=s.guide.afficher===false;
   s.debutEtape=Date.now();
   s.tempsLecture=Math.max(2500,Math.min(60000,String(e.texte||'').length*60));
-  b.hidden=s.cache;
+  /* Scène de vol de Lhu : la fenêtre (texte, voix) n'apparaît qu'à la FIN du mouvement ; rien ne se clique avant. */
+  var scene=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;
+  var indiceScene=s.i;
+  s.sceneEnCours=Boolean(e.scene&&scene);
+  b.hidden=s.cache||s.sceneEnCours;
+  var avecLhu=Boolean(scene&&(e.scene||scene.existe()));
+  b.classList.toggle('tu-bulle',avecLhu);
   /* Une étape qui commence (départ du guide, avance au clic) s'ouvre réduite en enceinte ; un clic sur Précédent / Suivant garde la taille choisie. */
   b.classList.toggle('reduit',!garderTaille&&!s.guide.mascotte);   /* Cthulhu s'affiche tout de suite, jamais réduit en enceinte */
   b.innerHTML=
@@ -319,7 +360,7 @@ function afficherEtape_(garderTaille){
     (s.guide.mascotte?mascotteHtml_(e):'')+
     '<div class="tu-haut"><span class="tu-titre">'+esc_(e.titre||s.guide.titre||'')+'</span><span class="tu-compte">'+(s.i+1)+'/'+nbEtapes+'</span></div>'+
     '<div class="tu-texte">'+paragraphes+'</div>'+
-    (s.attenteClic?'<div class="tu-indice">👆 Clique sur l’élément entouré pour continuer.</div>':'')+
+    (s.attenteClic?'<div class="tu-indice">'+(e.scene||e.surbrillance===false?'👆 Clique pour continuer.':'👆 Clique sur l’élément entouré pour continuer.')+'</div>':'')+
     '<div class="tu-actions">'+
       '<button type="button" class="discret" data-tu="ecouter" title="Écouter cette étape" aria-label="Écouter cette étape">🔊</button>'+
       '<button type="button" class="discret" data-tu="passer">'+(s.apercu?'Fermer':'Passer')+'</button>'+
@@ -333,6 +374,17 @@ function afficherEtape_(garderTaille){
   boucle=setInterval(suivre_,200);
   suivre_();
   declarerVoix_(s.guide);
+  if(s.sceneEnCours){
+    var fini=function(){
+      if(etat.enCours!==s||s.i!==indiceScene)return;
+      s.sceneEnCours=false;s.debutEtape=Date.now();
+      var bb=document.getElementById(ID);if(bb&&!s.cache)bb.hidden=false;
+      lireEtape_(s,false);suivre_();
+    };
+    var p=null;try{p=scene.jouer(e.scene,{sur:e.mascotteSur||''});}catch(_e){}
+    Promise.resolve(p).then(fini,fini);
+    return;
+  }
   lireEtape_(s,false);
 }
 
@@ -357,7 +409,8 @@ function suivre_(){
     b.classList.toggle('tu-verrou-voix',verrou);
     var ind=b.querySelector('.tu-indice');
     if(ind){
-      var texteInd=verrou?'🔊 Écoute d’abord la voix : tu pourras ensuite cliquer sur l’élément entouré.':'👆 Clique sur l’élément entouré pour continuer.';
+      var sansCadre=Boolean(e.scene||e.surbrillance===false);
+      var texteInd=verrou?(sansCadre?'🔊 Écoute d’abord la voix, tu pourras ensuite cliquer.':'🔊 Écoute d’abord la voix : tu pourras ensuite cliquer sur l’élément entouré.'):(sansCadre?'👆 Clique pour continuer.':'👆 Clique sur l’élément entouré pour continuer.');
       if(ind.textContent!==texteInd)ind.textContent=texteInd;
     }
   }
@@ -366,6 +419,10 @@ function suivre_(){
     var iEtape=s.i;
     if(s.i>=s.guide.etapes.length-1){fermer_(true);return;}
     s.i=iEtape+1;afficherEtape_(true);return;
+  }
+  /* Étape de scène sans clic demandé : elle passe seule à la suivante quand la voix a fini et que le temps de lecture est écoulé (le bouton Suivant reste là pour aller plus vite). */
+  if(e.scene&&!s.sceneEnCours&&!s.attenteClic&&!voixParle_(s)&&Date.now()-s.debutEtape>=s.tempsLecture&&s.i<s.guide.etapes.length-1){
+    s.i+=1;afficherEtape_(true);return;
   }
   placer_(b,c,e);
 }
@@ -413,7 +470,7 @@ function clicRefuse_(ev){
   if(ev.target.closest('#'+ID))return false;
   var e=s.guide.etapes[s.i],cible=e&&e.cible?cibler_(e.cible.selecteur):null;
   if(!cible)return false;   /* pas de cible à l'écran : jamais un écran verrouillé sans issue */
-  if(voixVerrouille_(s))return true;
+  if(s.sceneEnCours||voixVerrouille_(s))return true;   /* Lhu vole encore : rien ne se clique avant la fin de la scène */
   return !cible.contains(ev.target);
 }
 /*

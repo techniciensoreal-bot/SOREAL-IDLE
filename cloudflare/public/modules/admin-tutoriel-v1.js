@@ -53,7 +53,7 @@ function apparitionCthulhuVide_(){
   return {id:'',titre:'Cthulhu',declencheur:{type:'menu',menu:''},actif:false,afficher:true,mascotte:true,ordre:0,etapes:[e]};
 }
 function etapeVide_(){
-  return {humeur:'',titre:'',texte:'',menu:'',cible:null,placement:'auto',surbrillance:true,avanceAuClic:false,attendreVoix:true};
+  return {humeur:'',titre:'',texte:'',menu:'',cible:null,placement:'auto',surbrillance:true,avanceAuClic:false,attendreVoix:true,scene:'',mascotteSur:'',clignote:false};
 }
 function copie_(o){return JSON.parse(JSON.stringify(o));}
 
@@ -182,7 +182,7 @@ function pageHtml_(){
 /* ---------- aperçu ---------- */
 
 function pourLecteur_(g){
-  return {id:g.id||'apercu',titre:g.titre||'Aperçu',vuId:'apercu',etapes:g.etapes.map(function(e){return {titre:e.titre,texte:e.texte,menu:e.menu,cible:e.cible&&e.cible.selecteur?e.cible:null,placement:e.placement,surbrillance:e.surbrillance!==false,avanceAuClic:Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur),attendreVoix:e.attendreVoix!==false,humeur:e.humeur||''};}),afficher:g.afficher!==false,mascotte:g.mascotte===true};
+  return {id:g.id||'apercu',titre:g.titre||'Aperçu',vuId:'apercu',etapes:g.etapes.map(function(e){return {titre:e.titre,texte:e.texte,menu:e.menu,cible:e.cible&&e.cible.selecteur?e.cible:null,placement:e.placement,surbrillance:e.surbrillance!==false,avanceAuClic:Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur),attendreVoix:e.attendreVoix!==false,humeur:e.humeur||'',scene:e.scene||'',mascotteSur:e.mascotteSur||'',clignote:Boolean(e.clignote&&e.cible&&e.cible.selecteur)};}),afficher:g.afficher!==false,mascotte:g.mascotte===true};
 }
 function apercu_(guide,apres){
   var T=window.__SOREAL_IDLE_TUTORIEL_V1__;
@@ -206,6 +206,9 @@ function etapeHtml_(e,i,total){
       '<button type="button" data-ae="voir" data-i="'+i+'">▶ Voir cette étape</button> '+
       '<button type="button" class="danger" data-ae="suppr" data-i="'+i+'">🗑</button></span></div>'+
     '<label>🐙 Humeur de Cthulhu (si le guide est présenté par lui)</label><select data-champ="humeur">'+[['','Normal'],['coucou','Coucou (deux bras qui font signe)'],['content','Content'],['pense','Réfléchit'],['surpris','Surpris'],['vole','Vole sur place'],['dos','De dos (ailes qui battent)'],['arrive','Arrive de loin et grandit jusqu’à l’écran'],['grand','Reste grand, contre l’écran'],['repart','Se retourne et repart de dos']].map(function(h){return '<option value="'+h[0]+'"'+((e.humeur||'')===h[0]?' selected':'')+'>'+h[1]+'</option>';}).join('')+'</select>'+
+    '<label>🐙 Scène de vol de Lhu (le texte et la voix attendent la fin du mouvement)</label><select data-champ="scene">'+[['','Aucune'],['arrivee','Arrivée : vole depuis la droite, points d’interrogation, puis zoom'],['pose','Pose : demi-tour, 1 s, vole de dos jusqu’à sa place, puis se retourne'],['place','Place : directement à sa place']].map(function(o){return '<option value="'+o[0]+'"'+((e.scene||'')===o[0]?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select>'+
+    '<label>Sa place finale (sélecteur ; vide = le bouton Nuke, sinon Fight)</label><input type="text" data-champ="mascotteSur" maxlength="200" placeholder="#sorealIdleBossNukeV1" value="'+esc_(e.mascotteSur||'')+'">'+
+    '<label style="display:flex;gap:8px;align-items:center;font-weight:400;margin:8px 0"><input type="checkbox" data-champ="clignote" '+(e.clignote?'checked':'')+'> <span>L’élément à cliquer clignote (à la place d’un cadre)</span></label>'+
     '<label>Titre (facultatif)</label><input type="text" data-champ="titre" maxlength="80" value="'+esc_(e.titre)+'">'+
     '<label class="at-or-etiq">Texte tel que le joueur le lit</label><textarea class="at-or" data-champ="texte" maxlength="1500">'+esc_(e.texte)+'</textarea>'+
     '<div class="at-aide">Ce cadre jaune est le texte affiché. Pour découper par personnage, régler la prononciation et générer les voix, ouvre « 🎙 Texte et voix ».</div>'+
@@ -265,7 +268,7 @@ function lireChamps_(){
     var i=Number(bloc.getAttribute('data-etape'));
     var e=edition.etapes[i];if(!e)return;
     function c(n){var x=bloc.querySelector('[data-champ="'+n+'"]');return x;}
-    e.humeur=c('humeur')?c('humeur').value:'';e.titre=c('titre').value;e.texte=c('texte').value;e.menu=c('menu').value;e.placement=c('placement').value;e.surbrillance=c('surbrillance').checked;e.attendreVoix=c('attendreVoix').checked;e.avanceAuClic=Boolean(c('avanceAuClic').checked&&e.cible&&e.cible.selecteur);
+    e.humeur=c('humeur')?c('humeur').value:'';e.scene=c('scene')?c('scene').value:'';e.mascotteSur=c('mascotteSur')?c('mascotteSur').value.trim():'';e.clignote=Boolean(c('clignote')&&c('clignote').checked);e.titre=c('titre').value;e.texte=c('texte').value;e.menu=c('menu').value;e.placement=c('placement').value;e.surbrillance=c('surbrillance').checked;e.attendreVoix=c('attendreVoix').checked;e.avanceAuClic=Boolean(c('avanceAuClic').checked&&e.cible&&e.cible.selecteur);
   });
 }
 
