@@ -58,6 +58,14 @@ function fusion_(nouvelles) {
   return Array.from(new Set([...existantes, ...nouvelles])).sort();
 }
 
+/* Voix anglaises sans équivalent français : une empreinte publiée par CET outil qui n'était pas au manifeste avant l'envoi (le français ne la lit pas : voir `enSeules_` de tutorial-tts-v202.js). La liste existante est conservée. */
+function enSeules_(nouvelles, avant) {
+  const connues = new Set((avant && avant.files) || []);
+  const liste = new Set((avant && avant.enSeules) || []);
+  for (const h of nouvelles) if (!connues.has(h)) liste.add(h);
+  return Array.from(liste).sort();
+}
+
 async function main() {
   if (!DOSSIER || !fs.existsSync(DOSSIER)) throw new Error("--dir <dossier des .m4a> requis");
   /* Un fichier écrit il y a moins de 30 s est peut-être encore en cours d'écriture : on l'ignore. */
@@ -135,11 +143,12 @@ const aEnvoyer = fichiers.filter((f) => publies[f] !== fs.statSync(path.join(DOS
   }
 
   /* Manifeste du dépôt + retrait des anciens fichiers .m4a. */
+  const avantFusion = (() => { try { return JSON.parse(fs.readFileSync(path.join(PUBLIC_VOICE, "manifest.json"), "utf8")); } catch (_e) { return {}; } })();
   const manifesteSource = fs.existsSync(path.join(DOSSIER, "manifest.json")) ? JSON.parse(fs.readFileSync(path.join(DOSSIER, "manifest.json"), "utf8")) : {};
   fs.mkdirSync(PUBLIC_VOICE, { recursive: true });
   const anciens = fs.readdirSync(PUBLIC_VOICE).filter((f) => f.endsWith(".m4a") || f.includes(".tmp"));
   anciens.forEach((f) => fs.unlinkSync(path.join(PUBLIC_VOICE, f)));
-  fs.writeFileSync(path.join(PUBLIC_VOICE, "manifest.json"), JSON.stringify({ v: 1, voice: manifesteSource.voice || "cb1", partiel: PARTIEL || partielExistant_(), format: "m4a-aac-mono", stockage: "r2:idle/voix/", files: fusion_(fichiers.map((f) => f.slice(0, -4))) }) + "\n");
+  fs.writeFileSync(path.join(PUBLIC_VOICE, "manifest.json"), JSON.stringify({ v: 1, voice: manifesteSource.voice || "cb1", partiel: PARTIEL || partielExistant_(), format: "m4a-aac-mono", stockage: "r2:idle/voix/", files: fusion_(fichiers.map((f) => f.slice(0, -4))), enSeules: enSeules_(fichiers.map((f) => f.slice(0, -4)), avantFusion) }) + "\n");
   console.log("manifest.json : " + fichiers.length + " voix ; " + anciens.length + " ancien(s) fichier(s) .m4a retiré(s) du dépôt (cloudflare/public/voice).");
 }
 

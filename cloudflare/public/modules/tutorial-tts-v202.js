@@ -211,6 +211,8 @@
   function langueAnglaise_(){try{return window.localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){return false;}}
 
   var manifesteSync_=null;
+  /* Voix ANGLAISES sans équivalent français (Norman, 2026-11-07 : « Rob Boss prononce le nom du boss avec la voix anglaise ») : un texte identique dans les deux langues (le nom « Rob Boss ») a la même empreinte ; si seule la voix anglaise existe, le français ne la lit pas et se rabat sur Piper. Liste `enSeules` du manifeste (écrite par voice-publish.mjs). */
+  var enSeules_={};
   /*
    * RÈGLE STRICTE (Norman, 2026-11-01 : « tout ce que je considère comme validé dans les voix doit être la SEULE version qui existe ») : un texte ENREGISTRÉ est un texte dont au moins un bloc figure dans une liste « voix » déclarée
    * (enregistrerVoixDynamiques) sans être une voix statique du manifeste (un bloc à la fois déclaré et au manifeste, comme le nom d'un boss, ne suffit pas). Pour un tel texte, SEULS les fichiers déclarés sont lus : un bloc qui n'est
@@ -249,6 +251,7 @@
       .then(function(m){
         var set={};
         (m&&Array.isArray(m.files)?m.files:[]).forEach(function(h){set[String(h)]=true;});
+        enSeules_={};(m&&Array.isArray(m.enSeules)?m.enSeules:[]).forEach(function(h){enSeules_[String(h)]=true;});
         manifesteSync_=set;
         return set;
       })
@@ -314,6 +317,7 @@
     var source=voixDynamiques[hash]
       ?chargerVoixR2_(hash).catch(function(){return null;})
       :chargerManifesteVoix_().then(function(set){
+        if(!langueAnglaise_()&&enSeules_[hash])return null;
         /* Norman (2026-10-22) : « mes fenêtres ne lisent pas les sons que j'ai générés ». Le manifeste du dépôt n'est qu'un raccourci : une voix générée depuis (studio, éditeur de voix) est sur R2 sans y figurer. Un bloc absent du manifeste est donc AUSSI demandé à R2 (404 = pas de voix, repli sur Piper ; le résultat est gardé par empreinte, une seule requête par bloc). */
         return chargerVoixR2_(hash);
       });

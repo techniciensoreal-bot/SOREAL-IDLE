@@ -31,6 +31,9 @@
         nom:'Une borne plus légère',
         date:'2026-11-07',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'L’écran LED de la borne demande moins de calcul à chaque image : même aspect, moins de petits à-coups en combat, surtout sur téléphone.',
           ]},
