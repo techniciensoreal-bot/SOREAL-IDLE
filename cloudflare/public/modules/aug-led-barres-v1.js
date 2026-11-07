@@ -60,33 +60,49 @@
     var m=/rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(h);return m?[+m[1],+m[2],+m[3]]:[255,176,0];
   }
 
+  /*
+   * FLUIDITÉ (Norman, 2026-11-07 : « les barres dans Augmentations ont l'air de ne pas être en 60 images par seconde ; le reste est fluide, c'est la manière dont elles avancent ») : avant, chaque barre était REDESSINÉE point par point (des centaines
+   * d'arcs avec halo) au plus toutes les 33 ms (30 images par seconde) et la colonne en cours n'avait que 8 niveaux d'intensité : le mouvement paraissait saccadé. Maintenant : la trame éteinte, la colonne allumée (un « sprite » avec son halo) et
+   * l'ensemble des colonnes déjà allumées sont dessinés UNE fois sur des calques en mémoire ; à chaque image on ne recompose que trois images (trame, colonnes allumées, colonne en cours à son intensité exacte), à chaque image d'écran (60 par seconde)
+   * pour toutes les barres visibles, avec 64 niveaux d'intensité pour la colonne en cours. Colonnes de largeur entière en pixels de l'écran (jamais de ré-échantillonnage : les points restent nets).
+   */
+  function calques(cv,tube,w,h,dpr,col){
+    var pas=mobile()?PAS_TEL:PAS_PC,W=Math.round(w*dpr),H=Math.round(h*dpr),cols=Math.max(8,Math.floor(w/pas)),rows=Math.max(3,Math.floor((h-2)/pas));
+    var cw=Math.max(3,Math.floor(W/cols)),ox=Math.floor((W-cols*cw)/2),oy=Math.floor((H-rows*cw)/2),r=cw*0.36,m=Math.ceil(cw*0.95),c=rgb(col),i,j;
+    var cle=cols+'|'+rows+'|'+cw+'|'+col+'|'+W+'x'+H;
+    if(cv.__calquesCle===cle)return cv.__calques;
+    function toile(l,hh){var o=document.createElement('canvas');o.width=l;o.height=hh;return o;}
+    /* trame éteinte */
+    var dim=toile(W,H),d=dim.getContext('2d');
+    d.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+',0.13)';
+    for(i=0;i<cols;i++)for(j=0;j<rows;j++){d.beginPath();d.arc(ox+(i+0.5)*cw,oy+(j+0.5)*cw,r,0,6.2832);d.fill();}
+    /* une colonne allumée complète : halo, points, reflets (le halo déborde de m pixels de chaque côté) */
+    var spr=toile(cw+2*m,H),g=spr.getContext('2d');
+    g.shadowColor='rgba('+c[0]+','+c[1]+','+c[2]+',0.9)';g.shadowBlur=cw*0.9;g.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+',1)';
+    for(j=0;j<rows;j++){g.beginPath();g.arc(m+cw/2,oy+(j+0.5)*cw,r*1.04,0,6.2832);g.fill();}
+    g.shadowBlur=0;g.fillStyle='rgba(255,255,255,0.35)';
+    for(j=0;j<rows;j++){g.beginPath();g.arc(m+cw/2-r*0.25,oy+(j+0.5)*cw-r*0.25,r*0.32,0,6.2832);g.fill();}
+    var lit=toile(W,H);
+    var o={dim:dim,spr:spr,lit:lit,litCtx:lit.getContext('2d'),cols:cols,cw:cw,ox:ox,m:m,W:W,H:H,plein:0};
+    cv.__calquesCle=cle;cv.__calques=o;cv.__sigLed='';
+    return o;
+  }
   function dessiner(cv,tube){
     var w=tube.clientWidth,h=tube.clientHeight;if(!(w>0)||!(h>0))return;
-    var dpr=cv.__ech||(cv.__ech=echelle(tube)),pas=mobile()?PAS_TEL:PAS_PC,cols=Math.max(8,Math.floor(w/pas)),rows=Math.max(3,Math.floor((h-2)/pas));
-    var p=avancement(tube),col=couleur(tube),allume=p*cols;
-    var sig=cols+'|'+rows+'|'+Math.round(allume*8)+'|'+col+'|'+dpr+'|'+w+'x'+h;
+    var dpr=cv.__ech||(cv.__ech=echelle(tube)),col=couleur(tube),o=calques(cv,tube,w,h,dpr,col);
+    var p=avancement(tube),allume=p*o.cols,sig=Math.round(allume*64)+'|'+o.cols;
     if(cv.__sigLed===sig)return;
     cv.__sigLed=sig;
-    var W=Math.round(w*dpr),H=Math.round(h*dpr);
-    if(cv.width!==W||cv.height!==H){cv.width=W;cv.height=H;}
-    var ctx=cv.getContext('2d'),c=rgb(col),cw=W/cols,ox=0,oy=(H-rows*cw)/2,r=cw*0.36,i,j,a;
-    ctx.clearRect(0,0,W,H);
-    /* points éteints : la trame reste visible, très sombre */
-    ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+',0.13)';
-    for(i=0;i<cols;i++)for(j=0;j<rows;j++){ctx.beginPath();ctx.arc(ox+(i+0.5)*cw,oy+(j+0.5)*cw,r,0,6.2832);ctx.fill();}
-    /* points allumés : couleur pleine, halo, reflet au centre ; la colonne en cours monte en intensité */
-    for(i=0;i<cols;i++){
-      a=Math.max(0,Math.min(1,allume-i));if(a<=0)continue;
-      ctx.shadowColor='rgba('+c[0]+','+c[1]+','+c[2]+','+(0.9*a)+')';ctx.shadowBlur=cw*0.9;
-      ctx.fillStyle='rgba('+c[0]+','+c[1]+','+c[2]+','+(0.25+0.75*a)+')';
-      for(j=0;j<rows;j++){ctx.beginPath();ctx.arc(ox+(i+0.5)*cw,oy+(j+0.5)*cw,r*1.04,0,6.2832);ctx.fill();}
-    }
-    ctx.shadowBlur=0;
-    for(i=0;i<cols;i++){
-      a=Math.max(0,Math.min(1,allume-i));if(a<=0.4)continue;
-      ctx.fillStyle='rgba(255,255,255,'+(0.35*a)+')';
-      for(j=0;j<rows;j++){ctx.beginPath();ctx.arc(ox+(i+0.5)*cw-r*0.25,oy+(j+0.5)*cw-r*0.25,r*0.32,0,6.2832);ctx.fill();}
-    }
+    if(cv.width!==o.W||cv.height!==o.H){cv.width=o.W;cv.height=o.H;}
+    var ctx=cv.getContext('2d'),plein=Math.min(o.cols,Math.floor(allume)),a=allume-plein,i;
+    /* colonnes pleinement allumées : ajoutées au calque (ou calque refait si la barre a reculé) */
+    if(plein<o.plein){o.litCtx.clearRect(0,0,o.W,o.H);o.plein=0;}
+    for(i=o.plein;i<plein;i++)o.litCtx.drawImage(o.spr,o.ox+i*o.cw-o.m,0);
+    o.plein=plein;
+    ctx.clearRect(0,0,o.W,o.H);
+    ctx.drawImage(o.dim,0,0);
+    ctx.drawImage(o.lit,0,0);
+    if(a>0&&plein<o.cols){ctx.globalAlpha=0.25+0.75*a;ctx.drawImage(o.spr,o.ox+plein*o.cw-o.m,0);ctx.globalAlpha=1;}   /* la colonne en cours monte en intensité */
   }
 
   function attacher(){
@@ -108,7 +124,7 @@
     if(document.hidden)return;
     var cvs=document.querySelectorAll('.aug-tube-v2>canvas.aug-led-cv-v1');
     if(!cvs.length)return;                                   /* plus de barre à l'écran : la boucle s'arrête, APRES_REDESSIN la relancera */
-    if(ts-dernier>=33){dernier=ts;var budget=performance.now()+6;for(var i=0;i<cvs.length;i++){if(!cvs[i].__vu)continue;if(performance.now()>budget)break;try{dessiner(cvs[i],cvs[i].parentNode);}catch(_e){}}}
+    {dernier=ts;var budget=performance.now()+8;for(var i=0;i<cvs.length;i++){if(!cvs[i].__vu)continue;if(performance.now()>budget)break;try{dessiner(cvs[i],cvs[i].parentNode);}catch(_e){}}}
     raf=requestAnimationFrame(image);
   }
   function lancer(){

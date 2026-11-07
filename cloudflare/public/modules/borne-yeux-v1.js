@@ -146,6 +146,20 @@ function zoomCombat(t,vie,pj,st){
   }
   return z;
 }
+/* LE REGARD (fonction pure du temps et de l'état, testable) : par défaut le BOUT de la barre de vie du boss (en bas de l'écran : boss plein = bout à droite, presque mort = à gauche) ; de temps en temps un coup d'œil vers NOTRE barre de vie (en haut), et il vise le bout de la partie pleine, là où elle s'arrête
+   (Norman, 2026-11-07 : « ils doivent regarder l'endroit où en est l'avancée, la limite qui se vide » ; notre vie pleine = bout à droite, presque vide = à gauche). Combat SERRÉ (« quand c'est serré, il doit regarder la barre de vie du boss puis la nôtre plusieurs fois, mais pas trop vite pour que ce soit naturel ») :
+   toutes les ~2,9 s (durée variable d'un tour à l'autre) il regarde la nôtre un peu moins d'une seconde, puis revient ; hors combat serré : un seul coup d'œil rare. */
+function regardCombat(t,vie,pj,serre,W){
+  var len=W-2,xb=1+vie*len,gx=clamp((xb/W)*2-1,-1,1)*0.95,cy=0.85,nous=clamp(pj*2-1,-1,1)*0.95;
+  if(serre&&t>CB_SURPRISE_S){
+    var per=2.9,u0=t-CB_SURPRISE_S,tour=Math.floor(u0/per),u=u0-tour*per,dec=hash(tour+3)*0.5;
+    if(u>1.7+dec&&u<2.55+dec*0.6){gx=nous;cy=-0.55;}
+  }else{
+    var ph=(t+2)%7.5;
+    if(t>CB_SURPRISE_S&&ph>6.4&&ph<7.1){gx=nous;cy=-0.55;}
+  }
+  return {gx:gx,cy:cy};
+}
 function sCombat(t){
   var P=paneau(),pp=P.p,S=etatJeu(),W=P.W;
   if(!pp.st)pp.st={e:ex({lt:0.5,lb:0.2}),t:t,coup:0,pj:-1,regard:0};
@@ -155,17 +169,8 @@ function sCombat(t){
   st.pj=pj;
   var cible=humeur(t,pp,vie,pj,pp.issue,st);
   /* le regard : le bout de la barre de vie du boss (en bas de l'écran) ; de temps en temps un coup d'œil vers la vie du joueur (en haut à gauche), puis de nouveau la barre */
-  var len=W-2,xb=1+vie*len,gx=clamp((xb/W)*2-1,-1,1)*0.95,cy=0.85;
-  /* combat SERRÉ (Norman, 2026-11-07 : « quand c'est serré, il doit regarder la barre de vie du boss puis la nôtre plusieurs fois, mais pas trop vite pour que ce soit naturel ») : toutes les ~2,9 s (durée variable d'un tour à l'autre), il quitte la barre du boss pour regarder la nôtre un peu moins d'une seconde, puis revient ; hors combat serré : un seul coup d'œil rare vers notre vie */
   if(st.serreT===undefined||t-st.serreT>0.5||t<st.serreT){st.serreT=t;st.serre=typeof O.serre==='function'?Boolean(O.serre()):false;}
-  var ph;
-  if(st.serre&&t>CB_SURPRISE_S){
-    var per=2.9,u0=t-CB_SURPRISE_S,tour=Math.floor(u0/per),u=u0-tour*per,dec=hash(tour+3)*0.5;
-    if(u>1.7+dec&&u<2.55+dec*0.6){gx=-0.9;cy=-0.55;}
-  }else{
-    ph=(t+2)%7.5;
-    if(t>CB_SURPRISE_S&&ph>6.4&&ph<7.1){gx=-0.9;cy=-0.55;}
-  }
+  var rg=regardCombat(t,vie,pj,st.serre,W),gx=rg.gx,cy=rg.cy;
   if(t<CB_OUVERTURE_S)cible=ex({lt:0.6,lb:0.25,px:0,py:0,ps:1});
   cible.px=gx;cible.py=cy;
   cible.z=P.reduced?0.85:zoomCombat(t,vie,pj,st);
@@ -199,6 +204,6 @@ var dernierClic=(window.performance&&performance.now)?performance.now():0,yeuxAt
 (function(){var f=function(){dernierClic=(window.performance&&performance.now)?performance.now():0;};try{window.addEventListener('pointerdown',f,true);window.addEventListener('keydown',f,true);window.addEventListener('touchstart',f,true);}catch(_e){}})();
 function du(now,combat){return !combat&&now-dernierClic>=YEUX_INACTIF_MS&&now>=yeuxAt;}
 function lancer(now){yeuxAt=now+YEUX_PAUSE_MIN_MS+Math.random()*YEUX_PAUSE_ALEA_MS;return yeuxParams();}
-return {scene:sYeux,combat:sCombat,fin:sFin,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
+return {scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
 };
 })();

@@ -1569,7 +1569,7 @@
           a:energie,
           taux:H.idleNombre_(infoAt&&infoAt.rateParEnergie),
           gratuit:vueAt&&vueAt.gratuit?1:0,
-          cible:H.idleEntier_(st.target)
+          cible:Math.max(-1,Math.floor(H.idleNombre_(st.target)))
         };
       }
 
@@ -1640,7 +1640,7 @@
             '<div class="soreal-idle-at-nom-v1"><div class="soreal-idle-at-barre-v1"><i class="soreal-idle-at-remplissage-v1" data-at-fill></i><span class="soreal-idle-at-titre-v1">'+(IDLE_AT_ICONES_V1[id]?IDLE_AT_ICONES_V1[id]+' ':'')+H.idleHtml_(IDLE_AT_NOMS_V1[id]||id)+'</span></div><div class="soreal-idle-at-detail-v1"><span data-at-bonus></span><span data-at-eta></span></div></div>'+
             '<div class="soreal-idle-at-col-v1"><span>Niveau</span><b id="sorealIdleAtNiveau_'+idH+'">'+nombre(niveau)+'</b></div>'+
             '<div class="soreal-idle-at-col-v1"><span>Énergie placée</span><b id="sorealIdleAtAlloc_'+idH+'" data-idle-alloc-pop-v1>'+nombre(energie)+'</b></div>'+
-            '<label class="soreal-idle-at-col-v1 cible"><span>Cible</span><input type="number" inputmode="numeric" min="-1" step="1" value="'+H.idleEntier_(st.target)+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun, -1 = fait passer son énergie à la ligne suivante, avec « Faire suivre l’énergie »)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
+            '<label class="soreal-idle-at-col-v1 cible"><span>Cible</span><input type="number" inputmode="numeric" min="-1" step="1" value="'+Math.max(-1,Math.floor(H.idleNombre_(st.target)))+'" title="Niveau cible : l’énergie de la compétence est retirée dès qu’il est atteint (0 = aucun, -1 = fait passer son énergie à la ligne suivante, avec « Faire suivre l’énergie »)" onchange="window.__cibleAdvancedTrainingIdleV1__(\''+idH+'\',this.value)"></label>'+
             '<div class="soreal-idle-at-boutons-v1">'+
               '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'plus\')">+</button>'+
               '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'moins\')">−</button>'+

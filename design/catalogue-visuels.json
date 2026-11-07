@@ -2773,6 +2773,7 @@
    ],
    "utilisePar": [
     "modules/adventure-fond-zone-v1.js",
+    "modules/aug-led-barres-v1.js",
     "modules/augmentations-page-v1.js",
     "modules/blood-magic-v1.js",
     "modules/borne-led-v1.js",
@@ -4397,7 +4398,7 @@
   },
   {
    "fichier": "modules/aug-led-barres-v1.js",
-   "contextes": 2
+   "contextes": 5
   },
   {
    "fichier": "modules/borne-led-v1.js",

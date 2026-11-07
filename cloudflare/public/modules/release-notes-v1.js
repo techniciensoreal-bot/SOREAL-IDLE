@@ -35,6 +35,7 @@
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Quand les yeux de la borne regardent ta barre de vie, ils visent le bout de la partie pleine, là où elle s’arrête : vie haute, regard vers la droite ; vie basse, vers la gauche.',
             'Quand un combat est serré, les yeux de la borne regardent la barre de vie du boss puis la tienne, plusieurs fois, sans se presser.',
             'Les yeux de la borne se rapprochent et s’éloignent : ils arrivent d’un bond depuis le fond, reculent à chaque coup reçu, se penchent vers l’écran quand le boss faiblit, viennent tout près quand il va tomber, et à la défaite les deux croix s’éloignent dans le lointain.',
             'L’écran LED de la borne demande moins de calcul à chaque image : même aspect, moins de petits à-coups en combat, surtout sur téléphone.',
@@ -47,9 +48,11 @@
             'Quand tu mets de la Magie dans la Machine temporelle, la barre d’Énergie ne recule plus.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Les barres de la page Augmentations avancent maintenant à 60 images par seconde, avec une colonne en cours qui monte en intensité de façon continue, au lieu de saccader.',
             'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
           ]},
           {menu:'avance', titre:'Entraînement avancé', points:[
+            'Une « Cible » à -1 reste à -1 à l’écran de l’Entraînement avancé : elle s’affichait 0 alors que le jeu la gardait bien en mémoire (elle reste liée à ton compte, comme toutes les cibles).',
             'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
           ]},
           {menu:'ngu', titre:'NGU', points:[

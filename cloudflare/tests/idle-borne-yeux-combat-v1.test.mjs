@@ -86,25 +86,25 @@ function monde(serre) {
   assert.ok(peurPlusTard > peurDebut, "puis il se détend un peu (la peur ne le fait pas reculer en continu)");
 }
 
-/* 5 ter. COMBAT SERRÉ : le regard alterne barre du boss / notre vie, plusieurs fois, sans s'emballer ; sinon un coup d'œil rare */
+/* 5 ter. LE REGARD (fonction pure Y.regard) : combat SERRÉ = il regarde notre vie plusieurs fois, sans s'emballer ; sinon un coup d'œil rare ; et quand il regarde NOTRE barre, il vise le bout de la partie pleine (vie haute = bout à droite, basse = à gauche) */
 {
-  /* regard vers notre vie (pupilles en haut à gauche) : le centre de masse des points allumés se déplace vers la droite ; on compte les montées au-dessus de la valeur médiane */
-  const alternances = (serre) => {
-    const w = monde(serre); w.S.pv.pct = 0.5; w.S.bar.v = 0.6; const serie = [];
-    for (let t = 1.2; t <= 13; t += 0.04) {
-      const c = w.image(() => w.Y.combat(t)); let sx = 0, n = 0;
-      for (const k of c.keys()) { sx += Number(k.split(",")[0]); n += 1; }
-      serie.push([t, n ? sx / n : NaN]);
-    }
-    const valeurs = serie.map((x) => x[1]).filter((v) => Number.isFinite(v)).sort((a, b) => a - b), med = valeurs[valeurs.length >> 1];
-    let dedans = false, nbr = 0; const instants = [];
-    for (const [t, v] of serie) { const haut = Number.isFinite(v) && v > med + 0.25; if (haut && !dedans && (!instants.length || t - instants[instants.length - 1] > 1.2)) { nbr += 1; instants.push(t); } dedans = haut; }
-    return { n: nbr, instants };
+  const { Y } = monde(); const W = 120;
+  const glances = (serre, pj) => {
+    const out = []; let dedans = false;
+    for (let t = 1.2; t <= 13; t += 0.02) { const r = Y.regard(t, 0.9, pj, serre, W), regarde = r.cy < 0; if (regarde && !dedans) out.push(t); dedans = regarde; }
+    return out;
   };
-  const serre = alternances(true), calme = alternances(false);
-  assert.ok(serre.n >= 3, "combat serré : il regarde notre vie plusieurs fois en 12 s (" + serre.n + ")");
-  for (let i = 1; i < serre.instants.length; i++) assert.ok(serre.instants[i] - serre.instants[i - 1] >= 2.3, "pas trop vite : au moins 2,3 s entre deux regards vers notre vie");
-  assert.ok(calme.n <= 2, "combat calme : un coup d'œil rare (" + calme.n + ")");
+  const serre = glances(true, 0.6), calme = glances(false, 0.6);
+  assert.ok(serre.length >= 3, "combat serré : il regarde notre vie plusieurs fois en 12 s (" + serre.length + ")");
+  for (let k = 1; k < serre.length; k++) assert.ok(serre[k] - serre[k - 1] >= 2.3, "pas trop vite : au moins 2,3 s entre deux regards vers notre vie (" + (serre[k] - serre[k - 1]).toFixed(2) + ")");
+  assert.ok(calme.length <= 2, "combat calme : un coup d'œil rare (" + calme.length + ")");
+  /* direction : pendant un regard vers notre barre, bout à droite si notre vie est haute, à gauche si elle est basse ; sinon le regard suit la barre du boss (en bas) */
+  const t0 = serre[0] + 0.3;
+  const haute = Y.regard(t0, 0.9, 0.95, true, W), basse = Y.regard(t0, 0.9, 0.12, true, W), moyenne = Y.regard(t0, 0.9, 0.5, true, W);
+  assert.ok(haute.gx > 0.8 && basse.gx < -0.6 && Math.abs(moyenne.gx) < 0.1, "regard sur le bout de notre barre : haute " + haute.gx.toFixed(2) + ", basse " + basse.gx.toFixed(2) + ", moitié " + moyenne.gx.toFixed(2));
+  assert.ok(haute.cy < 0 && basse.cy < 0, "notre barre est en haut");
+  const boss = Y.regard(1.4, 0.9, 0.12, true, W), bossMort = Y.regard(1.4, 0.05, 0.12, true, W);
+  assert.ok(boss.cy > 0 && boss.gx > bossMort.gx + 0.5, "barre du boss : en bas, bout à droite quand il est plein, à gauche quand il est presque mort");
 }
 
 /* 6. branchement dans la borne */
