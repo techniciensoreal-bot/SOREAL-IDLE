@@ -5,7 +5,7 @@
  *   window.__SOREAL_IDLE_TM_DESSIN_V1__ = { defs(), centre(opts), hautEnergie(), hautMagie(), rafraichir(), maj(vue) }
  *
  * NOUVEAU LOOK (Norman, 2026-11-06 : « elle est toute moche » ; trois images de sa main, détourées : tour Énergie, machine centrale, tour Magie, posées en fond par le CSS ; ce module ne dessine plus que ce qui BOUGE ou CHANGE dans les emplacements
- * vides des images : écran du mob, afficheurs, cadran, rouages qui engrènent (modules/engrenages-v1.js), tas d'Or). Positions : public/machine-v2/zones.json.
+ * vides des images : écran du mob, afficheurs, cadran, rouages qui engrènent (modules/engrenages-v1.js), tas d'Or). Positions : public/machine-v3/zones.json (image « Time Machine PC » de Norman, 2026-11-07).
  *
  * Tout le dessin est du balisage SVG statique (aucun enfant créé par le script) : le redessin périodique de la page (morph) le laisse en place (data-morph-vivant, AGENTS.md règle n°4). Le script ne fait que :
  *  - lancer les rotations (WAAPI) : la VITESSE change (playbackRate), jamais la phase, donc aucun saut quand le rythme change ; toujours le même sens ; la vitesse est lissée (elle monte progressivement) ;
@@ -57,10 +57,10 @@
   }
 
   /* Le multiplicateur peut être très grand (« ×1,23 Qa ») : la police rétrécit pour tenir dans l'écran. */
-  function taillePoliceMulti(t){var n=String(t).length;return n>11?34:n>9?42:n>7?50:62;}
+  function taillePoliceMulti(t){var n=String(t).length;return n>10?14:n>8?17:n>6?21:n>4?25:29;}
 
   /* Taille du nom du mob (Norman, 2026-10-23) : le nom a toute la largeur de l'écran (300 sur 324) sur sa propre ligne, au-dessus ; plus il est long, plus il rapetisse (jamais sous 9). */
-  function tailleNom(nom){var n=Math.max(1,String(nom||'').length);return Math.max(22,Math.min(40,Math.floor(820/(n*.62))));}
+  function tailleNom(nom){var n=Math.max(1,String(nom||'').length);return Math.max(14,Math.min(34,Math.floor(380/(n*.82))));}
   /*
    * Le tas d'Or sous la goulotte (Norman, 2026-10-29 : « pour chaque M, T, UVG… un tas un peu plus gros ; pas à l'infini, mais une dizaine de tas différents ») : dix tailles, choisies d'après l'unité du butin d'une barre (la même que celle affichée :
    * K, M, B, T… Uvg…). Seuils (rang de l'unité : 0 rien, 1 K, 2 M, 4 T, 22 Uvg) : sous M, puis M, B, T, Sx, Oc, Vg, Uvg, Tvg, Qavg ; 10 niveaux, le dernier ne grossit plus. Chaque niveau est plus large, un peu plus haut et porte plus de pièces.
@@ -72,21 +72,24 @@
     return n;
   }
   /* Zone « sortie » de l'image centrale : x 393 à 728, y 1120 à 1275. Le tas est centré (x = 560,5), posé sur le bas ; chaque niveau est plus large et plus haut sans jamais sortir de la zone (325 px de large au plus, 96 de haut). */
+  function rangeesTas(niv){return Math.min(5,2+Math.floor((niv|0)*.35));}
   function tasInterieur(niv){
-    var cx=560.5,B=1268,w=86+niv*8.5,t=B-(46+niv*5.5),L=cx-w,R=cx+w;
-    var d='M'+L.toFixed(1)+' '+B+' Q'+(L+12).toFixed(1)+' '+(t+48).toFixed(1)+' '+(L+60).toFixed(1)+' '+(t+44).toFixed(1)+' Q'+(L+104).toFixed(1)+' '+t.toFixed(1)+' '+cx+' '+t.toFixed(1)+' Q'+(R-104).toFixed(1)+' '+t.toFixed(1)+' '+(R-60).toFixed(1)+' '+(t+44).toFixed(1)+' Q'+(R-12).toFixed(1)+' '+(t+48).toFixed(1)+' '+R.toFixed(1)+' '+B+' Z';
-    var clair='',sombre='',nb=5+niv*3,k;
-    for(k=0;k<nb;k++){
-      var fx=((k*0.6180339+.13)%1),x=L+24+fx*(2*w-48),dx=Math.abs(x-cx)/w,haut=t+16+dx*dx*(B-t-36),y=haut+(((k*0.3819661+.2)%1))*(B-haut-18);
-      if(k%3===2)sombre+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="6"/>';
-      else clair+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="10"/>';
+    var cx=560.5,B=1268,R=rangeesTas(niv),n0=Math.min(14,5+(niv|0)),sp=26,out='',r,k,cnt,x0,x,y,j;
+    for(r=R-1;r>=0;r--){                                             /* du haut vers le bas : les rangées basses recouvrent les hautes */
+      cnt=Math.max(2,n0-2*r);x0=cx-(cnt-1)*sp/2;y=B-13-r*15;
+      for(k=0;k<cnt;k++){
+        j=((k*0.6180339+r*0.37+.11)%1-.5)*5;x=x0+k*sp+j;
+        out+='<ellipse cx="'+x.toFixed(1)+'" cy="'+(y+(k%2?1.5:-1.5)).toFixed(1)+'" rx="22" ry="13" fill="url(#tmmPiece)" stroke="#0a0a0c" stroke-width="3.5"/>';
+      }
     }
-    return '<path d="'+d+'" fill="url(#tmmPiece)" stroke="#0a0a0c" stroke-width="5" stroke-linejoin="round"/><g fill="#ffe9a0" opacity=".85">'+clair+'</g><g fill="#b87400" opacity=".7">'+sombre+'</g>';
+    return out;
   }
 
-  /* ---------- le centre : les éléments qui bougent, posés dans les emplacements vides de l'image centre.webp (zones en px de la viewBox 1122 x 1402) ---------- */
-  var ZONE_ECRAN=[121,171,1000,495],ZONE_LCD_G=[114,622,393,740],ZONE_LCD_D=[729,622,1008,740],CADRAN=[560.5,674.5],ZONE_FENETRE=[121,842,999,1025];
-  var CHUTE_PX=64;   /* distance de chute d'une pièce (px de la viewBox), du haut de la sortie jusqu'au tas */
+  /* ---------- le centre : les éléments qui bougent, posés dans les emplacements vides de l'image centre.webp (zones en px de la viewBox 762 x 753 ; mesures : public/machine-v3/zones.json) ---------- */
+  var ZONE_MOB=[69,57,228,192],ZONE_INFO=[283,57,700,192],ZONE_LCD_G=[108,283,292,326],ZONE_LCD_D=[479,283,662,327],CADRAN=[386,293],ZONE_FENETRE=[89,382,679,495];
+  var CHUTE_PX=64;   /* distance de chute d'une pièce (px de la viewBox d'origine du tas, avant réduction à 70 %), du haut de la sortie jusqu'au tas */
+  /* le tas et les pièces gardent leur dessin d'origine (viewBox 1122 x 1402) : un groupe les réduit à 70 % et les pose dans la sortie du bas (x 255 à 512, y 567 à 675) */
+  var TRANSFORME_CHUTE='translate(-8.75 -216.6) scale(.7)';
   function centre(opts){
     opts=opts||{};
     var ticks=Math.max(1,Math.min(50,Number(opts.ticks)||1));
@@ -94,51 +97,53 @@
     var nom=opts.mob&&opts.mob.name?String(opts.mob.name):'';
     var butin=opts.butin?String(opts.butin):'';
     var multi=opts.multi?String(opts.multi):'×1';
-    var graduations='';
-    for(var v=0;v<=50;v+=5){var a=(-120+240*v/50)*Math.PI/180-Math.PI/2,r1=v%10===0?62:70;graduations+='<path d="M'+arr(r1*Math.cos(a))+' '+arr(r1*Math.sin(a))+' L'+arr(80*Math.cos(a))+' '+arr(80*Math.sin(a))+'" stroke-width="'+(v%10===0?4.4:2.8)+'"/>';}
     var pieces='';
     for(var p=0;p<8;p++)pieces+='<g class="tmm-piece" data-rang="'+p+'"><circle cx="560.5" cy="1142" r="22" fill="url(#tmmPiece)" stroke="#0a0a0c" stroke-width="4"/><circle cx="560.5" cy="1142" r="13" fill="none" stroke="#a86a00" stroke-width="3"/></g>';
     var ecran;
     if(url){
-      ecran='<image id="tmmImage" class="tmm-mob" x="121" y="171" width="879" height="324" preserveAspectRatio="xMidYMid meet" href="'+esc(url)+'"/>';
+      ecran='<image id="tmmImage" class="tmm-mob" x="69" y="57" width="159" height="135" preserveAspectRatio="xMidYMid slice" href="'+esc(url)+'"/>';
     }else{
       /* Aucun butin d'Or encore cette renaissance : un cadran d'horloge qui attend. */
-      ecran='<g id="tmmAttente" transform="translate(560.5 296)" opacity=".85"><circle r="100" fill="none" stroke="#2cff9f" stroke-opacity=".5" stroke-width="9"/><circle r="82" fill="none" stroke="#2cff9f" stroke-opacity=".25" stroke-width="3.5"/><path d="M0 -64 V0 L43 25" fill="none" stroke="#7dffd0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/></g>';
+      ecran='<g id="tmmAttente" transform="translate(148.5 124.5)" opacity=".85"><circle r="46" fill="none" stroke="#2cff9f" stroke-opacity=".5" stroke-width="5"/><circle r="38" fill="none" stroke="#2cff9f" stroke-opacity=".25" stroke-width="2"/><path d="M0 -26 V0 L18 12" fill="none" stroke="#2cff9f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>';
     }
     /* sept rouages qui engrènent dans la fenêtre longue : 18-12-18-12-18-12-18 dents, grands en acier, petits en orange */
     var train=chaineDansZone(ZONE_FENETRE,[18,12,18,12,18,12,18],['#9aa3ad','#e3a23a']);
-    return '<svg class="tmm-svg" viewBox="0 0 1122 1402" role="img" aria-label="La machine à remonter le temps" data-morph-vivant="1" data-tmm-centre="1" data-sans-couleur-nombre="1">'+
-      '<clipPath id="tmmClipEcran"><rect x="121" y="171" width="879" height="324" rx="22"/></clipPath>'+
+    var F='font-family="Orbitron,Russo One,sans-serif" font-weight="700"';
+    return '<svg class="tmm-svg" viewBox="0 0 762 753" role="img" aria-label="La machine à remonter le temps" data-morph-vivant="1" data-tmm-centre="1" data-sans-couleur-nombre="1">'+
+      '<clipPath id="tmmClipEcran"><rect x="69" y="57" width="159" height="135" rx="8"/></clipPath>'+
       '<clipPath id="tmmClipChute"><rect x="497" y="1124" width="127" height="151"/></clipPath>'+
-      /* écran : fond sombre, mob du meilleur butin, bande du bas avec le nom et le butin */
-      '<g clip-path="url(#tmmClipEcran)"><rect x="121" y="171" width="879" height="324" fill="#07201a"/>'+ecran+
-      '<rect x="121" y="421" width="879" height="74" fill="#000" opacity=".5"/>'+
-      '<text id="tmmNomMob" x="145" y="451" font-family="Russo One,sans-serif" font-size="'+tailleNom(nom)+'" fill="#e8f7ee" opacity=".95">'+esc(nom)+'</text>'+
-      '<text x="145" y="482" font-family="Russo One,sans-serif" font-size="24" letter-spacing="3" fill="#7dffd0" opacity=".85">MEILLEUR BUTIN D’OR</text>'+
-      '<text id="tmmButin" x="976" y="482" text-anchor="end" font-family="Russo One,sans-serif" font-size="46" fill="#ffd84a" stroke="#000" stroke-width="5" style="paint-order:stroke">'+esc(butin)+'</text></g>'+
+      /* petit écran du mob : l'image du meilleur butin d'Or remplit le cadre (l'effet d'écran est posé par-dessus, voir .tmm-ecran-mob) */
+      '<g clip-path="url(#tmmClipEcran)"><rect x="69" y="57" width="159" height="135" fill="#07201a"/>'+ecran+'</g>'+
+      /* grand écran d'informations : le nom du mob, puis le meilleur butin d'Or */
+      '<text id="tmmNomMob" x="0" y="0" transform="translate(298 100) skewX(-8)" '+F+' font-size="'+tailleNom(nom)+'" fill="#e8f7ee" opacity=".95">'+esc(nom)+'</text>'+
+      '<text x="0" y="0" transform="translate(298 134) skewX(-8)" '+F+' font-size="13" letter-spacing="4" fill="#7dffd0" opacity=".85">MEILLEUR BUTIN D’OR</text>'+
+      '<text id="tmmButin" x="0" y="0" transform="translate(686 176) skewX(-8)" text-anchor="end" '+F+' font-size="34" fill="#ffd84a" stroke="#000" stroke-width="4" style="paint-order:stroke">'+esc(butin)+'</text>'+
       /* afficheur de gauche : la vitesse */
-      '<text x="140" y="660" font-family="Russo One,sans-serif" font-size="26" letter-spacing="4" fill="#6fd9b3" opacity=".85">VITESSE</text>'+
-      '<text id="tmmVitesse" x="369" y="726" text-anchor="end" font-family="Russo One,sans-serif" font-size="62" fill="#7dffd0" stroke="#042a1c" stroke-width="6" style="paint-order:stroke">'+Math.round(ticks)+' /s</text>'+
+      '<text x="0" y="0" transform="translate(120 298) skewX(-8)" '+F+' font-size="11" letter-spacing="4" fill="#6fd9b3" opacity=".85">VITESSE</text>'+
+      '<text id="tmmVitesse" x="0" y="0" transform="translate(280 321) skewX(-8)" text-anchor="end" '+F+' font-size="27" fill="#7dffd0" stroke="#042a1c" stroke-width="3" style="paint-order:stroke">'+Math.round(ticks)+' /s</text>'+
       /* cadran de tiques par seconde */
-      '<g transform="translate(560.5 676)"><g stroke="#ffe39a" stroke-linecap="round">'+graduations+'</g>'+
-      '<g id="tmmAiguille" style="transform:rotate('+arr(-120+240*ticks/50,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)"><path d="M-7 14 L0 -72 L7 14 Z" fill="#ff4a3a" stroke="#0a0a0c" stroke-width="3" stroke-linejoin="round"/></g>'+
-      '<circle r="13" fill="#b9c2cc" stroke="#0a0a0c" stroke-width="4"/><text y="62" text-anchor="middle" font-family="Russo One,sans-serif" font-size="18" fill="#ffe39a" opacity=".8">TIQUES/S</text></g>'+
+      '<g transform="translate(386 293)">'+
+      '<g id="tmmAiguille" style="transform:rotate('+arr(-120+240*ticks/50,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)"><path d="M-3 6 L0 -27 L3 6 Z" fill="#ff4a3a" stroke="#0a0a0c" stroke-width="1.5" stroke-linejoin="round"/></g>'+
+      '<circle r="5" fill="#b9c2cc" stroke="#0a0a0c" stroke-width="2"/></g>'+
       /* afficheur de droite : le MULTIPLICATEUR d'Or (la Magie le fait monter, et les niveaux d'Énergie au-dessus de 50 aussi) */
-      '<text x="755" y="660" font-family="Russo One,sans-serif" font-size="24" letter-spacing="3" fill="#6fd9b3" opacity=".85">MULTIPLICATEUR</text>'+
-      '<text id="tmmMulti" x="984" y="726" text-anchor="end" font-family="Russo One,sans-serif" font-size="'+taillePoliceMulti(multi)+'" fill="#ffd84a" stroke="#3a2a00" stroke-width="6" style="paint-order:stroke">'+esc(multi)+'</text>'+
+      '<text x="0" y="0" transform="translate(490 298) skewX(-8)" '+F+' font-size="11" letter-spacing="3" fill="#6fd9b3" opacity=".85">MULTIPLICATEUR</text>'+
+      '<text id="tmmMulti" x="0" y="0" transform="translate(653 321) skewX(-8)" text-anchor="end" '+F+' font-size="'+taillePoliceMulti(multi)+'" fill="#ffd84a" stroke="#3a2a00" stroke-width="3" style="paint-order:stroke">'+esc(multi)+'</text>'+
       /* fenêtre longue : les rouages qui engrènent, et la lueur qui monte avec la vitesse */
       train+
-      '<rect id="tmmLueurBaie" x="121" y="842" width="878" height="183" rx="16" fill="url(#tmmLueur)" opacity="0"/>'+
-      /* sortie du bas : pièces qui tombent en file, flux continu à grande vitesse, tas d'Or */
-      '<g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="539" y="1130" width="43" height="70" rx="14" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
-      '<g id="tmmTas" data-niveau="'+(opts.tas|0)+'">'+tasInterieur(opts.tas|0)+'</g>'+
-      '</svg>';
+      '<rect id="tmmLueurBaie" x="89" y="382" width="590" height="113" rx="10" fill="url(#tmmLueur)" opacity="0"/>'+
+      /* sortie du bas : pièces qui tombent en file, flux continu à grande vitesse, tas d'Or (dessin d'origine réduit à 70 %) */
+      '<g transform="'+TRANSFORME_CHUTE+'"><g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="539" y="1130" width="43" height="70" rx="14" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
+      '<g id="tmmTas" data-niveau="'+(opts.tas|0)+'">'+tasInterieur(opts.tas|0)+'</g></g>'+
+      '</svg>'+
+      /* effet d'écran sur le mob : lignes de balayage, vignette, bande lumineuse (CSS : .tmm-ecran-mob) */
+      '<div class="tmm-ecran-mob" aria-hidden="true"></div>';
   }
 
   /* ---------- le socle rond des tours : deux rouages qui engrènent (Énergie) ; l'orbe et son anneau (Magie) ---------- */
   function hautEnergie(){
-    var g=G(),ch=g.chaine({m:3,n:[10,8],y:0,x0:0}),cx=ch.xMin+ch.largeur/2;
-    return '<svg viewBox="'+arr(cx-33,1)+' -33 66 66" aria-hidden="true" data-morph-vivant="1">'+g.svg(ch,{corps:['#9aa3ad','#e3a23a'],trait:'#0a0a0c',classe:'tmm-rot'})+'</svg>';
+    /* UN SEUL rouage, plus grand, VERT (Norman, 2026-11-07 : « ne mets qu'un seul engrenage à gauche, plus grand, et fais-le vert pour l'énergie ») : il remplit le disque du socle */
+    var g=G(),ch=g.chaine({m:3.7,n:[14],y:0,x0:0}),cx=ch.xMin+ch.largeur/2;
+    return '<svg viewBox="'+arr(cx-33,1)+' -33 66 66" aria-hidden="true" data-morph-vivant="1">'+g.svg(ch,{corps:['#2fd06b'],trait:'#0a0a0c',classe:'tmm-rot'})+'</svg>';
   }
   function hautMagie(){
     return '<svg viewBox="-44 -44 88 88" aria-hidden="true" data-morph-vivant="1"><circle class="tmm-orbe" r="40" fill="#3d8bff" opacity=".35"/>'+
@@ -195,12 +200,15 @@
    * seul le nombre de pièces par seconde change avec le rythme (1, 2, 4 ou 8), réparties à intervalles égaux : la cadence ne touche jamais la vitesse d'une pièce. La cadence n'est réglée que lorsqu'elle change de palier (pas à chaque image).
    */
   var CHUTE_PIECE=.5;   /* secondes de chute de chaque pièce */
+  /* hauteur du sommet du tas (viewBox d'origine) selon son niveau : les pièces tombent jusqu'à lui puis s'enfoncent derrière lui */
+  function sommetTas(niv){return 1268-28-(rangeesTas(niv)-1)*15;}
   function reglerPieces(racine){
-    var cad=vue<=2?1:vue<=4?2:vue<=8?4:8;
-    if(racine.__cadencePieces===cad&&racine.querySelector('.tmm-piece').__tmmAnim)return;
-    racine.__cadencePieces=cad;
-    var periode=8/cad,f=Math.min(.99,CHUTE_PIECE/periode);   /* 8 pièces décalées d'une période/8 : cad pièces par seconde */
-    var kf=[{transform:'translateY(0)',opacity:0},{transform:'translateY('+(CHUTE_PX*.12).toFixed(2)+'px)',opacity:1,offset:+(f*.12).toFixed(4)},{transform:'translateY('+(CHUTE_PX*.8).toFixed(2)+'px)',opacity:1,offset:+(f*.8).toFixed(4)},{transform:'translateY('+CHUTE_PX+'px)',opacity:0,offset:+f.toFixed(4)},{transform:'translateY('+CHUTE_PX+'px)',opacity:0}];
+    var cad=vue<=2?1:vue<=4?2:vue<=8?4:8,tasEl=document.getElementById('tmmTas'),niv=tasEl?(parseInt(tasEl.getAttribute('data-niveau'),10)||0):0;
+    if(racine.__cadencePieces===cad&&racine.__niveauPieces===niv&&racine.querySelector('.tmm-piece').__tmmAnim)return;
+    racine.__cadencePieces=cad;racine.__niveauPieces=niv;
+    var periode=8/cad;
+    var debut=-46,fin=sommetTas(niv)+24-1142,dist=fin-debut,f=Math.min(.99,(dist/280)/periode);   /* 280 px/s : vitesse constante, quel que soit le niveau du tas ; début : pièce entièrement au-dessus du bord de la sortie (rognée) ; fin : pièce entièrement sous le sommet du tas */
+    var kf=[{transform:'translateY('+debut+'px)',opacity:1},{transform:'translateY('+fin.toFixed(1)+'px)',opacity:1,offset:+f.toFixed(4)},{transform:'translateY('+fin.toFixed(1)+'px)',opacity:1}];
     racine.querySelectorAll('.tmm-piece').forEach(function(g){
       var rang=parseInt(g.getAttribute('data-rang'),10)||0;
       var opt={duration:periode*1000,iterations:Infinity,delay:-rang*periode*1000/8,easing:'linear'};
@@ -268,7 +276,7 @@
       if(multi.textContent!==tm){multi.textContent=tm;multi.setAttribute('font-size',String(taillePoliceMulti(tm)));}
     }
     var tas=document.getElementById('tmmTas');
-    if(tas){var nv=niveauTas(v.goldPerBarFill);if(tas.getAttribute('data-niveau')!==String(nv)){tas.setAttribute('data-niveau',String(nv));tas.innerHTML=tasInterieur(nv);}}
+    if(tas){var nv=niveauTas(v.goldPerBarFill);if(tas.getAttribute('data-niveau')!==String(nv)){tas.setAttribute('data-niveau',String(nv));tas.innerHTML=tasInterieur(nv);reglerPieces(racine);}}
     var butin=document.getElementById('tmmButin');
     if(butin&&H&&typeof H.formatGrandNombreIdleV70_==='function'){var tb='+'+H.formatGrandNombreIdleV70_(Number(v.goldPerBarFill)||0)+' Or';if(butin.textContent!==tb)butin.textContent=tb;}
     var nomMob=document.getElementById('tmmNomMob');var nom=v.bestGoldMob&&v.bestGoldMob.name?String(v.bestGoldMob.name):'';if(nomMob){if(nomMob.textContent!==nom)nomMob.textContent=nom;var tn=String(tailleNom(nom));if(nomMob.getAttribute('font-size')!==tn)nomMob.setAttribute('font-size',tn);}

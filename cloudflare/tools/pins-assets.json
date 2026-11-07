@@ -1,7 +1,7 @@
 {
  "/fonts/fonts.css": {
-  "pin": 3,
-  "sha": "3d012cac5665cfbb92b5add9c004997e65c6b216"
+  "pin": 4,
+  "sha": "35a7ab483993dac1e3a03af6ae49f36bdcaea69b"
  },
  "/modules/achievement-notice-v1.js": {
   "pin": 1,
@@ -468,8 +468,8 @@
   "sha": "cbb8cda820f410aefaad2c9a22cf7203036da398"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 15,
-  "sha": "6f8f8f9a0cb162dabc150982cbb40d8e4cd01a4e"
+  "pin": 22,
+  "sha": "237bf9409f8fa278d6273126c3cda959c14a76ce"
  },
  "/modules/maj-v1.js": {
   "pin": 3,
@@ -620,12 +620,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 189,
-  "sha": "65e7d4a39d7aeb83b65300c7019f68a6ae864e6f"
+  "pin": 191,
+  "sha": "f90c9220aabd24613b77af7dd9235ae8d2e76ca0"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 827,
-  "sha": "a617611c824f3d2c4f5a72e61cd9df15c1ddf292"
+  "pin": 829,
+  "sha": "ea677bf4c4d2589b367bc29083de800895c1cc8d"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -716,12 +716,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 863,
-  "sha": "b259d6289a60523dcec99a925aefdfeed16c7fa9"
+  "pin": 865,
+  "sha": "50606fd938404e0abad87f40a2efc4c67147b1f8"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 684,
-  "sha": "ac37c9363a9d6bdd744355e9b2fb6175f2bf64d7"
+  "pin": 686,
+  "sha": "2d2c2f46fbfe6d21a548b23cc1849ad8ffc8fef8"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -964,16 +964,16 @@
   "sha": "5b9cd07112d52f66ca2b23a8ca2cb2dc630022ab"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 346,
-  "sha": "a1113345b3874e1ee8f109c8e4facfc46a4a48df"
+  "pin": 347,
+  "sha": "ca57bc3ac9d00cd6eb209f51eaf4f9b02091fdca"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,
   "sha": "d973d18828cf2c25d9e12e07614d279bc73b88ac"
  },
  "/soreal-idle-machine.css": {
-  "pin": 15,
-  "sha": "1570d716cceb499d8d3d8cb19654576ae4f063a2"
+  "pin": 18,
+  "sha": "109e8383a7fa10588b6e38afa4654c0eb93ad056"
  },
  "/soreal-idle-menus-boutons-v1.css": {
   "pin": 49,

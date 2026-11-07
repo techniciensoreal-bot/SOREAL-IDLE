@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 454,
+  "keyframes": 456,
   "fichiersAvecWebAnimations": 18,
   "fichiersCanvas": 12,
   "pointsEntreeRejouables": 255,
@@ -13,7 +13,7 @@
   "mortsNouvelles": 5,
   "effetsReglables": 4,
   "sonsEffets": 82,
-  "dossiersDeRessources": 19
+  "dossiersDeRessources": 20
  },
  "menus": [
   {
@@ -3937,6 +3937,15 @@
    ]
   },
   {
+   "nom": "tmmBalayage",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
    "nom": "tmmFizz",
    "definiePar": [
     "soreal-idle-machine.css"
@@ -3961,6 +3970,15 @@
    ],
    "utilisePar": [
     "modules/machine-dessin-v1.js",
+    "soreal-idle-machine.css"
+   ]
+  },
+  {
+   "nom": "tmmScintille",
+   "definiePar": [
+    "soreal-idle-machine.css"
+   ],
+   "utilisePar": [
     "soreal-idle-machine.css"
    ]
   },
@@ -4876,6 +4894,7 @@
   "icons": 3,
   "intro": 16,
   "machine-v2": 3,
+  "machine-v3": 3,
   "magic/boss": 299,
   "magic/fonds": 32,
   "magic/safe": 32,

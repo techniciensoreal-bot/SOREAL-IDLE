@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import assert from "node:assert/strict";
 const s = fs.readFileSync("cloudflare/public/modules/machine-dessin-v1.js", "utf8").replace(/\r\n/g, "\n");
-assert.ok(s.includes("var CHUTE_PIECE=.5;") && s.includes("cad pièces par seconde") && s.includes("g.__tmmAnim.effect.updateTiming(opt)"), "file régulière : même chute pour toutes, seule la cadence change");
+assert.ok(s.includes("var CHUTE_PIECE=.5;") && s.includes("280 px/s") && s.includes("g.__tmmAnim.effect.updateTiming(opt)"), "file régulière : même chute pour toutes, seule la cadence change");
 assert.ok(!s.includes("playbackRate=rythme;") && !s.includes("rang%pas===0"), "plus de vitesse variable ni de pièces masquées au hasard du rythme");
 assert.ok(s.includes("var SEUILS_TAS=[0,2,3,4,7,9,21,22,24,25];") && s.includes("function niveauTas(or)") && s.includes('id="tmmTas"'), "dix niveaux de tas, d'après l'unité du butin");
 // les niveaux : sous M, M (2), B, T (4)… Uvg (22)

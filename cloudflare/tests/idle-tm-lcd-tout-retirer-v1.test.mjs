@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-21) : « Cible et Énergie/Magie allouée sur la machine temporelle : de petits écrans comme Niveau et Temps restant » ; « Tout retirer est énorme sur PC : sur la même ligne que 1/2 et 1/4, sur toutes les pages ». */
 const css = readFileSync(new URL("../public/soreal-idle-machine.css", import.meta.url), "utf8");
-assert.ok(/\.tmm-case\{[^}]*background:#15161a/.test(css) && css.includes(".tmm-lcd-val,.tmm-case-val,.tmm-machine .tmm-case input[type=number]{"), "Cible et allouée : petits afficheurs posés sur le métal, même police de valeur que Niveau et Temps restant (nouveau look, images de Norman)");
+assert.ok(/\.tmm-case\{[^}]*position:relative/.test(css) && css.includes(".tmm-lcd-val,.tmm-case-val,.tmm-machine .tmm-case input[type=number]{"), "Cible et allouée : petits afficheurs posés sur le métal, même police de valeur que Niveau et Temps restant (nouveau look, images de Norman)");
 assert.ok(css.includes(".tmm-lcd-titre,.tmm-case-titre{"), "titres des écrans identiques");
 const aug = readFileSync(new URL("../public/modules/augmentations-page-v1.js", import.meta.url), "utf8");
 assert.ok(aug.includes(`<i class="tmm-case-titre" title="'+H.idleHtml_(libelleAlloc)+'">Allouée</i>`), "titre court (l'écran est étroit), libellé complet en infobulle");

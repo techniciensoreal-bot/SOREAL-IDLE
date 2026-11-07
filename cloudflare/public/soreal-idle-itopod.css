@@ -99,7 +99,7 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
  * ===================================================================================================================================== */
 html body.soreal-idle-active-v47.soreal-idle-active-v47{--f-titre:"Bangers","Comic Sans MS","Chalkboard SE","Comic Neue",cursive;--f-texte:"Comic Neue","Comic Sans MS","Chalkboard SE","Segoe Print",cursive,sans-serif;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47,
-html body.soreal-idle-active-v47.soreal-idle-active-v47 *:where(:not(.wd-ecran):not(.wd-ecran *):not(.wd-touche):not(.wd-touche *):not(svg *):not(code):not(pre):not(.carte-mtg-v1):not(.carte-mtg-v1 *)){font-family:var(--f-texte)!important;}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 *:where(:not(.wd-ecran):not(.wd-ecran *):not(.wd-touche):not(.wd-touche *):not(svg *):not(code):not(pre):not(.carte-mtg-v1):not(.carte-mtg-v1 *):not(.tmm-machine *)){font-family:var(--f-texte)!important;}
 html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(
   .soreal-idle-page-root-v28:not([data-menu="augmentations"]) .soreal-idle-page-title-v28,.soreal-idle-window-title-v31,.soreal-idle-nav-texte-v2 b,.soreal-idle-nav-texte-v2 strong,.soreal-idle-page-root-v28:not([data-menu="augmentations"]) .soreal-idle-summary-v28 b,.soreal-idle-summary-v28 strong,
   .soreal-idle-energy-head-v34 strong,.soreal-idle-expand-button-v25,.soreal-idle-bt-actions-v120 button,.soreal-idle-bt-presets-v120 button,.soreal-idle-tm-boutons-v1 button,
