@@ -1066,6 +1066,8 @@
           }else reste=Math.max(0,reste);
           vue[c[0]+'ProgressSeconds']=Math.max(0,duree-reste);
           vue[c[1]]=reste;
+          /* La fraction suit la même avance : « Fill » / « Fraction » restaient celles de la dernière synchro (jusqu'à 4 s de retard) et le patch des barres (ui-machine-temporelle-v1.js) les repeignait pour les DEUX pistes, d'où le recul de la barre d'Énergie quand on alloue de la Magie (Norman, 2026-11-07). */
+          if(duree>0){const fr=Math.max(0,Math.min(1,(duree-reste)/duree));vue[c[0]+'Fill']=fr;vue[c[0]+'Fraction']=fr;}
         });
         vue.__at=maintenant;
       }

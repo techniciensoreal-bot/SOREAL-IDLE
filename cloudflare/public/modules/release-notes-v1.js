@@ -39,6 +39,7 @@
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Le boss occupe maintenant toute la hauteur de l’écran du haut de la Machine temporelle (environ un tiers plus grand), et la bande de son nom est plus transparente.',
+            'Quand tu mets de la Magie dans la Machine temporelle, la barre d’Énergie ne recule plus.',
           ]},
         ],
       },
