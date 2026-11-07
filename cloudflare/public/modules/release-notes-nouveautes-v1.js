@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "La barre d’outils du haut de l’Entraînement de base est refaite : Input et tes nombres en haut, une ligne « Plafond d’énergie » et une ligne « Idle » avec des libellés et des boutons bien lisibles, la carte « Énergie placée » à droite, et des crayons discrets pour tes boutons personnalisés.",
     "Le filtre d’objets avancé du Coffre est gardé dans ton compte : si le jeu le remet à zéro par erreur, les objets que tu avais cochés sont remis tout seuls, et ils suivent aussi d’un appareil à l’autre."
   ] };
 })();

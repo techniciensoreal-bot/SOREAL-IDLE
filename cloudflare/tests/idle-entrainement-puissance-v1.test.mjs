@@ -48,4 +48,12 @@ assert.ok((css.match(/!important/g) || []).length <= 20, "peu de !important dans
 // plus d'émoji devant le nom des barres
 const ui = fs.readFileSync("cloudflare/public/modules/ui-entrainement-v1.js", "utf8");
 assert.ok(ui.includes("${idleHtml_(skill.name)}") && !ui.includes("ICONES_V1__.avec('basicTraining'"), "nom de la barre sans émoji");
+// barre d'outils refaite (Norman, 2026-11-07 : mal organisée, boutons illisibles, crayons trop gros, Énergie placée au bout) : grille claire, libellés lisibles, boutons de 36 px, carte « Énergie placée » à droite
+assert.ok(css.includes('grid-template-areas:"ent tot" "cap tot" "idle tot" "info info"'), "grille : Input, Plafond, Idle, et la carte Énergie placée sur toute la hauteur à droite");
+assert.ok(/presets-v120>span{flex:0 0 auto;min-width:138px;max-width:none;font:400 12.5px/.test(css), "libellés des rangées lisibles (12,5 px, plus de 8,5 px coupé)");
+assert.ok(/presets-v120 button{height:36px;min-width:46px;padding:0 10px;font-size:16px/.test(css), "boutons Max / 1/2 / 1/4 de 36 px, texte de 16 px");
+assert.ok(/total-v1{grid-area:tot;flex-direction:column/.test(css) && /total-v1 b{font:400 26px/.test(css), "Énergie placée : carte à droite, nombre de 26 px");
+assert.ok(/@media \(max-width:700px\)\{\s*html body[^{]*toolbar-v120\{grid-template-columns:minmax\(0,1fr\);grid-template-areas:"ent" "tot" "cap" "idle" "info"/.test(css), "téléphone : une colonne, l'énergie placée sous l'input");
+const perso = fs.readFileSync("cloudflare/public/modules/perso-boutons-v1.js", "utf8");
+assert.ok(perso.includes("minmax(0,1fr) 24px") && perso.includes("font-size:12px!important;line-height:1!important") && perso.includes(">✎</button>") && !perso.includes(">✏️</button>"), "crayons discrets : colonne de 24 px, glyphe ✎ de 12 px (plus l'émoji de 16 px)");
 console.log("idle-entrainement-puissance-v1: OK");

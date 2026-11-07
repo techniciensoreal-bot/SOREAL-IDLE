@@ -39,6 +39,7 @@
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
+            'La barre d’outils du haut de l’Entraînement de base est refaite : Input et tes nombres en haut, une ligne « Plafond d’énergie » et une ligne « Idle » avec des libellés et des boutons bien lisibles, la carte « Énergie placée » à droite, et des crayons discrets pour tes boutons personnalisés.',
             'Le son du néon qui s’allume est celui de toutes les barres, et il devient plus impressionnant à chaque barre suivante : plus d’amorces, un accord de plus en plus riche, une basse profonde, une montée en puissance et, pour la dernière barre, un carillon.',
             'Sous chaque barre, les textes (vitesse, Cap, prochain, temps par niveau) sont en blanc franc et en gras, bien plus faciles à lire, et le mot « Cap » reste « Cap ».',
             'L’Entraînement de base est refait : chaque barre a son emblème et son habillage, de plus en plus travaillés et de plus en plus grands à chaque barre débloquée (cadre, lueur, motif dans la barre) ; les boutons de la défense sont bleus.',

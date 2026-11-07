@@ -126,7 +126,7 @@
     [1,2,3,4].forEach(function(n){
       if(!possedeExp_(INPUTS[n].achat))return;
       /* Norman (2026-11-01) : le crayon est à GAUCHE du nombre (colonne de 32 px d'abord) pour gagner de la place ; .perso-duo-g-v1 = grille « 32px + nombre » */
-      html+='<span class="perso-duo-v1 perso-duo-g-v1"><button type="button" class="perso-edit-v1" data-perso-input-v1="'+n+'" title="Changer le nombre de ce bouton" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editerInput('+n+')">✏️</button>'+
+      html+='<span class="perso-duo-v1 perso-duo-g-v1"><button type="button" class="perso-edit-v1" data-perso-input-v1="'+n+'" title="Changer le nombre de ce bouton" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editerInput('+n+')">✎</button>'+
         '<button type="button" data-perso-input-v1="'+n+'" title="Ton bouton personnalisé '+n+' : place '+nombreTexte_(valeurInput(n))+' dans Input" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.appliquerInput('+n+')">'+nombreTexte_(valeurInput(n))+'</button></span>';
     });
     var r=document.createElement('div');
@@ -259,9 +259,9 @@
     setInterval(planifier_,1500);
     var style=document.createElement('style');
     style.textContent='.perso-pct-v1{border-color:#f2d79a!important;color:#ffe9a6!important}.perso-pct-edit-v1{min-width:30px;padding:0 6px!important;opacity:.85;font-size:12px!important}'+
-      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] [data-perso-input-rangee] button.perso-edit-v1:not(#_):not(#_){opacity:1;font-size:16px!important;line-height:1!important;padding:0!important}'+
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] [data-perso-input-rangee] button.perso-edit-v1:not(#_):not(#_){opacity:.85;font-size:12px!important;line-height:1!important;padding:0!important}'+
       /* Paire « valeur + crayon » : un seul petit cadre (Norman, 2026-10-15 : tout harmoniser dans des petits cadres propres) */
-      '.perso-duo-v1{display:grid;grid-template-columns:minmax(0,1fr) 32px;min-width:0}'+
+      '.perso-duo-v1{display:grid;grid-template-columns:minmax(0,1fr) 24px;min-width:0}'+
       /* les thèmes mettent TOUT « span » d'une rangée de boutons sur toute la largeur : une paire reste une case comme les autres */
       'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] :is(.soreal-idle-bt-presets-v120,.nl-ligne)>.perso-duo-v1:not(#_):not(#_):not(#_){grid-column:span 2!important;grid-row:auto!important}'+
 
@@ -272,8 +272,8 @@
       /* La paire garde sa grille dans TOUS les menus : Augmentations style tout « span » d'une rangée en case de texte (display:inline-block, fond, padding) et la paire s'empilait, crayon rogné sous le nombre */
       'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120>.perso-duo-v1:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_){display:grid!important;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;text-transform:none!important;letter-spacing:0!important}'+
       'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .soreal-idle-bt-presets-v120>.perso-duo-v1:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_)::after{display:none!important}'+
-      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-g-v1:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_){grid-template-columns:32px minmax(0,1fr)!important}'+
-      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-g-v1>button:first-child:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_){min-width:32px!important;width:32px!important;border-radius:8px 0 0 8px!important;border-left-width:1px!important;border-right-width:1px!important;padding:0!important;font-size:16px!important;line-height:1!important;opacity:1}'+
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-g-v1:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_){grid-template-columns:24px minmax(0,1fr)!important}'+
+      'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-g-v1>button:first-child:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_){min-width:24px!important;width:24px!important;border-radius:8px 0 0 8px!important;border-left-width:1px!important;border-right-width:1px!important;padding:0!important;font-size:16px!important;line-height:1!important;opacity:1}'+
       'html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu] .perso-duo-g-v1>button:last-child:not(#_):not(#_):not(#_):not(#_):not(#_):not(#_){border-radius:0 8px 8px 0!important;border-left-width:0!important;padding:0 4px!important;font-size:var(--bt-btn-fs,16px)!important}'+
       '.perso-modal-champ-v1{display:block;width:100%;box-sizing:border-box;margin:14px 0 0;padding:13px 14px;border-radius:13px;border:1px solid rgba(184,164,255,.38);background:#0f1626;color:#f5f1ff;font:inherit;font-size:22px;font-weight:1000;text-align:center;outline:none}'+
       '.perso-modal-champ-v1:focus{border-color:#b8a4ff;box-shadow:0 0 0 3px rgba(139,104,214,.35)}'+
