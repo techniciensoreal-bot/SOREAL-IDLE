@@ -88,8 +88,8 @@
   "sha": "b48f80131c4dd4e4c152705f2d44564d685f3996"
  },
  "/modules/barres-actives-v1.js": {
-  "pin": 7,
-  "sha": "5b37c278d02fe10ea3d9757121dc19124c3c16c3"
+  "pin": 8,
+  "sha": "de7d409f514b007a8b02f4dface0a2a31a6797fa"
  },
  "/modules/basic-training-stability-v121.js": {
   "pin": 1,
@@ -620,8 +620,8 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 191,
-  "sha": "f90c9220aabd24613b77af7dd9235ae8d2e76ca0"
+  "pin": 192,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 829,
@@ -972,8 +972,8 @@
   "sha": "d973d18828cf2c25d9e12e07614d279bc73b88ac"
  },
  "/soreal-idle-machine.css": {
-  "pin": 18,
-  "sha": "109e8383a7fa10588b6e38afa4654c0eb93ad056"
+  "pin": 21,
+  "sha": "f54dcb3858b704ad8fe2e57e79f45e0a11d4b472"
  },
  "/soreal-idle-menus-boutons-v1.css": {
   "pin": 49,

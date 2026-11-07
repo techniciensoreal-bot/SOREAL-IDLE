@@ -12,9 +12,9 @@
 .tmm-machine.tmm-sans-magie{grid-template-columns:576fr 762fr}
 /* ---- une carte = une image (576 x 753, 762 x 753, 580 x 753) ---- */
 .tmm-tour,.tmm-centre{position:relative;width:100%;container-type:inline-size;background-repeat:no-repeat;background-position:center;background-size:100% 100%;color:#fff1d6;padding:0;border:0}
-.tmm-gauche{aspect-ratio:576/753;--c1:#1fae52;--c2:#6dff9b;--lcd:#7dffb0;--halo:rgba(80,255,150,.55);background-image:url(/machine-v3/tour-energie.webp?v=1)}
-.tmm-droite{aspect-ratio:580/753;--c1:#2f6bff;--c2:#7fc4ff;--lcd:#9fd0ff;--halo:rgba(90,160,255,.6);background-image:url(/machine-v3/tour-magie.webp?v=1)}
-.tmm-centre{aspect-ratio:762/753;z-index:1;background-image:url(/machine-v3/centre.webp?v=1)}
+.tmm-gauche{aspect-ratio:576/753;--c1:#1fae52;--c2:#6dff9b;--lcd:#7dffb0;--halo:rgba(80,255,150,.55);background-image:url(/machine-v3/tour-energie.webp?v=2)}
+.tmm-droite{aspect-ratio:580/753;--c1:#2f6bff;--c2:#7fc4ff;--lcd:#9fd0ff;--halo:rgba(90,160,255,.6);background-image:url(/machine-v3/tour-magie.webp?v=2)}
+.tmm-centre{aspect-ratio:762/753;z-index:1;background-image:url(/machine-v3/centre.webp?v=2)}
 /* tailles en border-box : un rembourrage ne doit jamais élargir un élément posé dans un emplacement */
 .tmm-tour,.tmm-tour *,.tmm-centre,.tmm-centre *{box-sizing:border-box}
 /* ÉCRITURES SPÉCIALES : Orbitron, inclinée, lueur et double image décalée (cyan / magenta) comme un écran qui saute dans le temps ; seulement du texte statique (aucune animation, aucune ombre floue animée) */
@@ -45,7 +45,8 @@
 .tmm-droite .tmm-lcds>.tmm-lcd:nth-child(1){left:15.86%;width:53.97%}
 .tmm-droite .tmm-lcds>.tmm-lcd:nth-child(2){left:16.03%;width:53.79%}
 .tmm-lcd-titre,.tmm-case-titre{display:block;font-size:1.8cqw;font-weight:700;letter-spacing:.12em;color:#8fa6b8;font-style:normal;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform:skewX(-8deg);transform-origin:left center}
-.tmm-lcd-val,.tmm-case-val,.tmm-machine .tmm-case input[type=number]{display:block;font-size:6.2cqw;line-height:1.05;font-weight:700;text-align:right;color:var(--lcd);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform:skewX(-8deg);transform-origin:right center;text-shadow:-.25cqw 0 rgba(0,255,255,.35),.25cqw 0 rgba(255,0,200,.3),0 0 1.4cqw var(--halo)}
+.tmm-lcd-val,.tmm-case-val,.tmm-machine .tmm-case input[type=number]{display:block;font-size:5.4cqw;line-height:1.05;font-weight:700;text-align:right;color:var(--lcd);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform:skewX(-8deg);transform-origin:right center;text-shadow:-.25cqw 0 rgba(0,255,255,.35),.25cqw 0 rgba(255,0,200,.3),0 0 1.4cqw var(--halo)}
+.tmm-lcd-val[data-tm-lcd-eta]{font-size:4.5cqw}
 /* la barre du « temps restant » faisait double emploi avec le tube (Norman, 2026-11-06) : retirée de l'affichage ; l'élément reste dans la page car le code en direct y lit et y écrit le niveau de remplissage qui pilote le tube */
 .tmm-barre{display:none}
 .tmm-rempl{height:100%;width:0}
@@ -62,7 +63,8 @@
 .tmm-boutons button{height:100%;min-width:0;padding:0;border:0;border-radius:1.2cqw;background:none;color:var(--c2);font-size:5cqw;font-weight:700;line-height:1;letter-spacing:.02em;cursor:pointer;text-shadow:-.25cqw 0 rgba(0,255,255,.35),.25cqw 0 rgba(255,0,200,.3),0 0 1.2cqw var(--halo)}
 .tmm-boutons button:first-child,.tmm-boutons button:nth-child(2){font-size:6.2cqw}
 .tmm-boutons button:active{transform:translateY(.4cqw)}
-.tmm-boutons button.max{background:var(--c1);color:#fff;font-size:3.9cqw;text-shadow:none}
+/* « Max » : même écriture et même fond que + et − (Norman, 2026-11-07), seulement un peu plus petit pour tenir dans son emplacement */
+.tmm-boutons button.max{font-size:4.2cqw}
 /* Cible et Allouée : les deux petits afficheurs sous « temps restant » (une seule ligne : le titre à gauche, la valeur à droite) */
 .tmm-ligne{position:absolute;left:31.25%;width:52.95%;top:72.64%;height:4.25%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18%}
 .tmm-droite .tmm-ligne{left:16.21%;width:52.76%;column-gap:18.3%}

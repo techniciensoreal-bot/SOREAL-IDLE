@@ -40,7 +40,8 @@ const CODE = `(async (b64, type, tx0, tx1) => {
   const cv = new OffscreenCanvas(W, H), g = cv.getContext('2d', { willReadFrequently: true });
   g.drawImage(bmp, tx0, 0, W, H, 0, 0, W, H);
   const im = g.getImageData(0, 0, W, H), d = im.data;
-  const vide = (p) => d[p * 4 + 3] < 20;
+  /* « vide » = pas tout à fait opaque : les emplacements détourés par Norman gardent parfois des pixels à moitié transparents (reliquats de l'image d'origine) à travers lesquels on devine ce qui est derrière ; on les traite comme du vide, puis on remplit tout ce qui est enfermé */
+  const vide = (p) => d[p * 4 + 3] < 250;
   const dehors = new Uint8Array(W * H), pile = [];
   const poser = (x, y) => { const p = y * W + x; if (!dehors[p] && vide(p)) { dehors[p] = 1; pile.push(p); } };
   for (let x = 0; x < W; x++) { poser(x, 0); poser(x, H - 1); }
