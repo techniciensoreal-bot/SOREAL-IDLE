@@ -100,7 +100,7 @@
   /* ---------- dessin : A « K.O. éclat », durée DUREE ---------- */
   function dessiner(c,t,px,LH){
     var e=LW/CX,oy=0;
-    c.fillStyle='#10131f';c.fillRect(0,0,LW,LH);
+    if(window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__)c.clearRect(0,0,LW,LH);else{c.fillStyle='#10131f';c.fillRect(0,0,LW,LH);}
     if(t<0.8){
       var tr=Math.sin(t*90)*2*(t/0.8),clig=Math.floor(t*14)%2===0;
       px.forEach(function(p){c.fillStyle=clig?'#fff':p.c;c.fillRect(Math.round(p.x*e+tr),Math.round(p.y*e+oy),e,e);});
@@ -208,15 +208,18 @@
       calque.className='soreal-idle-boss-transition-v61 vic-arcade';
       calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
       var cv=document.createElement('canvas');cv.width=LW;cv.height=LH;calque.appendChild(cv);
+      /* Boss 106 (Norman, 2026-11-07) : derrière sa mort, la photo du boss suivant (le même boss transformé) ; l'animation se dessine alors sur fond transparent */
+      var derriere=window.__SOREAL_IDLE_MORT_DERRIERE_V1__||'';window.__SOREAL_IDLE_MORT_DERRIERE_V1__='';
+      if(derriere){var bi=document.createElement('img');bi.alt='';bi.draggable=false;bi.src=derriere;bi.className='mort-derriere-v1';bi.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none';calque.insertBefore(bi,cv);calque.style.background='transparent';window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=true;}
       hote.appendChild(calque);
       var c=cv.getContext('2d');c.imageSmoothingEnabled=false;
       var t0=performance.now(),fini=false;
       function image_(now){
         if(fini)return;
         var t=(now-t0)/1000;
-        if(!calque.isConnected){fini=true;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;return;}
+        if(!calque.isConnected){fini=true;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=false;return;}
         if(t>=DUREE){
-          fini=true;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;
+          fini=true;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=false;
           var passe=false;
           try{var app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;passe=Boolean(app&&(app.jouerApres?app.jouerApres(hote,idMort,true):app.jouer(hote)));}catch(_e){}
           try{var im=hote.querySelector('img');if(im&&!passe)im.classList.remove('soreal-idle-boss-death-v61');}catch(_e){}   /* jamais d'image invisible après la victoire (classe de mort restée sur le boss suivant) */

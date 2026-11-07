@@ -327,6 +327,14 @@
          * Le bandeau texte reste en place, caché, pour le filet de sécurité « Boss vaincu » ci-dessous ; pour les kills suivants il s'affiche comme avant.
          */
         /* Norman (2026-10-22) : « la taupe a éclaté alors que je n'étais pas à ce boss » : la durée et le numéro du combat sont à usage UNIQUE (remis à zéro ici) et le numéro doit être celui du boss sélectionné ; sinon un kill sans combat suivi (auto, Titan, tour) réutilisait un vieux combat. */
+        /* Boss 106 (Norman, 2026-11-07) : « derrière son animation de mort, la photo du boss suivant, c'est le même boss transformé » : l'adresse de l'image du boss 107 est posée pour l'animation (qui la prend une fois) ; seulement pour le boss 106 */
+        window.__SOREAL_IDLE_MORT_DERRIERE_V1__='';
+        if(idMortV1===106){
+          const dif=String(REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.difficulty||'');
+          const adr='/api/idle/media/boss?id=107'+(dif==='difficile'||dif==='extreme'?'&difficulty='+dif:'');
+          try{const pre=new Image();pre.src=adr;}catch(_e){}
+          window.__SOREAL_IDLE_MORT_DERRIERE_V1__=adr;
+        }
         let victoireArcadeIdleV1=false;
         REG.idleCombatDebutV1=0;REG.idleCombatBossNumV1=0;window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__=false;
         try{

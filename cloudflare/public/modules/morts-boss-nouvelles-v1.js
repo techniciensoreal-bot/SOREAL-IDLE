@@ -95,7 +95,7 @@ function preparer(id,img,LW,LH){
 
 /* ---------- dessins ---------- */
 var FOND='#0b0e17';
-function vide(c,LW,LH,col){c.fillStyle=col||FOND;c.fillRect(0,0,LW,LH);}
+function vide(c,LW,LH,col){if(!col&&window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__){c.clearRect(0,0,LW,LH);return;}c.fillStyle=col||FOND;c.fillRect(0,0,LW,LH);}
 
 function dessinerEboulement(c,t,k,LW,LH){
   var T_PIERRE=.7,T_FISSURE=1.3,T_CHUTE=3.1,sol=k.sol;
@@ -393,6 +393,9 @@ function jouerSurHote(hote,image,idMort){
     calque.className='soreal-idle-boss-transition-v61 mort-boss-n';
     calque.setAttribute('data-morph-garder','');calque.setAttribute('aria-hidden','true');
     var cv=document.createElement('canvas');cv.width=LW;cv.height=LH;calque.appendChild(cv);
+    /* Boss 106 (Norman, 2026-11-07) : derrière sa mort, la photo du boss suivant (le même boss transformé) ; l'animation se dessine alors sur fond transparent */
+    var derriere=window.__SOREAL_IDLE_MORT_DERRIERE_V1__||'';window.__SOREAL_IDLE_MORT_DERRIERE_V1__='';
+    if(derriere){var bi=document.createElement('img');bi.alt='';bi.draggable=false;bi.src=derriere;bi.className='mort-derriere-v1';bi.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none';calque.insertBefore(bi,cv);calque.style.background='transparent';window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=true;}
     hote.appendChild(calque);
     var c=cv.getContext('2d');c.imageSmoothingEnabled=true;
     enCours=true;
@@ -404,7 +407,7 @@ function jouerSurHote(hote,image,idMort){
     window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=true;
     var fini=false,t0=performance.now();
     function terminer(){
-      if(fini)return;fini=true;enCours=false;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;
+      if(fini)return;fini=true;enCours=false;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=false;
       /* la main passe à l'apparition du boss suivant dans la même tâche : aucune image du boss suivant n'apparaît entre les deux */
       try{var app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(app&&app.jouerApres)app.jouerApres(hote,idMort,true);else if(app&&app.jouer)app.jouer(hote);}catch(_e){}
       if(calque.parentNode)calque.parentNode.removeChild(calque);
@@ -412,7 +415,7 @@ function jouerSurHote(hote,image,idMort){
     try{son(choix);}catch(_e){}
     (function image2(now){
       if(fini)return;
-      if(!calque.isConnected){fini=true;enCours=false;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;return;}
+      if(!calque.isConnected){fini=true;enCours=false;window.__SOREAL_IDLE_VICTOIRE_EN_COURS__=false;window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=false;return;}
       var t=(now-t0)/1000;
       if(t>=v.duree){terminer();return;}
       dessiner(choix,c,t,k,LW,LH);

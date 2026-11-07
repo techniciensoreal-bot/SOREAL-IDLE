@@ -512,8 +512,8 @@
   "sha": "4f560279c2fa43e46a4befc7c6dce2f12c2297d0"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
-  "pin": 5,
-  "sha": "3259547a6b21779e92dd71d24de13828eaed6b47"
+  "pin": 6,
+  "sha": "de59b83acea2515a676fca2c30bfb075abddf59c"
  },
  "/modules/morts-joueur-nouvelles-v1.js": {
   "pin": 8,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 221,
-  "sha": "4084ffa69da77ae718174dd732c374491bdb2352"
+  "pin": 222,
+  "sha": "c2238ee022d2d465d8f1cd9ff270c80ac019bb65"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 859,
-  "sha": "7ee5b56a58c222834618315c6ab52f234a3b4c5d"
+  "pin": 860,
+  "sha": "3aca2f7135b643b280b7310e0bc6c066e38b7c9b"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -724,12 +724,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 898,
-  "sha": "46b838e9e5fc58d95d7631d07147ed88e7c2506d"
+  "pin": 899,
+  "sha": "1d7703ed6f36aab53691007109466e5189356b9e"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 719,
-  "sha": "0588135c5896552eed9806e82defa4b4b59f0794"
+  "pin": 720,
+  "sha": "7352206e3387671b9266d9777eaf84a4bcd0b154"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -792,8 +792,8 @@
   "sha": "931606eff73efca6a728bea41d48c9559d66f52b"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 31,
-  "sha": "a8286152fafc82d4c05b5a20687cb6a820a7b08e"
+  "pin": 32,
+  "sha": "4ba7b1d58b6ac993483f93e5f9bddebad63ab360"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 44,
@@ -864,8 +864,8 @@
   "sha": "eb2eee85642d3fd568e21e00fcf43e2f908836d2"
  },
  "/modules/victoire-boss-arcade-v1.js": {
-  "pin": 9,
-  "sha": "4530dd4cca439a6196a845b9ecd3e19c1546d677"
+  "pin": 10,
+  "sha": "f3dff56a3566abdc20c3bfc58554873cf3c9a71e"
  },
  "/modules/voix-expressions-v1.js": {
   "pin": 2,
