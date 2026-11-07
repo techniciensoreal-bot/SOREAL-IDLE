@@ -16,7 +16,7 @@ var MENUS={
   entrainement:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.soreal-idle-bt-row-v120',style:'braise',sansParticules:true},   /* Basic Training : cadre lumineux, aucune particule (Norman, 2026-11-03 : « enlève les particules dans basic training pour les barres actives ») */
   augmentations:{alloc:'.soreal-idle-bt-allocation-v120',ligne:'.aug-piste-v2',style:'etoile',sansParticules:true},
   avance:{alloc:'[id^="sorealIdleAtAlloc_"]',ligne:'.soreal-idle-at-ligne-v1',style:'bit'},
-  machine:{alloc:'[id^="sorealIdleTmAllocV1_"]',ligne:'.tmm-case',style:'piece'},
+  machine:{alloc:'[id^="sorealIdleTmAllocV1_"]',ligne:'.tmm-ligne',sansAura:true,style:'piece'},
   sang:{alloc:'[id^="sorealIdleBloodRitualAllocV1_"]',ligne:'.bm-rituel',style:'goutte'}
   /* NGU n'a plus cette aura (Norman, 2026-10-12) : il a la sienne, DANS le tuyau (aurore, modules/ngu-labo-v1.js) */
 };
@@ -72,7 +72,7 @@ function balayer(){
   var racine=document.querySelector('.soreal-idle-page-root-v28[data-menu]');
   if(!racine)return;
   var cfg=MENUS[racine.getAttribute('data-menu')];
-  if(!cfg)return;
+  if(!cfg||cfg.sansAura)return;   /* sansAura : ni cadre lumineux ni particules (Machine temporelle, nouveau look : Norman, 2026-11-07 « pas de cadre, pas de pièces d'or qui tombent dans Allouée ») */
   css();
   var vus=[];
   racine.querySelectorAll(cfg.alloc).forEach(function(el){
