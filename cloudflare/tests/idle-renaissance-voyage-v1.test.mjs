@@ -57,4 +57,7 @@ for (const t of ["Renaître ?", "Plus rapide", "Tu gardes le reste", "Si tu rena
 
 // Time Machine : plus de « ding » à chaque niveau
 assert.ok(lire("cloudflare/public/modules/machine-sons-v1.js").includes("var SON_NIVEAU=false;") && lire("cloudflare/public/modules/machine-sons-v1.js").includes("if(SON_NIVEAU&&joue)niveau();"), "son de niveau coupé");
+// bord du cercle en fumée (Norman, 2026-11-07) : opacité qui monte par paliers sur près de la moitié du rayon, ouverture de 1,5 s
+for (const palier of ["transparent calc(var(--vt-r) - 48%)", "rgba(0,0,0,.06) calc(var(--vt-r) - 40%)", "rgba(0,0,0,.2) calc(var(--vt-r) - 30%)", "rgba(0,0,0,.45) calc(var(--vt-r) - 20%)", "rgba(0,0,0,.75) calc(var(--vt-r) - 9%)", "#000 var(--vt-r))"]) assert.ok(ren.includes(palier), "bord du cercle blanc de plus en plus transparent (fumée) : " + palier);
+assert.ok(ren.includes("{duration:1500,easing:'cubic-bezier(.45,.05,.55,.95)',fill:'forwards'}"), "ouverture en 1,5 s");
 console.log("idle-renaissance-voyage-v1: OK");

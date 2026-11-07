@@ -64,7 +64,7 @@
             'Le filtre d’objets avancé du Coffre est gardé dans ton compte : si le jeu le remet à zéro par erreur, les objets que tu avais cochés sont remis tout seuls, et ils suivent aussi d’un appareil à l’autre.',
           ]},
           {menu:'renaissance', titre:'Renaissance', points:[
-            'Quand tu renais, l’horloge fonce vers l’écran en emballant ses aiguilles à rebours, un éclair blanc couvre tout, puis s’ouvre en cercle sur le Combat de boss.',
+            'Quand tu renais, l’horloge fonce vers l’écran en emballant ses aiguilles à rebours, un éclair blanc couvre tout, puis s’ouvre en cercle sur le Combat de boss : le bord du cercle devient de plus en plus transparent, comme de la fumée.',
             'La fenêtre de Renaissance est refaite : un décor magique avec une horloge qui tourne à rebours, le nombre de fois où tu seras plus fort écrit clairement, les boss qui tombent plus vite, ce qui repart de zéro, ce qui se referme pour l’instant et ce que tu gardes.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[

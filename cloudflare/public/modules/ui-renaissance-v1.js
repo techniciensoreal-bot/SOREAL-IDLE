@@ -157,7 +157,7 @@
               '#sorealIdleVoyageTempsV1 .vt-anneau{position:absolute;left:50%;top:50%;width:60vmin;height:60vmin;margin:-30vmin 0 0 -30vmin;border-radius:50%;border:2px solid rgba(232,200,120,.85);box-shadow:0 0 34px rgba(232,200,120,.6),inset 0 0 34px rgba(168,120,255,.55);opacity:0}'+
               '#sorealIdleVoyageTempsV1 .rn-icone{position:absolute;margin:0;animation:none;will-change:transform}'+
               '#sorealIdleVoyageTempsV1 .vt-eclair{position:absolute;inset:0;opacity:0;background:radial-gradient(circle at 50% 50%,#fffdf0 0%,#ffe9a8 38%,#b79bff 100%)}'+
-              '#sorealIdleVoyageTempsV1 .vt-eclair.vt-ouvre{-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent calc(var(--vt-r) - 14%),#000 var(--vt-r));mask-image:radial-gradient(circle at 50% 50%,transparent calc(var(--vt-r) - 14%),#000 var(--vt-r))}';
+              '#sorealIdleVoyageTempsV1 .vt-eclair.vt-ouvre{-webkit-mask-image:radial-gradient(circle at 50% 50%,transparent calc(var(--vt-r) - 48%),rgba(0,0,0,.06) calc(var(--vt-r) - 40%),rgba(0,0,0,.2) calc(var(--vt-r) - 30%),rgba(0,0,0,.45) calc(var(--vt-r) - 20%),rgba(0,0,0,.75) calc(var(--vt-r) - 9%),#000 var(--vt-r));mask-image:radial-gradient(circle at 50% 50%,transparent calc(var(--vt-r) - 48%),rgba(0,0,0,.06) calc(var(--vt-r) - 40%),rgba(0,0,0,.2) calc(var(--vt-r) - 30%),rgba(0,0,0,.45) calc(var(--vt-r) - 20%),rgba(0,0,0,.75) calc(var(--vt-r) - 9%),#000 var(--vt-r))}';
             document.head.appendChild(st);
           }
           const angle=function(e){try{const m=new DOMMatrix(getComputedStyle(e).transform);return Math.atan2(m.b,m.a)*180/Math.PI;}catch(_e){return 0;}};
@@ -216,8 +216,9 @@
             anneaux.forEach(function(a){a.style.display='none';});
             try{if(apres)apres();}catch(_e){}
             if(masque){
+              /* Norman (2026-11-07) : « le cercle blanc de plus en plus transparent en approchant du bord, comme de la fumée » : bord du masque étalé sur près de la moitié du rayon, six paliers d'opacité */
               eclair.classList.add('vt-ouvre');
-              const anim=eclair.animate([{'--vt-r':'0%'},{'--vt-r':'165%'}],{duration:1150,easing:'cubic-bezier(.45,.05,.55,.95)',fill:'forwards'});
+              const anim=eclair.animate([{'--vt-r':'0%'},{'--vt-r':'165%'}],{duration:1500,easing:'cubic-bezier(.45,.05,.55,.95)',fill:'forwards'});
               anim.onfinish=retirer;
             }else{
               eclair.animate([{opacity:1},{opacity:0}],{duration:900,easing:'ease-in',fill:'forwards'}).onfinish=retirer;
