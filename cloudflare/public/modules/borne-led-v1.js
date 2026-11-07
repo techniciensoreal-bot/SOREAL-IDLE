@@ -116,17 +116,9 @@ function fnUnites(s){
 }
 
 /* texte → suite de caractères que la police sait dessiner */
-/* canon() est une fonction PURE du texte (police et table de remplacement fixes), appelée à chaque image pour les mêmes textes : résultat mémorisé (400 textes au plus, remis à zéro au-delà) */
-var CANON_MEMO=new Map();
-function canon(s){
-  var cle=typeof s==='string'?s:null,m;
-  if(cle!==null){m=CANON_MEMO.get(cle);if(m!==undefined)return m;}
-  m=canonCalcule(s);
-  if(cle!==null){if(CANON_MEMO.size>=400)CANON_MEMO.clear();CANON_MEMO.set(cle,m);}
-  return m;
-}
-function canonCalcule(s){
-  var up=String(s==null?'':s).toUpperCase(),out='',i,ch;
+var CANON_MEMO=new Map();   /* canon() est PURE (police et table fixes) et appelée à chaque image pour les mêmes textes : résultat mémorisé, 400 textes au plus */
+function canon(s){var m=typeof s==='string'?CANON_MEMO.get(s):undefined;if(m!==undefined)return m;m=canonCalcule(s);if(typeof s==='string'){if(CANON_MEMO.size>=400)CANON_MEMO.clear();CANON_MEMO.set(s,m);}return m;}
+function canonCalcule(s){var up=String(s==null?'':s).toUpperCase(),out='',i,ch;
   for(i=0;i<up.length;i++){
     ch=up.charAt(i);
     if(REMPL[ch]!==undefined)ch=REMPL[ch];
@@ -2245,16 +2237,13 @@ Panel.prototype.bg=function(){
 Panel.prototype.draw=function(fn,t,gain,params){
   P=this;this.p=params||{};this.c.fill(0);this.v.fill(0);this.yoff=0;this.xoff=0;this.cy0=0;this.cy1=this.H-1;this.YM=this.H;
   fn(t);
-  this.xoff=0;
-  if(this.extra){this.yoff=0;this.cy0=0;this.cy1=this.HT-1;this.YM=this.HT;barre(t);this.YM=this.H;this.cy1=this.H-1;}   /* la vie du boss est dessinée APRÈS la scène, hors du fondu : elle reste toujours affichée */
+  this.xoff=0;if(this.extra){this.yoff=0;this.cy0=0;this.cy1=this.HT-1;this.YM=this.HT;barre(t);this.YM=this.H;this.cy1=this.H-1;}   /* la vie du boss est dessinée APRÈS la scène, hors du fondu : elle reste toujours affichée */
   var ctx=this.ctx,cell=this.cell,W=this.W,HT=this.HT,i,n=W*this.HT,ns=W*this.H,v,l,x,y;
   /* Fluidité (2026-11-02) : on compare la grille à celle déjà affichée (couleur, niveau du coeur, niveau du halo de chaque point) ; rien de changé = aucun dessin ; sinon seules les cellules changées
      (et leurs voisines, le halo déborde d'une cellule) sont repeintes, dans un rectangle de découpe : le résultat est identique pixel pour pixel à un redessin complet. La vie du boss, immobile presque toujours, n'est plus repeinte. */
-  var pc=this.pc,pl=this.pl,pg=this.pg,nc=0,ch=this.ch,cc=this.c,vv=this.v,L2,G2,col;
-  var pr=this.pr,pq=this.pq,memeGain=(gain===this.pgain);this.pgain=gain;
+  var pc=this.pc,pl=this.pl,pg=this.pg,nc=0,ch=this.ch,cc=this.c,vv=this.v,L2,G2,col,pr=this.pr,pq=this.pq,memeGain=(gain===this.pgain);this.pgain=gain;
   for(i=0;i<n;i++){
-    if(memeGain&&vv[i]===pr[i]&&cc[i]===pq[i])continue;   /* même valeur brute, même couleur, même gain qu à l image précédente : mêmes niveaux, rien à recalculer */
-    pr[i]=vv[i];pq[i]=cc[i];
+    if(memeGain&&vv[i]===pr[i]&&cc[i]===pq[i])continue;pr[i]=vv[i];pq[i]=cc[i];   /* même valeur brute, couleur et gain qu à l image précédente : mêmes niveaux */
     v=vv[i]*(i<ns?gain:1);
     L2=v<=0?0:Math.max(1,Math.min(8,Math.ceil(v/255*8)));G2=v<70?0:Math.min(8,Math.ceil(v/255*8));col=L2?cc[i]:0;
     if(L2&&!this.core[col])this.mk(col);
@@ -2291,8 +2280,7 @@ Panel.prototype.draw=function(fn,t,gain,params){
   for(i=(yMin<0?0:yMin)*W,iFin=(yMax>=HT?HT:yMax+1)*W;i<iFin;i++){if(!sm[i]||pg[i]===0)continue;x=(i%W)*cell;y=((i/W)|0)*cell;ctx.drawImage(this.glow[pc[i]][pg[i]],x-cell,y-cell);}
   ctx.globalCompositeOperation='source-over';
   for(i=(yMin<0?0:yMin)*W;i<iFin;i++){if(!dm[i]||pl[i]===0)continue;ctx.drawImage(this.core[pc[i]][pl[i]],(i%W)*cell,((i/W)|0)*cell);}
-  ctx.restore();
-  P=null;
+  ctx.restore();P=null;
 };
 
 /* ------------------------------------------------------------------ lecture de l'état du jeu (jamais d'écriture) */
