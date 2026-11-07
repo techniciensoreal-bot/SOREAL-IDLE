@@ -148,10 +148,13 @@
   function arrivee(){
     var v=V(),kp=kPetit(),S=BASE*kp,jeton=etat.jeton;
     var fin=placePetit(null);
+    /* La page de Fight Boss est mise en place AVANT l'arrivée de Lhu (Norman, 2026-11-07) : rien ne bouge quand il se pose sur Nuke. */
+    cadrer(cibleAtterrissage('#sorealIdleBossNukeV1'));
     creer('vole');
     poser(v.W+30,fin.y-v.H*0.05,kp);   /* hors de l'écran, à droite */
     return aller(fin.x,fin.y,kp,1900,'cubic-bezier(.2,.6,.3,1)',false).then(function(){
       if(jeton!==etat.jeton)return;
+      cadrer(cibleAtterrissage('#sorealIdleBossNukeV1'));   /* la page s'est stabilisée : dernière retouche, hors de vue de la scène */
       if(etat.racine)etat.racine.setAttribute('data-q','1');   /* il vole sur place, « ??? » au-dessus de la tête */
       return attendre(2400);
     }).then(function(){

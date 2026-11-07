@@ -99,7 +99,7 @@ export const IDLE_TUTORIEL_SEED_V1 = [];
 export const IDLE_TUTORIEL_LHU_V1 = Object.freeze({
   id: "lhu-debut", titre: "Lhu : le premier combat", declencheur: { type: "debut" }, actif: true, afficher: true, mascotte: true, ordre: -100,
   etapes: [
-    { humeur: "normal", titre: "Lhu", scene: "arrivee", placement: "bas", attendreVoix: false,
+    { humeur: "normal", titre: "Lhu", scene: "arrivee", menu: "combat", placement: "bas", attendreVoix: false,
       texte: "Oh... un nouvel arrivant. Salut, moi c'est Lhu, pour faire court. Mon vrai nom te demanderait de te mâcher la langue avant de l'avaler pour pouvoir le prononcer. Je vais t'apprendre à te battre. Tu vois ce petit bout de peluche ? Pète-lui la gueule !" },
     { humeur: "normal", titre: "Lhu", scene: "pose", menu: "combat", placement: "haut", surbrillance: false, avanceAuClic: true,
       cible: { selecteur: "#sorealIdleBossStartV100", libelle: "Le bouton Fight" },

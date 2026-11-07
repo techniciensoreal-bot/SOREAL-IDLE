@@ -220,8 +220,8 @@
   "sha": "3257c42322cd96e4d7552c579a780f8d9d8e3c4b"
  },
  "/modules/cthulhu-scene-v1.js": {
-  "pin": 9,
-  "sha": "c3ef80ad3e96b53c5daff4e244a0aa5fac2239b3"
+  "pin": 10,
+  "sha": "ed421edb0e6341737b6c7cc106e3b36c73ffe8ef"
  },
  "/modules/cthulhu-v1.js": {
   "pin": 2,
@@ -524,8 +524,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 187,
-  "sha": "e8f93bef322cdd1f1af496c8df48c68418756f0c"
+  "pin": 188,
+  "sha": "1b579f78dcd01b7670b235e4b50839e75b9c64a3"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
