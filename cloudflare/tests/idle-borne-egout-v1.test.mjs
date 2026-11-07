@@ -21,7 +21,7 @@ assert.equal(ev("NUKES[10].name"), "superNuke");
 assert.equal(ev("NUKES[12].name"), "chien");
 
 /* branchement dans le jeu */
-assert.ok(src.includes("egout:{fn:sEgout,dur:9,prio:0,cap:0.5}") && src.includes("redroom:1,egout:1}"), "scène de combat enregistrée");
+assert.ok(src.includes("egout:{fn:sEgout,dur:9,prio:0,cap:0.5}") && src.includes("redroom:1,egout:1,yeuxcb:1}"), "scène de combat enregistrée");
 assert.ok(src.includes("ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout','yeuxcb'].filter("), "tirée parmi quatre animations");
 assert.ok(src.includes("p.anim==='egout'?KO_EG_DUR") && src.includes("else if(eg)perduEgout(t);") && src.includes("else if(an==='egout')sEgout(t);"), "victoire et défaite branchées");
 /* rendu : aucune erreur, quelque chose est dessiné, sur PC et téléphone ; défaite : bouche d'égout, sang, K.O. */

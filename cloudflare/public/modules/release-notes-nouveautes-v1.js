@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les boutons « Tout retirer » s’appellent maintenant « Tout reprendre », et le mot n’est plus coupé nulle part (dans la Machine temporelle ses boutons ont aussi un fond plus sombre, plus lisible)."
+    "Les boutons « Tout retirer » s’appellent maintenant « Tout reprendre », et le mot n’est plus coupé nulle part (dans la Machine temporelle ses boutons ont aussi un fond plus sombre, plus lisible).",
+    "Les yeux de la borne qui regardent la barre de vie s’arrêtent maintenant à la fin de chaque combat, même quand tu fuis ou que le combat s’arrête sans victoire ni défaite."
   ] };
 })();

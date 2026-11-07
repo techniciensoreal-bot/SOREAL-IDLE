@@ -141,7 +141,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 // Norman (2026-11-02) : la Red Room, troisième animation (deux hommes, rideau rouge, Vénus de Milo, nain qui danse ; victoire : le rideau s'ouvre sur une clairière de nuit ; défaite : la main sur l'épaule, éclairs et lueur bleue)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led.includes("redroom:{fn:sRedroom,dur:9,prio:0,cap:0.5}") && led.includes("var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1,egout:1};") && led.includes("cur.id==='redroom'||cur.id==='egout'||cur.id==='bars'"), "la Red Room est une scène de combat comme les deux autres");
+  assert.ok(led.includes("redroom:{fn:sRedroom,dur:9,prio:0,cap:0.5}") && led.includes("var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1,egout:1,yeuxcb:1};") && led.includes("cur.id==='redroom'||cur.id==='egout'||cur.id==='bars'"), "la Red Room est une scène de combat comme les deux autres");
   assert.ok(led.includes("if(id==='ko'&&(combatAnim==='redroom'||combatAnim==='egout')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}") && led.includes("if(an==='redroom')sRedroom(t);else if(an==='egout')sEgout(t);else (an==='sweep'?sSweep:sMascot)(t);") && led.includes("else if(rr)perduRedroom(t);"), "victoire et défaite de la Red Room");
   assert.ok(led.includes("var VENUS=[") && led.includes("var NAIN_POSES=[") && led.includes("function rrNainPose(t)") && led.includes("var HOMMES=[hommeRows(0),hommeRows(1),hommeRows(2),hommeRows(3)];"), "Vénus de Milo, nain qui danse, homme en deux exemplaires");
   assert.ok(led.includes("var q=(((x-sh)%8)+8)%8,tri=q<4?q:8-q") && led.includes("sh=Math.floor(tg*RR_SP)"), "sol en chevrons : période de 8 colonnes, glissement entier (boucle parfaite)");

@@ -49,6 +49,7 @@
             'La barre d’outils de l’Entraînement de base (saisie, plafonds, idle, énergie placée) tient maintenant sur une seule ligne.',
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Les yeux de la borne qui regardent la barre de vie s’arrêtent maintenant à la fin de chaque combat, même quand tu fuis ou que le combat s’arrête sans victoire ni défaite.',
             'Ta vie (barre du haut et duel) et le texte de vie de la borne s’écrivent maintenant en nombres entiers avant le million : 1000, 10.000, 100.000, 999.999, puis 1M, 1,5M…',
             'Quand les yeux de la borne regardent ta barre de vie, ils visent le bout de la partie pleine, là où elle s’arrête : vie haute, regard vers la droite ; vie basse, vers la gauche.',
             'Quand un combat est serré, les yeux de la borne regardent la barre de vie du boss puis la tienne, plusieurs fois, sans se presser.',

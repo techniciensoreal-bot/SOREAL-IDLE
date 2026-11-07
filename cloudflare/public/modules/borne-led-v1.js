@@ -2320,7 +2320,7 @@ function lire(now){
 
 /* ------------------------------------------------------------------ gestionnaire de scènes : une à la fois, priorité aux événements de combat, retour automatique à l'affichage de base */
 var L={ok:false,debut:0,res:0,hitN:0,mot:0,vic:false,def:false,combat:false,nuke:false};
-var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1,egout:1};
+/* Norman (2026-11-07) : « les yeux qui regardent la barre de vie ne s'arrêtent pas toujours à la fin d'un combat » : la scène des yeux (yeuxcb) manquait à cette liste ; sans victoire ni défaite (fuite, pause, combat arrêté), la borne ne voyait donc jamais la fin du combat et la scène (durée illimitée) restait à l'écran. */ var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1,egout:1,yeuxcb:1};
 /* UNE SEULE ANIMATION PAR COMBAT (Norman, 2026-11-02 : « soit c'est le personnage qui court du début à la fin du combat, soit c'est Leatherface du début à la fin ») : tirée au début du combat, elle reste à l'écran jusqu'à la victoire,
    où elle joue sa fin (château et feux d'artifice, ou la danse de Leatherface) avant « VICTOIRE ! ». Seuls les coups (POW !), la barre de vie du joueur et les objets s'intercalent un instant. */
 var animBossJoue=-1;   /* numéro du boss pour lequel une animation longue a DÉJÀ été jouée (Norman, 2026-11-03 : après une défaite, refaire Fight ne relance pas l'animation : le boss n'a presque plus de vie et elle révélerait la scène de victoire) ; un autre boss la libère */
