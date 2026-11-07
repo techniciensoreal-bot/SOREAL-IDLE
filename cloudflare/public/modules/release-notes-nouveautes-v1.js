@@ -4,8 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.",
-    "Pendant un combat, la borne ne joue plus que l’animation du bonhomme qui court : le clown, la tronçonneuse et Twin Peaks sont retirés pour l’instant (ils reviendront plus tard), ainsi que les hommes qui rient quand on abandonne un défi.",
-    "Quand tu mets de la Magie dans la Machine temporelle, la barre d’Énergie ne recule plus."
+    "Pendant un combat, la borne n’a plus d’animation de personnage (le bonhomme qui court, le clown, la tronçonneuse, Twin Peaks et les hommes qui rient sont retirés pour l’instant, ils reviendront plus tard) : à la place, elle a des yeux ! Ils apparaissent dès le lancement du combat et regardent la barre de vie du boss. Leur humeur suit le combat : concentrés, déterminés quand le boss faiblit, ravis quand il va tomber, inquiets puis apeurés quand ta vie baisse, avec une grimace à chaque coup reçu. Victoire : yeux heureux et étincelles. Défaite : deux croix."
   ] };
 })();

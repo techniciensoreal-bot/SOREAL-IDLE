@@ -22,7 +22,7 @@ assert.equal(ev("NUKES[12].name"), "chien");
 
 /* branchement dans le jeu */
 assert.ok(src.includes("egout:{fn:sEgout,dur:9,prio:0,cap:0.5}") && src.includes("redroom:1,egout:1}"), "scène de combat enregistrée");
-assert.ok(src.includes("ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout'].filter("), "tirée parmi quatre animations");
+assert.ok(src.includes("ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout','yeuxcb'].filter("), "tirée parmi quatre animations");
 assert.ok(src.includes("p.anim==='egout'?KO_EG_DUR") && src.includes("else if(eg)perduEgout(t);") && src.includes("else if(an==='egout')sEgout(t);"), "victoire et défaite branchées");
 /* rendu : aucune erreur, quelque chose est dessiné, sur PC et téléphone ; défaite : bouche d'égout, sang, K.O. */
 const rendre = (id, p, pct, t, W, H, reduit) => JSON.parse(ev(`(function(){var pn=new Panel(document.createElement('canvas'),${W},${H});P=pn;pn.reduced=${Boolean(reduit)};pn.c.fill(0);pn.v.fill(0);pn.yoff=0;pn.xoff=0;pn.cy0=0;pn.cy1=${H - 1};pn.YM=${H};pn.p=${JSON.stringify(p)};S.pv={pct:${pct},cur:'0',max:'0',regen:''};SC['${id}'].fn(${t});

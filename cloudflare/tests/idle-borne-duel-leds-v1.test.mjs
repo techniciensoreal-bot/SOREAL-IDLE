@@ -67,7 +67,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 // Norman (2026-11-02) : UNE SEULE animation par combat, du début à la fin : soit la mascotte qui court (calée sur la vie, château et feux d'artifice à la victoire), soit Leatherface (tronçonneuse, danse finale à la victoire)
 {
   const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8").replace(/\r\n/g, "\n");
-  assert.ok(led.includes("ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout'].filter(") && led.includes("Math.floor(Math.random()*ANIMS_TIRAGE_V1.length)"), "l'animation du combat est tirée au début du combat, parmi quatre (la scène de l'égout, 2026-11-03, s'ajoute aux trois autres)");
+  assert.ok(led.includes("ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout','yeuxcb'].filter(") && led.includes("Math.floor(Math.random()*ANIMS_TIRAGE_V1.length)"), "l'animation du combat est tirée au début du combat, parmi quatre (la scène de l'égout, 2026-11-03, s'ajoute aux trois autres)");
   assert.ok(led.includes("demarrer(mk(combatAnim,now,{long:true}))") && led.includes("if(p.long)d=1e9;"), "elle reste à l'écran tout le combat");
   assert.ok(!led.includes("interN%3===1?'bars':interN%3===2&&S.pv?'sweep':'mascot'"), "plus de rotation d'animations pendant un combat");
   assert.ok(led.includes("if(id==='win')p.anim=combatAnim;") && led.includes("(an==='sweep'?sSweep:sMascot)(t)"), "la victoire joue la fin de l'animation du combat");
@@ -117,13 +117,13 @@ console.log("idle-borne-duel-leds-v1: OK");
   assert.ok(led.includes("function camionRows(bras,phase,fille)") && led.includes("put(1,29,'YYY')") && led.includes("put(2,29,'SSS')") && led.includes("put(4,28,'PPPPP')"), "fourgon de profil et fille dans la benne (cheveux jaunes, robe rose)");
   assert.ok(led.includes("function geoCourse(xe)") && led.includes("var tx=xe-Math.round(30*ec),sxL=tx+tw+gap-Math.round(3*es);")&&!led.includes("W-Math.round(26*es)"), "la fille est au bout de la barre de vie, le fourgon roule devant, Leatherface derrière : tout suit la barre (Norman, 2026-11-02)");
   assert.ok(led.includes("if(fin){") && led.includes("var pp=P.p;if(pp.te==null||pp.te===undefined){pp.te=t;pp.sx0=G.sxL;}") && led.includes("G.tx-Math.round(uf*uf*40+uf*10)") && led.includes("}else danseFinale(t,fl,xd,uf-TC);"), "victoire : le fourgon sort de l'écran et Leatherface fait sa danse là où il s'est arrêté");
-  assert.ok(led.includes("function tueRie(t)") && led.includes("if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}") && led.includes("var G=geoCourse(x0+n),tCoup=1.3"), "défaite : Leatherface rattrape le fourgon et frappe, la fille disparaît");
-  assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep',am=P.p.anim==='mascot';") && led.includes("dur:function(p){return p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");
+  assert.ok(led.includes("function tueRie(t)") && led.includes("if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot'||combatAnim==='yeuxcb')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}") && led.includes("var G=geoCourse(x0+n),tCoup=1.3"), "défaite : Leatherface rattrape le fourgon et frappe, la fille disparaît");
+  assert.ok(led.includes("camion(vivante,bras,phase)") && led.includes("an=P.p.anim==='sweep',am=P.p.anim==='mascot';") && led.includes("dur:function(p){return p.anim==='yeuxcb'?YC_FIN_S+6.4:p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:6.4;}"), "la fille n'est plus dans la benne après le coup ; le K.O. attend la fin de la scène");
   console.log("idle-borne-duel-leds-v1 (poursuite du fourgon) : OK");
 }
 {
   const led2 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led2.includes("function coupeApres(s){return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
+  assert.ok(led2.includes("function coupeApres(s){if(s.p&&s.p.anim==='yeuxcb'&&(s.id==='win'||s.id==='ko'))return YC_FIN_S+COUPE[s.id];return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
   assert.ok(led2.includes("if(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]){if(!graceFin)graceFin=now+GRACE_FIN_S*1000;pend=true;return;}") && led2.includes("pend=false;graceFin=0;demarrer(s);"), "le combat suivant qui démarre avant le drapeau de victoire n'écrase plus l'animation longue : on attend la scène de fin (Norman, 2026-11-03)");
 }
 {
@@ -133,7 +133,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 {
   const led4 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
   assert.ok(led4.includes("var THWOMP=[") && led4.includes("function ecrase(t){") && led4.includes("if(an)tueRie(t);else if(am)ecrase(t);"), "défaite du personnage qui court : un bloc de pierre (Thwomp) lui tombe dessus (Norman, 2026-11-02)");
-  assert.ok(led4.includes("if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}"), "la défaite de l'animation de la mascotte mémorise l'endroit où elle s'est arrêtée");
+  assert.ok(led4.includes("if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot'||combatAnim==='yeuxcb')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}"), "la défaite de l'animation de la mascotte mémorise l'endroit où elle s'est arrêtée");
   const corps = led4.slice(led4.indexOf("function ecrase(t){"), led4.indexOf("function sKO(t){"));
   assert.ok(corps.includes("burst(hx+4,fl-1,u,28,31,24,1.3,[ROU],46)") && corps.includes("rect(hx+4-w,fl,2*w+1,1,ROU,235)"), "le sang gicle et la flaque s'étale");
   assert.ok(!/setTimeout|setInterval/.test(corps), "dessin calculé depuis le temps de la scène");

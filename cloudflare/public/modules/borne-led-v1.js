@@ -785,7 +785,7 @@ function sRire(t){
 /* 6. La ola puis VICTOIRE ! */
 /* Norman (2026-11-05) : « la victoire du bonhomme qui court est trop longue » : durée 5,6 s pour la mascotte (entrée au château dès le début, feux d'artifice finis vers 3,7 s), texte effacé dès 5,0 s */
 function sWin(t){
-  var W=P.W,H=P.H,x,y,an=P.p.anim;
+  var W=P.W,H=P.H,x,y,an=P.p.anim;if(an==='yeuxcb'){var Yw=yeuxMod();if(t<YC_FIN_S){if(Yw)Yw.fin(t,'win');return;}t-=YC_FIN_S;an=null;}
   if(an==='redroom'&&P.p.ange!==false&&angOk()){winAnge(t);return;}   /* Red Room : l'ange numérisé (winAnge) ; écran trop petit : ci-dessous, comme avant */
   if(an){                                                          /* la fin de l'animation du combat : château et feux d'artifice, ou la danse de Leatherface ; « VICTOIRE ! » écrit dans l'espace vide à droite */
     P.p.fin=true;if(an==='redroom')sRedroom(t);else if(an==='egout')sEgout(t);else (an==='sweep'?sSweep:sMascot)(t);
@@ -1347,7 +1347,7 @@ function perduEgout(t){
   }
 }
 function sKO(t){
-  var W=P.W,H=P.H,an=P.p.anim==='sweep',am=P.p.anim==='mascot';
+  var W=P.W,H=P.H,an=P.p.anim==='sweep',am=P.p.anim==='mascot';if(P.p.anim==='yeuxcb'){var Yk=yeuxMod();if(t<YC_FIN_S){if(Yk)Yk.fin(t,'ko');return;}t-=YC_FIN_S;}
   var rr=P.p.anim==='redroom',fv=rr&&visOk(),eg=P.p.anim==='egout',tg=t;
   if(an)tueRie(t);else if(am)ecrase(t);else if(fv)koVisage(t);else if(rr)perduRedroom(t);else if(eg)perduEgout(t);
   var tk=t-(eg?EG_TXT-(P.p.suite?EG_A:0):an||am||(rr&&!fv)?2.4:fv?VIS_TXT:0),bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*tk),0,1);
@@ -2137,7 +2137,7 @@ function couleurBarre(r,e){
 }
 
 /* ------------------------------------------------------------------ catalogue : durée, priorité (un événement de combat l'emporte sur le reste), instant de l'image fixe (prefers-reduced-motion) */
-var YEUX=null;function yeuxMod(){if(!YEUX&&window.__SOREAL_IDLE_BORNE_YEUX_V1__)YEUX=window.__SOREAL_IDLE_BORNE_YEUX_V1__({px:px,clamp:clamp,sm:sm,BLA:BLA,P:function(){return P;}});return YEUX;}   /* scène des yeux : modules/borne-yeux-v1.js (Norman, 2026-11-05 : de temps en temps, des yeux pleins d'expressions quand personne n'a cliqué depuis quelques secondes) */
+var YEUX=null;function yeuxMod(){if(!YEUX&&window.__SOREAL_IDLE_BORNE_YEUX_V1__)YEUX=window.__SOREAL_IDLE_BORNE_YEUX_V1__({px:px,clamp:clamp,sm:sm,BLA:BLA,P:function(){return P;},S:function(){return S;}});return YEUX;}   /* scène des yeux : modules/borne-yeux-v1.js (Norman, 2026-11-05 : de temps en temps, des yeux pleins d'expressions quand personne n'a cliqué depuis quelques secondes) */
 var SC={
   base:{fn:sBase,dur:10,prio:0,cap:1.0},
   yeux:{fn:function(t){var Y=yeuxMod();if(Y)Y.scene(t);},dur:function(p){return p.dur||6;},prio:0,cap:1.0},
@@ -2145,7 +2145,7 @@ var SC={
   mascot:{fn:sMascot,dur:3.2,prio:0,cap:0.5},
   sweep:{fn:sSweep,dur:9,prio:0,cap:0.5},
   redroom:{fn:sRedroom,dur:9,prio:0,cap:0.5},
-  egout:{fn:sEgout,dur:9,prio:0,cap:0.5},
+  egout:{fn:sEgout,dur:9,prio:0,cap:0.5},yeuxcb:{fn:function(t){var Y=yeuxMod();if(Y)Y.combat(t);},dur:9,prio:0,cap:1.0},
   rire:{fn:sRire,dur:RIRE_DUR,prio:5,cap:3.0},
   bars:{fn:sBars,dur:2.6,prio:1,cap:1.0},
   objet:{fn:sObjet,dur:4.4,prio:1,cap:0.5},
@@ -2154,13 +2154,13 @@ var SC={
   score:{fn:sScore,dur:4,prio:1,cap:2.0},
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
-  win:{fn:sWin,dur:function(p){return p.anim==='redroom'&&p.ange!==false?WIN_RR_DUR:p.anim==='mascot'?5.6:p.anim?8.6:7.2;},prio:5,cap:4.2},
-  ko:{fn:sKO,dur:function(p){return p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:6.4;},prio:5,cap:3.9}
+  win:{fn:sWin,dur:function(p){return p.anim==='redroom'&&p.ange!==false?WIN_RR_DUR:p.anim==='yeuxcb'?YC_FIN_S+7.2:p.anim==='mascot'?5.6:p.anim?8.6:7.2;},prio:5,cap:4.2},
+  ko:{fn:sKO,dur:function(p){return p.anim==='yeuxcb'?YC_FIN_S+6.4:p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:6.4;},prio:5,cap:3.9}
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */
 var COUPE={win:5.0,ko:4.2,rire:RIRE_DUR};
 /* Temps minimum avant que le combat suivant (et le nom de son boss) puisse couper la scène : la victoire AVEC animation (Leatherface qui danse, ou le personnage qui saute) est vue EN ENTIER (Norman, 2026-11-02 : « je veux que l'animation de victoire soit montrée en entier avant »). */
-function coupeApres(s){return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}
+function coupeApres(s){if(s.p&&s.p.anim==='yeuxcb'&&(s.id==='win'||s.id==='ko'))return YC_FIN_S+COUPE[s.id];return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}
 
 /* ------------------------------------------------------------------ rendu : un seul canvas */
 var BARH=19;   /* rangées sous la zone des scènes : rainure (1), vide (1), jauge (9), vide (0), régénération (7) ; tout est lu dans l'état du jeu, jamais écrit */
@@ -2326,7 +2326,7 @@ var EN_COMBAT={fight:1,hit:1,bars:1,mascot:1,sweep:1,redroom:1,egout:1};
 var animBossJoue=-1;   /* numéro du boss pour lequel une animation longue a DÉJÀ été jouée (Norman, 2026-11-03 : après une défaite, refaire Fight ne relance pas l'animation : le boss n'a presque plus de vie et elle révélerait la scène de victoire) ; un autre boss la libère */
 var animIssue='',animDur=0;   /* issue (victoire | defaite) et durée PRÉVUES du combat en cours : la scène de l'égout s'y règle (le bateau avance seul, la barre de vie ne le retient plus) */
 var combatAnim='',animChoisie='',animDecision=0,combatT0=0,combatNum=0,pct0=-1;   /* animChoisie : tirée au début ; combatAnim : seulement quand le combat est jugé assez long (6 s au moins, voir majAnimation) */
-var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1,egout:1},GRACE_FIN_S=2.5,graceFin=0;/* DÉSACTIVÉES DU JEU (Norman, 2026-11-07 : « retire les animations de la borne : le clown, la tronçonneuse et Twin Peaks. Ne supprime pas, désactive totalement ; je les réintégrerai plus tard ») : egout (le clown), sweep (le héros à la tronçonneuse), redroom (Twin Peaks) et la scène « rire » (les hommes de la Red Room, à l'abandon d'un défi). TOUT le code des scènes reste en place ; pour en réintégrer une : la mettre à 1 ici. */var ANIMS_ACTIVES_V1={mascot:1,sweep:0,redroom:0,egout:0,rire:0},ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout'].filter(function(k){return ANIMS_ACTIVES_V1[k];});
+var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1,egout:1,yeuxcb:1},GRACE_FIN_S=2.5,graceFin=0,YC_FIN_S=2.6;/* DÉSACTIVÉES DU JEU (Norman, 2026-11-07 : « retire les animations de la borne : le clown, la tronçonneuse et Twin Peaks. Ne supprime pas, désactive totalement ; je les réintégrerai plus tard ») : egout (le clown), sweep (le héros à la tronçonneuse), redroom (Twin Peaks) et la scène « rire » (les hommes de la Red Room, à l'abandon d'un défi). TOUT le code des scènes reste en place ; pour en réintégrer une : la mettre à 1 ici. */var ANIMS_ACTIVES_V1={mascot:0,sweep:0,redroom:0,egout:0,rire:0,yeuxcb:1},ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout','yeuxcb'].filter(function(k){return ANIMS_ACTIVES_V1[k];});
 var apresVictoire=false;   /* une scène de victoire (VICTOIRE ! ou NUKE) vient d'être lancée : la première scène de repos qui suit est le nom du boss */
 var cur=null,pend=false,rot=0,jk=0,last='',fightT0=0,interAt=0,interN=0,objAt=0,objTour=0,objI=0;
 function enCombat(s){return Boolean(s&&(EN_COMBAT[s.id]||(s.id==='objet'&&s.p.inter)));}
@@ -2346,7 +2346,7 @@ function mk(id,now,p){
   var d=SC[id].dur;p=p||{};
   if(id==='win')p.anim=combatAnim;
   if(id==='win'&&combatAnim==='redroom')p.ange=Boolean(panel&&panel.H>=15&&panel.W>=44);   /* grille assez grande : la victoire montre l'ange numérisé (durée WIN_RR_DUR) ; sinon l'ancienne scène */
-  if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}
+  if(id==='ko'&&(combatAnim==='sweep'||combatAnim==='mascot'||combatAnim==='yeuxcb')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}
   if(id==='ko'&&(combatAnim==='redroom'||combatAnim==='egout')){p.anim=combatAnim;p.pc0=S.pv?S.pv.pct:1;}
   if(id==='ko'&&combatAnim==='egout'&&cur&&cur.id==='egout'&&cur.p&&cur.p.issue==='defaite'&&cur.p.dur>0)p.suite=true;   /* le garçon est arrivé à la planche : la défaite reprend à l'impact, sans relancer la course */
   if((id==='win'||id==='ko')&&combatAnim==='redroom'&&cur&&cur.id==='redroom'&&cur.p)p.tg0=cur.p.tArr!=null?cur.p.tArr:(now-cur.t0)/1000;   /* le sol reprend là où la course s'est arrêtée */
@@ -2362,12 +2362,12 @@ function combatFight(now,neuf){
     fightT0=now;combatT0=now;combatNum=S.num;pct0=S.pv?S.pv.pct:-1;interAt=now+9000;objTour=0;if(objAt<now+8000)objAt=now+8000;
     var forcee=window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__;   /* outil de réglage (console, jamais enregistré) : window.__SOREAL_IDLE_BORNE_ANIM_FORCEE__='redroom' | 'sweep' | 'mascot' impose l'animation des prochains combats ; supprimer la variable pour revenir au tirage */
     animChoisie=(ANIMS_ACTIVES_V1[forcee]&&ANIMS_TIRAGE_V1.indexOf(forcee)>=0)?forcee:ANIMS_TIRAGE_V1[Math.min(ANIMS_TIRAGE_V1.length-1,Math.floor(Math.random()*ANIMS_TIRAGE_V1.length))]||'';combatAnim='';animDecision=0;
-    if(S.num===animBossJoue&&!serreV1(prevoirCombatBossV1(reg().idleEtat))){animDecision=-1;combatAnim='';demarrer(mk('fight',now));return;}   /* même boss qu'une animation déjà jouée (défaite puis nouveau Fight) : jamais rejouée, FIGHT ! seulement */
+    if(animChoisie!=='yeuxcb'&&S.num===animBossJoue&&!serreV1(prevoirCombatBossV1(reg().idleEtat))){animDecision=-1;combatAnim='';demarrer(mk('fight',now));return;}   /* même boss qu'une animation déjà jouée (défaite puis nouveau Fight) : jamais rejouée, FIGHT ! seulement */
     /* Norman (2026-11-03) : « quand on clique sur Fight, l'animation doit être jouée tout de suite ; pas de nom de boss qui défile ; on aura le FIGHT ! si le combat sera trop court pour une scène » : la durée PRÉVUE décide ici, au clic */
     var pr=prevoirCombatBossV1(reg().idleEtat);
     if(pr.issue!=='inconnue'){
       if(!S.pv){demarrer(mk('fight',now));return;}                    /* la vie du boss n'est pas encore lue : FIGHT !, majAnimation décidera dès qu'elle arrive */
-      if(pr.secondes>=ANIM_DUREE_MIN_S||serreV1(pr)){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue=pr.issue;animDur=pr.secondes;demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));}   /* longue OU serrée (même courte) */
+      if(animChoisie==='yeuxcb'||pr.secondes>=ANIM_DUREE_MIN_S||serreV1(pr)){animDecision=1;combatAnim=animChoisie;animBossJoue=S.num;animIssue=pr.issue;animDur=pr.secondes;demarrer(mk(combatAnim,now,{long:true,issue:animIssue,dur:animDur}));}   /* longue OU serrée (même courte) ; les yeux : toujours */
       else{animDecision=-1;demarrer(mk('fight',now));}
       return;
     }
@@ -2690,9 +2690,9 @@ window.addEventListener('focus',function(){relancer();});
 /* Contrôle visuel d'une scène sur un canvas de test (grille W x H, instant t, vie du boss pct) : outil de vérification, jamais utilisé par le jeu */
 function dessinerSceneEssai(cv,id,t,pct,W,H,params){
   if(!cv||!cv.getContext||!SC[id])return false;
-  var avant=S.pv,p=new Panel(cv,W||136,H||26,true);
+  var avant=S.pv,avB=S.bar,p=new Panel(cv,W||136,H||26,true);if(params&&params.pj!=null)S.bar={v:params.pj,g:params.pj,gv:0};
   S.pv={pct:pct==null?1:pct,cur:'0',max:'0',regen:''};
-  try{p.reduced=false;p.resize((cv.clientWidth||(W||136)*4));p.draw(SC[id].fn,t,1,params||{});}finally{S.pv=avant;}
+  try{p.reduced=false;p.resize((cv.clientWidth||(W||136)*4));p.draw(SC[id].fn,t,1,params||{});}finally{S.pv=avant;S.bar=avB;}
   return true;
 }
 window.__SOREAL_IDLE_BORNE_LED_V1__={galop:galopEffet,dessinerSceneEssai:dessinerSceneEssai,jouerNuke:function(){lancerNuke(window.performance&&performance.now?performance.now():0);},ensure:ensure,redessinerTout:function(){if(panel)panel.neuf=true;minis.forEach(function(m){m.panel.neuf=true;});},etat:function(){return {scene:cur&&cur.id,grille:panel?[panel.W,panel.H]:null,actif:actif(),nom:S.nom,num:S.num};}};

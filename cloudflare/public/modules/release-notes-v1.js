@@ -36,7 +36,7 @@
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'L’écran LED de la borne demande moins de calcul à chaque image : même aspect, moins de petits à-coups en combat, surtout sur téléphone.',
-            'Pendant un combat, la borne ne joue plus que l’animation du bonhomme qui court : le clown, la tronçonneuse et Twin Peaks sont retirés pour l’instant (ils reviendront plus tard), ainsi que les hommes qui rient quand on abandonne un défi.',
+            'Pendant un combat, la borne n’a plus d’animation de personnage (le bonhomme qui court, le clown, la tronçonneuse, Twin Peaks et les hommes qui rient sont retirés pour l’instant, ils reviendront plus tard) : à la place, elle a des yeux ! Ils apparaissent dès le lancement du combat et regardent la barre de vie du boss. Leur humeur suit le combat : concentrés, déterminés quand le boss faiblit, ravis quand il va tomber, inquiets puis apeurés quand ta vie baisse, avec une grimace à chaque coup reçu. Victoire : yeux heureux et étincelles. Défaite : deux croix.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Le boss occupe maintenant toute la hauteur de l’écran du haut de la Machine temporelle (environ un tiers plus grand), et la bande de son nom est plus transparente.',
