@@ -119,7 +119,7 @@ export const IDLE_TUTORIEL_LHU_V1 = Object.freeze({
     { humeur: "normal", titre: "Lhu", placement: "auto", surbrillance: false, clignote: true, avanceAuClic: true,
       cible: { selecteur: "button[onclick*=\"'entrainement'\"]", libelle: "Le menu Entraînement de base" },
       texte: "Clique sur le menu « Entraînement de base » qui clignote." },
-    { humeur: "normal", titre: "Lhu", menu: "entrainement", placement: "auto", attendreVoix: false, texte: "La barre verte en haut représente ton énergie." },
+    { humeur: "normal", titre: "Lhu", menu: "entrainement", placement: "auto", attendreVoix: false, clignoteAussi: "#sorealIdleHudV2>div:nth-child(2)", texte: "La barre verte en haut représente ton énergie." },
     { humeur: "normal", titre: "Lhu", menu: "entrainement", placement: "auto", attendreVoix: false, texte: "Vu l'état dans lequel tu es arrivé," },
     { humeur: "normal", titre: "Lhu", menu: "entrainement", placement: "auto", attendreVoix: false, texte: "tu récupères tout doucement ton énergie" },
     { humeur: "normal", titre: "Lhu", menu: "entrainement", placement: "auto", attendreVoix: false, texte: "jusqu'à son maximum, qui est de 500." },

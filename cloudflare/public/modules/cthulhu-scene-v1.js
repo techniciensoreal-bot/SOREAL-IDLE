@@ -198,10 +198,12 @@
     else if(el){var r0=el.getBoundingClientRect(),v=V();if(r0.top<60||r0.bottom>v.H-60){try{el.scrollIntoView({block:'center',inline:'nearest',behavior:'instant'});}catch(_e){}}}
     var p=placePetit(cibleAtterrissage(selecteur));
     if(!etat.racine){creer('vole');var q=placePetit(null);poser(q.x,q.y,q.k);}
-    visage(posable(selecteur)?'normal':'vole');
+    /* Il VOLE pendant le trajet (ailes qui battent, Norman 2026-11-07 : « il retourne sur la borne sans voler ») ; il ne se pose (visage normal) qu'une fois arrivé sur Nuke. */
+    visage('vole');
     return aller(p.x,p.y,p.k,1800,'cubic-bezier(.45,0,.3,1)',true).then(function(){
       if(jeton!==etat.jeton)return;
       etat.mode='pose';suivre(selecteur);
+      visage(posable(selecteur)?'normal':'vole');
     });
   }
 

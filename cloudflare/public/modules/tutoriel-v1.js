@@ -124,11 +124,15 @@ function installerStyle_(){
 
 /* Éléments qui clignotent (Norman, 2026-11-07 : « le menu doit clignoter », « la barre de vie et le bouton + clignotent ») : un anneau lumineux POSÉ sur chaque élément, jamais une classe sur l'élément (le redessin de la page la retirerait, règle n°4). Les anneaux vivent dans <body>, hors du morph. */
 var anneaux=[];
+/* le panneau d'énergie (barre verte) du bandeau fixe : le deuxième bloc du bandeau, après les statistiques */
+var SEL_BARRE_VERTE='#sorealIdleHudV2>div:nth-child(2)';
 function retirerAnneaux_(){anneaux.forEach(function(a){if(a.parentNode)a.parentNode.removeChild(a);});anneaux=[];}
 function anneaux_(etape){
   var els=[];
   if(etape&&etape.clignote&&etape.cible&&etape.cible.selecteur){var c=cibler_(etape.cible.selecteur);if(c&&visible_(c))els.push(c);}
   if(etape&&etape.clignoteAussi){try{Array.prototype.forEach.call(document.querySelectorAll(etape.clignoteAussi),function(x){if(visible_(x))els.push(x);});}catch(_e){}}
+  /* Quand Lhu PARLE de la barre verte, elle est entourée (Norman, 2026-11-07 : « la barre verte n'est pas entourée quand il en parle ») : le guide enregistré n'a rien à porter pour ça (une étape dont « clignoteAussi » est déjà rempli garde ce qu'on lui a demandé). */
+  if(etape&&!etape.clignoteAussi&&/barre verte/i.test(String(etape.texte||''))){var ev=document.querySelector(SEL_BARRE_VERTE);if(ev&&visible_(ev)&&els.indexOf(ev)<0)els.push(ev);}
   while(anneaux.length>els.length){var d=anneaux.pop();if(d.parentNode)d.parentNode.removeChild(d);}
   while(anneaux.length<els.length){var n=document.createElement('div');n.className='tu-anneau';n.setAttribute('data-morph-garder','1');n.setAttribute('aria-hidden','true');document.body.appendChild(n);anneaux.push(n);}
   els.forEach(function(x,i){
@@ -335,11 +339,21 @@ function voileNoir_(){
 /* le voile suit la carte du boss (page qui défile, redimensionnée ou redessinée) ; absente (autre menu) : voile masqué */
 function suivreVoile_(){
   var v=document.getElementById('sorealLhuNoirV1');if(!v)return;
-  var c=document.querySelector('.soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-current-v35');
+  /* Norman (2026-11-07) : « ce n'est pas toute la borne qui doit être noire, juste la case de l'image du boss » */
+  var c=document.querySelector('.soreal-idle-page-root-v28[data-menu="combat"] #sorealIdleBossImageHostV36');
   if(!c){v.style.display='none';return;}
   var r=c.getBoundingClientRect();
   v.style.display='';v.style.left=r.left+'px';v.style.top=r.top+'px';v.style.width=r.width+'px';v.style.height=r.height+'px';
 }
+function coupeChronique_(){
+  try{
+    var p=document.getElementById('sorealIdleBossChroniqueV206'),tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
+    var id=p&&p.getAttribute('data-soreal-chronique-boss-id');
+    if(id&&tts&&typeof tts.marquerChroniqueLue==='function')tts.marquerChroniqueLue(id);
+    if(tts&&typeof tts.lectureCible==='function'&&tts.lectureCible('sorealIdleBossChroniqueV206')&&typeof tts.stop==='function')tts.stop();
+  }catch(_e){}
+}
+function idChronique_(){var p=document.getElementById('sorealIdleBossChroniqueV206');return p?String(p.getAttribute('data-soreal-chronique-boss-id')||''):'';}
 function bossNoir_(on){
   document.documentElement.classList.toggle(CLASSE_NOIR,Boolean(on));
   if(noirGarde){clearInterval(noirGarde);noirGarde=0;}
@@ -349,7 +363,10 @@ function bossNoir_(on){
     return;
   }
   v=voileNoir_();v.classList.remove('fondu');suivreVoile_();
+  /* le nom du nouveau boss ne doit JAMAIS être prononcé tout de suite (Norman, 2026-11-07 : « il a prononcé le nom du suivant quand même ») : une lecture de chronique déjà partie est coupée */
+  coupeChronique_();
   noirGarde=setInterval(function(){
+    coupeChronique_();
     suivreVoile_();
     try{
       var p=document.getElementById('sorealIdleBossChroniqueV206'),tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
@@ -636,10 +653,12 @@ document.addEventListener('click',function(ev){
   };
   if(!e.attendreVictoire){setTimeout(suite,DELAI_APRES_CLIC_MS);return;}
   /* « Attendre la victoire » : la bulle se range, la suite ne vient qu'une fois le boss vaincu (record de boss en hausse), 5 minutes au plus. */
-  var avant=recordBoss_(),debut=Date.now();
+  var avant=recordBoss_(),debut=Date.now(),idAvant=idChronique_();
   var bb=document.getElementById(ID),cc=document.getElementById(ID_CADRE);if(bb)bb.hidden=true;if(cc)cc.hidden=true;retirerAnneaux_();
   (function sonde(){
     var c=etat.enCours;if(!c||c!==s||c.i!==indice)return;
+    /* le boss suivant s'affiche (sa chronique porte un autre numéro) AVANT que le record soit relu : le voile tombe tout de suite */
+    if(!document.documentElement.classList.contains(CLASSE_NOIR)&&idAvant&&idChronique_()&&idChronique_()!==idAvant)bossNoir_(true);
     if(recordBoss_()>avant||Date.now()-debut>300000){if(recordBoss_()>avant)bossNoir_(true);setTimeout(suite,DELAI_APRES_CLIC_MS);return;}
     setTimeout(sonde,120);
   })();

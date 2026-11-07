@@ -40,6 +40,9 @@
             'Réglages : une case permet de couper les aides du tutoriel.',
             'Le tutoriel du début est entièrement refait : des bulles courtes, une idée par bulle, qui passent toutes seules.',
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
+            'Quand Lhu parle de la barre verte, elle est entourée.',
+            'Lhu vole (ailes qui battent) quand il retourne se poser sur la borne, au lieu de glisser debout.',
+            'Après le premier boss, seule la case de l’image du boss reste noire (plus toute la borne), et le nom du boss suivant n’est plus prononcé avant le départ de Lhu.',
             'Le texte de l’introduction ne se relit plus depuis le début à chaque nouvelle image, et ce sont bien tes nouvelles voix qui sont lues (l’ancienne voix de la page pouvait démarrer avant l’arrivée des voix par image).',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[

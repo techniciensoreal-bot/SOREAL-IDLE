@@ -8,7 +8,7 @@ import fs from "node:fs";
 const t = fs.readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8");
 // le voile tombe dès la victoire (détection rapide), sur la carte du boss, au-dessus de la page et sous Lhu
 assert.ok(t.includes("if(recordBoss_()>avant)bossNoir_(true);") && t.includes("setTimeout(sonde,120)"), "voile dès la victoire détectée (sonde toutes les 120 ms)");
-assert.ok(t.includes("#sorealLhuNoirV1{position:fixed;z-index:90000;background:#000") && t.includes(".soreal-idle-boss-current-v35"), "voile noir posé sur la carte du boss (z-index sous les bulles de Lhu, 100000)");
+assert.ok(t.includes("#sorealLhuNoirV1{position:fixed;z-index:90000;background:#000") && t.includes("#sorealIdleBossImageHostV36"), "voile noir posé sur la case de l image du boss (z-index sous les bulles de Lhu, 100000)");
 assert.ok(/html\.'\+CLASSE_NOIR\+' #sorealIdleBossChroniqueV206\{visibility:hidden\}/.test(t), "la chronique du nouveau boss est masquée derrière le voile");
 // aucune lecture automatique derrière le voile : la chronique est marquée lue, puis relue à la main au dévoilement
 assert.ok(t.includes("tts.marquerChroniqueLue(id)") && t.includes("tts.readTarget(id)") && t.includes("tts.lectureCible(id)"), "chronique : marquée lue sous le voile, lue en entier au dévoilement (sans relancer une lecture en cours)");
