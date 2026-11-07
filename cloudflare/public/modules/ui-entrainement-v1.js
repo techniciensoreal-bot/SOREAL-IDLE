@@ -1684,7 +1684,7 @@
             un second mécanisme. L'info vitesse/multiplicateurs, utile
             spécifiquement à cet écran, reste affichée seule.
           -->
-          <div class="soreal-idle-bt-toolbar-v120">
+          <div class="soreal-idle-bt-toolbar-v120" title="vitesse max ${idleEntier_(bt.maxLevelsPerSecond||50)} niv/s · Energy Power n’accélère pas Basic Training">
             <div class="soreal-idle-bt-info-v1">
               vitesse max ${idleEntier_(bt.maxLevelsPerSecond||50)} niv/s
               · Energy Power n’accélère pas Basic Training
@@ -1725,7 +1725,7 @@
               <span>Idle</span>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.5)">1/2</button>
               <button type="button" onclick="window.__presetBasicTrainingIdleV120__('idle',.25)">1/4</button>
-              <button type="button" class="clear" onclick="window.__viderBasicTrainingIdleV120__()">Tout retirer</button>
+              <button type="button" class="clear" onclick="window.__viderBasicTrainingIdleV120__()">Tout reprendre</button>
             </div>
             ${window.__SOREAL_IDLE_ALLOC_V1__&&window.__SOREAL_IDLE_ALLOC_V1__.compteur?window.__SOREAL_IDLE_ALLOC_V1__.compteur('energy','basicTraining'):''}
             </div>

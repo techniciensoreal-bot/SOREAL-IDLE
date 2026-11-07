@@ -12,9 +12,10 @@ assert.ok(m.enSeules.includes("1c62e086a2e1f6"), "« Rob Boss » (chronique 105,
 assert.ok(m.enSeules.every((h) => /^[0-9a-f]{14}$/.test(h)), "chaque empreinte enSeules est valide");
 const src = fs.readFileSync("cloudflare/public/modules/tutorial-tts-v202.js", "utf8");
 assert.ok(/enSeules_\[String\(h\)\]=true/.test(src) && /if\(!langueAnglaise_\(\)&&enSeules_\[hash\]\)return null;/.test(src), "le client ignore une voix anglaise seule hors anglais");
-/* les voix déclarées par une histoire / un texte enregistré (voixDynamiques) ne passent pas par ce filtre : l'éditeur Admin reste maître de ses voix */
+/* 2026-11-07 (« le titre Rob Boss est toujours lu avec la voix anglaise ») : le nom d'un boss est aussi déclaré dans la liste « voix » de sa chronique ; le filtre vaut donc AUSSI pour les voix déclarées (voixDynamiques) : en français, une voix anglaise seule n'est jamais lue */
 const i = src.indexOf("var source=voixDynamiques[hash]"), j = src.indexOf("if(!langueAnglaise_()&&enSeules_[hash])return null;");
-assert.ok(i > 0 && j > i, "filtre placé dans la branche du manifeste, pas dans celle des voix déclarées");
+const k = src.indexOf(":chargerManifesteVoix_().then(function(set){", i), j2 = src.indexOf("if(!langueAnglaise_()&&enSeules_[hash])return null;", j + 10);
+assert.ok(i > 0 && j > i && j < k && j2 > k, "filtre dans la branche des voix déclarées ET dans celle du manifeste");
 const pub = fs.readFileSync("cloudflare/tools/voice-publish.mjs", "utf8");
 assert.ok(/enSeules: enSeules_\(/.test(pub) && /for \(const h of nouvelles\) if \(!connues\.has\(h\)\) liste\.add\(h\)/.test(pub), "l'outil d'envoi conserve et complète enSeules");
 console.log("idle-voix-en-seules-pas-en-francais-v1: OK");

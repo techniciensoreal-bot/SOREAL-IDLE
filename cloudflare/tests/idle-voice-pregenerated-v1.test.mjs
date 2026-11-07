@@ -101,7 +101,8 @@ assert.match(readFileSync("cloudflare/tools/voice-generate.mjs", "utf8"), /windo
   assert.match(tts, /enregistrerVoixDynamiques:enregistrerVoixDynamiques_,/);
   assert.match(tts, /VOICE_ROUTE='api\/idle\/media\/voice\?h='/, "voix R2 par empreinte");
   assert.ok(tts.includes("return chargerVoixR2_(hash);") && !tts.includes("set[hash]?chargerVoixR2_(hash):null"), "un bloc absent du manifeste est aussi demandé à R2 (voix générées depuis : Norman 2026-10-22) ; 404 = repli sur Piper");
-  assert.match(tts, /voixDynamiques\[hash\]\s*\?chargerVoixR2_/, "les empreintes déclarées par une histoire interrogent R2 directement");
+  /* 2026-11-07 : elles interrogent R2 directement (sans passer par la liste du manifeste), sauf une voix anglaise seule en français (filtre enSeules) */
+  assert.match(tts, /voixDynamiques\[hash\]\s*\?chargerManifesteVoix_\(\)\.then\(function\(\)\{\s*if\(!langueAnglaise_\(\)&&enSeules_\[hash\]\)return null;\s*return chargerVoixR2_\(hash\)/, "les empreintes déclarées par une histoire interrogent R2 directement (hors voix anglaise seule en français)");
 }
 
 // --- « Lire toute l'histoire » : même composition que la chronique affichée ---

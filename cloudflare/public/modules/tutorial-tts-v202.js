@@ -314,8 +314,12 @@
     /* Règle stricte : bloc d'un texte enregistré qui n'est pas dans sa liste déclarée = aucun fichier (voir blocsInterdits_). */
     if(interdits&&interdits[hash]&&!voixDynamiques[hash])return Promise.resolve(null);
     if(blocsFichiers[hash])return blocsFichiers[hash];
+    /* Norman (2026-11-07) : « le titre Rob Boss est toujours lu avec la voix anglaise ». Le nom d'un boss est AUSSI déclaré dans la liste « voix » de sa chronique : ce bloc passait par la branche des voix déclarées, qui ne connaissait pas le filtre « voix anglaise seule ». Le filtre vaut maintenant pour les deux branches : en français, une empreinte de enSeules n'est jamais lue. */
     var source=voixDynamiques[hash]
-      ?chargerVoixR2_(hash).catch(function(){return null;})
+      ?chargerManifesteVoix_().then(function(){
+        if(!langueAnglaise_()&&enSeules_[hash])return null;
+        return chargerVoixR2_(hash).catch(function(){return null;});
+      })
       :chargerManifesteVoix_().then(function(set){
         if(!langueAnglaise_()&&enSeules_[hash])return null;
         /* Norman (2026-10-22) : « mes fenêtres ne lisent pas les sons que j'ai générés ». Le manifeste du dépôt n'est qu'un raccourci : une voix générée depuis (studio, éditeur de voix) est sur R2 sans y figurer. Un bloc absent du manifeste est donc AUSSI demandé à R2 (404 = pas de voix, repli sur Piper ; le résultat est gardé par empreinte, une seule requête par bloc). */

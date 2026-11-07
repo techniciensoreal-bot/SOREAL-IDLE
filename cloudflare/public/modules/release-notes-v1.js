@@ -32,6 +32,8 @@
         date:'2026-11-07',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le titre « Rob Boss » d’une chronique n’est plus lu avec la voix anglaise quand le jeu est en français (le filtre vaut aussi pour les voix déclarées par la chronique).',
+            'Les boutons « Tout retirer » s’appellent maintenant « Tout reprendre ».',
             'Les petits textes gris et fins sous les barres et dans les cadres de plusieurs menus sont plus lisibles : plus clairs et plus gras.',
             'La voix de secours est supprimée du jeu : seuls les textes qui ont une voix générée sont lus (les autres restent muets), et le jeu est plus fluide.',
             'Réglages : une case permet de couper les aides du tutoriel.',
@@ -39,7 +41,7 @@
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
-            'La barre d’outils du haut de l’Entraînement de base est refaite : Input et tes nombres en haut, une ligne « Plafond d’énergie » et une ligne « Idle » avec des libellés et des boutons bien lisibles, la carte « Énergie placée » à droite, et des crayons discrets pour tes boutons personnalisés.',
+            'La barre d’outils du haut de l’Entraînement de base tient sur une seule ligne et reste lisible : Input, Plafond d’énergie, Idle et la carte « Énergie placée » à droite, avec des libellés et des boutons plus grands, et des crayons discrets pour tes boutons personnalisés. Sur téléphone : Input et « Énergie placée » côte à côte, puis une ligne par rangée, avec des boutons larges.',
             'Le son du néon qui s’allume est celui de toutes les barres, et il devient plus impressionnant à chaque barre suivante : plus d’amorces, un accord de plus en plus riche, une basse profonde, une montée en puissance et, pour la dernière barre, un carillon.',
             'Sous chaque barre, les textes (vitesse, Cap, prochain, temps par niveau) sont en blanc franc et en gras, bien plus faciles à lire, et le mot « Cap » reste « Cap ».',
             'L’Entraînement de base est refait : chaque barre a son emblème et son habillage, de plus en plus travaillés et de plus en plus grands à chaque barre débloquée (cadre, lueur, motif dans la barre) ; les boutons de la défense sont bleus.',

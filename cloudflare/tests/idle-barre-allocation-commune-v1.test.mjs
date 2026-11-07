@@ -24,7 +24,7 @@ assert.ok(mod.includes("⚡ Plafond d’énergie") && mod.includes("🔮 Plafond
 const m = new Function("window", "document", mod + "\nreturn window.__SOREAL_IDLE_ALLOC_V1__;")({}, {});
 const c = m.cadres("energy", "timeMachine");
 assert.match(c, /Plafond d’énergie<\/span><button[^>]*>Max<\/button><button[^>]*>1\/2<\/button><button[^>]*>1\/4<\/button>/, "premier cadre : Plafond MAX 1/2 1/4");
-assert.match(c, /💤 Idle<\/span><button[^>]*>1\/2<\/button><button[^>]*>1\/4<\/button><button[^>]*class="clear"[^>]*>Tout retirer<\/button>/, "deuxième cadre : IDLE 1/2 1/4 Tout retirer");
+assert.match(c, /💤 Idle<\/span><button[^>]*>1\/2<\/button><button[^>]*>1\/4<\/button><button[^>]*class="clear"[^>]*>Tout reprendre<\/button>/, "deuxième cadre : IDLE 1/2 1/4 Tout retirer");
 // 2. Les menus qui avaient déjà leurs cadres utilisent les mêmes intitulés.
 assert.ok(ui.includes("<span>⚡ Plafond d’énergie</span>"), "Basic Training");
 assert.equal(meta.split("<span>⚡ Plafond d’énergie</span>").length - 1, 2, "Augmentations et Advanced Training");

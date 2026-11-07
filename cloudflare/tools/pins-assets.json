@@ -80,12 +80,12 @@
   "sha": "e84b1dd9e7ba1c44b6d357c5d4ddbdda3d0f4282"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 52,
-  "sha": "8869e8ee1d1f76899d7db4f3276b85516d28d50a"
+  "pin": 53,
+  "sha": "99cb2c18ef669520f9ff90ed75b613994567da98"
  },
  "/modules/barre-allocation-v1.js": {
-  "pin": 12,
-  "sha": "b48f80131c4dd4e4c152705f2d44564d685f3996"
+  "pin": 13,
+  "sha": "09a11f31b99be71064ccc12f373552b732c95d02"
  },
  "/modules/barres-actives-v1.js": {
   "pin": 9,
@@ -96,8 +96,8 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 31,
-  "sha": "31a016548ac1ceeab9ae73e61d826243f0bb3b29"
+  "pin": 32,
+  "sha": "475e59a2b78df8979a67c334d7d05c97e36362d4"
  },
  "/modules/borne-bandes-sync-v1.js": {
   "pin": 1,
@@ -532,8 +532,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 104,
-  "sha": "c7775da303a63c05a3bcbab2e86679c9947e4320"
+  "pin": 105,
+  "sha": "9b91b41cfe9891b976b8d9b6da806c7edd0027cf"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 6,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 208,
-  "sha": "8d421cb0d92174f895a47f85b63d23d66785741b"
+  "pin": 210,
+  "sha": "29cff1d70dc260d310eb2d2cd675a307446410c4"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 846,
-  "sha": "08b2c934174caefbba9a1cff05b51f999f400c8a"
+  "pin": 848,
+  "sha": "6690eff8e1d4fa0cdc87d66baec6ca7f911aa39b"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -724,12 +724,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 884,
-  "sha": "eaaf548acbf855889268a3bda3501a73b0224033"
+  "pin": 887,
+  "sha": "6b0134dc99754fe58af5b83a6c10fdf2d929bc94"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 705,
-  "sha": "7b60ab911b9eb6e0b43058c2fad9452497d1d211"
+  "pin": 708,
+  "sha": "965f18e40ee43fcc32fba7493392c59adba91a7a"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -752,8 +752,8 @@
   "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
  },
  "/modules/tutorial-tts-v202.js": {
-  "pin": 275,
-  "sha": "6a567dc8674a58680d59bdc70f4e268b303e535c"
+  "pin": 276,
+  "sha": "f8b3d289afb3b67ce0259c2d2fd75de66f62397c"
  },
  "/modules/tutoriel-v1.js": {
   "pin": 38,
@@ -804,8 +804,8 @@
   "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 15,
-  "sha": "2e648b45034c45fd181ac0726aec6c3c24b905aa"
+  "pin": 18,
+  "sha": "9cdfc3e6d1e70696b611ed0b0fbfd24f848b04c8"
  },
  "/modules/ui-inventaire-v1.js": {
   "pin": 16,
@@ -972,8 +972,8 @@
   "sha": "5b9cd07112d52f66ca2b23a8ca2cb2dc630022ab"
  },
  "/soreal-idle-entrainement-puissance-v1.css": {
-  "pin": 19,
-  "sha": "9f093b6f79a9b0d8128d0dd4b5c3e8b7c187a535"
+  "pin": 23,
+  "sha": "9d048156fb59791eff3b410985504a578deefa14"
  },
  "/soreal-idle-itopod.css": {
   "pin": 350,

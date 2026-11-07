@@ -146,7 +146,7 @@
       '<div class="soreal-idle-bt-presets-v120" data-alloc-cadre-v1="idle-'+res+'"><span>💤 Idle</span>'+
         '<button type="button" onclick="'+A+'.preset('+r+',\'idle\',.5)">1/2</button>'+
         '<button type="button" onclick="'+A+'.preset('+r+',\'idle\',.25)">1/4</button>'+
-        '<button type="button" class="clear" onclick="'+A+'.vider('+r+','+s+')">Tout retirer</button></div>'+
+        '<button type="button" class="clear" onclick="'+A+'.vider('+r+','+s+')">Tout reprendre</button></div>'+
       compteur(res,systeme)+'</div>';
   }
 
