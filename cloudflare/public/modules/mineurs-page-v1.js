@@ -186,7 +186,9 @@
       '.mn-btn{appearance:none;-webkit-appearance:none;border:3px solid #000;border-radius:6px;font:400 15px Bangers,cursive;letter-spacing:.05em;padding:4px 10px;min-height:36px;color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);box-shadow:inset 0 2px 0 rgba(255,255,255,.55),2px 2px 0 #000;cursor:pointer;touch-action:manipulation}',
       '.mn-btn.vert{color:#f4edc9;background:linear-gradient(180deg,#4ea866,#256b3c)}',
       '.mn-btn.carre{min-width:36px;padding:4px 0}',
-      '.mn-btn:disabled,.mn-btn.mn-manque{cursor:default;color:#8d8d8d;background:linear-gradient(180deg,#555,#333)}',
+      /* Bouton grisé LISIBLE (Norman, 2026-11-08 : « les boutons de Mineurs ne sont pas lisibles quand ils sont grisés ») : fond sombre neutre mais texte clair (contraste d'au moins 7 : 1) et bord net ; seul l'aspect plat et sans relief dit « indisponible », jamais un texte gris sur gris */
+      '.mn-btn:disabled,.mn-btn.mn-manque{cursor:default;color:#f1ead2;background:linear-gradient(180deg,#4a4650,#2c2a31);text-shadow:0 1px 0 #000;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),2px 2px 0 #000}',
+      '.mn-btn:disabled small,.mn-btn.mn-manque small{opacity:1;color:#ffd978}',
       '.mn-btn small{font:400 11px "Russo One",sans-serif;opacity:.85;margin-left:4px}',
       '.mn-nivactif{min-width:56px;text-align:center;font-size:14px}',
       /* le geste : une période, 1,8 s, début = fin */
@@ -289,17 +291,18 @@
       '<div class="mn-effet">'+effet+'</div></div><div class="mn-basb">';
     if(max>0){
       h+='<div class="mn-ligne">'+
-        '<button type="button" class="mn-btn carre" '+(run<=0?'disabled ':'')+'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.max(0,run-1)+')" aria-label="Baisser le niveau actif">−</button>'+
+        /* Boutons indisponibles : aria-disabled + classe mn-manque + AUCUN onclick, jamais l'attribut « disabled » (la règle globale « body… button:disabled{color:#758198!important} » rendait leur texte gris sur gris : Norman, 2026-11-08) */
+        '<button type="button" class="mn-btn carre'+(run<=0?' mn-manque':'')+'" '+(run<=0?'aria-disabled="true" ':'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.max(0,run-1)+')" ')+'aria-label="Baisser le niveau actif">−</button>'+
         '<span class="mn-nivactif">'+run+'</span>'+
-        '<button type="button" class="mn-btn carre" '+(run>=max?'disabled ':'')+'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.min(max,run+1)+')" aria-label="Monter le niveau actif">+</button>'+
-        '<button type="button" class="mn-btn" '+(run>=max?'disabled ':'')+'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+max+',true)">Au maximum</button></div>';
+        '<button type="button" class="mn-btn carre'+(run>=max?' mn-manque':'')+'" '+(run>=max?'aria-disabled="true" ':'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.min(max,run+1)+')" ')+'aria-label="Monter le niveau actif">+</button>'+
+        '<button type="button" class="mn-btn'+(run>=max?' mn-manque':'')+'" '+(run>=max?'aria-disabled="true"':'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+max+',true)"')+'>Au maximum</button></div>';
     }
     h+='<div class="mn-ligne">'+
       (max>0
         ?'<button type="button" class="mn-btn'+(on?'':' vert')+'" onclick="window.__toggleDiggerIdleV47__(\''+idH+'\','+(!on)+')">'+(on?'Mettre au repos':'Mettre au travail')+'</button>'
         :'')+
       /* Or manquant : grisé mais CLIQUABLE (le moteur répond). `or` vient de la dernière synchro (jusqu'à ~4 s) et l'Or arrive en continu : un bouton `disabled` resterait bloqué à tort jusqu'au redessin suivant. Seul « au maximum » (plus de prochain coût) est réellement désactivé. */
-      '<button type="button" class="mn-btn'+(max>0?'':' vert')+(v.nextCost!=null&&!abordable?' mn-manque':'')+'" '+(v.nextCost==null?'disabled ':'')+'onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+idH+'\'})">'+(max>0?'Creuser plus profond':'Engager')+'<small>'+H().idleHtml_(coutTexte)+'</small></button></div>'+
+      '<button type="button" class="mn-btn'+(max>0?'':' vert')+(v.nextCost==null||!abordable?' mn-manque':'')+'" '+(v.nextCost==null?'aria-disabled="true" ':'onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+idH+'\'})"')+'>'+(max>0?'Creuser plus profond':'Engager')+'<small>'+H().idleHtml_(coutTexte)+'</small></button></div>'+
       '</div></div>';
     return h;
   }
