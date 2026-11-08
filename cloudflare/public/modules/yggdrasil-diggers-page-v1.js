@@ -87,9 +87,9 @@
           }).join('')+'</div>';
       }
 
-      /* Page Mineurs d'or : refaite en entier (Norman, 2026-10-27), voir modules/mineurs-page-v1.js. */
+      /* Page Mineurs d'or : refaite en entier (Norman, 2026-10-27), voir modules/labos-page-v1.js (les mineurs sont devenus des labos, 2026-11-08). */
       function pageDiggersIdleV47_(j){
-        return window.__SOREAL_IDLE_MINEURS_PAGE_V1__.page(j);
+        return window.__SOREAL_IDLE_LABOS_PAGE_V1__.page(j);
       }
 
   window.__SOREAL_IDLE_YGG_DIGGERS_PAGE_V1__={

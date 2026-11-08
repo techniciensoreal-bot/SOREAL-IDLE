@@ -432,13 +432,13 @@
       case 'diggers':{
         if(!k.menus.diggers)return null;
         const n=Math.max(1,Math.floor(Number(d.actifs)||1)),v=Math.abs(Number(it.id)||0);
-        const l=it.moi?['Tu mets un Mineur d’or de plus au travail ('+n+' en tout)','Tes Mineurs d’or sont '+n+' à creuser']:[nom+' met un Mineur d’or de plus au travail ('+n+' en tout)','Ça creuse chez '+nom+' : '+n+' Mineurs d’or en action',nom+' embauche un Mineur d’or de plus, ils sont '+n];
-        return {icone:'⛏️',texte:l[v%l.length]};
+        const l=it.moi?['Tu mets un labo de plus au travail ('+n+' en tout)','Tes savants fous sont '+n+' à brasser']:[nom+' met un labo de plus au travail ('+n+' en tout)','Ça bouillonne chez '+nom+' : '+n+' labos en action',nom+' ouvre un labo de plus, ils sont '+n];
+        return {icone:'🧪',texte:l[v%l.length]};
       }
       case 'diggersNiveau':{
         if(!k.menus.diggers)return null;
         const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
-        const l=it.moi?['Tes Mineurs d’or totalisent '+n+' niveaux','Tes Mineurs d’or creusent plus profond : '+n+' niveaux']:['Les Mineurs d’or de '+nom+' totalisent '+n+' niveaux',nom+' améliore ses Mineurs d’or : '+n+' niveaux en tout','Ça creuse de plus en plus profond chez '+nom+' : '+n+' niveaux de Mineurs d’or'];
+        const l=it.moi?['Tes labos totalisent '+n+' niveaux','Tes potions sont plus fortes : '+n+' niveaux de labos']:['Les labos de '+nom+' totalisent '+n+' niveaux',nom+' améliore ses labos : '+n+' niveaux en tout','Les potions de '+nom+' sont de plus en plus fortes : '+n+' niveaux de labos'];
         return {icone:'⛏️',texte:l[v%l.length]};
       }
       case 'tour':{

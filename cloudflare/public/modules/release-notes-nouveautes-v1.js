@@ -4,6 +4,9 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Chaque mineur travaille dans sa propre caverne, différente et en rapport avec ce qu’il améliore."
+    "Ce menu devient celui des Labos : chaque labo est une pièce du donjon, différente et en rapport avec ce qu’il améliore, où un savant fou brasse une potion.",
+    "Au travail, le savant marche derrière l’établi et verse sa potion dans le flacon, les tubes et le bécher ; au repos, la pièce est dans la pénombre et il garde les bras baissés.",
+    "La page est refaite : nom du labo, potion, effet, niveau et boutons sont posés sur la scène ; l’or par seconde consommé et les emplacements gardent leur place en haut.",
+    "Dans « En direct » et dans la Machine temporelle, les phrases parlent maintenant de labos."
   ] };
 })();

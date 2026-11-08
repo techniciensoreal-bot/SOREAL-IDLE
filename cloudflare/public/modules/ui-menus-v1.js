@@ -532,12 +532,12 @@
           ]
         },
         diggers:{
-          intro:'Les Gold Diggers sont des mineurs à louer : tu leur sacrifies une partie de ton Or par seconde, et en échange ils te donnent des bonus dans plusieurs domaines du jeu.',
+          intro:'Les labos sont des laboratoires de savants fous : tu leur sacrifies une partie de ton Or par seconde, et en échange leurs potions te donnent des bonus dans plusieurs domaines du jeu.',
           bullets:[
-            'Paie de l’Or pour débloquer un Digger et pour le faire monter de niveau : un mineur ne creuse pas gratuitement.',
-            'Active un Digger pour recevoir son bonus. En échange, il retire en permanence une petite part de ton Or par seconde : c’est son salaire.',
-            'Tu ne peux activer qu’autant de Diggers que tu as d’emplacements : pas de place, pas de pioche.',
-            'Monter les Diggers de niveau augmente aussi le bonus de tous les Diggers, même ceux que tu n’actives pas : les mineurs au repos profitent quand même des progrès du syndicat.'
+            'Paie de l’Or pour ouvrir un labo et pour le faire monter de niveau : un savant ne brasse pas gratuitement.',
+            'Mets un labo au travail pour recevoir son bonus. En échange, il retire en permanence une petite part de ton Or par seconde : ce sont ses ingrédients.',
+            'Tu ne peux mettre au travail qu’autant de labos que tu as d’emplacements : pas de place, pas de paillasse.',
+            'Monter les labos de niveau augmente aussi le bonus de tous les labos, même ceux que tu ne mets pas au travail : les savants au repos profitent quand même des progrès de la confrérie.'
           ]
         },
         beards:{
@@ -999,7 +999,7 @@
         const enSomme=function(objet,cles){
           return Object.keys(objet||{}).some(function(k){const p=objet[k]||{};return cles.some(function(c){return idleNombre_(p[c])>0;});});
         };
-        /* Mineurs d'or (Norman, 2026-11-01 : « Mineurs d'or reste éteint ») : un mineur ACTIVÉ (et réglé sur un niveau) fait travailler le menu, même sans énergie ni magie placées. */
+        /* Labos (anciens Mineurs d'or ; Norman, 2026-11-01 : « Mineurs d'or reste éteint ») : un mineur ACTIVÉ (et réglé sur un niveau) fait travailler le menu, même sans énergie ni magie placées. */
         if(id==='diggers'){const m=donnees.diggers||{};return Object.keys(m).some(function(k){const d=m[k]||{};return d.active&&idleNombre_(d.runLevel)>0;});}
         /* Magie du sang (Norman, 2026-11-02 : « les icônes ne bougeaient pas alors que de la magie est placée dedans ») : la magie est placée PAR RITUEL (data.rituals[id].magic), jamais dans allocation.magic. */
         if(id==='sang')return enSomme(donnees.rituals,['magic']);

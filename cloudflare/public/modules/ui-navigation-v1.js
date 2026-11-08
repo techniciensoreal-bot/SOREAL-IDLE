@@ -258,7 +258,7 @@
         wandoos:{forme:'carte',verbe:'Booster'},
         ngu:{forme:'losange',verbe:'Améliorer'},
         yggdrasil:{forme:'pentagone',verbe:'Récolter'},
-        diggers:{forme:'hexagone',verbe:'Creuser'},
+        diggers:{forme:'hexagone',verbe:'Brasser'},
         beards:{forme:'bouclier',verbe:'Cultiver'},
         tower:{forme:'triangle',verbe:'Grimper'},
         perks:{forme:'etoile',verbe:'Acheter des bonus'},

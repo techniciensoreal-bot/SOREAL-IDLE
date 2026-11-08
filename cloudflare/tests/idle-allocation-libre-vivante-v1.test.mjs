@@ -51,9 +51,9 @@ const blocDisp = amorcage.slice(iDisp, iDisp + 900);
 assert.ok(/magie:r\?Math\.max\(0,idleNombre_\(r\.current\)\)/.test(blocDisp), "magie disponible = resources.magic.current (vivante), pas resourceBudget.available (instantané)");
 
 // (3) Mineurs : pas de `disabled` pour un manque d'Or lu dans la synchro.
-const mineurs = lire("modules/mineurs-page-v1.js");
+const mineurs = lire("modules/labos-page-v1.js");
 assert.ok(!/!abordable\?'disabled/.test(mineurs), "le bouton d'amélioration n'est pas désactivé par un Or périmé");
-assert.ok(/mn-manque/.test(mineurs) && mineurs.includes(".mn-btn.mn-manque"), "manque d'Or : grisé mais cliquable");
+assert.ok(/lp-manque/.test(mineurs) && mineurs.includes(".lp-btn.lp-manque"), "manque d'Or : grisé mais cliquable");
 
 // (4) Garde générale : aucune borne de placement par une vue périmée.
 for (const nom of readdirSync("cloudflare/public/modules").filter((n) => n.endsWith(".js"))) {

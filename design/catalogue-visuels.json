@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 464,
+  "keyframes": 441,
   "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 12,
   "pointsEntreeRejouables": 262,
@@ -140,7 +140,7 @@
   "modules/daycare-page-v1.js",
   "modules/defis-page-v1.js",
   "modules/itopod-perks-page-v1.js",
-  "modules/mineurs-page-v1.js",
+  "modules/labos-page-v1.js",
   "modules/money-pit-page-v1.js",
   "modules/ui-actions-rapides-v1.js",
   "modules/ui-admin-v1.js",
@@ -1405,213 +1405,6 @@
    ]
   },
   {
-   "nom": "dgAig",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgAnneau",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgB",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgBar",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgBarbe",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgBebe",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgButin",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgCouv",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgCrist",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgEcl",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgEcran",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgGoutte",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgJ",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgJ2",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgJ3",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgLueur",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgNiv",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgPeigne",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgPelle",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgSac",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgScint",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgT",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
-   "nom": "dgTas",
-   "definiePar": [
-    "modules/mineurs-page-v1.js"
-   ],
-   "utilisePar": [
-    "modules/mineurs-page-v1.js"
-   ]
-  },
-  {
    "nom": "dlg-entree",
    "definiePar": [
     "modules/dialogue-site-v1.js"
@@ -2796,7 +2589,6 @@
     "modules/inventory-auto-v1.js",
     "modules/journal-attaques-v1.js",
     "modules/meta-progression-v130.js",
-    "modules/mineurs-page-v1.js",
     "modules/moqueurs-fuite-v1.js",
     "modules/morts-joueur-nouvelles-v1.js",
     "modules/moteur-local-v1.js",
@@ -4757,6 +4549,7 @@
   "__SOREAL_IDLE_ITOPOD_SCENE_V1__": "modules/itopod-perks-page-v1.js",
   "__SOREAL_IDLE_JOURNAL_ATTAQUES_V1__": "modules/journal-attaques-v1.js",
   "__SOREAL_IDLE_JOURNAL_FLECHES_V1__": "modules/journal-fleches-v1.js",
+  "__SOREAL_IDLE_LABOS_PAGE_V1__": "modules/labos-page-v1.js",
   "__SOREAL_IDLE_LABOS_SAVANTS_V1__": "modules/labos-savants-v1.js",
   "__SOREAL_IDLE_LANGUE_CHANGEE_V1__": "modules/traduction-anglais-v1.js",
   "__SOREAL_IDLE_LANGUE_V1__": "standalone-bridge.js",
@@ -4775,7 +4568,6 @@
   "__SOREAL_IDLE_META_HOST_V130__": "modules/ui-amorcage-v1.js",
   "__SOREAL_IDLE_META_PARTAGE_V130__": "modules/meta-progression-v130.js",
   "__SOREAL_IDLE_META_V130__": "modules/meta-progression-v130.js",
-  "__SOREAL_IDLE_MINEURS_PAGE_V1__": "modules/mineurs-page-v1.js",
   "__SOREAL_IDLE_MONEY_PIT_V1__": "modules/money-pit-page-v1.js",
   "__SOREAL_IDLE_MONOTONE_V1__": "modules/etat-monotone-v1.js",
   "__SOREAL_IDLE_MOQUEURS_V1__": "modules/moqueurs-fuite-v1.js",

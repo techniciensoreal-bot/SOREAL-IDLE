@@ -36,9 +36,9 @@
     ['Hack Hack','Piratage du Piratage'],['Wish Hack','Piratage des Souhaits'],
     ['Time Machine Speed','Vitesse de la Machine temporelle'],['Energy NGU Speed','Vitesse des NGU d’Énergie'],['Magic NGU Speed','Vitesse des NGU de Magie'],['Adventure Stats','Stats d’Aventure'],
     ['Gold Production','Production d’Or'],['Blood Gain','Gain de sang'],['QP Gain','Gain de QP'],['Attack/Defense','Attaque/Défense'],['Adventure Attack','Attaque d’Aventure'],['Adventure Defense','Défense d’Aventure'],
-    ['Drop Chance Digger','Mineur de Chance de drop'],['Wandoos Digger','Mineur de Wandoos'],['Stat Digger','Mineur de Stats'],['Adventure Digger','Mineur d’Aventure'],['Energy NGU Digger','Mineur de NGU d’Énergie'],
-    ['Magic NGU Digger','Mineur de NGU de Magie'],['Energy Beard Digger','Mineur de Barbe d’Énergie'],['Magic Beard Digger','Mineur de Barbe de Magie'],['PP Digger','Mineur de PP'],['Daycare Digger','Mineur de Garderie'],
-    ['Blood Digger','Mineur de sang'],['EXP Digger','Mineur d’EXP'],
+    ['Drop Chance Digger','Labo de la chance'],['Wandoos Digger','Labo de Wandoos'],['Stat Digger','Labo des statistiques'],['Adventure Digger','Labo d’Aventure'],['Energy NGU Digger','Labo des NGU d’énergie'],
+    ['Magic NGU Digger','Labo des NGU de magie'],['Energy Beard Digger','Labo de la barbe d’énergie'],['Magic Beard Digger','Labo de la barbe de magie'],['PP Digger','Labo des étoiles'],['Daycare Digger','Labo de la garderie'],
+    ['Blood Digger','Labo du sang'],['EXP Digger','Labo de l’EXP'],
     ['Fruit of Power α','Fruit de Puissance α'],['Fruit of Power β','Fruit de Puissance β'],['Fruit of Power δ','Fruit de Puissance δ'],['Fruit of MacGuffins α','Fruit de MacGuffins α'],['Fruit of MacGuffins β','Fruit de MacGuffins β'],
     ['Fruit of MacGuffin α','Fruit de MacGuffin α'],['Fruit of MacGuffin β','Fruit de MacGuffin β'],['Fruit of Gold','Fruit d’Or'],['Fruit of Adventure','Fruit d’Aventure'],['Fruit of Knowledge','Fruit de Connaissance'],
     ['Fruit of Luck','Fruit de Chance'],['Fruit of Arbitrariness','Fruit d’Arbitraire'],['Fruit of Numbers','Fruit des Nombres'],['Fruit of Rage','Fruit de Rage'],['Fruit of Quirks','Fruit des Manies'],
@@ -54,7 +54,7 @@
     ['Clics/Tap','Clics/Appuis'],['le reset','la réinitialisation'],['TIER','PALIER'],['Inventory','Inventaire'],['Loot','Butin'],['slots','emplacements'],['slot','emplacement'],['Pomegranate','Grenade'],['Watermelon','Pastèque'],['Safe Zone','Zone sûre'],['Idle Mode','Mode Idle'],
     ['Boost power','Boost de puissance'],['Boost toughness','Boost d’endurance'],['Boost special','Boost spécial'],
     ['Advanced Training','Entraînement avancé'],['Basic Training','Entraînement de base'],['Fight Boss','Combat de boss'],['Money Pit','Trou sans fond'],
-    ['Time Machine','Machine temporelle'],['Blood Magic','Magie du sang'],['Gold Diggers','Mineurs d’or'],['Gold Digger','Mineur d’or'],['Item Daycare','Garderie d’objets'],
+    ['Time Machine','Machine temporelle'],['Blood Magic','Magie du sang'],['Gold Diggers','Labos'],['Gold Digger','Labo'],['Item Daycare','Garderie d’objets'],
     ['Sellout Shop','Boutique AP'],['Arbitrary Points','Points arbitraires'],['Settings','Réglages'],['Achievements','Succès'],['Questing','Quêtes'],['Challenges','Défis'],
     ['Energy Speed','Vitesse d’Énergie'],['Energy Power','Puissance d’Énergie'],['Energy Cap','Plafond d’Énergie'],['Energy Bars','Barres d’Énergie'],['Energy Bar','Barre d’Énergie'],
     ['Magic Speed','Vitesse de Magie'],['Magic Power','Puissance de Magie'],['Magic Cap','Plafond de Magie'],['Magic Bars','Barres de Magie'],['Magic Bar','Barre de Magie'],
@@ -68,7 +68,7 @@
     ['THE END','LA FIN'],['Sadistic','Sadique'],['Evil','Maléfique'],['Easy','Facile'],['Hard','Difficile'],
     ['Energy','Énergie'],['Magic','Magie'],['Toughness','Endurance'],['Power','Puissance'],['Cap','Plafond'],['Bars','Barres'],['Speed','Vitesse'],
     ['NUMBER','NOMBRE'],['Numbers','Nombres'],['Number','Nombre'],['BLOOD','SANG'],['Blood','sang'],['blood','sang'],['Attack','Attaque'],['Defense','Défense'],['Upgrades','Améliorations'],['Upgrade','Amélioration'],['Gold','Or'],['Fight','Combattre'],
-    ['Diggers','Mineurs'],['Digger','Mineur'],['Slots','Emplacements'],['Slot','Emplacement'],['Regen','Régén.'],['Tier','Palier'],['tier','palier'],['cap','plafond'],['Challenge','Défi'],
+    ['Diggers','Labos'],['Digger','Labo'],['Slots','Emplacements'],['Slot','Emplacement'],['Regen','Régén.'],['Tier','Palier'],['tier','palier'],['cap','plafond'],['Challenge','Défi'],
     ['perks','atouts'],['perk','atout'],['quirks','manies'],['quirk','manie'],['wishes','souhaits'],['wish','souhait'],['hacks','piratages'],['hack','piratage']
   ];
 

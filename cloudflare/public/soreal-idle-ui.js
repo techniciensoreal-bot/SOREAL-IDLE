@@ -1144,7 +1144,7 @@
         {id:'ngu',icon:'♾️',nom:'NGU'},
         {id:'wandoos',icon:'💻',nom:'Wandoos'},
         {id:'yggdrasil',icon:'🌱',nom:'Yggdrasil'},
-        {id:'diggers',icon:'⛏️',nom:'Gold Diggers'},
+        {id:'diggers',icon:'🧪',nom:'Gold Diggers'},
         {id:'beards',icon:'🧔',nom:'Beards'},
         {id:'macguffins',icon:'🧩',nom:'MacGuffins'},
         {id:'hacks',icon:'🧪',nom:'Hacks'},

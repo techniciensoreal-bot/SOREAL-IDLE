@@ -45,12 +45,12 @@ const bas = applyIdleNguAction(state, { action: "setDiggerLevel", digger: "drop"
 assert.equal(bas.runLevel, 2);
 
 // le bouton de la page demande l'ajustement
-const page = fs.readFileSync("cloudflare/public/modules/mineurs-page-v1.js", "utf8");
+const page = fs.readFileSync("cloudflare/public/modules/labos-page-v1.js", "utf8");
 assert.ok(page.includes("'+max+',true)\"") && page.includes(">Au maximum</button>"), "bouton « Au maximum » : fit demandé");
 /* Boutons grisés lisibles (Norman, 2026-11-08) : jamais l'attribut disabled (la règle globale button:disabled{color:#758198!important} grise le texte sur gris) ; classe mn-manque + aria-disabled, sans onclick ; texte clair contrasté */
 assert.ok(!/'disabled /.test(page) && !page.includes("?'disabled '"), "aucun bouton de la page n'utilise l'attribut disabled");
 assert.equal((page.match(/aria-disabled="true"/g) || []).length, 4, "quatre boutons peuvent être indisponibles");
-const css = page.match(/\.mn-btn:disabled,\.mn-btn\.mn-manque\{[^}]*\}/)[0];
+const css = page.match(/\.lp-btn:disabled,\.lp-btn\.lp-manque\{[^}]*\}/)[0];
 const lum = (h) => { const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4))); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const rapport = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
 const texte = /color:(#[0-9a-f]{6})/.exec(css)[1], fonds = [...css.matchAll(/(#[0-9a-f]{6})/g)].map((m) => m[1]).filter((x) => x !== texte);
