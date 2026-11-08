@@ -134,7 +134,7 @@ function marcher_(v, table) {
     return copie || v;
   }
   let copie = null;
-  if (table === FR_VERS_EN_V1) {
+  if (table === FR_VERS_EN_V1 || table.base === FR_VERS_EN_V1) {
     const h = histoiresBossEn_(v);
     if (h) copie = Object.assign({}, v, h);
   } else {
@@ -145,7 +145,7 @@ function marcher_(v, table) {
     /* Champs d'origine (nameEn, setNameEn) : jamais traduits (recherche du coffre dans les deux langues). */
     if (k === "nameEn" || k === "setNameEn") continue;
     /* Norman (2026-11-02) : « quand je mets le jeu en anglais, ce sont les voix françaises quand je clique sur Listen d'une carte de chronique » : le nom et le texte PARLÉS d'un boss (surcharges d'administrateur écrites en français, voir texteBossParleV1) sont lus à la place du texte affiché ; en anglais la voix doit lire l'original anglais affiché (fichiers de voix anglais nommés par l'empreinte de ce texte) : on les retire de la réponse, le client lit alors le texte affiché. */
-    if (table === FR_VERS_EN_V1 && PARLE_BOSS_V1.has(k) && typeof v[k] === "string" && v[k]) {
+    if ((table === FR_VERS_EN_V1 || table.base === FR_VERS_EN_V1) && PARLE_BOSS_V1.has(k) && typeof v[k] === "string" && v[k]) {
       if (!copie) copie = Object.assign({}, v);
       copie[k] = "";
       continue;
@@ -243,7 +243,7 @@ function tableAvecNomsBossV1_(base, en, sql) {
     let nom = null;
     try { nom = nomBossSurchargeV1(sql, b.id, en ? "en" : undefined); } catch (_e) { nom = null; }
     if (!nom) continue;
-    if (!table) table = new Map(base);
+    if (!table) { table = new Map(base); table.base = base; }   /* marcher_ reconnaît la table anglaise par son identité : la copie porte sa table d origine */
     table.set(b.nomEn, nom);
   }
   return table || base;

@@ -50,6 +50,8 @@
             'Réglages : une case permet de couper les aides du tutoriel.',
             'Le tutoriel du début est entièrement refait : des bulles courtes, une idée par bulle, qui passent toutes seules.',
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
+            'Le moteur du jeu calcule un peu plus vite (environ 6 % de moins par action et par synchronisation).',
+            'En anglais, les chroniques d’origine des boss restent affichées pour tous les boss, même quand l’un d’eux a été renommé.',
             'Un boss renommé garde son nouveau nom partout, y compris dans le journal de combat quand il apparaît comme ennemi d’Aventure (« 743 poulets furax » ne redevient plus « 743 coucous furax »).',
             'Boss 106 : derrière son animation de mort, on voit déjà la photo du boss suivant (le même boss, transformé).',
             'Dans le tutoriel de Lhu, la bulle suivante arrive dès que la voix a fini de lire (une courte respiration), au lieu d’attendre un temps fixe.',

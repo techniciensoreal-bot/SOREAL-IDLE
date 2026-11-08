@@ -645,6 +645,15 @@ function idleNguBonusesMemoV1(state, sansCopie) {
 function cleSansDonneesInertesV1(state) {
   if (!state || typeof state !== "object") return state;
   const copie = Object.assign({}, state, { uiPrefs: undefined, recentClientMutations: undefined });
+  /* Plan C2 : trois blocs que le calcul des bonus ne lit pas (Puits d'argent, Roue du jour) ou lit seulement par le NIVEAU des souhaits (wishBonusesV1 : tracks[id].level ; idleWishAccessibleV1 : présence de l'identifiant). Preuve : idle-bonus-cle-blocs-v1 (mutation de chaque champ). */
+  if (state.systems && typeof state.systems === "object") {
+    const sy = Object.assign({}, state.systems);
+    sy.moneyPit = undefined;
+    sy.dailySpin = undefined;
+    const tr = sy.wishes && sy.wishes.data && sy.wishes.data.tracks;
+    if (tr && typeof tr === "object") { const niv = {}; for (const k of Object.keys(tr)) niv[k] = tr[k] && tr[k].level; sy.wishes = niv; }
+    copie.systems = sy;
+  }
   /* Aventure (plan design/ARCHITECTURE-CIBLE.md, étape 1) : le sac, le coffre, la liste d'objets, les réglages d'inventaire, les emplacements, la zone, la corbeille et le dernier butin ne sont lus par le calcul des bonus QU'À TRAVERS l'équipement ;
      ils sont remplacés par la clé réduite de l'équipement (idleAdventureCleEquipementV1 : ce que le calcul d'équipement lit). Preuve par mutation de chaque champ de ces blocs : idle-bonus-cle-v1.test.mjs. */
   if (state.adventure && typeof state.adventure === "object") copie.adventure = Object.assign({}, state.adventure, { recentClientMutations: undefined, inventory: undefined, coffre: undefined, itemList: undefined, inventoryAuto: undefined, inventorySlots: undefined, zone: undefined, trash: undefined, dernierButinAutoKill: undefined, cleEquipementV1: idleAdventureCleEquipementV1(state.adventure) });
@@ -666,13 +675,11 @@ function idleNguBonusesMemoInterneV1(state, sansCopie) {
   }
   const valeur = macguffinApplyToBonusesV1(idleNguBonusesSansMacguffinV1(state), state);
   if (cle !== null) {
-    try {
-      __bonusMemoV1.valeur = structuredClone(valeur);
-      __bonusMemoV1.cle = cle;
-      __bonusMemoV1.at = maintenant;
-    } catch (_e) {
-      __bonusMemoV1.valeur = null;
-    }
+    /* Plan C2 : le résultat gardé n'est plus recopié à chaque calcul. Un appelant qui lit seulement (sansCopie) reçoit l'objet gardé, comme à chaque réutilisation du mémo ; un appelant qui peut modifier reçoit UNE copie. Même nombre de copies qu'avant pour ceux-ci, zéro pour les lecteurs. */
+    __bonusMemoV1.valeur = valeur;
+    __bonusMemoV1.cle = cle;
+    __bonusMemoV1.at = maintenant;
+    return sansCopie ? valeur : structuredClone(valeur);
   }
   return valeur;
 }

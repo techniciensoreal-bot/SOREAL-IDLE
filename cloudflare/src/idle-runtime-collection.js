@@ -5,6 +5,7 @@
  */
 import { normalizeIdleAdventureStateV47, idleAdventureMobBestiaryEntryV1, IDLE_ADVENTURE_ZONES, IDLE_ADVENTURE_MOB_CATALOG_V1, IDLE_ADVENTURE_MOB_BESTIARY_V1 } from "./idle-adventure-v47.js";
 import { CONFIG_SOREAL_IDLE, nombreSorealIdle_ } from "./idle-runtime-config.js";
+import { copieJsonV1 } from "./idle-copie-json-v1.js";
 import { normaliserVictoiresBossV1_ } from "./idle-victoires-boss-v1.js";
 import { bossCatalogueSorealIdle_, collectionsSorealIdle_, histoireBossAvecSurchargeSorealIdle_, histoireBossParleeSorealIdle_, nomBossParleSorealIdle_, lootsSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { definitionBossSorealIdle_, regenBossSecondeSorealIdle_ } from "./idle-runtime-boss.js";
@@ -715,8 +716,23 @@ export function progressionCollectionsSorealIdle_(
   };
 }
 
+/*
+ * Plan C2 (design/PLAN-COMPLET-2026-11-06.md) : une opération relisait la colonne STATS_JSON (130 Ko) une douzaine de fois, toujours le même texte. Mémo EXACT à une entrée : la clé est le TEXTE lui-même (un texte différent, même d'un octet, est relu) ;
+ * l'objet gardé n'est JAMAIS rendu : chaque appel en reçoit une copie profonde fraîche (copieJsonV1 = JSON.parse(JSON.stringify(x)), 5 fois plus vite que l'analyse), car les appelants modifient le résultat (metaNgu, cooldowns...) avant de le réécrire. Test : idle-stats-parse-memo-v1.
+ */
+const __statsTexteMemoV1 = { texte: null, objet: undefined };
+function parserStatsMemoV1_(valeur) {
+  if (typeof valeur !== 'string' || valeur.length < 2000) return parserJsonSorealIdle_(valeur, {});   /* petits textes : l'analyse directe coûte moins qu'une copie */
+  if (__statsTexteMemoV1.texte !== valeur) {
+    const brut = parserJsonSorealIdle_(valeur, {});
+    __statsTexteMemoV1.texte = valeur;
+    __statsTexteMemoV1.objet = brut;
+    return copieJsonV1(brut);
+  }
+  return copieJsonV1(__statsTexteMemoV1.objet);
+}
 export function statsJoueurSorealIdle_(valeur) {
-  const s=parserJsonSorealIdle_(valeur,{});
+  const s=parserStatsMemoV1_(valeur);
 
   const sortsAchetes =
     Array.isArray(s.sortsAchetes)
