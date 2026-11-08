@@ -6,14 +6,14 @@
   "keyframes": 464,
   "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 12,
-  "pointsEntreeRejouables": 261,
+  "pointsEntreeRejouables": 262,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
   "mortsNouvelles": 5,
   "effetsReglables": 4,
   "sonsEffets": 82,
-  "dossiersDeRessources": 21
+  "dossiersDeRessources": 22
  },
  "menus": [
   {
@@ -4757,6 +4757,7 @@
   "__SOREAL_IDLE_ITOPOD_SCENE_V1__": "modules/itopod-perks-page-v1.js",
   "__SOREAL_IDLE_JOURNAL_ATTAQUES_V1__": "modules/journal-attaques-v1.js",
   "__SOREAL_IDLE_JOURNAL_FLECHES_V1__": "modules/journal-fleches-v1.js",
+  "__SOREAL_IDLE_LABOS_SAVANTS_V1__": "modules/labos-savants-v1.js",
   "__SOREAL_IDLE_LANGUE_CHANGEE_V1__": "modules/traduction-anglais-v1.js",
   "__SOREAL_IDLE_LANGUE_V1__": "standalone-bridge.js",
   "__SOREAL_IDLE_LECTEUR_CHRONIQUES_V1__": "modules/lecteur-chroniques-v1.js",
@@ -4981,6 +4982,7 @@
   "garderie/yeux": 33,
   "icons": 3,
   "img/mineurs/fonds": 1,
+  "img/mineurs/labos": 18,
   "intro": 16,
   "machine-v2": 3,
   "machine-v3": 3,

@@ -23,7 +23,7 @@ assert.equal(new Set(Object.values(S.labos).map((l) => l.c.join())).size, ids.le
 assert.equal(new Set(Object.values(S.labos).map((l) => l.nom)).size, ids.length, "douze noms de labos différents");
 
 // Les recadrages tombent dans l'image du décor (1262 x 848) avec la taille d'une scène (316 x 268).
-for (const [id, [x, y]] of Object.entries(S.cellules)) assert.ok(x >= 0 && y >= 0 && x + 316 <= 1262 && y + 268 <= 848, "cellule de " + id + " dans le décor");
+for (const [id, f] of Object.entries(S.cellules)) assert.ok(f === "decor-" + id + ".webp" && fs.existsSync(new URL("../public/img/mineurs/labos/" + f, import.meta.url)), "image de décor propre au labo " + id);
 
 // Les formes intérieures des verres (mesurées sur le canal alpha) tiennent dans leur image.
 const dims = { flacon: [274, 378], becher: [222, 324], tubeD: [265, 325], tubeG: [265, 325] };

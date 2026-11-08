@@ -8,14 +8,14 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - keyframes : **464**
 - fichiersAvecWebAnimations : **20**
 - fichiersCanvas : **12**
-- pointsEntreeRejouables : **261**
+- pointsEntreeRejouables : **262**
 - mortsDeBase : **3**
 - retoursJoueur : **8**
 - retoursBoss : **7**
 - mortsNouvelles : **5**
 - effetsReglables : **4**
 - sonsEffets : **82**
-- dossiersDeRessources : **21**
+- dossiersDeRessources : **22**
 
 ## Menus
 Basic Training (`entrainement`) · Fight Boss (`combat`) · Adventure (`aventure`) · Rebirth (`renaissance`) · Augmentations (`augmentations`) · Advanced Training (`avance`) · Time Machine (`machine`) · Blood Magic (`sang`) · ITOPOD (`tower`) · Item Daycare (`daycare`) · Challenges (`challenges`) · Titans (`titans`) · NGU (`ngu`) · Wandoos (`wandoos`) · Yggdrasil (`yggdrasil`) · Gold Diggers (`diggers`) · Beards (`beards`) · MacGuffins (`macguffins`) · Hacks (`hacks`) · Questing (`questing`) · Quirks (`quirks`) · Wishes (`wishes`) · Cards (`cards`) · Cooking (`cooking`) · Boutique (`shop`) · Chroniques (`chroniques`) · Chat (`chat`) · Settings (`parametres`) · Admin (`admin`)
@@ -33,7 +33,7 @@ achievement, albumDix, albumFerme, albumPage, augTic, baille, bloodCap, bloodMin
 soreal_idle_effet_decor_v1, soreal_idle_effet_feu_v1, soreal_idle_effet_nav_v1, soreal_idle_effet_orage_v1
 
 ## Points d'entrée rejouables (window.__SOREAL_IDLE_*__)
-Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 261 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
+Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 262 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
 
 ## Animations CSS orphelines (définies mais nommées nulle part ailleurs)
 `bnPulse` (soreal-idle-itopod.css) · `rgFeuV1` (soreal-idle-itopod.css) · `sorealAlEtoileV1` (soreal-idle-themes.css) · `sorealHudDroite` (soreal-idle-themes.css) · `sorealHudPvBasV2` (soreal-idle-themes.css) · `sorealHudRuneAncien` (soreal-idle-themes.css) · `sorealIdleBtTickV1` (soreal-idle-ui.css) · `sorealIdleEnergyShineV11` (soreal-idle-ui.css) · `sorealIdleLoadingShineV55` (soreal-idle-ui.css) · `sorealIdleNavBloodPulseV1` (soreal-idle-ui.css) · `sorealIdlePendingFightV50` (soreal-idle-ui.css) · `sorealIdleVictoryV49` (soreal-idle-ui.css)
@@ -54,6 +54,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `garderie/yeux` : 33
 - `icons` : 3
 - `img/mineurs/fonds` : 1
+- `img/mineurs/labos` : 18
 - `intro` : 16
 - `machine-v2` : 3
 - `machine-v3` : 3

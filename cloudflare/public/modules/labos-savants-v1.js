@@ -1,7 +1,7 @@
 /*
  * SOREAL IDLE — les savants fous des Labos (Norman, 2026-11-08 : « transformer les mineurs d'or en Labos : des savants fous qui concoctent des potions pour qu'on gagne l'effet ; style cartoon »).
  *
- * Une scène de labo = UN SVG (316 x 268) en couches, de l'arrière vers l'avant : le décor (recadrage de decors.webp), le SAVANT FOU (dessiné ici, articulé, animé), l'établi, le LIQUIDE de chaque ustensile (dessiné ici, découpé dans la forme réelle
+ * Une scène de labo = UN SVG (316 x 268) en couches, de l'arrière vers l'avant : le décor (l'image de décor propre au labo), le SAVANT FOU (dessiné ici, articulé, animé), l'établi, le LIQUIDE de chaque ustensile (dessiné ici, découpé dans la forme réelle
  * du verre), puis le VERRE transparent par-dessus. Les images (décor, établi, flacon, tubes, bécher) viennent de cloudflare/public/img/mineurs/labos/ ; les formes intérieures des verres ont été MESURÉES sur ces images (canal alpha).
  * Le savant est un squelette de groupes (corps, tête de trois quarts, deux jambes qui pivotent aux hanches, deux bras en deux segments, fiole qui bascule, cheveux, blouse, sourcils, pupilles, bouche) : chaque articulation tourne autour de son vrai pivot.
  * Il se DÉPLACE dans son labo (cycle de 16 s) : il agite sa fiole à gauche, marche derrière l'établi, verse sa potion dans le flacon, les tubes puis le bécher (le niveau monte, un filet de potion coule), et revient en se retournant. Les angles de ses bras viennent d'une cinématique inverse (deux segments) : la fiole penchée se retrouve juste au-dessus de chaque verre.
@@ -13,8 +13,8 @@
   if(window.__SOREAL_IDLE_LABOS_SAVANTS_V1__)return;
 
   var L=316,H=268;
-  /* coin haut gauche du recadrage de chaque labo dans decors.webp (1262 x 848), mesuré sur l'image réelle */
-  var CELLULES={drop:[8,16],wandoos:[319,16],stats:[627,16],adventure:[940,16],energyNgu:[8,290],magicNgu:[319,290],energyBeard:[627,290],magicBeard:[940,290],pp:[8,564],daycare:[319,564],blood:[627,564],experience:[940,564]};
+  /* UNE image de décor par labo (Norman, 2026-11-08 : douze images générées à part, 1536 x 1024, recadrées en 1002 x 850 puis réduites à 632 x 536 = deux fois la scène ; le mur du fond est à 54 % de la hauteur, le sol dallé en dessous). CELLULES : fichier de chaque labo dans img/mineurs/labos/. */
+  var CELLULES={drop:'decor-drop.webp',wandoos:'decor-wandoos.webp',stats:'decor-stats.webp',adventure:'decor-adventure.webp',energyNgu:'decor-energyNgu.webp',magicNgu:'decor-magicNgu.webp',energyBeard:'decor-energyBeard.webp',magicBeard:'decor-magicBeard.webp',pp:'decor-pp.webp',daycare:'decor-daycare.webp',blood:'decor-blood.webp',experience:'decor-experience.webp'};
   /* pièces posées sur l'établi : taille de l'image (px), largeur affichée, centre et base (px de la scène) */
   var PIECES={
     etabli:{w0:603,h0:321,w:150,cx:225,base:243},
@@ -180,7 +180,7 @@
     var filet=function(cle,pz,classe){var p=pose(PIECES[pz]),bo=BOUCHES[cle],I=INTERIEURS[cle],h=I.y1-I.y0,yn=p.y+(I.y1-NIVEAUX[cle]*h)*p.k,x=p.x+bo[0]*p.k,y0=p.y+bo[1]*p.k-9;
       return '<rect class="lb-filet '+classe+'" x="'+f1(x-1.3)+'" y="'+f1(y0)+'" width="2.6" height="'+f1(yn-y0)+'" rx="1.3" fill="'+v.c[0]+'" stroke="#1b1008" stroke-width=".5" style="transform-origin:'+f1(x)+'px '+f1(y0)+'px"/>';};
     return '<svg class="lb'+(travaille?' lb-on':'')+'" viewBox="0 0 '+L+' '+H+'" role="img" aria-label="'+v.nom+'" focusable="false" style="--dec:'+(decalage||0)+'">'+
-      '<svg x="0" y="0" width="'+L+'" height="'+H+'" viewBox="'+c[0]+' '+c[1]+' '+L+' '+H+'"><image href="'+images.decor+'" width="1262" height="848"/></svg>'+
+      '<image href="'+(typeof images.decor==='object'?images.decor[id]:images.decor)+'" x="0" y="0" width="'+L+'" height="'+H+'" preserveAspectRatio="none"/>'+
       sav+
       '<image href="'+images.etabli+'" x="'+pe.x+'" y="'+pe.y+'" width="'+PIECES.etabli.w+'" height="'+f1(PIECES.etabli.h0*pe.k)+'"/>'+
       verre('flacon',PIECES.flacon,pf,liquide('flacon',NIVEAUX.flacon,v,idu,'lb-niv-f'))+
