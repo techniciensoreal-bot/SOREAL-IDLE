@@ -104,7 +104,7 @@
     for(var p=0;p<8;p++)pieces+='<g class="tmm-piece" data-rang="'+p+'"><circle cx="560.5" cy="1142" r="22" fill="url(#tmmPiece)" stroke="#0a0a0c" stroke-width="4"/><circle cx="560.5" cy="1142" r="13" fill="none" stroke="#a86a00" stroke-width="3"/></g>';
     var ecran;
     if(url){
-      ecran='<image id="tmmImage" class="tmm-mob" x="69" y="57" width="159" height="135" preserveAspectRatio="xMidYMid slice" href="'+esc(url)+'"/>';
+      ecran='<image id="tmmImage" class="tmm-mob" x="69" y="57" width="159" height="135" preserveAspectRatio="xMidYMid meet" href="'+esc(url)+'"/>';
     }else{
       /* Aucun butin d'Or encore cette renaissance : un cadran d'horloge qui attend. */
       ecran='<g id="tmmAttente" transform="translate(148.5 124.5)" opacity=".85"><circle r="46" fill="none" stroke="#2cff9f" stroke-opacity=".5" stroke-width="5"/><circle r="38" fill="none" stroke="#2cff9f" stroke-opacity=".25" stroke-width="2"/><path d="M0 -26 V0 L18 12" fill="none" stroke="#2cff9f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>';
@@ -115,7 +115,7 @@
     return '<svg class="tmm-svg" viewBox="0 0 762 753" role="img" aria-label="La machine à remonter le temps" data-morph-vivant="1" data-tmm-centre="1" data-sans-couleur-nombre="1">'+
       '<clipPath id="tmmClipEcran"><rect x="69" y="57" width="159" height="135" rx="8"/></clipPath>'+
       '<clipPath id="tmmClipChute"><rect x="497" y="1124" width="127" height="151"/></clipPath>'+
-      /* petit écran du mob : l'image du meilleur butin d'Or remplit le cadre (l'effet d'écran est posé par-dessus, voir .tmm-ecran-mob) */
+      /* petit écran du mob (Norman, 2026-11-08 : « un slime métallique apparaît zoomé et mal placé dans la Time Machine » : l'image est maintenant ENTIÈRE et centrée, « meet », au lieu d'être agrandie et rognée, « slice », ce qui coupait les mobs d'un autre format) : l'image du meilleur butin d'Or est posée dans le cadre (l'effet d'écran est posé par-dessus, voir .tmm-ecran-mob) */
       '<g clip-path="url(#tmmClipEcran)"><rect x="69" y="57" width="159" height="135" fill="#07201a"/>'+ecran+'</g>'+
       /* grand écran d'informations : le nom du mob, puis le meilleur butin d'Or */
       '<text id="tmmNomMob" x="0" y="0" transform="translate(298 100) skewX(-8)" '+F+' font-size="'+tailleNom(nom)+'" fill="#e8f7ee" opacity=".95">'+esc(nom)+'</text>'+

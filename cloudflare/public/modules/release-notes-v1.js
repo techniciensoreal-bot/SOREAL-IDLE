@@ -42,6 +42,7 @@
           {menu:'machine', titre:'Machine temporelle', points:[
             'Dans « En direct », quand un joueur règle sa Machine temporelle (il y ajoute de l’énergie ou de la magie), la phrase dit combien d’or par seconde elle produit chez lui (« 1,37 Qa d’or par seconde »).',
             'Le tas d’or sous la goulotte grossit avec l’or par seconde de la machine (B, T, Qa, Qi, Sx… par seconde) et non plus avec le butin d’une barre : dix tas différents.',
+            'L’image du monstre sur l’écran de la Machine temporelle est maintenant entière et centrée : elle n’est plus agrandie ni coupée (un slime métallique apparaissait zoomé et mal placé).',
           ]},
           {menu:'diggers', titre:'Labos', points:[
             'Ce menu devient celui des Labos : chaque labo est une pièce du donjon, différente et en rapport avec ce qu’il améliore, où un savant fou brasse une potion.',

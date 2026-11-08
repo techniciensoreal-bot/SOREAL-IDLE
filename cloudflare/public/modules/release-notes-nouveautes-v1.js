@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Nouveau bouton dans la barre des menus (une fiole et un bécher qui bouillonnent quand les labos travaillent), nouveau cadre du haut et nouveau fond : violet nuit et vert des potions, plus de brun."
+    "L’image du monstre sur l’écran de la Machine temporelle est maintenant entière et centrée : elle n’est plus agrandie ni coupée (un slime métallique apparaissait zoomé et mal placé)."
   ] };
 })();

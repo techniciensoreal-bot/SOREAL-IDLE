@@ -24,7 +24,7 @@ assert.ok(fonts.includes("font-family:'Orbitron'") && fonts.includes("/fonts/orb
 
 const d = fs.readFileSync("cloudflare/public/modules/machine-dessin-v1.js", "utf8");
 assert.ok(d.includes('viewBox="0 0 762 753"') && d.includes('class="tmm-ecran-mob"'), "centre dessiné dans la viewBox de l'image, effet d'écran posé par-dessus");
-assert.ok(d.includes('preserveAspectRatio="xMidYMid slice"'), "l'image du mob remplit son cadre");
+assert.ok(d.includes('preserveAspectRatio="xMidYMid meet"') && !d.includes('xMidYMid slice'), "l'image du mob est entière et centrée dans son cadre (jamais zoomée ni rognée)");
 /* le tas : de vraies pièces (ellipses d'or), aucune petite pièce ; les pièces qui tombent entrent par le haut (rognées) et s'enfoncent dans le tas */
 const ctxMod = { window: {}, document: { getElementById() { return null; }, querySelector() { return null; }, querySelectorAll() { return []; } }, matchMedia: () => ({ matches: false }), requestAnimationFrame() { return 0; }, performance: { now: () => 0 }, IntersectionObserver: undefined };
 ctxMod.window = ctxMod;
