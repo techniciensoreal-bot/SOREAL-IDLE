@@ -146,3 +146,25 @@ console.log("idle-labos-savants-v1 (trois positions): OK");
   assert.ok(S.css().includes("@keyframes lbCuG") && S.css().includes("@keyframes lbTiG") && S.css().includes("@keyframes lbCuD") && S.css().includes("@keyframes lbTiD"), "cuisse et tibia de chaque jambe animés");
 }
 console.log("idle-labos-savants-v1 (marche naturelle): OK");
+
+/* ---------- au repos (Norman, 2026-11-08 : « au repos, la lumière éteinte et le scientifique les bras baissés ») ---------- */
+{
+  const css = S.css();
+  const img = { decor: "d.webp", etabli: "e.webp", flacon: "f.webp", tubes: "t.webp", becher: "b.webp" };
+  // lumières éteintes : un voile sombre sur toute la pièce, levé seulement quand le labo travaille
+  for (const id of ids) assert.ok(S.scene(id, img, false).includes('class="lb-nuit"') && S.scene(id, img, true).includes('class="lb-nuit"'), "voile de nuit dans la scène de " + id);
+  assert.ok(/\.lb-nuit\{opacity:\.6\d*;transition:opacity \.6s ease\}/.test(css) && css.includes(".lb-on .lb-nuit{opacity:0}"), "pièce sombre au repos, lumière rendue en 0,6 s au travail");
+  assert.ok(S.scene("drop", img, false).indexOf('class="lb-nuit"') > S.scene("drop", img, false).indexOf("b.webp"), "le voile couvre toutes les couches");
+  // bras baissés : calcul des positions de l'épaule, du coude et de la main avec les angles du repos
+  const m = /\.lb:not\(\.lb-on\) \.lb-bras-av\{transform:rotate\((-?\d+)deg\)\}/.exec(css), n = /\.lb:not\(\.lb-on\) \.lb-avbras-av\{transform:rotate\((-?\d+)deg\)\}/.exec(css), f = /\.lb:not\(\.lb-on\) \.lb-fiole\{transform:rotate\((-?\d+)deg\)\}/.exec(css);
+  assert.ok(m && n && f, "pose de repos du bras avant dans le style");
+  const t1 = Number(m[1]) * Math.PI / 180, t2 = Number(n[1]) * Math.PI / 180, S1 = [47, 46], E0 = [57.5, 37.5], H0 = [60.5, 25.5];
+  const rot = (v, a) => [v[0] * Math.cos(a) - v[1] * Math.sin(a), v[0] * Math.sin(a) + v[1] * Math.cos(a)];
+  const e = rot([E0[0] - S1[0], E0[1] - S1[1]], t1), elbow = [S1[0] + e[0], S1[1] + e[1]];
+  const h = rot([H0[0] - E0[0], H0[1] - E0[1]], t1 + t2), hand = [elbow[0] + h[0], elbow[1] + h[1]];
+  assert.ok(elbow[1] > S1[1] + 10 && hand[1] > elbow[1] + 8 && hand[1] > 66, "le bras avant pend : le coude sous l'épaule, la main plus bas encore (au niveau de la hanche)");
+  assert.ok(Math.abs(hand[0] - S1[0]) < 6, "la main reste le long du corps");
+  assert.ok(Math.abs(t1 * 180 / Math.PI + t2 * 180 / Math.PI + Number(f[1])) < 1, "la fiole reste droite (contre-rotation de la somme des deux segments)");
+  assert.ok(css.includes(".lb:not(.lb-on) .lb-tete{transform-origin:41px 41px;transform:rotate(5deg)}") && css.includes(".lb:not(.lb-on) .lb-bouche{transform-origin:48px 38px;transform:scaleY(.4)}"), "tête baissée et bouche fermée au repos");
+}
+console.log("idle-labos-savants-v1 (repos): OK");

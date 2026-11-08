@@ -187,6 +187,7 @@
       verre('tubes',PIECES.tubes,pt,liquide('tubeG',NIVEAUX.tubeG,v,idu,'lb-niv-t')+liquide('tubeD',.45,v,idu,'lb-niveau'))+
       verre('becher',PIECES.becher,pb,liquide('becher',NIVEAUX.becher,v,idu,'lb-niv-b'))+
       filet('flacon','flacon','lb-filet-f')+filet('tubeG','tubes','lb-filet-t')+filet('becher','becher','lb-filet-b')+
+      '<rect class="lb-nuit" x="0" y="0" width="'+L+'" height="'+H+'" fill="#0a0818" style="pointer-events:none"/>'+
       '</svg>';
   }
 
@@ -306,6 +307,18 @@
     function kf(nom,pas){return '@keyframes '+nom+'{'+pas+'}';}
     var o=['.lb{--T:2.4s;--P:calc(var(--T)*6.6667);display:block;width:100%;height:auto}',
       '.lb *{transform-box:view-box}',
+      /* AU REPOS (Norman, 2026-11-08) : lumières éteintes (voile sombre, qui se lève en 0,6 s quand le labo se met au travail) et savant les bras baissés : le bras avant pend le long du corps (épaule 134°, coude 32°) et la fiole reste droite au bout de la main (contre-rotation -166°), tête un peu baissée, bouche fermée, sourcils bas, regard vers le sol */
+      '.lb-nuit{opacity:.62;transition:opacity .6s ease}',
+      '.lb-on .lb-nuit{opacity:0}',
+      '.lb-bras-av{transform-origin:'+ART.epaule[0]+'px '+ART.epaule[1]+'px}.lb-avbras-av{transform-origin:'+ART.coude[0]+'px '+ART.coude[1]+'px}.lb-fiole{transform-origin:'+ART.main[0]+'px '+ART.main[1]+'px}',
+      '.lb:not(.lb-on) .lb-bras-av{transform:rotate(134deg)}',
+      '.lb:not(.lb-on) .lb-avbras-av{transform:rotate(32deg)}',
+      '.lb:not(.lb-on) .lb-fiole{transform:rotate(-166deg)}',
+      '.lb:not(.lb-on) .lb-tete{transform-origin:41px 41px;transform:rotate(5deg)}',
+      '.lb:not(.lb-on) .lb-sourcils{transform:translateY(.9px)}',
+      '.lb:not(.lb-on) .lb-bouche{transform-origin:48px 38px;transform:scaleY(.4)}',
+      '.lb:not(.lb-on) .lb-pupilles{transform:translate(.3px,.7px)}',
+      '.lb:not(.lb-on) .lb-bras-av,.lb:not(.lb-on) .lb-avbras-av,.lb:not(.lb-on) .lb-fiole,.lb:not(.lb-on) .lb-tete,.lb:not(.lb-on) .lb-sourcils,.lb:not(.lb-on) .lb-bouche,.lb:not(.lb-on) .lb-pupilles{transition:transform .6s ease}',
       '.lb-on .lb-vf,.lb-on .lb-vp,.lb-on .lb-p-ar,.lb-on .lb-p-av,.lb-on .lb-p-avav,.lb-on .lb-deplace,.lb-on .lb-sens,.lb-on .lb-cu-g,.lb-on .lb-ti-g,.lb-on .lb-cu-d,.lb-on .lb-ti-d,.lb-on .lb-corps,.lb-on .lb-bras-av,.lb-on .lb-avbras-av,.lb-on .lb-fiole,.lb-on .lb-bras-ar,.lb-on .lb-avbras-ar,.lb-on .lb-niv-f,.lb-on .lb-niv-t,.lb-on .lb-niv-b,.lb-on .lb-filet{animation-duration:var(--P);animation-timing-function:linear;animation-iteration-count:infinite;animation-delay:calc(var(--P)*var(--dec,0)*-1)}',
       '.lb-deplace,.lb-sens{transform-origin:0 0}',
       '.lb-vp{opacity:0}',
