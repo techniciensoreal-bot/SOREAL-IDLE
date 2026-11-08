@@ -121,6 +121,10 @@
     var g=cv.__tmG||(cv.__tmG=cv.getContext('2d'));
     g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,cv.width,cv.height);
     if(!(pct>0))return;   /* tube vide : aucune bulle */
+    /* Aucune énergie (ou magie) assignée à cette tour : aucune bulle, même si le liquide n'est pas à zéro (Norman, 2026-11-08 : « il ne faut plus de bulles dans les barres énergie et magie de la machine temporelle quand aucune énergie n'est assignée »). L'allocation est lue sur la tour (data-tm-alloc, tenue à jour par la page à chaque changement) ; sans tour (rendu isolé), le comportement d'avant. */
+    var tour=cv.__tmTour;
+    if(tour===undefined){tour=cv.__tmTour=(typeof cv.closest==='function'?cv.closest('.tmm-tour'):null);}
+    if(tour&&!(Number(tour.getAttribute('data-tm-alloc'))>0))return;
     var dpr=cv.__tmD,h=cv.__tmH*pct/100,L=cv.__tmL,s=lireSprite(),liste=cv.dataset.tmGauche==='1'?SPECS.vrai:SPECS.faux;
     g.setTransform(dpr,0,0,dpr,0,0);
     for(var i=0;i<liste.length;i++){

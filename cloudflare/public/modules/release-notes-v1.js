@@ -91,6 +91,7 @@
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Le « ding » qui sonnait quand une barre de la Machine temporelle gagnait un niveau est retiré.',
+            'Il n’y a plus de bulles dans les tubes Énergie et Magie quand aucune ressource n’est placée dessus, même s’il reste du liquide.',
             'La Machine temporelle a ses propres sons : les boutons + (un cliquet qui monte), − (qui redescend) et Max (la machine se charge puis se cale d’un coup sourd et d’une cloche) font des bruits de mécanique bien audibles, un bouton sans effet fait un choc sourd, et un balayage suivi d’une cloche annonce un niveau gagné.',
             'Sur les tours Énergie et Magie, le mot « Allouée » est remplacé par une icône (éclair ou étoile) : le montant n’est plus coupé.',
             'La Machine temporelle change encore de look sur PC (nouvelle image) : un petit écran pour l’image du boss, avec un effet d’écran (lignes de balayage, bords sombres, bande lumineuse qui descend), et un autre écran pour son nom et son butin. Les afficheurs ont des écritures de science-fiction, inclinées, comme un écran qui saute dans le temps. Le tas d’Or en bas est maintenant un vrai tas de pièces, et chaque pièce entre par le haut de la sortie et tombe dedans. Le socle de l’Énergie n’a plus qu’un seul grand rouage, vert, et le cadran n’a plus que son aiguille.',
