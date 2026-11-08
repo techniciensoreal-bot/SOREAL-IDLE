@@ -3,8 +3,9 @@
  *
  * Une scène de labo = UN SVG (316 x 268) en couches, de l'arrière vers l'avant : le décor (recadrage de decors.webp), le SAVANT FOU (dessiné ici, articulé, animé), l'établi, le LIQUIDE de chaque ustensile (dessiné ici, découpé dans la forme réelle
  * du verre), puis le VERRE transparent par-dessus. Les images (décor, établi, flacon, tubes, bécher) viennent de cloudflare/public/img/mineurs/labos/ ; les formes intérieures des verres ont été MESURÉES sur ces images (canal alpha).
- * Le savant est un squelette de groupes (corps, tête, deux bras en deux segments, cheveux, blouse, sourcils, pupilles, bouche) : chaque articulation tourne autour de son vrai pivot, avec des retards (cheveux, pan de blouse) pour un mouvement crédible.
- * Boucles parfaites (AGENTS.md règle n°3) : toutes les animations ont une période multiple de la même durée (--T = 2,4 s), commencent et finissent à la même valeur ; seuls transform et opacity sont animés ; mouvement réduit : tout est immobile.
+ * Le savant est un squelette de groupes (corps, tête de trois quarts, deux jambes qui pivotent aux hanches, deux bras en deux segments, fiole qui bascule, cheveux, blouse, sourcils, pupilles, bouche) : chaque articulation tourne autour de son vrai pivot.
+ * Il se DÉPLACE dans son labo (cycle de 16 s) : il agite sa fiole à gauche, marche derrière l'établi, verse sa potion dans le flacon, les tubes puis le bécher (le niveau monte, un filet de potion coule), et revient en se retournant. Les angles de ses bras viennent d'une cinématique inverse (deux segments) : la fiole penchée se retrouve juste au-dessus de chaque verre.
+ * Boucles parfaites (AGENTS.md règle n°3) : chaque animation commence et finit à la même valeur ; la chorégraphie a la période --P (16 s), les petits gestes la période --T (2,4 s) ; seuls transform et opacity sont animés ; mouvement réduit : tout est immobile.
  * Expose window.__SOREAL_IDLE_LABOS_SAVANTS_V1__ = { scene(id, images, travaille), css(), labos }.
  */
 (function(){
@@ -16,10 +17,10 @@
   var CELLULES={drop:[8,16],wandoos:[319,16],stats:[627,16],adventure:[940,16],energyNgu:[8,290],magicNgu:[319,290],energyBeard:[627,290],magicBeard:[940,290],pp:[8,564],daycare:[319,564],blood:[627,564],experience:[940,564]};
   /* pièces posées sur l'établi : taille de l'image (px), largeur affichée, centre et base (px de la scène) */
   var PIECES={
-    etabli:{w0:603,h0:321,w:172,cx:222,base:243},
-    flacon:{w0:274,h0:378,w:54,cx:192,base:168},
-    tubes:{w0:265,h0:325,w:50,cx:240,base:169},
-    becher:{w0:222,h0:324,w:27,cx:283,base:168}
+    etabli:{w0:603,h0:321,w:150,cx:225,base:243},
+    flacon:{w0:274,h0:378,w:46,cx:190,base:175},
+    tubes:{w0:265,h0:325,w:44,cx:232,base:176},
+    becher:{w0:222,h0:324,w:24,cx:273,base:175}
   };
   /* intérieur de chaque verre, en pixels de SON image (mesuré sur le canal alpha) */
   var INTERIEURS={
@@ -71,7 +72,9 @@
     return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="'+c+'" stroke="#1b1008" stroke-width="'+f1(r*.3)+'"/>';
   }
 
-  /* ---------- le savant fou (coordonnées locales : centre x = 40, pieds y = 90) ---------- */
+  /* ---------- le savant fou (coordonnées locales : centre x = 40, pieds y = 90), vu de trois quarts, il regarde à droite ---------- */
+  /* chapeaux et cheveux dessinés autour du sommet du crâne ; un groupe les recale sur la tête ronde de trois quarts (centre 41,6 ; sommet à y = 21) */
+  var COIFFE='<g transform="translate(41.6 22.8) scale(1.08) translate(-41 -22)">';
   var CHAPEAUX={
     bandeau:function(){return '<path d="M32.2 26.4Q41 21.8 50.4 25.8L50.6 29.4Q41 25.8 32.4 29.6Z" fill="#e8362f"'+CT+'/><path d="M32.8 27.8l-5.2-2.2M32.8 29l-4.4 3" stroke="#e8362f" stroke-width="2.4" stroke-linecap="round"/>';},
     explorateur:function(){return '<g transform="rotate(-3 41 24)"><ellipse cx="41" cy="24.6" rx="14.6" ry="3.2" fill="#a8742e"'+CT+'/><path d="M33.4 24.2C33 15.8 37 13.2 41 13.2S49 15.8 48.6 24.2Z" fill="#c48c3c"'+CT+'/><path d="M33.6 21.6Q41 23.6 48.4 21.6" stroke="#7a5018" stroke-width="2" fill="none"/></g>';},
@@ -82,17 +85,18 @@
     mortier:function(){return '<g transform="rotate(-3 41 24)"><path d="M35.4 24.4V28.6Q41 31.6 46.8 28.6V24.4" fill="#26263e"'+CT+'/><path d="M28.4 21.6L41 16.6 53.6 21.6 41 26.4Z" fill="#26263e"'+CT+'/><path d="M53.6 21.6L55 29.4" stroke="#ffd23a" stroke-width="1.8"/><circle cx="55" cy="30.8" r="1.8" fill="#ffd23a"/></g>';}
   };
   function cheveux(coupe,c){
-    /* cheveux fous, rejetés vers l'arrière puisque le savant regarde à droite (derrière le chapeau) */
+    /* cheveux fous, rejetés vers l'arrière (derrière le chapeau) */
     if(coupe==='frise')return '<path d="M33.2 31C28.4 30.4 27 25 30.6 22.6C29.2 17.8 34.6 14.4 38.2 16.6C40.2 12.6 46.4 12.8 47.6 17.4C51.6 17.8 53 22.4 50.8 25.6C47.4 22.6 43 21.6 39 22.8C36 23.8 34 27 33.2 31Z" fill="'+c+'"'+CT+'/>';
     return '<path d="M33 29.4C30 26.4 31 22 34 20.6L31 14 37 17.6 37.6 9.6 41.6 17.2 45.4 10.6 46 18.4 51.4 14.4 49.4 22C46 20 42 19.6 38 21 35.6 22 33.4 25 33 29.4Z" fill="'+c+'"'+CT+'/>';
   }
+  /* pivots des articulations (coordonnées locales) : hanches, épaules, coudes, main qui tient la fiole */
+  var ART={hancheG:[36.2,66],hancheD:[44,66],epaule:[47,46],coude:[57.5,37.5],main:[60.5,25.8],epauleAr:[34,46],coudeAr:[28,55]};
   function savant(s,v){
     var pot=v.c[0],pot2=v.c[1],fm=v.forme;
     var o='<g class="lb-savant">';
-    /* jambes + chaussures (pantalon sombre) */
-    o+='<g class="lb-jambes">'+seg(36.2,66,35,85,5,'#3b3552')+seg(44,66,45.6,85,5,'#3b3552')+
-       '<path d="M29.6 87.4c0-2.4 2.2-3.8 5-3.8h3.6c1.6 0 2.8 1.2 2.8 2.8 0 1.6-1.2 2.6-2.8 2.6h-6c-1.6 0-2.6-.6-2.6-1.6z" fill="#c8421e"'+CT+'/>'+
-       '<path d="M40.4 87.4c0-2.4 2.2-3.8 5-3.8H49c1.6 0 2.8 1.2 2.8 2.8 0 1.6-1.2 2.6-2.8 2.6h-6c-1.6 0-2.6-.6-2.6-1.6z" fill="#c8421e"'+CT+'/></g>';
+    /* jambes : deux groupes qui pivotent aux hanches (marche) */
+    o+='<g class="lb-jambe-g">'+seg(36.2,66,35,85,5,'#3b3552')+'<path d="M29.6 87.4c0-2.4 2.2-3.8 5-3.8h3.6c1.6 0 2.8 1.2 2.8 2.8 0 1.6-1.2 2.6-2.8 2.6h-6c-1.6 0-2.6-.6-2.6-1.6z" fill="#c8421e"'+CT+'/></g>'+
+       '<g class="lb-jambe-d">'+seg(44,66,45.6,85,5,'#3b3552')+'<path d="M40.4 87.4c0-2.4 2.2-3.8 5-3.8H49c1.6 0 2.8 1.2 2.8 2.8 0 1.6-1.2 2.6-2.8 2.6h-6c-1.6 0-2.6-.6-2.6-1.6z" fill="#c8421e"'+CT+'/></g>';
     o+='<g class="lb-corps">';
     /* bras arrière (gauche) : main ouverte en griffe de savant fou, doigts écartés qui frétillent */
     var doigts='';[-50,-17,17,50].forEach(function(a){var r=a*Math.PI/180;doigts+=seg(23.6,43.2,f1(23.6+4.6*Math.sin(r)),f1(43.2-4.6*Math.cos(r)),1.5,s.peau);});
@@ -102,39 +106,42 @@
     o+='<path d="M30 47c0-4.4 3.4-7 7.6-7.4h5.6c4.2.4 7.6 3 7.6 7.4l1.6 22H28.4z" fill="'+s.blouse+'"'+CT+'/>';
     o+='<path d="M36.4 40.2l3.6 7.4 3.6-7.4z" fill="#fff"'+CT+'/><path d="M38.8 46.4h2.4l1 8.6-2.2 2.4-2.2-2.4z" fill="#e8362f"'+CT+'/>';
     o+='<circle cx="40" cy="60" r="1.1" fill="#1b1008"/><circle cx="40" cy="65.4" r="1.1" fill="#1b1008"/>';
-    o+='<rect x="30.8" y="55.4" width="6.2" height="5.4" rx="1" fill="rgba(0,0,0,.14)"'+CT+'/><path d="M33 55.4v-3.2M35.2 55.4v-3.8" stroke="#e8362f" stroke-width="1.3" stroke-linecap="round"/>';
+    o+='<rect x="30.8" y="55.4" width="6.2" height="5.4" rx="1" fill="rgba(0,0,0,.14)"'+CT+'/><path d="M33 55.4v-3.2M35.2 55.4v-3.2" stroke="#e8362f" stroke-width="1.3" stroke-linecap="round"/>';
     o+='<g class="lb-pan"><path d="M28.4 68H51.6l2.2 9c-8.6 2.6-19.4 2.6-27.6 0z" fill="'+s.blouse+'"'+CT+'/></g>';
-    /* bras avant (droit) : secoue une fiole de potion */
+    /* bras avant (droit) : tient la fiole de potion (elle bascule autour de la main pour verser) */
     o+='<g class="lb-bras-av">'+seg(47,46,57.5,37.5,5,s.blouse)+
        '<g class="lb-avbras-av">'+seg(57.5,37.5,60.5,25.5,4.6,s.blouse)+
+       '<g class="lb-fiole">'+
        '<path d="M58.6 19.6h3.8v5.4l5.4 9.6c.7 1.3 0 2.5-1.6 2.5H54.8c-1.6 0-2.3-1.2-1.6-2.5l5.4-9.6z" fill="rgba(255,255,255,.35)"'+CT+'/>'+
        '<clipPath id="lbf-'+v.id+'"><path d="M59.6 20.6h1.8v5.4l5.2 9.2H54.4L59.6 26z"/></clipPath>'+
        '<g clip-path="url(#lbf-'+v.id+')"><rect x="52" y="29" width="18" height="10" fill="'+pot+'"/><g class="lb-ondule"><path d="M52 29c3 1.4 5 1.4 8 0s5-1.4 8 0V32H52z" fill="'+pot+'"/></g>'+forme(fm,59.6,33.4,1.1,pot2)+'</g>'+
        '<g class="lb-petite-b"><circle cx="60.4" cy="31" r=".9" fill="#fff" opacity=".85"/></g>'+
-       '<circle cx="60.4" cy="25.8" r="2.9" fill="'+s.peau+'"'+CT+'/></g></g>';
-    /* tête de profil (le savant regarde à droite) */
+       '<circle cx="60.4" cy="25.8" r="2.9" fill="'+s.peau+'"'+CT+'/></g></g></g>';
+    /* tête de trois quarts : le nez est sur l'axe du visage, l'œil le plus proche est le plus grand, l'autre est vu de biais près du bord */
     o+='<g class="lb-tete">'+
-       '<g class="lb-cheveux">'+cheveux(s.coupe,s.cheveux)+'</g>'+
-       '<rect x="37.4" y="38" width="6" height="6" fill="'+s.peau+'"'+CT+'/>'+
-       '<path d="M32.5 31C31.2 23.5 35.5 19.6 41 19.6C46 19.6 49.6 22.4 50 27.4C50.1 29.2 50.4 30.6 51 31.8C53.6 33.6 53.4 35.4 50.6 35.6L49.6 35.8C50.2 37 49.8 38 48.6 38.8C49 40.8 46.6 42 44 41.6C38.6 41 33.4 37.6 32.5 31Z" fill="'+s.peau+'"'+CT+'/>'+
-       '<ellipse cx="37.6" cy="32.2" rx="1.9" ry="2.7" fill="'+s.peau+'"'+CT+'/><path d="M37.2 31.2q1 1.2 0 2.6" stroke="rgba(0,0,0,.4)" stroke-width=".7" fill="none" stroke-linecap="round"/>';
-    if(s.barbe)o+='<path d="M44 39C50.4 38.6 52.2 46 47.4 52.4C44.4 55.4 40.4 54.4 38 50.4C36 46.6 36.6 41.6 40.2 40.2C41.6 39.6 42.8 39.2 44 39Z" fill="'+s.barbe+'"'+CT+'/><path d="M41.4 42.6c.8 3.6.2 7 2.6 9.6M45.6 42.4c0 3.4-.4 6-2 8.6" stroke="rgba(0,0,0,.28)" stroke-width="1.1" fill="none" stroke-linecap="round"/>';
-    /* lunette de savant fou vue de profil : sangle qui fait le tour de la tête, un seul verre (le près) */
-    o+='<path d="M43.4 28.2L32.8 27.2" stroke="'+s.lunettes+'" stroke-width="2.2" stroke-linecap="round"/><path d="M43.4 28.2L32.8 27.2" stroke="#1b1008" stroke-width=".5" opacity=".5"/>'+
-       '<ellipse cx="46.8" cy="28.8" rx="3.9" ry="4.8" fill="#fff" stroke="'+s.lunettes+'" stroke-width="2.1"/><ellipse cx="46.8" cy="28.8" rx="4.9" ry="5.8" fill="none" stroke="#1b1008" stroke-width=".7" opacity=".55"/>'+
-       '<g class="lb-pupilles"><circle cx="48.2" cy="29" r="1.7" fill="#1b1008"/></g>'+
-       '<g class="lb-lueur"><path d="M44.2 26.2c.9-.8 2-1 3-.7" stroke="#fff" stroke-width="1.1" fill="none" stroke-linecap="round"/></g>'+
-       '<g class="lb-sourcils"><path d="M43.4 23.2L50.6 21.2" stroke="#1b1008" stroke-width="1.8" stroke-linecap="round"/></g>';
-    /* grande bouche de rire, sur le devant du visage */
-    o+='<g class="lb-bouche"><path d="M46.2 36C47.6 36.6 49 36.2 49.6 35.7C49.8 38 49 39.8 47.4 39.5C46 39.2 45.6 37.4 46.2 36Z" fill="#6a1a26"'+CT+'/><path d="M46.8 36.6h2.4" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></g>';
-    if(s.chapeau&&CHAPEAUX[s.chapeau])o+=CHAPEAUX[s.chapeau]();
+       '<g class="lb-cheveux">'+COIFFE+cheveux(s.coupe,s.cheveux)+'</g></g>'+
+       '<rect x="38.4" y="38.4" width="6" height="5.6" fill="'+s.peau+'"'+CT+'/>'+
+       '<ellipse cx="41.6" cy="31" rx="10.2" ry="10" fill="'+s.peau+'"'+CT+'/>'+
+       '<ellipse cx="34.6" cy="32.6" rx="1.9" ry="2.7" fill="'+s.peau+'"'+CT+'/><path d="M34.2 31.6q1 1.2 0 2.6" stroke="rgba(0,0,0,.4)" stroke-width=".7" fill="none" stroke-linecap="round"/>'+
+       '<path d="M51.2 30.6C55.2 31.2 56 35 52.4 35.8 51 36.1 49.8 35.6 49 34.8Z" fill="'+s.peau+'"'+CT+'/>';
+    if(s.barbe)o+='<path d="M36.6 37C35.6 46 40.2 54 46 56.2C52 53.4 55 45 52.4 36.6C48 40.8 41 41 36.6 37Z" fill="'+s.barbe+'"'+CT+'/><path d="M40.4 42.4c.8 3.8.2 7.6 2.8 10.4M46.4 42.4c0 3.6-.4 7-2 9.6M51 41.6c-.6 3-1.6 5.4-3.2 7.2" stroke="rgba(0,0,0,.28)" stroke-width="1.1" fill="none" stroke-linecap="round"/>';
+    /* lunettes de savant fou : sangle jusqu'à l'oreille, œil lointain (petit, de biais) derrière l'œil proche (grand) */
+    o+='<path d="M38.6 29.2L31.8 27.6" stroke="'+s.lunettes+'" stroke-width="2.2" stroke-linecap="round"/><path d="M38.6 29.2L31.8 27.6" stroke="#1b1008" stroke-width=".5" opacity=".5"/>'+
+       '<ellipse cx="49.8" cy="29.6" rx="2.6" ry="4" fill="#fff" stroke="'+s.lunettes+'" stroke-width="1.9"/>'+
+       '<ellipse cx="42.8" cy="29.4" rx="4.7" ry="5.1" fill="#fff" stroke="'+s.lunettes+'" stroke-width="2.1"/><ellipse cx="42.8" cy="29.4" rx="5.7" ry="6.1" fill="none" stroke="#1b1008" stroke-width=".7" opacity=".5"/>'+
+       '<g class="lb-pupilles"><circle cx="44.4" cy="29.6" r="1.7" fill="#1b1008"/><circle cx="50.5" cy="29.8" r="1.1" fill="#1b1008"/></g>'+
+       '<g class="lb-lueur"><path d="M39.8 26.4c1-.9 2.3-1.1 3.4-.7" stroke="#fff" stroke-width="1.1" fill="none" stroke-linecap="round"/></g>'+
+       '<g class="lb-sourcils"><path d="M37.8 23.4L46.6 21.4" stroke="#1b1008" stroke-width="1.8" stroke-linecap="round"/><path d="M48.4 21.8L52 21.4" stroke="#1b1008" stroke-width="1.5" stroke-linecap="round"/></g>';
+    /* grande bouche de rire */
+    o+='<g class="lb-bouche"><path d="M44.4 36.6C47 38.2 50.2 37.8 51.8 36C51.6 39.8 48.4 41.8 45.8 41.2C43.4 40.6 43.2 38.6 44.4 36.6Z" fill="#6a1a26"'+CT+'/><path d="M45.8 37.6h4.6" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></g>';
+    if(s.chapeau&&CHAPEAUX[s.chapeau])o+=COIFFE+CHAPEAUX[s.chapeau]()+'</g>';
     o+='</g>';   /* tête */
     o+='</g></g>';   /* corps, savant */
     return o;
   }
 
   /* ---------- le liquide d'un ustensile, découpé dans la forme réelle de son verre ---------- */
-  function liquide(cle,niveau,v,idu){
+  function liquide(cle,niveau,v,idu,classeNiveau){
     var I=INTERIEURS[cle],h=I.y1-I.y0,yn=Math.round(I.y1-niveau*h),w=I.x1-I.x0;
     var pot=v.c[0],pot2=v.c[1],id='lbc-'+idu+'-'+cle,n=3,b='';
     for(var i=0;i<n;i++){
@@ -142,48 +149,145 @@
       b+='<g class="lb-bul" style="--mont:-'+Math.round((I.y1-yn)*0.8)+'px;animation-delay:calc(var(--T)*-'+(i*0.3).toFixed(2)+')">'+forme(v.forme,bx,I.y1-30,r,'rgba(255,255,255,.88)')+'</g>';
     }
     return '<clipPath id="'+id+'"><path d="'+I.p+'"/></clipPath>'+
-      '<g clip-path="url(#'+id+')"><g class="lb-niveau"><rect x="'+I.x0+'" y="'+yn+'" width="'+w+'" height="'+(h+20)+'" fill="'+pot+'"/>'+
+      '<g clip-path="url(#'+id+')"><g class="'+classeNiveau+'"><rect x="'+I.x0+'" y="'+yn+'" width="'+w+'" height="'+(h+60)+'" fill="'+pot+'"/>'+
       '<rect x="'+I.x0+'" y="'+Math.round(yn+h*0.35)+'" width="'+w+'" height="'+Math.round(h)+'" fill="'+pot2+'" opacity=".55"/>'+
       '<path d="M'+I.x0+' '+yn+'c'+Math.round(w*.2)+' '+Math.round(-h*.05)+' '+Math.round(w*.3)+' '+Math.round(-h*.05)+' '+Math.round(w*.5)+' 0s'+Math.round(w*.3)+' '+Math.round(h*.05)+' '+Math.round(w*.5)+' 0v'+Math.round(h*.06)+'H'+I.x0+'z" fill="'+pot+'"/></g>'+b+'</g>';
   }
   function pose(p){var k=p.w/p.w0;return {k:k,x:f1(p.cx-p.w/2),y:f1(p.base-p.h0*k)};}
+  var NIVEAUX={flacon:.5,tubeG:.55,becher:.45};
 
-  /* La scène complète d'un labo. images = {decor, etabli, flacon, tubes, becher} (URL ou data:) ; travaille = animations actives */
-  function scene(id,images,travaille){
+  /* La scène complète d'un labo. images = {decor, etabli, flacon, tubes, becher} (URL ou data:) ; travaille = animations actives ; decalage = 0..1, départ décalé dans la chorégraphie (labos qui ne bougent pas tous ensemble) */
+  function scene(id,images,travaille,decalage){
     var v=LABOS[id],c=CELLULES[id];if(!v||!c)return '';
     v.id=id;
     var idu=id,pe=pose(PIECES.etabli),pf=pose(PIECES.flacon),pt=pose(PIECES.tubes),pb=pose(PIECES.becher);
-    var sav='<g transform="translate(18 69) scale(1.75)">'+savant(v.s,v)+'</g>';
+    /* le savant est TOUJOURS dessiné derrière l'établi : à gauche il ne touche rien, derrière l'établi la table cache ses jambes */
+    var sav='<g class="lb-deplace" transform="translate('+DEPART[0]+' '+DEPART[1]+')"><g class="lb-sens"><g transform="scale('+SAVANT_K+') translate(-40 -90)">'+savant(v.s,v)+'</g></g></g>';
     var verre=function(cle,pz,p,liq){return '<g transform="translate('+p.x+' '+p.y+') scale('+f1(p.k*1000)/1000+')">'+liq+'<image href="'+images[cle]+'" width="'+pz.w0+'" height="'+pz.h0+'"/></g>';};
-    return '<svg class="lb'+(travaille?' lb-on':'')+'" viewBox="0 0 '+L+' '+H+'" role="img" aria-label="'+v.nom+'" focusable="false">'+
+    /* filets de potion versés (un par verre) : une fine bande depuis l'ouverture jusqu'à la surface du liquide */
+    var filet=function(cle,pz,classe){var p=pose(PIECES[pz]),bo=BOUCHES[cle],I=INTERIEURS[cle],h=I.y1-I.y0,yn=p.y+(I.y1-NIVEAUX[cle]*h)*p.k,x=p.x+bo[0]*p.k,y0=p.y+bo[1]*p.k-9;
+      return '<rect class="lb-filet '+classe+'" x="'+f1(x-1.3)+'" y="'+f1(y0)+'" width="2.6" height="'+f1(yn-y0)+'" rx="1.3" fill="'+v.c[0]+'" stroke="#1b1008" stroke-width=".5" style="transform-origin:'+f1(x)+'px '+f1(y0)+'px"/>';};
+    return '<svg class="lb'+(travaille?' lb-on':'')+'" viewBox="0 0 '+L+' '+H+'" role="img" aria-label="'+v.nom+'" focusable="false" style="--dec:'+(decalage||0)+'">'+
       '<svg x="0" y="0" width="'+L+'" height="'+H+'" viewBox="'+c[0]+' '+c[1]+' '+L+' '+H+'"><image href="'+images.decor+'" width="1262" height="848"/></svg>'+
       sav+
       '<image href="'+images.etabli+'" x="'+pe.x+'" y="'+pe.y+'" width="'+PIECES.etabli.w+'" height="'+f1(PIECES.etabli.h0*pe.k)+'"/>'+
-      verre('flacon',PIECES.flacon,pf,liquide('flacon',.62,v,idu))+
-      verre('tubes',PIECES.tubes,pt,liquide('tubeG',.7,v,idu)+liquide('tubeD',.45,v,idu))+
-      verre('becher',PIECES.becher,pb,liquide('becher',.5,v,idu))+
+      verre('flacon',PIECES.flacon,pf,liquide('flacon',NIVEAUX.flacon,v,idu,'lb-niv-f'))+
+      verre('tubes',PIECES.tubes,pt,liquide('tubeG',NIVEAUX.tubeG,v,idu,'lb-niv-t')+liquide('tubeD',.45,v,idu,'lb-niveau'))+
+      verre('becher',PIECES.becher,pb,liquide('becher',NIVEAUX.becher,v,idu,'lb-niv-b'))+
+      filet('flacon','flacon','lb-filet-f')+filet('tubeG','tubes','lb-filet-t')+filet('becher','becher','lb-filet-b')+
       '</svg>';
   }
 
-  /* ---------- le style (une seule fois) : transform et opacity seulement, période commune --T ---------- */
+  /* ---------- la chorégraphie : le savant marche derrière l'établi et verse dans le flacon, les tubes et le bécher ---------- */
+  var P=16,PIDLE=16/7;   /* durée du cycle complet (s), à vitesse normale ; le geste de repos (2,29 s) tient sept fois dans le cycle : boucle exacte */
+  function suave(x){x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);}
+  function interp(tab,u){for(var i=0;i<tab.length-1;i++){if(u>=tab[i][0]&&u<=tab[i+1][0]){var a=tab[i],b=tab[i+1];return a[1]+(b[1]-a[1])*suave((u-a[0])/((b[0]-a[0])||1));}}return tab[tab.length-1][1];}
+  /* mouvements au repos (boucle de 2,4 s), rangés par articulation, en degrés (clés de 0 à 1) */
+  var T_IDLE={
+    brasAv:[[0,0],[.18,-6],[.36,4],[.52,-14],[.6,-8],[.7,-14],[.85,2],[1,0]],
+    avbrasAv:[[0,0],[.08,14],[.16,-10],[.24,14],[.32,-10],[.4,12],[.48,-6],[.56,-20],[.64,-12],[.72,-20],[.8,8],[.88,-4],[1,0]],
+    brasAr:[[0,0],[.25,-8],[.5,6],[.62,-16],[.7,-6],[.78,-16],[1,0]],
+    avbrasAr:[[0,0],[.2,10],[.45,-10],[.62,14],[.78,-6],[1,0]],
+    corps:[[0,1.2],[.25,2.4],[.5,.6],[.58,1],[.64,1.4],[.7,1],[.78,1.2],[1,1.2]],
+    bob:[[0,0],[.25,-.5],[.5,.3],[.58,-1],[.64,.3],[.7,-1],[.78,0],[1,0]]
+  };
+  var PHASES=[[0,2.6,'repos'],[2.6,4.2,'marche'],[4.2,6.2,'verse',0],[6.2,6.9,'marche'],[6.9,8.9,'verse',1],[8.9,9.8,'marche'],[9.8,11.8,'verse',2],[11.8,14.4,'retour'],[14.4,16,'repos']];
+  var MARCHES=[[2.6,4.2],[6.2,6.9],[8.9,9.8],[11.95,14.25]];
+  var DEPART=[78,238],SAVANT_K=1.9,P1=[114,216],DERRIERE_Y=214;
+  var BOUCHES={flacon:[120,33],tubeG:[77,23],becher:[106,30]};   /* centre de l'ouverture de chaque verre, en pixels de son image */
+  /* postes de versement : position du savant (pieds) et angles des bras, calculés par cinématique inverse pour que la fiole penchée se retrouve juste au-dessus du verre */
+  function postes(){
+    var def=[['flacon','flacon'],['tubeG','tubes'],['becher','becher']],out=[];
+    var S1=ART.epaule,E0=ART.coude,H0=ART.main;
+    var a=Math.hypot(E0[0]-S1[0],E0[1]-S1[1]),b=Math.hypot(H0[0]-E0[0],H0[1]-E0[1]),u0=Math.atan2(E0[1]-S1[1],E0[0]-S1[0]),f0=Math.atan2(H0[1]-E0[1],H0[0]-E0[0]);
+    def.forEach(function(d){
+      var p=pose(PIECES[d[1]]),I=BOUCHES[d[0]],mx=p.x+I[0]*p.k,my=p.y+I[1]*p.k;
+      /* la fiole penchée de 112° a son goulot à (+5,7 ; +2,3) de la main (px locaux) : la main est donc au-dessus et à gauche de l'ouverture */
+      var cible=[mx-5.7*SAVANT_K,my-2.3*SAVANT_K-9];
+      var X=cible[0]-(S1[0]-40)*SAVANT_K-18,Y=DERRIERE_Y;
+      var lx=40+(cible[0]-X)/SAVANT_K,ly=90+(cible[1]-Y)/SAVANT_K;
+      var dx=lx-S1[0],dy=ly-S1[1],dist=Math.min(a+b-.5,Math.max(Math.abs(a-b)+.5,Math.hypot(dx,dy))),phi=Math.atan2(dy,dx);
+      var alpha=Math.acos(Math.max(-1,Math.min(1,(a*a+dist*dist-b*b)/(2*a*dist))));
+      var thU=phi+alpha;   /* coude vers le bas */
+      var ex=S1[0]+a*Math.cos(thU),ey=S1[1]+a*Math.sin(thU),thF=Math.atan2(ly-ey,lx-ex);
+      var t1=(thU-u0)*180/Math.PI,t2=(thF-f0-(thU-u0))*180/Math.PI;
+      out.push({X:X,Y:Y,t1:t1,t2:t2,mx:mx,my:my});
+    });
+    return out;
+  }
+  function modele(){
+    var ST=postes(),ptsX=[[0,DEPART[0],DEPART[1]],[2.6,DEPART[0],DEPART[1]],[3.3,P1[0],P1[1]],[4.2,ST[0].X,ST[0].Y],[6.2,ST[0].X,ST[0].Y],[6.9,ST[1].X,ST[1].Y],[8.9,ST[1].X,ST[1].Y],[9.8,ST[2].X,ST[2].Y],[11.8,ST[2].X,ST[2].Y],[13.55,P1[0],P1[1]],[14.25,DEPART[0],DEPART[1]],[16,DEPART[0],DEPART[1]]];
+    function position(t){for(var i=0;i<ptsX.length-1;i++){var a=ptsX[i],b=ptsX[i+1];if(t>=a[0]&&t<=b[0]){var k=(t-a[0])/((b[0]-a[0])||1);return [a[1]+(b[1]-a[1])*k,a[2]+(b[2]-a[2])*k];}}return [DEPART[0],DEPART[1]];}
+    function sens(t){if(t<11.8)return 1;if(t<11.95)return 1-2*suave((t-11.8)/.15);if(t<14.25)return -1;if(t<14.4)return -1+2*suave((t-14.25)/.15);return 1;}
+    function poids(t){   /* marche (jambes, balancier des bras) : 1 pendant les trajets, rampes de 0,15 s */
+      var w=0;MARCHES.forEach(function(m){w=Math.max(w,suave((t-m[0])/.15)*(1-suave((t-m[1]+.15)/.15)));});return w;}
+    function mode(t){   /* poids [repos, marche, verse] avec fondus de 0,3 s aux frontières */
+      var base=function(i){var m=PHASES[i][2];return m==='repos'?[1,0,0]:(m==='verse'?[0,0,1]:[0,1,0]);};
+      var idx=0;for(var i=0;i<PHASES.length;i++)if(t>=PHASES[i][0]&&t<PHASES[i][1])idx=i;
+      var w=base(idx);
+      for(var j=0;j<PHASES.length-1;j++){var bnd=PHASES[j][1];if(Math.abs(t-bnd)<.15){var s=suave((t-bnd+.15)/.3),A=base(j),B=base(j+1);w=[A[0]*(1-s)+B[0]*s,A[1]*(1-s)+B[1]*s,A[2]*(1-s)+B[2]*s];}}
+      return w;
+    }
+    function verse(t){   /* avancement du versement : { prise (0..1), bascule (0..1), poste } */
+      for(var i=0;i<PHASES.length;i++)if(PHASES[i][2]==='verse'&&t>=PHASES[i][0]&&t<PHASES[i][1]){var u=t-PHASES[i][0];return {prise:suave(u/.4)*(1-suave((u-1.55)/.45)),bascule:suave((u-.35)/.35)*(1-suave((u-1.45)/.35)),poste:PHASES[i][3]};}
+      return {prise:0,bascule:0,poste:0};
+    }
+    function articulations(t){
+      var w=mode(t),u=((t%PIDLE)+PIDLE)%PIDLE/PIDLE,ww=poids(t),om=2*Math.PI*t/.5,vs=verse(t),pst=ST[vs.poste];
+      var carry1=54+4*Math.sin(om),carry2=-38+5*Math.sin(om+1.6);
+      var idle1=interp(T_IDLE.brasAv,u),idle2=interp(T_IDLE.avbrasAv,u);
+      var pour1=carry1*(1-vs.prise)+pst.t1*vs.prise,pour2=carry2*(1-vs.prise)+pst.t2*vs.prise;
+      var av1=w[0]*idle1+w[1]*carry1+w[2]*pour1,av2=w[0]*idle2+w[1]*carry2+w[2]*pour2;
+      var ar1=w[0]*interp(T_IDLE.brasAr,u)+w[1]*(16*Math.sin(om))+w[2]*(-18+4*Math.sin(2*Math.PI*t/.6));
+      var ar2=w[0]*interp(T_IDLE.avbrasAr,u)+w[1]*10+w[2]*(14+3*Math.sin(2*Math.PI*t/.6+1));
+      var corps=w[0]*interp(T_IDLE.corps,u)+w[1]*3+w[2]*(1+5*vs.prise),bob=w[0]*interp(T_IDLE.bob,u)+w[1]*(-1.1*Math.abs(Math.sin(om/2)));
+      var p=position(t);
+      return {x:p[0],y:p[1],f:sens(t),jg:26*Math.sin(om)*ww,jd:-26*Math.sin(om)*ww,corps:corps,bob:bob,brasAv:av1,avbrasAv:av2,fiole:112*vs.bascule*w[2],brasAr:ar1,avbrasAr:ar2};
+    }
+    /* niveaux de potion : monte pendant le versement, redescend lentement le reste du cycle (retour exact au départ) */
+    function niveau(t,k,D){var ph=PHASES.filter(function(q){return q[2]==='verse'&&q[3]===k;})[0],ts=ph[0]+.45,dur=1.0,te=ts+dur;
+      if(t>=ts&&t<=te)return D*suave((t-ts)/dur);var tau=((t-te)%P+P)%P;return D*(1-tau/(P-dur));}
+    function filet(t,k){var ph=PHASES.filter(function(q){return q[2]==='verse'&&q[3]===k;})[0],a=ph[0]+.6,b=ph[0]+1.5;return suave((t-a)/.12)*(1-suave((t-b+.12)/.12));}
+    return {articulations:articulations,niveau:niveau,filet:filet,postes:ST};
+  }
+  /* un @keyframes à partir d'une fonction du temps : échantillons réguliers, dernier = premier (boucle exacte) */
+  function kfFonction(nom,pas,fn){
+    var n=Math.round(P/pas),o='@keyframes '+nom+'{';
+    for(var i=0;i<=n;i++){var t=i===n?0:i*pas;o+=f3(i/n*100)+'%{'+fn(t)+'}';}
+    return o+'}';
+  }
+  function f3(x){return (Math.round(x*1000)/1000).toString();}
+  function dg(x){return f1(x)+'deg';}
+
+  /* ---------- le style (une seule fois) : transform et opacity seulement ; les mouvements de chorégraphie ont la période --P, les petits gestes la période --T ---------- */
   function css(){
-    var T='.lb{--T:2.4s;display:block;width:100%;height:auto}';
+    var M=modele(),AR=function(t){return M.articulations(t);};
     function kf(nom,pas){return '@keyframes '+nom+'{'+pas+'}';}
-    function ro(deg,tx,ty){return 'transform:rotate('+deg+'deg)'+(tx!==undefined?' translate('+tx+'px,'+ty+'px)':'');}
-    var o=[T,
+    var o=['.lb{--T:2.4s;--P:calc(var(--T)*6.6667);display:block;width:100%;height:auto}',
       '.lb *{transform-box:view-box}',
-      '.lb-on .lb-corps{animation:lbCorps var(--T) ease-in-out infinite;transform-origin:40px 68px}',
-      kf('lbCorps','0%,100%{transform:rotate(1.2deg) translateY(0)}25%{transform:rotate(2.4deg) translateY(-.5px)}50%{transform:rotate(.6deg) translateY(.3px)}58%{transform:rotate(1deg) translateY(-1px)}64%{transform:rotate(1.4deg) translateY(.3px)}70%{transform:rotate(1deg) translateY(-1px)}78%{transform:rotate(1.2deg) translateY(0)}'),
+      '.lb-on .lb-deplace,.lb-on .lb-sens,.lb-on .lb-jambe-g,.lb-on .lb-jambe-d,.lb-on .lb-corps,.lb-on .lb-bras-av,.lb-on .lb-avbras-av,.lb-on .lb-fiole,.lb-on .lb-bras-ar,.lb-on .lb-avbras-ar,.lb-on .lb-niv-f,.lb-on .lb-niv-t,.lb-on .lb-niv-b,.lb-on .lb-filet{animation-duration:var(--P);animation-timing-function:linear;animation-iteration-count:infinite;animation-delay:calc(var(--P)*var(--dec,0)*-1)}',
+      '.lb-deplace,.lb-sens{transform-origin:0 0}',
+      '.lb-on .lb-deplace{animation-name:lbDep}',kfFonction('lbDep',.1,function(t){var a=AR(t);return 'transform:translate('+f1(a.x)+'px,'+f1(a.y)+'px)';}),
+      '.lb-on .lb-sens{animation-name:lbSens}',kfFonction('lbSens',.05,function(t){return 'transform:scaleX('+f1(AR(t).f*100)/100+')';}),
+      '.lb-on .lb-jambe-g{animation-name:lbJG;transform-origin:'+ART.hancheG[0]+'px '+ART.hancheG[1]+'px}',kfFonction('lbJG',.1,function(t){return 'transform:rotate('+dg(AR(t).jg)+')';}),
+      '.lb-on .lb-jambe-d{animation-name:lbJD;transform-origin:'+ART.hancheD[0]+'px '+ART.hancheD[1]+'px}',kfFonction('lbJD',.1,function(t){return 'transform:rotate('+dg(AR(t).jd)+')';}),
+      '.lb-on .lb-corps{animation-name:lbCorps;transform-origin:40px 68px}',kfFonction('lbCorps',.1,function(t){var a=AR(t);return 'transform:rotate('+dg(a.corps)+') translateY('+f1(a.bob)+'px)';}),
+      '.lb-on .lb-bras-av{animation-name:lbBrasAv;transform-origin:'+ART.epaule[0]+'px '+ART.epaule[1]+'px}',kfFonction('lbBrasAv',.1,function(t){return 'transform:rotate('+dg(AR(t).brasAv)+')';}),
+      '.lb-on .lb-avbras-av{animation-name:lbAvBrasAv;transform-origin:'+ART.coude[0]+'px '+ART.coude[1]+'px}',kfFonction('lbAvBrasAv',.1,function(t){return 'transform:rotate('+dg(AR(t).avbrasAv)+')';}),
+      '.lb-on .lb-fiole{animation-name:lbFiole;transform-origin:'+ART.main[0]+'px '+ART.main[1]+'px}',kfFonction('lbFiole',.1,function(t){return 'transform:rotate('+dg(AR(t).fiole)+')';}),
+      '.lb-on .lb-bras-ar{animation-name:lbBrasAr;transform-origin:'+ART.epauleAr[0]+'px '+ART.epauleAr[1]+'px}',kfFonction('lbBrasAr',.1,function(t){return 'transform:rotate('+dg(AR(t).brasAr)+')';}),
+      '.lb-on .lb-avbras-ar{animation-name:lbAvBrasAr;transform-origin:'+ART.coudeAr[0]+'px '+ART.coudeAr[1]+'px}',kfFonction('lbAvBrasAr',.1,function(t){return 'transform:rotate('+dg(AR(t).avbrasAr)+')';}),
+      /* niveaux de potion (translateY en pixels de l'image du verre) et filets versés */
+      '.lb-on .lb-niv-f{animation-name:lbNivF}',kfFonction('lbNivF',.2,function(t){return 'transform:translateY('+f1(-M.niveau(t,0,.24)*306)+'px)';}),
+      '.lb-on .lb-niv-t{animation-name:lbNivT}',kfFonction('lbNivT',.2,function(t){return 'transform:translateY('+f1(-M.niveau(t,1,.22)*197)+'px)';}),
+      '.lb-on .lb-niv-b{animation-name:lbNivB}',kfFonction('lbNivB',.2,function(t){return 'transform:translateY('+f1(-M.niveau(t,2,.24)*288)+'px)';}),
+      '.lb-filet{opacity:0}',
+      '.lb-on .lb-filet-f{animation-name:lbFiletF}',kfFonction('lbFiletF',.1,function(t){var v=M.filet(t,0);return 'opacity:'+f1(v*10)/10+';transform:scaleY('+f1(v*100)/100+')';}),
+      '.lb-on .lb-filet-t{animation-name:lbFiletT}',kfFonction('lbFiletT',.1,function(t){var v=M.filet(t,1);return 'opacity:'+f1(v*10)/10+';transform:scaleY('+f1(v*100)/100+')';}),
+      '.lb-on .lb-filet-b{animation-name:lbFiletB}',kfFonction('lbFiletB',.1,function(t){var v=M.filet(t,2);return 'opacity:'+f1(v*10)/10+';transform:scaleY('+f1(v*100)/100+')';}),
+      /* petits gestes (boucle de 2,4 s) : tête, cheveux, blouse, yeux, bouche, doigts, bulles */
       '.lb-on .lb-tete{animation:lbTete var(--T) ease-in-out infinite;transform-origin:41px 41px}',
       kf('lbTete','0%,100%{transform:rotate(0)}20%{transform:rotate(3deg)}40%{transform:rotate(-2deg)}55%{transform:rotate(-9deg)}62%{transform:rotate(-6deg)}68%{transform:rotate(-9deg)}78%{transform:rotate(-3deg)}'),
-      '.lb-on .lb-bras-av{animation:lbBrasAv var(--T) ease-in-out infinite;transform-origin:47px 46px}',
-      kf('lbBrasAv','0%,100%{transform:rotate(0)}18%{transform:rotate(-6deg)}36%{transform:rotate(4deg)}52%{transform:rotate(-14deg)}60%{transform:rotate(-8deg)}70%{transform:rotate(-14deg)}85%{transform:rotate(2deg)}'),
-      '.lb-on .lb-avbras-av{animation:lbAvBrasAv var(--T) ease-in-out infinite;transform-origin:57.5px 37.5px}',
-      kf('lbAvBrasAv','0%,100%{transform:rotate(0)}8%{transform:rotate(14deg)}16%{transform:rotate(-10deg)}24%{transform:rotate(14deg)}32%{transform:rotate(-10deg)}40%{transform:rotate(12deg)}48%{transform:rotate(-6deg)}56%{transform:rotate(-20deg)}64%{transform:rotate(-12deg)}72%{transform:rotate(-20deg)}80%{transform:rotate(8deg)}88%{transform:rotate(-4deg)}'),
-      '.lb-on .lb-bras-ar{animation:lbBrasAr var(--T) ease-in-out infinite;transform-origin:34px 46px}',
-      kf('lbBrasAr','0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}50%{transform:rotate(6deg)}62%{transform:rotate(-16deg)}70%{transform:rotate(-6deg)}78%{transform:rotate(-16deg)}'),
-      '.lb-on .lb-avbras-ar{animation:lbAvBrasAr var(--T) ease-in-out infinite;transform-origin:28px 55px}',
-      kf('lbAvBrasAr','0%,100%{transform:rotate(0)}20%{transform:rotate(10deg)}45%{transform:rotate(-10deg)}62%{transform:rotate(14deg)}78%{transform:rotate(-6deg)}'),
       '.lb-on .lb-doigts{animation:lbDoigts calc(var(--T)*.5) ease-in-out infinite;transform-origin:23.6px 43.2px}',
       kf('lbDoigts','0%,100%{transform:rotate(0)}25%{transform:rotate(8deg)}75%{transform:rotate(-8deg)}'),
       '.lb-on .lb-cheveux{animation:lbCheveux var(--T) ease-in-out infinite;animation-delay:calc(var(--T)*-.06);transform-origin:41px 24px}',
@@ -194,7 +298,7 @@
       kf('lbPup','0%,100%{transform:translate(0,0)}15%,40%{transform:translate(.9px,.5px)}50%,70%{transform:translate(-.4px,-.7px)}85%{transform:translate(.5px,.2px)}'),
       '.lb-on .lb-sourcils{animation:lbSourcils var(--T) ease-in-out infinite}',
       kf('lbSourcils','0%,50%,82%,100%{transform:translateY(0)}58%,74%{transform:translateY(-1.3px)}'),
-      '.lb-on .lb-bouche{animation:lbBouche var(--T) ease-in-out infinite;transform-origin:45px 38px}',
+      '.lb-on .lb-bouche{animation:lbBouche var(--T) ease-in-out infinite;transform-origin:48px 38px}',
       kf('lbBouche','0%,52%,80%,100%{transform:scaleY(1)}58%,72%{transform:scaleY(1.35)}'),
       '.lb-on .lb-lueur{animation:lbLueur var(--T) ease-in-out infinite}',
       kf('lbLueur','0%,100%{opacity:.35}45%{opacity:1}'),
@@ -207,9 +311,9 @@
       kf('lbBul','0%{transform:translateY(0);opacity:0}15%{opacity:1}80%{opacity:1}100%{transform:translateY(var(--mont));opacity:0}'),
       '.lb-on .lb-petite-b{animation:lbPetiteB calc(var(--T)*.5) linear infinite}',
       kf('lbPetiteB','0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(-6px);opacity:0}'),
-      '@media (prefers-reduced-motion:reduce){.lb *{animation:none!important}.lb-bul{opacity:0}}'];
+      '@media (prefers-reduced-motion:reduce){.lb *{animation:none!important}.lb-bul{opacity:0}.lb-filet{opacity:0}}'];
     return o.join('\n');
   }
 
-  window.__SOREAL_IDLE_LABOS_SAVANTS_V1__={scene:scene,css:css,labos:LABOS,cellules:CELLULES,pieces:PIECES,interieurs:INTERIEURS};
+  window.__SOREAL_IDLE_LABOS_SAVANTS_V1__={scene:scene,css:css,labos:LABOS,cellules:CELLULES,pieces:PIECES,interieurs:INTERIEURS,modele:modele};
 })();

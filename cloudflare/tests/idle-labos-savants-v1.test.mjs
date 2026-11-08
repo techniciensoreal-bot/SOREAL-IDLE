@@ -64,3 +64,39 @@ assert.ok(css.includes("transform-origin:47px 46px") && css.includes("transform-
 // Anti-spoil (règle n°2) : aucun total « x / y » dans le module.
 assert.ok(!/\d+\s*\/\s*(?:12|total)/.test(src.replace(/\/\*[\s\S]*?\*\//g, "")), "aucun total révélateur");
 console.log("idle-labos-savants-v1: OK");
+
+/* ---------- chorégraphie (Norman, 2026-11-08 : « qu'ils se déplacent dans leurs cases, passent derrière le bureau et versent du liquide dans les récipients ») ---------- */
+{
+  const M = S.modele();
+  // trois postes de versement (flacon, tubes, bécher), de gauche à droite derrière l'établi, bras atteignables
+  assert.equal(M.postes.length, 3, "trois postes de versement");
+  assert.ok(M.postes[0].X < M.postes[1].X && M.postes[1].X < M.postes[2].X, "le savant avance de gauche à droite derrière l'établi");
+  for (const p of M.postes) { assert.ok(Number.isFinite(p.t1) && Number.isFinite(p.t2) && Math.abs(p.t1) < 170 && Math.abs(p.t2) < 170, "angles de bras finis et plausibles"); assert.ok(p.Y === 214, "derrière l'établi"); }
+  // boucle exacte : la fin du cycle retrouve le début (position, sens, articulations, niveaux)
+  const a0 = M.articulations(0), a1 = M.articulations(15.9999);
+  for (const k of ["x", "y", "f", "jg", "jd", "corps", "bob", "brasAv", "avbrasAv", "fiole", "brasAr", "avbrasAr"]) assert.ok(Math.abs(a0[k] - a1[k]) < 0.02, "boucle exacte : " + k + " (" + a0[k] + " / " + a1[k] + ")");
+  for (let k = 0; k < 3; k++) assert.ok(Math.abs(M.niveau(0, k, 0.2) - M.niveau(15.9999, k, 0.2)) < 0.001, "niveau " + k + " : retour exact");
+  // le savant reste dans sa case, jamais devant l'établi quand il le croise (y haut = derrière), et regarde à gauche seulement au retour
+  let gauche = 0;
+  for (let t = 0; t < 16; t += 0.05) {
+    const a = M.articulations(t);
+    assert.ok(a.x >= 70 && a.x <= 260 && a.y >= 205 && a.y <= 240, "position dans la case à t=" + t.toFixed(2));
+    for (const k of Object.keys(a)) assert.ok(Number.isFinite(a[k]), "valeur finie " + k + " à t=" + t.toFixed(2));
+    if (a.x > 140 && a.x < 262) assert.ok(a.y <= 216, "derrière l'établi quand il le longe (t=" + t.toFixed(2) + ")");
+    if (a.f < -0.99) gauche += 1;
+  }
+  assert.ok(gauche > 20 && gauche < 80, "il regarde à gauche pendant le retour seulement");
+  // chaque verre se remplit pendant son versement : le niveau monte puis redescend lentement
+  for (let k = 0; k < 3; k++) { const ph = [4.2, 6.9, 9.8][k]; assert.ok(M.niveau(ph + 1.5, k, 0.2) > M.niveau(ph, k, 0.2) + 0.15, "le niveau du verre " + k + " monte pendant le versement"); assert.ok(M.filet(ph + 1.0, k) > 0.9 && M.filet(ph - 0.3, k) < 0.05, "le filet de potion coule seulement pendant le versement " + k); }
+  // la fiole bascule seulement pendant le versement
+  assert.ok(M.articulations(5.2).fiole > 100 && M.articulations(1).fiole === 0 && M.articulations(3.5).fiole < 1, "la fiole bascule pour verser");
+  // jambes : elles marchent seulement sur les trajets
+  assert.ok(Math.abs(M.articulations(3.6).jg) + Math.abs(M.articulations(13.1).jg) > 5 && M.articulations(5.2).jg === 0 && M.articulations(1).jg === 0, "jambes immobiles hors des trajets");
+  // la scène ne dessine le savant qu'une fois, derrière l'établi (une seule instance de lb-savant, avant l'image de l'établi)
+  const sc = S.scene("drop", { decor: "d.webp", etabli: "e.webp", flacon: "f.webp", tubes: "t.webp", becher: "b.webp" }, true, 0.25);
+  assert.equal((sc.match(/class="lb-savant"/g) || []).length, 1, "un seul savant");
+  assert.ok(sc.indexOf("lb-savant") < sc.indexOf("e.webp"), "le savant est derrière l'établi");
+  assert.ok(sc.includes("--dec:0.25") && S.css().includes("animation-delay:calc(var(--P)*var(--dec,0)*-1)"), "départ décalé par labo");
+  assert.ok(sc.includes("lb-filet-f") && sc.includes("lb-filet-t") && sc.includes("lb-filet-b"), "un filet de potion par verre");
+}
+console.log("idle-labos-savants-v1 (chorégraphie): OK");
