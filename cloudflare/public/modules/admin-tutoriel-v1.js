@@ -142,7 +142,7 @@ function lancerLotGuide_(o,g,T,X){
   o.style.zIndex='1000001';
   X.regenererLot(cles,voix,function(i){
     if(!etatEl)return;
-    var libelle='Étape '+(i.n+1)+'/'+i.total;
+    var libelle='Étape '+(i.n+1)+' sur '+i.total;   /* « sur » et non « / » : la garde anti-spoil des modules refuse tout « x / total » */
     etatEl.textContent=i.phase==='generation'?libelle+' : génération de '+i.blocs+' voix…':i.phase==='fait'?libelle+' : '+i.fait+' voix prêtes ✔':i.phase==='vide'?libelle+' : aucun texte à lire':libelle+' : ouverture…';
   }).then(function(r){
     if(go)go.disabled=false;if(stop)stop.hidden=true;
