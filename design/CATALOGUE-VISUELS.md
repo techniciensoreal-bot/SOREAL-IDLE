@@ -54,7 +54,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `garderie/yeux` : 33
 - `icons` : 3
 - `img/mineurs/fonds` : 1
-- `img/mineurs/labos` : 18
+- `img/mineurs/labos` : 17
 - `intro` : 16
 - `machine-v2` : 3
 - `machine-v3` : 3
