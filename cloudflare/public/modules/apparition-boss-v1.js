@@ -187,7 +187,13 @@
     (document.head||document.documentElement).appendChild(s);
   }
   function idDe(img){
-    try{var u=new URL(img.getAttribute&&img.getAttribute('src')||img.currentSrc||img.src,location.href);var n=Math.floor(Number(u.searchParams.get('id')));return isFinite(n)&&n>0?n:0;}catch(_e){return 0;}
+    /* Le numéro du boss est dans l'adresse de l'image : « ?id=<n> » (image de base) OU « /<thème>/boss/<n>.webp » (thème Magic, Norman 2026-11-08 : « avec le pack magic, les boss suivants sont visibles directement une demi-seconde à la mort, puis ils disparaissent et apparaissent avec leur animation » : sans numéro lu, ni l'écran de mort ni l'apparition ne reconnaissaient le boss et le suivant restait à découvert). */
+    try{
+      var u=new URL(img.getAttribute&&img.getAttribute('src')||img.currentSrc||img.src,location.href);
+      var n=Math.floor(Number(u.searchParams.get('id')));
+      if(!(isFinite(n)&&n>0)){var m=/\/boss\/(\d+)\.webp$/.exec(u.pathname);n=m?Math.floor(Number(m[1])):0;}
+      return isFinite(n)&&n>0?n:0;
+    }catch(_e){return 0;}
   }
   /* Norman (2026-10-22) : « l'image du boss 34 est noire » : la classe de mort du boss précédent (opacity:0 !important) restait sur l'image quand le moteur local avait déjà mis le boss suivant dans la même balise. On la retire avant et après l'effet. */
   function nettoyerMort_(img){try{if(img&&img.classList){img.classList.remove('soreal-idle-boss-death-v61');img.style.removeProperty('opacity');}}catch(_e){}}

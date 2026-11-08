@@ -70,7 +70,12 @@
   var memoire=null;
   function entier_(v){var n=Math.floor(Number(v));return isFinite(n)&&n>0?n:0;}
   function imagePourBoss(img,n){
-    try{var u=new URL(img.currentSrc||img.src,location.href);return entier_(u.searchParams.get('id'))===n;}catch(_e){return false;}
+    try{
+      var u=new URL(img.currentSrc||img.src,location.href);
+      if(entier_(u.searchParams.get('id'))===n)return true;
+      var m=/\/boss\/(\d+)\.webp$/.exec(u.pathname);   /* image du thème Magic : /magic/boss/<n>.webp */
+      return Boolean(m)&&entier_(m[1])===n;
+    }catch(_e){return false;}
   }
   function capturer(hote,n){
     n=entier_(n);
