@@ -444,8 +444,8 @@
   "sha": "94fab409dca29867aea6feffa466ae3437cfdda6"
  },
  "/modules/labos-page-v1.js": {
-  "pin": 1,
-  "sha": "29976d05c01760b670cca8d6dd962927b5fa73dc"
+  "pin": 2,
+  "sha": "7cb8c3dabe427c95d586c425d57ec737a802f8c0"
  },
  "/modules/labos-savants-v1.js": {
   "pin": 1,
