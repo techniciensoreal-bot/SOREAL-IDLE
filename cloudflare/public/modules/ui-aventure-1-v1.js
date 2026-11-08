@@ -2355,8 +2355,10 @@
         actionMetaIdleV130_(payload||{});
       }
 
-      function setDiggerIdleV47_(id,niveau){
-        actionMetaV47_({action:'setDiggerLevel',digger:String(id||''),level:Math.max(0,idleEntier_(niveau))});
+      function setDiggerIdleV47_(id,niveau,ajuster){
+        const p={action:'setDiggerLevel',digger:String(id||''),level:Math.max(0,idleEntier_(niveau))};
+        if(ajuster===true)p.fit=true;   /* « Au maximum » : le plus haut niveau que l'or par seconde supporte */
+        actionMetaV47_(p);
       }
 
       function toggleDiggerIdleV47_(id,actif){

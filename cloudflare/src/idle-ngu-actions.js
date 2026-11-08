@@ -408,7 +408,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "upgradeDigger") {
     result = upgradeDigger(state,String(payload.digger||"drop"));
   } else if (action === "setDiggerLevel") {
-    result = setDiggerLevel(state,String(payload.digger||"drop"),payload.level);
+    result = setDiggerLevel(state,String(payload.digger||"drop"),payload.level,payload.fit===true);
   } else if (action === "toggleDigger") {
     result = toggleDigger(state,String(payload.digger||"drop"),payload.active);
   } else if (action === "setR3NomAleatoire") {

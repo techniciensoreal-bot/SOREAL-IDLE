@@ -292,7 +292,7 @@
         '<button type="button" class="mn-btn carre" '+(run<=0?'disabled ':'')+'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.max(0,run-1)+')" aria-label="Baisser le niveau actif">−</button>'+
         '<span class="mn-nivactif">'+run+'</span>'+
         '<button type="button" class="mn-btn carre" '+(run>=max?'disabled ':'')+'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.min(max,run+1)+')" aria-label="Monter le niveau actif">+</button>'+
-        '<button type="button" class="mn-btn" '+(run>=max?'disabled ':'')+'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+max+')">Au maximum</button></div>';
+        '<button type="button" class="mn-btn" '+(run>=max?'disabled ':'')+'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+max+',true)">Au maximum</button></div>';
     }
     h+='<div class="mn-ligne">'+
       (max>0

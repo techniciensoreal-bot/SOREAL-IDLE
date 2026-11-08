@@ -623,12 +623,38 @@ export function upgradeDigger(state,id){
   return {digger:id,maxLevel:d.maxLevel,cost};
 }
 
-export function setDiggerLevel(state,id,level){
+/*
+ * Niveau « au maximum » d'un mineur (Norman, 2026-11-08 : « dans Mineurs, le bouton Maximum doit nous mettre au maximum que notre or peut supporter ») : avec ajuster, le niveau demandé est ramené au plus haut niveau (au plus le niveau demandé) dont la consommation d'or,
+ * ajoutée à celle des AUTRES mineurs au travail, tient dans l'or par seconde brut de la Machine temporelle. La consommation croît avec le niveau : recherche par dichotomie. Aucun niveau ne tient : on garde l'état et on refuse comme avant (GPS_INSUFFISANT).
+ */
+export function niveauMaxSupporteDiggerV1(state,id,demande){
+  const s=state.systems.diggers,def=diggerDefinition(id);
+  const gross=idleNguTimeMachineGrossGoldPerSecond(state);
+  let autres=0;
+  for(const x of IDLE_NGU_DIGGERS){
+    if(x.id===id)continue;
+    const dx=s.data.diggers[x.id];
+    if(dx&&dx.active&&dx.runLevel>0)autres+=diggerDrainAtLevel(x,dx.runLevel);
+  }
+  let bas=0,haut=Math.max(0,int(demande,0));
+  while(bas<haut){
+    const m=Math.ceil((bas+haut)/2);
+    if(autres+diggerDrainAtLevel(def,m)<=gross)bas=m;else haut=m-1;
+  }
+  return bas;
+}
+
+export function setDiggerLevel(state,id,level,ajuster){
   const s=state.systems.diggers;
   if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");
   const def=diggerDefinition(id),d=s.data.diggers[id];
   if(!def||!d)throw new Error("DIGGER_INVALIDE");
-  const target=clamp(int(level,0),0,d.maxLevel);
+  let target=clamp(int(level,0),0,d.maxLevel);
+  if(ajuster&&target>0){
+    const supporte=niveauMaxSupporteDiggerV1(state,id,target);
+    if(supporte<=0)throw new Error("GPS_INSUFFISANT");
+    target=supporte;
+  }
   const wasActive=d.active;
   d.runLevel=target;
   if(target===0)d.active=false;
