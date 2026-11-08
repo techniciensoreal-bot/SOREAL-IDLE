@@ -134,6 +134,6 @@
   }
   (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){try{lancer();}catch(_e){}});
   document.addEventListener('visibilitychange',function(){if(!document.hidden)lancer();});
-  window.addEventListener('resize',function(){var c=document.querySelectorAll('canvas.aug-led-cv-v1');for(var i=0;i<c.length;i++)c[i].__sigLed='';c[i].__ech=0;});
+  window.addEventListener('resize',function(){var c=document.querySelectorAll('canvas.aug-led-cv-v1');for(var i=0;i<c.length;i++){c[i].__sigLed='';c[i].__ech=0;}});
   window.__SOREAL_IDLE_AUG_LED_BARRES_V1__={lancer:lancer};
 })();

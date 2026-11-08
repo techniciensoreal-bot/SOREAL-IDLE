@@ -4,8 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Il n’y a plus de bulles dans les tubes Énergie et Magie quand aucune ressource n’est placée dessus, même s’il reste du liquide.",
-    "Le bouton « Au maximum » met le mineur au plus haut niveau que ton or par seconde peut supporter (au lieu d’être refusé quand le niveau possédé est trop gourmand).",
-    "Les boutons grisés se lisent maintenant (texte clair sur fond sombre, au lieu de gris sur gris)."
+    "Quand tu retires toute l’énergie ou toute la magie d’une barre de tube, elle s’arrête net au lieu de continuer à monter un instant.",
+    "Redimensionner la fenêtre ne provoque plus d’erreur dans les barres lumineuses."
   ] };
 })();

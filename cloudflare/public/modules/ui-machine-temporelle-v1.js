@@ -209,6 +209,23 @@
         return c.d*(1-Math.max(0,p));
       }
 
+      /*
+       * Boîte noire des reculs (Norman, 2026-11-08 : « la barre, le temps d'une fraction de seconde, monte et descend » ; introuvable en mesure automatique sur 16 opérations). Tout recul visible d'une barre (plus de 0,2 % de la hauteur, hors
+       * passage de niveau) est noté avec son contexte : lisible dans window.__SOREAL_IDLE_BOITE_NOIRE_TM_V1__ et dans localStorage (soreal_idle_diag_v1_reculs_tm, propre à l'appareil, 40 entrées au plus). Seules les valeurs peintes par la boucle d'animation comptent (les écritures du minuteur à 15 Hz sont réécrites avant d'être peintes). Ne modifie rien à l'affichage.
+       */
+      const BOITE_NOIRE_TM_V1=window.__SOREAL_IDLE_BOITE_NOIRE_TM_V1__=[];
+      function noterReculTmIdleV1_(barreEl,pctTexte){
+        const nouveau=parseFloat(pctTexte)/100,ancien=barreEl.__tmDernierPeint;
+        barreEl.__tmDernierPeint=nouveau;
+        if(!(ancien>=0)||!(nouveau<ancien-0.002)||(ancien>0.7&&nouveau<0.3))return;
+        try{
+          const piste=barreEl.closest?barreEl.closest('.tmm-piste'):null,a=barreEl.__tmAnim,c=barreEl.__tmCorr;
+          BOITE_NOIRE_TM_V1.push({t:Date.now(),piste:piste&&piste.classList.contains('or')?'or':'vitesse',de:+ancien.toFixed(4),a:+nouveau.toFixed(4),taux:a?+a.r.toFixed(4):null,decalage:c?+c.d.toFixed(4):null,msDepuisPatch:Math.round(performance.now()-(window.__tmDernierPatchV1||0)),alloc:piste?piste.getAttribute('data-tm-alloc'):null});
+          if(BOITE_NOIRE_TM_V1.length>40)BOITE_NOIRE_TM_V1.shift();
+          localStorage.setItem('soreal_idle_diag_v1_reculs_tm',JSON.stringify(BOITE_NOIRE_TM_V1));
+        }catch(_e){}
+      }
+
       /* Dessin d'une barre à l'instant donné : valeur enregistrée + vitesse × temps écoulé, bornée à 100 %, largeur à 4 décimales (pas de marche d'escalier). */
       function peindreBarreTmIdleV1_(barreEl,maintenant){
         const a=barreEl&&barreEl.__tmAnim;
@@ -217,14 +234,14 @@
           const c=barreEl&&barreEl.__tmCorr;
           if(!c||c.base===undefined)return;
           const l=(Math.max(0,Math.min(1,c.base+decalageBarreTmIdleV1_(barreEl,maintenant)))*100).toFixed(4)+'%';
-          if(barreEl.style.width!==l)barreEl.style.width=l;
+          if(barreEl.style.width!==l){barreEl.style.width=l;noterReculTmIdleV1_(barreEl,l);}
           poserTubeTmIdleV1_(barreEl,l);
           return;
         }
         const hg=typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():maintenant;
         const fill=a.p>0?((hg/1000)/a.p)%1:Math.max(0,Math.min(1,a.f+a.r*Math.max(0,maintenant-a.t)/1000+decalageBarreTmIdleV1_(barreEl,maintenant)));
         const largeur=(fill*100).toFixed(4)+'%';
-        if(barreEl.style.width!==largeur)barreEl.style.width=largeur;
+        if(barreEl.style.width!==largeur){barreEl.style.width=largeur;noterReculTmIdleV1_(barreEl,largeur);}
         poserTubeTmIdleV1_(barreEl,largeur);
       }
       let idleLissageTmV1=0;
@@ -254,6 +271,7 @@
         }
 
         const vue=j.systemes.timeMachineView;
+        window.__tmDernierPatchV1=performance.now();
         const affichees=[];   /* [barre, fraction affichée avant ce patch] : sert à fondre l'écart avec la valeur du moteur (decalageBarreTmIdleV1_) */
         [
           ['vitesse',vue.speedFill,vue.speedEtaSeconds],
@@ -280,7 +298,8 @@
           const avantPx=parseFloat(remplissage.style.width);
           if(Number.isFinite(avantPx)){
             /* fraction réellement affichée à cet instant (décalage en cours compris) */
-            affichees.push([remplissage,avantPx/100]);
+            /* 3e valeur : la barre avance-t-elle encore (ETA connue = de l'énergie est allouée) ? Sinon elle est ARRÊTÉE : rien à fondre (Norman, 2026-11-08 : « quand je retire toute mon énergie, la barre continue d'avancer » -- le retard d'affichage d'environ 1 % était rattrapé en 1 à 2 s, comme si elle avançait encore). */
+            affichees.push([remplissage,avantPx/100,entree[2]!==null&&entree[2]!==undefined&&Number.isFinite(Number(entree[2]))]);   /* null = aucune énergie (Number(null) vaut 0 : sans ce test la barre arrêtée passait pour active) */
           }
           remplissage.__tmAnim=null;   // la synchro vient de poser la valeur ; le prochain calcul relance l'animation
           remplissage.__tmCorr=null;
@@ -325,6 +344,7 @@
           const maintenantFonte=Date.now();
           affichees.forEach(function(x){
             const b=x[0];
+            if(!x[2])return;   /* barre arrêtée (aucune énergie) : valeur du moteur tout de suite, aucun glissement */
             const apres=parseFloat(b.style.width)/100;
             const ecart=x[1]-apres;
             if(!Number.isFinite(ecart)||Math.abs(ecart)<1e-5||Math.abs(ecart)>ECART_MAX_DECALAGE_TM_V1)return;
