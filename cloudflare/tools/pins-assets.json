@@ -56,8 +56,8 @@
   "sha": "0ba1339c88cf821da3a50a09fd54f30481742aef"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 18,
-  "sha": "dc1c0e7a8bc42f8d924097f4b42838d64ff00fef"
+  "pin": 19,
+  "sha": "211f53b04d41ea499b5742ff5d79e126587435ae"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 7,
@@ -624,8 +624,8 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 227,
-  "sha": "aab3807a03758548cb6c6bf7c07abab5b0fb3595"
+  "pin": 228,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 864,
@@ -796,8 +796,8 @@
   "sha": "4ba7b1d58b6ac993483f93e5f9bddebad63ab360"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 44,
-  "sha": "d22dd8794af1c4f2b83705cab446e9c3c53e00d2"
+  "pin": 45,
+  "sha": "5445b4a3cfa008831c6e007a2e061ea7de5108ce"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
@@ -864,8 +864,8 @@
   "sha": "eb2eee85642d3fd568e21e00fcf43e2f908836d2"
  },
  "/modules/victoire-boss-arcade-v1.js": {
-  "pin": 11,
-  "sha": "f1d52b05403712dfd789b3560558ce4868ed46e6"
+  "pin": 12,
+  "sha": "196aebe04209861c73db01bb3bfe15b986e54707"
  },
  "/modules/voix-expressions-v1.js": {
   "pin": 2,

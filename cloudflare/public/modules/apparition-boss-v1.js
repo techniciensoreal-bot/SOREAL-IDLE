@@ -192,7 +192,10 @@
       var u=new URL(img.getAttribute&&img.getAttribute('src')||img.currentSrc||img.src,location.href);
       var n=Math.floor(Number(u.searchParams.get('id')));
       if(!(isFinite(n)&&n>0)){var m=/\/boss\/(\d+)\.webp$/.exec(u.pathname);n=m?Math.floor(Number(m[1])):0;}
-      return isFinite(n)&&n>0?n:0;
+      if(isFinite(n)&&n>0)return n;
+      /* adresse inconnue (autre pack d'images, autre difficulté) : le numéro écrit sur la balise par la page */
+      var d=Math.floor(Number(img.getAttribute&&img.getAttribute('data-boss-id')));
+      return isFinite(d)&&d>0?d:0;
     }catch(_e){return 0;}
   }
   /* Norman (2026-10-22) : « l'image du boss 34 est noire » : la classe de mort du boss précédent (opacity:0 !important) restait sur l'image quand le moteur local avait déjà mis le boss suivant dans la même balise. On la retire avant et après l'effet. */

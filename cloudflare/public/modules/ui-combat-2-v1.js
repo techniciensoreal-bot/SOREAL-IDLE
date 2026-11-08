@@ -924,7 +924,8 @@
                         urlBossR2IdleV1_(idImageBossCanoniqueIdleV181_(j))||j.bossImage,
                         j.bossActuel||'Boss',
                         'soreal-idle-boss-image-v35',
-                        j.bossActuel||'Boss'
+                        j.bossActuel||'Boss',
+                        idImageBossCanoniqueIdleV181_(j)
                       ) ||
                       '<div style="font-size:74px">👹</div>'
                     }
@@ -1569,7 +1570,8 @@
         fallbackUrl,
         alt,
         classeBase,
-        cle
+        cle,
+        numeroBoss
       ){
         /*
          * Norman (2026-10-02) : « mon collègue a parfois les anciennes images, celles de mon Drive ». Cause : l'identifiant Drive du catalogue (ancien
@@ -1608,6 +1610,8 @@
           '" alt="'+
           idleHtml_(alt||'')+
           '" loading="eager" decoding="'+(fade?'async':'sync')+'" fetchpriority="high" '+
+          /* Numéro du boss écrit sur la balise (Norman, 2026-11-08 : « que ça n'arrive plus jamais, peu importe le pack d'images, en Evil et en Sadistic ») : la mort et l'apparition reconnaissent le boss par ce numéro quand l'adresse de l'image ne le dit pas (autre pack, autre difficulté). */
+          (type==='boss'&&Math.floor(Number(numeroBoss))>0?'data-boss-id="'+Math.floor(Number(numeroBoss))+'" ':'')+
           (
             fade
               ?"onload=\"this.classList.add('visible')\""
@@ -1813,7 +1817,8 @@
               idleBossImageCacheV36[cacheKey],
               nom,
               'soreal-idle-boss-image-v35',
-              cacheKey
+              cacheKey,
+              numero
             );
 
           return;
@@ -1834,7 +1839,8 @@
             urlR2,
             nom,
             'soreal-idle-boss-image-v35',
-            cacheKey
+            cacheKey,
+            numero
           );
       }
 

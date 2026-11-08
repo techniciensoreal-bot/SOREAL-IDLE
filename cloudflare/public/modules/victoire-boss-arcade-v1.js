@@ -72,9 +72,11 @@
   function imagePourBoss(img,n){
     try{
       var u=new URL(img.currentSrc||img.src,location.href);
-      if(entier_(u.searchParams.get('id'))===n)return true;
+      var idu=entier_(u.searchParams.get('id'));
+      if(idu)return idu===n;
       var m=/\/boss\/(\d+)\.webp$/.exec(u.pathname);   /* image du thème Magic : /magic/boss/<n>.webp */
-      return Boolean(m)&&entier_(m[1])===n;
+      if(m)return entier_(m[1])===n;
+      return entier_(img.getAttribute&&img.getAttribute('data-boss-id'))===n;   /* adresse inconnue (autre pack, autre difficulté) : numéro écrit sur la balise */
     }catch(_e){return false;}
   }
   function capturer(hote,n){
