@@ -29,7 +29,7 @@ import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, co
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
-import { advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
+import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 
 /* Cinématiques que l'on peut revoir : identifiant -> code (nombre, les records sont des compteurs). */
 export const IDLE_CINEMATIQUES_V1 = Object.freeze({ intro: 1 });
@@ -834,6 +834,7 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
   // Gold and Blood are run currencies in NGU. Permanent currencies survive.
   state.currencies.gold=0;
   state.currencies.blood=0;
+  bloodCollecteRemiseAZeroV1(state);
 
   if(state.systems.yggdrasil?.data){
     const ygg=state.systems.yggdrasil.data;

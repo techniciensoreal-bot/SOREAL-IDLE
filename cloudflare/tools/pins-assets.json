@@ -96,8 +96,8 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 32,
-  "sha": "475e59a2b78df8979a67c334d7d05c97e36362d4"
+  "pin": 34,
+  "sha": "133264e203f0a44c72af8c47757d3940619ac8b9"
  },
  "/modules/borne-bandes-sync-v1.js": {
   "pin": 1,
@@ -520,8 +520,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 198,
-  "sha": "e10c979b3e045789715a2ccc621d1fb7b0e9f1b4"
+  "pin": 199,
+  "sha": "51457c8ea5dedd255c7486469092d0acbaf290d3"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 228,
-  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
+  "pin": 229,
+  "sha": "9bb808dfe9ff912f9096facd71d79b668f5c6f06"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 864,
-  "sha": "072870fe04e6afc95650d9345775af43594ea0a1"
+  "pin": 865,
+  "sha": "179c07af78fea6c8f9c1864ba0d5df101b5ed57a"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -644,8 +644,8 @@
   "sha": "c34e602f716b3e1dd88f17906c9a100e890b0eb7"
  },
  "/modules/sang-rituel-decor-v1.js": {
-  "pin": 238,
-  "sha": "9b91867f1a6797dd87b323869587a9d12de9f6e0"
+  "pin": 239,
+  "sha": "8da452aff33f5fe4e539a0b0822baf58a2c98e11"
  },
  "/modules/sans-bulles-v1.js": {
   "pin": 2,
@@ -724,12 +724,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 903,
-  "sha": "90289928befb08b385503032ec968db404ead2f3"
+  "pin": 904,
+  "sha": "103d5fb1870739da87986b0242ab2eeb1589d2ac"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 724,
-  "sha": "89b37430c74487e06cf115a4ca51c00214369735"
+  "pin": 725,
+  "sha": "abfdc8788f280a3607c15c5765f4ed3a94f0ba46"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,

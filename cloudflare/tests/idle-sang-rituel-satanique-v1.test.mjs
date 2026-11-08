@@ -87,7 +87,7 @@ assert.ok(!c2.includes("bm-filet"), "coupures : pas de filet continu");
 assert.ok(src.includes("@keyframes bmJet") && src.includes(".bm-scene.bm-jet .bm-filet{animation:bmJet") && !src.includes("@keyframes bmFilet"), "jet unique par niveau, sans filet permanent");
 
 // la page branche le décor et garde ses points d'accroche
-assert.ok(page.includes("decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})"), "page : scène par rituel (avec le Blood par rituel)");
+assert.ok(page.includes("decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),sangTotal:"), "page : scène par rituel (avec le Blood par rituel)");
 assert.ok(page.includes("sorealIdleBloodCountV1_") && page.includes("data-idle-blood-bar-v1") && page.includes("sorealIdleBloodEtaLineV1_"), "points d'accroche du moteur conservés");
 assert.ok(!page.includes("soreal-idle-section-v8\" data-rang-v1"), "plus d'ancien cadre de rituel");
 // cadres verticaux de taille fixe, côte à côte sur PC, jamais superposés ; la scène a la même largeur que sur téléphone

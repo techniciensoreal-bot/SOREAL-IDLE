@@ -213,7 +213,7 @@ export function createTimeMachineData() {
 export function createBloodMagicData() {
   const rituals = {};
   for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
-    rituals[ritual.id] = { level: 0, progress: 0, completions: 0, magic: 0 };
+    rituals[ritual.id] = { level: 0, progress: 0, completions: 0, magic: 0, bloodCollected: 0, bloodGain: 0 };
   }
   return {
     rituals,
@@ -868,7 +868,10 @@ function normalizeSystem(def, raw) {
         progress: Math.max(0, num(r.progress, 0)),
         progressRef: Math.max(0, num(r.progressRef, 0)),
         completions: Math.max(0, int(r.completions, 0)),
-        magic: Math.max(0, num(r.magic, 0))
+        magic: Math.max(0, num(r.magic, 0)),
+        /* Sang collecté par CE rituel depuis la dernière dépense de sang (sort lancé, Rebirth) ; undefined = ancienne sauvegarde, répartie au premier passage (bloodCollecteMigrerV1) */
+        bloodCollected: r.bloodCollected === undefined ? undefined : Math.max(0, num(r.bloodCollected, 0)),
+        bloodGain: Math.max(0, num(r.bloodGain, 0))
       };
     }
     if (IDLE_NGU_BLOOD_RITUALS.some(r => r.id === data.activeRitual)) s.data.activeRitual = data.activeRitual;

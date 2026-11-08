@@ -70,6 +70,32 @@ function presetBloodMagicIdleV1_(source,fraction){
  * restait bloqué à « chiffre du dessin + 2 ». Maintenant chaque tick relit le chiffre du serveur dans l'état À JOUR (il change à chaque synchro), garde le rythme validé (compteAfficheBloodIdleV1_) et ajoute les
  * rituels rejoués en local (faits) sans dépasser « serveur + avance plausible ». La fonction renvoyée donne le nombre à afficher.
  */
+/* Sang collecté PAR rituel : installé depuis creer() avec l'accesseur de système de la page (hors de creer : limite de longueur des fonctions). */
+function installerSangParRituelV1_(systemeMeta){
+  /* Sang collecté PAR rituel (état du moteur : bloodCollected = ce que CE rituel a rapporté depuis la dernière dépense de sang, bloodGain = le sang d'une complétion) + les complétions rejouées en local pas encore validées (n affiché - complétions du moteur) x bloodGain. */
+  function rituelSangV1_(id){
+    const H=window.__SOREAL_IDLE_META_HOST_V130__;
+    const sys=systemeMeta(H.getIdleEtat(),'bloodMagic');
+    const r=sys&&sys.state&&sys.state.data&&sys.state.data.rituals&&sys.state.data.rituals[id];
+    return r||null;
+  }
+  function pendantRituelV1_(id,nAffiche){
+    const r=rituelSangV1_(id);
+    if(!r)return 0;
+    const gain=Math.max(0,Number(r.bloodGain)||0);
+    return Math.max(0,(Number(nAffiche)||0)-Math.max(0,Number(r.completions)||0))*gain;
+  }
+  window.__sangRituelAfficheV1__=function(id,nAffiche){
+    const r=rituelSangV1_(id);
+    if(!r||r.bloodCollected===undefined||r.bloodCollected===null)return null;
+    return Math.max(0,Number(r.bloodCollected)||0)+pendantRituelV1_(id,nAffiche);
+  };
+  window.__sangPendantV1__=function(){
+    const m=window.__bloodCompteAffV1||{};let t=0;
+    for(const id of Object.keys(m))t+=pendantRituelV1_(id,m[id]&&m[id].n);
+    return t;
+  };
+}
 function creerCompteTick_(systemeMeta,affiche,avanceMax){
   return function(id,faits){
     let srv=0;
@@ -95,7 +121,6 @@ function creerCompteTick_(systemeMeta,affiche,avanceMax){
  * redessinée en continu : le sang montait sans qu'elle bouge. Le chiffre vient maintenant de l'état du jeu (relu à chaque synchro) ; entre deux synchros il avance au rythme que le moteur vient de valider (même idée que le compteur « N complété(s) » ci-dessus),
  * au plus 5 s d'avance, et ne dépasse jamais ce rythme : quand le moteur confirme, l'affichage se cale sur lui ; un sort lancé (le sang retombe) remet le suivi à zéro. La case « 🪙 Gold » suit l'état du jeu (le jeu y retranche déjà chaque rituel rejoué).
  */
-var suiviSangV1={n:null,ts:0,taux:0,aff:0,pas:0,echant:[]};
 function sangServeurV1_(){
   try{
     const H=window.__SOREAL_IDLE_META_HOST_V130__;
@@ -104,22 +129,16 @@ function sangServeurV1_(){
   }catch(_e){return 0;}
 }
 /* Rythme = sang gagné sur les 12 dernières secondes (pas sur le dernier saut : un rituel rend son sang d'un coup, le rythme d'un seul saut serait énorme) ; l'avance ne dépasse jamais un « pas » (le dernier gain validé) : l'affichage ne peut donc pas dépasser la prochaine valeur du moteur ni revenir en arrière. */
+/*
+ * SANG D'UN COUP (Norman, 2026-11-08 : « pendant toute l'animation le sang accumulé monte, alors qu'il doit monter en une fois : si le rituel rapporte 60K, on accumule 60K en une fois à chaque fois que le rituel s'accomplit »). L'ancien suivi prolongeait la courbe entre deux
+ * rituels (taux x temps) : le chiffre montait en continu. Maintenant le sang affiché = le sang du moteur + ce que les rituels rejoués localement (pas encore validés) ont rapporté, chacun d'un seul bloc de « bloodGain » (le sang d'UNE complétion, publié par le moteur) ;
+ * entre deux rituels, rien ne bouge. Quand le moteur valide, son sang monte du même bloc et la part « pas encore validée » diminue d'autant : aucun saut en double.
+ */
 function sangAfficheV1_(){
-  const n=sangServeurV1_(),maintenant=Date.now();
-  let t=suiviSangV1;
-  if(t.n===null||n<t.n){suiviSangV1=t={n:n,ts:maintenant,taux:0,aff:n,pas:0,echant:[[maintenant,n]]};return n;}   /* premier relevé, ou le sang a baissé (sort lancé, Rebirth) */
-  if(n>t.n){
-    t.pas=n-t.n;t.n=n;t.ts=maintenant;
-    t.echant.push([maintenant,n]);
-    if(t.aff<n)t.aff=n;
-  }
-  while(t.echant.length>1&&maintenant-t.echant[0][0]>12000)t.echant.shift();
-  const premier=t.echant[0],duree=(maintenant-premier[0])/1000;
-  t.taux=duree>=2&&n>premier[1]?(n-premier[1])/duree:0;
-  const cible=n+Math.min(t.pas,t.taux*Math.min(8,(maintenant-t.ts)/1000));
-  if(cible>t.aff)t.aff=cible;
-  if(t.aff<n)t.aff=n;                            /* le moteur a rattrapé ou dépassé : on se cale sur lui */
-  return t.aff;
+  const n=sangServeurV1_();
+  let pend=0;
+  try{if(typeof window.__sangPendantV1__==='function')pend=Math.max(0,Number(window.__sangPendantV1__())||0);}catch(_e){}
+  return n+pend;
 }
 window.__sangAfficheV1__=sangAfficheV1_;
 /*
@@ -174,14 +193,28 @@ function majBoutonsSortsV1_(){
     }
   });
 }
+function majSangRituelsV1_(){
+  if(typeof window.__sangRituelAfficheV1__!=='function')return;
+  const F=window.__SOREAL_IDLE_FORMAT_NOMBRE_V2__;
+  Array.prototype.forEach.call(document.querySelectorAll('[data-bm-etagere]'),function(et){
+    const id=et.getAttribute('data-bm-etagere'),c=document.getElementById('sorealIdleBloodCountV1_'+id),nEl=et.querySelector('.bm-etagere-n');
+    if(!c||!nEl)return;
+    const v=window.__sangRituelAfficheV1__(id,Number(String(c.textContent||'').replace(/\D/g,''))||0);
+    if(v==null)return;
+    const txt=typeof F==='function'?F(Math.max(0,v)):String(Math.floor(Math.max(0,v)));
+    if(nEl.textContent!==txt)nEl.textContent=txt;
+  });
+}
 if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(function(){
   if(document.hidden)return;
   const el=document.getElementById('sorealIdleBloodTotalV1');
-  if(!el){suiviSangV1={n:null,ts:0,taux:0,aff:0,pas:0,echant:[]};return;}   /* hors de la page : le suivi repart de zéro à l'arrivée */
+  if(!el)return;
   try{
     const H=window.__SOREAL_IDLE_META_HOST_V130__;
     const texte=H.formatGrandNombreIdleV70_(sangAfficheV1_());
     if(el.textContent!==texte)el.textContent=texte;
+    /* « Sang collecté » sous CHAQUE rituel, même hors de l'écran (la scène animée n'est mise à jour que quand elle est visible) */
+    majSangRituelsV1_();
     majBoutonsSortsV1_();
     const or=document.getElementById('sorealIdleBloodOrV1');
     if(or){
@@ -453,6 +486,7 @@ function creer(hote){
       };
       /* Compteur « N complété(s) » tenu à jour à chaque tick (voir creerCompteTick_, plus haut dans ce fichier). */
       window.__bloodCompteTickV1__=creerCompteTick_(systemeMetaParIdIdleV130_,compteAfficheBloodIdleV1_,avanceMaxBloodIdleV1_);
+      installerSangParRituelV1_(systemeMetaParIdIdleV130_);
       function ajusterRituelBloodMagicIdleV1_(ritualId,mode){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
@@ -581,7 +615,7 @@ function creer(hote){
           return '<div id="sorealIdleBloodRitualV1_'+idHtml+'" class="bm-rituel" data-rang-v1="'+rangRituel+'" style="margin:0">'+
             '<div class="bm-rituel-tete"><b class="bm-rituel-nom">'+H.idleHtml_(IDLE_BLOOD_NOMS_RITUELS_V1[def.id]||def.name||def.id)+'<span id="sorealIdleBloodMarkerV1_'+idHtml+'">'+(selectionne?' ▶':'')+'</span></b><span class="bm-rituel-compte"><b id="sorealIdleBloodCountV1_'+idHtml+'" data-n="'+H.idleEntier_(compteAfficheBloodIdleV1_(def.id,r.completions||0))+'">'+H.idleEntier_(compteAfficheBloodIdleV1_(def.id,r.completions||0))+'</b> complété(s)</span></div>'+
             '<div class="soreal-idle-blood-ritual-desc-v1">Chaque fois qu’il se termine : <b class="or-cout-v1 '+(gold>=(Number(def.gold)||0)?'or-ok':'or-non')+'" data-cout-or="'+(Number(def.gold)||0)+'">−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold</b> → <b>+'+H.formatGrandNombreIdleV70_(def.blood||0)+' sang</b></div>'+
-            decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),barre:barre,saigne:progressionActive,rang:rangRituel})+
+            decor.scene({id:idHtml,compte:Number(r.completions||0),sang:Number(def.blood||0),sangTotal:(typeof window.__sangRituelAfficheV1__==='function'?window.__sangRituelAfficheV1__(idHtml,compteAfficheBloodIdleV1_(def.id,r.completions||0)):null),barre:barre,saigne:progressionActive,rang:rangRituel})+
             /* Compteur de Magic allouée à CE rituel (Norman, 2026-10-05) : le rituel actif porte toute l'allocation, les autres 0 ; le chiffre gonfle quand on y ajoute de la Magic (modules/alloc-pop-v1.js, crochet data-idle-alloc-pop-v1). */
             '<div class="soreal-idle-blood-alloc-ligne-v1">🔮 Magic allouée : <b id="sorealIdleBloodRitualAllocV1_'+idHtml+'" data-idle-alloc-pop-v1="1">'+H.formatGrandNombreIdleV70_(magieR)+'</b></div>'+
             '<div id="sorealIdleBloodEtaLineV1_'+idHtml+'" class="bm-eta">'+H.idleHtml_(etaTexte)+'</div>'+

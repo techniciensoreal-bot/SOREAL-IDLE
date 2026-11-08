@@ -82,6 +82,7 @@ function advanceBloodMagic(state, seconds, context) {
    * multiplicateur composé avec difficultyDivider).
    */
   const dutchSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.bloodMagicSpeedPct, 0));
+  bloodCollecteMigrerV1(state, s);
   for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
     if (!ritualUnlocked(ritual, context, state)) continue;
     const magic = bloodRitualMagicV1(s, ritual.id);
@@ -107,12 +108,39 @@ function advanceBloodMagic(state, seconds, context) {
     rs.completions += completions;
     rs.level += completions;
     state.currencies.gold -= completions * ritual.gold;
-    state.currencies.blood += completions * ritual.blood * quirkBonusesV1(idleQuirkNiveauxV1(state)).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
+    const gainParCompletion = ritual.blood * quirkBonusesV1(idleQuirkNiveauxV1(state)).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
+    state.currencies.blood += completions * gainParCompletion;
+    rs.bloodCollected = Math.max(0, num(rs.bloodCollected, 0)) + completions * gainParCompletion;
+    rs.bloodGain = gainParCompletion;
     s.data.bloodPeak = Math.max(num(s.data.bloodPeak, 0), state.currencies.blood);
     challengeHundredLevelsConsume(state, completions);
   }
   s.level = Object.values(s.data.rituals).reduce((sum, x) => sum + x.level, 0);
   s.tempLevel = s.level;
+}
+
+/*
+ * Sang collecté par rituel (Norman, 2026-11-08 : « le compteur de sang collecté sous le rituel et le sang disponible ne sont pas les mêmes ; quand on lance un sort, tous les compteurs reviennent à 0 ») : chaque rituel garde le sang QU'IL A VRAIMENT RAPPORTÉ (avec tous les
+ * multiplicateurs, c'est le montant ajouté au sang disponible) depuis la dernière dépense de sang. Toute remise à zéro du sang disponible (les cinq sorts, Rebirth, boutique) remet aussi ces compteurs à 0 : leur somme égale toujours le sang disponible.
+ * bloodGain = sang rapporté par UNE complétion (l'écran s'en sert pour faire monter le compteur d'un coup à chaque rituel rejoué).
+ */
+export function bloodCollecteRemiseAZeroV1(state) {
+  const rituals = state?.systems?.bloodMagic?.data?.rituals;
+  if (!rituals) return;
+  for (const r of Object.values(rituals)) r.bloodCollected = 0;
+}
+/* Ancienne sauvegarde (compteurs absents) : le sang disponible est réparti entre les rituels au prorata de ce qu'ils rapportent (complétions x sang du catalogue), pour que la somme soit juste dès le premier passage. */
+function bloodCollecteMigrerV1(state, s) {
+  const rituals = s.data.rituals || {};
+  if (!Object.values(rituals).some((r) => r.bloodCollected === undefined)) return;
+  const sang = Math.max(0, num(state.currencies?.blood, 0));
+  let poids = 0;
+  for (const ritual of IDLE_NGU_BLOOD_RITUALS) poids += Math.max(0, num(rituals[ritual.id]?.completions, 0)) * ritual.blood;
+  for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
+    const r = rituals[ritual.id];
+    if (!r) continue;
+    r.bloodCollected = poids > 0 ? sang * (Math.max(0, num(r.completions, 0)) * ritual.blood) / poids : 0;
+  }
 }
 
 /* Place (ou retire) de la Magic sur UN rituel, bornée par le plafond commun de Magic et par la Magic libre ; le total du système est la somme des rituels. */
@@ -213,6 +241,7 @@ function castBloodSpellSansTrace(state, spell, now = 0) {
   if (spell === "numberBoost") {
     spells.numberBoost = Math.max(1, spells.numberBoost) + blood;
     state.currencies.blood = 0;
+    bloodCollecteRemiseAZeroV1(state);
     return { spell, spent: blood, multiplier: spells.numberBoost };
   }
   if (spell === "ironPill") {
@@ -222,6 +251,7 @@ function castBloodSpellSansTrace(state, spell, now = 0) {
     spells.ironPill += gain;
     if (now > 0) spells.ironPillReadyAt = now + (IRON_PILL_COOLDOWN_MS_V1[state.difficulty] || IRON_PILL_COOLDOWN_MS_V1.normal);
     state.currencies.blood = 0;
+    bloodCollecteRemiseAZeroV1(state);
     return { spell, spent: blood, gain };
   }
   if (spell === "counterfeitGold") {
@@ -229,6 +259,7 @@ function castBloodSpellSansTrace(state, spell, now = 0) {
     const pct = Math.pow(Math.log2(spells.counterfeitGoldBloodSpent / 1000000) + 1, 2);
     spells.counterfeitGold = Math.max(1, 1 + pct / 100);
     state.currencies.blood = 0;
+    bloodCollecteRemiseAZeroV1(state);
     return { spell, spent: blood, multiplier: spells.counterfeitGold };
   }
   if (spell === "bloodSpaghetti") {
@@ -236,10 +267,12 @@ function castBloodSpellSansTrace(state, spell, now = 0) {
     const pct = Math.log2(spells.bloodSpaghettiBloodSpent / 10000) + 1;
     spells.bloodSpaghetti = Math.max(1, 1 + pct / 100);
     state.currencies.blood = 0;
+    bloodCollecteRemiseAZeroV1(state);
     return { spell, spent: blood, multiplier: spells.bloodSpaghetti };
   }
   if (spell === "leeches") {
     state.currencies.blood = 0;
+    bloodCollecteRemiseAZeroV1(state);
     idleTheEndGrantV1(state.adventure, 494, Date.now());
     return { spell, spent: blood };
   }
@@ -1172,6 +1205,7 @@ export function applyTrollEffectV1(state, id) {
     }
   } else if (id === "blood") {
     state.currencies.blood = 0;
+    bloodCollecteRemiseAZeroV1(state);
     const sp = state.systems.bloodMagic?.data?.spells;
     if (sp) sp.numberBoost = 1;
   } else if (id === "timeMachine") {

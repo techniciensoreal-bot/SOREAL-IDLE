@@ -111,6 +111,8 @@
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Magie du sang : quand un rituel dépasse 1 niveau par seconde, l’animation de la scène ne s’arrête plus un instant à chaque synchronisation : elle reste continue.',
+            'Magie du sang : le sang monte d’un seul bloc à chaque rituel accompli (60 000 d’un coup pour le bol de fil barbelé), au lieu de grimper doucement pendant toute l’animation.',
+            'Magie du sang : le « Sang collecté » sous chaque rituel est maintenant exactement ce que ce rituel a rapporté (multiplicateurs compris) : leur somme égale le sang disponible, et lancer un sort remet tous ces compteurs à 0.',
           ]},
         ],
       },

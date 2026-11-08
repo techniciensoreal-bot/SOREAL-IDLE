@@ -588,7 +588,7 @@ function scene(opts){
       '<div class="bm-cctv" aria-hidden="true"><b class="bm-cctv-bande"></b><b class="bm-cctv-neige"></b><i class="bm-cctv-rec">REC</i><i class="bm-cctv-cam">CAM 05 · BANQUE DU SANG</i><i class="bm-cctv-heure"></i></div>'+
     '</div>'+
     '<div class="bm-bac'+(opts.saigne?' on':'')+(compte>=1?' bm-baxter-ok':'')+'" data-bm-bac="'+opts.id+'">'+bac(paliers(opts.id,compte).fraction,!!opts.saigne)+'</div>'+
-    '<div class="bm-etagere" data-bm-etagere="'+opts.id+'">'+etagere(compte*(Number(opts.sang)||0))+'</div>';
+    '<div class="bm-etagere" data-bm-etagere="'+opts.id+'">'+etagere(opts.sangTotal!=null?opts.sangTotal:compte*(Number(opts.sang)||0))+'</div>';
   }
   if(SOURCES[opts.id]==='fil'){
     /* Le compte du serveur peut retarder sur ce que la scène montre déjà (rituels rejoués en local) : un redessin ne doit jamais ramener un calice plus bas (le nouveau calice repeint plein, un suivant en trop). Même règle que stabiliser(). */
@@ -616,7 +616,7 @@ function scene(opts){
       (echangeProtege(opts.id)?'':'<div class="bm-vase">'+contenant(type,fraction,opts.id)+'</div>'+
       (attendu?'<div class="bm-vase bm-suivant'+(rendu?'':' bm-apparait')+'" aria-hidden="true">'+contenant(type,filmFond(opts.id,compte,0),opts.id)+'</div>':''))+
     '</div>'+
-    '<div class="bm-etagere" data-bm-etagere="'+opts.id+'"'+'>'+etagere(compte*(Number(opts.sang)||0))+'</div>';
+    '<div class="bm-etagere" data-bm-etagere="'+opts.id+'"'+'>'+etagere(opts.sangTotal!=null?opts.sangTotal:compte*(Number(opts.sang)||0))+'</div>';
 }
 
 /* ---------- Vie des calices : lit le compteur de rituels (mis à jour en direct par la page) et fait remplir / sortir / entrer ---------- */
@@ -1776,7 +1776,11 @@ function majScene(sc){
   if(pleins!==avant||sc.getAttribute('data-bm-pleins')!==String(pleins))sc.setAttribute('data-bm-pleins',String(pleins));
   var et=sc.parentNode&&sc.parentNode.querySelector('[data-bm-etagere="'+id+'"]');
   var nEl=et&&et.querySelector('.bm-etagere-n');
-  if(nEl){var txt=formatSang(n*(Number(sc.getAttribute('data-bm-sang'))||0));if(nEl.textContent!==txt)nEl.textContent=txt;}
+  if(nEl){
+    /* sang collecté par ce rituel : la valeur du moteur (jamais compte x sang du catalogue, qui ignore les multiplicateurs et les dépenses) ; l'ancien calcul seulement si le moteur ne la donne pas */
+    var vrai=typeof window.__sangRituelAfficheV1__==='function'?window.__sangRituelAfficheV1__(id,n):null;
+    var txt=formatSang(vrai!=null?vrai:n*(Number(sc.getAttribute('data-bm-sang'))||0));if(nEl.textContent!==txt)nEl.textContent=txt;
+  }
   vus[id]=vuApres;
 }
 /*
