@@ -50,7 +50,7 @@
             'Réglages : une case permet de couper les aides du tutoriel.',
             'Le tutoriel du début est entièrement refait : des bulles courtes, une idée par bulle, qui passent toutes seules.',
             'Quand le jeu est en français, le nom d’un boss écrit pareil dans les deux langues (« Rob Boss ») n’est plus lu avec la voix anglaise.',
-            'Avec le thème Magic, le boss suivant ne se montre plus une demi-seconde à la mort du précédent : sa mort et son arrivée se jouent comme avec les images de base.',
+            'Quand tu tues un boss, le suivant ne se montre plus une demi-seconde avant son animation d’arrivée, quelles que soient les images utilisées.',
             'Le moteur du jeu calcule un peu plus vite (environ 6 % de moins par action et par synchronisation).',
             'En anglais, les chroniques d’origine des boss restent affichées pour tous les boss, même quand l’un d’eux a été renommé.',
             'Un boss renommé garde son nouveau nom partout, y compris dans le journal de combat quand il apparaît comme ennemi d’Aventure (« 743 poulets furax » ne redevient plus « 743 coucous furax »).',
