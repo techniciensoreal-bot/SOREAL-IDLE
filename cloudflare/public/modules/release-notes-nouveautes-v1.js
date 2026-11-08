@@ -4,6 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Thème Magic : 45 cartes de boss retrouvent les écritures de l’image d’origine (noms, chiffres, panneaux)."
+    "Quand tu tues un boss, le suivant ne se montre plus une demi-seconde avant son animation d’arrivée, quelles que soient les images utilisées.",
+    "Le moteur du jeu calcule un peu plus vite (environ 6 % de moins par action et par synchronisation).",
+    "En anglais, les chroniques d’origine des boss restent affichées pour tous les boss, même quand l’un d’eux a été renommé."
   ] };
 })();

@@ -56,8 +56,8 @@
   "sha": "0ba1339c88cf821da3a50a09fd54f30481742aef"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 17,
-  "sha": "dfdf5b96d00b072882f2ba12a54b6f856d838836"
+  "pin": 18,
+  "sha": "dc1c0e7a8bc42f8d924097f4b42838d64ff00fef"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 7,
@@ -520,8 +520,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 196,
-  "sha": "27556d2e3fbb9b96d64c583e2ca828496fec81fe"
+  "pin": 198,
+  "sha": "e10c979b3e045789715a2ccc621d1fb7b0e9f1b4"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 224,
-  "sha": "b19eaa7cf8e734d7023919c107208f5b8db40cd0"
+  "pin": 227,
+  "sha": "aab3807a03758548cb6c6bf7c07abab5b0fb3595"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 862,
-  "sha": "f7bc9495a30835416183d15c8c7c20a90bfac557"
+  "pin": 864,
+  "sha": "072870fe04e6afc95650d9345775af43594ea0a1"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -724,12 +724,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 901,
-  "sha": "f8c9b77747d60ed3eb27143ac6f7f4412d953601"
+  "pin": 903,
+  "sha": "90289928befb08b385503032ec968db404ead2f3"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 722,
-  "sha": "e72ba56e46e8cccb39ca71cbd9c48e4e1eae3a07"
+  "pin": 724,
+  "sha": "89b37430c74487e06cf115a4ca51c00214369735"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -864,8 +864,8 @@
   "sha": "eb2eee85642d3fd568e21e00fcf43e2f908836d2"
  },
  "/modules/victoire-boss-arcade-v1.js": {
-  "pin": 10,
-  "sha": "f3dff56a3566abdc20c3bfc58554873cf3c9a71e"
+  "pin": 11,
+  "sha": "f1d52b05403712dfd789b3560558ce4868ed46e6"
  },
  "/modules/voix-expressions-v1.js": {
   "pin": 2,
