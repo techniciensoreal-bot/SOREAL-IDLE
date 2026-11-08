@@ -32,6 +32,7 @@
         date:'2026-11-08',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le tutoriel avec Cthulhu enchaîne plus vite : la bulle suivante arrive presque tout de suite après la voix, l’étape suivante moins d’une demi-seconde après ton clic, et ses déplacements sont plus courts.',
             'Quand tu retires toute l’énergie ou toute la magie d’une barre de tube, elle s’arrête net au lieu de continuer à monter un instant.',
             'Redimensionner la fenêtre ne provoque plus d’erreur dans les barres lumineuses.',
             'Thème Magic : 45 cartes de boss retrouvent les écritures de l’image d’origine (noms, chiffres, panneaux).'

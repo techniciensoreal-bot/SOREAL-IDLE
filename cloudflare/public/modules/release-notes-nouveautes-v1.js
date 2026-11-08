@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Le tutoriel avec Cthulhu enchaîne plus vite : la bulle suivante arrive presque tout de suite après la voix, l’étape suivante moins d’une demi-seconde après ton clic, et ses déplacements sont plus courts.",
     "Quand tu retires toute l’énergie ou toute la magie d’une barre de tube, elle s’arrête net au lieu de continuer à monter un instant.",
     "Redimensionner la fenêtre ne provoque plus d’erreur dans les barres lumineuses."
   ] };

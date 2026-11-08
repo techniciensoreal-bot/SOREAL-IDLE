@@ -220,8 +220,8 @@
   "sha": "3257c42322cd96e4d7552c579a780f8d9d8e3c4b"
  },
  "/modules/cthulhu-scene-v1.js": {
-  "pin": 14,
-  "sha": "2782237c1dcde213d547140a679c4557187db9ed"
+  "pin": 15,
+  "sha": "a6fc090b5fca39df80d87992b5adc56949b28388"
  },
  "/modules/cthulhu-v1.js": {
   "pin": 2,
@@ -624,12 +624,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 234,
-  "sha": "fb0ea8209f7928e3c0c5bb15fc3288048b9eb0c7"
+  "pin": 235,
+  "sha": "296327c17ad4457fa269410315ef4e9bcb323472"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 870,
-  "sha": "568228bfbe129834f8d4a531e001a5d6d6041645"
+  "pin": 871,
+  "sha": "b88df6b13a164305378a56175ceee2bca8c30877"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -724,12 +724,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 909,
-  "sha": "024ec57edcdac16a408dfc96c5d435fc30a7f210"
+  "pin": 910,
+  "sha": "36c9c7cd1521feb3a4f5eef697ed4be51945ec52"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 730,
-  "sha": "a7c9e6ac22bbfc263a78903728d4e2f57e330462"
+  "pin": 731,
+  "sha": "fc3c6d8749c9c8cd920debc203bd02f15b62936b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 11,
@@ -756,8 +756,8 @@
   "sha": "f8b3d289afb3b67ce0259c2d2fd75de66f62397c"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 45,
-  "sha": "b323c9d1c87b260a09ba50c0c91be26b2c96e816"
+  "pin": 46,
+  "sha": "8e0920b6eb2ca4cfb2a37b85b8ce04b6d30dd538"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,

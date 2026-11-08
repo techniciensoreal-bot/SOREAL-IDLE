@@ -142,7 +142,7 @@
     if(!etat.racine)return Promise.resolve();
     var v=V();
     visage('dos');
-    return aller(v.W+40,etat.y-v.H*0.1,etat.k,1300,'cubic-bezier(.5,0,.9,.6)',false).then(function(){
+    return aller(v.W+40,etat.y-v.H*0.1,etat.k,900,'cubic-bezier(.5,0,.9,.6)',false).then(function(){
       if(jeton!==etat.jeton)return;
       enlever();
     });
@@ -154,16 +154,16 @@
     cadrer(cibleAtterrissage('#sorealIdleBossNukeV1'));
     creer('vole');
     poser(v.W+30,fin.y-v.H*0.05,kp);   /* hors de l'écran, à droite */
-    return aller(fin.x,fin.y,kp,1900,'cubic-bezier(.2,.6,.3,1)',false).then(function(){
+    return aller(fin.x,fin.y,kp,1300,'cubic-bezier(.2,.6,.3,1)',false).then(function(){
       if(jeton!==etat.jeton)return;
       cadrer(cibleAtterrissage('#sorealIdleBossNukeV1'));   /* la page s'est stabilisée : dernière retouche, hors de vue de la scène */
       if(etat.racine)etat.racine.setAttribute('data-q','1');   /* il vole sur place, « ??? » au-dessus de la tête */
-      return attendre(2400);
+      return attendre(1200);
     }).then(function(){
       if(jeton!==etat.jeton)return;
       if(etat.racine)etat.racine.removeAttribute('data-q');
       var g=placeGrand();
-      return aller(g.x,g.y,g.k,1700,'cubic-bezier(.5,0,.3,1)',false);
+      return aller(g.x,g.y,g.k,1100,'cubic-bezier(.5,0,.3,1)',false);
     }).then(function(){
       if(jeton!==etat.jeton)return;
       etat.mode='grand';   /* zoomé, il vole encore */
@@ -177,13 +177,13 @@
     var deja=etat.dos===true;etat.dos=false;
     return (deja?Promise.resolve():tourner('dos')).then(function(){
       if(jeton!==etat.jeton)return;
-      return attendre(1000);
+      return attendre(300);
     }).then(function(){
       if(jeton!==etat.jeton)return;
       var el=cibleAtterrissage(selecteur);
       cadrer(el);
       var p=placePetit(cibleAtterrissage(selecteur));
-      return aller(p.x,p.y,p.k,2000,'cubic-bezier(.45,0,.3,1)',true);
+      return aller(p.x,p.y,p.k,1100,'cubic-bezier(.45,0,.3,1)',true);
     }).then(function(){
       if(jeton!==etat.jeton)return;
       etat.mode='pose';
@@ -200,7 +200,7 @@
     if(!etat.racine){creer('vole');var q=placePetit(null);poser(q.x,q.y,q.k);}
     /* Il VOLE pendant le trajet (ailes qui battent, Norman 2026-11-07 : « il retourne sur la borne sans voler ») ; il ne se pose (visage normal) qu'une fois arrivé sur Nuke. */
     visage('vole');
-    return aller(p.x,p.y,p.k,1800,'cubic-bezier(.45,0,.3,1)',true).then(function(){
+    return aller(p.x,p.y,p.k,900,'cubic-bezier(.45,0,.3,1)',true).then(function(){
       if(jeton!==etat.jeton)return;
       etat.mode='pose';suivre(selecteur);
       visage(posable(selecteur)?'normal':'vole');

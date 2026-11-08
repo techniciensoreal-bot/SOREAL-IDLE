@@ -30,7 +30,7 @@ assert.equal(normaliserGuideV1({ ...IDLE_TUTORIEL_LHU_V1, etapes: [{ ...IDLE_TUT
 
 const sc = fs.readFileSync("cloudflare/public/modules/cthulhu-scene-v1.js", "utf8");
 assert.ok(/function tourner\(expr\)\{visage\(expr\);return Promise\.resolve\(\);\}/.test(sc), "demi-tour en une seule image");
-assert.ok(/attendre\(1000\)/.test(sc), "une seconde d'attente après le demi-tour");
+assert.ok(/attendre\(300\)/.test(sc), "courte attente après le demi-tour (Norman, 2026-11-08 : le tuto enchaîne plus vite)");
 assert.ok(/el\.id==='sorealIdleBossNukeV1'/.test(sc) && /posable\(selecteur\)\?'normal':'vole'/.test(sc), "il ne se pose que sur le bouton Nuke");
 assert.ok(/sc\.partir\(\)/.test(fs.readFileSync("cloudflare/public/modules/tutoriel-v1.js", "utf8")), "il s'envole à la fin du guide (pas au clic sur Fight)");
 assert.ok(/data-morph-garder/.test(sc), "règle n°4 : le morph le laisse en place");

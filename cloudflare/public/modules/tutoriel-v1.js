@@ -310,8 +310,8 @@ function lireEtape_(s,force){
     if(!demarre)s.voixEnCours=false;
   }catch(_e){s.voixEnCours=false;}
 }
-/* Bulle de Lhu : la suivante vient dès que la voix a fini de lire (Norman, 2026-11-07 : « trop de longueurs entre les bulles, ça doit s'enchaîner quand la voix a terminé »), après un souffle de 0,35 s ; sans voix, le temps de lecture prévu. */
-var SOUFFLE_APRES_VOIX_MS=350;
+/* Bulle de Lhu : la suivante vient dès que la voix a fini de lire (Norman, 2026-11-07 : « trop de longueurs entre les bulles, ça doit s'enchaîner quand la voix a terminé »), après un souffle de 0,1 s (Norman, 2026-11-08 : « c'est très mou, il y a un temps entre chaque bulle ») ; sans voix, le temps de lecture prévu. */
+var SOUFFLE_APRES_VOIX_MS=100;
 function pretASuivre_(s){
   if(voixParle_(s))return false;
   if(s.aVoix)return Date.now()-s.voixFinieA>=SOUFFLE_APRES_VOIX_MS;
@@ -442,8 +442,8 @@ function chroniqueOccupee_(){
   try{if(tts&&typeof tts.isSpeaking==='function'&&tts.isSpeaking())return true;}catch(_e){}
   return false;
 }
-/* Norman (2026-10-23) : l’étape suivante n’arrive que 2 secondes après le clic sur la cible (le temps de voir le jeu réagir). */
-var DELAI_APRES_CLIC_MS=2000;
+/* Norman (2026-10-23) : l’étape suivante n’arrive que 2 secondes après le clic sur la cible (le temps de voir le jeu réagir) ; Norman (2026-11-08 : « il y a un temps aussi une fois qu'on clique sur le bouton qu'il demande ») : 0,4 s, le jeu a déjà réagi. */
+var DELAI_APRES_CLIC_MS=400;
 function attendreChronique_(s,suite){
   var debut=Date.now(),libre=0;
   (function sonde(){
@@ -533,7 +533,7 @@ function afficherEtape_(garderTaille){
   /* La cible peut mettre un instant à apparaître (changement de menu) : on la fait défiler dans l'écran dès qu'elle existe. */
   s.defile=false;s.essais=0;
   arreterBoucle_();
-  boucle=setInterval(suivre_,200);
+  boucle=setInterval(suivre_,100);
   suivre_();
   declarerVoix_(s.guide);
   if(s.sceneEnCours){
