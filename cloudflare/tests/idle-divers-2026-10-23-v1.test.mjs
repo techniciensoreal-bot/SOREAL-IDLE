@@ -161,10 +161,11 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(lire('cloudflare/public/modules/ui-aventure-1-v1.js').includes('sorealIdleSummaryRebirthTempsV1') && lire('cloudflare/public/modules/temps-rebirth-v1.js').includes('setInterval(maj,1000)'), 'case « Temps » du Rebirth dans le bandeau');
 }
 
-// Sang disponible en direct sur la page de Magie du sang (2026-10-25) : repères, suivi sur 12 s, avance bornée à un pas, jamais de retour en arrière.
+// Sang disponible en direct sur la page de Magie du sang (2026-10-25) : repères. Depuis le 2026-11-08 (Norman : « le sang doit monter en une fois à chaque rituel accompli ») l'ancien suivi sur 12 s qui prolongeait la courbe entre deux rituels est RETIRÉ :
+// le sang affiché = sang du moteur + rituels rejoués pas encore validés (idle-sang-d-un-coup-client-v1).
 {
   const b = lire("cloudflare/public/modules/blood-magic-v1.js");
-  assert.ok(b.includes("id=\"sorealIdleBloodTotalV1\"") && b.includes("function sangAfficheV1_()") && b.includes("12000") && b.includes("Math.min(t.pas,") && b.includes("sorealIdleBloodOrV1"));
+  assert.ok(b.includes("id=\"sorealIdleBloodTotalV1\"") && b.includes("function sangAfficheV1_()") && b.includes("__sangPendantV1__") && !b.includes("Math.min(t.pas,") && b.includes("sorealIdleBloodOrV1"));
 }
 
 // Attaque / Défense affichées : un petit recul (< 2 %) est tenu 15 s au plus (les niveaux arrivent par paliers, l'interpolation passe devant) ; reproduit avec la partie de Norman : 52 reculs en 30 s.
