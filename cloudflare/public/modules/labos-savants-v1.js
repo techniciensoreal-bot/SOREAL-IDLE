@@ -73,18 +73,18 @@
 
   /* ---------- le savant fou (coordonnées locales : centre x = 40, pieds y = 90) ---------- */
   var CHAPEAUX={
-    bandeau:function(){return '<path d="M32 25.5c5-2.4 12-2.4 18 0v3.4c-6-2.4-12-2.4-18 0z" fill="#e8362f"'+CT+'/><path d="M32 27l-4.6 2.4M32 28.6l-3.4 3.4" stroke="#e8362f" stroke-width="2.4" stroke-linecap="round"/>';},
-    explorateur:function(){return '<ellipse cx="41" cy="23.2" rx="14" ry="3.6" fill="#a8742e"'+CT+'/><path d="M33 23c0-6 3.6-9.4 8-9.4S49 17 49 23z" fill="#c48c3c"'+CT+'/><path d="M33.4 21.4c5 1.4 10.6 1.4 15.2 0" stroke="#7a5018" stroke-width="2" fill="none"/>';},
-    magicien:function(){return '<path d="M29.5 24h23L41.5 3z" fill="#7a3ad8"'+CT+'/><path d="M29.5 24h23" stroke="#1b1008" stroke-width="2.6"/><circle cx="41" cy="13.6" r="1.7" fill="#ffe58a"/><circle cx="45" cy="19" r="1.2" fill="#ffe58a"/><circle cx="37.6" cy="19.6" r="1" fill="#ffe58a"/>';},
-    couronne:function(){return '<path d="M32.5 23l1.6-9 4.4 4.6 3-6.4 3 6.4 4.4-4.6 1.6 9z" fill="#ffd23a"'+CT+'/><circle cx="41.5" cy="15.4" r="1.3" fill="#e8362f"/>';},
-    bonnet:function(){return '<path d="M31.6 24.4c0-7.6 4.2-11.4 9.4-11.4s9.4 3.8 9.4 11.4z" fill="#f6a0c6"'+CT+'/><path d="M31.4 23.6c6 3 12.2 3 18.6 0v2.4c-6.4 2.8-12.6 2.8-18.6 0z" fill="#fff"'+CT+'/><circle cx="41" cy="12.2" r="3" fill="#fff"'+CT+'/>';},
-    capuche:function(){return '<path d="M30 32c-.6-12 4-19 11.6-19S53 20 52 32l-3.6-4.4c-4-4-10.8-4-14.8 0z" fill="#2b1a26"'+CT+'/>';},
-    mortier:function(){return '<path d="M26 20.4l15-6.2 15 6.2-15 6z" fill="#26263e"'+CT+'/><path d="M33 23.6v4.6c4.6 3 11 3 16 0v-4.6" fill="#26263e"'+CT+'/><path d="M55 20.6v8" stroke="#ffd23a" stroke-width="1.8"/><circle cx="55" cy="30" r="1.8" fill="#ffd23a"/>';}
+    bandeau:function(){return '<path d="M32.2 26.4Q41 21.8 50.4 25.8L50.6 29.4Q41 25.8 32.4 29.6Z" fill="#e8362f"'+CT+'/><path d="M32.8 27.8l-5.2-2.2M32.8 29l-4.4 3" stroke="#e8362f" stroke-width="2.4" stroke-linecap="round"/>';},
+    explorateur:function(){return '<g transform="rotate(-3 41 24)"><ellipse cx="41" cy="24.6" rx="14.6" ry="3.2" fill="#a8742e"'+CT+'/><path d="M33.4 24.2C33 15.8 37 13.2 41 13.2S49 15.8 48.6 24.2Z" fill="#c48c3c"'+CT+'/><path d="M33.6 21.6Q41 23.6 48.4 21.6" stroke="#7a5018" stroke-width="2" fill="none"/></g>';},
+    magicien:function(){return '<g transform="rotate(-3 41 24)"><path d="M31.6 24.8L42.4 3.4 50.4 24.8Z" fill="#7a3ad8"'+CT+'/><ellipse cx="41" cy="24.8" rx="12.6" ry="2.8" fill="#6a2ec0"'+CT+'/><circle cx="42" cy="13.8" r="1.6" fill="#ffe58a"/><circle cx="45.6" cy="19.4" r="1.1" fill="#ffe58a"/><circle cx="38.2" cy="20" r="1" fill="#ffe58a"/></g>';},
+    couronne:function(){return '<g transform="rotate(-3 41 24)"><path d="M32.8 26.8L33.8 17.8 37.6 21.8 41 15.8 44.4 21.8 48.2 17.8 49.2 26.8Q41 23.4 32.8 26.8Z" fill="#ffd23a"'+CT+'/><circle cx="41" cy="20.2" r="1.3" fill="#e8362f"/></g>';},
+    bonnet:function(){return '<path d="M31.8 28C31.4 17.2 35.6 12.8 41 12.8S50.6 17.2 50.2 28Q41 24.6 31.8 28Z" fill="#f6a0c6"'+CT+'/><path d="M31.6 26.8Q41 22.8 50.4 26.8V29.8Q41 26.2 31.6 29.8Z" fill="#fff"'+CT+'/><circle cx="41" cy="11.8" r="3" fill="#fff"'+CT+'/>';},
+    capuche:function(){return '<path d="M31.2 38C28.6 27.4 32 17.6 41.4 17C48.4 16.6 51.6 21.8 50.8 28.2C49.2 24.2 45.4 22.6 41.4 23.2C37 23.8 34.4 28.2 34 37Z" fill="#2b1a26"'+CT+'/>';},
+    mortier:function(){return '<g transform="rotate(-3 41 24)"><path d="M35.4 24.4V28.6Q41 31.6 46.8 28.6V24.4" fill="#26263e"'+CT+'/><path d="M28.4 21.6L41 16.6 53.6 21.6 41 26.4Z" fill="#26263e"'+CT+'/><path d="M53.6 21.6L55 29.4" stroke="#ffd23a" stroke-width="1.8"/><circle cx="55" cy="30.8" r="1.8" fill="#ffd23a"/></g>';}
   };
   function cheveux(coupe,c){
-    /* cheveux fous : pointes qui partent dans tous les sens (derrière le chapeau) */
-    if(coupe==='frise')return '<path d="M30 28c-4-1-6-5-4-8-3-2-2-7 2-8 0-4 5-6 8-4 2-4 8-4 10-1 4-2 9 0 9 4 4 1 6 5 3 8 3 3 1 8-3 8-1-4-3-7-6-8-2-1-6-1-9 0-4 1-8 4-10 9z" fill="'+c+'"'+CT+'/>';
-    return '<path d="M30.4 27L24 20l8 1-4-10 8 6 1-10 6 9 4-8 3 9 8-6-3 10 7-1-6 7-1 2-8-4-10-1-8 2z" fill="'+c+'"'+CT+'/>';
+    /* cheveux fous, rejetés vers l'arrière puisque le savant regarde à droite (derrière le chapeau) */
+    if(coupe==='frise')return '<path d="M33.2 31C28.4 30.4 27 25 30.6 22.6C29.2 17.8 34.6 14.4 38.2 16.6C40.2 12.6 46.4 12.8 47.6 17.4C51.6 17.8 53 22.4 50.8 25.6C47.4 22.6 43 21.6 39 22.8C36 23.8 34 27 33.2 31Z" fill="'+c+'"'+CT+'/>';
+    return '<path d="M33 29.4C30 26.4 31 22 34 20.6L31 14 37 17.6 37.6 9.6 41.6 17.2 45.4 10.6 46 18.4 51.4 14.4 49.4 22C46 20 42 19.6 38 21 35.6 22 33.4 25 33 29.4Z" fill="'+c+'"'+CT+'/>';
   }
   function savant(s,v){
     var pot=v.c[0],pot2=v.c[1],fm=v.forme;
@@ -94,10 +94,10 @@
        '<path d="M29.6 87.4c0-2.4 2.2-3.8 5-3.8h3.6c1.6 0 2.8 1.2 2.8 2.8 0 1.6-1.2 2.6-2.8 2.6h-6c-1.6 0-2.6-.6-2.6-1.6z" fill="#c8421e"'+CT+'/>'+
        '<path d="M40.4 87.4c0-2.4 2.2-3.8 5-3.8H49c1.6 0 2.8 1.2 2.8 2.8 0 1.6-1.2 2.6-2.8 2.6h-6c-1.6 0-2.6-.6-2.6-1.6z" fill="#c8421e"'+CT+'/></g>';
     o+='<g class="lb-corps">';
-    /* bras arrière (gauche) : lève une éprouvette et pointe l'index (eurêka) */
+    /* bras arrière (gauche) : main ouverte en griffe de savant fou, doigts écartés qui frétillent */
+    var doigts='';[-50,-17,17,50].forEach(function(a){var r=a*Math.PI/180;doigts+=seg(23.6,43.2,f1(23.6+4.6*Math.sin(r)),f1(43.2-4.6*Math.cos(r)),1.5,s.peau);});
     o+='<g class="lb-bras-ar">'+seg(34,46,28,55,5,ombre(s.blouse))+
-       '<g class="lb-avbras-ar">'+seg(28,55,24,45,4.4,ombre(s.blouse))+'<circle cx="23.6" cy="43.2" r="2.7" fill="'+s.peau+'"'+CT+'/><path d="M23 41.2l-.4-5" stroke="'+s.peau+'" stroke-width="1.7" stroke-linecap="round"/>'+
-       '<path d="M23 41.2l-.4-5" stroke="#1b1008" stroke-width=".5" opacity=".5"/></g></g>';
+       '<g class="lb-avbras-ar">'+seg(28,55,24,45,4.4,ombre(s.blouse))+'<g class="lb-doigts">'+doigts+'</g><circle cx="23.6" cy="43.4" r="2.9" fill="'+s.peau+'"'+CT+'/></g></g>';
     /* blouse : buste puis pan qui se balance */
     o+='<path d="M30 47c0-4.4 3.4-7 7.6-7.4h5.6c4.2.4 7.6 3 7.6 7.4l1.6 22H28.4z" fill="'+s.blouse+'"'+CT+'/>';
     o+='<path d="M36.4 40.2l3.6 7.4 3.6-7.4z" fill="#fff"'+CT+'/><path d="M38.8 46.4h2.4l1 8.6-2.2 2.4-2.2-2.4z" fill="#e8362f"'+CT+'/>';
@@ -112,23 +112,21 @@
        '<g clip-path="url(#lbf-'+v.id+')"><rect x="52" y="29" width="18" height="10" fill="'+pot+'"/><g class="lb-ondule"><path d="M52 29c3 1.4 5 1.4 8 0s5-1.4 8 0V32H52z" fill="'+pot+'"/></g>'+forme(fm,59.6,33.4,1.1,pot2)+'</g>'+
        '<g class="lb-petite-b"><circle cx="60.4" cy="31" r=".9" fill="#fff" opacity=".85"/></g>'+
        '<circle cx="60.4" cy="25.8" r="2.9" fill="'+s.peau+'"'+CT+'/></g></g>';
-    /* tête */
+    /* tête de profil (le savant regarde à droite) */
     o+='<g class="lb-tete">'+
        '<g class="lb-cheveux">'+cheveux(s.coupe,s.cheveux)+'</g>'+
-       '<rect x="38" y="38.4" width="5.4" height="5" fill="'+s.peau+'"'+CT+'/>'+
-       '<ellipse cx="41" cy="31" rx="9.4" ry="10" fill="'+s.peau+'"'+CT+'/>'+
-       '<ellipse cx="35.4" cy="32.6" rx="1.9" ry="2.7" fill="'+s.peau+'"'+CT+'/>'+
-       '<path d="M49.4 30.4c3.4 .2 4.2 3.2 1.4 4.2-1.4.5-2.8.2-3.8-.5z" fill="'+s.peau+'"'+CT+'/>';
-    if(s.barbe)o+='<path d="M33.4 35c-2 10 3 18.6 8.4 21.6 5.4-3 10.2-11.6 8-21.6-4.4 4-11.6 4-16.4 0z" fill="'+s.barbe+'"'+CT+'/><path d="M37 41c1 5 .6 9 3 12.4M45 41c-1 5-.6 9-3 12.4" stroke="rgba(0,0,0,.28)" stroke-width="1.1" fill="none" stroke-linecap="round"/>';
-    /* lunettes de savant fou : un gros verre, un petit, sangle */
-    o+='<path d="M31.6 28.4l5.2.8M49.6 28.8l2.6.4" stroke="'+s.lunettes+'" stroke-width="2" stroke-linecap="round"/>'+
-       '<circle cx="45" cy="29" r="5" fill="#fff" stroke="'+s.lunettes+'" stroke-width="2"/><circle cx="45" cy="29" r="5" fill="none"'+CT.replace('stroke-width="1.5"','stroke-width=".6"')+'/>'+
-       '<circle cx="37.4" cy="29.8" r="3.6" fill="#fff" stroke="'+s.lunettes+'" stroke-width="2"/>'+
-       '<g class="lb-pupilles"><circle cx="45.8" cy="29.2" r="1.7" fill="#1b1008"/><circle cx="38" cy="30" r="1.3" fill="#1b1008"/></g>'+
-       '<g class="lb-lueur"><path d="M42.4 26.4c1-.8 2.2-1 3.2-.6" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round"/><path d="M35.6 28c.6-.5 1.4-.6 2-.4" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round"/></g>'+
-       '<g class="lb-sourcils"><path d="M40.4 23.2l9-2.8" stroke="#1b1008" stroke-width="1.7" stroke-linecap="round"/><path d="M33.6 25l4.8.6" stroke="#1b1008" stroke-width="1.5" stroke-linecap="round"/></g>';
-    /* grande bouche de rire */
-    o+='<g class="lb-bouche"><path d="M41.6 36.4c2.8 1.6 6.2 1.2 7.8-.8-.2 3.4-2.8 5.6-5.4 5.2-2.4-.4-3.2-2.2-2.4-4.4z" fill="#6a1a26"'+CT+'/><path d="M42.8 37.2h5.4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></g>';
+       '<rect x="37.4" y="38" width="6" height="6" fill="'+s.peau+'"'+CT+'/>'+
+       '<path d="M32.5 31C31.2 23.5 35.5 19.6 41 19.6C46 19.6 49.6 22.4 50 27.4C50.1 29.2 50.4 30.6 51 31.8C53.6 33.6 53.4 35.4 50.6 35.6L49.6 35.8C50.2 37 49.8 38 48.6 38.8C49 40.8 46.6 42 44 41.6C38.6 41 33.4 37.6 32.5 31Z" fill="'+s.peau+'"'+CT+'/>'+
+       '<ellipse cx="37.6" cy="32.2" rx="1.9" ry="2.7" fill="'+s.peau+'"'+CT+'/><path d="M37.2 31.2q1 1.2 0 2.6" stroke="rgba(0,0,0,.4)" stroke-width=".7" fill="none" stroke-linecap="round"/>';
+    if(s.barbe)o+='<path d="M44 39C50.4 38.6 52.2 46 47.4 52.4C44.4 55.4 40.4 54.4 38 50.4C36 46.6 36.6 41.6 40.2 40.2C41.6 39.6 42.8 39.2 44 39Z" fill="'+s.barbe+'"'+CT+'/><path d="M41.4 42.6c.8 3.6.2 7 2.6 9.6M45.6 42.4c0 3.4-.4 6-2 8.6" stroke="rgba(0,0,0,.28)" stroke-width="1.1" fill="none" stroke-linecap="round"/>';
+    /* lunette de savant fou vue de profil : sangle qui fait le tour de la tête, un seul verre (le près) */
+    o+='<path d="M43.4 28.2L32.8 27.2" stroke="'+s.lunettes+'" stroke-width="2.2" stroke-linecap="round"/><path d="M43.4 28.2L32.8 27.2" stroke="#1b1008" stroke-width=".5" opacity=".5"/>'+
+       '<ellipse cx="46.8" cy="28.8" rx="3.9" ry="4.8" fill="#fff" stroke="'+s.lunettes+'" stroke-width="2.1"/><ellipse cx="46.8" cy="28.8" rx="4.9" ry="5.8" fill="none" stroke="#1b1008" stroke-width=".7" opacity=".55"/>'+
+       '<g class="lb-pupilles"><circle cx="48.2" cy="29" r="1.7" fill="#1b1008"/></g>'+
+       '<g class="lb-lueur"><path d="M44.2 26.2c.9-.8 2-1 3-.7" stroke="#fff" stroke-width="1.1" fill="none" stroke-linecap="round"/></g>'+
+       '<g class="lb-sourcils"><path d="M43.4 23.2L50.6 21.2" stroke="#1b1008" stroke-width="1.8" stroke-linecap="round"/></g>';
+    /* grande bouche de rire, sur le devant du visage */
+    o+='<g class="lb-bouche"><path d="M46.2 36C47.6 36.6 49 36.2 49.6 35.7C49.8 38 49 39.8 47.4 39.5C46 39.2 45.6 37.4 46.2 36Z" fill="#6a1a26"'+CT+'/><path d="M46.8 36.6h2.4" stroke="#fff" stroke-width="1.3" stroke-linecap="round"/></g>';
     if(s.chapeau&&CHAPEAUX[s.chapeau])o+=CHAPEAUX[s.chapeau]();
     o+='</g>';   /* tête */
     o+='</g></g>';   /* corps, savant */
@@ -186,6 +184,8 @@
       kf('lbBrasAr','0%,100%{transform:rotate(0)}25%{transform:rotate(-8deg)}50%{transform:rotate(6deg)}62%{transform:rotate(-16deg)}70%{transform:rotate(-6deg)}78%{transform:rotate(-16deg)}'),
       '.lb-on .lb-avbras-ar{animation:lbAvBrasAr var(--T) ease-in-out infinite;transform-origin:28px 55px}',
       kf('lbAvBrasAr','0%,100%{transform:rotate(0)}20%{transform:rotate(10deg)}45%{transform:rotate(-10deg)}62%{transform:rotate(14deg)}78%{transform:rotate(-6deg)}'),
+      '.lb-on .lb-doigts{animation:lbDoigts calc(var(--T)*.5) ease-in-out infinite;transform-origin:23.6px 43.2px}',
+      kf('lbDoigts','0%,100%{transform:rotate(0)}25%{transform:rotate(8deg)}75%{transform:rotate(-8deg)}'),
       '.lb-on .lb-cheveux{animation:lbCheveux var(--T) ease-in-out infinite;animation-delay:calc(var(--T)*-.06);transform-origin:41px 24px}',
       kf('lbCheveux','0%,100%{transform:rotate(0)}20%{transform:rotate(4deg)}40%{transform:rotate(-3deg)}55%{transform:rotate(-10deg)}62%{transform:rotate(-6deg)}68%{transform:rotate(-10deg)}80%{transform:rotate(3deg)}'),
       '.lb-on .lb-pan{animation:lbPan var(--T) ease-in-out infinite;animation-delay:calc(var(--T)*-.08);transform-origin:40px 66px}',
