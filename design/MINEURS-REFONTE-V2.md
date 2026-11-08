@@ -65,5 +65,28 @@ Puis ajouter la ligne de la caverne voulue (colonnes « La cavité » et « Ambi
 ### Pour la suite (étape 3, pas maintenant)
 Habillage par calques du mineur (un fichier par chapeau, barbe, accessoire), puis animation (respiration par CSS, gestes de creusage par calques de bras si on veut du mouvement), puis la page refaite caverne par caverne.
 
+## Décisions de Norman (2026-11-08)
+- **12 cavernes en images** (pas de SVG). **Mineur de base : mannequin** (corps nu neutre de type figure articulée, sans détails anatomiques).
+
+## Prompts prêts à coller (une image à la fois)
+
+**À chaque fois, coller d'abord le « Prompt commun » ci-dessus, puis UNE des lignes suivantes.** Rappel : aucun personnage, aucun texte, aucune flamme animée ; tiers gauche du sol vide ; sol à 74 % de la hauteur.
+
+1. **`drop`** — « La chambre est un caveau au trésor : coffres de bois cerclés de fer et sacs de toile empilés sur des étagères creusées dans la roche, fers à cheval cloués aux piliers, éclats de gemmes brillant dans les parois. Couleurs : terre brune, orange chaud des lampes. »
+2. **`wandoos`** — « La chambre est une salle informatique taillée dans la roche : vieux écrans à tube cathodique éteints (verre vert sombre) posés sur des établis de bois, grosse tour d'ordinateur beige, câbles qui courent au sol et aux murs, claviers poussiéreux. Couleurs : terre brune, lueur verte très faible. »
+3. **`stats`** — « La chambre est une salle de manomètres : grande armoire de laiton à cadrans et jauges, tuyaux de cuivre le long des murs, tableau de cadrans suspendu, valves à volant. Couleurs : terre brune, reflets de laiton. »
+4. **`adventure`** — « La chambre est une salle des cartes : vieilles cartes punaisées sur la roche, grosse boussole de laiton, cordes enroulées, piolets et épées dans un râtelier, lanternes suspendues. Couleurs : gris-bleu, lumière ambre. »
+5. **`energyNgu`** — « La chambre est une salle de dynamo : bobines de cuivre, grande sphère d'acier au centre, câbles épais au sol, arcs électriques FIGÉS sur les murs (traits fins vert pâle). Couleurs : gris-bleu, vert pâle. »
+6. **`magicNgu`** — « La chambre est une grotte aux cristaux : amas de cristaux violets au sol et au plafond, runes gravées dans la roche (formes abstraites, aucune lettre lisible). Couleurs : gris-bleu, violet. »
+7. **`energyBeard`** — « La chambre est envahie de mèches de barbe dorée qui pendent du plafond comme des stalactites, un grand peigne doré planté dans le sol, étincelles vertes figées dans l'air. Couleurs : bleu-gris profond, doré et vert. »
+8. **`magicBeard`** — « La chambre est envahie de mèches de barbe violette qui pendent du plafond comme des stalactites, un grand peigne planté dans le sol, étincelles violettes figées dans l'air. Couleurs : bleu-gris profond, violet. »
+9. **`pp`** — « La chambre est une grotte aux étoiles : plafond piqueté d'étoiles dorées, gros sac de toile marqué d'une étoile posé au sol, poussière d'or. Couleurs : violet profond, doré. »
+10. **`daycare`** — « La chambre est une crèche taillée dans la roche : berceaux à barreaux, mobiles suspendus, petits lits, doudous, lumière douce de lampes à abat-jour. Couleurs : violet profond, ambre doux. »
+11. **`blood`** — « La chambre est une caverne du chaudron : grand chaudron rouge sombre sur un foyer de braises, mares de sang, chaînes et crochets de boucher, lueur de braise au fond. Couleurs : rouge braise, noir. »
+12. **`experience`** — « La chambre est une bibliothèque troglodyte : piles de livres, étagères creusées dans la roche, grosse sphère de verre posée sur un socle, pupitre incliné. Couleurs : rouge sombre, lueur dorée. »
+
+### Prompt du mineur de base (mannequin) — image à part
+« Illustration de jeu vidéo, gravure sombre dark fantasy / steampunk, traits fins, teintes sourdes sépia. **Un mineur de base en pied, en mannequin** : figure articulée de bois clair ou de cire, peau lisse sans détails anatomiques, sans vêtements, sans cheveux, sans barbe, sans casque, sans chapeau, sans lunettes. Corps trapu d'ouvrier de mine, tête = un sixième de la hauteur. Debout, de trois quarts tourné vers la droite, poids sur les deux pieds, bras légèrement écartés du corps, **mains ouvertes et vides**, tête droite, visage neutre (traits simples, sans expression). **Fond TRANSPARENT (PNG avec canal alpha)**, aucun sol, aucune ombre, aucun décor, aucun texte. Image 768 × 1152, le mineur occupe toute la hauteur, les pieds au bord du bas (à 97 %), le haut du crâne à 5 %. »
+
 ## Où les déposer
 Cavernes : `cloudflare/public/img/mineurs/cavernes/<id>.webp`. Mineur de base : `cloudflare/public/img/mineurs/mineur-base.png`. Dès qu'une image arrive, je la branche (les cavernes manquantes gardent le dessin actuel).
