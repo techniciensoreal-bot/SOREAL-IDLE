@@ -106,9 +106,10 @@
     /* ----- corps de FACE (à l'arrêt : il agite sa fiole, il verse) : jambes puis buste ----- */
     o+='<g class="lb-vf"><g>'+seg(36.2,66,35,85,5,'#3b3552')+SOULIER_F(29.6,'#c8421e')+seg(44,66,45.6,85,5,'#3b3552')+SOULIER_F(40.4,'#c8421e')+'</g></g>';
     /* ----- corps de PROFIL (en marche) : jambes qui pivotent aux hanches, souliers pointés vers l'avant ----- */
-    var sP='M35.4 87.4c0-2.4 2.2-3.8 5-3.8h5.6c2.2 0 3.4 1.2 3.4 2.8 0 1.6-1.2 2.6-3.4 2.6h-8.6c-1.4 0-2-.6-2-1.6z';
-    o+='<g class="lb-vp"><g class="lb-jambe-d">'+seg(40,66,40.4,85,5,'#2e2a42')+'<path d="'+sP+'" fill="#a8341a"'+CT+'/></g>'+
-       '<g class="lb-jambe-g">'+seg(40,66,40.4,85,5,'#3b3552')+'<path d="'+sP+'" fill="#c8421e"'+CT+'/></g></g>';
+    /* jambes de profil : cuisse (pivot hanche 40,66) puis tibia (pivot genou 40 ; 76,6), le pied est au bout du tibia (cheville 40 ; 87,2) ; la marche vient d'une cinématique inverse : le pied posé reste fixe au sol */
+    var SOULIER_P='<path d="M-4.6 3.4C-4.6 .4 -2.4 -1.6 .6 -1.6H5C7.6 -1.6 9 -.4 9 1.4C9 3 7.8 3.9 5.8 3.9H-3C-4 3.9 -4.6 3.7 -4.6 3.4Z"';
+    var jambeP=function(cu,ti,pantalon,soulier){return '<g class="'+cu+'">'+seg(40,66,40,76.6,5,pantalon)+'<g class="'+ti+'">'+seg(40,76.6,40,87.2,5,pantalon)+'<g transform="translate(40 87.2)">'+SOULIER_P+' fill="'+soulier+'"'+CT+'/></g></g></g>';};
+    o+='<g class="lb-vp">'+jambeP('lb-cu-d','lb-ti-d','#2e2a42','#a8341a')+jambeP('lb-cu-g','lb-ti-g','#3b3552','#c8421e')+'</g>';
     o+='<g class="lb-corps">';
     /* buste de face */
     o+='<g class="lb-vf">';
@@ -202,7 +203,9 @@
   };
   var PHASES=[[0,2.6,'repos'],[2.6,4.2,'marche'],[4.2,6.2,'verse',0],[6.2,6.9,'marche'],[6.9,8.9,'verse',1],[8.9,9.8,'marche'],[9.8,11.8,'verse',2],[11.8,14.4,'retour'],[14.4,16,'repos']];
   var MARCHES=[[2.6,4.2],[6.2,6.9],[8.9,9.8],[11.95,14.25]];
-  var DEPART=[78,238],SAVANT_K=1.9,P1=[114,216],DERRIERE_Y=214;
+  var DEPART=[78,238],SAVANT_K=1.9,P1=[114,233],DERRIERE_Y=230;
+  /* marche : demi-pas de 5,5 unités (le pied posé recule de 11 unités = 20,9 px pendant que le corps avance d'autant), pied levé de 3,5, cheville à 86,4 (la semelle touche le sol en 90) */
+  var PAS=5.5,LEVE=3.5,CHEVILLE=86.4,DEMI_PAS=2*PAS*SAVANT_K;
   var BOUCHES={flacon:[120,33],tubeG:[77,23],becher:[106,30]};   /* centre de l'ouverture de chaque verre, en pixels de son image */
   /* postes de versement : position du savant (pieds) et angles des bras, calculés par cinématique inverse pour que la fiole penchée se retrouve juste au-dessus du verre */
   function postes(){
@@ -230,6 +233,21 @@
     function sens(t){if(t<11.8)return 1;if(t<11.95)return 1-2*suave((t-11.8)/.15);if(t<14.25)return -1;if(t<14.4)return -1+2*suave((t-14.25)/.15);return 1;}
     function poids(t){   /* marche (jambes, balancier des bras) : 1 pendant les trajets, rampes de 0,15 s */
       var w=0;MARCHES.forEach(function(m){w=Math.max(w,suave((t-m[0])/.15)*(1-suave((t-m[1]+.15)/.15)));});return w;}
+    /* ----- marche : le pied posé reste fixe au sol ; la phase avance avec la distance horizontale parcourue ----- */
+    function fenetreMarche(t){for(var i=0;i<MARCHES.length;i++){var m=MARCHES[i];if(t>=m[0]-.15&&t<=m[1]+.15)return m;}return null;}
+    function phiMarche(t){var m=fenetreMarche(t);if(!m)return null;var tt=Math.min(m[1],Math.max(m[0],t));return Math.abs(position(tt)[0]-position(m[0])[0])/(2*DEMI_PAS);}
+    /* position locale du pied (par rapport à la hanche) pour la phase u d'une jambe : appui (recule à vitesse du corps) puis pas (avance, levé) */
+    function cible(u){u=((u%1)+1)%1;if(u<.5)return {x:PAS-4*PAS*u,y:0,appui:true};var v=(u-.5)/.5;return {x:-PAS+2*PAS*suave(v),y:-LEVE*Math.sin(Math.PI*v),appui:false};}
+    function jambe(u){
+      var c=cible(u),hx=40,hy=66,L=10.6,ax=hx+c.x,ay=CHEVILLE+c.y,dx=ax-hx,dy=ay-hy,d=Math.min(2*L-.01,Math.hypot(dx,dy)),phi=Math.atan2(dy,dx);
+      var al=Math.acos(Math.max(-1,Math.min(1,d/(2*L))));   /* deux segments égaux : cos(angle) = d / 2L */
+      var th=phi-al,kx=hx+L*Math.cos(th),ky=hy+L*Math.sin(th),ts=Math.atan2(ay-ky,ax-kx);
+      return {t1:(th-Math.PI/2)*180/Math.PI,t2:(ts-th)*180/Math.PI,appui:c.appui,x:c.x,y:c.y};
+    }
+    function jambes(t){var p=phiMarche(t);if(p===null)return {a:{t1:0,t2:0},b:{t1:0,t2:0}};return {a:jambe(p),b:jambe(p+.5)};}
+    /* positions du pied dans la scène (pour vérifier qu'il ne glisse pas) */
+    function pieds(t){var p=phiMarche(t),a=position(t),f=sens(t);if(p===null)return null;
+      var g=function(u){var c=cible(u);return {x:a[0]+c.x*SAVANT_K*f,y:a[1]-c.y*SAVANT_K,appui:c.appui};};return {a:g(p),b:g(p+.5)};}
     function perfil(t){   /* corps de profil visible pendant les trajets, avec 0,15 s de fondu avant et après (le retournement de sens se fait pendant ce fondu) */
       var w=0;MARCHES.forEach(function(m){w=Math.max(w,suave((t-(m[0]-.15))/.15)*(1-suave((t-m[1])/.15)));});return w;}
     function mode(t){   /* poids [repos, marche, verse] avec fondus de 0,3 s aux frontières */
@@ -244,7 +262,7 @@
       return {prise:0,bascule:0,poste:0};
     }
     function articulations(t){
-      var w=mode(t),u=((t%PIDLE)+PIDLE)%PIDLE/PIDLE,ww=poids(t),om=2*Math.PI*t/.5,vs=verse(t),pst=ST[vs.poste];
+      var w=mode(t),u=((t%PIDLE)+PIDLE)%PIDLE/PIDLE,ww=poids(t),om=2*Math.PI*t/.5,vs=verse(t),pst=ST[vs.poste],J=jambes(t),phM=phiMarche(t),ph2=(phM===null?0:2*Math.PI*phM);
       var carry1=54+4*Math.sin(om),carry2=-38+5*Math.sin(om+1.6);
       var idle1=interp(T_IDLE.brasAv,u),idle2=interp(T_IDLE.avbrasAv,u);
       var pour1=carry1*(1-vs.prise)+pst.t1*vs.prise,pour2=carry2*(1-vs.prise)+pst.t2*vs.prise;
@@ -252,9 +270,9 @@
       var hh=suave((u-.5)/.1)*(1-suave((u-.8)/.1));   /* main sur la hanche pendant le rire */
       var ar1=w[0]*(4*Math.sin(2*Math.PI*u)*(1-hh)+25*hh)+w[1]*(-18*Math.sin(om))+w[2]*(28+4*Math.sin(2*Math.PI*t/.6));
       var ar2=w[0]*(3*Math.sin(2*Math.PI*u+1)*(1-hh)-43*hh)+w[1]*(-8+4*Math.sin(om))+w[2]*(-12+3*Math.sin(2*Math.PI*t/.6+1));
-      var corps=w[0]*interp(T_IDLE.corps,u)+w[1]*3+w[2]*(1+5*vs.prise),bob=w[0]*interp(T_IDLE.bob,u)+w[1]*(-1.1*Math.abs(Math.sin(om/2)));
+      var corps=w[0]*interp(T_IDLE.corps,u)+w[1]*3+w[2]*(1+5*vs.prise),bob=w[0]*interp(T_IDLE.bob,u)+w[1]*(-1.0*Math.abs(Math.sin(ph2)));
       var p=position(t),pv=perfil(t);
-      return {pv:pv,pAr:-22*Math.sin(om)*ww,pAv:5*Math.sin(om+Math.PI)*ww,pAvav:-7*Math.sin(om)*ww,x:p[0],y:p[1],f:sens(t),jg:26*Math.sin(om)*ww,jd:-26*Math.sin(om)*ww,corps:corps,bob:bob,brasAv:av1,avbrasAv:av2,fiole:112*vs.bascule*w[2],brasAr:ar1,avbrasAr:ar2};
+      return {pv:pv,pAr:-22*Math.sin(ph2)*ww,pAv:5*Math.sin(ph2+Math.PI)*ww,pAvav:-7*Math.sin(ph2)*ww,x:p[0],y:p[1],f:sens(t),cuG:J.a.t1,tiG:J.a.t2,cuD:J.b.t1,tiD:J.b.t2,corps:corps,bob:bob,brasAv:av1,avbrasAv:av2,fiole:112*vs.bascule*w[2],brasAr:ar1,avbrasAr:ar2};
     }
     /* niveaux de potion : monte pendant le versement, redescend lentement le reste du cycle (retour exact au départ) */
     function niveau(t,k,D){var ph=PHASES.filter(function(q){return q[2]==='verse'&&q[3]===k;})[0],ts=ph[0]+.45,dur=1.0,te=ts+dur;
@@ -263,7 +281,10 @@
     /* instants où une valeur de la chorégraphie change de pente : bornes des fondus de profil */
     var temps=[0,P];MARCHES.forEach(function(m){temps.push(m[0]-.15,m[0],m[1],m[1]+.15);});
     temps=temps.filter(function(x,i,t2){return x>=0&&x<=P&&t2.indexOf(x)===i;}).sort(function(p,q){return p-q;});
-    return {articulations:articulations,niveau:niveau,filet:filet,postes:ST,temps:temps};
+    /* échantillons des jambes : toutes les 0,05 s pendant les trajets (et 0,15 s autour), puis le repos */
+    var tj=[0,P];MARCHES.forEach(function(m){for(var x=m[0]-.15;x<=m[1]+.1501;x+=.05)tj.push(Math.round(x*1000)/1000);tj.push(Math.round((m[1]+.16)*1000)/1000);});
+    tj=tj.filter(function(x,i,t2){return x>=0&&x<=P&&t2.indexOf(x)===i;}).sort(function(p,q){return p-q;});
+    return {articulations:articulations,niveau:niveau,filet:filet,postes:ST,temps:temps,tempsJambes:tj,pieds:pieds,jambes:jambes};
   }
   /* un @keyframes à partir d'une fonction du temps : échantillons réguliers, dernier = premier (boucle exacte) */
   function kfFonction(nom,pas,fn){
@@ -285,7 +306,7 @@
     function kf(nom,pas){return '@keyframes '+nom+'{'+pas+'}';}
     var o=['.lb{--T:2.4s;--P:calc(var(--T)*6.6667);display:block;width:100%;height:auto}',
       '.lb *{transform-box:view-box}',
-      '.lb-on .lb-vf,.lb-on .lb-vp,.lb-on .lb-p-ar,.lb-on .lb-p-av,.lb-on .lb-p-avav,.lb-on .lb-deplace,.lb-on .lb-sens,.lb-on .lb-jambe-g,.lb-on .lb-jambe-d,.lb-on .lb-corps,.lb-on .lb-bras-av,.lb-on .lb-avbras-av,.lb-on .lb-fiole,.lb-on .lb-bras-ar,.lb-on .lb-avbras-ar,.lb-on .lb-niv-f,.lb-on .lb-niv-t,.lb-on .lb-niv-b,.lb-on .lb-filet{animation-duration:var(--P);animation-timing-function:linear;animation-iteration-count:infinite;animation-delay:calc(var(--P)*var(--dec,0)*-1)}',
+      '.lb-on .lb-vf,.lb-on .lb-vp,.lb-on .lb-p-ar,.lb-on .lb-p-av,.lb-on .lb-p-avav,.lb-on .lb-deplace,.lb-on .lb-sens,.lb-on .lb-cu-g,.lb-on .lb-ti-g,.lb-on .lb-cu-d,.lb-on .lb-ti-d,.lb-on .lb-corps,.lb-on .lb-bras-av,.lb-on .lb-avbras-av,.lb-on .lb-fiole,.lb-on .lb-bras-ar,.lb-on .lb-avbras-ar,.lb-on .lb-niv-f,.lb-on .lb-niv-t,.lb-on .lb-niv-b,.lb-on .lb-filet{animation-duration:var(--P);animation-timing-function:linear;animation-iteration-count:infinite;animation-delay:calc(var(--P)*var(--dec,0)*-1)}',
       '.lb-deplace,.lb-sens{transform-origin:0 0}',
       '.lb-vp{opacity:0}',
       '.lb-vf,.lb-vp{transform-origin:40px 66px}',
@@ -296,8 +317,10 @@
       '.lb-on .lb-p-avav{animation-name:lbPAvav;transform-origin:45.6px 55px}',kfFonction('lbPAvav',.1,function(t){return 'transform:rotate('+dg(AR(t).pAvav)+')';}),
       '.lb-on .lb-deplace{animation-name:lbDep}',kfFonction('lbDep',.1,function(t){var a=AR(t);return 'transform:translate('+f1(a.x)+'px,'+f1(a.y)+'px)';}),
       '.lb-on .lb-sens{animation-name:lbSens}',kfFonction('lbSens',.05,function(t){return 'transform:scaleX('+f1(AR(t).f*100)/100+')';}),
-      '.lb-on .lb-jambe-g{animation-name:lbJG;transform-origin:'+ART.hancheG[0]+'px '+ART.hancheG[1]+'px}',kfFonction('lbJG',.1,function(t){return 'transform:rotate('+dg(AR(t).jg)+')';}),
-      '.lb-on .lb-jambe-d{animation-name:lbJD;transform-origin:'+ART.hancheD[0]+'px '+ART.hancheD[1]+'px}',kfFonction('lbJD',.1,function(t){return 'transform:rotate('+dg(AR(t).jd)+')';}),
+      '.lb-on .lb-cu-g{animation-name:lbCuG;transform-origin:40px 66px}',kfTemps('lbCuG',M.tempsJambes,function(t){return 'transform:rotate('+dg(AR(t).cuG)+')';}),
+      '.lb-on .lb-ti-g{animation-name:lbTiG;transform-origin:40px 76.6px}',kfTemps('lbTiG',M.tempsJambes,function(t){return 'transform:rotate('+dg(AR(t).tiG)+')';}),
+      '.lb-on .lb-cu-d{animation-name:lbCuD;transform-origin:40px 66px}',kfTemps('lbCuD',M.tempsJambes,function(t){return 'transform:rotate('+dg(AR(t).cuD)+')';}),
+      '.lb-on .lb-ti-d{animation-name:lbTiD;transform-origin:40px 76.6px}',kfTemps('lbTiD',M.tempsJambes,function(t){return 'transform:rotate('+dg(AR(t).tiD)+')';}),
       '.lb-on .lb-corps{animation-name:lbCorps;transform-origin:40px 68px}',kfFonction('lbCorps',.1,function(t){var a=AR(t);return 'transform:rotate('+dg(a.corps)+') translateY('+f1(a.bob)+'px)';}),
       '.lb-on .lb-bras-av{animation-name:lbBrasAv;transform-origin:'+ART.epaule[0]+'px '+ART.epaule[1]+'px}',kfFonction('lbBrasAv',.1,function(t){return 'transform:rotate('+dg(AR(t).brasAv)+')';}),
       '.lb-on .lb-avbras-av{animation-name:lbAvBrasAv;transform-origin:'+ART.coude[0]+'px '+ART.coude[1]+'px}',kfFonction('lbAvBrasAv',.1,function(t){return 'transform:rotate('+dg(AR(t).avbrasAv)+')';}),

@@ -71,18 +71,18 @@ console.log("idle-labos-savants-v1: OK");
   // trois postes de versement (flacon, tubes, bécher), de gauche à droite derrière l'établi, bras atteignables
   assert.equal(M.postes.length, 3, "trois postes de versement");
   assert.ok(M.postes[0].X < M.postes[1].X && M.postes[1].X < M.postes[2].X, "le savant avance de gauche à droite derrière l'établi");
-  for (const p of M.postes) { assert.ok(Number.isFinite(p.t1) && Number.isFinite(p.t2) && Math.abs(p.t1) < 170 && Math.abs(p.t2) < 170, "angles de bras finis et plausibles"); assert.ok(p.Y === 214, "derrière l'établi"); }
+  for (const p of M.postes) { assert.ok(Number.isFinite(p.t1) && Number.isFinite(p.t2) && Math.abs(p.t1) < 170 && Math.abs(p.t2) < 170, "angles de bras finis et plausibles"); assert.ok(p.Y === 230, "sur le sol dallé, derrière l'établi (le sol commence à y = 224)"); }
   // boucle exacte : la fin du cycle retrouve le début (position, sens, articulations, niveaux)
   const a0 = M.articulations(0), a1 = M.articulations(15.9999);
-  for (const k of ["x", "y", "f", "jg", "jd", "corps", "bob", "brasAv", "avbrasAv", "fiole", "brasAr", "avbrasAr"]) assert.ok(Math.abs(a0[k] - a1[k]) < 0.02, "boucle exacte : " + k + " (" + a0[k] + " / " + a1[k] + ")");
+  for (const k of ["x", "y", "f", "cuG", "tiG", "cuD", "tiD", "pv", "corps", "bob", "brasAv", "avbrasAv", "fiole", "brasAr", "avbrasAr"]) assert.ok(Math.abs(a0[k] - a1[k]) < 0.02, "boucle exacte : " + k + " (" + a0[k] + " / " + a1[k] + ")");
   for (let k = 0; k < 3; k++) assert.ok(Math.abs(M.niveau(0, k, 0.2) - M.niveau(15.9999, k, 0.2)) < 0.001, "niveau " + k + " : retour exact");
   // le savant reste dans sa case, jamais devant l'établi quand il le croise (y haut = derrière), et regarde à gauche seulement au retour
   let gauche = 0;
   for (let t = 0; t < 16; t += 0.05) {
     const a = M.articulations(t);
-    assert.ok(a.x >= 70 && a.x <= 260 && a.y >= 205 && a.y <= 240, "position dans la case à t=" + t.toFixed(2));
+    assert.ok(a.x >= 70 && a.x <= 260 && a.y >= 226 && a.y <= 240, "position dans la case à t=" + t.toFixed(2));
     for (const k of Object.keys(a)) assert.ok(Number.isFinite(a[k]), "valeur finie " + k + " à t=" + t.toFixed(2));
-    if (a.x > 140 && a.x < 262) assert.ok(a.y <= 216, "derrière l'établi quand il le longe (t=" + t.toFixed(2) + ")");
+    if (a.x > 140 && a.x < 262) assert.ok(a.y <= 233.5, "derrière l'établi quand il le longe (t=" + t.toFixed(2) + ")");
     if (a.f < -0.99) gauche += 1;
   }
   assert.ok(gauche > 20 && gauche < 80, "il regarde à gauche pendant le retour seulement");
@@ -91,7 +91,7 @@ console.log("idle-labos-savants-v1: OK");
   // la fiole bascule seulement pendant le versement
   assert.ok(M.articulations(5.2).fiole > 100 && M.articulations(1).fiole === 0 && M.articulations(3.5).fiole < 1, "la fiole bascule pour verser");
   // jambes : elles marchent seulement sur les trajets
-  assert.ok(Math.abs(M.articulations(3.6).jg) + Math.abs(M.articulations(13.1).jg) > 5 && M.articulations(5.2).jg === 0 && M.articulations(1).jg === 0, "jambes immobiles hors des trajets");
+  assert.ok(Math.abs(M.articulations(3.6).cuG) + Math.abs(M.articulations(13.1).cuG) > 5 && M.articulations(5.2).cuG === 0 && M.articulations(1).cuG === 0, "jambes immobiles hors des trajets");
   // la scène ne dessine le savant qu'une fois, derrière l'établi (une seule instance de lb-savant, avant l'image de l'établi)
   const sc = S.scene("drop", { decor: "d.webp", etabli: "e.webp", flacon: "f.webp", tubes: "t.webp", becher: "b.webp" }, true, 0.25);
   assert.equal((sc.match(/class="lb-savant"/g) || []).length, 1, "un seul savant");
@@ -106,7 +106,7 @@ console.log("idle-labos-savants-v1 (chorégraphie): OK");
   const M = S.modele();
   const sc = S.scene("drop", { decor: "d.webp", etabli: "e.webp", flacon: "f.webp", tubes: "t.webp", becher: "b.webp" }, true, 0);
   assert.ok((sc.match(/class="lb-vf"/g) || []).length === 2 && (sc.match(/class="lb-vp"/g) || []).length === 2, "deux calques de corps de face (jambes, buste) et deux de profil");
-  assert.ok(sc.includes("lb-p-ar") && sc.includes("lb-p-av") && sc.includes("lb-jambe-g") && sc.includes("lb-jambe-d"), "le profil a ses bras et ses jambes");
+  assert.ok(sc.includes("lb-p-ar") && sc.includes("lb-p-av") && sc.includes("lb-cu-g") && sc.includes("lb-ti-g") && sc.includes("lb-cu-d") && sc.includes("lb-ti-d"), "le profil a ses bras et ses jambes");
   // à l'arrêt (repos, versement) : de face ; en marche : de profil, à droite à l'aller, à gauche au retour
   for (const t of [0.5, 1.5, 5.2, 8.0, 10.8, 15.2]) assert.ok(M.articulations(t).pv < 0.01, "de face à l'arrêt (t=" + t + ")");
   for (const t of [3.2, 3.8, 6.55, 9.3, 12.5, 13.2, 13.9]) assert.ok(M.articulations(t).pv > 0.99, "de profil en marche (t=" + t + ")");
@@ -119,3 +119,30 @@ console.log("idle-labos-savants-v1 (chorégraphie): OK");
   assert.ok(S.css().includes("@keyframes lbVF") && S.css().includes("@keyframes lbVP"), "fondu enchaîné face / profil");
 }
 console.log("idle-labos-savants-v1 (trois positions): OK");
+
+/* ---------- marche naturelle (Norman, 2026-11-08 : « les pieds ne doivent pas décoller du sol ; mouvement plus naturel des jambes » ; « derrière le pupitre, leurs pieds sont sur les murs ») ---------- */
+{
+  const M = S.modele();
+  // sol : la limite mur / sol dallé est à y = 224 dans la scène ; les semelles touchent le sol (pieds en y >= 226) à tout instant, jamais sur le mur
+  for (let t = 0; t < 16; t += 0.05) { const a = M.articulations(t); assert.ok(a.y >= 226, "pieds sur le sol dallé (y = " + a.y.toFixed(1) + " à t=" + t.toFixed(2) + ")"); }
+  // le pied posé ne glisse JAMAIS : sa position dans la scène reste fixe pendant que le corps avance
+  let appuis = 0, glisse = 0, leves = 0;
+  for (let t = 2.5; t < 14.5; t += 0.02) {
+    const a = M.pieds(t), b = M.pieds(t + 0.02);
+    if (!a || !b) continue;
+    if (Math.abs(M.articulations(t).f) < 0.99 || Math.abs(M.articulations(t + 0.02).f) < 0.99) continue;   /* pendant le retournement (0,15 s) le corps se resserre et pivote : le pied est mis en miroir avec lui */
+    for (const k of ["a", "b"]) {
+      if (a[k].appui && b[k].appui) { appuis += 1; glisse = Math.max(glisse, Math.abs(b[k].x - a[k].x)); }
+      if (!a[k].appui) leves = Math.max(leves, Math.abs(a[k].y - M.articulations(t).y));
+    }
+  }
+  assert.ok(appuis > 150, "pieds en appui mesurés : " + appuis);
+  assert.ok(glisse < 0.05, "le pied posé ne glisse pas (glissement maximal " + glisse.toFixed(3) + " px par 0,02 s)");
+  assert.ok(leves > 5 && leves < 9, "seul le pied qui avance se lève (de " + leves.toFixed(1) + " px)");
+  // à chaque instant de marche, un pied au moins est posé (jamais deux pieds en l'air)
+  for (let t = 2.7; t < 4.1; t += 0.05) { const p = M.pieds(t); assert.ok(p && (p.a.appui || p.b.appui), "un pied au moins est posé à t=" + t.toFixed(2)); }
+  // genou : les deux segments gardent leur longueur, la jambe ne s'étire jamais (cinématique inverse atteignable)
+  for (let t = 2.7; t < 4.1; t += 0.05) { const j = M.jambes(t); for (const k of ["a", "b"]) assert.ok(Math.abs(j[k].t1) < 80 && Math.abs(j[k].t2) < 130, "angles de jambe plausibles"); }
+  assert.ok(S.css().includes("@keyframes lbCuG") && S.css().includes("@keyframes lbTiG") && S.css().includes("@keyframes lbCuD") && S.css().includes("@keyframes lbTiD"), "cuisse et tibia de chaque jambe animés");
+}
+console.log("idle-labos-savants-v1 (marche naturelle): OK");
