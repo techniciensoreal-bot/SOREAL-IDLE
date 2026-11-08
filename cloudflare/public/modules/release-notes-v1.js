@@ -110,8 +110,8 @@
             'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
           ]},
           {menu:'diggers', titre:'Mineurs d’or', points:[
-            'Mineurs d’or : le bouton « Au maximum » met le mineur au plus haut niveau que ton or par seconde peut supporter (au lieu d’être refusé quand le niveau possédé est trop gourmand).',
-            'Mineurs d’or : les boutons grisés se lisent maintenant (texte clair sur fond sombre, au lieu de gris sur gris).',
+            'Le bouton « Au maximum » met le mineur au plus haut niveau que ton or par seconde peut supporter (au lieu d’être refusé quand le niveau possédé est trop gourmand).',
+            'Les boutons grisés se lisent maintenant (texte clair sur fond sombre, au lieu de gris sur gris).',
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Magie du sang : quand un rituel dépasse 1 niveau par seconde, l’animation de la scène ne s’arrête plus un instant à chaque synchronisation : elle reste continue.',
