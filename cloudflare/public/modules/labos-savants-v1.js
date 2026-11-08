@@ -307,13 +307,13 @@
     function kf(nom,pas){return '@keyframes '+nom+'{'+pas+'}';}
     var o=['.lb{--T:2.4s;--P:calc(var(--T)*6.6667);display:block;width:100%;height:auto}',
       '.lb *{transform-box:view-box}',
-      /* AU REPOS (Norman, 2026-11-08) : lumières éteintes (voile sombre, qui se lève en 0,6 s quand le labo se met au travail) et savant les bras baissés : le bras avant pend le long du corps (épaule 134°, coude 32°) et la fiole reste droite au bout de la main (contre-rotation -166°), tête un peu baissée, bouche fermée, sourcils bas, regard vers le sol */
-      '.lb-nuit{opacity:.62;transition:opacity .6s ease}',
+      /* AU REPOS (Norman, 2026-11-08) : lumières éteintes (voile sombre, qui se lève en 0,6 s quand le labo se met au travail) et savant les bras baissés : le bras avant pend SUR LE CÔTÉ du corps, hors de la blouse (épaule 100°, coude 58°) et la fiole reste droite au bout de la main (contre-rotation -158°), tête un peu baissée, bouche fermée, sourcils bas, regard vers le sol */
+      '.lb-nuit{opacity:.8;transition:opacity .6s ease}',
       '.lb-on .lb-nuit{opacity:0}',
       '.lb-bras-av{transform-origin:'+ART.epaule[0]+'px '+ART.epaule[1]+'px}.lb-avbras-av{transform-origin:'+ART.coude[0]+'px '+ART.coude[1]+'px}.lb-fiole{transform-origin:'+ART.main[0]+'px '+ART.main[1]+'px}',
-      '.lb:not(.lb-on) .lb-bras-av{transform:rotate(134deg)}',
-      '.lb:not(.lb-on) .lb-avbras-av{transform:rotate(32deg)}',
-      '.lb:not(.lb-on) .lb-fiole{transform:rotate(-166deg)}',
+      '.lb:not(.lb-on) .lb-bras-av{transform:rotate(100deg)}',
+      '.lb:not(.lb-on) .lb-avbras-av{transform:rotate(58deg)}',
+      '.lb:not(.lb-on) .lb-fiole{transform:rotate(-158deg)}',
       '.lb:not(.lb-on) .lb-tete{transform-origin:41px 41px;transform:rotate(5deg)}',
       '.lb:not(.lb-on) .lb-sourcils{transform:translateY(.9px)}',
       '.lb:not(.lb-on) .lb-bouche{transform-origin:48px 38px;transform:scaleY(.4)}',
