@@ -65,7 +65,7 @@
       '.lp-donjon{border:4px solid #000;border-radius:14px;overflow:hidden;background:#150f1d}',
       '.lp-etage{padding:8px 8px 2px}',
       '.lp-nometage{font:400 19px Bangers,cursive;letter-spacing:.06em;margin:0 0 6px 4px;color:#fff;text-shadow:0 2px 0 #000}',
-      '.g1{background:linear-gradient(180deg,#5b4326,#3f2c18)}.g2{background:linear-gradient(180deg,#2e4a52,#223540)}.g3{background:linear-gradient(180deg,#3a3f5a,#2a2d46)}.g4{background:linear-gradient(180deg,#4a2a55,#34193e)}.g5{background:linear-gradient(180deg,#5a1f22,#3b1114)}',
+      '.g1{background:linear-gradient(180deg,#34406a,#232b4a)}.g2{background:linear-gradient(180deg,#2e4a52,#223540)}.g3{background:linear-gradient(180deg,#3a3f5a,#2a2d46)}.g4{background:linear-gradient(180deg,#4a2a55,#34193e)}.g5{background:linear-gradient(180deg,#5a1f22,#3b1114)}',
       /* la carte d'un labo EST la scène : l'image remplit le cadre, le nom et l'effet sont posés en haut, les boutons en bas, par-dessus le décor */
       /* Grille (Norman, 2026-11-08 : « sur PC, les images doivent être plus grandes pour que les 4 images prennent toute une ligne ») : la largeur de la page décide (requête de conteneur), pas celle de la fenêtre ; 4 colonnes quand la place le permet (le premier étage a 4 labos : ils remplissent la ligne), 2 en largeur moyenne, 1 sur téléphone. Les étages de 2 labos gardent la même taille de carte. */
       '.lp-donjon{container-type:inline-size}',

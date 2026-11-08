@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 441,
+  "keyframes": 443,
   "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 12,
   "pointsEntreeRejouables": 262,
@@ -2080,6 +2080,24 @@
    ],
    "utilisePar": [
     "soreal-idle-entetes-miniature-v1.css"
+   ]
+  },
+  {
+   "nom": "nbLb_balance",
+   "definiePar": [
+    "soreal-idle-labos-habillage-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-labos-habillage-v1.css"
+   ]
+  },
+  {
+   "nom": "nbLb_bulle",
+   "definiePar": [
+    "soreal-idle-labos-habillage-v1.css"
+   ],
+   "utilisePar": [
+    "soreal-idle-labos-habillage-v1.css"
    ]
   },
   {
