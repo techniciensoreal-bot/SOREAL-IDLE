@@ -90,7 +90,7 @@
     return '<path d="M33 29.4C30 26.4 31 22 34 20.6L31 14 37 17.6 37.6 9.6 41.6 17.2 45.4 10.6 46 18.4 51.4 14.4 49.4 22C46 20 42 19.6 38 21 35.6 22 33.4 25 33 29.4Z" fill="'+c+'"'+CT+'/>';
   }
   /* pivots des articulations (coordonnées locales) : hanches, épaules, coudes, main qui tient la fiole */
-  var ART={hancheG:[36.2,66],hancheD:[44,66],epaule:[47,46],coude:[57.5,37.5],main:[60.5,25.8],epauleAr:[34,46],coudeAr:[28,55]};
+  var ART={hancheG:[36.2,66],hancheD:[44,66],epaule:[47,46],coude:[57.5,37.5],main:[60.5,25.8],epauleAr:[34,46],coudeAr:[30.5,57],mainAr:[31,67]};
   function savant(s,v){
     var pot=v.c[0],pot2=v.c[1],fm=v.forme;
     var o='<g class="lb-savant">';
@@ -98,10 +98,10 @@
     o+='<g class="lb-jambe-g">'+seg(36.2,66,35,85,5,'#3b3552')+'<path d="M29.6 87.4c0-2.4 2.2-3.8 5-3.8h3.6c1.6 0 2.8 1.2 2.8 2.8 0 1.6-1.2 2.6-2.8 2.6h-6c-1.6 0-2.6-.6-2.6-1.6z" fill="#c8421e"'+CT+'/></g>'+
        '<g class="lb-jambe-d">'+seg(44,66,45.6,85,5,'#3b3552')+'<path d="M40.4 87.4c0-2.4 2.2-3.8 5-3.8H49c1.6 0 2.8 1.2 2.8 2.8 0 1.6-1.2 2.6-2.8 2.6h-6c-1.6 0-2.6-.6-2.6-1.6z" fill="#c8421e"'+CT+'/></g>';
     o+='<g class="lb-corps">';
-    /* bras arrière (gauche) : main ouverte en griffe de savant fou, doigts écartés qui frétillent */
-    var doigts='';[-50,-17,17,50].forEach(function(a){var r=a*Math.PI/180;doigts+=seg(23.6,43.2,f1(23.6+4.6*Math.sin(r)),f1(43.2-4.6*Math.cos(r)),1.5,s.peau);});
-    o+='<g class="lb-bras-ar">'+seg(34,46,28,55,5,ombre(s.blouse))+
-       '<g class="lb-avbras-ar">'+seg(28,55,24,45,4.4,ombre(s.blouse))+'<g class="lb-doigts">'+doigts+'</g><circle cx="23.6" cy="43.4" r="2.9" fill="'+s.peau+'"'+CT+'/></g></g>';
+    /* bras arrière (gauche) : il PEND le long du corps, main détendue ; il balance en marchant, se pose sur la hanche quand le savant rit, s'écarte pour l'équilibre quand il verse */
+    var doigts='';[-34,-11,11,34].forEach(function(a){var r=a*Math.PI/180;doigts+=seg(31,67,f1(31+4*Math.sin(r)),f1(67+4*Math.cos(r)),1.5,s.peau);});
+    o+='<g class="lb-bras-ar">'+seg(34,46,30.5,57,5,ombre(s.blouse))+
+       '<g class="lb-avbras-ar">'+seg(30.5,57,31,67,4.4,ombre(s.blouse))+'<g class="lb-doigts">'+doigts+'</g><circle cx="31" cy="67.2" r="2.9" fill="'+s.peau+'"'+CT+'/></g></g>';
     /* blouse : buste puis pan qui se balance */
     o+='<path d="M30 47c0-4.4 3.4-7 7.6-7.4h5.6c4.2.4 7.6 3 7.6 7.4l1.6 22H28.4z" fill="'+s.blouse+'"'+CT+'/>';
     o+='<path d="M36.4 40.2l3.6 7.4 3.6-7.4z" fill="#fff"'+CT+'/><path d="M38.8 46.4h2.4l1 8.6-2.2 2.4-2.2-2.4z" fill="#e8362f"'+CT+'/>';
@@ -186,8 +186,6 @@
   var T_IDLE={
     brasAv:[[0,0],[.18,-6],[.36,4],[.52,-14],[.6,-8],[.7,-14],[.85,2],[1,0]],
     avbrasAv:[[0,0],[.08,14],[.16,-10],[.24,14],[.32,-10],[.4,12],[.48,-6],[.56,-20],[.64,-12],[.72,-20],[.8,8],[.88,-4],[1,0]],
-    brasAr:[[0,0],[.25,-8],[.5,6],[.62,-16],[.7,-6],[.78,-16],[1,0]],
-    avbrasAr:[[0,0],[.2,10],[.45,-10],[.62,14],[.78,-6],[1,0]],
     corps:[[0,1.2],[.25,2.4],[.5,.6],[.58,1],[.64,1.4],[.7,1],[.78,1.2],[1,1.2]],
     bob:[[0,0],[.25,-.5],[.5,.3],[.58,-1],[.64,.3],[.7,-1],[.78,0],[1,0]]
   };
@@ -238,8 +236,9 @@
       var idle1=interp(T_IDLE.brasAv,u),idle2=interp(T_IDLE.avbrasAv,u);
       var pour1=carry1*(1-vs.prise)+pst.t1*vs.prise,pour2=carry2*(1-vs.prise)+pst.t2*vs.prise;
       var av1=w[0]*idle1+w[1]*carry1+w[2]*pour1,av2=w[0]*idle2+w[1]*carry2+w[2]*pour2;
-      var ar1=w[0]*interp(T_IDLE.brasAr,u)+w[1]*(16*Math.sin(om))+w[2]*(-18+4*Math.sin(2*Math.PI*t/.6));
-      var ar2=w[0]*interp(T_IDLE.avbrasAr,u)+w[1]*10+w[2]*(14+3*Math.sin(2*Math.PI*t/.6+1));
+      var hh=suave((u-.5)/.1)*(1-suave((u-.8)/.1));   /* main sur la hanche pendant le rire */
+      var ar1=w[0]*(4*Math.sin(2*Math.PI*u)*(1-hh)+25*hh)+w[1]*(-18*Math.sin(om))+w[2]*(28+4*Math.sin(2*Math.PI*t/.6));
+      var ar2=w[0]*(3*Math.sin(2*Math.PI*u+1)*(1-hh)-43*hh)+w[1]*(-8+4*Math.sin(om))+w[2]*(-12+3*Math.sin(2*Math.PI*t/.6+1));
       var corps=w[0]*interp(T_IDLE.corps,u)+w[1]*3+w[2]*(1+5*vs.prise),bob=w[0]*interp(T_IDLE.bob,u)+w[1]*(-1.1*Math.abs(Math.sin(om/2)));
       var p=position(t);
       return {x:p[0],y:p[1],f:sens(t),jg:26*Math.sin(om)*ww,jd:-26*Math.sin(om)*ww,corps:corps,bob:bob,brasAv:av1,avbrasAv:av2,fiole:112*vs.bascule*w[2],brasAr:ar1,avbrasAr:ar2};
@@ -288,8 +287,8 @@
       /* petits gestes (boucle de 2,4 s) : tête, cheveux, blouse, yeux, bouche, doigts, bulles */
       '.lb-on .lb-tete{animation:lbTete var(--T) ease-in-out infinite;transform-origin:41px 41px}',
       kf('lbTete','0%,100%{transform:rotate(0)}20%{transform:rotate(3deg)}40%{transform:rotate(-2deg)}55%{transform:rotate(-9deg)}62%{transform:rotate(-6deg)}68%{transform:rotate(-9deg)}78%{transform:rotate(-3deg)}'),
-      '.lb-on .lb-doigts{animation:lbDoigts calc(var(--T)*.5) ease-in-out infinite;transform-origin:23.6px 43.2px}',
-      kf('lbDoigts','0%,100%{transform:rotate(0)}25%{transform:rotate(8deg)}75%{transform:rotate(-8deg)}'),
+      '.lb-on .lb-doigts{animation:lbDoigts calc(var(--T)*.5) ease-in-out infinite;transform-origin:31px 67px}',
+      kf('lbDoigts','0%,100%{transform:rotate(0)}25%{transform:rotate(4deg)}75%{transform:rotate(-4deg)}'),
       '.lb-on .lb-cheveux{animation:lbCheveux var(--T) ease-in-out infinite;animation-delay:calc(var(--T)*-.06);transform-origin:41px 24px}',
       kf('lbCheveux','0%,100%{transform:rotate(0)}20%{transform:rotate(4deg)}40%{transform:rotate(-3deg)}55%{transform:rotate(-10deg)}62%{transform:rotate(-6deg)}68%{transform:rotate(-10deg)}80%{transform:rotate(3deg)}'),
       '.lb-on .lb-pan{animation:lbPan var(--T) ease-in-out infinite;animation-delay:calc(var(--T)*-.08);transform-origin:40px 66px}',
