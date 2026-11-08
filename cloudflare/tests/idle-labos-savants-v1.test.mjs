@@ -100,3 +100,22 @@ console.log("idle-labos-savants-v1: OK");
   assert.ok(sc.includes("lb-filet-f") && sc.includes("lb-filet-t") && sc.includes("lb-filet-b"), "un filet de potion par verre");
 }
 console.log("idle-labos-savants-v1 (chorégraphie): OK");
+
+/* ---------- trois positions du corps (Norman, 2026-11-08 : « marche à droite, marche à gauche, et de face quand il s'arrête pour mettre le liquide ; la tête peut rester de côté ») ---------- */
+{
+  const M = S.modele();
+  const sc = S.scene("drop", { decor: "d.webp", etabli: "e.webp", flacon: "f.webp", tubes: "t.webp", becher: "b.webp" }, true, 0);
+  assert.ok((sc.match(/class="lb-vf"/g) || []).length === 2 && (sc.match(/class="lb-vp"/g) || []).length === 2, "deux calques de corps de face (jambes, buste) et deux de profil");
+  assert.ok(sc.includes("lb-p-ar") && sc.includes("lb-p-av") && sc.includes("lb-jambe-g") && sc.includes("lb-jambe-d"), "le profil a ses bras et ses jambes");
+  // à l'arrêt (repos, versement) : de face ; en marche : de profil, à droite à l'aller, à gauche au retour
+  for (const t of [0.5, 1.5, 5.2, 8.0, 10.8, 15.2]) assert.ok(M.articulations(t).pv < 0.01, "de face à l'arrêt (t=" + t + ")");
+  for (const t of [3.2, 3.8, 6.55, 9.3, 12.5, 13.2, 13.9]) assert.ok(M.articulations(t).pv > 0.99, "de profil en marche (t=" + t + ")");
+  assert.ok(M.articulations(3.8).f === 1 && M.articulations(6.55).f === 1 && M.articulations(9.3).f === 1, "marche vers la droite à l'aller");
+  assert.ok(M.articulations(12.5).f === -1 && M.articulations(13.9).f === -1, "marche vers la gauche au retour");
+  // le retournement de sens se fait pendant le fondu face -> profil (jamais sur un corps de face visible)
+  for (let t = 0; t < 16; t += 0.01) { const a = M.articulations(t), b = M.articulations(t + 0.01 > 16 ? 0 : t + 0.01); if (Math.abs(a.f - b.f) > 0.001) assert.ok(a.pv > 0.01 || b.pv > 0.01, "retournement sans corps de face visible à t=" + t.toFixed(2)); }
+  // le profil est le corps le plus étroit (buste de profil < buste de face)
+  assert.ok(src.includes("M34.4 47c0-4.2 2.6-6.8 6.2-7.2") && src.includes("M30 47c0-4.4 3.4-7 7.6-7.4"), "deux busts distincts");
+  assert.ok(S.css().includes("@keyframes lbVF") && S.css().includes("@keyframes lbVP"), "fondu enchaîné face / profil");
+}
+console.log("idle-labos-savants-v1 (trois positions): OK");
