@@ -44,6 +44,8 @@ var admin={charge:false,enCharge:false,erreur:'',boss:[],popups:[],filtre:'',pag
 var edition=null;                   // {cle, def, voix[], estBoss, numero}
 var studio={ok:null,texte:''};
 var generation={enCours:false,annule:false};
+/* Résultat de la DERNIÈRE génération terminée (blocs faits sur blocs demandés, raison de l'arrêt) : lu par la régénération en lot. */
+var bilanGeneration={fait:0,total:0,raison:''};
 var ecoute=false;
 var ecouteCle='';
 var reduit=false;                    // éditeur réduit en petit menu flottant (la génération continue pendant qu'on joue)
@@ -1472,6 +1474,7 @@ function lancerGeneration_(o,aFaire,libelle){
       afficherEtat_(msg==='__annule__'?'Génération arrêtée ('+fait+' voix déjà prêtes, enregistrées).':'Échec de la génération : '+msg,msg!=='__annule__');
     });
   }).then(function(){
+    bilanGeneration={fait:fait,total:aFaire.length,raison:raison};
     generation={enCours:false,annule:false,texte:''};
     majBoutonGenerer_();
     majProgression_(fait,aFaire.length,(fait>=aFaire.length?'Terminé ✔ ':'Arrêté ')+'('+fait+' sur '+aFaire.length+')'+(fait<aFaire.length&&raison?' — '+raison:''));
@@ -1928,7 +1931,83 @@ document.addEventListener('change',function(ev){
   if(edition&&el&&el.getAttribute&&el.getAttribute('data-stx-lparleur'))rafraichirFichiersVoix_();
 });
 
+/*
+ * Régénération EN LOT (Norman, 2026-11-08 : « je veux pouvoir regénérer toute l'étape du tuto sans devoir générer étape par étape ; regénère les voix avec Cthulhu malicieux ») : pour chaque clé de la liste, ouvre l'éditeur du texte, donne la voix choisie à
+ * TOUS ses personnages, génère TOUS ses blocs (même ceux qui existent déjà) avec le studio, les téléverse et enregistre le texte (le texte dit garde la voix choisie). Un texte après l'autre ; le lot s'arrête au premier échec (studio éteint, serveur qui refuse)
+ * et dit lequel. rappel({n,total,cle,phase,fait,blocs}) est appelé à chaque étape. Retourne { faits, total, echec } ; « arreterLot » demande l'arrêt après le bloc en cours.
+ */
+var lot={enCours:false,annule:false};
+function attendreQue_(condition,maxMs,message){
+  var t0=Date.now();
+  return new Promise(function(ok,ko){
+    (function sonde(){
+      var vrai=false;try{vrai=Boolean(condition());}catch(_e){}
+      if(vrai){ok();return;}
+      if(Date.now()-t0>maxMs){ko(new Error(message||'Délai dépassé.'));return;}
+      setTimeout(sonde,150);
+    })();
+  });
+}
+function regenererLot_(cles,parleur,rappel){
+  if(lot.enCours)return Promise.reject(new Error('Un lot est déjà en cours.'));
+  var o=outilsVoix_();
+  if(!o)return Promise.reject(new Error('Outils de voix indisponibles (module Admin non chargé).'));
+  var liste=(Array.isArray(cles)?cles:[]).filter(Boolean);
+  if(!liste.length)return Promise.reject(new Error('Aucun texte dans le lot.'));
+  var existe=voixProposees_().some(function(v){return v[0]===parleur;});
+  if(!existe)return Promise.reject(new Error('Voix inconnue : '+parleur));
+  lot={enCours:true,annule:false};
+  var faits=0,echec='';
+  var dit=function(info){if(typeof rappel==='function'){try{rappel(info);}catch(_e){}}};
+  var suite=Promise.resolve();
+  liste.forEach(function(cle,n){
+    suite=suite.then(function(){
+      if(lot.annule)throw new Error('__annule__');
+      dit({n:n,total:liste.length,cle:cle,phase:'ouverture'});
+      editer_(cle);
+      return attendreQue_(function(){return edition&&edition.cle===cleL_(cle);},20000,'L’éditeur de « '+cle+' » ne s’ouvre pas.');
+    }).then(function(){
+      /* le studio doit répondre (vérifié à l'ouverture de l'éditeur) */
+      return attendreQue_(function(){return studio.ok!==null;},8000,'Le studio de voix ne répond pas.');
+    }).then(function(){
+      if(studio.ok===false)throw new Error('Le studio de voix n’est pas lancé : clique sur « 🚀 Lancer le studio ».');
+      /* la voix choisie pour TOUS les personnages du texte (comme le choix d'une voix dans le sélecteur de chaque cadre) */
+      Object.keys(edition.lignes).forEach(function(champ){
+        edition.lignes[champ].forEach(function(l,k){appliquerChoix_('voix',champ+'|'+k,parleur);});
+      });
+      var valeurs=lireChamps_();
+      edition.valeurs=valeurs;
+      var blocs=blocsDeLecture_(valeurs);
+      if(!blocs.length){dit({n:n,total:liste.length,cle:cle,phase:'vide',fait:0,blocs:0});fermer_();return null;}
+      dit({n:n,total:liste.length,cle:cle,phase:'generation',fait:0,blocs:blocs.length});
+      lancerGeneration_(o,blocs,'Lot '+(n+1)+'/'+liste.length);
+      return attendreQue_(function(){return !generation.enCours;},15*60*1000,'La génération de « '+cle+' » ne se termine pas.').then(function(){
+        var b=bilanGeneration;
+        if(b.fait<b.total)throw new Error(b.raison&&b.raison!=='arrêt demandé'?b.raison:'Génération interrompue ('+b.fait+' sur '+b.total+').');
+        faits+=1;
+        dit({n:n,total:liste.length,cle:cle,phase:'fait',fait:b.fait,blocs:b.total});
+        fermer_();
+      });
+    });
+  });
+  return suite.then(function(){
+    lot={enCours:false,annule:false};
+    return {faits:faits,total:liste.length,echec:''};
+  },function(e){
+    lot={enCours:false,annule:false};
+    var msg=e&&e.message?e.message:String(e);
+    return {faits:faits,total:liste.length,echec:msg==='__annule__'?'arrêt demandé':msg};
+  });
+}
+function arreterLot_(){
+  lot.annule=true;
+  if(generation.enCours)generation.annule=true;
+}
+
 window.__SOREAL_IDLE_TEXTES_V1__={
+  regenererLot:regenererLot_,
+  arreterLot:arreterLot_,
+  voixProposees:voixProposees_,
   surcharge:surcharge_,
   supprimee:supprimee_,
   /* Met à jour (ou retire, avec champs=null) une surcharge simple enregistrée hors de l'éditeur, par exemple les listes de phrases (modules/phrases-coffre-valise-v1.js). */

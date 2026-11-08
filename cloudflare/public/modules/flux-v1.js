@@ -381,6 +381,22 @@
         const l=it.moi?['Tu revois '+scene,'Tu retournes voir '+scene+' dans les Chroniques']:[nom+' regarde '+scene,nom+' revoit '+scene+' dans les Chroniques',nom+' s’offre une séance de cinéma : '+scene];
         return {icone:'🎬',texte:l[v%l.length]};
       }
+      /*
+       * Énergie ou Magie ajoutée à la Machine temporelle (Norman, 2026-11-08) : l'Or par seconde qu'elle produit chez ce joueur (« 1,37 Qa »). Même règle que « tm » : la phrase n'existe que pour un lecteur qui a déjà ce menu (anti-spoil, règle n°2).
+       * Le chiffre est dit avec le formateur du jeu (toutes les unités : Qa, Qi, Sx…), à défaut avec nombreCourt.
+       */
+      case 'tmOr':{
+        if(!k.menus.machine)return null;
+        const brut=Number(d.gps)||0;
+        if(!(brut>0))return null;
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        let g;try{g=H&&typeof H.formatGrandNombreIdleV70_==='function'?String(H.formatGrandNombreIdleV70_(brut)):nombreCourt(brut);}catch(_e){g=nombreCourt(brut);}
+        const v=Math.abs(Number(it.id)||0);
+        const l=it.moi
+          ?['Ta Machine temporelle produit '+g+' d’or par seconde','Tu règles ta Machine temporelle : '+g+' d’or par seconde','Ta Machine temporelle crache '+g+' d’or chaque seconde']
+          :['La Machine temporelle de '+nom+' produit '+g+' d’or par seconde',nom+' règle sa Machine temporelle : '+g+' d’or par seconde','La Machine temporelle de '+nom+' crache '+g+' d’or chaque seconde'];
+        return {icone:'🪙',texte:l[v%l.length]};
+      }
       case 'tm':{
         if(!k.menus.machine)return null;
         const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);

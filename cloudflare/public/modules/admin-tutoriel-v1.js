@@ -125,6 +125,30 @@ function rafraichirListe_(){
 /*
  * Bouton « 🎙 Voix » d'un guide : liste ses étapes ; chacune s'ouvre dans l'éditeur de textes et de voix (modules/textes-admin-v1.js), où l'on change ce que la voix dit, la génère et l'écoute.
  */
+/* Voix proposées pour le lot : celles de l'éditeur de voix ; « Lhu malicieux » est choisie d'office (demande de Norman, 2026-11-08). */
+function voixLotOptions_(){
+  var X=window.__SOREAL_IDLE_TEXTES_V1__,liste=X&&typeof X.voixProposees==='function'?X.voixProposees():[];
+  return liste.map(function(v){return '<option value="'+esc_(v[0])+'"'+(v[0]==='cthulhu-malicieux'?' selected':'')+'>'+esc_(v[1])+'</option>';}).join('');
+}
+/* Lance la régénération de toutes les étapes du guide avec la voix choisie ; l'état s'écrit dans la fenêtre. */
+function lancerLotGuide_(o,g,T,X){
+  var sel=o.querySelector('[data-av-voix]'),etatEl=o.querySelector('[data-av-etat]'),go=o.querySelector('[data-av="lot"]'),stop=o.querySelector('[data-av="lot-stop"]');
+  if(!X||typeof X.regenererLot!=='function'){if(etatEl)etatEl.textContent='Régénération en lot indisponible (éditeur de voix non chargé).';return;}
+  var voix=sel?sel.value:'cthulhu-malicieux';
+  var nom=sel&&sel.selectedOptions&&sel.selectedOptions[0]?sel.selectedOptions[0].textContent:voix;
+  var cles=g.etapes.map(function(e,k){return T.cleVoix(g,k);});
+  if(go)go.disabled=true;if(stop)stop.hidden=false;
+  /* l'éditeur de texte s'ouvre par-dessus à chaque étape : on le garde derrière cette fenêtre de suivi */
+  o.style.zIndex='1000001';
+  X.regenererLot(cles,voix,function(i){
+    if(!etatEl)return;
+    var libelle='Étape '+(i.n+1)+'/'+i.total;
+    etatEl.textContent=i.phase==='generation'?libelle+' : génération de '+i.blocs+' voix…':i.phase==='fait'?libelle+' : '+i.fait+' voix prêtes ✔':i.phase==='vide'?libelle+' : aucun texte à lire':libelle+' : ouverture…';
+  }).then(function(r){
+    if(go)go.disabled=false;if(stop)stop.hidden=true;
+    if(etatEl)etatEl.textContent=r.echec?('⚠ Arrêté après '+r.faits+' étape'+(r.faits>1?'s':'')+' sur '+r.total+' : '+r.echec):('✔ '+r.faits+' étape'+(r.faits>1?'s':'')+' régénérée'+(r.faits>1?'s':'')+' avec « '+nom+' ».');
+  });
+}
 function voixGuide_(i){
   var g=etat.guides[i],T=window.__SOREAL_IDLE_TUTORIEL_V1__,X=window.__SOREAL_IDLE_TEXTES_V1__;
   if(!g||!T||!X||typeof X.editer!=='function'){window.alert('Éditeur de voix indisponible.');return;}
@@ -136,6 +160,12 @@ function voixGuide_(i){
   o.innerHTML='<div style="max-width:640px;margin:0 auto;background:#10151f;border:1.5px solid #3b4a6b;border-radius:14px;padding:16px;color:#e8eefc;font:500 15px/1.5 system-ui,sans-serif">'+
     '<h3 style="margin:0 0 4px">🎙 Voix · '+esc_(g.titre)+'</h3>'+
     '<p style="font-size:13px;color:#8fa0c4;margin:0 0 10px">Une voix par étape. Ouvre une étape pour changer ce que la voix dit, la générer (studio de voix) et l’écouter.</p>'+
+    /* Régénération de TOUT le guide d'un coup (Norman, 2026-11-08) : une voix choisie pour toutes les étapes, toutes les voix refaites avec le studio, sans passer étape par étape. */
+    '<div style="margin:0 0 12px;padding:10px;border:1.5px solid #4b5d85;border-radius:10px;background:#141c2c"><div style="font-weight:700;margin-bottom:6px">🎙 Tout régénérer d’un coup</div>'+
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select data-av-voix style="min-height:38px;border-radius:10px;border:1.5px solid #4b5d85;background:#1b2538;color:#e8eefc;font:600 14px system-ui,sans-serif;padding:4px 8px">'+voixLotOptions_()+'</select>'+
+    '<button type="button" data-av="lot" style="min-height:38px;padding:6px 12px;border-radius:10px;border:1.5px solid #7a5cff;background:#2a1f55;color:#fff;font:800 14px system-ui,sans-serif;cursor:pointer">▶ Tout régénérer ('+g.etapes.length+' étapes)</button>'+
+    '<button type="button" data-av="lot-stop" hidden style="min-height:38px;padding:6px 12px;border-radius:10px;border:1.5px solid #c0504d;background:#3a1b1b;color:#fff;font:700 14px system-ui,sans-serif;cursor:pointer">⏹ Arrêter</button></div>'+
+    '<div data-av-etat style="font-size:13px;color:#b8c6e6;margin-top:6px;min-height:18px">Le studio de voix doit être lancé. Chaque étape est ouverte, reçoit la voix choisie, puis ses voix sont générées, envoyées et enregistrées.</div></div>'+
     g.etapes.map(function(e,k){return '<div style="display:flex;gap:8px;align-items:center;margin:6px 0"><span style="flex:1"><b>Étape '+(k+1)+'</b> — '+esc_(e.titre||'Sans titre')+'</span><button type="button" data-av="'+k+'" style="min-height:38px;padding:6px 12px;border-radius:10px;border:1.5px solid #4b5d85;background:#1b2538;color:#e8eefc;font:700 14px system-ui,sans-serif;cursor:pointer">🎙 Ouvrir</button></div>';}).join('')+
     '<div style="margin-top:12px"><button type="button" data-av="fermer" style="min-height:42px;padding:8px 14px;border-radius:10px;border:1.5px solid #4b5d85;background:#1b2538;color:#e8eefc;font:700 14px system-ui,sans-serif;cursor:pointer">Fermer</button></div></div>';
   o.addEventListener('click',function(ev){
@@ -143,6 +173,8 @@ function voixGuide_(i){
     if(!b){if(ev.target===o)o.remove();return;}
     var v=b.getAttribute('data-av');
     if(v==='fermer'){o.remove();return;}
+    if(v==='lot-stop'){if(typeof X.arreterLot==='function')X.arreterLot();return;}
+    if(v==='lot'){lancerLotGuide_(o,g,T,X);return;}
     X.editer(T.cleVoix(g,Number(v)));
   });
   document.body.appendChild(o);

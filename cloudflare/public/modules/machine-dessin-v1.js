@@ -62,12 +62,15 @@
   /* Taille du nom du mob (Norman, 2026-10-23) : le nom a toute la largeur de l'écran (300 sur 324) sur sa propre ligne, au-dessus ; plus il est long, plus il rapetisse (jamais sous 9). */
   function tailleNom(nom){var n=Math.max(1,String(nom||'').length);return Math.max(14,Math.min(34,Math.floor(380/(n*.82))));}
   /*
-   * Le tas d'Or sous la goulotte (Norman, 2026-10-29 : « pour chaque M, T, UVG… un tas un peu plus gros ; pas à l'infini, mais une dizaine de tas différents ») : dix tailles, choisies d'après l'unité du butin d'une barre (la même que celle affichée :
-   * K, M, B, T… Uvg…). Seuils (rang de l'unité : 0 rien, 1 K, 2 M, 4 T, 22 Uvg) : sous M, puis M, B, T, Sx, Oc, Vg, Uvg, Tvg, Qavg ; 10 niveaux, le dernier ne grossit plus. Chaque niveau est plus large, un peu plus haut et porte plus de pièces.
+   * Le tas d'Or sous la goulotte (Norman, 2026-10-29 : « pour chaque M, T, UVG… un tas un peu plus gros ; pas à l'infini, mais une dizaine de tas différents ») : dix tailles, choisies d'après l'unité de l'OR PAR SECONDE (voir SEUILS_TAS ci-dessous ; avant le 2026-11-08 : le butin d'une barre) ; 10 niveaux, le dernier ne grossit plus. Chaque niveau est plus large, un peu plus haut et porte plus de pièces.
    */
-  var SEUILS_TAS=[0,2,3,4,7,9,21,22,24,25];   /* rangs d'unité : M=2, B=3, T=4, Sx=7, Oc=9, Vg=21, Uvg=22, Tvg=24, Qavg=25 (audit 2026-10-29 : les anciens seuils ne tombaient pas sur Sx, Vg, Tvg) */
-  function niveauTas(or){
-    var g=Number(or)||0,rang=g>=1000?Math.floor(Math.log10(g)/3+1e-9):0,n=0,i;
+  /*
+   * Norman (2026-11-08) : « j'aimerais que le paquet d'or soit de plus en plus gros suivant si on fait des T/s ou des Qa/s de plus en plus gros » : la taille suit désormais l'OR PAR SECONDE (brut, celui qui s'affiche « /s »), plus le butin d'une barre. Rangs d'unité
+   * (3 chiffres par rang : K=1, M=2, B=3, T=4, Qa=5, Qi=6, Sx=7, Sp=8, Oc=9…) : sous B/s, puis B, T, Qa, Qi, Sx, Oc, rang 12, 16 et 21 par seconde ; le dernier ne grossit plus.
+   */
+  var SEUILS_TAS=[0,3,4,5,6,7,9,12,16,21];
+  function niveauTas(orParSeconde){
+    var g=Number(orParSeconde)||0,rang=g>=1000?Math.floor(Math.log10(g)/3+1e-9):0,n=0,i;
     for(i=0;i<SEUILS_TAS.length;i++)if(rang>=SEUILS_TAS[i])n=i;
     return n;
   }
@@ -276,7 +279,7 @@
       if(multi.textContent!==tm){multi.textContent=tm;multi.setAttribute('font-size',String(taillePoliceMulti(tm)));}
     }
     var tas=document.getElementById('tmmTas');
-    if(tas){var nv=niveauTas(v.goldPerBarFill);if(tas.getAttribute('data-niveau')!==String(nv)){tas.setAttribute('data-niveau',String(nv));tas.innerHTML=tasInterieur(nv);reglerPieces(racine);}}
+    if(tas){var nv=niveauTas(v.grossGps);if(tas.getAttribute('data-niveau')!==String(nv)){tas.setAttribute('data-niveau',String(nv));tas.innerHTML=tasInterieur(nv);reglerPieces(racine);}}
     var butin=document.getElementById('tmmButin');
     if(butin&&H&&typeof H.formatGrandNombreIdleV70_==='function'){var tb='+'+H.formatGrandNombreIdleV70_(Number(v.goldPerBarFill)||0)+' Or';if(butin.textContent!==tb)butin.textContent=tb;}
     var nomMob=document.getElementById('tmmNomMob');var nom=v.bestGoldMob&&v.bestGoldMob.name?String(v.bestGoldMob.name):'';if(nomMob){if(nomMob.textContent!==nom)nomMob.textContent=nom;var tn=String(tailleNom(nom));if(nomMob.getAttribute('font-size')!==tn)nomMob.setAttribute('font-size',tn);}

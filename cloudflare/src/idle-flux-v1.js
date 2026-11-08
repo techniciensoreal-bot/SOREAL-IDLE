@@ -14,6 +14,7 @@
  */
 import { sqlRows } from "./core/sqlite-core.js";
 import { idleDevEstEmailPartieTestV1 } from "./idle-dev-save-slots-v1.js";
+import { idleNguTimeMachineGrossGoldPerSecond } from "./idle-ngu-progression.js";
 
 export const IDLE_FLUX_MAX_LIGNES_V1 = 400;
 export const IDLE_FLUX_DUREE_MAX_MS_V1 = 48 * 3600 * 1000;
@@ -37,6 +38,8 @@ export const IDLE_FLUX_DELAI_BOSS_MS_V1 = 3 * 60 * 1000;
 export const IDLE_FLUX_DELAI_BOOST_MS_V1 = 60 * 1000;
 /* Magie placée dans un rituel : une annonce par minute au plus (réglages en rafale, « tout allouer »). */
 export const IDLE_FLUX_DELAI_RITUEL_MS_V1 = 60 * 1000;
+/* Énergie ou Magie ajoutée à la Machine temporelle (Norman, 2026-11-08) : une annonce par minute au plus, avec l'Or par seconde qu'elle produit. */
+export const IDLE_FLUX_DELAI_TM_OR_MS_V1 = 60 * 1000;
 
 /* audit 2026-10-13 : le schéma n'est créé qu'une fois par connexion SQL (avant : des instructions DDL à chaque battement et à chaque synchro) */
 const __fluxPretV1 = new WeakSet();
@@ -140,6 +143,14 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const tm = sys("timeMachine");
   const tmVitesse = entier(tm.speedLevel);
   const tmOr = entier(tm.goldLevel);
+  /*
+   * Actions dans la Machine temporelle (Norman, 2026-11-08 : « dans les messages en direct, combien d'or par seconde la machine temporelle produit chez un joueur quand il fait des actions dans le menu : 1,37 Qa par exemple ») : l'Énergie et la Magie placées
+   * dans la machine (entiers) et l'Or brut par seconde qu'elle produit (le même chiffre que « Brut … /s » dans son menu), lus dans l'état du joueur ; jamais d'erreur ici si l'état est incomplet.
+   */
+  const tmSysteme = (m.systems && m.systems.timeMachine) || {};
+  const tmAlloc = entier(tmSysteme.allocation && tmSysteme.allocation.energy) + entier(tmSysteme.allocation && tmSysteme.allocation.magic);
+  let tmGps = 0;
+  try { tmGps = tmSysteme.unlocked ? Math.max(0, Math.floor(N(idleNguTimeMachineGrossGoldPerSecond(m), 0))) : 0; } catch (_e) { tmGps = 0; }
   const wd = sys("wandoos");
   const wandoosOs = String(wd.os || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 12);
   const wandoosNiveau = entier(wd.dumpEnergyLevel) + entier(wd.dumpMagicLevel);
@@ -159,6 +170,8 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   return {
     tmVitesse,
     tmOr,
+    tmAlloc,
+    tmGps,
     wandoosOs,
     wandoosNiveau,
     nguTotal,
@@ -286,6 +299,8 @@ export function evenementsV1(avant, apres, noms = {}) {
   /* Progrès des systèmes : un événement par PALIER franchi (trois par dizaine à partir de 10) ; jamais au tout premier instantané (champ absent). */
   const palier = (n) => (N(n, 0) < 10 ? 0 : Math.floor(3 * Math.log10(N(n, 0))));
   const monte = (cle) => Number.isFinite(avant[cle]) && palier(apres[cle]) > palier(avant[cle]);
+  /* Énergie ou Magie AJOUTÉE à la machine (en retirer ne s'annonce pas) : l'Or brut par seconde qu'elle produit ; jamais depuis un instantané d'avant ce jalon, jamais à 0 Or par seconde. */
+  if (Number.isFinite(avant.tmAlloc) && apres.tmAlloc > avant.tmAlloc && apres.tmGps > 0) ev.push({ type: "tmOr", donnees: { gps: apres.tmGps } });
   if (monte("tmVitesse")) ev.push({ type: "tm", donnees: { quoi: "vitesse", n: apres.tmVitesse } });
   else if (monte("tmOr")) ev.push({ type: "tm", donnees: { quoi: "or", n: apres.tmOr } });
   if (typeof avant.wandoosOs === "string" && avant.wandoosOs && apres.wandoosOs && apres.wandoosOs !== avant.wandoosOs) ev.push({ type: "wandoosOs", donnees: { os: apres.wandoosOs } });
@@ -327,7 +342,8 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     accidentVu: precedent ? N(precedent.accidentVu, 0) : 0,
     nettoyeVu: precedent ? N(precedent.nettoyeVu, 0) : 0,
     nettoyeApVu: precedent ? N(precedent.nettoyeApVu, 0) : 0,
-    rituelAt: precedent ? N(precedent.rituelAt, 0) : 0
+    rituelAt: precedent ? N(precedent.rituelAt, 0) : 0,
+    tmOrAt: precedent ? N(precedent.tmOrAt, 0) : 0
   });
   let ajoutes = 0;
   /* Absence : le dernier battement date de plus de 90 s -> pas d'annonce de rattrapage, seulement la mémorisation du nouvel état. */
@@ -367,12 +383,14 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     /* Les boosts s'enchaînent vite (automatisation) : au plus une annonce de boost par minute (la dernière l'emporte), sans quoi le fil serait noyé. */
     const sortie = evenements.filter((e) => {
       if (e.type === "rituel") return now - N(precedent.rituelAt, 0) >= IDLE_FLUX_DELAI_RITUEL_MS_V1;
+      if (e.type === "tmOr") return now - N(precedent.tmOrAt, 0) >= IDLE_FLUX_DELAI_TM_OR_MS_V1;
       if (e.type !== "cube" && e.type !== "piece") return true;
       if (now - N(precedent.boostAt, 0) < IDLE_FLUX_DELAI_BOOST_MS_V1) return false;
       return true;
     });
     if (sortie.some((e) => e.type === "cube" || e.type === "piece")) etat.boostAt = now;
     if (sortie.some((e) => e.type === "rituel")) etat.rituelAt = now;
+    if (sortie.some((e) => e.type === "tmOr")) etat.tmOrAt = now;
     evenements.length = 0;
     evenements.push(...sortie);
     for (const e of evenements.slice(0, IDLE_FLUX_MAX_PAR_BATTEMENT_V1)) {
