@@ -13,7 +13,7 @@
   "mortsNouvelles": 5,
   "effetsReglables": 4,
   "sonsEffets": 82,
-  "dossiersDeRessources": 20
+  "dossiersDeRessources": 21
  },
  "menus": [
   {
@@ -2796,6 +2796,7 @@
     "modules/inventory-auto-v1.js",
     "modules/journal-attaques-v1.js",
     "modules/meta-progression-v130.js",
+    "modules/mineurs-page-v1.js",
     "modules/moqueurs-fuite-v1.js",
     "modules/morts-joueur-nouvelles-v1.js",
     "modules/moteur-local-v1.js",
@@ -4979,6 +4980,7 @@
   "garderie/queues": 21,
   "garderie/yeux": 33,
   "icons": 3,
+  "img/mineurs/fonds": 1,
   "intro": 16,
   "machine-v2": 3,
   "machine-v3": 3,

@@ -42,6 +42,9 @@
           {menu:'machine', titre:'Machine temporelle', points:[
             'Dans « En direct », quand un joueur règle sa Machine temporelle (il y ajoute de l’énergie ou de la magie), la phrase dit combien d’or par seconde elle produit chez lui (« 1,37 Qa d’or par seconde »).',
             'Le tas d’or sous la goulotte grossit avec l’or par seconde de la machine (B, T, Qa, Qi, Sx… par seconde) et non plus avec le butin d’une barre : dix tas différents.',
+          ]},
+          {menu:'diggers', titre:'Mineurs d’or', points:[
+            'Chaque mineur travaille dans sa propre caverne, différente et en rapport avec ce qu’il améliore.',
           ]}
         ]
       },

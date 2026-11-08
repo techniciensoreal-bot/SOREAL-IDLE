@@ -25,6 +25,20 @@
     {cls:'g4',titre:'Le fond des puits',ids:['pp','daycare']},
     {cls:'g5',titre:'Là où ça brûle',ids:['blood','experience']}
   ];
+  /*
+   * Cavernes (Norman, 2026-11-08 : « refaire entièrement le menu mineurs d'or ; un décor avec à chaque fois une caverne, chaque cavité différente et en rapport avec ce qu'elle rapporte »). Une image de fond unique (fond-pc.webp, 1536 x 1024, 12 cavités en 4 colonnes x 3 rangées,
+   * voir design/PROMPT-FONDS-MINEURS.md) dont CHAQUE carte de mineur ne montre que SA cavité : un recadrage 356 x 320 centré sur la cavité (positions mesurées sur l'image réelle). Anti-spoil (règle n°2) : jamais le fond entier, donc jamais le nombre de cavernes ; une carte
+   * n'existe que pour un mineur découvert. Tant que l'image n'est pas chargée (ou absente), la carte garde l'ancien décor dessiné.
+   */
+  var FOND_URL='/img/mineurs/fonds/fond-pc.webp',FOND_L=1536,FOND_H=1024,CAD_L=356,CAD_H=320;
+  var CAVERNES={drop:[196,167.5],wandoos:[575,167.5],stats:[957.5,167.5],adventure:[1341.5,167.5],energyNgu:[196,508.5],magicNgu:[575,508.5],energyBeard:[957.5,508.5],magicBeard:[1341.5,508.5],pp:[196,840],daycare:[575,840],blood:[957.5,840],experience:[1341.5,840]};
+  var fondPret=false;
+  (function(){try{var im=new Image();im.onload=function(){fondPret=true;try{var R=window.__SOREAL_IDLE_REG__;if(R&&R.idleMenuActifV28==='mineurs'&&H()&&typeof H().rafraichirMenuRacineIdleV28_==='function')H().rafraichirMenuRacineIdleV28_();}catch(_e){}};im.src=FOND_URL;}catch(_e){}})();
+  function styleCaverne_(id){
+    var c=CAVERNES[id];if(!fondPret||!c)return '';
+    var x0=Math.max(0,Math.min(FOND_L-CAD_L,c[0]-CAD_L/2)),y0=Math.max(0,Math.min(FOND_H-CAD_H,c[1]-CAD_H/2));
+    return 'background:url('+FOND_URL+') '+(x0/(FOND_L-CAD_L)*100).toFixed(3)+'% '+(y0/(FOND_H-CAD_H)*100).toFixed(3)+'%/'+(FOND_L/CAD_L*100).toFixed(2)+'% auto no-repeat';
+  }
   /* Nom, ce que le mineur améliore, et ce que fait son ouvrier. */
   var INFOS={
     drop:{nom:'Mineur de chance de drop',effet:'chance de drop'},
@@ -132,12 +146,13 @@
       '<g><circle cx="106" cy="48" r="7" fill="#dff4ff" '+CONTOUR+'/><circle cx="104" cy="46" r="2" fill="#fff"/></g>'+
       '<path class="dg-niveau" d="M106 38l4 5h-2.6v5h-2.8v-5H102z" fill="#59e06a" '+CONTOUR+'/>'}
   };
-  function scene(id){
+  function scene(id,caverne){
     var m=MINEURS[id];if(!m)return '';
     var o=m.o;o.terre=o.terre||'#7a5230';
     var f=m.jet[0],c=m.jet[1];
+    /* avec la caverne en image : ni sol ni butin dessinés (la caverne les porte) ; l'ouvrier, ses jets et son « z » restent */
     return '<svg viewBox="0 0 120 108" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false"><g transform="translate(0 8)">'+
-      fond(o)+m.extra+
+      (caverne?'':fond(o)+m.extra)+
       '<g class="dg-jets">'+f('dg-j1',86,32,c)+f('dg-j2',88,30,c)+f('dg-j3',84,34,c)+'</g>'+
       ouvrier(o)+
       '<g class="dg-zz"><text x="52" y="22" font-size="9" fill="#fff" font-family="Bangers,cursive">Z</text><text x="60" y="15" font-size="7" fill="#fff" font-family="Bangers,cursive">z</text></g>'+
@@ -286,7 +301,8 @@
       ?'Maintenant : <em>'+mult_(v.multiplier)+' '+inf.effet+'</em>'
       :(max>0?'S’il travaillait au niveau '+run+' : <em>'+mult_(v.multiplier)+' '+inf.effet+'</em>':'Il améliorera : <em>'+inf.effet+'</em>');
     var drain=nombre_(run>0?v.drain:v.nextDrain);
-    var h='<div class="mn-gal '+etat+'" data-mineur="'+idH+'"><div class="mn-poste">'+scene(id)+'</div>'+
+    var fondCaverne=styleCaverne_(id);
+    var h='<div class="mn-gal '+etat+'" data-mineur="'+idH+'"><div class="mn-poste"'+(fondCaverne?' style="'+fondCaverne+'"':'')+'>'+scene(id,Boolean(fondCaverne))+'</div>'+
       '<div class="mn-hautb"><div class="mn-titre"><b>'+H().idleHtml_(inf.nom)+'</b><span class="mn-niv">'+(max>0?'niveau '+run+' sur '+max:'pas encore engagé')+'<br>'+drain+' d’or/s</span></div>'+
       '<div class="mn-effet">'+effet+'</div></div><div class="mn-basb">';
     if(max>0){

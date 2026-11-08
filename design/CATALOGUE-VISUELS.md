@@ -15,7 +15,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - mortsNouvelles : **5**
 - effetsReglables : **4**
 - sonsEffets : **82**
-- dossiersDeRessources : **20**
+- dossiersDeRessources : **21**
 
 ## Menus
 Basic Training (`entrainement`) · Fight Boss (`combat`) · Adventure (`aventure`) · Rebirth (`renaissance`) · Augmentations (`augmentations`) · Advanced Training (`avance`) · Time Machine (`machine`) · Blood Magic (`sang`) · ITOPOD (`tower`) · Item Daycare (`daycare`) · Challenges (`challenges`) · Titans (`titans`) · NGU (`ngu`) · Wandoos (`wandoos`) · Yggdrasil (`yggdrasil`) · Gold Diggers (`diggers`) · Beards (`beards`) · MacGuffins (`macguffins`) · Hacks (`hacks`) · Questing (`questing`) · Quirks (`quirks`) · Wishes (`wishes`) · Cards (`cards`) · Cooking (`cooking`) · Boutique (`shop`) · Chroniques (`chroniques`) · Chat (`chat`) · Settings (`parametres`) · Admin (`admin`)
@@ -53,6 +53,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `garderie/queues` : 21
 - `garderie/yeux` : 33
 - `icons` : 3
+- `img/mineurs/fonds` : 1
 - `intro` : 16
 - `machine-v2` : 3
 - `machine-v3` : 3
