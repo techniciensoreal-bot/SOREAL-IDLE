@@ -101,7 +101,8 @@
   }
 
   function demarrer_(){
-    var app=document.getElementById('app')||document.body;
+    /* Toute la page (Norman, 2026-11-09 : « quand on zoome sur une carte, les TVG, UVG… ne sont pas en couleur, alors qu'ils le sont quand la carte est rangée dans l'album ») : les fenêtres du jeu (fiche d'une carte zoomée, fenêtres de la Collection…) sont ajoutées à <body>, EN DEHORS de #app, que ce module ne surveillait pas. */
+    var app=document.body;
     parcourir_(app);
     observateur=new MutationObserver(function(mutations){
       for(var i=0;i<mutations.length;i++){

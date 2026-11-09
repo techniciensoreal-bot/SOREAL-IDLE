@@ -540,8 +540,8 @@
   "sha": "9b91b41cfe9891b976b8d9b6da806c7edd0027cf"
  },
  "/modules/nombres-couleur-v1.js": {
-  "pin": 6,
-  "sha": "1614d3559f96176a1d679f92a1163234a1ab464f"
+  "pin": 7,
+  "sha": "3ecd5873fb86b3fb7d5e4e86992876e3b452e82c"
  },
  "/modules/nouvelle-version-v1.js": {
   "pin": 3,
@@ -628,12 +628,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 244,
-  "sha": "5f412e75365153fa08e3c959519846ed30afa552"
+  "pin": 245,
+  "sha": "6af7a651dd5569833cad32ba3d9087062f433171"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 881,
-  "sha": "53e9196a2e22d9c171abe22e2a83bddd7a7684c5"
+  "pin": 882,
+  "sha": "943b2badf9da242d7b54dc60aa00aa983091d43b"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -728,12 +728,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 920,
-  "sha": "e52a71dd2cd161fb773f697fbce7f0563da62e21"
+  "pin": 921,
+  "sha": "45b505a8405c407ab7208758711ea296ef44f28c"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 741,
-  "sha": "5b1c9996aad082484b6746c72629f97d56cd03a9"
+  "pin": 742,
+  "sha": "246eb08517f80cb1f21e33ff972f1c245cc75dea"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -992,8 +992,8 @@
   "sha": "95a1a9cadb91aaaab54e44d847a9cbf2748ff80d"
  },
  "/soreal-idle-lisibilite-v1.css": {
-  "pin": 3,
-  "sha": "c357a1ec368b61bd43a9f3d35a32a70cdc3a124e"
+  "pin": 4,
+  "sha": "093507640a6ddd259c5b5d82e14978837c3d0729"
  },
  "/soreal-idle-machine.css": {
   "pin": 26,

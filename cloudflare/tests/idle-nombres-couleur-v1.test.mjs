@@ -36,3 +36,7 @@ console.log('idle-nombres-couleur-v1: OK');
   assert.match(css, /html body \.nb-suf\{margin-left:\.2em\}/, 'toujours un espace entre le chiffre et la lettre');
   assert.equal(api.cle('Qa'), 'Qa'); assert.equal(api.cle('e+139'), 'e'); assert.equal(api.cle('E+5'), 'e');
 }
+
+/* 2026-11-09 : la fiche d'une carte zoomée est une fenêtre ajoutée à <body>, hors de #app : le module surveille toute la page. */
+assert.ok(mod.includes("var app=document.body;") && !mod.includes("getElementById('app')"), "les nombres sont colorés aussi dans les fenêtres ajoutées à body (fiche de carte zoomée)");
+console.log('idle-nombres-couleur-v1 (fenêtres hors #app): OK');
