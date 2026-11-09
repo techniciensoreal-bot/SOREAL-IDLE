@@ -44,6 +44,15 @@ function contexte(){
   };
 }
 
+/* Images en échec (Norman, 2026-11-09 : « les images en Aventure ne s'affichent toujours pas (certaines) ») : le journal de modules/images-retentes-v1.js (adresse, statut du serveur, clé R2, appareil des 6 derniers échecs) est JOINT au signalement : la cause se lit au lieu de se deviner. */
+function diagImages(){
+  var e=window.__SOREAL_IDLE_IMAGES_ECHECS_V1__;
+  if(!Array.isArray(e)||!e.length)return '';
+  return '\n\n[images en échec] '+e.slice(-6).map(function(x){
+    return String(x.u||'').replace(/^.*\/api\/idle\/media\//,'').slice(0,150)+' => '+(x.statut||x.erreur||'?')+(x.type?' '+x.type:'')+(x.cle?' '+x.cle:'');
+  }).join(' | ');
+}
+
 function fermer(){var o=document.getElementById('soreal-idle-bug-v1');if(o)o.remove();}
 
 function ouvrir(){
@@ -86,7 +95,7 @@ function ouvrir(){
           }else{echec(res&&res.message);}
         })
         .withFailureHandler(function(e){echec(e&&e.message);})
-        .signalerBugSorealIdle(window.SOREAL_SESSION||(typeof SOREAL_SESSION!=='undefined'?SOREAL_SESSION:''),msg,contexte());
+        .signalerBugSorealIdle(window.SOREAL_SESSION||(typeof SOREAL_SESSION!=='undefined'?SOREAL_SESSION:''),(msg+diagImages()).slice(0,MAX),contexte());
     }catch(e){echec();}
   });
   ta.focus();

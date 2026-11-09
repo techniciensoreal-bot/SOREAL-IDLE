@@ -62,3 +62,16 @@ const prefs = fs.readFileSync("cloudflare/public/modules/prefs-compte-v1.js", "u
 const m = /var EXCLUES=(\/.*\/);/.exec(prefs);
 assert.ok(new RegExp(m[1].slice(1, -1)).test("soreal_idle_diag_v1_images"), "le journal des échecs est propre à l'appareil (exclu de la synchro)");
 console.log("idle-images-retentes-v1: OK");
+
+/* Le journal des échecs est joint au signalement de bug (Norman, 2026-11-09). */
+{
+  const bug = fs.readFileSync("cloudflare/public/modules/bug-report-v1.js", "utf8");
+  assert.ok(bug.includes("function diagImages(){") && bug.includes("window.__SOREAL_IDLE_IMAGES_ECHECS_V1__"), "le signalement lit le journal des images en échec");
+  assert.ok(bug.includes("(msg+diagImages()).slice(0,MAX)"), "le journal est joint au message envoyé (2000 caractères au plus)");
+  const f = bug.slice(bug.indexOf("function diagImages(){"), bug.indexOf("function fermer()"));
+  const ctx = { window: { __SOREAL_IDLE_IMAGES_ECHECS_V1__: [{ u: "https://x.test/api/idle/media/mob?zone=avsp&name=A", statut: 404, type: "text/plain", cle: "" }] }, Array, String };
+  const out = vm.runInNewContext(f + "\ndiagImages()", ctx);
+  assert.ok(out.includes("[images en échec]") && out.includes("mob?zone=avsp&name=A => 404 text/plain"), "texte joint lisible : " + out);
+  assert.equal(vm.runInNewContext(f + "\ndiagImages()", { window: {}, Array, String }), "", "rien à joindre : message inchangé");
+}
+console.log("idle-images-retentes-v1 (journal joint au signalement): OK");
