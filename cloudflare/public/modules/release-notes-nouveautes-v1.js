@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Dans tout le jeu, une image qui n’arrive pas (un monstre en Aventure, un boss, un décor…) est redemandée toute seule trois fois, après 1,5, 4 puis 9 secondes, au lieu de rester vide jusqu’à ce que tu changes d’onglet."
+    "Les pelles deviennent des scientifiques partout : récompenses des défis, boutiques (« emplacement de labo »), phrases d’« En direct », menu et Machine temporelle. Seuls les textes lus pendant les défis gardent leurs anciens mots."
   ] };
 })();

@@ -32,6 +32,7 @@
         date:'2026-11-09',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les pelles deviennent des scientifiques partout : récompenses des défis, boutiques (« emplacement de labo »), phrases d’« En direct », menu et Machine temporelle. Seuls les textes lus pendant les défis gardent leurs anciens mots.',
             'Le cadre qui contient tous les menus ne bouge plus quand tu passes d’une page longue à une page courte : la place de la barre de défilement est toujours réservée.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[

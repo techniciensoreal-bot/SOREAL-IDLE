@@ -433,13 +433,13 @@
         if(!k.menus.diggers)return null;
         const n=Math.max(1,Math.floor(Number(d.actifs)||1)),v=Math.abs(Number(it.id)||0);
         const l=it.moi?['Tu mets un labo de plus au travail ('+n+' en tout)','Tes savants fous sont '+n+' à brasser']:[nom+' met un labo de plus au travail ('+n+' en tout)','Ça bouillonne chez '+nom+' : '+n+' labos en action',nom+' ouvre un labo de plus, ils sont '+n];
-        return {icone:'🧪',texte:l[v%l.length]};
+        return {icone:'🧑‍🔬',texte:l[v%l.length]};
       }
       case 'diggersNiveau':{
         if(!k.menus.diggers)return null;
         const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
         const l=it.moi?['Tes labos totalisent '+n+' niveaux','Tes potions sont plus fortes : '+n+' niveaux de labos']:['Les labos de '+nom+' totalisent '+n+' niveaux',nom+' améliore ses labos : '+n+' niveaux en tout','Les potions de '+nom+' sont de plus en plus fortes : '+n+' niveaux de labos'];
-        return {icone:'⛏️',texte:l[v%l.length]};
+        return {icone:'🧑‍🔬',texte:l[v%l.length]};
       }
       case 'tour':{
         if(!k.menus.tower)return null;

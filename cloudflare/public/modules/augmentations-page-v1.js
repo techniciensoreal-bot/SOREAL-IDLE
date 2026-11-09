@@ -1434,7 +1434,7 @@
               '</div>'+
             '</div>'+
             (vue.diggerDrain!=null
-              ?'<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b> <small>(ce que la machine fabrique)</small></div><div>⛏️ − Mineurs d’or : <b data-tm-stat="diggerDrain">'+nombre(vue.diggerDrain)+'</b> <small>(l’Or que tes Labos actifs dépensent chaque seconde ; 0 si aucun n’est actif)</small></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b> <small>(ce qui entre vraiment dans ta bourse)</small></div></div>'
+              ?'<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b> <small>(ce que la machine fabrique)</small></div><div>🧑‍🔬 − Labos : <b data-tm-stat="diggerDrain">'+nombre(vue.diggerDrain)+'</b> <small>(l’Or que tes Labos actifs dépensent chaque seconde ; 0 si aucun n’est actif)</small></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b> <small>(ce qui entre vraiment dans ta bourse)</small></div></div>'
               :'<div class="soreal-idle-tm-gps-v1"><div>💎 GPS : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b></div></div>')+
           '</section>'+
         '</div>';

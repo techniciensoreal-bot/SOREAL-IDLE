@@ -893,7 +893,7 @@
                     )+
                     (s.id==='moneyPit'?rendreBoutonMoneyPitIdleV1_(j,st):'')+
                     (s.id==='diggers'
-                      ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'buyDigger\'})">⛏️ Améliorer l’équipe</button>'
+                      ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'buyDigger\'})">🧑‍🔬 Améliorer l’équipe</button>'
                       :'')+
                     (s.id==='titans'
                       ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__actionMetaIdleV130__({action:\'titan\'})">👹 Affronter le Colosse</button>'

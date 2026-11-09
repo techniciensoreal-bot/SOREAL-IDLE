@@ -679,7 +679,7 @@ export const IDLE_NGU_SYSTEMS = Object.freeze([
   { id: "ngu", name: "NGU", icon: "♾️", kind: "permanent", resources: ["energy", "magic"], unlock: {item:"aNumber"} },
   { id: "yggdrasil", name: "Yggdrasil", icon: "🌱", kind: "growth", resources: ["energy"], unlock: {item:"giantSeed"} },
   { id: "moneyPit", name: "Money Pit", icon: "🕳️", kind: "utility", resources: [], unlock: { gold: 100000 } },
-  { id: "diggers", name: "Gold Diggers", icon: "⛏️", kind: "permanent", resources: [], unlock: {item:"scrapPaper"} },
+  { id: "diggers", name: "Gold Diggers", icon: "🧑‍🔬", kind: "permanent", resources: [], unlock: {item:"scrapPaper"} },
   { id: "beards", name: "Beards", icon: "🧔", kind: "hybrid", resources: ["energy", "magic"], unlock: {item:"uugHair"} },
   { id: "tower", name: "ITOPOD", icon: "🏢", kind: "infinite", resources: [], unlock: {item:"pissedOffKey"} },
   { id: "perks", name: "Perks", icon: "⭐", kind: "permanent", resources: [], unlock: { system: "tower" } },
