@@ -33,5 +33,5 @@ const lignesNotes = notesSansGarderie.split(String.fromCharCode(10)).filter((l) 
 assert.ok(!/Mineurs d’or|Piratages|Gold Diggers|Yggdrasil|Wandoos|Garderie|ITOPOD|A Number|Giant Seed/.test(lignesNotes));
 
 // Listes : un fruit ou un mineur portant le nom d'un système verrouillé n'apparaît pas.
-assert.ok(meta.includes("!/MacGuffin/i.test(String(def.name||def.id||''))||") && meta.includes("id!=='daycare'||"));
+assert.ok(meta.includes("!/MacGuffin/i.test(String(def.name||def.id||''))||") && meta.includes("var SYSTEME_DU_LABO={") && meta.includes("daycare:'daycare'") && meta.includes("ouvert_(id)"));   /* labos : un labo qui nomme un système verrouillé (barbes, NGU, Wandoos, Magie du sang, garderie) n'apparaît pas (2026-11-09) */
 console.log("idle-anti-spoil-textes-v2: OK");

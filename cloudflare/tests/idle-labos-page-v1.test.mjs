@@ -85,4 +85,23 @@ assert.ok(/prefers-reduced-motion/.test(ctx.__style || ""), "mouvement réduit r
 assert.ok(src.includes(".lp-poste{position:absolute;inset:0}") && src.includes(".lp-hautb,.lp-basb{position:absolute;") && src.includes("aspect-ratio:316/268"), "le dessin remplit le cadre (316 : 268), nom et boutons par-dessus");
 assert.ok(h.indexOf('class="lp-poste"') < h.indexOf('class="lp-hautb"') && h.indexOf('class="lp-hautb"') < h.indexOf('class="lp-basb"'), "décor dessous, nom en haut, boutons en bas");
 assert.ok(src.includes("var P='html body.soreal-idle-active-v47.soreal-idle-active-v47 ';") && src.includes("Bangers"), "polices du jeu avec la spécificité de la page");
+// anti-spoil (Norman, 2026-11-09) : un labo qui nomme un système verrouillé (barbes, NGU, Wandoos, Magie du sang, garderie) n'apparaît pas
+{
+  const ouvertParId = { diggers: true, wandoos: false, ngu: false, beards: false, bloodMagic: false, daycare: false };
+  ctx.window.__SOREAL_IDLE_META_PARTAGE_V130__ = { systemeMetaParIdIdleV130_: (j, id) => (id === "diggers" ? sys : { state: { unlocked: ouvertParId[id] !== false } }) };
+  const tout = Object.fromEntries(IDLE_NGU_DIGGERS.map((d) => [d.id, { maxLevel: 5, runLevel: 1, active: false }]));
+  sys = { state: { unlocked: true, data: { slots: 2, diggers: tout } } };
+  ouvertParId.wandoos = false;
+  let page = M.page(joueur);
+  for (const id of ["wandoos", "energyNgu", "magicNgu", "energyBeard", "magicBeard", "blood", "daycare"]) assert.ok(!page.includes('data-labo="' + id + '"'), "labo " + id + " caché tant que son système est verrouillé");
+  assert.ok(!/barbe|NGU|Wandoos|sang|garderie/i.test(page.replace(/<svg[\s\S]*?<\/svg>/g, "").replace(/href="[^"]*"/g, "")), "aucun mot qui nomme un système verrouillé");
+  for (const id of ["drop", "stats", "adventure"]) assert.ok(page.includes('data-labo="' + id + '"'), "labo " + id + " visible");
+  ouvertParId.beards = true;
+  page = M.page(joueur);
+  assert.ok(page.includes('data-labo="energyBeard"') && page.includes('data-labo="magicBeard"'), "les labos de barbes apparaissent quand les barbes sont débloquées");
+  assert.ok(!page.includes('data-labo="energyNgu"'), "les NGU restent cachés tant que NGU est verrouillé");
+  ouvertParId.ngu = true; ouvertParId.wandoos = true; ouvertParId.bloodMagic = true; ouvertParId.daycare = true;
+  page = M.page(joueur);
+  assert.equal((page.match(/class="lp-labo /g) || []).length, 12, "tout est visible quand tout est débloqué");
+}
 console.log("idle-labos-page-v1: OK");

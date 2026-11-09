@@ -41,6 +41,9 @@
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Le cadre « Manger / récolter tous les fruits » est maintenant en haut de la page, juste sous tes compteurs de graines, et ses boutons tiennent sur une seule ligne.'
           ]},
+          {menu:'diggers', titre:'Labos', points:[
+            'Un labo n’apparaît plus avant que le système dont il porte le nom soit débloqué.'
+          ]},
           {menu:'chroniques', titre:'Chroniques', points:[
             'Quand tu zoomes sur une carte, les lettres des grands nombres (Tvg, Uvg…) sont en couleur, comme quand la carte est rangée dans l’album.',
             'Sur téléphone, les pages de l’album tournent en glissant à plat vers la gauche, plus vite et sans pivot en 3D : bien moins de choses à redessiner. Sur PC, le tour de page ne change pas.'

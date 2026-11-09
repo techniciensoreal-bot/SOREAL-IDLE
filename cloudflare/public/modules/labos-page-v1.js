@@ -30,6 +30,8 @@
     energyNgu:'vitesse des NGU d’énergie',magicNgu:'vitesse des NGU de magie',energyBeard:'vitesse des barbes d’énergie',magicBeard:'vitesse des barbes de magie',
     pp:'gain de PP',daycare:'vitesse de la garderie',blood:'gain de sang',experience:'gain d’EXP'
   };
+  /* Système du jeu que le nom d'un labo révèle (identifiants du moteur) ; les autres labos (chance, statistiques, Aventure, étoiles, EXP) ne nomment aucun système verrouillé. */
+  var SYSTEME_DU_LABO={wandoos:'wandoos',energyNgu:'ngu',magicNgu:'ngu',energyBeard:'beards',magicBeard:'beards',blood:'bloodMagic',daycare:'daycare'};
   var DOSSIER='/img/mineurs/labos/';
   function images_(){
     var o={decor:{},etabli:DOSSIER+'etabli.webp',flacon:DOSSIER+'flacon.webp',tubes:DOSSIER+'tubes.webp',becher:DOSSIER+'becher.webp'};
@@ -162,7 +164,8 @@
     var m=(j&&j.systemes)||{};
     var vue=m.diggerView||{};
     var or=Number(m.currencies&&m.currencies.gold)||0;
-    var daycareOk=Boolean(systemeMetaParIdIdleV130_(j,'daycare')&&systemeMetaParIdIdleV130_(j,'daycare').state&&systemeMetaParIdIdleV130_(j,'daycare').state.unlocked);
+    /* Anti-spoil (Norman, 2026-11-09 : « j'ai déjà les labos de barbes, je n'ai pas encore débloqué les barbes ; c'est normal ? » : non) : un labo dont le NOM révèle un système (Wandoos, NGU, barbes, Magie du sang, garderie) n'apparaît que quand ce système est débloqué. */
+    var ouvert_=function(id){var sys=SYSTEME_DU_LABO[id];if(!sys)return true;var x=systemeMetaParIdIdleV130_(j,sys);return Boolean(x&&x.state&&x.state.unlocked);};
     var defs={};(Array.isArray(m.diggerDefinitions)?m.diggerDefinitions:[]).forEach(function(def){defs[def.id]=def;});
     var places=Math.max(1,H().idleEntier_(vue.slots||data.slots||1)),actifs=H().idleEntier_(vue.active||0);
     var brut=Number(vue.grossGps)||0,drain=Number(vue.drain)||0;
@@ -171,7 +174,7 @@
     var precedentOuvert=true;
     ETAGES.forEach(function(g){
       if(!precedentOuvert)return;
-      var liste=g.ids.filter(function(id){return defs[id]&&(id!=='daycare'||daycareOk);});
+      var liste=g.ids.filter(function(id){return defs[id]&&ouvert_(id);});
       if(!liste.length)return;
       etages+='<div class="lp-etage '+g.cls+'"><div class="lp-nometage">'+g.titre+'</div><div class="lp-liste">'+liste.map(function(id){return labo_(defs[id],diggers[id]||{},vue,or);}).join('')+'</div></div>';
       precedentOuvert=liste.some(function(id){return H().idleEntier_((diggers[id]||{}).maxLevel||0)>0;});
@@ -188,5 +191,5 @@
       '<div class="lp-page">'+haut+'<div class="lp-donjon">'+etages+'</div></div>';
   }
 
-  window.__SOREAL_IDLE_LABOS_PAGE_V1__={page:page,scene:scene,etages:ETAGES,effets:EFFETS};
+  window.__SOREAL_IDLE_LABOS_PAGE_V1__={page:page,scene:scene,etages:ETAGES,effets:EFFETS,systemes:SYSTEME_DU_LABO};
 })();
