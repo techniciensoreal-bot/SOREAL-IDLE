@@ -67,7 +67,7 @@ function lireJson(rel) {
 
 /** Boss -> { id, nom, histoire } (nom affiché = nomFr, histoire = design/ngu-boss-stories-fr.json, notes de déblocage comprises). */
 export function chargerBoss() {
-  const noms = new Map(lireJson("design/ngu-boss-names-fr.json").map((b) => [Number(b.id), String(b.nomFr || "")]));
+  const noms = new Map(lireJson("design/catalogue/boss.json").boss.map((b) => [Number(b.id), String(b.nomFr || "")]));
   return lireJson("design/ngu-boss-stories-fr.json")
     .map((b) => ({ id: Number(b.id), nom: noms.get(Number(b.id)) || "Boss", histoire: String(b.story || "").trim() }))
     .filter((b) => b.histoire)

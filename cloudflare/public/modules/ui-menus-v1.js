@@ -1624,7 +1624,7 @@
             return pageParametresIdleV28_(j);
           case 'admin':
             declarerTextesSystemesIdleV1_(j);
-            return window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__?window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.page(j):'';
+            return window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__?window.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__.page(j):'<div class="soreal-idle-section-v8" style="opacity:.7">Chargement des outils d’administration…</div>';   /* module chargé à la demande (chargeur-v1.js) : la page est redessinée dès qu'il est arrivé */
           case 'chat':
             /* Emplacement du chat ; le module le monte juste après le rendu (il garde la saisie entre deux rendus). */
             if(window.__SOREAL_IDLE_CHAT_V1__&&typeof window.__SOREAL_IDLE_CHAT_V1__.pageHtml==='function'){

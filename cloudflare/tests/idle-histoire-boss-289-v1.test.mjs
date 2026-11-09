@@ -68,7 +68,7 @@ console.log("idle-histoire-boss-289-v1 OK");
 {
   const { NGU_BOSS_NAMES_FR_V1 } = await import("../src/idle-sqlite-runtime.js");
   const { nomBossSurchargeV1 } = await import("../src/idle-textes-v1.js");
-  const noms = JSON.parse(readFileSync("design/ngu-boss-names-fr.json", "utf8"));
+  const noms = JSON.parse(readFileSync("design/catalogue/boss.json", "utf8")).boss;
   const n289 = noms.find((x) => x.id === 289);
   assert.equal(n289.nomFr, "La Femme Pirate");
   assert.equal(n289.nomEn, "Pirate Girl");

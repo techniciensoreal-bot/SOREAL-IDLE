@@ -14,7 +14,7 @@ if (!secret) {
   process.exit(1);
 }
 
-const bosses = JSON.parse(readFileSync(new URL('./idle-boss-extension-21-46.json', import.meta.url), 'utf8'));
+const bosses = JSON.parse(readFileSync(new URL('./archive/idle-boss-extension-21-46.json', import.meta.url), 'utf8'));
 
 const COLUMNS = [
   'ID', 'Nom', 'PV', 'Attaque', 'XP', 'Pieces', 'ChanceLoot', 'Image', 'Actif', 'DriveFileID',

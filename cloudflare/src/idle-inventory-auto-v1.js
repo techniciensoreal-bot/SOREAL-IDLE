@@ -100,8 +100,9 @@ import { macguffinMergeLevelV1 } from "./idle-macguffins-v1.js";
 import { coffreRetirer } from "./idle-adventure-inventaire.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 
-const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
-const I = (v, d = 0) => Math.floor(N(v, d));
+import { nombreV1, entierV1 } from "./idle-outils-v1.js";   /* outils communs (identiques aux anciennes définitions locales) */
+const N = nombreV1;
+const I = entierV1;
 const X = (v) => JSON.parse(JSON.stringify(v));
 
 /* Page Inventory : « The baseline countdown without any upgrades is 60 minutes » (Auto Merge et Auto Boost). */

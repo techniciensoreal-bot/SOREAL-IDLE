@@ -9,6 +9,8 @@
  *      n'est compté. Sont décalés : les colonnes de dates, les dates ISO écrites en texte et les nombres qui valent un horodatage en millisecondes proche de l'instant de l'export (±2 ans) — sauf les montants
  *      (or, énergie, records…) dont la valeur peut, par hasard, tomber dans cette fenêtre.
  */
+import { ETAT_VERSION_COURANTE, etatVersionDeLigneV1 } from "./idle-migrations-v1.js";
+
 export const FORMAT_PARTIE_V1 = "soreal-idle-partie-v1";
 export const NB_COLONNES_PARTIE_V1 = 38;
 export const COL_DERNIERE_SYNCHRO_PARTIE_V1 = 15;
@@ -21,8 +23,18 @@ const RE_ISO = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 const RE_CLE_TEMPS = /(?:At|Ms|Jusqua|Until|Time|Ts|Date|Depuis|Since|Start|Started|Debut|Expire|Expires|Deadline|Ready|Respawn|Cooldown|Next|Prochain|Last|Dernier|Derniere|Maj)(?:[A-Z_0-9]|$)|^(?:at|t|ts|ms)$/;
 const RE_CHEMIN_MONTANT = /(?:currenc|resource|record|gold|energy|energie|magic|magie|power|bars|cap\b|level|niveau|count|kills|total|best|max|allocation|experience|exp\b|ap\b|pp\b|qp\b|points|essence|capacity|capacite|cost|cout|price|prix|value|amount|score|damage|degats|hp\b|pv)/i;
 
+/*
+ * Version de sauvegarde portée par le fichier (idle-migrations-v1.js) : champ `etatVersion` du fichier, recopié de l'état de la ligne (0 = fichier d'avant le registre, SANS ce champ : il reste importable, le moteur le migre).
+ * Un fichier dont la version est PLUS RÉCENTE que celle du moteur est refusé (ETAT_PLUS_RECENT) plutôt qu'écrasé : un ancien moteur ne doit pas lire de travers, puis réécrire, une sauvegarde plus récente.
+ */
+export function etatVersionDuFichierPartieV1(f) {
+  const declaree = f && typeof f === "object" ? Number(f.etatVersion) : NaN;
+  return Math.max(Number.isInteger(declaree) && declaree > 0 ? declaree : 0, etatVersionDeLigneV1(f && f.cells));
+}
+
 export function creerFichierPartieV1(cells, instantMoteur, extra = {}) {
-  return { format: FORMAT_PARTIE_V1, version: 1, exporteLe: new Date(Number(instantMoteur) || Date.now()).toISOString(), serveurAt: Number(instantMoteur) || Date.now(), nom: String(extra.nom || ""), cells: Array.isArray(cells) ? cells.slice() : [] };
+  const etatVersion = etatVersionDeLigneV1(cells);
+  return { format: FORMAT_PARTIE_V1, version: 1, ...(etatVersion > 0 ? { etatVersion } : {}), exporteLe: new Date(Number(instantMoteur) || Date.now()).toISOString(), serveurAt: Number(instantMoteur) || Date.now(), nom: String(extra.nom || ""), cells: Array.isArray(cells) ? cells.slice() : [] };
 }
 
 export function validerFichierPartieV1(f) {
@@ -38,6 +50,8 @@ export function validerFichierPartieV1(f) {
   let total = 0;
   for (const c of f.cells) { if (typeof c === "string") total += c.length; else if (c !== null && typeof c !== "number" && typeof c !== "boolean") return { ok: false, erreur: "COLONNES_INVALIDES" }; }
   if (total > TAILLE_MAX_LIGNE) return { ok: false, erreur: "FICHIER_TROP_GROS" };
+  const etatVersion = etatVersionDuFichierPartieV1(f);
+  if (etatVersion > ETAT_VERSION_COURANTE) return { ok: false, erreur: "ETAT_PLUS_RECENT", etatVersion, etatVersionMoteur: ETAT_VERSION_COURANTE, message: "Cette partie vient d'une version plus récente du jeu (sauvegarde v" + etatVersion + ", ce jeu comprend jusqu'à la v" + ETAT_VERSION_COURANTE + "). Mets le jeu à jour avant de la charger ; ta partie actuelle n'a pas changé." };
   return { ok: true };
 }
 

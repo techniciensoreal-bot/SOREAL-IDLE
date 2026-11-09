@@ -28,8 +28,9 @@
  * (le jeu la fait "exploser" sans effet) plutôt que détruite.
  */
 
-const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
-const I = (v, d = 0) => Math.floor(N(v, d));
+import { nombreV1, entierV1 } from "./idle-outils-v1.js";   /* outils communs (identiques aux anciennes définitions locales) */
+const N = nombreV1;
+const I = entierV1;
 
 const MAX_NIVEAU_OS_PAR_SOURCE_V1 = 100;
 const COPIES_V1 = Object.freeze({

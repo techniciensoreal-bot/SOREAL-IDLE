@@ -289,7 +289,8 @@ const HISTOIRE = {
   assert.ok(!ui.includes("STORY_POPUP"), "plus d'ancien module d'histoire dans le jeu");
   const index = readFileSync("cloudflare/public/index.html", "utf8");
   assert.match(index, /<script defer src="\/modules\/story-engine-v1\.js\?v=\d+"><\/script>/);
-  assert.match(index, /<script defer src="\/modules\/admin-histoires-v1\.js\?v=\d+"><\/script>/);
+  /* l'éditeur d'histoires est un module d'administration chargé à la demande (modules/chargeur-v1.js) : listé dans la table de la page, plus un <script defer> */
+  assert.match(index, /id="soreal-modules-differes-v1">[^<]*"\/modules\/admin-histoires-v1\.js\?v=\d+"/);
   assert.ok(index.indexOf("story-engine-v1.js") < index.indexOf("/soreal-idle-ui.js?v="));
   assert.ok(!index.includes("story-popup"));
 }

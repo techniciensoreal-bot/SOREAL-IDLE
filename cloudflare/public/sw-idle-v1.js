@@ -22,6 +22,9 @@ function estPage_(u) { return u.pathname === '/' || u.pathname === '/index.html'
 function adressesDe_(texte) {
   var urls = {}, re = /(?:src|href)="(\/[^"#]+)"/g, m;
   while ((m = re.exec(texte))) urls[m[1]] = true;
+  /* Modules chargés à la demande (modules/chargeur-v1.js) : leurs adresses sont dans la table JSON de la page ("/modules/….js?v=N"), à garder aussi pour le hors ligne. */
+  var table = /<script type="application\/json" id="soreal-modules-differes-v1">([\s\S]*?)<\/script>/.exec(texte), rt = /"(\/[^"#?]+\.js\?v=\d+)"/g, t;
+  if (table) while ((t = rt.exec(table[1]))) urls[t[1]] = true;
   return Object.keys(urls);
 }
 

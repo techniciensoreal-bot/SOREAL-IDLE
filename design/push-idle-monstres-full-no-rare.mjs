@@ -17,7 +17,7 @@ if (!secret) {
   process.exit(1);
 }
 
-const monstres = JSON.parse(readFileSync(new URL('./idle-monstres-full-no-rare.json', import.meta.url), 'utf8'));
+const monstres = JSON.parse(readFileSync(new URL('./archive/idle-monstres-full-no-rare.json', import.meta.url), 'utf8'));
 
 const COLUMNS = [
   'ID', 'ZoneID', 'Type', 'Nom', 'Emoji', 'PV', 'Attaque', 'ChanceRencontre', 'ChanceLegendaire',

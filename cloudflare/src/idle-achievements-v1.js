@@ -36,7 +36,8 @@
  *    de la dernière ligne de la page, Norman 2026-10-16).
  */
 
-const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
+import { nombreV1 } from "./idle-outils-v1.js";   /* outil commun (identique à l'ancienne définition locale) */
+const N = nombreV1;
 
 /* Même barème de BP pour les 6 groupes "ressource" (16 paliers chacun). */
 const BP_RESSOURCE = Object.freeze([5, 10, 15, 20, 25, 30, 35, 35, 40, 40, 40, 45, 45, 45, 50, 50]);

@@ -150,14 +150,14 @@ export function wishSlotsSnapshotV1(state) {
   const params = wishSpeedParamsV1(state, s);
   return {
     unlocked: Boolean(s.unlocked),
-    maxSlots: IDLE_WISH_MAX_SLOTS_V1,
     slotCount: count,
     sources: wishSlotBreakdownV1(state),
     minSecondsPerLevel: params.wishMinSeconds,
     speedMultiplier: params.speedMultiplier,
     r3Unlocked: Boolean(state.systems.hacks?.unlocked),
     magicUnlocked: Boolean(state.systems.bloodMagic?.unlocked),
-    slots: (s.data.slots || []).map((slot, index) => {
+    /* Anti-spoil (règle n°2) : seuls les slots déjà obtenus sont envoyés (jamais les slots à venir ni le maximum). */
+    slots: (s.data.slots || []).slice(0, count).map((slot, index) => {
       const def = slot.wish ? defs.find(x => x.id === slot.wish) : null;
       const t = def ? s.data.tracks[def.id] : null;
       const level = Math.max(0, int(t?.level, 0));

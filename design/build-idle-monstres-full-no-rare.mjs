@@ -27,9 +27,9 @@ const LIVE_ZONES_1_6 = [
   { ID: 'Z6_BOSS', ZoneID: 6, Type: 'boss_zone', Nom: 'Thermo King, Seigneur du Froid', Emoji: '👑', PV: 20000, Attaque: 44, ChanceRencontre: '1', ChanceLegendaire: '0', ObjetLegendaire: '', SlotLegendaire: '', BaseLegendaire: '0', Description: "Le froid mécanique a fini par prendre un nom.", Image: '', Actif: 'TRUE' }
 ];
 
-const extension7to46 = JSON.parse(readFileSync(new URL('./idle-monstres-extension-7-46.json', import.meta.url), 'utf8'));
+const extension7to46 = JSON.parse(readFileSync(new URL('./archive/idle-monstres-extension-7-46.json', import.meta.url), 'utf8'));
 
 const rows = [...LIVE_ZONES_1_6, ...extension7to46];
 
-writeFileSync(new URL('./idle-monstres-full-no-rare.json', import.meta.url), JSON.stringify(rows, null, 2));
+writeFileSync(new URL('./archive/idle-monstres-full-no-rare.json', import.meta.url), JSON.stringify(rows, null, 2));
 console.log('wrote', rows.length, 'monster rows (zones 1-46, normal+boss_zone only, no rare)');

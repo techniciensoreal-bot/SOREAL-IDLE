@@ -601,7 +601,6 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
     }));
   return {
     slots: f.slots,
-    maxSlots: IDLE_DAYCARE_MAX_SLOTS_V1,
     slotSources: clone(f.slotSources || {}),
     timeFactor: f.timeFactor,
     timeParts: clone(f.timeParts || {}),

@@ -15,7 +15,7 @@ import { writeFileSync, readFileSync } from 'node:fs';
  * les vraies valeurs PV/Attaque des boss 1-20 avant un prochain push).
  */
 const BOSS_EXTENSION_21_46 = JSON.parse(
-  readFileSync(new URL('./idle-boss-extension-21-46.json', import.meta.url), 'utf8')
+  readFileSync(new URL('./archive/idle-boss-extension-21-46.json', import.meta.url), 'utf8')
 );
 const BOSS_STATS_BY_NAME = Object.fromEntries(
   BOSS_EXTENSION_21_46.map((b) => [b.Nom, { PV: b.PV, Attaque: b.Attaque }])
@@ -210,5 +210,5 @@ if (missingRealBossStats.length) {
   );
 }
 
-writeFileSync(new URL('./idle-zones-full-v2.json', import.meta.url), JSON.stringify(zoneRows, null, 2));
+writeFileSync(new URL('./archive/idle-zones-full-v2.json', import.meta.url), JSON.stringify(zoneRows, null, 2));
 console.log('wrote', zoneRows.length, 'zones (1-' + zoneRows.length + ')');

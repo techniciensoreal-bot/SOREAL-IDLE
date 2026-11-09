@@ -305,7 +305,7 @@ function construireSnapshotNguV1(state, context, now) {
     bloodMagicView: bloodMagicViewV1(state),
     yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0))),
     /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */
-    yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost, apercu: (def, f, poopFactor) => apercuYggFruitV1(state, def, f, poopFactor) }),
+    yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { fruitVisible: def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0), maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost, apercu: (def, f, poopFactor) => apercuYggFruitV1(state, def, f, poopFactor) }),
     /* Anti-spoil : la liste des mineurs n'existe pas tant que le système n'est pas découvert. */
     diggerDefinitions: state.systems.diggers?.unlocked ? clone(IDLE_NGU_DIGGERS.filter(def => diggerLaboVisibleV1(state, def.id))) : [],
     /* Page Mineurs d'or : bonus de chaque mineur, drain, GPS brut, emplacements (idle-ngu-systemes.js, diggerViewV1). */

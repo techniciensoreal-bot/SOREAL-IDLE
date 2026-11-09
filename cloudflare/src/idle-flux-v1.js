@@ -50,7 +50,8 @@ export function assurerFluxV1(sql) {
   if (sql && typeof sql === "object") __fluxPretV1.add(sql);
 }
 
-const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
+import { nombreV1 } from "./idle-outils-v1.js";   /* outil commun (identique à l'ancienne définition locale) */
+const N = nombreV1;
 const nom_ = (f, x) => { try { return String((typeof f === "function" ? f(x) : "") || "").slice(0, 80); } catch (_e) { return ""; } };
 
 /*

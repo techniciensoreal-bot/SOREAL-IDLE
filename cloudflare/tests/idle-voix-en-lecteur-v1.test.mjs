@@ -39,7 +39,7 @@ assert.equal(typeof tts.voiceStats().muets, "number", "compteur de blocs muets")
 
 const racine = path.resolve(".");
 const histoires = JSON.parse(fs.readFileSync(path.join(racine, "design", "ngu-boss-stories-en.json"), "utf8"));
-const noms = JSON.parse(fs.readFileSync(path.join(racine, "design", "ngu-boss-names-fr.json"), "utf8"));
+const noms = JSON.parse(fs.readFileSync(path.join(racine, "design", "catalogue", "boss.json"), "utf8")).boss;
 const histoire1 = String(histoires.find((h) => Number(h.id) === 1).story).trim();
 const nom1 = noms.find((b) => Number(b.id) === 1).nomEn;
 assert.equal(nom1, "A Small Piece of Fluff");

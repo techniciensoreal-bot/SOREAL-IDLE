@@ -226,7 +226,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=e974da0601");
+    worker=new Worker("/moteur-local-worker-v1.js?v=dceb0147fd");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -433,7 +433,9 @@
       if(!s||!s.cells){etatPartieFichier("⚠️ Export impossible : partie introuvable.",true);return;}
       const d=new Date(Number(s.instant)||Date.now());
       const pad=function(n){return String(n).padStart(2,"0");};
-      const fichier={format:"soreal-idle-partie-v1",version:1,exporteLe:d.toISOString(),serveurAt:Number(s.instant)||Date.now(),nom:String(s.cells[1]||""),cells:s.cells};
+      /* Version de sauvegarde de l'état (metaNgu.etatVersion, idle-migrations-v1.js), recopiée dans le fichier ; absente si l'état n'en porte pas encore. */
+      let etatVersion=0;try{const meta=JSON.parse(s.cells[37]).metaNgu;const ev=Number(meta&&meta.etatVersion);if(Number.isInteger(ev)&&ev>0)etatVersion=ev;}catch(_){etatVersion=0;}
+      const fichier={format:"soreal-idle-partie-v1",version:1,etatVersion:etatVersion>0?etatVersion:undefined,exporteLe:d.toISOString(),serveurAt:Number(s.instant)||Date.now(),nom:String(s.cells[1]||""),cells:s.cells};
       const blob=new Blob([JSON.stringify(fichier)],{type:"application/json"});
       const a=document.createElement("a");
       a.href=URL.createObjectURL(blob);
@@ -473,7 +475,7 @@
       etatPartieFichier("Chargement de la partie…",false);
       for(let i=0;i<50&&(enVol||appelEnCours);i+=1)await new Promise(function(r){setTimeout(r,100);});
       const r=await parler({type:"importer",fichier:fichierEnAttente});
-      if(!r||!r.ok){etatPartieFichier("⚠️ Cette partie n’a pas pu être chargée ("+echapper(r&&r.erreur||"erreur")+"). Ta partie actuelle n’a pas changé.",true);return;}
+      if(!r||!r.ok){etatPartieFichier(r&&r.erreur==="ETAT_PLUS_RECENT"&&r.message?"⚠️ "+echapper(r.message):"⚠️ Cette partie n’a pas pu être chargée ("+echapper(r&&r.erreur||"erreur")+"). Ta partie actuelle n’a pas changé.",true);return;}
       importPartieEnCours=true;sale=true;rev+=1;
       /* La partie importée est écrite sur l'appareil AVANT l'envoi et avant tout rechargement (audit anti-rollback, 2026-10-21) : si le serveur est injoignable, c'est la reprise au démarrage qui l'enverra ; avant, la page se rechargeait 0,9 s plus tard même si rien n'était encore sauvegardé. */
       const copieOk=await sauverCopie();

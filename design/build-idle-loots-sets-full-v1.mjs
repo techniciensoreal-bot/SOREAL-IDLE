@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 // 6 fixed engine slots (slotsEquipementSorealIdle_ in idle-sqlite-runtime.js):
 // tete, torse, bottes, arme, bijou1, bijou2.
 
-const zones = JSON.parse(readFileSync(new URL('./idle-zones-full-v2.json', import.meta.url), 'utf8'));
+const zones = JSON.parse(readFileSync(new URL('./archive/idle-zones-full-v2.json', import.meta.url), 'utf8'));
 
 const SLOT_NOUNS = {
   tete: 'Casque',
@@ -64,6 +64,6 @@ zones.forEach(z => {
   });
 });
 
-writeFileSync(new URL('./idle-loots-full-v1.json', import.meta.url), JSON.stringify(lootRows, null, 2));
-writeFileSync(new URL('./idle-sets-full-v1.json', import.meta.url), JSON.stringify(setRows, null, 2));
+writeFileSync(new URL('./archive/idle-loots-full-v1.json', import.meta.url), JSON.stringify(lootRows, null, 2));
+writeFileSync(new URL('./archive/idle-sets-full-v1.json', import.meta.url), JSON.stringify(setRows, null, 2));
 console.log('wrote', lootRows.length, 'loot items across', setRows.length, 'sets');

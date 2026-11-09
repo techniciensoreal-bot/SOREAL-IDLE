@@ -386,7 +386,8 @@ export function idleYggExtraSnapshotV1(state, fruitDefs, deps = {}) {
     harvestLight: { owned: idleYggHarvestLightOwnedV1(state), lit: idleYggHarvestLightLitV1(state, fruitDefs) },
     /* Les fruits (découverts) qui font briller la page Yggdrasil : liste vide sans l'achat. */
     harvestLightFruits: fruitDefs.filter((def) => idleYggFruitLitV1(state, def)).map((def) => def.id),
-    fruits: Object.fromEntries(fruitDefs.map((def) => {
+    /* Anti-spoil : mêmes fruits que `yggFruits` du snapshot (deps.fruitVisible) ; aucun fruit non découvert, Mayo compris. */
+    fruits: Object.fromEntries(fruitDefs.filter((def) => typeof deps.fruitVisible !== "function" || deps.fruitVisible(def)).map((def) => {
       const f = state?.systems?.yggdrasil?.data?.fruits?.[def.id] || {};
       const auto = autos[def.id];
       const tier = Math.max(0, I(f.tier, 0));

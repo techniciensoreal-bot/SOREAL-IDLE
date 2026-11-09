@@ -986,7 +986,8 @@ export function idleCardsSnapshotV1(state) {
       totalPct: totals[t.id],
       multiplier: 1 + totals[t.id] / 100
     })),
-    mayoTypes: IDLE_CARDS_MAYO_TYPES_V1.map((m) => ({
+    /* Anti-spoil : aucun nom de mayo tant que les Cartes ne sont pas découvertes. */
+    mayoTypes: !unlocked ? [] : IDLE_CARDS_MAYO_TYPES_V1.map((m) => ({
       id: m.id,
       nom: m.nom,
       stored: data.mayo[m.id],

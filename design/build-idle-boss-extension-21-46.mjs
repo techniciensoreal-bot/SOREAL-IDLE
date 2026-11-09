@@ -87,5 +87,5 @@ const rows = bosses.map(([id, nom, histoire, conseil, mortVivant]) => {
   };
 });
 
-writeFileSync(new URL('./idle-boss-extension-21-46.json', import.meta.url), JSON.stringify(rows, null, 2));
+writeFileSync(new URL('./archive/idle-boss-extension-21-46.json', import.meta.url), JSON.stringify(rows, null, 2));
 console.log('wrote', rows.length, 'bosses (21-46)');

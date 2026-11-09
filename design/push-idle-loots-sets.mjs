@@ -13,8 +13,8 @@ if (!secret) {
   process.exit(1);
 }
 
-const loots = JSON.parse(readFileSync(new URL('./idle-loots-full-v1.json', import.meta.url), 'utf8'));
-const sets = JSON.parse(readFileSync(new URL('./idle-sets-full-v1.json', import.meta.url), 'utf8'));
+const loots = JSON.parse(readFileSync(new URL('./archive/idle-loots-full-v1.json', import.meta.url), 'utf8'));
+const sets = JSON.parse(readFileSync(new URL('./archive/idle-sets-full-v1.json', import.meta.url), 'utf8'));
 
 const LOOTS_COLUMNS = ['ID', 'Nom', 'Slot', 'ZoneID', 'Boss', 'Poids', 'ChanceDrop', 'BasePuissance', 'SetID', 'Image', 'Actif'];
 const SETS_COLUMNS = ['ID', 'Nom', 'ZoneID', 'Pieces2', 'Bonus2Pct', 'Pieces4', 'Bonus4Pct', 'Pieces6', 'Bonus6Pct', 'Apparence', 'Description', 'Actif'];

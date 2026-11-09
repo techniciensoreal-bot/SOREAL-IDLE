@@ -126,7 +126,7 @@ self.onmessage = async (ev) => {
     } else if (m.type === "importer") {
       /* Chargement d'une partie : identité du compte conservée, dates décalées (aucun temps hors ligne), vérifié par une synchro ; la ligne d'avant est remise si le moteur refuse la partie. */
       const v = validerFichierPartieV1(m.fichier);
-      if (!v.ok) { self.postMessage({ id: m.id, ok: true, resultat: { ok: false, erreur: v.erreur } }); return; }
+      if (!v.ok) { self.postMessage({ id: m.id, ok: true, resultat: { ok: false, erreur: v.erreur, message: v.message } }); return; }
       const avant = ligneJoueur();
       const maintenant = Date.now();
       const prep = preparerLignePartieV1(avant, m.fichier, maintenant);

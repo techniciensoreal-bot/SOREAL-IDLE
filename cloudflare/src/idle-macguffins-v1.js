@@ -782,7 +782,6 @@ export function macguffinSnapshotV1(state, now = Date.now()) {
   return {
     unlocked: macguffinUnlockedV1(state),
     slots: macguffinSlotCountV1(state),
-    maxSlots: IDLE_MACGUFFIN_MAX_SLOTS_V1,
     slotBreakdown: macguffinSlotBreakdownV1(state),
     equipped: data.equipped.map(withGain),
     inventory: data.inventory.map(withGain),

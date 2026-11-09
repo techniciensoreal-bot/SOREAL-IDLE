@@ -41,10 +41,10 @@ function base() {
 // --- 1 slot au départ ---
 {
   const w = slots(base());
-  assert.equal(w.maxSlots, 4);
+  assert.equal(w.maxSlots, undefined, "anti-spoil : pas de maximum");
   assert.equal(w.slotCount, 1);
   assert.deepEqual(w.sources, { base: 1, trollEvil: 0, pinkHeart: 0, quirk: 0 });
-  assert.deepEqual(w.slots.map(x => x.unlocked), [true, false, false, false]);
+  assert.deepEqual(w.slots.map(x => x.unlocked), [true]);
 }
 
 // --- Troll Challenge Evil : la 7e complétion, pas avant ; Normal/Sadistic ne comptent pas ---

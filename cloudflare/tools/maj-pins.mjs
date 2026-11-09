@@ -34,6 +34,13 @@ function references() {
   for (const m of index.matchAll(/(?:src|href)="(\/[^"?]+\.(?:js|css|json))\?v=(\d+)"/g)) {
     refs.push({ servi: m[1], dans: "index.html", motif: new RegExp("(" + m[1].replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&") + "\\?v=)(\\d+)"), pin: Number(m[2]) });
   }
+  /* Modules chargés à la demande (modules/chargeur-v1.js) : leur adresse avec ?v=N n'est pas dans un <script src> mais dans la table JSON de index.html (id soreal-modules-differes-v1). */
+  const table = index.match(/<script type="application\/json" id="soreal-modules-differes-v1">([\s\S]*?)<\/script>/);
+  if (table) {
+    for (const m of table[1].matchAll(/"(\/[^"?]+\.js)\?v=(\d+)"/g)) {
+      refs.push({ servi: m[1], dans: "index.html", motif: new RegExp("(" + m[1].replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&") + "\\?v=)(\\d+)"), pin: Number(m[2]) });
+    }
+  }
   const trad = lire(join(PUBLIC, "modules", "traduction-anglais-v1.js"));
   const d = trad.match(/(\/modules\/traduction-anglais-dict-v1\.json\?v=)(\d+)/);
   if (d) refs.push({ servi: "/modules/traduction-anglais-dict-v1.json", dans: "modules/traduction-anglais-v1.js", motif: /(\/modules\/traduction-anglais-dict-v1\.json\?v=)(\d+)/, pin: Number(d[2]) });

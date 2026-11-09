@@ -58,7 +58,8 @@ export const IDLE_THE_END_CARD_CHANCE_V1 = 0.01;
 export const IDLE_THE_END_CARD_MAYO_V1 = 99;
 
 const IDS = new Set(IDLE_THE_END_PIECES_V1.map((p) => p.id));
-const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
+import { numV1 } from "./idle-outils-v1.js";
+const num = numV1;   /* outil commun (même résultat : Number(v) fini sinon repli) */
 
 /* Données persistées (state.adventure.theEnd) : { pieces: { "480": tempsDeLaTrouvaille }, endings: n, lastEndingAt }. */
 export function idleTheEndNormalizeV1(raw) {

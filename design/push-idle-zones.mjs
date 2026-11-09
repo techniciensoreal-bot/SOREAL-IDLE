@@ -17,7 +17,7 @@ if (!secret) {
   process.exit(1);
 }
 
-const zones = JSON.parse(readFileSync(new URL('./idle-zones-full-v2.json', import.meta.url), 'utf8'));
+const zones = JSON.parse(readFileSync(new URL('./archive/idle-zones-full-v2.json', import.meta.url), 'utf8'));
 
 const COLUMNS = [
   'ID', 'Nom', 'Emoji', 'Description', 'Ennemi', 'Boss', 'NiveauRequis', 'PuissanceRecommandee',

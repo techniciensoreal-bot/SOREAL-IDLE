@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Dans les difficultés supérieures, les images des boss sont de nouveau celles de ta difficulté au lieu de l’image normale.",
     "Le bandeau du haut est plus fluide sur toutes les pages : la barre de vie glisse avec la carte graphique au lieu de redessiner toute sa largeur, et les braises de l’énergie aussi.",
     "Les nombres qui montent (vie, énergie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts)."
   ] };

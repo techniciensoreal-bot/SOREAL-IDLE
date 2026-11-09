@@ -16,7 +16,8 @@ import BOUTIQUE from "../../design/traductions/fr/sellout.json" with { type: "js
 import SUCCES from "../../design/traductions/fr/achievements.json" with { type: "json" };
 import DIVERS from "../../design/traductions/fr/misc.json" with { type: "json" };
 import ENNEMIS from "../../design/traductions/fr/mobs.json" with { type: "json" };
-import BOSS_NOMS from "../../design/ngu-boss-names-fr.json" with { type: "json" };
+import BOSS_NOMS_FICHIER from "../../design/catalogue/boss.json" with { type: "json" };
+const BOSS_NOMS = BOSS_NOMS_FICHIER.boss;
 import BOSS_HISTOIRES_EN from "../../design/ngu-boss-stories-en.json" with { type: "json" };
 import BOSS_HISTOIRES_FR from "../../design/ngu-boss-stories-fr.json" with { type: "json" };
 import HISTOIRES_COMPLEMENT_FR from "../../design/ngu-boss-stories-complement-fr.json" with { type: "json" };

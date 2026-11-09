@@ -11,6 +11,7 @@ import { assurerGainsV1 } from "./idle-gains-v1.js";
 import { idleDevSlotForUserV1, idleDevUserForSlotV1 } from "./idle-dev-save-slots-v1.js";
 import { lireTextesV1, estCleEnV1 } from "./idle-textes-v1.js";
 import { invaliderTrajectoireV1 } from "./idle-runtime-etat.js";
+import { ETAT_VERSION_COURANTE, etatVersionDeLigneV1 } from "./idle-migrations-v1.js";
 
 const sv = (v) => String(v == null ? "" : v).trim();
 const COL_DERNIERE_SYNCHRO = 15;            // colonne 16 (base 0)
@@ -300,7 +301,7 @@ export function exporterPourMoteurLocalV1(coord, sessionToken, appareil = "", le
   const noteeAt = lireProgression(coord, mailProg);
   const avantMs = enMs(synchroAvant);
   const progressionAt = noteeAt > 0 ? noteeAt : (Number.isFinite(avantMs) && avantMs > 0 ? Math.min(avantMs, maintenant) : 0);
-  return { ok: true, user: s.user, uiPrefsCompte, serveurAt: maintenant, progressionAt, textes: textesPourMoteurLocalV1(coord, langue), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
+  return { ok: true, etatVersion: ETAT_VERSION_COURANTE, user: s.user, uiPrefsCompte, serveurAt: maintenant, progressionAt, textes: textesPourMoteurLocalV1(coord, langue), joueurs: { entete: entete ? entete.row_json : "[]", index, ligne: ligne.row_json }, feuilles, profils };
 }
 
 /* Records retirés par l'administrateur (table idle_records_retires) : un envoi qui porte encore EXACTEMENT la valeur retirée la voit remise à zéro (l'appareil la garde jusqu'à son prochain démarrage). */
@@ -361,10 +362,16 @@ export function recevoirDuMoteurLocalV1(coord, p) {
    */
   if (Number.isFinite(recu) && recu > maintenantSrv + TOLERANCE_HORLOGE_MS) { recu = maintenantSrv; cells[COL_DERNIERE_SYNCHRO] = new Date(maintenantSrv).toISOString(); }
   if (Number.isFinite(connu) && connu > maintenantSrv + TOLERANCE_HORLOGE_MS) connu = maintenantSrv - TOLERANCE_HORLOGE_MS;
+  /*
+   * Version de sauvegarde (idle-migrations-v1.js) : un envoi NORMAL dont l'état porte une `etatVersion` plus ancienne que celle de la ligne du serveur vient d'un client plus ancien que la sauvegarde : il ne l'écrase jamais (même réponse que « le serveur en détient un
+   * plus récent » : reçu, refusé, `ecrit:false`). Ne concerne ni un choix d'appareil ni un import par fichier (restaurer une vieille partie reste permis : le moteur la migre) ; un envoi SANS version (page d'avant le registre) n'est pas écarté.
+   */
+  const versionRecue = etatVersionDeLigneV1(cells), versionServeur = etatVersionDeLigneV1(serveur);
+  const versionTropAncienne = p.choixAppareil !== true && p.importPartie !== true && versionRecue > 0 && versionServeur > 0 && versionRecue < versionServeur;
   let ecrit = false;
   /* Choix d'appareil : le joueur a décidé que la partie de cet appareil REMPLACE celle du serveur, même si la date de la sienne est plus ancienne ; l'ancienne est gardée 30 jours (« avant-choix-appareil »). */
   const choix = p.choixAppareil === true;
-  if (choix || !(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu)) {
+  if (!versionTropAncienne && (choix || !(Number.isFinite(connu) && Number.isFinite(recu) && recu < connu))) {
     /* Copie de sécurité de la ligne actuelle AVANT de l'écraser (toujours, si l'anti-triche a noté une anomalie). */
     sauvegarderSiBesoinLocalV1(coord, emailsDe(effectif(s.user))[0] || "", actuelle.row_json, Date.now(), choix ? "avant-choix-appareil" : p.importPartie === true ? "avant-import" : (alertes.length ? "avant-anomalie" : ""), appareil);
     const fusion = cells.slice();
@@ -398,5 +405,5 @@ export function recevoirDuMoteurLocalV1(coord, p) {
     coord.sql.exec("INSERT INTO idle_gains_exp(at,email,nom,operation,avant,apres) VALUES(?,?,?,?,?,?)", at, cle, nom, operation, avant, apres);
     gains += 1;
   }
-  return { ok: true, ecrit, flux, gains, fluxTraites: fluxPris.length, gainsTraites: gainsPris.length, alertes: alertes.length, serveurAt: Date.now() };
+  return { ok: true, ecrit, etatVersion: ETAT_VERSION_COURANTE, etatPlusAncien: versionTropAncienne, flux, gains, fluxTraites: fluxPris.length, gainsTraites: gainsPris.length, alertes: alertes.length, serveurAt: Date.now() };
 }

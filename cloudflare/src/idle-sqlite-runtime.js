@@ -47,7 +47,7 @@ import { battementV1, normaliserActiviteV1, lireChatV1, envoyerChatV1, supprimer
 import {
   definirPseudoProfilIdleV1, libelleJoueurIdleV1, listerJoueursExternesIdleV1, lireProfilIdleV1, nomJeuJoueurIdleV1, noterPassageProfilIdleV1, profilsParEmailIdleV1
 } from "./idle-profile-v1.js";
-import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/ngu-boss-names-fr.json" with { type: "json" };
+import NGU_BOSS_NAMES_FR_V1_SOURCE from "../../design/catalogue/boss.json" with { type: "json" };
 import {
   IDLE_ADVENTURE_ZONES,
   IDLE_ADVENTURE_MOB_CATALOG_V1,
@@ -114,7 +114,7 @@ import { calculerTicksEnergieSorealIdle_, contexteMetaNguSorealIdle_, creerSimul
 export const IDLE_PROTOCOL_VERSION=1;
 
 export const NGU_BOSS_NAMES_FR_V1 = new Map(
-  NGU_BOSS_NAMES_FR_V1_SOURCE.map((entry) => [
+  NGU_BOSS_NAMES_FR_V1_SOURCE.boss.map((entry) => [
     Number(entry.id),
     String(entry.nomFr || entry.nomEn || "Boss"),
   ])
@@ -237,19 +237,18 @@ export const CacheService={
 
 /**
  * ============================================================
- * SOREAL IDLE — MOTEUR SERVEUR V40.9
- * Fichier : Soreal_Idle_Game.gs
+ * SOREAL IDLE — MOTEUR (Durable Object SQLite)
  * ============================================================
  *
- * - accès privé Norman + Sébastien HODDAP uniquement
- * - identité basée sur la session SOREAL existante
- * - lecture/écriture dans le Google Sheet "Soreal IDLE"
- * - énergie calculée côté serveur
- * - progression hors ligne
- * - synchronisation sûre avec LockService
+ * Historique : ce moteur est le portage d'un ancien script Google Apps Script (Soreal_Idle_Game.gs, V40.9) qui lisait et
+ * écrivait un Google Sheet. Il n'y a plus aucun Google Sheet : l'API Sheets/Range/LockService est reproduite par le shim
+ * ci-dessus (IdleSheet / IdleSpreadsheet / IdleRange, SpreadsheetApp, LockService) au-dessus de la table SQLite idle_catalog.
  *
- * Spreadsheet :
- * 19NkoPRWj6UHruOKKuyqwnH9l8tQCuJO_ZcvbXscar0E
+ * Aujourd'hui :
+ * - identité et accès vérifiés côté serveur (session / jeton), jamais lus de la requête
+ * - état du joueur = une ligne de la feuille JOUEURS, relue puis réécrite par runSorealIdleOperation
+ * - énergie et progression hors ligne calculées par le moteur NGU (syncIdleNguState)
+ * - section critique entièrement synchrone (voir AGENTS.md, « Modèle de données »)
  * ============================================================
  */
 
@@ -749,12 +748,11 @@ export const CacheService={
 /**
  * ============================================================
  * SOREAL IDLE — DATA ACCESS V19
- * Fichier Apps Script : Soreal_Idle_Data.gs
- * Source GitHub : Soreal_Idle_Data.js
+ * Historique : ancien fichier Apps Script Soreal_Idle_Data.gs (portage ; plus de Google Sheet, les « feuilles » sont des lignes de idle_catalog).
  * ============================================================
  *
  * V19 :
- * - lecture en bloc + cache Google Sheets conservée ;
+ * - lecture en bloc + cache de feuille conservée ;
  * - cache mémoire court ajouté pour éviter plusieurs JSON.parse /
  *   CacheService.get de la même table dans une seule exécution ;
  * - CONFIG préparé une seule fois puis réutilisé ;

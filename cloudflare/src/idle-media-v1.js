@@ -3,6 +3,7 @@ import { IDLE_DAYCARE_SKIN_IDS_V1 } from "./idle-daycare-skins-v1.js";
 import ENNEMIS_FR_V1 from "../../design/traductions/fr/mobs.json" with { type: "json" };
 import { idleItopodRosterReponseV1, idleItopodImagePartageeV1 } from "./idle-itopod-roster-v1.js";
 import { IDLE_ADVENTURE_MOB_BESTIARY_V1 } from "./idle-adventure-zones.js";
+import { idleBossCleR2V1, idleBossVarianteDifficulteV1 } from "./idle-boss-cles-v1.js";
 const IDLE_ADVENTURE_R2_PREFIX="idle/backgrounds/adventure/";
 const IDLE_ADVENTURE_R2_EXTENSIONS=Object.freeze(["webp","png","jpg","jpeg","avif"]);
 /*
@@ -1415,13 +1416,57 @@ async function bossImage_(request,env,url){
   if(!/^\d+$/.test(idParam)){
     return new Response("Boss IDLE invalide",{status:400,headers:{"cache-control":"no-store"}});
   }
-  if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function"||typeof env.SOREAL_R2.get!=="function"){
-    return new Response("Média de boss indisponible",{status:503,headers:{"cache-control":"no-store"}});
+  if(!env.SOREAL_R2||typeof env.SOREAL_R2.get!=="function"){
+    return new Response("M\u00e9dia de boss indisponible",{status:503,headers:{"cache-control":"no-store"}});
   }
+  /* Audit 2026-11-09 : la cle vient d'abord de la table id -> fichier (idle-boss-cles-v1.js), lue par un simple get() ; plus de listing de tout le dossier a chaque demarrage d'isolate.
+     Le navigateur revalide par etag (304 sans corps) au bout d'une heure : une image remplacee dans R2 sous le meme nom est visible dans l'heure (Norman, 2026-10-02 : pas de cache sans revalidation). */
+  /* Difficulte (Norman, 2026-10-17 / 2026-11-09) : Evil (difficile) et Sadistic (extreme) ont leurs propres images dans R2 ; si l'image de la variante manque, l'image normale est servie. */
+  const difficulte=String(url.searchParams.get("difficulty")||"");
+  const varianteDemandee=idleBossVarianteDifficulteV1(difficulte);
+  let cleTable=idleBossCleR2V1(idParam,difficulte);
+  let varianteServie=cleTable?varianteDemandee:"normal";
+  if(varianteDemandee!=="normal"){
+    let objVariante=null;
+    if(cleTable)objVariante=await env.SOREAL_R2.get(cleTable,{onlyIf:request.headers});
+    if(objVariante){
+      const headers=new Headers();
+      if(typeof objVariante.writeHttpMetadata==="function")objVariante.writeHttpMetadata(headers);
+      if(!headers.has("content-type"))headers.set("content-type",typeMediaAdventureR2(cleTable));
+      if(objVariante.httpEtag)headers.set("etag",objVariante.httpEtag);
+      headers.set("x-soreal-idle-r2-key",cleTable);
+      headers.set("x-soreal-idle-boss-variante",varianteServie);
+      const sansCorpsV=!("body" in objVariante)||!objVariante.body;
+      if(sansCorpsV&&request.method!=="HEAD")return new Response(null,{status:304,headers:mediaHeaders_(headers,3600)});
+      return new Response(request.method==="HEAD"?null:objVariante.body,{status:200,headers:mediaHeaders_(headers,3600)});
+    }
+    /* variante absente (id sans image Evil/Sadistic, ou cle retiree du seau) : on retombe sur l'image normale ci-dessous */
+    cleTable=idleBossCleR2V1(idParam);
+    varianteServie="normal";
+  }
+  if(cleTable){
+    const obj=await env.SOREAL_R2.get(cleTable,{onlyIf:request.headers});
+    if(obj){
+      const headers=new Headers();
+      if(typeof obj.writeHttpMetadata==="function")obj.writeHttpMetadata(headers);
+      if(!headers.has("content-type"))headers.set("content-type",typeMediaAdventureR2(cleTable));
+      if(obj.httpEtag)headers.set("etag",obj.httpEtag);
+      headers.set("x-soreal-idle-r2-key",cleTable);
+      headers.set("x-soreal-idle-boss-variante","normal");
+      const sansCorps=!("body" in obj)||!obj.body;
+      if(sansCorps&&request.method!=="HEAD")return new Response(null,{status:304,headers:mediaHeaders_(headers,3600)});
+      return new Response(request.method==="HEAD"?null:obj.body,{status:200,headers:mediaHeaders_(headers,3600)});
+    }
+  }
+  /* Repli (cle absente de la table ou du seau) : ancienne recherche par listing, signalee par l'en-tete x-soreal-idle-boss-repli pour qu'on la voie. */
+  if(typeof env.SOREAL_R2.list!=="function")return new Response("Image de boss introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   const keys=await objetsBossR2_(env);
   const key=choisirCleBossR2_(keys,idParam);
   if(!key)return new Response("Image de boss introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
-  return reponseObjetR2_(request,env,{key});
+  const rep=await reponseObjetR2_(request,env,{key});
+  const h=new Headers(rep.headers);
+  h.set("x-soreal-idle-boss-repli","1");
+  return new Response(rep.body,{status:rep.status,headers:h});
 }
 
 /*

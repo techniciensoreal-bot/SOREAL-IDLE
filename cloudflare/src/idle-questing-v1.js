@@ -37,8 +37,9 @@ import { IDLE_WISHES_CATALOG_V1 } from "./idle-wishes-v1.js";
 import { IDLE_ADVENTURE_ZONES, idleAdventureMergeLevelV47 } from "./idle-adventure-v47.js";
 import { idleHeartsQpMultiplierV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 
-const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
-const I = (v, d = 0) => Math.floor(N(v, d));
+import { nombreV1, entierV1 } from "./idle-outils-v1.js";   /* outils communs (identiques aux anciennes définitions locales) */
+const N = nombreV1;
+const I = entierV1;
 
 /* Questing : "Every 7 hours and 50 minutes you will earn a major quest, up to a maximum of 10." */
 export const IDLE_QUEST_MAJOR_INTERVAL_SECONDS_V1 = (7 * 60 + 50) * 60;

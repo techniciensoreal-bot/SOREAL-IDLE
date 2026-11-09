@@ -68,8 +68,7 @@ function secondesAttendues(id, level, e, m, r, power, params) {
   const snap = idleNguSnapshot(s, ctx, 1_000_000).wishSlots;
   near(snap.slots[0].secondsPerLevel, secondesAttendues(1, 0, 100, 100, 100, 1, params), "snapshot slot 1");
   near(snap.slots[1].secondsPerLevel, secondesAttendues(5, 0, 400, 200, 50, 1, params), "snapshot slot 2");
-  assert.equal(snap.slots[2].unlocked, false);
-  assert.equal(snap.slots[2].secondsPerLevel, null);
+  assert.equal(snap.slots[2], undefined, "anti-spoil : le slot non obtenu n'est pas envoyé");
 }
 
 // --- Répartir est plus efficace (exposant 0,17) : 2 x 100 contre 1 x 200 ---

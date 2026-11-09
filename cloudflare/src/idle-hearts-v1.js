@@ -30,8 +30,9 @@
  * simplement disponible sans l'équiper ; "max 20%" pour l'AP).
  */
 
-const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
-const I = (v, d = 0) => Math.floor(N(v, d));
+import { nombreV1, entierV1 } from "./idle-outils-v1.js";   /* outils communs (identiques aux anciennes définitions locales) */
+const N = nombreV1;
+const I = entierV1;
 
 /* Id d'objet SOREAL = id d'achat Sellout (heartRed ...). wikiId = champ "Id" de la fiche. */
 export const IDLE_HEARTS_V1 = Object.freeze([

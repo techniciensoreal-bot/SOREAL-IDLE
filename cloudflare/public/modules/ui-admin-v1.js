@@ -16,7 +16,33 @@
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-5 */
       let idleEstAdminV1=null;
 
+      /* Modules réservés à l'administrateur (éditeurs d'histoires, de tutoriel, EXP des joueurs, pilote du studio, mesure de référence) : plus des <script> de la page, chargés à la demande
+         (modules/chargeur-v1.js, groupe « admin ») dès que le compte est reconnu administrateur ; un autre joueur ne les télécharge jamais. Aucune erreur muette : un échec affiche un message et
+         le chargement est redemandé au prochain contrôle (le chargeur espace les essais). La page Admin est redessinée quand les modules arrivent. */
+      let adminModulesDemandesV1=false;
+      function chargerModulesAdminV1_(){
+        const C=window.__SOREAL_IDLE_CHARGEUR_V1__;
+        if(!C||adminModulesDemandesV1)return;
+        adminModulesDemandesV1=true;
+        C.charger('admin').then(function(){
+          if(REG.idleEtat&&REG.idleMenuActifV28==='admin')rendreIdleEtat_({ok:true,joueur:REG.idleEtat});
+        },function(e){
+          adminModulesDemandesV1=false;   /* le prochain contrôle d'administrateur réessaie (au plus un essai toutes les 4 s) */
+          if(!C.echecAnnonce||Date.now()-C.echecAnnonce>30000){
+            C.echecAnnonce=Date.now();
+            try{console.error('Outils d’administration : chargement impossible',e);}catch(_e){}
+            try{if(typeof REG.messageFlottantIdleV32_==='function')REG.messageFlottantIdleV32_('Outils d’administration indisponibles : nouvel essai en cours…');}catch(_e){}
+          }
+        });
+      }
+
       function estAdminSorealIdle_(){
+        const admin=lireEstAdminSorealIdle_();
+        if(admin===true)chargerModulesAdminV1_();
+        return admin;
+      }
+
+      function lireEstAdminSorealIdle_(){
         if(idleEstAdminV1===true)return true;
         if(idleEstAdminV1===false)return false;
         try{

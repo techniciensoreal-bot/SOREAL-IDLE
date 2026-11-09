@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 // AttaqueEnnemi/PVBoss/AttaqueBoss already computed there) -- no new
 // formula invented, just consistent reuse across sheets.
 
-const zones = JSON.parse(readFileSync(new URL('./idle-zones-full-v2.json', import.meta.url), 'utf8'));
+const zones = JSON.parse(readFileSync(new URL('./archive/idle-zones-full-v2.json', import.meta.url), 'utf8'));
 
 const rows = [];
 for (const z of zones) {
@@ -53,5 +53,5 @@ for (const z of zones) {
   });
 }
 
-writeFileSync(new URL('./idle-monstres-extension-7-46.json', import.meta.url), JSON.stringify(rows, null, 2));
+writeFileSync(new URL('./archive/idle-monstres-extension-7-46.json', import.meta.url), JSON.stringify(rows, null, 2));
 console.log('wrote', rows.length, 'monster rows (zones 7-46, normal+boss tiers)');

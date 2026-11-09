@@ -16,7 +16,7 @@ Options
   --rapport         réécrit seulement le rapport de qualité (rapport.html / rapport.txt) à partir de etat.json
 
 Sources
-  chroniques : design/ngu-boss-stories-en.json (TEXTES ORIGINAUX du wiki, règle n°1) + noms anglais design/ngu-boss-names-fr.json (nomEn). Les boss sans histoire sur le wiki
+  chroniques : design/ngu-boss-stories-en.json (TEXTES ORIGINAUX du wiki, règle n°1) + noms anglais design/catalogue/boss.json (nomEn). Les boss sans histoire sur le wiki
                (272 à 289 : 18 boss) n'ont pas de chronique anglaise originale : NON voisés. Le texte lu est fabriqué par le VRAI module du jeu (voix-en-blocs-v1.mjs) :
                mêmes blocs de 600 caractères, même empreinte cyrb53 que le lecteur, donc le fichier <empreinte>.m4a est retrouvé tel quel par le client.
   statiques, admin, nommees : fichiers JSON dans <sortie>/sources/ : statiques-en.json, admin-en.json, nommees-en.json = liste de textes anglais [« texte », …]
@@ -187,7 +187,7 @@ def inventaire(categories, ids=None):
     for cat in categories:
         if cat == "chroniques":
             hist = json.load(open(os.path.join(RACINE, "design", "ngu-boss-stories-en.json"), encoding="utf-8"))
-            noms = {int(b["id"]): b.get("nomEn") or "Boss" for b in json.load(open(os.path.join(RACINE, "design", "ngu-boss-names-fr.json"), encoding="utf-8"))}
+            noms = {int(b["id"]): b.get("nomEn") or "Boss" for b in json.load(open(os.path.join(RACINE, "design", "catalogue", "boss.json"), encoding="utf-8"))["boss"]}
             entrees = [{"cat": "chronique", "id": int(h["id"]), "nom": noms.get(int(h["id"]), "Boss"), "histoire": str(h["story"]).strip()}
                        for h in sorted(hist, key=lambda h: int(h["id"])) if str(h.get("story", "")).strip() and (not ids or int(h["id"]) in ids)]
         else:
@@ -497,7 +497,7 @@ def choisir_pilote(blocs_chroniques):
 def assembler_ecoute(ids, etat, blocs):
     """Un fichier d'écoute par chronique : tous ses blocs dans l'ordre, une pause d'1 s après le nom (comme le jeu)."""
     os.makedirs(ECHANTILLONS, exist_ok=True)
-    noms = {int(b["id"]): b.get("nomEn") or "Boss" for b in json.load(open(os.path.join(RACINE, "design", "ngu-boss-names-fr.json"), encoding="utf-8"))}
+    noms = {int(b["id"]): b.get("nomEn") or "Boss" for b in json.load(open(os.path.join(RACINE, "design", "catalogue", "boss.json"), encoding="utf-8"))["boss"]}
     sortis = []
     for i in ids:
         mine = sorted([b for b in blocs if b["cat"] == "chroniques" and b["id"] == i], key=lambda b: b["rang"])

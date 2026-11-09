@@ -48,6 +48,7 @@
             'Dans tout le jeu, une image qui n’arrive pas (un monstre en Aventure, un boss, un décor…) est redemandée toute seule trois fois, après 1,5, 4 puis 9 secondes, au lieu de rester vide jusqu’à ce que tu changes d’onglet.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Dans les difficultés supérieures, les images des boss sont de nouveau celles de ta difficulté au lieu de l’image normale.',
             'Boss 106 : une fois visible derrière sa mort, le boss suivant n’a plus sa scène d’apparition ; le fait qu’il soit derrière l’autre image suffit.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[

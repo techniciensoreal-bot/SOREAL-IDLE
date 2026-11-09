@@ -15,7 +15,7 @@ const ui = lireUiComplet();
 assert.match(ui, /\{id:'admin',icon:'🛠️',nom:'Admin'\}/);
 assert.match(ui, /if\(id==='admin'\)return estAdminSorealIdle_\(\);/, "menu Admin : administrateur seulement");
 assert.match(ui, /m\.id!=='admin'&&menuDisponibleIdleV28_\(m\.id,j\)/, "jamais annoncé comme menu débloqué");
-assert.match(ui, /case 'admin':\s*(?:declarerTextesSystemesIdleV1_\(j\);\s*)?return window\.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__\?window\.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__\.page\(j\):'';/);
+assert.match(ui, /case 'admin':\s*(?:declarerTextesSystemesIdleV1_\(j\);\s*)?return window\.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__\?window\.__SOREAL_IDLE_ADMIN_HISTOIRES_V1__\.page\(j\):'(?:'|<div[^']*>[^']*<\/div>')/);   // module chargé à la demande (chargeur-v1.js) : texte discret tant qu'il n'est pas arrivé
 assert.ok(ui.includes("IDLE_MENUS_SANS_CLIGNOTEMENT_V1=['entrainement','combat','parametres','sellout','shop','admin']"), "pas de clignotement ni de popup d'information");
 
 // --- Rendu réel de la page avec un faux jeu ---

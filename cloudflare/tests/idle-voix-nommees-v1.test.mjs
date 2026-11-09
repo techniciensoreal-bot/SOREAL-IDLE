@@ -28,7 +28,8 @@ assert.equal(reg.existe("asmr"), true);
 // Le registre est chargé avant le moteur d'histoires et l'éditeur.
 const pos = (nom) => index.indexOf("/modules/" + nom);
 assert.ok(pos("voix-nommees-v1.js") > 0 && pos("voix-nommees-v1.js") < pos("story-engine-v1.js"), "registre avant le moteur");
-assert.ok(pos("voix-nommees-v1.js") < pos("admin-histoires-v1.js"), "registre avant l'éditeur");
+// L'éditeur (module d'administration) est chargé à la demande, donc toujours après les scripts de la page : il est dans la table du chargeur, pas dans un <script defer>.
+assert.ok(pos("admin-histoires-v1.js") > 0 && !/<script defer src="\/modules\/admin-histoires-v1\.js/.test(index), "éditeur chargé à la demande, après le registre");
 
 // Le moteur coupe le texte aux balises des voix nommées, sans les afficher ; une parenthèse inconnue reste du texte.
 const moteurWindow = { __SOREAL_IDLE_VOIX_NOMMEES_V1__: reg, document: { createElement() { return { style: {}, classList: { add() {}, remove() {} }, appendChild() {}, addEventListener() {} }; }, body: { appendChild() {} }, head: { appendChild() {} }, getElementById: () => null, addEventListener() {} }, addEventListener() {} };

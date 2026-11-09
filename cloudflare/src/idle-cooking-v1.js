@@ -41,6 +41,7 @@
  */
 import { IDLE_ADVENTURE_SPECIALS } from "./idle-adventure-v47.js";
 import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
+import { numV1 } from "./idle-outils-v1.js";
 
 const HEURE_MS = 3600000;
 
@@ -92,10 +93,7 @@ export const IDLE_COOKING_V1 = Object.freeze({
 
 const C = IDLE_COOKING_V1;
 
-function num(v, d = 0) {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : d;
-}
+const num = numV1;   /* outil commun (corps identique) */
 function int(v, d = 0) {
   return Math.trunc(num(v, d));
 }

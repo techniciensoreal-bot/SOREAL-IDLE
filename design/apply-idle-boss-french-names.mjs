@@ -4,7 +4,7 @@
 // La colonne Nom de IDLE_BOSS porte actuellement les vrais noms NGU en
 // ANGLAIS (design/apply-idle-boss-real-names.mjs, session du 2026-09-18,
 // déjà en prod). Ce script les traduit en français, en préservant le ton
-// comique/absurde (design/ngu-boss-names-fr.json, 301 entrées {id, nomEn,
+// comique/absurde (design/catalogue/boss.json, 301 entrées {id, nomEn,
 // nomFr}, produit par traduction par lot -- jamais un mot-à-mot littéral,
 // et jamais forcé quand aucune traduction naturelle n'existe : nomFr peut
 // alors être identique à nomEn, ce script ne touche pas ces lignes-là).
@@ -13,7 +13,7 @@
 // l'état RÉEL en prod (jamais de schéma de colonnes deviné), ne touche
 // QUE la cellule Nom de chaque ligne existante, ne touche jamais
 // Histoire/Conseil/MortVivant/Image/DriveFileID/... Un boss sans entrée
-// dans ngu-boss-names-fr.json ou dont nomFr===nomEn reste tel quel, rien
+// dans catalogue/boss.json ou dont nomFr===nomEn reste tel quel, rien
 // n'est inventé/forcé.
 //
 // Utilisation :
@@ -33,10 +33,10 @@ const BASE = 'https://soreal-tv.technicien-soreal.workers.dev';
 const HEADERS = { 'x-soreal-idle-catalog-secret': secret, 'content-type': 'application/json' };
 
 const frNames = JSON.parse(
-  readFileSync(new URL('./ngu-boss-names-fr.json', import.meta.url), 'utf8')
+  readFileSync(new URL('./catalogue/boss.json', import.meta.url), 'utf8')
 );
 const frById = new Map(
-  frNames
+  frNames.boss
     .filter(e => e && Number.isFinite(e.id) && String(e.nomFr || '').trim())
     .map(e => [e.id, { nomEn: String(e.nomEn || '').trim(), nomFr: String(e.nomFr).trim() }])
 );

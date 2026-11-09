@@ -4,7 +4,7 @@ const lire = (f) => readFileSync(f, "utf8");
 const mobs = JSON.parse(lire("design/traductions/fr/mobs.json"));
 /* « Sundae » garde son nom d'origine partout (jeu de mots avec Sunday) */
 assert.ok(!("Sundae" in mobs), "aucune traduction française de Sundae");
-assert.ok(!lire("design/ngu-boss-names-fr.json").includes("Coupe glacée"));
+assert.ok(!lire("design/catalogue/boss.json").includes("Coupe glacée"));
 /* sangsue : jamais de jet parasite au changement de cadence */
 const sang = lire("cloudflare/public/modules/sang-rituel-decor-v1.js");
 assert.ok(sang.includes("if(sc.__cleAt&&maintenant-sc.__cleAt<350)return;") && sang.includes("sc.__cleAt=performance.now();"), "garde de 350 ms après un changement de cadence");

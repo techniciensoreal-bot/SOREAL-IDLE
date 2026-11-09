@@ -28,3 +28,30 @@
   Cache-Control: no-cache
 /magic/*
   Cache-Control: public, max-age=604800
+
+# Images et ressources SANS empreinte dans le nom (audit de coherence 2026-11-09, Front 7) : jamais `immutable`, une image remplacee sous le meme nom doit finir par arriver.
+# Verifie dans l'historique git : aucun fichier de ces dossiers n'a ete remplace sous le meme nom (seul /garderie : 11 fichiers yeux/ retouches le 2026-11-02 -> 1 jour seulement).
+# 7 jours + 1 jour de stale-while-revalidate : le navigateur sert la copie tout de suite et la rafraichit en arriere-plan. Le service worker (sw-idle-v1.js) garde sa propre copie
+# « copie d'abord, rafraichie en arriere-plan » pour ces adresses : il passe par ce cache HTTP, donc un remplacement arrive au plus tard apres ce delai.
+/img/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/shop/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/dos-cartes/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/perks/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/cthulhu/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/intro/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/chargement/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/trou/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+# Icones d'application (manifeste PWA, index.html) : sensibles, 7 jours sans stale-while-revalidate.
+/icons/*
+  Cache-Control: public, max-age=604800
+# Garderie : des fichiers ont deja ete retouches sous le meme nom -> 1 jour.
+/garderie/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=86400

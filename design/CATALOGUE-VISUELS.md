@@ -8,7 +8,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - keyframes : **444**
 - fichiersAvecWebAnimations : **20**
 - fichiersCanvas : **12**
-- pointsEntreeRejouables : **267**
+- pointsEntreeRejouables : **268**
 - mortsDeBase : **3**
 - retoursJoueur : **8**
 - retoursBoss : **7**
@@ -33,7 +33,7 @@ achievement, albumDix, albumFerme, albumPage, augTic, baille, bloodCap, bloodMin
 soreal_idle_effet_decor_v1, soreal_idle_effet_feu_v1, soreal_idle_effet_nav_v1, soreal_idle_effet_orage_v1
 
 ## Points d'entrée rejouables (window.__SOREAL_IDLE_*__)
-Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 267 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
+Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 268 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
 
 ## Animations CSS orphelines (définies mais nommées nulle part ailleurs)
 `bnPulse` (soreal-idle-itopod.css) · `rgFeuV1` (soreal-idle-itopod.css) · `sorealAlEtoileV1` (soreal-idle-themes.css) · `sorealHudDroite` (soreal-idle-themes.css) · `sorealHudPvBasV2` (soreal-idle-themes.css) · `sorealHudRuneAncien` (soreal-idle-themes.css) · `sorealIdleBtTickV1` (soreal-idle-ui.css) · `sorealIdleEnergyShineV11` (soreal-idle-ui.css) · `sorealIdleLoadingShineV55` (soreal-idle-ui.css) · `sorealIdleNavBloodPulseV1` (soreal-idle-ui.css) · `sorealIdlePendingFightV50` (soreal-idle-ui.css) · `sorealIdleVictoryV49` (soreal-idle-ui.css)
@@ -48,7 +48,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `cthulhu` : 30
 - `dos-cartes/normal` : 18
 - `fonts` : 11
-- `garderie` : 3
+- `garderie` : 2
 - `garderie/paupieres` : 39
 - `garderie/queues` : 21
 - `garderie/yeux` : 33

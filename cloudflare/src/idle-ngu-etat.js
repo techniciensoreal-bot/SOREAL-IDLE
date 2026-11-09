@@ -28,6 +28,7 @@ import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, createTrollStateV1, diggerBonuses, no
 import { daycareBaseInputsV1, expShopPurchasedV1 } from "./idle-ngu-actions.js";
 import { externalResourceAllocation, reconcileResourceCurrents, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
 import { HACK_HARD_CAP_V1 } from "./idle-ngu-pistes.js";
+import { estNatifV47V1, etatPlusRecentV1, migrerEtatV1, versionEffectiveV1 } from "./idle-migrations-v1.js";
 
 export function defaultResource(resource = "energy") {
   const key=String(resource||"energy");
@@ -538,7 +539,7 @@ function createRebirthState(now) {
   };
 }
 
-function baseState(now) {
+export function baseState(now) {
   const systems = {};
   for (const def of IDLE_NGU_SYSTEMS) {
     const s = baseSystemState(def);
@@ -762,7 +763,7 @@ export function unlockSatisfied(def, ctx, state) {
   return true;
 }
 
-function normalizeResource(raw, resource = "energy") {
+export function normalizeResource(raw, resource = "energy") {
   const fallback=defaultResource(resource);
   const src = raw && typeof raw === "object" ? raw : {};
   const cap=clamp(num(src.cap, fallback.cap), resource === "energy" ? 500 : 100, 9e18);
@@ -1007,187 +1008,6 @@ function normalizeSystem(def, raw) {
   return s;
 }
 
-function migrateLegacyTrackV47_(target, raw) {
-  if (!target || !raw || typeof raw !== "object") return;
-  target.level = Math.max(0, num(raw.level, target.level || 0));
-  target.tempLevel = Math.max(0, num(raw.tempLevel, target.tempLevel || 0));
-  target.permanentLevel = Math.max(0, num(raw.permanentLevel, target.permanentLevel || 0));
-  target.progress = Math.max(0, num(raw.progress, target.progress || 0));
-}
-
-function legacyRunLevelsV47_(rawSystem) {
-  const s = rawSystem && typeof rawSystem === "object" ? rawSystem : {};
-  const tracks = s.data && s.data.tracks && typeof s.data.tracks === "object"
-    ? Object.values(s.data.tracks)
-    : [];
-  const fromTracks = tracks.reduce(
-    (sum, track) => sum + Math.max(0, num(track?.tempLevel, 0)) + Math.max(0, num(track?.level, 0)),
-    0
-  );
-  return Math.max(0, fromTracks, num(s.tempLevel, 0), num(s.level, 0));
-}
-
-function migrateLegacyMetaToV47(raw, now) {
-  const src = raw && typeof raw === "object" && !Array.isArray(raw) ? clone(raw) : {};
-  const state = baseState(now);
-  if (!Object.keys(src).length) return state;
-
-  state.updatedAt = Math.max(0, num(src.updatedAt, now));
-  state.runStartedAt = Math.max(0, num(src.runStartedAt, now));
-  state.difficulty = ["normal", "difficile", "extreme"].includes(src.difficulty) ? src.difficulty : "normal";
-  state.difficultyPeaks = Object.assign(state.difficultyPeaks, src.difficultyPeaks || {});
-
-  state.resources = {
-    energy: normalizeResource(src.resources?.energy,"energy"),
-    magic: normalizeResource(src.resources?.magic,"magic"),
-    r3: normalizeResource(src.resources?.r3,"r3")
-  };
-
-  state.currencies = Object.assign(state.currencies, src.currencies || {});
-  for (const key of Object.keys(state.currencies)) state.currencies[key] = Math.max(0, num(state.currencies[key], 0));
-
-  state.records = Object.assign(state.records, src.records || {});
-  // newbieOffersUsed est un tableau, pas un compteur — même exclusion que
-  // dans normalizeIdleNguState plus bas (évite Number([...]) === 0).
-  const legacyNewbieOffersUsed = Array.isArray(state.records.newbieOffersUsed) ? state.records.newbieOffersUsed : [];
-  for (const key of Object.keys(state.records)) {
-    if (key === "newbieOffersUsed" || key === "portrait" || key === "daycareSkin" || key === "daycareSkinsAcquis" || key === "daycareSkinsVus" || key === "portraitsAcquis" || key === "portraitsVus") continue;
-    state.records[key] = Math.max(0, num(state.records[key], 0));
-  }
-  state.records.newbieOffersUsed = legacyNewbieOffersUsed.filter(id => typeof id === "string" && id);
-  state.records.portrait = typeof state.records.portrait === "string" && state.records.portrait ? state.records.portrait : "default";
-  state.records.daycareSkin = typeof state.records.daycareSkin === "string" ? state.records.daycareSkin.slice(0, 40) : "";
-  /* Skins de la Garderie acquis pour toujours / annonces validées : chaînes d'ids séparés par des virgules, jamais des compteurs. */
-  state.records.daycareSkinsAcquis = chaineSkinsNormaliseeV1(state.records.daycareSkinsAcquis);
-  state.records.daycareSkinsVus = chaineSkinsNormaliseeV1(state.records.daycareSkinsVus);
-  state.records.portraitsAcquis = chainePortraitsNormaliseeV1(state.records.portraitsAcquis);
-  state.records.portraitsVus = chainePortraitsNormaliseeV1(state.records.portraitsVus);
-
-  state.challenge = Object.assign(state.challenge, src.challenge || {});
-  state.challenge.completions = Object.assign(
-    baseState(now).challenge.completions,
-    src.challenge?.completions || {}
-  );
-  state.challenge.bestMs = Object.assign({},src.challenge?.bestMs || {});
-  state.challenge.completionsTier = createChallengeTiersV1(src.challenge?.completionsTier);
-  state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(src.challenge?.activeTier) ? src.challenge.activeTier : "normal";
-  state.challenge.troll = createTrollStateV1(src.challenge?.troll);
-
-  state.bank.advancedTraining = Math.max(0, num(src.bank?.advancedTraining, 0));
-  state.bank.timeMachineSpeed = Math.max(0, num(src.bank?.timeMachineSpeed, src.bank?.timeMachine || 0));
-  state.bank.timeMachineGold = Math.max(0, num(src.bank?.timeMachineGold, 0));
-  state.bank.beards = Math.max(0, num(src.bank?.beards, 0));
-
-  /*
-   * 4G's Sellout Shop : purchases est un compteur par objet du catalogue,
-   * jamais négatif, jamais au-delà du plafond réel de l'objet (défensif
-   * contre un ancien état corrompu ou un catalogue réduit entre deux
-   * versions).
-   */
-  {
-    const rawPurchases = src.selloutShop?.purchases && typeof src.selloutShop.purchases === "object" ? src.selloutShop.purchases : {};
-    const purchases = {};
-    for (const item of IDLE_SELLOUT_SHOP_CATALOG_V1) {
-      const n = Math.max(0, int(rawPurchases[item.id], 0));
-      purchases[item.id] = item.max != null ? Math.min(item.max, n) : n;
-    }
-    /*
-     * Norman (2026-09-16) : "J'aimerais que le sellout shop n'apparaisse
-     * qu'à partir du moment où on récolte ses premiers points d'AP."
-     * unlockedEver reste vrai pour toujours dès la première fois où l'AP
-     * dépasse 0 — jamais juste "ap>0 en ce moment", sinon dépenser tout
-     * son AP au shop referait disparaître le menu qu'on est en train
-     * d'utiliser.
-     */
-    const unlockedEver = Boolean(src.selloutShop?.unlockedEver) || num(state.currencies.ap, 0) > 0;
-    state.selloutShop = { purchases, unlockedEver };
-    state.selloutEffects = createSelloutEffectsV1(src.selloutEffects);
-    state.r3Nom = normaliserR3NomV1(src.r3Nom);
-  }
-
-  state.bonuses = Object.assign(state.bonuses, src.bonuses || {});
-  state.bonuses.cards = normalizeIdleCardBonusesV1(src.bonuses?.cards);
-  if (src.rebirth && typeof src.rebirth === "object") state.rebirth = clone(src.rebirth);
-  if (src.adventure && typeof src.adventure === "object") state.adventure = clone(src.adventure);
-
-  const oldSystems = src.systems && typeof src.systems === "object" ? src.systems : {};
-  for (const def of IDLE_NGU_SYSTEMS) {
-    const old = oldSystems[def.id];
-    if (!old || typeof old !== "object") continue;
-    const target = state.systems[def.id];
-    target.unlocked = Boolean(old.unlocked);
-    target.active = Boolean(old.active);
-    target.level = Math.max(0, num(old.level, 0));
-    target.tempLevel = Math.max(0, num(old.tempLevel, 0));
-    target.permanentLevel = Math.max(0, num(old.permanentLevel, 0));
-    target.progress = Math.max(0, num(old.progress, 0));
-
-    for (const resource of RESOURCE_KEYS) {
-      const legacyPercent = clamp(num(old.allocation?.[resource], 0), 0, 100);
-      target.allocation[resource] = state.resources[resource].cap * legacyPercent / 100;
-    }
-
-    if (target.data?.tracks) {
-      const oldTracks = old.data?.tracks && typeof old.data.tracks === "object" ? old.data.tracks : {};
-      for (const [trackId, trackState] of Object.entries(target.data.tracks)) {
-        migrateLegacyTrackV47_(trackState, oldTracks[trackId]);
-      }
-      if (def.id === "advancedTraining" && oldTracks.wandoos && target.data.tracks.wandoosEnergy) {
-        migrateLegacyTrackV47_(target.data.tracks.wandoosEnergy, oldTracks.wandoos);
-      }
-      if (old.data?.activeTrack && target.data.tracks[old.data.activeTrack]) {
-        target.data.activeTrack = old.data.activeTrack;
-      }
-    } else if (def.id === "augmentations") {
-      if (old.data?.pairs && typeof old.data.pairs === "object") {
-        for (const aug of IDLE_NGU_AUGMENTATIONS) {
-          const p = old.data.pairs[aug.id];
-          if (!p) continue;
-          target.data.pairs[aug.id] = Object.assign(target.data.pairs[aug.id], p);
-        }
-        if (target.data.pairs[old.data.activePair]) target.data.activePair = old.data.activePair;
-        target.data.trainUpgrade = Boolean(old.data.trainUpgrade);
-      } else {
-        target.data.pairs.scissors.level = Math.floor(legacyRunLevelsV47_(old));
-      }
-    } else if (def.id === "timeMachine") {
-      if (old.data && (old.data.speedLevel != null || old.data.goldLevel != null)) {
-        target.data = Object.assign(target.data, old.data);
-      } else {
-        target.data.speedLevel = Math.floor(legacyRunLevelsV47_(old));
-        target.data.bestGoldThisRun = Math.max(0, num(src.records?.highestGoldDrop, 0));
-        target.data.highestBossEver = Math.max(0, num(src.records?.highestBoss, 0));
-      }
-    } else if (def.id === "bloodMagic") {
-      if (old.data?.rituals && typeof old.data.rituals === "object") {
-        for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
-          const r = old.data.rituals[ritual.id];
-          if (r) target.data.rituals[ritual.id] = Object.assign(target.data.rituals[ritual.id], r);
-        }
-        if (target.data.rituals[old.data.activeRitual]) target.data.activeRitual = old.data.activeRitual;
-        target.data.spells = Object.assign(target.data.spells, old.data.spells || {});
-      } else {
-        const levels = Math.floor(legacyRunLevelsV47_(old));
-        target.data.rituals.tack.level = levels;
-        target.data.rituals.tack.completions = levels;
-      }
-    } else if (def.id === "yggdrasil" && old.data?.fruits) {
-      target.data = Object.assign(target.data, old.data);
-    } else if (def.id === "diggers" && old.data?.diggers) {
-      target.data = Object.assign(target.data, old.data);
-    } else if (!target.data?.tracks && old.data && typeof old.data === "object") {
-      target.data = Object.assign(target.data || {}, old.data);
-    }
-  }
-
-  state.migration = {
-    fromVersion: String(src.version || "legacy"),
-    fromSchema: Math.max(0, int(src.saveSchema, 0)),
-    migratedAt: now
-  };
-  return state;
-}
-
 /*
  * V47 save rule: migrate compatible NGU progress forward without reviving
  * obsolete player-level / Renaissance / Essence mechanics. Migration is
@@ -1195,14 +1015,17 @@ function migrateLegacyMetaToV47(raw, now) {
  */
 export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   const t = nowMs(now);
-  const isV47 = raw && raw.version === IDLE_NGU_META_VERSION && raw.saveSchema === IDLE_NGU_SAVE_SCHEMA;
-  const source = isV47 ? clone(raw) : migrateLegacyMetaToV47(raw, t);
+  /* Registre de migrations (idle-migrations-v1.js) : phase « brut » ici (ancienne sauvegarde -> format natif V47), phase « normalise » plus bas (jalons V51/V52). Une version PLUS RÉCENTE que celle du moteur n'est ni migrée ni abaissée. */
+  const plusRecent = etatPlusRecentV1(raw);
+  const isV47 = plusRecent || estNatifV47V1(raw);
+  const source = isV47 ? clone(raw) : migrerEtatV1(raw, { now: t, jeu: context, phase: "brut" }).etat;
   const state = Object.assign(baseState(t), source);
+  const versionAvant = versionEffectiveV1(source);
 
   state.version = IDLE_NGU_META_VERSION;
   state.saveSchema = IDLE_NGU_SAVE_SCHEMA;
-  const previousResourceModelVersion=Math.max(0,int(source.resourceModelVersion,0));
-  state.resourceModelVersion = 52;
+  if (!plusRecent) state.etatVersion = versionAvant;
+  state.resourceModelVersion = plusRecent ? Math.max(52, int(source.resourceModelVersion, 0)) : 52;
   state.updatedAt = Math.max(0, num(source.updatedAt, t));
   state.runStartedAt = Math.max(0, num(source.runStartedAt, t));
   state.adventure = normalizeIdleAdventureStateV47(source.adventure);
@@ -1340,37 +1163,8 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     }
   }
 
-  // V51 migration: older V47/V50 saves had no persisted free-resource pool.
-  // The legacy row is consulted once when available, then metaNgu owns it.
-  if(previousResourceModelVersion < 51){
-    const energyHeldByMeta=totalAllocated(state,"energy");
-    const energyHeldExternally=externalResourceAllocation(context,"energy");
-    const legacyEnergy=Number(context.legacyEnergyIdle);
-    state.resources.energy.current=Number.isFinite(legacyEnergy)
-      ? clamp(legacyEnergy,0,Math.max(0,state.resources.energy.cap-energyHeldByMeta-energyHeldExternally))
-      : Math.max(0,state.resources.energy.cap-energyHeldByMeta-energyHeldExternally);
-    state.resources.energy.fillProgress=0;
-    state.resources.energy.generatedThisRun=0;
-
-    const legacyMagic=Number(context.legacyMagicIdle);
-    state.resources.magic.current=Number.isFinite(legacyMagic)
-      ? clamp(legacyMagic,0,Math.max(0,state.resources.magic.cap-totalAllocated(state,"magic")))
-      : 0;
-    state.resources.magic.fillProgress=0;
-    state.resources.magic.generatedThisRun=0;
-  }
-
-  // V52 removes the old Yggdrasil reservation/refund model. Existing active
-  // fruit reservations are converted once into actually spent idle resource.
-  if(previousResourceModelVersion < 52 && state.systems.yggdrasil?.data?.reserved){
-    for(const resource of ["energy","magic"]){
-      const reserved=Math.max(0,num(state.systems.yggdrasil.data.reserved[resource],0));
-      if(reserved>0 && state.resources[resource]){
-        state.resources[resource].current=Math.max(0,num(state.resources[resource].current,0)-reserved);
-      }
-      state.systems.yggdrasil.data.reserved[resource]=0;
-    }
-  }
+  /* Jalons V51 (réserve d'énergie libre persistée) et V52 (fin des réservations d'Yggdrasil), puis étiquette etatVersion : entrées du registre, phase « normalise ». */
+  migrerEtatV1(state, { now: t, jeu: context, phase: "normalise" });
 
   const bosses = Math.max(0, int(context.bosses, 0));
   const zone = Math.max(1, int(context.zone, 1));

@@ -70,6 +70,28 @@ for (const f of fichiers) {
 const pins = spawnSync(process.execPath, [join(racine, "tools", "maj-pins.mjs"), "--verifier"], { encoding: "utf8" });
 if (pins.status !== 0) problemes.push("numéros ?v= périmés (lancer node cloudflare/tools/maj-pins.mjs) : " + (pins.stdout + pins.stderr).trim().split("\n")[0]);
 
+/* Modules chargés à la demande (modules/chargeur-v1.js) : listés dans la table JSON de index.html. Ils sont déjà contrôlés plus haut (syntaxe : tout public/modules/*.js ; numéros ?v= : maj-pins.mjs lit la
+ * table). Ici : la table est du JSON valide, chaque fichier existe et porte un numéro, et aucun n'est AUSSI un <script> de la page (il serait chargé deux fois). */
+{
+  const index = readFileSync(join(racine, "public", "index.html"), "utf8");
+  const bloc = index.match(/<script type="application\/json" id="soreal-modules-differes-v1">([\s\S]*?)<\/script>/);
+  if (!bloc) problemes.push("index.html : table des modules à la demande absente (soreal-modules-differes-v1)");
+  else {
+    let table = {};
+    try { table = JSON.parse(bloc[1]); } catch (e) { problemes.push("index.html : table des modules à la demande invalide (" + e.message + ")"); }
+    const scripts = new Set([...index.matchAll(/<script defer src="(\/[^"?]+)\?v=\d+"/g)].map((m) => m[1]));
+    for (const [groupe, liste] of Object.entries(table)) {
+      for (const u of Array.isArray(liste) ? liste : []) {
+        const m = /^(\/[^?]+\.js)\?v=\d+$/.exec(u);
+        if (!m) { problemes.push(`modules à la demande (${groupe}) : adresse sans ?v=N : ${u}`); continue; }
+        if (!fichiers.includes("public" + m[1])) problemes.push(`modules à la demande (${groupe}) : fichier introuvable : ${m[1]}`);
+        if (scripts.has(m[1])) problemes.push(`modules à la demande (${groupe}) : ${m[1]} est aussi un <script defer> de la page`);
+      }
+    }
+    infos.push(`modules à la demande : ${Object.values(table).reduce((n, l) => n + (Array.isArray(l) ? l.length : 0), 0)} fichiers`);
+  }
+}
+
 const entetes = readFileSync(join(racine, "public", "_headers"), "utf8");
 for (const motif of ["/modules/*", "/soreal-idle-*.js", "/soreal-idle-*.css", "immutable"]) if (!entetes.includes(motif)) problemes.push("_headers : motif absent " + motif);
 
