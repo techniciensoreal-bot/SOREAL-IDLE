@@ -288,6 +288,7 @@
    * quand l'image manquait, ou quand l'image mettait plus de 2 s à arriver (le boss était alors « révélé » alors qu'il n'était pas encore chargé). Désormais : toute sortie sans effet retire le calque, l'attente de l'image dure jusqu'à 10 s sous le calque (l'effet se joue à son arrivée),
    * et un calque posé par couvrir() disparaît de toute façon au bout de 12 s.
    */
+  var SANS_APPARITION_V1=107;   /* numéros de boss dont l'apparition est supprimée (Norman, 2026-11-09) */
   function liberer_(hote){try{[].slice.call((hote&&hote.querySelectorAll?hote:document).querySelectorAll('.app-boss')).forEach(function(e){if(e.parentNode)e.parentNode.removeChild(e);});}catch(_e){}}
   function jouer(hote){
     try{
@@ -297,6 +298,8 @@
       if(!img){liberer_(hote);return false;}
       var n=idDe(img);if(!n){liberer_(hote);return false;}
       dernierId=n;
+      /* Boss 107 (Norman, 2026-11-09) : « une fois qu'il est visible, son animation d'intro s'active ; il faut lui retirer sa scène d'apparition, le fait qu'il soit derrière l'autre image suffit » : jamais d'apparition pour le 107 (aucun calque, aucun effet, aucun son). */
+      if(n===SANS_APPARITION_V1){liberer_(hote);nettoyerMort_(img);enCours=false;return false;}
       style_();
       nettoyerMort_(img);
       var anc=hote.querySelector('.app-boss');if(anc)anc.remove();
@@ -396,6 +399,7 @@
   function couvrir(hote,n){
     try{
       dernierId=n;
+      if(n===SANS_APPARITION_V1)return;   /* boss 107 : ni calque sombre ni effet (voir jouer) */
       if(reduit_())return;   /* sans animations : rien à cacher, rien à retirer ensuite */
       style_();
       var anc=hote.querySelector('.app-boss');if(anc)anc.remove();

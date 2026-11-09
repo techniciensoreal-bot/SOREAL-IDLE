@@ -137,6 +137,17 @@ function monde({ reduit = false, volume = 0.8 } = {}) {
 assert.ok(/__SOREAL_IDLE_VICTOIRE_EN_COURS__\s*=\s*true/.test(victoire) && /__SOREAL_IDLE_VICTOIRE_EN_COURS__\s*=\s*false/.test(victoire), "drapeau posé puis retiré");
 assert.ok(/__SOREAL_IDLE_APPARITION_BOSS_V1__/.test(victoire) && /\.annuler\(/.test(victoire) && /\.jouer\(/.test(victoire), "annule une apparition en cours, rejoue à la fin");
 assert.ok(readFileSync(new URL("../public/index.html", import.meta.url), "utf8").includes('<script defer src="/modules/apparition-boss-v1.js?v='), "module chargé");
+// 107 (Norman, 2026-11-09) : derrière la mort du 106 le 107 est déjà visible ; son apparition (calque, effet, son) est supprimée.
+{
+  const m = monde();
+  m.poserImage(107);
+  assert.equal(m.A.jouer(m.hote), false, "boss 107 : aucun effet d'apparition");
+  assert.equal(m.enfants.length, 0, "boss 107 : aucun calque posé");
+  assert.equal(m.nbSons(), 0, "boss 107 : aucun son d'apparition");
+  assert.ok(!m.A.enCours(), "boss 107 : aucune apparition en cours");
+  m.poserImage(108);
+  assert.equal(m.A.jouer(m.hote), true, "les autres boss gardent leur apparition");
+}
 console.log("idle-apparition-boss-v1: OK");
 
 // Jamais d'écran noir à la place du boss suivant (Norman, 2026-10-23) : toute sortie sans effet retire le calque sombre, l'attente de l'image va jusqu'à 10 s, filet de 12 s.

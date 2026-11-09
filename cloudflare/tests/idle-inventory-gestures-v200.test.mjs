@@ -88,8 +88,11 @@ assert.ok(
 assert.ok(
   longPress.includes("var HOLD_MS=600;")&&
   longPress.includes("var MOVE_PX=32;")&&
-  longPress.includes("document.addEventListener('touchstart'")&&
-  longPress.includes("{capture:true,passive:false}")&&
+  longPress.includes("el.addEventListener('touchstart',surTouchStart_,{capture:true,passive:false})")&&
+  longPress.includes("el.addEventListener('touchmove',surTouchMove_,{capture:true,passive:false})")&&
+  !longPress.includes("document.addEventListener('touchstart'")&&
+  !longPress.includes("document.addEventListener('touchmove'")&&
+  longPress.includes("MutationObserver")&&longPress.includes("attributeFilter:['data-soreal-longpress']")&&
   longPress.includes("new CustomEvent('soreal-longpress'"),
   "V200 doit posséder un vrai timer tactile WebView de 600 ms."
 );

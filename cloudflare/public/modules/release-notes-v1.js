@@ -32,12 +32,17 @@
         date:'2026-11-09',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le menu Renaissance apparaît tout seul à la fin des 3 minutes de la partie, sans avoir besoin de cliquer sur un autre menu.',
+            'Sur téléphone, le défilement de la page et de la barre de menus démarre plus vite : seul un doigt posé sur une case d’objet ou sur le Cube attend l’écran, le reste de l’écran répond tout de suite.',
             'Les pelles deviennent des scientifiques partout : récompenses des défis, boutiques (« emplacement de labo »), phrases d’« En direct », menu et Machine temporelle. Seuls les textes lus pendant les défis gardent leurs anciens mots.',
             'Le cadre qui contient tous les menus ne bouge plus quand tu passes d’une page longue à une page courte : la place de la barre de défilement est toujours réservée.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Les monstres d’Aventure dont le nom a changé (« Un slime métallique », « 743 poulets furax »…) retrouvent leur image.',
             'Dans tout le jeu, une image qui n’arrive pas (un monstre en Aventure, un boss, un décor…) est redemandée toute seule trois fois, après 1,5, 4 puis 9 secondes, au lieu de rester vide jusqu’à ce que tu changes d’onglet.'
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Boss 106 : une fois visible derrière sa mort, le boss suivant n’a plus sa scène d’apparition ; le fait qu’il soit derrière l’autre image suffit.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Après une renaissance, le niveau de la Machine temporelle ne recule plus pendant la première seconde quand tu mets de l’énergie : il n’affiche plus un niveau de trop pendant quelques images.'
@@ -50,6 +55,8 @@
             'Le cadre « Manger / récolter tous les fruits » est maintenant en haut de la page, juste sous tes compteurs de graines, et ses boutons tiennent sur une seule ligne.'
           ]},
           {menu:'diggers', titre:'Labos', points:[
+            'Sur un bouton grisé (« Améliorer le labo », « Ouvrir le labo »), le prix reste bien lisible : fond plus sombre, lettres plus grosses, et l’unité (Qi, K…) a la même couleur claire que le reste du prix.',
+            'Le bouton « Au maximum » est toujours cliquable, même quand le niveau actif est déjà au niveau maximal : il remet le plus haut niveau que ton or supporte.',
             'Un labo n’apparaît plus avant que le système dont il porte le nom soit débloqué.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[

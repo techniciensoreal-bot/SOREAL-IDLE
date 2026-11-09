@@ -49,13 +49,26 @@ const page = fs.readFileSync("cloudflare/public/modules/labos-page-v1.js", "utf8
 assert.ok(page.includes("'+max+',true)\"") && page.includes(">Au maximum</button>"), "bouton « Au maximum » : fit demandé");
 /* Boutons grisés lisibles (Norman, 2026-11-08) : jamais l'attribut disabled (la règle globale button:disabled{color:#758198!important} grise le texte sur gris) ; classe mn-manque + aria-disabled, sans onclick ; texte clair contrasté */
 assert.ok(!/'disabled /.test(page) && !page.includes("?'disabled '"), "aucun bouton de la page n'utilise l'attribut disabled");
-assert.equal((page.match(/aria-disabled="true"/g) || []).length, 4, "quatre boutons peuvent être indisponibles");
+assert.equal((page.match(/aria-disabled="true"/g) || []).length, 3, "trois boutons peuvent être indisponibles (−, +, Améliorer) : « Au maximum » reste TOUJOURS cliquable, même posé sur le niveau maximal (Norman, 2026-11-09)");
+{
+  const bouton = page.slice(page.indexOf("lp-btn\" onclick=\"window.__setDiggerIdleV47__"), page.indexOf(">Au maximum</button>"));
+  assert.ok(bouton.includes("'+max+',true)") && !bouton.includes("lp-manque") && !bouton.includes("aria-disabled"), "« Au maximum » : jamais grisé, toujours avec fit");
+}
 const css = page.match(/\.lp-btn:disabled,\.lp-btn\.lp-manque\{[^}]*\}/)[0];
 const lum = (h) => { const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4))); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
 const rapport = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
 const texte = /color:(#[0-9a-f]{6})/.exec(css)[1], fonds = [...css.matchAll(/(#[0-9a-f]{6})/g)].map((m) => m[1]).filter((x) => x !== texte);
 assert.ok(fonds.length >= 2, "fond dégradé");
 for (const fond of fonds) assert.ok(rapport(texte, fond) >= 7, "contraste du texte grisé sur " + fond + " : " + rapport(texte, fond).toFixed(1));
+// Norman (2026-11-09) : « sur le bouton grisé Améliorer le labo, les écritures sont toujours difficiles à lire, surtout le Qi en rouge » : fond presque noir, contour noir, et les lettres d'unité reprennent la couleur claire du coût (la couleur propre à l'unité, souvent sombre, se perdait).
+{
+  assert.ok(page.includes("background:linear-gradient(180deg,#26242c,#16151a)"), "fond grisé presque noir");
+  assert.ok(page.includes(".lp-btn.lp-manque small .nb-suf,'+P+'.lp-btn:disabled small .nb-suf{color:#ffd978;filter:none"), "lettres d'unité claires sur un bouton grisé, avec la spécificité de la page (P)");
+  const lin = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+  const lm = (h) => 0.2126 * lin(parseInt(h.slice(1, 3), 16)) + 0.7152 * lin(parseInt(h.slice(3, 5), 16)) + 0.0722 * lin(parseInt(h.slice(5, 7), 16));
+  const rp = (a, b) => (Math.max(lm(a), lm(b)) + 0.05) / (Math.min(lm(a), lm(b)) + 0.05);
+  for (const fond of ["#26242c", "#16151a"]) assert.ok(rp("#ffd978", fond) >= 7, "coût et unités lisibles (" + rp("#ffd978", fond).toFixed(1) + ")");
+}
 const ui = fs.readFileSync("cloudflare/public/modules/ui-aventure-1-v1.js", "utf8");
 assert.ok(ui.includes("function setDiggerIdleV47_(id,niveau,ajuster)") && ui.includes("p.fit=true"), "le client transmet fit au moteur");
 console.log("idle-mineurs-au-maximum-v1: OK (niveau supporté " + attendu + ")");

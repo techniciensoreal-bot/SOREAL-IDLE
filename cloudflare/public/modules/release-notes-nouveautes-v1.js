@@ -4,7 +4,10 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Après une renaissance, le niveau de la Machine temporelle ne recule plus pendant la première seconde quand tu mets de l’énergie : il n’affiche plus un niveau de trop pendant quelques images.",
-    "Quand toutes les barres sont allumées, l’allumage du menu ne fait plus un énorme bruit : seul le son de la plus grosse barre est joué."
+    "Le menu Renaissance apparaît tout seul à la fin des 3 minutes de la partie, sans avoir besoin de cliquer sur un autre menu.",
+    "Sur téléphone, le défilement de la page et de la barre de menus démarre plus vite : seul un doigt posé sur une case d’objet ou sur le Cube attend l’écran, le reste de l’écran répond tout de suite.",
+    "Boss 106 : une fois visible derrière sa mort, le boss suivant n’a plus sa scène d’apparition ; le fait qu’il soit derrière l’autre image suffit.",
+    "Sur un bouton grisé (« Améliorer le labo », « Ouvrir le labo »), le prix reste bien lisible : fond plus sombre, lettres plus grosses, et l’unité (Qi, K…) a la même couleur claire que le reste du prix.",
+    "Le bouton « Au maximum » est toujours cliquable, même quand le niveau actif est déjà au niveau maximal : il remet le plus haut niveau que ton or supporte."
   ] };
 })();

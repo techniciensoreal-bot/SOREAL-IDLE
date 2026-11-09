@@ -132,7 +132,13 @@
     return null;
   }
 
-  document.addEventListener('touchstart',function(event){
+  /*
+   * Fluidité du tactile (Norman, 2026-11-09 : « sur téléphone, j'ai parfois l'impression que le tactile est bridé ; la page est fluide mais les mouvements, moins » : défilement de la page et barre de menus). Un touchstart / touchmove NON PASSIF posé sur le document
+   * (comme avant) rend TOUT l'écran « bloquant » : avant de laisser le doigt faire défiler, le navigateur attend que le fil principal du jeu ait exécuté le rappel ; avec un fil principal occupé (animations, redessins), le défilement démarre en retard. Les deux
+   * rappels sont maintenant posés sur chaque élément [data-soreal-longpress] lui-même (cases d'objet, Cube) : seul un doigt posé sur une de ces cases attend (il a toujours attendu : le geste y est annulé exprès), le reste de l'écran défile sans attente.
+   * Comportement identique sur ces éléments : mêmes rappels, mêmes options (capture, non passif), même état. Les éléments neufs ou dont l'attribut apparaît sont branchés par un observateur (jamais plus tard que la fin de la tâche qui les crée).
+   */
+  function surTouchStart_(event){
     if(!event.touches||event.touches.length!==1)return;
 
     var target=cible_(event.target);
@@ -153,9 +159,9 @@
      * Listener non passif indispensable pour WebKit/WKWebView.
      */
     if(event.cancelable)event.preventDefault();
-  },{capture:true,passive:false});
+  }
 
-  document.addEventListener('touchmove',function(event){
+  function surTouchMove_(event){
     var s=state;
     if(!s||s.pointerType!=='touch')return;
 
@@ -167,7 +173,36 @@
     if(!touch)return;
     if(moved_(touch.clientX,touch.clientY))return;
     if(event.cancelable)event.preventDefault();
-  },{capture:true,passive:false});
+  }
+
+  var branches_=typeof WeakSet==='function'?new WeakSet():null;
+  function brancher_(el){
+    if(!el||el.nodeType!==1)return;
+    if(branches_){if(branches_.has(el))return;branches_.add(el);}
+    else if(el.__lpBranche)return;else el.__lpBranche=true;
+    el.addEventListener('touchstart',surTouchStart_,{capture:true,passive:false});
+    el.addEventListener('touchmove',surTouchMove_,{capture:true,passive:false});
+  }
+  function balayer_(racine){
+    if(!racine||racine.nodeType!==1)return;
+    if(racine.matches&&racine.matches(SELECTOR))brancher_(racine);
+    var liste=racine.querySelectorAll?racine.querySelectorAll(SELECTOR):[];
+    for(var i=0;i<liste.length;i+=1)brancher_(liste[i]);
+  }
+  function observer_(){
+    balayer_(document.documentElement);
+    if(typeof MutationObserver!=='function')return;
+    new MutationObserver(function(lots){
+      for(var i=0;i<lots.length;i+=1){
+        var m=lots[i];
+        if(m.type==='attributes'){brancher_(m.target);continue;}
+        var ajoutes=m.addedNodes;
+        for(var j=0;j<ajoutes.length;j+=1)balayer_(ajoutes[j]);
+      }
+    }).observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['data-soreal-longpress']});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observer_);
+  else observer_();
 
   document.addEventListener('touchend',function(event){
     var s=state;

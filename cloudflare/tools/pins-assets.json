@@ -56,8 +56,8 @@
   "sha": "0ba1339c88cf821da3a50a09fd54f30481742aef"
  },
  "/modules/apparition-boss-v1.js": {
-  "pin": 19,
-  "sha": "211f53b04d41ea499b5742ff5d79e126587435ae"
+  "pin": 20,
+  "sha": "add9cacf90dd6a33d09abd57a0feff61ba40c916"
  },
  "/modules/audio-borne-v1.js": {
   "pin": 7,
@@ -448,8 +448,8 @@
   "sha": "94fab409dca29867aea6feffa466ae3437cfdda6"
  },
  "/modules/labos-page-v1.js": {
-  "pin": 4,
-  "sha": "b739b4b0891bd1fb87b07b3c1155fe4f56556d0e"
+  "pin": 9,
+  "sha": "f6aeb6f8b6123e6d23dfb986ec2ea00b4cbcf2ef"
  },
  "/modules/labos-savants-v1.js": {
   "pin": 1,
@@ -472,8 +472,8 @@
   "sha": "179a5a201bfea1f5d63c1acee06dceb16ba2ae2e"
  },
  "/modules/long-press-v200.js": {
-  "pin": 201,
-  "sha": "d42b016360b7df99dcfe31d963f6823f52458af4"
+  "pin": 202,
+  "sha": "6341abe50f71357f636b1acb59e898679ffa38f4"
  },
  "/modules/macguffins-v1.js": {
   "pin": 5,
@@ -632,12 +632,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 255,
-  "sha": "c7f5970e717670736b7f0f806dc69fe5e8f7fc91"
+  "pin": 260,
+  "sha": "5f664e3aa55d8c067fe176dd5724890c30b30684"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 892,
-  "sha": "00a984e1eb44fdefb3087c7b5bc0c9d4bf95df6c"
+  "pin": 897,
+  "sha": "d8d147bff0b2de89b651b9beca67b8f08e67e1f3"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -684,8 +684,8 @@
   "sha": "d8060782bcd1b76493f4518fcde65ea07b8b604d"
  },
  "/modules/temps-rebirth-v1.js": {
-  "pin": 1,
-  "sha": "22519183df0b80ec71d3e93dc915dbe8bccba0ab"
+  "pin": 2,
+  "sha": "ebe369407c1b6ea7217042186748a669dd895a4a"
  },
  "/modules/text-helpers-v1.js": {
   "pin": 1,
@@ -732,12 +732,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 931,
-  "sha": "94ab3e047ce641c191116510fe1898b0e6ef3ae5"
+  "pin": 936,
+  "sha": "cd28c1f4dcfb62b8bb104262bca74c3e5f841b9f"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 752,
-  "sha": "0d49142a5c87365e4e6da336412360921c9eaaa6"
+  "pin": 757,
+  "sha": "7d3ec14e49fbf7cc119bdc1521ba291263db490a"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

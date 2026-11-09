@@ -92,8 +92,11 @@
       '.lp-btn.vert{color:#f4edc9;background:linear-gradient(180deg,#4ea866,#256b3c)}',
       '.lp-btn.carre{min-width:36px;padding:4px 0}',
       /* Bouton grisé LISIBLE (Norman, 2026-11-08) : fond sombre neutre mais texte clair (contraste d'au moins 7 : 1) et bord net ; seul l'aspect plat dit « indisponible » */
-      '.lp-btn:disabled,.lp-btn.lp-manque{cursor:default;color:#f1ead2;background:linear-gradient(180deg,#4a4650,#2c2a31);text-shadow:0 1px 0 #000;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),2px 2px 0 #000}',
+      '.lp-btn:disabled,.lp-btn.lp-manque{cursor:default;color:#f1ead2;background:linear-gradient(180deg,#26242c,#16151a);text-shadow:0 1px 0 #000;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),2px 2px 0 #000}',
       '.lp-btn:disabled small,.lp-btn.lp-manque small{opacity:1;color:#ffd978}',
+      /* Texte toujours lisible sur un bouton grisé (Norman, 2026-11-09 : « les écritures sont toujours difficiles à lire, surtout le Qi en rouge ») : fond presque noir, contour noir net autour des lettres et des chiffres du coût, lettres d'unité de la même couleur claire que le coût (les couleurs propres aux unités, parfois sombres, se perdaient sur le gris ; essai d'un filtre d'éclaircissement : illisible quand même). */
+      P+'.lp-btn.lp-manque small,'+P+'.lp-btn:disabled small{text-shadow:0 1px 0 #000;--lp-fs:13px;font-weight:400;letter-spacing:.02em;opacity:1}',
+      P+'.lp-btn.lp-manque small .nb-suf,'+P+'.lp-btn:disabled small .nb-suf{color:#ffd978;filter:none;font-weight:400}',
       '.lp-btn small{font:400 11px "Russo One",sans-serif;opacity:.85;margin-left:4px}',
       '.lp-nivactif{min-width:56px;text-align:center;font-size:14px}',
       '.lp-labo.neuf .lp-poste{filter:saturate(.45) brightness(.8)}',
@@ -101,7 +104,7 @@
       P+'.lp-page{font-family:"Russo One",system-ui,sans-serif!important;font-weight:400!important}',
       P+'.lp-pan h3,'+P+'.lp-nometage,'+P+'.lp-titre b,'+P+'.lp-btn{font-family:Bangers,"Russo One",Impact,sans-serif!important;font-weight:400!important;letter-spacing:.05em!important}',
       P+'.lp-page :is(.lp-effet,.lp-niv,.lp-petit,.lp-nivactif,.lp-potion){font-family:"Russo One",system-ui,sans-serif!important;font-weight:400!important}',
-      P+'.lp-btn small{font-family:"Russo One",sans-serif!important;font-size:11px!important}',
+      P+'.lp-btn small{font-family:"Russo One",sans-serif!important;font-size:var(--lp-fs,11px)!important;--f-texte:"Russo One",sans-serif}',
       P+'.lp-btn.carre{font-family:"Russo One",system-ui,sans-serif!important;font-size:19px!important;line-height:1!important}'
     ].join('\n')+'\n'+(S()?S().css():'');
     (document.head||document.documentElement).appendChild(s);
@@ -144,7 +147,8 @@
         '<button type="button" class="lp-btn carre'+(run<=0?' lp-manque':'')+'" '+(run<=0?'aria-disabled="true" ':'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.max(0,run-1)+')" ')+'aria-label="Baisser le niveau actif">−</button>'+
         '<span class="lp-nivactif">'+run+'</span>'+
         '<button type="button" class="lp-btn carre'+(run>=max?' lp-manque':'')+'" '+(run>=max?'aria-disabled="true" ':'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.min(max,run+1)+')" ')+'aria-label="Monter le niveau actif">+</button>'+
-        '<button type="button" class="lp-btn'+(run>=max?' lp-manque':'')+'" '+(run>=max?'aria-disabled="true"':'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+max+',true)"')+'>Au maximum</button></div>';
+        /* Toujours cliquable (Norman, 2026-11-09 : « ça fonctionne sauf quand c'est placé sur le niveau maximal ») : le moteur ramène le niveau demandé (le plus haut possédé) au plus haut niveau que l'or par seconde supporte (setDiggerLevel, ajuster) ; même posé sur le niveau possédé le plus haut, le clic rabaisse un niveau trop gourmand pour l'or. */
+        '<button type="button" class="lp-btn" onclick="window.__setDiggerIdleV47__(\''+idH+'\','+max+',true)">Au maximum</button></div>';
     }
     h+='<div class="lp-ligne">'+
       (max>0
