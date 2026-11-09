@@ -40,6 +40,7 @@
             'Dans tout le jeu, une image qui n’arrive pas (un monstre en Aventure, un boss, un décor…) est redemandée toute seule trois fois, après 1,5, 4 puis 9 secondes, au lieu de rester vide jusqu’à ce que tu changes d’onglet.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Sur téléphone, la page ne saute plus quand un fruit devient mûr : l’aperçu de ce qu’il donne se pose sur son image au lieu d’agrandir la carte, et « Récolter » n’est plus coupé.',
             'Le cadre « Manger / récolter tous les fruits » est maintenant en haut de la page, juste sous tes compteurs de graines, et ses boutons tiennent sur une seule ligne.'
           ]},
           {menu:'diggers', titre:'Labos', points:[

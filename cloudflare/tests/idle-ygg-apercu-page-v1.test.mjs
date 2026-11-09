@@ -22,5 +22,6 @@ assert.ok(txt(h).includes("+40 graines"), "poop non cochée : sans poop");
 assert.ok(h.includes('+<span class="ygg-n">1850</span> Or') || T.apercuHtml_({ poop: 0 }, v(true, ap), {}).includes('+<span class="ygg-n">1234</span> Or'), "chaque nombre dans son propre élément : le code couleur des unités (Qa…) s'applique");
 assert.equal(T.texteEffet_("luck", 1.25), "+1,25 % de chance de drop");
 assert.equal(T.texteEffet_("pp", 0.5), "+0,5 PP");
-assert.ok(src.includes("apercuHtml_(d,v,c)+\n      auto+"), "affiché sur la carte, avant l'Auto-Activate");
+assert.ok(src.includes("porteHtml+apercuHtml_(d,v,c)+'</div>'") && !/apercuHtml_\(d,v,c\)\+\s*auto\+/.test(src), "aperçu posé sur le portrait, hors flux (aucun saut de la page)");
+assert.ok(src.includes(".ygg-vitre .ygg-apercu{position:absolute;"), "hors flux : ne change jamais la hauteur de la carte");
 console.log("idle-ygg-apercu-page-v1: OK");

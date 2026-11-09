@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les monstres d’Aventure dont le nom a changé (« Un slime métallique », « 743 poulets furax »…) retrouvent leur image."
+    "Sur téléphone, la page ne saute plus quand un fruit devient mûr : l’aperçu de ce qu’il donne se pose sur son image au lieu d’agrandir la carte, et « Récolter » n’est plus coupé."
   ] };
 })();

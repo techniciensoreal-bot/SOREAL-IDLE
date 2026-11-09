@@ -175,6 +175,8 @@
       '.ygg-mode button+button{border-left:2px solid #000;}',
       '.ygg-apercu{display:grid;gap:3px;margin-top:5px;padding:5px 7px;border:2px solid #d6b24a;border-radius:6px;background:rgba(6,20,10,.88);box-shadow:0 0 8px rgba(214,178,74,.35);color:#fff;font:700 clamp(12px,2.7cqw,15px) Georgia,serif;line-height:1.3}',
       '.ygg-apercu b{color:#ffe38a}',
+      /* Aucun saut (Norman, 2026-11-09 : « la page Yggdrasil fait des sauts sur téléphone ») : l'aperçu d'un fruit mûr n'est JAMAIS dans le flux de la carte (il agrandissait la ligne de ~90 px quand le fruit mûrissait ou que la Poop changeait le texte, et tout le dessous sautait) ; il est posé SUR le bas du portrait, hors flux. */
+      '.ygg-vitre .ygg-apercu{position:absolute;left:0;right:0;bottom:0;margin:0;z-index:6;max-height:62%;overflow:hidden;border-width:2px 0 0;border-radius:0;padding:3px 5px;gap:1px;font-size:clamp(10px,2.3cqw,13px);box-sizing:border-box}',
       '.ygg-apercu .ygg-n{font-size:1.12em}',
       '.ygg-mode button[aria-pressed="true"]{color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);}',
       '.ygg-poop{display:flex;align-items:center;justify-content:center;gap:.4em;min-height:36px;border:2px solid #000;border-radius:4px;cursor:pointer;font:700 clamp(7px,1.6cqw,10.5px) var(--ygg-titres);color:#e9d9b6;background:#3a2a18;}',
@@ -223,7 +225,9 @@
       '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button):disabled{color:#f4f7ea!important;text-shadow:0 1px 0 #000,0 0 3px #000!important;opacity:1}',
       '.ygg-page .ygg-mode button:not([aria-pressed="true"]){color:#f4f7ea!important;text-shadow:0 1px 0 #000}',
       '.ygg-page :is(.ygg-btn,.ygg-poop,.ygg-mode button,.ygg-auto button){font-weight:900!important}',
-      '.ygg-page :is(.ygg-poop,.ygg-mode button){font-size:clamp(15px,3cqw,17px)!important;letter-spacing:.06em!important;min-height:44px;text-shadow:none!important}',
+      '.ygg-page :is(.ygg-poop,.ygg-mode button){font-size:var(--ygg-bt-fs,clamp(15px,3cqw,17px))!important;letter-spacing:var(--ygg-bt-ls,.06em)!important;min-height:44px;text-shadow:none!important}',
+      /* Téléphone : « RÉCOLTER » ne tenait pas dans une demi-carte (coupé en « RÉCOLT ») : lettres un peu plus petites et plus serrées à cette largeur seulement. */
+      '@container (max-width:520px){.ygg-page .ygg-mode{--ygg-bt-fs:clamp(11px,3.1cqw,13px);--ygg-bt-ls:.01em}}',
       '.ygg-btn{font-size:clamp(14px,3cqw,16px)!important;line-height:1.2;letter-spacing:.03em}',
       '.ygg-btn small{opacity:1;font-size:.92em}',
       '.ygg-auto button{font-size:clamp(13px,2.7cqw,15px)!important}',
@@ -542,13 +546,12 @@
     var porteHtml=porteDe_(id,Boolean(v.active));
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+(alerte?' ygg-alerte':'')+'" data-fruit="'+html_(id)+'" style="'+styleCouleursPorte_(id)+(v.tier>0&&v.tier>=d.maxTier||alerte?'--lueur:'+rvb_(AURAS_[id])+';':'')+'">'+
       '<div class="ygg-nom">'+nom+(v.tier>0?' <span>('+fruitsPrets_(v)+'/'+v.tier+')</span>':'')+'</div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+'</div>'+
+      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+apercuHtml_(d,v,c)+'</div>'+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+
       '<button type="button" class="ygg-poop" aria-pressed="'+(c.poop&&d.poop>0)+'" '+(d.poop>0?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.poop(\''+html_(id)+'\')"><span class="ygg-mini">'+image_('poop','💩')+'</span>Poop</button>'+
       '<div class="ygg-mode" role="group" aria-label="Manger ou récolter"><button type="button" aria-pressed="'+(c.mode!=='harvest')+'" onclick="window.__SOREAL_IDLE_YGG_V1__.mode(\''+html_(id)+'\',\'eat\')">Manger</button><button type="button" aria-pressed="'+(c.mode==='harvest')+'" onclick="window.__SOREAL_IDLE_YGG_V1__.mode(\''+html_(id)+'\',\'harvest\')">Récolter</button></div>'+
-      apercuHtml_(d,v,c)+
       auto+
     '</div>';
   }

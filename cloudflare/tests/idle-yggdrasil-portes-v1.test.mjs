@@ -116,7 +116,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   assert.ok(!corps.includes("setInterval") && !corps.includes("setTimeout"), "aucune minuterie pour les portes");
 }
 // 5. Branchement : la porte est dans la vitre de chaque fruit, selon son état actif.
-assert.ok(src.includes("(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+'</div>'") && src.includes("var porteHtml=porteDe_(id,Boolean(v.active));"), "porte dans la vitre de chaque fruit ; aucun fruit dessiné derrière une porte close");
+assert.ok(src.includes("(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+apercuHtml_(d,v,c)+'</div>'") && src.includes("var porteHtml=porteDe_(id,Boolean(v.active));"), "porte dans la vitre de chaque fruit ; aucun fruit dessiné derrière une porte close");
 assert.ok(src.includes(".ygg-carte.magie .ygg-vitre.ygg-decor{background-size:cover;background-position:center;background-repeat:no-repeat;}"), "l'arbre des fruits de magie tient dans son cadre (le fond de .magie ne remet plus sa taille à zéro)");
 // 6. Le bruit : herse de château fort (treuil, chaîne, choc), jamais de dent de scie ; réglage pierre / bois supprimé.
 {

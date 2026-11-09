@@ -24,8 +24,14 @@ import { IDLE_NGU_DIGGERS } from "../src/idle-ngu-catalogues.js";
   assert.ok(Math.abs(vue.items.drop.multiplier - fait.drop) < 1e-9, "chance de drop : le même chiffre que le moteur");
   assert.ok(Math.abs(vue.items.stats.multiplier - fait.stats) < 1e-9, "stats : le même chiffre que le moteur");
   assert.ok(vue.items.adventure.multiplier > 1 && fait.adventure === 1, "un mineur au repos annonce ce qu'il donnerait, sans rien appliquer");
-  assert.equal(vue.items.wandoos.multiplier, 1);
-  assert.equal(Object.keys(vue.items).length, IDLE_NGU_DIGGERS.length);
+  assert.equal(vue.items.wandoos, undefined, "Wandoos verrouillé : labo absent");
+  // anti-spoil (2026-11-09) : seuls les labos dont le système nommé est découvert sont envoyés (ni la liste ni la vue ne révèlent le total)
+  const nomme = { wandoos: "wandoos", energyNgu: "ngu", magicNgu: "ngu", energyBeard: "beards", magicBeard: "beards", blood: "bloodMagic", daycare: "daycare" };
+  const attendu = (e) => IDLE_NGU_DIGGERS.filter((def) => !nomme[def.id] || e.systems[nomme[def.id]]?.unlocked).map((def) => def.id).sort();
+  assert.equal(JSON.stringify(Object.keys(vue.items).sort()), JSON.stringify(attendu(state)));
+  assert.ok(Object.keys(vue.items).length < IDLE_NGU_DIGGERS.length, "labos de systèmes verrouillés absents de la vue");
+  state.systems.beards.unlocked = true; state.systems.ngu.unlocked = true;
+  assert.equal(JSON.stringify(Object.keys(diggerViewV1(state).items).sort()), JSON.stringify(attendu(state)), "les labos apparaissent avec leur système");
   assert.ok(vue.items.drop.nextCost > 0 && vue.items.drop.drain > 0 && vue.slots >= 1 && vue.active === 2);
   assert.ok(vue.drain === bonus.diggerDrainGoldPerSecond, "le drain est celui du moteur");
 }

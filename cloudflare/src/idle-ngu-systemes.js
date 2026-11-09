@@ -709,12 +709,20 @@ export function diggerBonuses(state){
  * Vue de la page Mineurs d'or (Norman, 2026-10-27 : « il faut que ce soit représentatif de ce que ça fait ») : pour chaque Digger, le multiplicateur que donne son niveau actif (s'il travaillait), le drain à ce niveau et le coût du prochain niveau maximum ;
  * plus le GPS brut, le drain total, les emplacements et le bonus global. Lecture seule : aucune valeur nouvelle, ce sont celles du moteur. Rien tant que le système n'est pas découvert (anti-spoil).
  */
+/* Anti-spoil (Norman, 2026-11-09) : un labo qui nomme un système (Wandoos, NGU, barbes, Magie du sang, garderie) n'est envoyé que si ce système est découvert ;
+ * même règle que la page (SYSTEME_DU_LABO, labos-page-v1.js) : la taille de la liste ne doit pas révéler le nombre total de labos. */
+const SYSTEME_DU_LABO_V1={wandoos:"wandoos",energyNgu:"ngu",magicNgu:"ngu",energyBeard:"beards",magicBeard:"beards",blood:"bloodMagic",daycare:"daycare"};
+export function diggerLaboVisibleV1(state,id){
+  const sys=SYSTEME_DU_LABO_V1[id];
+  return !sys||Boolean(state.systems[sys]?.unlocked);
+}
 export function diggerViewV1(state){
   const s=state.systems.diggers;
   if(!s?.unlocked)return null;
   const g=diggerGlobalBonus(state);
   const items={};
   for(const def of IDLE_NGU_DIGGERS){
+    if(!diggerLaboVisibleV1(state,def.id))continue;
     const d=s.data.diggers[def.id]||{};
     const run=Math.max(0,int(d.runLevel,0)),max=Math.max(0,int(d.maxLevel,0));
     items[def.id]={
