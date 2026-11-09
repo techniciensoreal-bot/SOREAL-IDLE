@@ -22,10 +22,20 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.3',
+    courante:'5.4',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'5.4',
+        nom:'Les monstres reviennent',
+        date:'2026-11-09',
+        groupes:[
+          {menu:'aventure', titre:'Aventure', points:[
+            'Si l’image d’un monstre n’arrive pas en Aventure, elle est redemandée toute seule (après 1, 3 puis 8 secondes) au lieu de rester vide.'
+          ]}
+        ]
+      },
       {
         version:'5.3',
         nom:'Des cartes avec leurs textes',
@@ -38,9 +48,6 @@
             'Quand tu retires toute l’énergie ou toute la magie d’une barre de tube, elle s’arrête net au lieu de continuer à monter un instant.',
             'Redimensionner la fenêtre ne provoque plus d’erreur dans les barres lumineuses.',
             'Thème Magic : 45 cartes de boss retrouvent les écritures de l’image d’origine (noms, chiffres, panneaux).'
-          ]},
-          {menu:'aventure', titre:'Aventure', points:[
-            'Si l’image d’un monstre n’arrive pas en Aventure, elle est redemandée toute seule (après 1, 3 puis 8 secondes) au lieu de rester vide.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Dans « En direct », quand un joueur règle sa Machine temporelle (il y ajoute de l’énergie ou de la magie), la phrase dit combien d’or par seconde elle produit chez lui (« 1,37 Qa d’or par seconde »).',
