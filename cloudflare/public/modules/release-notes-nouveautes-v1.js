@@ -4,8 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le cadre qui contient tous les menus ne bouge plus quand tu passes d’une page longue à une page courte : la place de la barre de défilement est toujours réservée.",
-    "Quand tu zoomes sur une carte, les lettres des grands nombres (Tvg, Uvg…) sont en couleur, comme quand la carte est rangée dans l’album.",
-    "Sur téléphone, les pages de l’album tournent en glissant à plat vers la gauche, plus vite et sans pivot en 3D : bien moins de choses à redessiner. Sur PC, le tour de page ne change pas."
+    "Dans tout le jeu, une image qui n’arrive pas (un monstre en Aventure, un boss, un décor…) est redemandée toute seule trois fois, après 1,5, 4 puis 9 secondes, au lieu de rester vide jusqu’à ce que tu changes d’onglet."
   ] };
 })();

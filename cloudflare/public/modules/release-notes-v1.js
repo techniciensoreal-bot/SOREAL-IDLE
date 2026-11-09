@@ -39,7 +39,7 @@
             'Sur téléphone, les pages de l’album tournent en glissant à plat vers la gauche, plus vite et sans pivot en 3D : bien moins de choses à redessiner. Sur PC, le tour de page ne change pas.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Si l’image d’un monstre n’arrive pas en Aventure, elle est redemandée toute seule (après 1, 3 puis 8 secondes) au lieu de rester vide.'
+            'Dans tout le jeu, une image qui n’arrive pas (un monstre en Aventure, un boss, un décor…) est redemandée toute seule trois fois, après 1,5, 4 puis 9 secondes, au lieu de rester vide jusqu’à ce que tu changes d’onglet.'
           ]}
         ]
       },
