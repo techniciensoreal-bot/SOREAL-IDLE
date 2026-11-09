@@ -17,50 +17,26 @@
  *  - Un mois complet sans aucun jour raté rapporte exactement 150 000 AP.
  */
 
+import { jourDeBruxellesV1 } from "./idle-jour-bruxelles-v1.js";
+
 export const IDLE_LOGIN_CALENDAR_TOTAL_AP_V1 = 150000;
 /* Part de la dernière case dans le total du mois : « beaucoup plus élevée que la veille ». */
 const PART_DERNIERE_CASE_V1 = 0.2;
 /* Les sommes sont arrondies à la dizaine d'AP (la dernière case absorbe le reste pour que le total soit EXACTEMENT 150 000). */
 const ARRONDI_V1 = 10;
-const FUSEAU_V1 = "Europe/Paris";
 /* Pénalité par jour raté sur les récompenses restantes (Norman, 2026-10-10 : 10 %, cumulée). */
 export const IDLE_LOGIN_CALENDAR_PENALITE_V1 = 0.1;
 /* Premier mois offert : aucune pénalité, un simple remerciement (Norman, 2026-10-10). */
 export const IDLE_LOGIN_CALENDAR_MOIS_OFFERT_V1 = "2026-10";
 
-const formateurJourV1 = (() => {
-  try {
-    return new Intl.DateTimeFormat("en-CA", { timeZone: FUSEAU_V1, year: "numeric", month: "2-digit", day: "2-digit" });
-  } catch (_e) {
-    return null;
-  }
-})();
-
-/* { annee, mois (1-12), jour } du jour calendaire de Paris pour un instant donné (ms). */
-export function idleLoginCalendarJourParisV1(ms) {
-  const t = Number.isFinite(Number(ms)) ? Number(ms) : Date.now();
-  if (formateurJourV1) {
-    const parts = formateurJourV1.formatToParts(new Date(t));
-    const lire = (type) => Number(parts.find((p) => p.type === type)?.value);
-    const annee = lire("year");
-    const mois = lire("month");
-    const jour = lire("day");
-    if (annee > 0 && mois > 0 && jour > 0) return { annee, mois, jour };
-  }
-  /* Repli (environnement sans Intl fuseau) : heure de Paris approchée par UTC+1. */
-  const d = new Date(t + 3600000);
-  return { annee: d.getUTCFullYear(), mois: d.getUTCMonth() + 1, jour: d.getUTCDate() };
-}
-
+/* { annee, mois (1-12), jour } du jour calendaire de Bruxelles (même jour que Paris) : définition unique dans idle-jour-bruxelles-v1.js ; ancien nom conservé. */
+export const idleLoginCalendarJourParisV1 = jourDeBruxellesV1;
 const deux = (n) => String(n).padStart(2, "0");
 export const idleLoginCalendarCleJourV1 = (p) => `${p.annee}-${deux(p.mois)}-${deux(p.jour)}`;
 export const idleLoginCalendarCleMoisV1 = (p) => `${p.annee}-${deux(p.mois)}`;
 export const idleLoginCalendarJoursDuMoisV1 = (annee, mois) => new Date(Date.UTC(annee, mois, 0)).getUTCDate();
 
 const jourDuMoisDeCleV1 = (cle) => Number(String(cle).slice(8, 10)) || 0;
-/* Nombre de jours entre deux clés « AAAA-MM-JJ » (b - a). */
-const ecartJoursV1 = (a, b) =>
-  Math.round((Date.UTC(+b.slice(0, 4), +b.slice(5, 7) - 1, +b.slice(8, 10)) - Date.UTC(+a.slice(0, 4), +a.slice(5, 7) - 1, +a.slice(8, 10))) / 86400000);
 /* Somme arrondie à la dizaine d'AP, comme le barème. */
 const arrondiApV1 = (v) => Math.max(0, Math.round(v / ARRONDI_V1) * ARRONDI_V1);
 

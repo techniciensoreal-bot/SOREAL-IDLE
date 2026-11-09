@@ -221,7 +221,7 @@ function carte(t){
           'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="ttn-emoji" style="display:none">👹</span></div>'
         :'<div class="ttn-portrait ttn-inconnu" title="Tu ne l’as encore jamais affronté"><span class="ttn-point">?</span></div>')+
       '<div class="ttn-id">'+
-        '<h3 class="ttn-nom">'+h(nom)+(forme>=0?' <small>(forme '+(forme+1)+' / '+t.forms.length+')</small>':'')+'</h3>'+
+        '<h3 class="ttn-nom">'+h(nom)+(forme>=0?' <small>(forme '+(forme+1)+')</small>':'')+'</h3>'+
         '<div class="ttn-sous">💀 '+kills+' victoire'+(kills>1?'s':'')+'</div>'+
         statut+ligneAutoKill(t,enAttente,retour,maintenant)+
       '</div>'+

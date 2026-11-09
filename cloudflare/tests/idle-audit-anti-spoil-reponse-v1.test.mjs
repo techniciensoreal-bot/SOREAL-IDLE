@@ -26,8 +26,10 @@ assert.deepEqual(sys.bloodRituals, [], "aucun rituel tant que Blood Magic n'est 
 for (const mot of ["Safety Scissors", "Woodchipper", "Laser Sword", "Time Machine boss", "earlyGameTimeline"]) assert.ok(!texte.includes(mot), "« " + mot + " » ne doit pas être dans la réponse d'un joueur neuf");
 // GP-003 : un système verrouillé n'envoie aucune valeur interne (plafonds, durées, niveaux maximums).
 {
+  /* Règle n°2 (audit 2026-11-09) : la liste des systèmes ne contient QUE les systèmes découverts (ni id, ni taille ne révèlent un total). */
   const verrouilles = sys.systems.filter((s) => !s.state || s.state.unlocked !== true);
-  assert.ok(verrouilles.length >= 10, "des systèmes verrouillés existent pour un joueur neuf");
+  assert.equal(verrouilles.length, 0, "aucun système verrouillé dans la liste d'un joueur neuf (obtenu : " + sys.systems.map((s) => s.id).join(",") + ")");
+  assert.ok(sys.systems.length <= 2, "joueur neuf : seulement les systèmes déjà découverts (obtenu : " + sys.systems.length + ")");
   const valeursNonNulles = (v, chemin) => {
     if (typeof v === "number") return v !== 0 ? [chemin + "=" + v] : [];
     if (typeof v === "string") return v !== "" ? [chemin + "=\"" + v + "\""] : [];
@@ -63,4 +65,23 @@ assert.deepEqual(Object.keys(au30[au30.length - 1]).sort(), ["id", "unlockBoss",
 const au200 = joueurAuBoss("b200@example.com", 200);
 assert.equal(au200.length, 7, "tout débloqué : les 7 paires, sans repère");
 assert.ok(au200.every((a) => !a.verrouille && a.name));
+// Liste des systèmes, joueur à mi-parcours : uniquement des systèmes découverts, et plus nombreux que pour un joueur neuf.
+const miParcours = (() => {
+  const h = creerJoueurExterneV1("b60@example.com");
+  h.op("obtenirEtatSorealIdle", "x");
+  const ligne = h.sql.exec("select rowid as id,row_json from idle_catalog where sheet_name='JOUEURS' and row_index>1")[0];
+  const arr = JSON.parse(ligne.row_json);
+  arr[14] = 60;
+  const st = JSON.parse(arr[37] || "{}");
+  (st.metaNgu = st.metaNgu || {}).records = Object.assign({}, st.metaNgu.records, { highestBoss: 60 });
+  arr[37] = JSON.stringify(st);
+  h.db.prepare("update idle_catalog set row_json=? where rowid=?").run(JSON.stringify(arr), ligne.id);
+  return h.op("obtenirEtatSorealIdle", "x").joueur.systemes.systems;
+})();
+assert.ok(miParcours.length > sys.systems.length, "à mi-parcours, des systèmes ont été découverts (obtenu : " + miParcours.length + ")");
+for (const s of miParcours) {
+  assert.equal(s.state && s.state.unlocked, true, "système « " + s.id + " » : présent dans la liste seulement s'il est découvert");
+  assert.equal(s.unlock && s.unlock.unlocked, true, "système « " + s.id + " » : unlock.unlocked vrai");
+}
+assert.ok(miParcours.length < 25, "à mi-parcours, la liste n'est pas la liste complète des 25 systèmes");
 console.log("idle-audit-anti-spoil-reponse-v1: OK");

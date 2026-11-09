@@ -54,28 +54,7 @@
     0
    ]
   },
-  "entrainementAvance": {
-   "power": [
-    0,
-    0
-   ],
-   "toughness": [
-    0,
-    0
-   ],
-   "block": [
-    0,
-    0
-   ],
-   "wandoosEnergy": [
-    0,
-    0
-   ],
-   "wandoosMagic": [
-    0,
-    0
-   ]
-  },
+  "entrainementAvance": {},
   "or": 43150641439300,
   "energie": 6981191,
   "energieMax": 25619760,
@@ -99,7 +78,6 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "47b8b1d2788cde16",
-   "advancedTraining": "4e41bddbd344b9cd",
    "timeMachine": "984f642bc1eca69d",
    "bloodMagic": "10574f9d84d94a7f",
    "wandoos": "668afb7f1c4850ce",
@@ -107,20 +85,12 @@
    "yggdrasil": "d82d1b11cc8c9d50",
    "moneyPit": "b3c28ee01f7167aa",
    "diggers": "b344b5012022661f",
-   "beards": "96b34c0e067ca61f",
    "tower": "7e30d372a4e7a47f",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
-   "macguffins": "8ccd4385e80fc228",
    "daycare": "2642cf83fec07579",
-   "infinityCube": "44136fa355b3678a",
-   "questing": "44136fa355b3678a",
-   "quirks": "44136fa355b3678a",
-   "hacks": "5c676509929a349d",
-   "wishes": "57f1babf33ccd42c",
-   "cards": "91d566638dadab1f",
-   "cooking": "dd8288e6eec564f1"
+   "infinityCube": "44136fa355b3678a"
   }
  },
  "apres allocations": {
@@ -178,28 +148,7 @@
     0
    ]
   },
-  "entrainementAvance": {
-   "power": [
-    0,
-    0
-   ],
-   "toughness": [
-    0,
-    0
-   ],
-   "block": [
-    0,
-    0
-   ],
-   "wandoosEnergy": [
-    0,
-    0
-   ],
-   "wandoosMagic": [
-    0,
-    0
-   ]
-  },
+  "entrainementAvance": {},
   "or": 43150641439300,
   "energie": 22119748,
   "energieMax": 25619760,
@@ -223,7 +172,6 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "fb137388047351da",
-   "advancedTraining": "4e41bddbd344b9cd",
    "timeMachine": "984f642bc1eca69d",
    "bloodMagic": "025d24901abd725d",
    "wandoos": "668afb7f1c4850ce",
@@ -231,20 +179,12 @@
    "yggdrasil": "d82d1b11cc8c9d50",
    "moneyPit": "b3c28ee01f7167aa",
    "diggers": "b344b5012022661f",
-   "beards": "96b34c0e067ca61f",
    "tower": "7e30d372a4e7a47f",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
-   "macguffins": "8ccd4385e80fc228",
    "daycare": "2642cf83fec07579",
-   "infinityCube": "44136fa355b3678a",
-   "questing": "44136fa355b3678a",
-   "quirks": "44136fa355b3678a",
-   "hacks": "5c676509929a349d",
-   "wishes": "57f1babf33ccd42c",
-   "cards": "91d566638dadab1f",
-   "cooking": "dd8288e6eec564f1"
+   "infinityCube": "44136fa355b3678a"
   }
  },
  "apres combats d'aventure": {
@@ -302,28 +242,7 @@
     0
    ]
   },
-  "entrainementAvance": {
-   "power": [
-    0,
-    0
-   ],
-   "toughness": [
-    0,
-    0
-   ],
-   "block": [
-    0,
-    0
-   ],
-   "wandoosEnergy": [
-    0,
-    0
-   ],
-   "wandoosMagic": [
-    0,
-    0
-   ]
-  },
+  "entrainementAvance": {},
   "or": 44172155670700,
   "energie": 22119748,
   "energieMax": 25619760,
@@ -347,7 +266,6 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "69108af3747e33f6",
-   "advancedTraining": "4e41bddbd344b9cd",
    "timeMachine": "a702b9645d07cab5",
    "bloodMagic": "4721fa8d72fbb8e2",
    "wandoos": "668afb7f1c4850ce",
@@ -355,20 +273,12 @@
    "yggdrasil": "8b52f48635a7fc47",
    "moneyPit": "b3c28ee01f7167aa",
    "diggers": "b344b5012022661f",
-   "beards": "96b34c0e067ca61f",
    "tower": "ef762b8e31d99b65",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
-   "macguffins": "8ccd4385e80fc228",
    "daycare": "c4f49c53f53f289f",
-   "infinityCube": "44136fa355b3678a",
-   "questing": "44136fa355b3678a",
-   "quirks": "44136fa355b3678a",
-   "hacks": "5c676509929a349d",
-   "wishes": "57f1babf33ccd42c",
-   "cards": "91d566638dadab1f",
-   "cooking": "dd8288e6eec564f1"
+   "infinityCube": "44136fa355b3678a"
   }
  },
  "apres +2 s": {
@@ -426,28 +336,7 @@
     0
    ]
   },
-  "entrainementAvance": {
-   "power": [
-    0,
-    0
-   ],
-   "toughness": [
-    0,
-    0
-   ],
-   "block": [
-    0,
-    0
-   ],
-   "wandoosEnergy": [
-    0,
-    0
-   ],
-   "wandoosMagic": [
-    0,
-    0
-   ]
-  },
+  "entrainementAvance": {},
   "or": 44455886842300,
   "energie": 22119748,
   "energieMax": 25619760,
@@ -471,7 +360,6 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "aae991448ad0985a",
-   "advancedTraining": "4e41bddbd344b9cd",
    "timeMachine": "c2cbdc55925323ee",
    "bloodMagic": "56c850190f6809c0",
    "wandoos": "668afb7f1c4850ce",
@@ -479,20 +367,12 @@
    "yggdrasil": "f9f0ff2c180c3dfe",
    "moneyPit": "b3c28ee01f7167aa",
    "diggers": "b344b5012022661f",
-   "beards": "96b34c0e067ca61f",
    "tower": "a33545125469f67c",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
-   "macguffins": "8ccd4385e80fc228",
    "daycare": "336f0df0a5b9f25f",
-   "infinityCube": "44136fa355b3678a",
-   "questing": "44136fa355b3678a",
-   "quirks": "44136fa355b3678a",
-   "hacks": "5c676509929a349d",
-   "wishes": "57f1babf33ccd42c",
-   "cards": "91d566638dadab1f",
-   "cooking": "dd8288e6eec564f1"
+   "infinityCube": "44136fa355b3678a"
   }
  },
  "apres +10 s": {
@@ -550,28 +430,7 @@
     0
    ]
   },
-  "entrainementAvance": {
-   "power": [
-    0,
-    0
-   ],
-   "toughness": [
-    0,
-    0
-   ],
-   "block": [
-    0,
-    0
-   ],
-   "wandoosEnergy": [
-    0,
-    0
-   ],
-   "wandoosMagic": [
-    0,
-    0
-   ]
-  },
+  "entrainementAvance": {},
   "or": 45875066672100,
   "energie": 22119748,
   "energieMax": 25619760,
@@ -595,7 +454,6 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "e45e43509f2b592f",
-   "advancedTraining": "4e41bddbd344b9cd",
    "timeMachine": "a93b91ed72702383",
    "bloodMagic": "1435e6237d2aa51c",
    "wandoos": "668afb7f1c4850ce",
@@ -603,20 +461,12 @@
    "yggdrasil": "ef61a8a8c64251e3",
    "moneyPit": "b3c28ee01f7167aa",
    "diggers": "b344b5012022661f",
-   "beards": "96b34c0e067ca61f",
    "tower": "5a03a898696bde5f",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
-   "macguffins": "8ccd4385e80fc228",
    "daycare": "59e5625e572f3af5",
-   "infinityCube": "44136fa355b3678a",
-   "questing": "44136fa355b3678a",
-   "quirks": "44136fa355b3678a",
-   "hacks": "5c676509929a349d",
-   "wishes": "57f1babf33ccd42c",
-   "cards": "91d566638dadab1f",
-   "cooking": "dd8288e6eec564f1"
+   "infinityCube": "44136fa355b3678a"
   }
  },
  "apres +60 s": {
@@ -674,28 +524,7 @@
     0
    ]
   },
-  "entrainementAvance": {
-   "power": [
-    0,
-    0
-   ],
-   "toughness": [
-    0,
-    0
-   ],
-   "block": [
-    0,
-    0
-   ],
-   "wandoosEnergy": [
-    0,
-    0
-   ],
-   "wandoosMagic": [
-    0,
-    0
-   ]
-  },
+  "entrainementAvance": {},
   "or": 54973817258800,
   "energie": 22119748,
   "energieMax": 25619760,
@@ -719,7 +548,6 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "a1ef9ce219d82f8a",
-   "advancedTraining": "4e41bddbd344b9cd",
    "timeMachine": "c3496ee2aef5e0a5",
    "bloodMagic": "1085435905273ac6",
    "wandoos": "668afb7f1c4850ce",
@@ -727,20 +555,12 @@
    "yggdrasil": "b4561bb64ef32c88",
    "moneyPit": "b3c28ee01f7167aa",
    "diggers": "b344b5012022661f",
-   "beards": "96b34c0e067ca61f",
    "tower": "4658d3369274cf08",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
-   "macguffins": "8ccd4385e80fc228",
    "daycare": "1642cbb096ae4d93",
-   "infinityCube": "44136fa355b3678a",
-   "questing": "44136fa355b3678a",
-   "quirks": "44136fa355b3678a",
-   "hacks": "5c676509929a349d",
-   "wishes": "57f1babf33ccd42c",
-   "cards": "91d566638dadab1f",
-   "cooking": "dd8288e6eec564f1"
+   "infinityCube": "44136fa355b3678a"
   }
  },
  "apres +600 s": {
@@ -851,20 +671,12 @@
    "yggdrasil": "085c9cf65bcf3f8d",
    "moneyPit": "b3c28ee01f7167aa",
    "diggers": "b344b5012022661f",
-   "beards": "96b34c0e067ca61f",
    "tower": "1589e0f31f4e46b9",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
-   "macguffins": "8ccd4385e80fc228",
    "daycare": "4287ee88a86e7e6c",
-   "infinityCube": "44136fa355b3678a",
-   "questing": "44136fa355b3678a",
-   "quirks": "44136fa355b3678a",
-   "hacks": "5c676509929a349d",
-   "wishes": "57f1babf33ccd42c",
-   "cards": "91d566638dadab1f",
-   "cooking": "dd8288e6eec564f1"
+   "infinityCube": "44136fa355b3678a"
   }
  }
 }

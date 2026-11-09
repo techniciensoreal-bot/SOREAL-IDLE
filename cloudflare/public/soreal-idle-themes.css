@@ -1892,8 +1892,6 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28
 body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="exp"]{--tc:#c084fc}
 body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="ap"]{--tc:#f472b6}
 body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile="run"]{--tc:#fb923c}
-/* Reflet des tuiles du bandeau : glissement par transform (traité par la carte graphique) au lieu de « left » (qui forçait une mise en page à chaque image sur toutes les pages). -60 % et 130 % de la largeur de la tuile = -158 % et 342 % de celle du reflet (38 %). */
-@keyframes sorealTuileReflet{0%,70%{transform:translateX(-158%) skewX(-18deg)}100%{transform:translateX(342%) skewX(-18deg)}}
 @media (prefers-reduced-motion:no-preference){
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-summary-grid-v28 .soreal-idle-summary-v28[data-tuile]::after{animation:sorealTuileReflet 7s ease-in-out infinite}
 }
@@ -1985,7 +1983,6 @@ body.soreal-idle-active-v47 .soreal-idle-hud-v2{display:contents}
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2),.soreal-idle-hud-r3-v2) .soreal-idle-bulles-v2::before,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2),.soreal-idle-hud-r3-v2) .soreal-idle-bulles-v2::after{left:calc(var(--p,79px)*-1);will-change:transform}
 @keyframes sorealHudDroite{from{transform:translateX(-200px)}to{transform:translateX(0)}}
 @keyframes sorealHudPulse{from{opacity:.2}to{opacity:1}}
-@keyframes sorealHudAurore{from{background-position:100% 0}to{background-position:0 0}}
 @keyframes sorealHudPlasma{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2::before,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-bulles-v2::after,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2  .soreal-idle-energybar-v11{animation:none!important}

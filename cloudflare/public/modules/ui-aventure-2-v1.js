@@ -1470,7 +1470,7 @@
 
         corps.innerHTML=
           '<div class="soreal-idle-window-title-v31">Cube de l\'infini</div>'+
-          '<div class="soreal-idle-v138-details-level">Tier '+palier+' · ID wiki 100</div>'+
+          '<div class="soreal-idle-v138-details-level">Tier '+palier+'</div>'+
           '<div style="display:flex;justify-content:center;margin:8px 0 12px">'+
             '<img src="'+idleHtml_(urlImageCubeInfiniAdventureIdleV1_(palier))+'" alt="Infinity Cube Tier '+palier+'" style="width:92px;height:92px;object-fit:contain">'+
           '</div>'+

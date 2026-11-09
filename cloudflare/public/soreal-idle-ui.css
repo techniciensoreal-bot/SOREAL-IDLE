@@ -1682,50 +1682,6 @@ html,body{overflow-x:hidden}
             animation:sorealIdlePlayerHitV46 .26s ease-out;
           }
 
-          @keyframes sorealIdleBossHitV46{
-            0%{
-              transform:translateX(0) scale(1);
-              filter:brightness(1);
-              box-shadow:0 0 0 rgba(255,86,86,0);
-            }
-            28%{
-              transform:translateX(-7px) scale(.985);
-              filter:brightness(1.55) saturate(1.25);
-              box-shadow:0 0 28px rgba(255,80,80,.55);
-            }
-            58%{
-              transform:translateX(4px) scale(1.01);
-              filter:brightness(1.18);
-            }
-            100%{
-              transform:translateX(0) scale(1);
-              filter:brightness(1);
-              box-shadow:0 0 0 rgba(255,86,86,0);
-            }
-          }
-
-          @keyframes sorealIdlePlayerHitV46{
-            0%{
-              transform:translateX(0) scale(1);
-              filter:brightness(1);
-              box-shadow:0 0 0 rgba(255,88,88,0);
-            }
-            28%{
-              transform:translateX(7px) scale(.985);
-              filter:brightness(1.6) saturate(1.35);
-              box-shadow:0 0 28px rgba(255,76,76,.58);
-            }
-            58%{
-              transform:translateX(-4px) scale(1.01);
-              filter:brightness(1.2);
-            }
-            100%{
-              transform:translateX(0) scale(1);
-              filter:brightness(1);
-              box-shadow:0 0 0 rgba(255,88,88,0);
-            }
-          }
-
           @media(max-width:700px){
             .soreal-idle-page-root-v28{
               padding:5px !important;

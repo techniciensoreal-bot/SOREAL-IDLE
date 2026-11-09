@@ -23,7 +23,6 @@
   function idleCouleurMoneyPitNavV1_(){return REG.idleCouleurMoneyPitNavV1_.apply(null,arguments);}
   function idleDisponibiliteMoneyPitV1_(){return REG.idleDisponibiliteMoneyPitV1_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
-  function idleMenuAlimenteV1_(){return REG.idleMenuAlimenteV1_.apply(null,arguments);}
   function idleMenuTravailleV1_(){return REG.idleMenuTravailleV1_.apply(null,arguments);}
   function couleurBoutonShopIdleV1_(){return REG.couleurBoutonShopIdleV1_.apply(null,arguments);}
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
@@ -34,11 +33,6 @@
   function jouerSonMenuIdleV1_(){return REG.jouerSonMenuIdleV1_.apply(null,arguments);}
   function idleMenuMarquerAcquisV1_(){return REG.idleMenuMarquerAcquisV1_.apply(null,arguments);}
   function arreterCombatTitanIdleV1_(){return REG.arreterCombatTitanIdleV1_.apply(null,arguments);}
-  function demarrerTutorielPagesIdleV1_(){return REG.demarrerTutorielPagesIdleV1_.apply(null,arguments);}
-  function generationJoueurIdleV75_(){return REG.generationJoueurIdleV75_.apply(null,arguments);}
-  function idleInfosParMenuIdleV1_(){return REG.idleInfosParMenuIdleV1_.apply(null,arguments);}
-  function anciennesFenetresMenusPermisesIdleV1_(){return REG.anciennesFenetresMenusPermisesIdleV1_.apply(null,arguments);}
-  function afficherProchainePopupIdleV75_(){return REG.afficherProchainePopupIdleV75_.apply(null,arguments);}
   function annulerTimerCombatAutoIdleV30_(){return REG.annulerTimerCombatAutoIdleV30_.apply(null,arguments);}
   function sauverCombatAutoIdleV30_(){return REG.sauverCombatAutoIdleV30_.apply(null,arguments);}
   function ajouterActionRapideIdleV60_(){return REG.ajouterActionRapideIdleV60_.apply(null,arguments);}

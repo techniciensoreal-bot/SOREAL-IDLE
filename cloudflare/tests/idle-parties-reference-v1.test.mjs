@@ -68,6 +68,7 @@ for (const nom of REFS) {
   const fichier = "cloudflare/tests/references/" + nom + ".attendu.json";
   if (process.env.SOREAL_ECRIRE_REFERENCE === "1") { fs.writeFileSync(fichier, JSON.stringify(a, null, 1) + "\n"); console.log("attendu écrit : " + fichier); continue; }
   const attendu = JSON.parse(fs.readFileSync(fichier, "utf8"));
+  /* Attendu régénéré le 2026-11-09 (anti-spoil, liste des systèmes filtrée) : seuls les systèmes non découverts et jamais bougés (empreinte de l'état vidé) et l'entraînement avancé à zéro (verrouillé) ont disparu ; toutes les autres valeurs sont identiques (comparé ligne à ligne avant régénération). */
   assert.deepEqual(a, attendu, nom + " : l'avancée de la partie de référence doit rester IDENTIQUE (progression, ressources, niveaux)");
   /* le scénario progresse vraiment : la référence ne serait qu'un état figé sinon */
   assert.notDeepEqual(a["apres +600 s"].systemes, a["apres allocations"].systemes, nom + " : la partie avance bien pendant 600 s");

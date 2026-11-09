@@ -33,9 +33,6 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Dans le tutoriel, Cthulhu n’a plus de voix : son texte s’écrit lettre après lettre avec un petit bip, comme dans les vieux jeux, et il suffit de toucher l’écran pour passer au texte suivant (« Touchez l’écran » apparaît quand la phrase est finie).',
-            'Le menu Renaissance apparaît tout seul à la fin des 3 minutes de la partie, sans avoir besoin de cliquer sur un autre menu.',
-            'Sur téléphone, le défilement de la page et de la barre de menus démarre plus vite : seul un doigt posé sur une case d’objet ou sur le Cube attend l’écran, le reste de l’écran répond tout de suite.',
-            'Les pelles deviennent des scientifiques partout : récompenses des défis, boutiques (« emplacement de labo »), phrases d’« En direct », menu et Machine temporelle. Seuls les textes lus pendant les défis gardent leurs anciens mots.',
             'Le cadre qui contient tous les menus ne bouge plus quand tu passes d’une page longue à une page courte : la place de la barre de défilement est toujours réservée.'
           ]},
           {menu:'shop', titre:'Boutique', points:[
@@ -46,6 +43,7 @@
             'Le bouton « Jouer » d’un défi est grisé tant que les 3 minutes de la partie ne sont pas passées (avec le temps restant), puis il s’allume tout seul, comme la Renaissance. Plus de bruit de machine sans que le défi se lance.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Sur téléphone, le défilement de la page et de la barre de menus démarre plus vite : seul un doigt posé sur une case d’objet ou sur le Cube attend l’écran, le reste de l’écran répond tout de suite.',
             'Les monstres d’Aventure dont le nom a changé (« Un slime métallique », « 743 poulets furax »…) retrouvent leur image.',
             'Dans tout le jeu, une image qui n’arrive pas (un monstre en Aventure, un boss, un décor…) est redemandée toute seule trois fois, après 1,5, 4 puis 9 secondes, au lieu de rester vide jusqu’à ce que tu changes d’onglet.'
           ]},
@@ -53,6 +51,7 @@
             'Boss 106 : une fois visible derrière sa mort, le boss suivant n’a plus sa scène d’apparition ; le fait qu’il soit derrière l’autre image suffit.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Les pelles deviennent des scientifiques partout : récompenses des défis, boutiques (« emplacement de labo »), phrases d’« En direct », menu et Machine temporelle. Seuls les textes lus pendant les défis gardent leurs anciens mots.',
             'Après une renaissance, le niveau de la Machine temporelle ne recule plus pendant la première seconde quand tu mets de l’énergie : il n’affiche plus un niveau de trop pendant quelques images.'
           ]},
           {menu:'entrainement', titre:'Entraînement de base', points:[
@@ -70,6 +69,9 @@
           {menu:'chroniques', titre:'Chroniques', points:[
             'Quand tu zoomes sur une carte, les lettres des grands nombres (Tvg, Uvg…) sont en couleur, comme quand la carte est rangée dans l’album.',
             'Sur téléphone, les pages de l’album tournent en glissant à plat vers la gauche, plus vite et sans pivot en 3D : bien moins de choses à redessiner. Sur PC, le tour de page ne change pas.'
+          ]}
+          ,{menu:'renaissance', titre:'Renaissance', points:[
+            'Le menu Renaissance apparaît tout seul à la fin des 3 minutes de la partie, sans avoir besoin de cliquer sur un autre menu.'
           ]}
         ]
       },
@@ -108,7 +110,6 @@
           {menu:'general', titre:'Général', points:[
             'Admin : onze voix de Lhu (l’enfant et dix nouvelles, dont plusieurs « ados ») sont dans la liste des voix des textes et du tutoriel.',
             'Le titre « Rob Boss » d’une chronique n’est plus lu avec la voix anglaise quand le jeu est en français (le filtre vaut aussi pour les voix déclarées par la chronique).',
-            'Les boutons « Tout retirer » s’appellent maintenant « Tout reprendre », et le mot n’est plus coupé nulle part (dans la Machine temporelle ses boutons ont aussi un fond plus sombre, plus lisible).',
             'Les petits textes gris et fins sous les barres et dans les cadres de plusieurs menus sont plus lisibles : plus clairs et plus gras.',
             'La voix de secours est supprimée du jeu : seuls les textes qui ont une voix générée sont lus (les autres restent muets), et le jeu est plus fluide.',
             'Réglages : une case permet de couper les aides du tutoriel.',
@@ -154,6 +155,7 @@
             'La fenêtre de Renaissance est refaite : un décor magique avec une horloge qui tourne à rebours, le nombre de fois où tu seras plus fort écrit clairement, les boss qui tombent plus vite, ce qui repart de zéro, ce qui se referme pour l’instant et ce que tu gardes.',
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Les boutons « Tout retirer » s’appellent maintenant « Tout reprendre », et le mot n’est plus coupé nulle part (dans la Machine temporelle ses boutons ont aussi un fond plus sombre, plus lisible).',
             'Le « ding » qui sonnait quand une barre de la Machine temporelle gagnait un niveau est retiré.',
             'Il n’y a plus de bulles dans les tubes Énergie et Magie quand aucune ressource n’est placée dessus, même s’il reste du liquide.',
             'La Machine temporelle a ses propres sons : les boutons + (un cliquet qui monte), − (qui redescend) et Max (la machine se charge puis se cale d’un coup sourd et d’une cloche) font des bruits de mécanique bien audibles, un bouton sans effet fait un choc sourd, et un balayage suivi d’une cloche annonce un niveau gagné.',
@@ -384,7 +386,6 @@
             'Les boutons de placement (Max, +, Cap…) tiennent compte de la ressource réellement disponible, sans valeur périmée.',
             'L’icône d’un menu qui travaille continue de bouger quand tu cliques en dehors de la fenêtre de l’application.',
             'Énergie et magie : le nombre affiché ne recule plus d’une unité de temps en temps pendant qu’il monte.',
-            'L’application et le site sont plus fluides sur téléphone : l’écran de la borne, la machine temporelle et le tour des pages de l’album saccadent moins.',
             'L’application Android hors ligne garde toute seule la partie la plus récente, sans te demander de choisir ; un petit message te dit laquelle a été retenue.',
             'Les voix générées sont lues partout, y compris l’introduction des chroniques.',
             'Admin : les voix lues sans texte à l’écran peuvent maintenant être supprimées complètement (et rétablies).',
@@ -486,6 +487,9 @@
             'Les écritures des boutons grisés de cette page sont maintenant lisibles.',
             'Une des portes est remplacée par un nouveau dessin.',
           ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'L’application et le site sont plus fluides sur téléphone : l’écran de la borne, la machine temporelle et le tour des pages de l’album saccadent moins.'
+          ]},
         ],
       },
       {
@@ -494,7 +498,6 @@
         date:'2026-11-02',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Le compteur de temps du bandeau du haut apparaît désormais dès la renaissance, en même temps que le menu Renaissance.',
             'Les entêtes d’allocation (Input, plafonds d’énergie et de magie, Idle) sont plus compacts sur PC : l’Input passe à gauche sur la même rangée, les lignes « placée » sont collées en bas du cadre et les boutons profitent de la place gagnée.',
             'Le jeu est plus fluide partout : le dessin de l’écran de la borne est environ sept fois moins coûteux, le jeu ne se rafraîchit plus plus de 60 fois par seconde, les menus se redessinent plus vite et les écrans qui sortent de l’image se mettent en pause.',
             'Application Android : tu retrouves le menu Admin et le journal de fluidité sur ton compte, même hors ligne, et un bouton « Reconnecter mon compte » (Réglages, onglet Ma partie) ainsi qu’un petit bandeau te proposent de te reconnecter quand ton compte n’est plus relié, sans toucher à ta partie.',
@@ -571,6 +574,9 @@
             'Les pupilles des chats grandissent progressivement jusqu’à presque remplir l’œil, puis redeviennent fines : à l’arrivée dans le menu, quand on prend un bocal, et rarement au repos.',
             'Les yeux des chats : la pupille ne dépasse plus jamais de l’iris et il n’y a plus de pupille de fond ni de rectangle clair derrière elle.',
           ]},
+          {menu:'renaissance', titre:'Renaissance', points:[
+            'Le compteur de temps du bandeau du haut apparaît désormais dès la renaissance, en même temps que le menu Renaissance.'
+          ]},
         ],
       },
       {
@@ -580,7 +586,6 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Dans le Profil, les éléments du badavatar tournent sur 360°, passent devant ou derrière les autres et se placent partout sur le corps.',
-            'Le badavatar montré dans Réglages › Profil est maintenant exactement celui que les autres voient dans la tour.',
             'Quand un rangement a plusieurs pages, les numéros de pages sont aussi affichés en haut, juste sous la barre de recherche.',
             'Réglages : un nouvel onglet « Profil » montre ton badavatar ; tu peux déplacer, agrandir, tourner ou masquer ses éléments, puis l’enregistrer : c’est lui que les autres joueurs voient. Un visage personnalisé est possible en option, détouré sur ton appareil, même sans connexion.',
             'Quand l’orage frappe l’image d’un écran, la déformation reste maintenant à l’intérieur de l’écran sans jamais déborder du cadre.',
@@ -655,6 +660,7 @@
             'La couleur du liquide des bocaux suit l’apparence du chat : transparent pour le chat de base, rose bonbon pour le coquet, or pour le doré, sang pour Halloween, arc-en-ciel pour Nyan…'
           ]}
           ,{menu:'tower', titre:'ITOPOD', points:[
+            'Le badavatar montré dans Réglages › Profil est maintenant exactement celui que les autres voient dans la tour.',
             'Une barbe qui montait sur le nez d’un personnage (comme Massimo) est replacée juste sous le nez ; tous les autres visages restent exactement comme avant.',
             'Les ennemis défilent maintenant l’un après l’autre, du premier au dernier de la liste, puis tout recommence au premier. Leurs visages ne sont plus coupés en haut et les corps ne flottent plus.'
           ]}
@@ -762,17 +768,12 @@
             'Chaque menu commence par un cadre de titre (le nom du menu et une mini phrase) de la hauteur exacte des 4 barres du haut : même toutes affichées, elles ne cachent que le titre, jamais un bouton.',
             'Dans l’application PC lancée par Steam, le jeu ne clignote plus en noir quand l’interface Steam est affichée.',
             'Dans l’application PC, le premier lancement est bien plus rapide : elle ne reste plus figée pendant qu’elle prépare ses images et ses voix (le travail se fait en arrière-plan, puis est retenu pour les lancements suivants).',
-            'Sur téléphone, un double tap sur le Cube de l’infini absorbe maintenant les boosts au lieu d’ouvrir sa fenêtre : un simple tap ouvre la fenêtre (avec l’achat « Double tap », elle s’ouvre juste après le délai du double tap).',
-            'Sur téléphone, l’aura du Cube de l’infini est de nouveau visible : la case ne la coupe plus.',
-            'Sur téléphone, le texte d’une carte de chronique défile maintenant sous le doigt : le fond du jeu ne glisse plus à sa place.',
-            'Dans l’album, quand tu consultes un boss, la carte sort de sa pochette en un seul mouvement fluide, et quand tu la refermes elle rentre dans sa pochette avec la même animation.',
-            'Les sets faits d’un seul objet apparaissent maintenant dans la Collection : dans l’onglet Sets (leur objet et leur bonus) et dans la liste des sets complétés de l’onglet Équipement. L’annonce « Set complété » donne leur vrai nom et leur bonus, qui est maintenant écrit en toutes lettres.',
-            'Dans l’album des boss, la flèche tout à gauche fait repasser toutes les pages d’un coup puis referme la couverture (le livre se centre sur la page en se fermant) ; viennent ensuite la flèche qui avance (ou recule) de 10 pages en 10 pages et celle qui tourne une page à la fois.',
             'Sur la couverture du classeur fermé, les trous noirs sont au niveau des anneaux ; les anneaux restent visibles pendant un saut de 10 pages.',
-            'Plus de double couverture : le cuir de fond ne dépasse plus derrière l’album ouvert, on ne voit que la couverture et les pages.',
             'L’intérieur de la couverture garde exactement son cuir, ses bords et ses trous quand le livre finit de s’ouvrir : la texture ne disparaît plus, et l’affiche de la première page ne clignote plus.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Sur téléphone, l’aura du Cube de l’infini est de nouveau visible : la case ne la coupe plus.',
+            'Sur téléphone, un double tap sur le Cube de l’infini absorbe maintenant les boosts au lieu d’ouvrir sa fenêtre : un simple tap ouvre la fenêtre (avec l’achat « Double tap », elle s’ouvre juste après le délai du double tap).',
             'L’Auto Boost n’en laisse plus dans ton sac : l’équipement reçoit les boosts en premier, puis tout ce qu’il ne peut plus absorber part dans le Cube de l’infini (avant, le Cube attendait que toutes les stats de l’équipement soient au maximum).',
             'Dans la fiche d’un objet, les boutons ne sont plus coupés : le texte passe à la ligne et les boutons au libellé long prennent toute la largeur, sur ordinateur comme sur téléphone.',
             'Sur les cartes des boss, le « Monde » suit maintenant les zones du mode Aventure (Zone Tutoriel = monde 1, puis +1 à chaque nouvelle zone), au lieu de 20 boss par monde.',
@@ -792,6 +793,11 @@
             'L’emplacement de Daycare (Boutique EXP, onglet Débuts) apparaît maintenant sans condition cachée : avant, il fallait déjà avoir un emplacement pour le voir.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Plus de double couverture : le cuir de fond ne dépasse plus derrière l’album ouvert, on ne voit que la couverture et les pages.',
+            'Les sets faits d’un seul objet apparaissent maintenant dans la Collection : dans l’onglet Sets (leur objet et leur bonus) et dans la liste des sets complétés de l’onglet Équipement. L’annonce « Set complété » donne leur vrai nom et leur bonus, qui est maintenant écrit en toutes lettres.',
+            'Dans l’album, quand tu consultes un boss, la carte sort de sa pochette en un seul mouvement fluide, et quand tu la refermes elle rentre dans sa pochette avec la même animation.',
+            'Dans l’album des boss, la flèche tout à gauche fait repasser toutes les pages d’un coup puis referme la couverture (le livre se centre sur la page en se fermant) ; viennent ensuite la flèche qui avance (ou recule) de 10 pages en 10 pages et celle qui tourne une page à la fois.',
+            'Sur téléphone, le texte d’une carte de chronique défile maintenant sous le doigt : le fond du jeu ne glisse plus à sa place.',
             'Quand tu ranges de nouvelles cartes, chacune entre maintenant dans sa pochette par le côté extérieur de la page, sous le plastique (elle ne le traverse plus), et un bouton « Passer » (ou la touche Échap) range tout d’un coup.',
             'Sur téléphone, l’album montre une seule page de 9 cartes au plus, à taille fixe (plus de zoom), et les images des cartes ne disparaissent plus quand on tourne les pages.',
             'Dans le classeur, la carte reste maintenant bien visible pendant qu’elle glisse pour entrer dans sa pochette (elle disparaissait avant d’arriver).',
@@ -825,19 +831,12 @@
         date:'2026-10-29',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Quand on tue des boss très vite, la mort et l’apparition du suivant ne se jouent plus deux fois par-dessus l’autre ; le tas d’Or de la machine temporelle grossit exactement à chaque unité (M, B, T, Sx, Oc, Vg, Uvg, Tvg…).',
-            'L’album des boss garde exactement la même taille sur toutes ses pages, y compris la dernière (les emplacements libres sont de vraies pochettes vides, la carte s’y glisse) ; plus rien ne bouge pendant un saut de pages, la page ne défile plus toute seule quand on ouvre la couverture, et l’anneau ne disparaît plus.',
-            'Le Cube de l’infini a toujours une petite aura, de la couleur de son aspect (elle change avec son palier).',
             'Les cartes de boss s’ouvrent plus grandes sur PC, au même format dans le panneau sous la borne et quand on passe au boss précédent ou suivant ; sur téléphone elles prennent presque toute la largeur, les flèches passant sous la carte.',
-            'Dans l’album des boss, on change de page au-dessus comme en dessous du livre : une flèche pour avancer d’une page, une autre pour avancer de 10 pages, avec 10 feuilles qui tournent en même temps. Le livre s’ouvre en refaisant à l’envers le geste de sa fermeture, les feuilles passent au-dessus des anneaux (qu’on voit à travers leurs trous), les cartes ne bougent plus à la fin d’un tour de page, et le dos de la première feuille ne montre que les cartes du grand dessin déjà gagnées.',
-            'Album de collection des boss, refait comme une vraie farde noire à anneaux : fermée à l’arrivée (le logo du jeu sur sa couverture), elle s’ouvre d’un clic. 9 cartes par page, deux pages de cartes de face ouvertes sur PC et une seule page sur téléphone ; la première page est un grand dessin en 9 cartes qui se complète au fil des boss vaincus (on voit le dos des cartes pas encore gagnées). On gagne la carte d’un boss en le vainquant une première fois ; les nouvelles cartes restent invisibles tant qu’elles ne sont pas rangées, puis s’annoncent, se rejoignent en paquet et se glissent une à une dans leur pochette.',
             'Dans l’application PC, une mise à jour ne peut plus échouer parce qu’une voix a été régénérée entre-temps : le fichier concerné est mis de côté et le reste s’installe.',
             'Dans l’application PC, l’entrée Steam s’appelle SOREAL NGU IDLE (renommée toute seule au lancement, Steam fermé), et l’interface Steam ne fait plus clignoter de bande noire.',
             'L’icône du jeu est la nouvelle sur la fenêtre et sur les raccourcis du Bureau, du menu Démarrer et de la barre des tâches.',
             'Le boss qui s’écroule en pierre se fissure exactement là où il se casse : les morceaux qui tombent suivent les fissures.',
             'Un son de mort n’est plus joué en double : une mort qui a son propre son ne rejoue plus le son de défaite en plus.',
-            'L’album de collection des boss a des pages : des boutons (ou un glissement du doigt) tournent la page autour des anneaux du classeur, sur téléphone comme sur PC.',
-            'Dans la Collection, les boss sont rangés dans un album de collection, chaque carte glissée dans sa pochette en plastique. Un clic : la carte sort de sa pochette et vient en zoom sur l’écran ; tu peux la faire tourner au doigt ou à la souris.',
             'L’autocollant SOREAL de la borne est centré sur l’enseigne, de travers, et le N de NGU se lit en entier.',
             'Sur PC, l’écran de lancement utilise la grande image horizontale ; sur téléphone, l’affiche verticale.',
             'Sur PC, le cadre des menus de gauche est centré en hauteur (même marge en haut et en bas) et ses icônes restent dans le cadre quand on le fait défiler.',
@@ -855,7 +854,6 @@
             'Sur téléphone, le cadre Temps ne coupe plus l’heure : elle rétrécit juste assez pour tenir en entier.',
             'Lancée depuis Steam, l’application dessine maintenant de façon à laisser la superposition Steam s’afficher par-dessus le jeu ; Maj + Tab ouvre le menu Steam.',
             'Sur PC, un bouton plein écran / écran normal apparaît en haut à droite, au bout de la rangée des chiffres (à droite du cadre Temps).',
-            'Le bandeau (chiffres et barres) est posé au-dessus du jeu : quand une barre d’énergie, de magie ou de 3e ressource apparaît ou disparaît, il glisse par-dessus la page sans jamais la pousser ni la faire défiler, ni sur PC ni sur téléphone (y compris en retirant l’énergie ou la magie dans la Machine temporelle). Seules la barre de vie et les autres barres bougent.',
             'L’application Android se met maintenant à jour toute seule, comme celle de Windows : au lancement, elle cherche les nouveautés (images, sons, jeu), ne télécharge que ce qui a changé et te propose de relancer quand c’est prêt.',
             'Dans l’application Windows, F5 et Ctrl+R actualisent de nouveau la fenêtre (Ctrl+Maj+R et Ctrl+F5 aussi, en ignorant le cache).'
           ]},
@@ -868,11 +866,14 @@
             'Tout boss combattu avec le bouton Fight a maintenant l’animation de sa mort, quelle que soit la durée du combat (plus de minimum de 5 secondes) ; seul le NUKE n’en a pas. Même si le boss suivant était déjà prêt avant la fin de la barre de vie, on ne voit plus son image apparaître une demi-seconde, puis un écran noir, puis un fondu sans son. Sa mort se joue d’abord, puis il apparaît avec son effet et son son.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Le Cube de l’infini a toujours une petite aura, de la couleur de son aspect (elle change avec son palier).',
             'Le journal de combat revient tout en bas après 10 secondes sans qu’on y touche ; toucher ou faire défiler le journal repousse ce retour.',
             'Le Cube de l’infini s’ouvre et se referme comme les autres objets : un appui ouvre sa fiche, un nouvel appui la ferme (souris comme tactile).',
             'Dans le coffre, les noms des équipements ne sont plus écrits sur les cases : ils cachaient l’image. Clique sur un objet pour connaître son nom.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Le bandeau (chiffres et barres) est posé au-dessus du jeu : quand une barre d’énergie, de magie ou de 3e ressource apparaît ou disparaît, il glisse par-dessus la page sans jamais la pousser ni la faire défiler, ni sur PC ni sur téléphone (y compris en retirant l’énergie ou la magie dans la Machine temporelle). Seules la barre de vie et les autres barres bougent.',
+            'Quand on tue des boss très vite, la mort et l’apparition du suivant ne se jouent plus deux fois par-dessus l’autre ; le tas d’Or de la machine temporelle grossit exactement à chaque unité (M, B, T, Sx, Oc, Vg, Uvg, Tvg…).',
             'Machine temporelle : les barres sont maintenant aussi fluides que dans les autres menus (60 images par seconde au lieu de 45 à 50) : les tubes de verre ne ralentissent plus la page, et la barre ne recule plus quand le moteur répond après un clic : elle rejoint sa vraie valeur en douceur, même si tu cliques en rafale.',
             'Machine temporelle : les pièces d’or sortent maintenant en file régulière, toutes de la même façon (plus aucune pièce qui fait des haut-bas), et le tas d’Or sous la goulotte grossit avec le butin : dix tas différents, d’un petit tas à une grosse pile.',
             'Quand tu places ou retires de l’Énergie ou de la Magie, les barres et les comptes à rebours ne font plus de petit retour en arrière : ils restent fluides.',
@@ -892,6 +893,13 @@
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Au démarrage de l’ordinateur, l’écran de chargement ne bouge plus quand les messages changent : le logo, la barre et le pourcentage restent bien en place, c’est lisible.'
+          ]}
+          ,{menu:'chroniques', titre:'Chroniques', points:[
+            'Album de collection des boss, refait comme une vraie farde noire à anneaux : fermée à l’arrivée (le logo du jeu sur sa couverture), elle s’ouvre d’un clic. 9 cartes par page, deux pages de cartes de face ouvertes sur PC et une seule page sur téléphone ; la première page est un grand dessin en 9 cartes qui se complète au fil des boss vaincus (on voit le dos des cartes pas encore gagnées). On gagne la carte d’un boss en le vainquant une première fois ; les nouvelles cartes restent invisibles tant qu’elles ne sont pas rangées, puis s’annoncent, se rejoignent en paquet et se glissent une à une dans leur pochette.',
+            'Dans la Collection, les boss sont rangés dans un album de collection, chaque carte glissée dans sa pochette en plastique. Un clic : la carte sort de sa pochette et vient en zoom sur l’écran ; tu peux la faire tourner au doigt ou à la souris.',
+            'L’album de collection des boss a des pages : des boutons (ou un glissement du doigt) tournent la page autour des anneaux du classeur, sur téléphone comme sur PC.',
+            'Dans l’album des boss, on change de page au-dessus comme en dessous du livre : une flèche pour avancer d’une page, une autre pour avancer de 10 pages, avec 10 feuilles qui tournent en même temps. Le livre s’ouvre en refaisant à l’envers le geste de sa fermeture, les feuilles passent au-dessus des anneaux (qu’on voit à travers leurs trous), les cartes ne bougent plus à la fin d’un tour de page, et le dos de la première feuille ne montre que les cartes du grand dessin déjà gagnées.',
+            'L’album des boss garde exactement la même taille sur toutes ses pages, y compris la dernière (les emplacements libres sont de vraies pochettes vides, la carte s’y glisse) ; plus rien ne bouge pendant un saut de pages, la page ne défile plus toute seule quand on ouvre la couverture, et l’anneau ne disparaît plus.'
           ]}
         ]
       },
@@ -949,11 +957,8 @@
             'Le bandeau « En direct » apparaît et disparaît maintenant en fondu, et les informations entrent toujours par la droite de l’écran puis le traversent en entier, sur PC comme sur téléphone (sur PC, la première pouvait démarrer au milieu).',
             'Les portes ne se referment plus en plein milieu de leur ouverture, et les fruits ne rétrécissent plus jamais en animation : une pousse plus petite apparaît d’un coup.',
             'Le boss suivant n’apparaît plus d’abord en entier puis noir avant de revenir : il n’est montré que par son animation d’apparition. Et Fight reste bloqué tant que le boss n’est pas apparu.',
-            'Lancer un défi te fait maintenant arriver comme après un Rebirth : même bruit de voyage dans le temps, et tu retrouves la borne d’arcade.',
             'Quand un menu apparaît (la première fois, et de nouveau après chaque Rebirth), son bouton clignote trois fois avec trois petits bips doux. Si plusieurs menus se débloquent en même temps, tous clignotent ensemble mais le son ne joue qu’une fois. Quand plusieurs portes s’ouvrent d’un coup, il n’y a qu’un seul son de porte et un seul coq.',
-            'Quand on lit toutes les chroniques de boss, ou qu’on les reprend à partir d’un boss, un tournement de page est joué entre chaque boss : les trois sons du fichier passent à tour de rôle (première page, deuxième, troisième, puis on recommence).',
-            'Le bandeau du haut est plus fluide sur toutes les pages : la barre de vie glisse avec la carte graphique au lieu de redessiner toute sa largeur, et les braises de l’énergie comme le code de la 3e ressource aussi.',
-            'Le NGU d’énergie (le jour) est deux fois plus fluide : les nuages glissent maintenant avec la carte graphique, au lieu de redessiner tout le ciel à chaque image.',
+            'Le bandeau du haut est plus fluide sur toutes les pages : la barre de vie glisse avec la carte graphique au lieu de redessiner toute sa largeur, et les braises de l’énergie aussi.',
             'Ta fenêtre de tutoriel s’ouvre réduite en petite enceinte (la voix parle déjà) : un clic sur l’enceinte l’agrandit. Quand une étape demande de cliquer sur un élément (comme Fight), rien d’autre ne se clique, et l’élément lui-même reste bloqué tant que la voix n’a pas fini ; attendre ne lance jamais l’étape suivante : seul le clic sur l’élément le fait.',
             'Après la fermeture du texte du premier boss, la chronique ne se relit plus : la fenêtre disparaît tout de suite et la voix s’arrête.',
             'La partie ne commence réellement qu’à la fermeture du texte du premier boss : tu arrives sur la borne avec 250 d’énergie, qui regénère jusqu’à 500, que tu aies mis une minute ou un quart d’heure à passer le pseudo et l’introduction. Ton tutoriel de départ ne se lance qu’à ce moment-là, plus sur l’écran du pseudo.'
@@ -966,8 +971,15 @@
             'Ce menu est entièrement refait : chaque mineur est un ouvrier dessiné avec sa pelle, dans un cadre qui est tout son décor, et il a vraiment l’air de travailler (il se penche, creuse, soulève la terre et la balance sur le tas). Le nom, ce qu’il améliore et les boutons sont posés sur le dessin. Tu vois l’or par seconde consommé, les emplacements en casques à lampe et le bonus de chaque mineur.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
+            'Quand on lit toutes les chroniques de boss, ou qu’on les reprend à partir d’un boss, un tournement de page est joué entre chaque boss : les trois sons du fichier passent à tour de rôle (première page, deuxième, troisième, puis on recommence).',
             'La Collection, avec les chroniques des boss, reste accessible après un Rebirth ou un défi : elle ne disparaît plus, tu retrouves tous les boss déjà rencontrés.',
             'Dans Chroniques, « Combat le plus long » disparaît des tableaux de rangs et un onglet « Défis » apparaît dès que tu as débloqué un défi : un sous-menu par défi, avec le meilleur temps de chaque joueur pour le terminer, du plus court au plus long. Tu ne vois que les défis que tu as déjà atteints.'
+          ]}
+          ,{menu:'challenges', titre:'Défis', points:[
+            'Lancer un défi te fait maintenant arriver comme après un Rebirth : même bruit de voyage dans le temps, et tu retrouves la borne d’arcade.'
+          ]}
+          ,{menu:'ngu', titre:'NGU', points:[
+            'Le NGU d’énergie (le jour) est deux fois plus fluide : les nuages glissent maintenant avec la carte graphique, au lieu de redessiner tout le ciel à chaque image.'
           ]}
         ]
       },
@@ -1150,7 +1162,7 @@
             'Dans le chat, un bouton émoji (sur PC) ouvre une grille d’émojis à glisser dans ton message.',
             'Un menu qui se débloque ne se glisse plus tout en bas de la liste (après Réglages) quand tu as déjà réorganisé les boutons ; et sur PC, la liste défile d’elle-même quand tu glisses un bouton près du bord, pour atteindre le bas.',
             'Sur PC, le pointeur ne clignote plus entre flèche et main quand on le place au bord d’un bouton du menu de gauche (le bouton ne se soulève plus au survol).',
-            'Les nombres qui montent (vie, énergie, magie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts, renaissance).',
+            'Les nombres qui montent (vie, énergie, monnaies…) ne font plus de petits retours en arrière : un nombre ne recule que pour un vrai retrait (achat, dégâts).',
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'La fiche d’un objet est refaite façon jeu de rôle : le nom à la couleur de sa rareté, le niveau en jaune, l’emplacement et l’ensemble, les statistiques (orange, bleu, jaune selon le boost qui les remplit) et, en vert en bas, le bonus de son ensemble une fois toutes ses pièces au maximum.',
@@ -1198,10 +1210,8 @@
           {menu:'general', titre:'Général', points:[
             'Plus de petit saut de page en arrivant sur un menu : la page ne bouge plus pendant son affichage.',
             'Quand tu reviens dans le jeu en Zone sûre après un K.O. pendant ton absence ou une défaite, le journal d’Aventure explique maintenant pourquoi.',
-            'Le son d’ouverture des portes n’a plus sa petite mélodie finale, et un coq chante juste après, une seule fois par renaissance, à la première ouverture d’une porte.',
             'Les boutons « Tout retirer » ne prennent plus toute la largeur, sur PC comme sur téléphone : ils sont sur la même ligne que 1/2 et 1/4, dans toutes les pages (la zone des boutons est plus courte).',
             'Un combat de boss mené pendant que la page était fermée ou en arrière-plan plus de 30 secondes n’entre plus dans les records de durée (seule la durée d’un combat suivi compte).',
-            'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).',
             'Changer de page dans l’inventaire ne fait plus bouger la page : seul le contenu du cadre Sac change, le cadre garde la même hauteur.',
             'Si le moteur du jeu met trop de temps à démarrer (application de bureau, appareil lent), le jeu continue en mode serveur au lieu de rester sur « Connexion à SOREAL NGU IDLE ».',
           ]},
@@ -1229,6 +1239,12 @@
             'De l’air monte du bas des jauges : plein de minibulles très fines et rapides au pied du tube, et quelques bulles qui montent en grossissant.',
             'Cible et ressource allouée sont de petits écrans, comme Niveau et Temps restant.',
             'L’Énergie est en vert comme sa barre, et la seconde tour reprend la couleur de sa propre barre.',
+          ]}
+          ,{menu:'renaissance', titre:'Renaissance', points:[
+            'Le son d’ouverture des portes n’a plus sa petite mélodie finale, et un coq chante juste après, une seule fois par renaissance, à la première ouverture d’une porte.'
+          ]}
+          ,{menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Les cadres « Ton prix » du Money Pit et de la roue journalière changent de couleur à chaque récompense (celle de la roue suit son nombre de tours, plus rien ne peut la remettre en rouge).'
           ]}
         ]
       },
@@ -1389,8 +1405,6 @@
           {menu:'general', titre:'Général', points:[
             'Les boutons de tous les menus ont la même taille, lisible sur PC comme sur téléphone ; les barres d’outils (Input, Mes nombres, Plafond, Idle) sont de petits cadres propres où « Max » ne dépasse plus.',
             'Un clic sur un menu replace la page sous la bannière, sur PC comme sur téléphone (barre Attaque, Défense, Or, EXP, AP juste dessous), et le menu de gauche descend jusqu’à son dernier bouton.',
-            'Les pages mises à jour en direct (dont celle des NGU) ne clignotent plus : cadres lumineux, particules, boutons de pourcentage et tuyaux restent fluides.',
-            'La page Renaissance est refaite : « Partie précédente » et « Partie en cours » côte à côte, le Number en grand, les calculs en bas et un décor inspiré des cieux, de la vie et de la mort.',
             '« En direct » annonce quand le coffre d’un joueur s’est chié dessus, et prévient l’administrateur d’un nouveau signalement de bug.',
             'Les panneaux d’informations des menus sont fermés à l’arrivée et au changement de menu, les icônes d’objets s’affichent toutes tout de suite, et la bannière, le menu et la barre de vie ne s’étirent plus quand tu changes d’onglet.',
             'Quand tu perds un combat, le son de défaite est tiré au hasard parmi sept.',
@@ -1428,6 +1442,12 @@
           ]},
           {menu:'shop', titre:'Boutique', points:[
             'Les emplacements d’inventaire de la boutique AP affichent combien tu en as déjà achetés sur le maximum possible, et chaque achat précise qu’il ajoute 1 emplacement.',
+          ]}
+          ,{menu:'ngu', titre:'NGU', points:[
+            'Les pages mises à jour en direct (dont celle des NGU) ne clignotent plus : cadres lumineux, particules, boutons de pourcentage et tuyaux restent fluides.'
+          ]}
+          ,{menu:'renaissance', titre:'Renaissance', points:[
+            'La page Renaissance est refaite : « Partie précédente » et « Partie en cours » côte à côte, le Number en grand, les calculs en bas et un décor inspiré des cieux, de la vie et de la mort.'
           ]}
         ]
       },

@@ -35,7 +35,6 @@
   function initialiserCoupsCombatIdleV116_(){return REG.initialiserCoupsCombatIdleV116_.apply(null,arguments);}
   function rafraichirEnergieEtBoutonsIdleV9_(){return REG.rafraichirEnergieEtBoutonsIdleV9_.apply(null,arguments);}
   function rafraichirCommandesFightBossIdleV167_(){return REG.rafraichirCommandesFightBossIdleV167_.apply(null,arguments);}
-  function afficherResumeHorsLigneIdleV64_(){return REG.afficherResumeHorsLigneIdleV64_.apply(null,arguments);}
   function sauverCombatAutoIdleV30_(){return REG.sauverCombatAutoIdleV30_.apply(null,arguments);}
   function chargerMenuIdleV28_(){return REG.chargerMenuIdleV28_.apply(null,arguments);}
   function prechargerCatalogueCombatIdleV61_(){return REG.prechargerCatalogueCombatIdleV61_.apply(null,arguments);}

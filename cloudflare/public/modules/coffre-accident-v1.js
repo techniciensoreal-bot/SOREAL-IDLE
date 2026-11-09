@@ -50,7 +50,6 @@
     point_(34,12,2,BRUN),point_(60,70,3,SOMBRE),point_(90,60,2,CLAIR),point_(8,52,3,BRUN),point_(44,92,2,SOMBRE),point_(72,8,2,BRUN),
     point_(26,40,2,VERDATRE),point_(88,88,3,BRUN),point_(52,30,2,SOMBRE),point_(14,84,2,CLAIR),point_(66,48,2,BRUN),point_(38,66,2,SOMBRE)
   ];
-  function listeNiveau_(liste,n){return liste.slice(0,Math.max(1,Math.ceil(liste.length*n/NIVEAU_MAX))).join(',');}
 
   /* curseur éponge (SVG original) quand on survole ce qui se frotte */
   var EPONGE='<svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 34 34"><rect x="3" y="9" width="28" height="18" rx="6" fill="#f2cf4a" stroke="#6b4e0a" stroke-width="2"/><rect x="3" y="21" width="28" height="6" rx="3" fill="#d6a92a" opacity=".7"/><circle cx="11" cy="15" r="2.2" fill="#b98a14"/><circle cx="19" cy="13" r="1.8" fill="#b98a14"/><circle cx="24" cy="19" r="2.2" fill="#b98a14"/><circle cx="14" cy="21" r="1.6" fill="#b98a14"/></svg>';

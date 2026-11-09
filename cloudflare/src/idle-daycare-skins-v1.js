@@ -24,6 +24,7 @@
  * Anti-spoil (règle n°2) : l'état client ne contient QUE les ids possédés, jamais de total ni de skin non possédé.
  */
 
+import { jourDeBruxellesV1 } from "./idle-jour-bruxelles-v1.js";
 import { idleLoginCalendarJoursDuMoisV1, idleLoginCalendarNormaliserV1 } from "./idle-login-calendar-v1.js";
 
 export const IDLE_DAYCARE_SKIN_DEFAUT_V1 = "defaut";
@@ -83,28 +84,8 @@ export function idsSkinsDeChaineV1(v) {
 }
 export const chaineSkinsNormaliseeV1 = (v) => idsSkinsDeChaineV1(v).join(",");
 
-const formateurBruxellesV1 = (() => {
-  try {
-    return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Brussels", year: "numeric", month: "2-digit", day: "2-digit" });
-  } catch (_e) {
-    return null;
-  }
-})();
-
-/* { annee, mois (1-12), jour } du jour calendaire de Bruxelles pour un instant (ms) ; l'instant vient du moteur (heure du serveur), jamais de l'horloge de l'appareil. */
-export function jourBruxellesV1(ms) {
-  const t = Number.isFinite(Number(ms)) ? Number(ms) : Date.now();
-  if (formateurBruxellesV1) {
-    const parts = formateurBruxellesV1.formatToParts(new Date(t));
-    const lire = (type) => Number(parts.find((p) => p.type === type)?.value);
-    const annee = lire("year");
-    const mois = lire("month");
-    const jour = lire("day");
-    if (annee > 0 && mois > 0 && jour > 0) return { annee, mois, jour };
-  }
-  const d = new Date(t + 3600000);
-  return { annee: d.getUTCFullYear(), mois: d.getUTCMonth() + 1, jour: d.getUTCDate() };
-}
+/* { annee, mois (1-12), jour } du jour calendaire de Bruxelles : définition unique dans idle-jour-bruxelles-v1.js (alias conservé pour les appelants). */
+export const jourBruxellesV1 = jourDeBruxellesV1;
 
 /* Le jour (mois, jour) est dans la fenêtre annuelle [de, a] (bornes incluses) ; une fenêtre qui chevauche le nouvel an (de > a) est gérée. */
 export function dansFenetreAnnuelleV1(mois, jour, de, a) {

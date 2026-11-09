@@ -1,0 +1,149 @@
+{
+  "_doc": "Registre des constantes « choix SOREAL » (AGENTS.md règle n°1, exception de Norman du 2026-10-04 : si aucune source ne publie l'ampleur, une constante modérée est permise, signalée par un commentaire). Une entrée par commentaire repéré par idle-constantes-soreal-registre-v1.test.mjs ; repere = début exact du commentaire (espaces normalisés). Statut « à valider par Norman » tant qu'il n'a pas confirmé la valeur ; ne jamais ajouter de constante sans entrée ici.",
+  "entrees": [
+    {
+      "fichier": "idle-adventure-butin.js",
+      "marqueur": "choix soreal",
+      "repere": "choix SOREAL délibéré (Norman, 2026-09-09 : \"Comme pour les",
+      "description": "nsterHpMaxForZoneV1/z.oneHitP) ; le combat \"coup par coup avec vraie barre de vie\" est un choix SOREAL délibéré (Norman, 2026-09-09 : \"Comme pour les boss\"), documenté comme tel, jamais une mécanique NGU réelle à citer. Il n'existe donc structurellement AUCUNE",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-adventure-combat.js",
+      "marqueur": "choix soreal",
+      "repere": "choix SOREAL). / const perkTitanExp=I(rebirthKills)>0&&I(reb",
+      "description": "souhait « V2/3/4 Titans had better rewards » n'est pas publiée : facteurs multiplicatifs (choix SOREAL). / const perkTitanExp=I(rebirthKills)>0&&I(rebirthKills)<=Math.max(0,I(ctx&&ctx.titanExpBonusKills,0))?1.5:1; /* 24 Hour Challenge (page Challenges) : « +10",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-hearts-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL (convention, pas un nombre de jeu) : pour Red/Y",
+      "description": "s, poop, or even the pills!\" -> le facteur de chaque consommable est multiplié par 1,1. * CHOIX SOREAL (convention, pas un nombre de jeu) : pour Red/Yellow, le bonus \"max heart bonus even when not equipped\" n'est pas cumulé avec celui du cœur équipé -- on reti",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-macguffins-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "choix SOREAL pour interdire le cumul de deux copies non fusi",
+      "description": "} /* Un seul fragment d'un même type peut être équipé à la fois : non publié par le wiki, choix SOREAL pour interdire le cumul de deux copies non fusionnées (la fusion reste la seule façon de monter un type). / function equipFragment(state, data, uid, slotInde",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-ngu-boss-reference-v1.js",
+      "marqueur": "approximation documentée",
+      "repere": "approximation documentée au-delà du boss 160, sciemment dive",
+      "description": "une correction non sourcée — l'extrapolation ×10/boss ci-dessous reste donc la meilleure approximation documentée au-delà du boss 160, sciemment divergente du wiki sur la plage 161-183 identifiée ci-dessus comme anormale, et sans aucune donnée wiki disponible",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-ngu-boss-reference-v1.js",
+      "marqueur": "approximation documentée",
+      "repere": "approximation documentée pour boss191+, où plus aucune fiche",
+      "description": "es wiki individuelles (Round 2, 2026-09-18, voir commentaire de tête). Reste la meilleure approximation documentée pour boss191+, où plus aucune fiche (individuelle ou agrégée) ne publie de stats. / const NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE = 10; /* XP confir",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-ngu-boss-reference-v1.js",
+      "marqueur": "sciemment divergente",
+      "repere": "sciemment divergente du wiki sur la plage 161-183 identifiée",
+      "description": "×10/boss ci-dessous reste donc la meilleure approximation documentée au-delà du boss 160, sciemment divergente du wiki sur la plage 161-183 identifiée ci-dessus comme anormale, et sans aucune donnée wiki disponible au-delà du boss 183. * Ce module ne fournit Q",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL\" : ce sont des conventions de code, jamais des",
+      "description": "aisse ouverts (façon de cumuler deux bonus, ordre de remise des objets...) sont signalés \"CHOIX SOREAL\" : ce sont des conventions de code, jamais des nombres de jeu. * Heroic Sigil (set) \"+10 % Quest Drops\" et Orange Heart (set) \"+20 % QP\" : câblés le 2026-09-",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : les deux sont additionnés comme une même stat",
+      "description": "\"Improved Quest Looting\" (\"improve the drop chance for Quest Items by 0.5%\" par niveau). CHOIX SOREAL : les deux sont additionnés comme une même stat \"Quest Drops %\" (le wiki ne dit pas comment ils se cumulent). La Drop Chance normale ne compte pas : \"It is i",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : facteur séparé x1,1 (\"drop 10% more often\").",
+      "description": "tems drop 10% more often!\" (env.questDropsSetPct = 0,10 une fois le Sigil au niveau 100). CHOIX SOREAL : facteur séparé x1,1 (\"drop 10% more often\"). / const sigil = 1 + Math.max(0, N(env?.questDropsSetPct)); return Math.max(0, 1 + (Math.max(0, N(env?.gearQues",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : \"20% faster\" et \"10% faster\" = vitesse x1,2 e",
+      "description": "n + speed)) / (IDLE_QUEST_BASE_DROP_CHANCE_V1 * drop); } /* Intervalle d'une Major Quest. CHOIX SOREAL : \"20% faster\" et \"10% faster\" = vitesse x1,2 et x1,1, cumulées multiplicativement (convention des autres bonus de ce moteur ; le wiki ne précise pas). / exp",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : appliqués au QP seulement ; page Arbitrary Po",
+      "description": "62 (\"2% / 1% better active questing rewards per level\") majorent cette récompense active (CHOIX SOREAL : appliqués au QP seulement ; page Arbitrary Points : 120 AP pour une Major active = (50 + 10) x 2, sans eux). - QP : x Perks (Fibonacci 233 +10 %, Better QP",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : chaque source multiplie les autres (le wiki n",
+      "description": "x QP Hack (env.qpHackMultiplier) x cartes QP (env.qpCardMultiplier) x Beast Butter (x2). CHOIX SOREAL : chaque source multiplie les autres (le wiki ne donne pas l'ordre de cumul) ; arrondi à l'entier inférieur. - AP : base x2 si active, x bonus AP généraux (e",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL d'empilement ci-dessus), calculé par idle-cards",
+      "description": "r features : QP Hacks, QP Cards ». Même traitement que le QP Hack (facteur multiplicatif, CHOIX SOREAL d'empilement ci-dessus), calculé par idle-cards-v1.js (cardsQpGainMultiplier). / Math.max(0, N(env?.qpCardMultiplier, 1)); /* Beast Butter : x2, x2,2 avec le",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : zone et quantité tirées uniformément (\"quest",
+      "description": "new Error(\"QUETE_MAJEURE_INDISPONIBLE\"); const bonus = idleQuestBonusTotalsV1(state); /* CHOIX SOREAL : zone et quantité tirées uniformément (\"quest zones are random\", \"50-59\"). */ const zone = zones[Math.min(zones.length - 1, Math.floor(rng() * zones.length)",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : niveaux croissants (garde les objets montés e",
+      "description": "|| {}; const bonus = idleQuestBonusTotalsV1(state); let handedIn = 0; let gained = 0; /* CHOIX SOREAL : niveaux croissants (garde les objets montés en niveau le plus longtemps possible). */ const levels = Object.keys(stock).map(Number).sort((a, b) => a - b);",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-questing-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : la quête relancée est une Major si `preferMaj",
+      "description": "\"when you are in idle mode quests will be handed in and new ones started automatically\". CHOIX SOREAL : la quête relancée est une Major si `preferMajor` est actif et qu'une Major est en banque, sinon une Minor. / export function advanceIdleQuestingV1(state, s",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    },
+    {
+      "fichier": "idle-wandoos-os-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "CHOIX SOREAL : une copie consommée au-delà du niveau d'OS 10",
+      "description": "ms existant (consumeUnlock, idle-adventure-v47.js) : ici on ne fait que les niveaux d'OS. CHOIX SOREAL : une copie consommée au-delà du niveau d'OS 100 est refusée (le jeu la fait \"exploser\" sans effet) plutôt que détruite. / const N = (v, d = 0) => (Number.is",
+      "statut": "à valider par Norman",
+      "date": "2026-11-09"
+    }
+  ]
+}

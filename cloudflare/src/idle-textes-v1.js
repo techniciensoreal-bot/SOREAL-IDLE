@@ -35,8 +35,8 @@ export const cleAvecLangueV1 = (cle, langue) => (langue === "en" ? cleSansLangue
  * supprimées : l'entrée n'est alors plus lue du tout (ni voix générée, ni voix de secours, ni texte d'origine). Marqueur persistant { supprime: true } dans la ligne idle_textes de la clé ; sans champs ni voix, donc ses voix ne sont plus
  * « déclarées » (purge stricte : elles deviennent inutiles, rien n'est supprimé ici). « Rétablir » = supprimerTexteV1 (retour au texte d'origine).
  */
-export const IDLE_TEXTES_SUPPRIMABLES_V1 = ["systeme:sandwich", "systeme:chroniques-intro"];
-export const estSupprimableV1 = (cle) => IDLE_TEXTES_SUPPRIMABLES_V1.includes(cleSansLangueV1(cle));
+const IDLE_TEXTES_SUPPRIMABLES_V1 = ["systeme:sandwich", "systeme:chroniques-intro"];
+const estSupprimableV1 = (cle) => IDLE_TEXTES_SUPPRIMABLES_V1.includes(cleSansLangueV1(cle));
 const IDLE_TEXTE_MAX_CHAMP_V1 = 6000;
 const IDLE_TEXTE_MAX_LISTE_V1 = 40;
 const IDLE_TEXTE_MAX_CHAMPS_V1 = 12;
@@ -268,7 +268,7 @@ export function surchargesPourJoueurV1(sql, langue) {
  *  - separeesSupprimees : les blocs séparés ont été supprimés de R2 (après l'écoute et l'accord de Norman).
  */
 const IDLE_DEFINITIVE_VARIANTES_V1 = ["avec", "sans"];
-export function assurerDefinitivesV1(sql) {
+function assurerDefinitivesV1(sql) {
   sql.exec("CREATE TABLE IF NOT EXISTS idle_voix_definitives(cle TEXT PRIMARY KEY, json TEXT NOT NULL, maj INTEGER NOT NULL)");
 }
 function nettoyerPlanDefinitiveV1(p) {
@@ -322,7 +322,7 @@ export function marquerDefinitivePreteV1(sql, cle, pret, separeesSupprimees, mai
   return d;
 }
 /* Empreintes des fichiers ENTIERS prêts d'une langue : ce que reçoit tout joueur (identifiants opaques, comme les empreintes de voix). */
-export function entieresPourJoueurV1(sql, langue) {
+function entieresPourJoueurV1(sql, langue) {
   const en = langue === "en";
   const out = [];
   for (const [cle, d] of Object.entries(lireDefinitivesV1(sql))) {

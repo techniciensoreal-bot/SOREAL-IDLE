@@ -39,7 +39,6 @@
   function composerCorpsComparaisonIdleV1_(){return REG.composerCorpsComparaisonIdleV1_.apply(null,arguments);}
   function afficherDetailsObjetAdventureIdleV138_(){return REG.afficherDetailsObjetAdventureIdleV138_.apply(null,arguments);}
   function casesSacAdventureIdleV162_(){return REG.casesSacAdventureIdleV162_.apply(null,arguments);}
-  function equipementBloqueParDefiIdleV1_(){return REG.equipementBloqueParDefiIdleV1_.apply(null,arguments);}
   function specialAcceptePlusDeBoostIdleV1_(){return REG.specialAcceptePlusDeBoostIdleV1_.apply(null,arguments);}
   function jouerEffetAudioIdleV199_(){return REG.jouerEffetAudioIdleV199_.apply(null,arguments);}
   function remplacerAdventureInventaireIdleV160_(){return REG.remplacerAdventureInventaireIdleV160_.apply(null,arguments);}

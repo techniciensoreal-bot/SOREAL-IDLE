@@ -124,7 +124,7 @@ const EPS = 1e-9;
 /* ---------- état persistant (vit dans state.adventure.inventoryAuto) ---------- */
 
 /* Nom d'une configuration (Norman, 2026-11-04 : « on doit pouvoir leur donner un nom ») : 24 caractères au plus, espaces compactés, jamais interprété comme du HTML côté client. */
-export const IDLE_LOADOUT_NOM_MAX_V1 = 24;
+const IDLE_LOADOUT_NOM_MAX_V1 = 24;
 function nomLoadoutV1(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, IDLE_LOADOUT_NOM_MAX_V1); }
 function normalizeLoadoutV1(raw) {
   if (!raw || typeof raw !== "object") return null;

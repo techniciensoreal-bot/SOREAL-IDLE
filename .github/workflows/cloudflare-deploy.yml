@@ -43,6 +43,19 @@ jobs:
         with:
           node-version: "24"
 
+      # Moteur local versionne (cloudflare/public/moteur-local-worker-v1.js + sql-wasm-v1.wasm, AGENTS.md regle n°7) : le workflow ne le reconstruisait pas et le test
+      # idle-moteur-local-v1 ne verifie que la coherence des empreintes, pas que le fichier correspond a cloudflare/src. On le regenere donc et on echoue s'il differe.
+      - name: Verify local engine bundle is up to date
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd cloudflare/local && npm ci --no-audit --no-fund)
+          node cloudflare/tools/build-moteur-local.mjs
+          if ! git diff --exit-code -- cloudflare/public/moteur-local-worker-v1.js cloudflare/public/sql-wasm-v1.wasm cloudflare/public/modules/moteur-local-v1.js; then
+            echo "::error::Le moteur local versionne est perime par rapport a cloudflare/src : relance node cloudflare/tools/build-moteur-local.mjs puis node cloudflare/tools/maj-pins.mjs, et committe le resultat."
+            exit 1
+          fi
+
       # Tests EN PARALLELE (4 a la fois, Norman 2026-11-06 : la CI prenait 11 minutes). Meme garde-fou qu'avant : un seul test en echec bloque le deploiement.
       # Les tests sont independants (verifie : suite complete locale en parallele = memes resultats qu'en serie). Le journal d'un test n'est affiche que s'il echoue.
       - name: Run test suite

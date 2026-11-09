@@ -213,6 +213,8 @@ export const OPERATIONS_DE_JEU_V1 = new Set([
   "ameliorerEquipementForgeSorealIdle", "ameliorerEquipementsForgeSorealIdle", "combattreAventureSorealIdle", "definirAutoBossSuivantSorealIdle", "definirCombatAutoAventureSorealIdle",
   "definirCombatBossSorealIdle", "equiperObjetsSorealIdle", "fusionnerObjetSorealIdle", "fusionnerObjetsSorealIdle", "lancerSortSorealIdle", "recyclerObjetSorealIdle",
   "recyclerObjetsSorealIdle", "renaitreSorealIdle", "sauvegarderDispositionInventaireSorealIdle", "selectionnerBossSorealIdle", "definirClassementVisibleSorealIdle", "nukerBossSorealIdle", "demarrerPartieSorealIdle",
+  /* Ajoutées (vague 0) : elles écrivent la ligne du joueur et sont locales (LOCALES, moteur-local-v1.js) ; ici seulement pour un appareil resté en mode serveur : sans effet sur le mode local. */
+  "marquerVusSorealIdle", "definirOrdreMenusSorealIdle", "enregistrerClicsSorealIdle",
 ]);
 export function noterActionServeurV1(coord, user, operation) {
   if (!OPERATIONS_DE_JEU_V1.has(operation)) return false;

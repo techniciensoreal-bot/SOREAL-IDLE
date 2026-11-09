@@ -53,6 +53,16 @@ Procédure attendue avant d'ajouter/corriger une valeur de jeu :
    documente qu'un `Type` (poison/exploder/rapid/charger/...) confirme le
    Type lui-même, pas forcément une formule de dégâts associée.
 
+**Exception décidée par Norman (2026-10-04, capacités de titans : « Calcule toi-même, pour que ça reste faisable mais que l'effet ait lieu »)** :
+si, APRÈS une recherche sérieuse (wiki ET autres sources : Steam, guides, mods), AUCUNE source ne publie l'ampleur d'une valeur, une constante SOREAL
+MODÉRÉE est permise pour que l'effet existe. Conditions, toutes obligatoires : (1) jamais pour un nombre que le wiki publie ; (2) un commentaire à
+côté de la valeur la SIGNALE, avec la formule « choix SOREAL », la raison (« non publié ») et la date de la décision ; (3) elle figure dans le
+registre `cloudflare/tests/references/constantes-soreal-v1.json` (fichier, repère, description, statut « à valider par Norman » tant qu'il ne l'a pas
+confirmée, date) ; (4) elle est signalée à Norman dans le compte rendu. Le test `idle-constantes-soreal-registre-v1` scanne `cloudflare/src/*.js`
+(« choix SOREAL », « approximation documentée », « sciemment divergente ») et échoue si un tel commentaire n'a pas d'entrée au registre (ou si une
+entrée n'a plus de commentaire). Les cas existants (Questing, Hearts, Macguffins, Wandoos, repli des boss au-delà du 160, butin et combat d'Aventure)
+y sont inscrits « à valider par Norman » au 2026-11-09 : le registre rend visible ce qui reste à confirmer, il ne valide rien.
+
 ## Règle n°2 (non négociable) : aucun spoil
 
 Le joueur ne voit **que ce qu'il a déjà débloqué**. Il doit être surpris à chaque déblocage (demande de Norman, 2026-09-24).
@@ -340,11 +350,11 @@ Demande de Norman (2026-10-16) : l'état du personnage est déterminé par les �
 
 ## Règle n°6 (préférences liées au compte) : jamais seulement sur l'appareil
 
-Demande de Norman (2026-10-16) : cases, saisies, onglets ouverts, volumes, effets, réglages... tout est lié au COMPTE et identique sur tous les appareils. Mécanisme (`modules/prefs-compte-v1.js`, chargé en premier ; côté serveur `src/idle-ui-prefs-v1.js`, action `setUiPrefs`, `state.uiPrefs`, `systemes.uiPrefs` pièce d'état allégée) : toute clé `localStorage` qui commence par `soreal_idle_` ou `sorealIdle` est recopiée sur le serveur (envoi groupé 1,5 s après le dernier changement) et remise dans chaque appareil (le pont `standalone-bridge.js` appelle `appliquer` à chaque réponse ; le compte l'emporte ; un changement venu d'un autre appareil au chargement recharge la page une fois).
+Demande de Norman (2026-10-16) : cases, saisies, onglets ouverts, réglages... tout est lié au COMPTE et identique sur tous les appareils, **sauf les réglages de son et d'effets, propres à CHAQUE appareil (décision de Norman, 2026-11-05 : « les réglages de son, voix, etc. doivent être propres à chaque appareil »)** : volumes (clés `soreal_idle_volume_*`), cases de son (`soreal_idle_son_actif_*`), lecture automatique de la voix du tutoriel (`soreal_idle_tutorial_tts_auto_*`) et effets visuels (`soreal_idle_effet_*`) sont dans la liste `EXCLUES` de `prefs-compte-v1.js` et ne sont jamais recopiés sur le compte. Mécanisme (`modules/prefs-compte-v1.js`, chargé en premier ; côté serveur `src/idle-ui-prefs-v1.js`, action `setUiPrefs`, `state.uiPrefs`, `systemes.uiPrefs` pièce d'état allégée) : toute clé `localStorage` qui commence par `soreal_idle_` ou `sorealIdle` est recopiée sur le serveur (envoi groupé 1,5 s après le dernier changement) et remise dans chaque appareil (le pont `standalone-bridge.js` appelle `appliquer` à chaque réponse ; le compte l'emporte ; un changement venu d'un autre appareil au chargement recharge la page une fois).
 - **Nouvelle préférence** : la ranger dans `localStorage` sous une clé `soreal_idle_<nom>_v1` (valeur texte ≤ 8 000 caractères, clé ≤ 120 caractères `A-Za-z0-9_.:-`) suffit ; ne rien garder seulement en mémoire de page (perdu au rechargement) et ne jamais écrire le stockage par un autre moyen que `localStorage.setItem/removeItem`.
-- **Exclus** (liste `EXCLUES` du module) : jeton de session, diagnostic, mesures de performance (changent toutes les 10 s), cache admin, position d'une fenêtre. Une donnée qui change souvent ou propre à l'appareil s'y ajoute.
+- **Exclus** (liste `EXCLUES` du module) : jeton de session, diagnostic, mesures de performance (changent toutes les 10 s), cache admin, position d'une fenêtre, et les réglages de son et d'effets propres à l'appareil (volumes, cases de son, voix automatique du tutoriel, effets : voir plus haut). Une donnée qui change souvent ou propre à l'appareil s'y ajoute.
 - Valeurs de jeu (cibles de niveaux, cases « avancer l'énergie à la barre suivante », etc.) : elles vivent déjà dans l'état du jeu côté serveur (actions `setNguTarget`, `setNguAdvance`, `setAugmentTarget`...), ne pas les dupliquer dans les préférences.
-- Gardes : `idle-prefs-compte-serveur-v1` (coffre borné, action, état) et `idle-prefs-compte-client-v1` (le vrai module sur un faux navigateur).
+- Gardes : `idle-prefs-compte-serveur-v1` (coffre borné, action, état), `idle-prefs-compte-client-v1` (le vrai module sur un faux navigateur) et `idle-prefs-compte-cles-v1` (analyse statique de tous les `setItem` des modules : clé hors préfixe `soreal_idle_`/`sorealIdle` refusée sauf exception justifiée dans le test ; nombre de clés calculées non vérifiables plafonné).
 
 ## Règle n°7 (jeu local) : le moteur tourne dans la page de CHAQUE joueur
 

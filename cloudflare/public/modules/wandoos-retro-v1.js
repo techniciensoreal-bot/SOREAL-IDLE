@@ -812,14 +812,6 @@
     var charge={action:'allocate',system:'wandoos',resource:res,value:envoyee};
     if(collecte)collecte.push(charge);else meta_(charge);
   }
-  /* Le cap sous forme de saisie : entier tel quel, ou notation en e (1.2345e30) arrondie vers le haut à 10 chiffres si l'entier dépasse les 18 caractères de la saisie. */
-  function capTexte_(cap){
-    var t=cap<1e21?String(Math.ceil(cap)):'';
-    if(t&&t.length<=18)return t;
-    var k=Math.floor(Math.log10(cap)),m=Math.ceil(cap/Math.pow(10,k)*1e10)/1e10;
-    if(m>=10){m=1;k+=1;}
-    return String(m)+'e'+k;
-  }
   function majSaisie_(v){
     saisir_(v);
     var c=document.getElementById('wd-saisie');

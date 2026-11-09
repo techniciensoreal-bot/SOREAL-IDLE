@@ -19,7 +19,6 @@
   function definirCombatBossIdleV39_(){return REG.definirCombatBossIdleV39_.apply(null,arguments);}
   function idleHtml_(){return REG.idleHtml_.apply(null,arguments);}
   function texteVoixNouveauteIdleV1_(){return REG.texteVoixNouveauteIdleV1_.apply(null,arguments);}
-  function ancienTutorielPermisIdleV1_(){return REG.ancienTutorielPermisIdleV1_.apply(null,arguments);}
   function demarrerTutorielPagesIdleV1_(){return REG.demarrerTutorielPagesIdleV1_.apply(null,arguments);}
   function idleNombre_(){return REG.idleNombre_.apply(null,arguments);}
   function resumeStatsIdleV28_(){return REG.resumeStatsIdleV28_.apply(null,arguments);}
@@ -258,20 +257,6 @@
           '</div>';
 
         document.body.appendChild(modal);
-      }
-
-      /*
-       * L'introduction (« Le commencement ») attend la chronique du boss (Norman, 2026-10-22) : à l'arrivée sur Fight Boss d'une nouvelle partie, la chronique du boss se lit toute seule ; l'introduction ne doit apparaître qu'une fois le texte de la chronique FERMÉ et la lecture
-       * TERMINÉE ou INTERROMPUE (et le panneau libre depuis un instant, la lecture automatique pouvant démarrer juste après l'affichage). Sans panneau de chronique à l'écran (autre menu), aucune attente.
-       */
-      function chroniqueBossOccupeeIdleV1_(){
-        const p=document.getElementById('sorealIdleBossChroniqueV206');
-        if(!p)return false;
-        if(window.__chroniqueOuverteIdleV1||p.classList.contains('ouverte'))return true;
-        const tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__||window.__SOREAL_IDLE_TUTORIAL_TTS_V203__||window.__SOREAL_IDLE_TUTORIAL_TTS_V202__;
-        try{if(tts&&typeof tts.lectureCible==='function'&&tts.lectureCible('sorealIdleBossChroniqueV206'))return true;}catch(e){}
-        try{if(tts&&typeof tts.isSpeaking==='function'&&tts.isSpeaking())return true;}catch(e){}
-        return false;
       }
 
       /*

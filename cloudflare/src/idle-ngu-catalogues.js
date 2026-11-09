@@ -3,6 +3,7 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
+import { PLAFOND_HORS_LIGNE_SECONDES_V1 } from "./idle-hors-ligne-v1.js";
 import { copieJsonV1 } from "./idle-copie-json-v1.js";
 import { bigToNumberV1, bigFromLog10V1 } from "./idle-big-number-v1.js";
 import { IDLE_YGG_MAYO_FRUITS_V1, IDLE_YGG_MAYO_ACTIVATION_COST_V1 } from "./idle-yggdrasil-extra-v1.js";
@@ -98,7 +99,7 @@ export const IDLE_NGU_NEWBIE_OFFERS = Object.freeze({
   })
 });
 
-export const EARLY_GAME_MAX_OFFLINE_SECONDS = 30 * 24 * 3600;
+export const EARLY_GAME_MAX_OFFLINE_SECONDS = PLAFOND_HORS_LIGNE_SECONDES_V1;
 
 export const MIN_REBIRTH_SECONDS = 180;
 

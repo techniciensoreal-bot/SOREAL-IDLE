@@ -24,6 +24,7 @@ import { idleAdventureObjetPleinementMaxeV1 } from "./idle-adventure-objets.js";
 import { idleCardsActionV1 } from "./idle-cards-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
+import { FENETRE_INSTANT_CLIC_MS_V1 } from "./idle-instant-clic-v1.js";
 import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveBeardOnRebirth, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, setNguAdvanceV1, setNguAllocationV1, setNguTargetV1, setNguTierV1, syncIdleNguState, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
@@ -79,7 +80,7 @@ function instantClicAllocationV1(action, payload, raw, t) {
   if (!ACTIONS_DE_RYTHME_V1.test(action)) return t;
   const demande = Number(payload && payload.clientAt);
   const derniere = Number(raw && raw.updatedAt);
-  if (!Number.isFinite(demande) || demande > t || t - demande > 5000) return t;
+  if (!Number.isFinite(demande) || demande > t || t - demande > FENETRE_INSTANT_CLIC_MS_V1) return t;
   return Number.isFinite(derniere) ? Math.max(demande, Math.min(derniere, t)) : demande;
 }
 

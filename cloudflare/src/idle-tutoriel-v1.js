@@ -32,7 +32,7 @@ export const IDLE_TUTO_MAX_ETAPES_V1 = 80;
 export const IDLE_TUTO_HUMEURS_V1 = Object.freeze(["normal", "content", "pense", "coucou", "surpris", "vole", "dos", "arrive", "grand", "repart"]);
 export const IDLE_TUTO_MAX_GUIDES_V1 = 200;
 /* Scènes de vol de Cthulhu (modules/cthulhu-scene-v1.js) : une étape peut en choisir une ; « mascotteSur » = sélecteur CSS de sa place finale (vide = le bouton Nuke, sinon Fight). */
-export const IDLE_TUTO_SCENES_V1 = Object.freeze(["", "arrivee", "retourne", "pose", "place"]);
+const IDLE_TUTO_SCENES_V1 = Object.freeze(["", "arrivee", "retourne", "pose", "place"]);
 function scenePlace(v) {
   const t = String(v == null ? "" : v).trim();
   return t && IDLE_TUTO_SELECTEUR_RE_V1.test(t) ? t : "";

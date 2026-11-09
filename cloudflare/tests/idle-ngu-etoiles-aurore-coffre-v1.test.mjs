@@ -12,7 +12,7 @@ const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
 assert.ok(ngu.includes(".nl-etoiles u{position:absolute;inset:0;opacity:0;transition:opacity 2s ease;"), "chaque niveau de lumière apparaît en FONDU (opacité 0 → 1 en 2 s)");
 assert.ok(ngu.includes(".nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;contain:strict;display:block;opacity:calc(.3 + var(--nl-lueur,0)*.7);transition:opacity 1.6s ease}"), "le ciel n'est plus allumé d'un coup (display:none retiré, opacité en transition)");
 assert.ok(!/\.nl-etoiles b\{display:none/.test(ngu) && !/nl-etoiles b:nth-child\(-n\+8\)[^']*\{display:block/.test(ngu), "plus d'apparition brutale des étoiles individuelles");
-assert.ok(ngu.includes("@keyframes nlScint{0%,100%{opacity:1}") && ngu.includes(".nl-etoiles u i{animation:nlScint var(--d,4s) ease-in-out infinite"), "les étoiles de la tuile fixe scintillent aussi (douze groupes, chacun à son rythme), en plus des quarante étoiles individuelles");
+assert.ok(ngu.includes("@keyframes nlScint{0%,100%{opacity:.3}50%{opacity:1}}") && ngu.includes(".nl-etoiles u i{animation:nlScint var(--d,4s) ease-in-out infinite"), "les étoiles de la tuile fixe scintillent aussi (douze groupes, chacun à son rythme), en plus des quarante étoiles individuelles");
 const html = ngu.slice(ngu.indexOf("function etoilesHtml_(){"), ngu.indexOf("var ETOILES=etoilesHtml_();"));
 const sortie = vm.runInNewContext(html + "etoilesHtml_()");
 assert.equal((sortie.match(/<u class="nl-niv n[1-4]">/g) || []).length, 4, "quatre couches de niveau");

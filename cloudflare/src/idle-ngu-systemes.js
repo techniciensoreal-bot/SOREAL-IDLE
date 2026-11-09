@@ -24,6 +24,7 @@ import { advanceIdleDaycareV1 } from "./idle-daycare-v1.js";
 import { advanceIdleQuestingV1 } from "./idle-questing-v1.js";
 import { tickSelloutEffectsV1 } from "./idle-sellout-shop-v1.js";
 import { idleAchievementsEvaluateV1 } from "./idle-achievements-v1.js";
+import { DEFIS_SANS_HORS_LIGNE_IDS_V1, PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1 } from "./idle-hors-ligne-v1.js";
 import { EARLY_GAME_MAX_OFFLINE_SECONDS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_SYSTEMS, IDLE_NGU_YGG_FRUITS, challengeCompletionsV1, challengePermanentBonuses, challengeTierV1, clamp, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { advanceAugmentations, advanceGeneratedResources, externalResourceAllocation, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, reconcileResourceCurrents, reclaimAllocatedResource, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
 import { advanceWandoos, applyYggQuickActivationV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState } from "./idle-ngu-etat.js";
@@ -627,7 +628,7 @@ export function upgradeDigger(state,id){
  * Niveau « au maximum » d'un mineur (Norman, 2026-11-08 : « dans Mineurs, le bouton Maximum doit nous mettre au maximum que notre or peut supporter ») : avec ajuster, le niveau demandé est ramené au plus haut niveau (au plus le niveau demandé) dont la consommation d'or,
  * ajoutée à celle des AUTRES mineurs au travail, tient dans l'or par seconde brut de la Machine temporelle. La consommation croît avec le niveau : recherche par dichotomie. Aucun niveau ne tient : on garde l'état et on refuse comme avant (GPS_INSUFFISANT).
  */
-export function niveauMaxSupporteDiggerV1(state,id,demande){
+function niveauMaxSupporteDiggerV1(state,id,demande){
   const s=state.systems.diggers,def=diggerDefinition(id);
   const gross=idleNguTimeMachineGrossGoldPerSecond(state);
   let autres=0;
@@ -1173,7 +1174,7 @@ function advanceLateSystems(state, seconds, context, now) {
  * (revenir après plusieurs heures) ne peut plus faire progresser les
  * systèmes passifs pendant que l'un de ces défis est actif.
  */
-const IDLE_CHALLENGE_OFFLINE_DISABLED_IDS = Object.freeze(["twentyFourHours", "hundredLevels", "troll"]);
+const IDLE_CHALLENGE_OFFLINE_DISABLED_IDS = DEFIS_SANS_HORS_LIGNE_IDS_V1;
 
 /*
  * Troll Challenge (page Challenges, section « Trolls », relue le 2026-09-30) : « Every so often I'm gonna mess with you
@@ -1329,7 +1330,7 @@ function passesDuTempsSeulV1(state, secs, context, now) {
 export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now(), dejaNormalise = false) {
   const state = dejaNormalise ? raw : span("normaliser", () => normalizeIdleNguState(raw, context, now));
   const offlineCap = IDLE_CHALLENGE_OFFLINE_DISABLED_IDS.includes(state.challenge?.active)
-    ? 60
+    ? PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1
     : EARLY_GAME_MAX_OFFLINE_SECONDS;
   const secs = clamp(seconds, 0, offlineCap);
   /* 24 Hour Challenge : « Offline Progress will be disabled during this challenge. But, the timer won't run either. » -> le temps non joué est retiré du chrono. */

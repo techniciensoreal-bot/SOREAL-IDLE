@@ -12,6 +12,8 @@
  * - les niveaux repartent à zéro à la Renaissance.
  */
 
+import { PLAFOND_HORS_LIGNE_SECONDES_V1 } from "./idle-hors-ligne-v1.js";
+
 export const BASIC_TRAINING_V411=Object.freeze({
   version:411,
   maxLevelsPerSecond:50,
@@ -366,7 +368,7 @@ export function advanceBasicTrainingStateV411(
   /* Valeur de repli seulement (Norman, 2026-09-27, correctif docs/HORS-LIGNE.md point 3) : le vrai plafond vient
      toujours de l'appelant (CONFIG_SOREAL_IDLE.PROGRESSION_HORS_LIGNE_MAX_SECONDES, 30 jours, comme le reste du
      jeu) ; alignée sur la même valeur pour ne jamais réintroduire silencieusement l'ancien plafond de 12 h. */
-  maxOfflineSeconds=30*24*60*60,
+  maxOfflineSeconds=PLAFOND_HORS_LIGNE_SECONDES_V1,
   levelsPerFill=1,
   options={}
 ){

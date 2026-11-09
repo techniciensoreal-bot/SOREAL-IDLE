@@ -530,7 +530,7 @@ var CSS=
   '.nl-etoiles b{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2);background:#fff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);opacity:.3;will-change:opacity,transform}'+
   '.nl-etoiles b:nth-child(3n+1){--pic:.5}.nl-etoiles b:nth-child(3n+2){--pic:.75}.nl-etoiles b:nth-child(3n){--pic:.95}'+
   '@media(prefers-reduced-motion:no-preference){.nl-v1 .nl-etoiles b{animation:nlEtoile var(--d,5s) ease-in-out infinite;animation-delay:calc(var(--i)*-2.3s)}.nl-etoiles u i{animation:nlScint var(--d,4s) ease-in-out infinite;will-change:opacity}'+
-    '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}@keyframes nlScint{0%,100%{opacity:1}22%{opacity:.4}41%{opacity:.95}58%{opacity:.28}76%{opacity:.85}}}'+
+    '@keyframes nlEtoile{0%,60%,100%{opacity:.25;transform:scale(.6)}74%{opacity:var(--pic,.9);transform:scale(1.05)}86%{opacity:.4;transform:scale(.75)}}}'+
   /* ---- Jour (NGU d'énergie) : ciel, nuages qui dérivent, soleil ; nuit (NGU de magie) : lune d'Halloween et chauves-souris. Le niveau de lumière (--nl-lueur) règle l'éclat ; à 0 l'astre est éteint. ---- */
   '.nl-v1>.nl-astre,.nl-v1>.nl-nuages{position:absolute;pointer-events:none;z-index:0;display:none}'+
   '.nl-astre{top:14px;right:6%;width:96px;height:96px}'+

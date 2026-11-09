@@ -1,2 +1,8 @@
 .wrangler/
 node_modules/
+shared/
+tmp_r2/
+tmp-*.mjs
+.claude/*
+!.claude/launch.json
+*.log

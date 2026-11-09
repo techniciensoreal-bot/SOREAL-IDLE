@@ -15,13 +15,10 @@
   function idleEntier_(){return REG.idleEntier_.apply(null,arguments);}
   function rafraichirMenuRacineIdleV28_(){return REG.rafraichirMenuRacineIdleV28_.apply(null,arguments);}
   function urlBossR2IdleV1_(){return REG.urlBossR2IdleV1_.apply(null,arguments);}
-  function attrHistoireVoixIdleV1_(){return REG.attrHistoireVoixIdleV1_.apply(null,arguments);}
   function attrLectureBossIdleV1_(){return REG.attrLectureBossIdleV1_.apply(null,arguments);}
   function sansBaliseVoixIdleV1_(){return REG.sansBaliseVoixIdleV1_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
   function rendreCollectionEquipementIdleV1_(){return REG.rendreCollectionEquipementIdleV1_.apply(null,arguments);}
-  function iconeObjetAdventureIdleV138_(){return REG.iconeObjetAdventureIdleV138_.apply(null,arguments);}
-  function libelleRecompenseSetAdventureIdleV163_(){return REG.libelleRecompenseSetAdventureIdleV163_.apply(null,arguments);}
   function toastIdleV5_(){return REG.toastIdleV5_.apply(null,arguments);}
 
       function dateIdleV25_(iso){

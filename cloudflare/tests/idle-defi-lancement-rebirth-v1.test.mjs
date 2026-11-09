@@ -91,7 +91,7 @@ const compIdle = (id) => j.basicTraining.skills.find((x) => x.id === id).allocat
 assert.equal(compIdle("attaque_passive"), 6, "Insta Training Cap : 6 d'énergie dans Attaque passive dès le lancement du défi, comme à une Renaissance");
 assert.equal(compIdle("blocage"), 6, "Insta Training Cap + Synchro : 6 aussi dans Blocage");
 // Menus et zones re-verrouillés (wiki, page Rebirths) : Augmentations/Time Machine/Blood Magic fermés, plus aucune zone d'Aventure avant de retuer les boss du run.
-const etatSys = (id) => j.systemes.systems.find((x) => x.id === id).state.unlocked;
+const etatSys = (id) => Boolean((j.systemes.systems.find((x) => x.id === id) || { state: {} }).state.unlocked); /* absent de la liste = non découvert (anti-spoil) */
 assert.equal(etatSys("augmentations"), false);
 assert.equal(etatSys("timeMachine"), false);
 assert.equal(etatSys("bloodMagic"), false);

@@ -3,6 +3,7 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
+import { DEFIS_SANS_HORS_LIGNE_IDS_V1, PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1, PLAFOND_HORS_LIGNE_SECONDES_V1 } from "./idle-hors-ligne-v1.js";
 import { deblocagesSorealIdle_, parametreSorealIdle_ } from "./idle-runtime-catalogue.js";
 import { detailsEquipementSorealIdle_, slotsEquipementSorealIdle_ } from "./idle-runtime-collection.js";
 import { definitionBossSorealIdle_, degatsRecusSecondeSorealIdle_, multiplicateurDpsJoueurBossSorealIdle_, multiplicateurSceauBossSorealIdle_, regenBossSecondeSorealIdle_ } from "./idle-runtime-boss.js";
@@ -145,14 +146,14 @@ export const CONFIG_SOREAL_IDLE = {
    * n'est pas un cas particulier, il rattrape autant de temps que le reste du jeu.
    */
   PROGRESSION_HORS_LIGNE_MAX_SECONDES:
-    30 * 24 * 60 * 60
+    PLAFOND_HORS_LIGNE_SECONDES_V1
 };
 
 /* Défis sans progression hors ligne (wiki, page Challenges : « Offline progress disabled » pour le Troll Challenge, le 24 Hour Challenge et le 100 Levels Challenge) : le rattrapage de l'entraînement de base est plafonné à 60 s, comme celui de tous les autres systèmes (IDLE_CHALLENGE_OFFLINE_DISABLED_IDS, idle-ngu-systemes.js). */
 export function plafondHorsLigneSorealIdle_(metaNgu) {
   const actif = metaNgu && metaNgu.challenge ? metaNgu.challenge.active : "";
-  return actif === "troll" || actif === "twentyFourHours" || actif === "hundredLevels"
-    ? 60
+  return DEFIS_SANS_HORS_LIGNE_IDS_V1.includes(actif)
+    ? PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1
     : CONFIG_SOREAL_IDLE.PROGRESSION_HORS_LIGNE_MAX_SECONDES;
 }
 

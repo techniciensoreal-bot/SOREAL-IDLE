@@ -21,7 +21,6 @@
 
   function systemeMetaParIdIdleV130_(){return window.__SOREAL_IDLE_META_PARTAGE_V130__.systemeMetaParIdIdleV130_.apply(null,arguments);}
   function actionMetaIdleV130_(){return window.__SOREAL_IDLE_META_PARTAGE_V130__.actionMetaIdleV130_.apply(null,arguments);}
-  function dureeLongueNguIdleV1_(){return window.__SOREAL_IDLE_META_PARTAGE_V130__.dureeLongueNguIdleV1_.apply(null,arguments);}
   /* Durées de la Garderie en JOURS / HEURES / MINUTES (Norman, 2026-11-01 : « pas des 7,5 h au lieu de 7 h 30 ») : « 7 h 36 min », « 2 j 3 h 15 min » ; au-delà de 1000 jours, le format abrégé partagé. */
   function dureeJhmGarderieV1_(s){
     const n=Number(s);

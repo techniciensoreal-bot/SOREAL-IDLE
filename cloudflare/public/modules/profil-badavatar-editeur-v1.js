@@ -40,7 +40,6 @@
   function nomPiece(c) { return NOMS[c] || c; }
 
   /* ---------- état ---------- */
-  function designBase() { var b = B(); return b && E ? b.tirerPourNom(E.base) : null; }
   function reglagesDefaut(design) { var r = {}; Object.keys(design.parts).forEach(function (c) { r[c] = parDefaut(); }); return r; }
   function pieceReglage(c) { return E.reglages[c] || (E.reglages[c] = parDefaut()); }
   function profilCourant() { return { pieces: E.reglages }; }

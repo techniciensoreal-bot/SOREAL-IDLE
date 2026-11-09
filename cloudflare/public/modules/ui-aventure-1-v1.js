@@ -13,7 +13,6 @@
   function catalogueSetsCollectionIdleV164_(){return REG.catalogueSetsCollectionIdleV164_.apply(null,arguments);}
   function jouerEffetAudioIdleV199_(){return REG.jouerEffetAudioIdleV199_.apply(null,arguments);}
   function rafraichirEnergieEtBoutonsIdleV9_(){return REG.rafraichirEnergieEtBoutonsIdleV9_.apply(null,arguments);}
-  function refuserEquipementDefiIdleV1_(){return REG.refuserEquipementDefiIdleV1_.apply(null,arguments);}
   function planifierRenduOptimisteIdleV60_(){return REG.planifierRenduOptimisteIdleV60_.apply(null,arguments);}
   function ajouterActionRapideIdleV60_(){return REG.ajouterActionRapideIdleV60_.apply(null,arguments);}
   function messageFlottantIdleV32_(){return REG.messageFlottantIdleV32_.apply(null,arguments);}

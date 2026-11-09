@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { normalizeBasicTrainingStateV411, BASIC_TRAINING_V411, isBasicTrainingSkillUnlockedV411, totalBasicTrainingAllocationV411 } from "./idle-basic-training.js";
+import { FENETRE_INSTANT_CLIC_MS_V1 } from "./idle-instant-clic-v1.js";
 import { enveloppeSpan } from "./idle-spans-v1.js";
 import { syncIdleNguState, idleNguEffectiveResourceStat, idleNguResourceGenerationPerSecond, normalizeIdleNguState, idleNguBonuses } from "./idle-ngu-progression.js";
 import { CONFIG_SOREAL_IDLE, bornerSorealIdle_, bossParMondeSorealIdle_, dateSorealIdle_, degatsRecusAventureSecondeSorealIdle_, dureeMaxCombatAventureSorealIdle_, nombreSorealIdle_, puissanceEffectiveAventureSorealIdle_ } from "./idle-runtime-config.js";
@@ -27,7 +28,7 @@ export function definirInstantSyncAllocationV1(ms) { instantSyncAllocationV1 = N
 export function instantClicValideV1(clic, minimum) {
   const maintenant = Date.now();
   const c = Number(clic);
-  if (!Number.isFinite(c) || c <= 0 || c > maintenant || maintenant - c > 5000) return maintenant;
+  if (!Number.isFinite(c) || c <= 0 || c > maintenant || maintenant - c > FENETRE_INSTANT_CLIC_MS_V1) return maintenant;
   const min = Number(minimum);
   return Number.isFinite(min) ? Math.max(c, Math.min(min, maintenant)) : c;
 }
