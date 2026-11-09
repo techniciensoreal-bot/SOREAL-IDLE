@@ -849,8 +849,9 @@ async function adventureMob_(request,env,url){
   const nomDemande=url.searchParams.get("name");
   /* 1. L'image du BOSS de mÃªme nom (les mÃªmes images ne sont plus gardÃ©es en double). */
   const nomOrigine=nomOrigineMobV1_(zone,url.searchParams.get("boss")==="1",url.searchParams.get("seed"));
-  let key=nomOrigine?choisirCleBossR2ParNom_(await objetsBossR2_(env),nomOrigine):"";
-  if(!key&&nomDemande)key=choisirCleBossR2ParNom_(await objetsBossR2_(env),nomDemande);
+  let key=nomDemande?choisirCleBossR2ParNom_(await objetsBossR2_(env),nomDemande):"";
+  /* nom demandé introuvable (boss RENOMMÉ) : le nom d'origine, déduit du numéro, retrouve l'image ; un nom qui trouve déjà une image garde la priorité (comportement d'avant, jamais changé) */
+  if(!key&&nomOrigine)key=choisirCleBossR2ParNom_(await objetsBossR2_(env),nomOrigine);
   if(!key){
     const keys=(await objetsDossierMobR2_(env,IDLE_ADVENTURE_MOBS_R2_PREFIX+folder+"/"))
       .filter(k=>!/_safe_zone\.[a-z0-9]+$/i.test(String(k)));
@@ -858,7 +859,7 @@ async function adventureMob_(request,env,url){
       keys,
       url.searchParams.get("boss")==="1",
       url.searchParams.get("seed"),
-      nomOrigine||nomDemande
+      nomDemande
     );
     /* 2. Mob choisi par index : s'il existe un boss de mÃªme numÃ©ro, c'est son image. */
     const num=key&&String(key).split("/").pop().match(/^Adv_(\d+)_/i);

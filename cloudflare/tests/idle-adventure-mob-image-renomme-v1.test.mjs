@@ -30,8 +30,29 @@ for (const [zone, def] of Object.entries(IDLE_ADVENTURE_MOB_BESTIARY_V1)) for (c
 assert.ok(n > 250, "tous les monstres vérifiés : " + n);
 // valeurs invalides : jamais d'erreur, nom vide (le serveur retombe sur le nom demandé puis sur l'index)
 for (const [z, b, s] of [["zone-inconnue", false, 0], ["avsp", false, -1], ["avsp", false, "x"], ["avsp", false, undefined], ["", false, 0]]) assert.equal(nomOrigineMobV1_(z, b, s), "");
-// l'ordre dans le serveur : nom d'origine d'abord, nom demandé ensuite, puis index
+// l'ordre dans le serveur : le nom demandé garde la priorité (comportement d'avant) ; s'il ne trouve rien (boss renommé), le nom d'origine ; puis l'index
 const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
 const f = media.slice(media.indexOf("async function adventureMob_("), media.indexOf("/* Safe zones par difficulté"));
-assert.ok(f.indexOf("nomOrigineMobV1_(zone") < f.indexOf("if(!key&&nomDemande)") && f.indexOf("if(!key&&nomDemande)") < f.indexOf("choisirCleMobR2_("), "ordre : nom d'origine, nom demandé, index");
+const iDemande = f.indexOf("let key=nomDemande?choisirCleBossR2ParNom_("), iOrigine = f.indexOf("if(!key&&nomOrigine)key=choisirCleBossR2ParNom_("), iIndex = f.indexOf("choisirCleMobR2_(");
+assert.ok(iDemande > 0 && iDemande < iOrigine && iOrigine < iIndex, "ordre : nom demandé, nom d'origine (repli), index");
+// de bout en bout, avec un faux R2 : la requête réelle du jeu (nom RENOMMÉ + numéro du monstre) renvoie l'image du boss
+{
+  const { traiterRequeteIdleMedia } = await import("../src/idle-media-v1.js");
+  const objets = (cles) => ({ objects: cles.map((key) => ({ key })), truncated: false });
+  const R2 = {
+    async list(o) {
+      if (o.delimiter) return { delimitedPrefixes: ["idle/aventure/A_Very_Strange_Place/"], objects: [], truncated: false };
+      if (o.prefix === "idle/bosses/") return objets(boss);
+      return objets(["idle/aventure/A_Very_Strange_Place/avsp_safe_zone.webp"]);   // plus aucune image de monstre dans le dossier d'Aventure : seules celles des boss existent
+    },
+    async get() { return { body: "x", httpEtag: '"e"', writeHttpMetadata(h) { h.set("content-type", "image/png"); } }; }
+  };
+  const appel = (q) => traiterRequeteIdleMedia(new Request("https://soreal.test/api/idle/media/mob?zone=avsp&" + q), { SOREAL_R2: R2 });
+  const iSlime = idx("avsp", "A Metal Slime"), iPoulets = idx("avsp", "743 pissed off Cuckoos");
+  for (const [nom, i, fichier] of [["Un slime métallique", iSlime, "Boss_085_A_Metal_Slime.png"], ["743 poulets furax", iPoulets, "Boss_090_743_pissed_off_Cuckoos.png"], ["Une gelée métallique", iSlime, "Boss_085_A_Metal_Slime.png"], ["A Metal Slime", iSlime, "Boss_085_A_Metal_Slime.png"]]) {
+    const r = await appel("boss=0&seed=" + i + "&name=" + encodeURIComponent(nom));
+    assert.equal(r.status, 200, nom + " : une image est servie (avant le correctif : 404 pour un nom renommé)");
+    assert.equal(r.headers.get("x-soreal-idle-r2-key"), "idle/bosses/" + fichier, nom);
+  }
+}
 console.log("idle-adventure-mob-image-renomme-v1: OK");

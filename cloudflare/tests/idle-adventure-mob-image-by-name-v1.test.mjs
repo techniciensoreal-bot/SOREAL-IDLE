@@ -37,7 +37,7 @@ assert.ok(choisirCleMobR2_(forest, false, 6, "Fairy"), "repli par index : une im
 // Le nom transmis par le jeu est bien celui du bestiaire (vrais noms NGU)
 assert.equal(IDLE_ADVENTURE_MOB_BESTIARY_V1.forest.normal[6].name, "Fairy");
 const media = readFileSync("cloudflare/src/idle-media-v1.js", "latin1");
-assert.match(media, /url\.searchParams\.get\("seed"\),\s*nomOrigine\|\|nomDemande/);
+assert.match(media, /url\.searchParams\.get\("seed"\),\s*nomDemande/);
 assert.ok(media.includes("choisirCleBossR2ParNom_(await objetsBossR2_(env),nomDemande)"), "le mob demandé par son nom prend l'image du boss de même nom");
 
 /* Images de boss = images des mobs d'Aventure (Norman, 2026-10-21) : plus de doublon dans le R2. */
