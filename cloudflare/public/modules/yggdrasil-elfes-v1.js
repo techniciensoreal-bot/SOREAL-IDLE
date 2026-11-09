@@ -189,20 +189,22 @@
       '.ygg-titre b,.ygg-aide-bouton,.ygg-onglet,.ygg-nom,.ygg-btn,.ygg-mode button,.ygg-poop,.ygg-auto button{--f-titre:var(--ygg-titres);--f-texte:var(--ygg-titres)}',
       '.ygg-titre b{--f-titre:\'Cinzel Decorative\',var(--ygg-titres);--f-texte:\'Cinzel Decorative\',var(--ygg-titres)}',
       /* Bandeau du bas. */
-      '.ygg-bas{margin-top:2.6cqw;padding:2.2cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(18,48,30,.96),rgba(8,26,16,.98));box-shadow:inset 0 2px 0 rgba(255,255,255,.12),5px 5px 0 #000;display:grid;grid-template-columns:1.1fr 1fr;gap:2.2cqw;align-items:center;}',
+      '.ygg-bas{margin:0 0 2.6cqw;padding:1.6cqw 2.2cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(18,48,30,.96),rgba(8,26,16,.98));box-shadow:inset 0 2px 0 rgba(255,255,255,.12),5px 5px 0 #000;display:grid;grid-template-columns:minmax(0,1fr);gap:1.4cqw;align-items:center;}',
       '.ygg-monnaies{display:flex;flex-wrap:wrap;gap:2.4cqw;align-items:center;}',
       '.ygg-monnaies-haut{margin:0 0 2.6cqw;padding:1.6cqw 2.2cqw;border:3px solid #000;border-radius:6px;background:linear-gradient(180deg,rgba(18,48,30,.96),rgba(8,26,16,.98));box-shadow:inset 0 2px 0 rgba(255,255,255,.12),5px 5px 0 #000;}',
       '.ygg-monnaie{display:flex;align-items:center;gap:1.2cqw;font-size:clamp(15px,4.2cqw,28px);font-weight:900;color:var(--or);text-shadow:0 2px 0 #000;}',
       '.ygg-monnaie .ygg-vignette{position:relative;width:clamp(34px,10cqw,64px);height:clamp(34px,10cqw,64px);display:flex;align-items:center;justify-content:center;border:3px solid #000;border-radius:10px;background:radial-gradient(circle at 50% 35%,#4a8a58,#0d2a18);}',
       '.ygg-vignette .ygg-img{inset:8%;width:84%;height:84%;}',
       '.ygg-vignette .ygg-secours{font-size:clamp(20px,6cqw,38px);}',
-      '.ygg-bonus{grid-column:1/2;font-size:clamp(9px,2cqw,14px);line-height:1.5;}',
+      '.ygg-bonus{grid-column:auto;font-size:clamp(9px,2cqw,14px);line-height:1.5;}',
       '.ygg-bonus b{color:var(--or);}',
-      '.ygg-actions-bas{display:grid;gap:1.4cqw;}',
+      '.ygg-actions-bas{display:flex;flex-wrap:nowrap;gap:1.4cqw;align-items:stretch;}',
+      '.ygg-actions-bas .ygg-btn{flex:1 1 0;min-width:0;white-space:nowrap;font-size:clamp(7.5px,1.5cqw,13px)!important;padding:.3em .3em}',
+      '.ygg-actions-bas .ygg-solo{flex:0 1 auto;white-space:nowrap;font-size:clamp(7.5px,1.45cqw,13px)}',
       '.ygg-solo{display:flex;align-items:center;gap:.6em;min-height:44px;font-size:clamp(9px,1.9cqw,13px);cursor:pointer;}',
       '.ygg-solo input{width:22px;height:22px;accent-color:#e0b640;flex:0 0 auto;}',
       '.ygg-note{margin-top:1.6cqw;font-size:clamp(8px,1.7cqw,12px);color:#b9d8a8;line-height:1.4;text-align:center;}',
-      '@container (max-width:520px){.ygg-bas{grid-template-columns:1fr}.ygg-bonus{grid-column:auto}.ygg-grille{gap:1.6cqw}.ygg-carte{--ygg-ecart:.9cqw;padding:1.2cqw}}',
+      '@container (max-width:520px){.ygg-actions-bas{flex-wrap:wrap}.ygg-actions-bas .ygg-btn{flex:1 1 100%;white-space:normal;font-size:clamp(10.5px,2.1cqw,13px)!important}.ygg-actions-bas .ygg-solo{white-space:normal}.ygg-bas{grid-template-columns:1fr}.ygg-bonus{grid-column:auto}.ygg-grille{gap:1.6cqw}.ygg-carte{--ygg-ecart:.9cqw;padding:1.2cqw}}',
       /* Page sans bords (Norman, 2026-10-15) : plus de cadre ni de médaillons, la page prend toute la largeur ; textes plus grands et plus clairs. */
       '.ygg-page{max-width:none!important;margin:0!important}',
       '.ygg-cadre{padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important}',
@@ -595,8 +597,7 @@
         '<div class="ygg-monnaie"><span class="ygg-vignette">'+image_('seed','🌱')+'</span>'+html_(grand_(d.seeds))+'</div>'+
         '<div class="ygg-monnaie"><span class="ygg-vignette">'+image_('poop','💩')+'</span>'+html_(grand_(d.poop))+'</div>'+
       '</div></div>'+
-      onglets+
-      '<div class="ygg-grille">'+cartes+'</div>'+
+      /* Cadre « Manger / récolter tous les fruits » EN HAUT, sous les compteurs de graines (Norman, 2026-11-09), sur UNE seule ligne */
       '<div class="ygg-bas">'+
         '<div class="ygg-actions-bas">'+
           '<button type="button" class="ygg-btn" '+(pretsMax?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.tout(\'max\')">Manger / récolter tous les fruits au tier max</button>'+
@@ -605,6 +606,8 @@
         '</div>'+
         (b?'<div class="ygg-bonus">'+b+'</div>':'')+
       '</div>'+
+      onglets+
+      '<div class="ygg-grille">'+cartes+'</div>'+
       '<div class="ygg-note">Poop ×'+html_(poopFacteur)+' · tier max '+d.maxTier+html_(brown)+' · poop achetable à la boutique AP, rayon Boosts.</div>'+
     '</div></div>';
   }
