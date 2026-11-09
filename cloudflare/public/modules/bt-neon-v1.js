@@ -129,7 +129,10 @@
   function sonsBarres_(c,out,t0){
     var L=window.__SOREAL_IDLE_BT_LUMIERES_V1__;
     if(!L||typeof L.construire!=='function')return;
-    barresAvecEnergie_().forEach(function(x){try{L.construire(c,out,t0+x.d,x.type,undefined,x.rang);}catch(_e){}});
+    /* Norman (2026-11-09) : « quand toutes les barres sont débloquées, ça fait un énorme bruit ; il faut que ce soit le son de la plus grosse barre qui l'emporte » : un seul démarrage de barre, celui du rang le plus haut (le plus impressionnant) ; les autres se taisent. */
+    var plus=null;
+    barresAvecEnergie_().forEach(function(x){if(!plus||x.rang>plus.rang)plus=x;});
+    if(plus){try{L.construire(c,out,t0+plus.d,plus.type,undefined,plus.rang);}catch(_e){}}
   }
   function sons_(){
     var v=volume_();

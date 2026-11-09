@@ -123,7 +123,7 @@ function monde({ renaissances = 0, allocation = 0, volume = 0.8, reduit = false 
   assert.ok(Math.abs(b[0].d - cal[2]) < 1e-9, "joués à l'instant où la ligne s'allume");
   m.etatJeu.systemes.records.totalRebirths = 1;
   m.N.etat(); m.etatJeu.systemes.records.totalRebirths = 2; m.tick();
-  assert.equal(sons.length, 3, "un son par rang de barre (3 rangs ici), jamais deux fois le même pour une barre et sa jumelle de défense");
+  assert.equal(sons.length, 1, "un seul démarrage de barre : celui de la plus grosse barre (rang 2 ici) l'emporte, les autres se taisent (Norman, 2026-11-09)");
 }
 // 7. (Norman, 2026-11-07) Rechargement de la page : tant que l'état du jeu n'est pas arrivé, rien ne bouge ; le menu ne se rallume qu'UNE fois par Renaissance.
 {

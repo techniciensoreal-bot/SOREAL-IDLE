@@ -39,6 +39,12 @@
             'Les monstres d’Aventure dont le nom a changé (« Un slime métallique », « 743 poulets furax »…) retrouvent leur image.',
             'Dans tout le jeu, une image qui n’arrive pas (un monstre en Aventure, un boss, un décor…) est redemandée toute seule trois fois, après 1,5, 4 puis 9 secondes, au lieu de rester vide jusqu’à ce que tu changes d’onglet.'
           ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'Après une renaissance, le niveau de la Machine temporelle ne recule plus pendant la première seconde quand tu mets de l’énergie : il n’affiche plus un niveau de trop pendant quelques images.'
+          ]},
+          {menu:'entrainement', titre:'Entraînement de base', points:[
+            'Quand toutes les barres sont allumées, l’allumage du menu ne fait plus un énorme bruit : seul le son de la plus grosse barre est joué.'
+          ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Sur téléphone, la page ne saute plus quand un fruit devient mûr : l’aperçu de ce qu’il donne se pose sur son image au lieu d’agrandir la carte, et « Récolter » n’est plus coupé.',
             'Le cadre « Manger / récolter tous les fruits » est maintenant en haut de la page, juste sous tes compteurs de graines, et ses boutons tiennent sur une seule ligne.'

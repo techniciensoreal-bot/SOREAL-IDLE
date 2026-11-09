@@ -109,7 +109,9 @@
           const piste=el.getAttribute('data-tm-eta-track')||'';
           const sysTm=REG.idleEtat&&REG.idleEtat.systemes&&Array.isArray(REG.idleEtat.systemes.systems)?REG.idleEtat.systemes.systems.find(function(x){return x&&x.id==='timeMachine';}):null;
           const donneesTm=sysTm&&sysTm.state&&sysTm.state.data;
-          const niveau0=donneesTm?idleEntier_(piste==='or'?donneesTm.goldLevel:donneesTm.speedLevel):null;
+          /* Norman (2026-11-09) : « après un rebirth, les premiers niveaux de la Machine temporelle font un recul quand je mets l'énergie la première fois ». Le niveau affiché venait de l'état du moteur, alors que la fraction et l'heure de départ viennent du dernier patch de la page : entre l'arrivée d'une réponse et son patch (une cinquantaine de ms, trois images, quand les niveaux durent 0,03 à 0,5 s) le niveau du moteur s'ajoutait aux niveaux déjà franchis depuis l'ANCIENNE base : un niveau de trop pendant trois images, puis retour. Le niveau de départ est maintenant posé avec la fraction et l'heure (data-tm-niveau0) et lu ici : un seul jeu de valeurs, jamais mélangé. */
+          const niveauBasePose=el.dataset.tmNiveau0!==undefined&&el.dataset.tmNiveau0!==''?Number(el.dataset.tmNiveau0):NaN;
+          const niveau0=Number.isFinite(niveauBasePose)?Math.floor(niveauBasePose):(donneesTm?idleEntier_(piste==='or'?donneesTm.goldLevel:donneesTm.speedLevel):null);
           let restant=base-(maintenant-at)/1000;
           let palier=fill0<1&&base>0?base/(1-fill0):0;
           let franchis=0,faussesOr=false,manqueOr=0,orPresent=0,bloqueDefi=false;
@@ -330,6 +332,7 @@
             const recuCaleTm=Number(j&&j.__recuPerfV1);
             const ancrePatchTm=(!depuisMaintenant&&recuCaleTm>0&&recuCaleTm<=performance.now()?recuCaleTm:performance.now())-(depuisMaintenant?0:rttTm/2);
             eta.dataset.tmEtaAt=String(Date.now()-(performance.now()-ancrePatchTm));
+            try{const sysPatchTm=j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems.find(function(x){return x&&x.id==='timeMachine';}):null,dPatchTm=sysPatchTm&&sysPatchTm.state&&sysPatchTm.state.data;const nPatchTm=dPatchTm?Number(entree[0]==='or'?dPatchTm.goldLevel:dPatchTm.speedLevel):NaN;if(Number.isFinite(nPatchTm))eta.dataset.tmNiveau0=String(Math.max(0,Math.floor(nPatchTm)));else delete eta.dataset.tmNiveau0;}catch(_e){}
             eta.dataset.tmEtaLast='';
             eta.textContent=etaValide
               ?'Fin de la barre dans '+formaterEtaTimeMachineIdleV1_(entree[2])+(palierPatch>0?' · '+(1/palierPatch<0.005?'< 0,01':Math.min(50,1/palierPatch).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}))+' niv/s':'')
