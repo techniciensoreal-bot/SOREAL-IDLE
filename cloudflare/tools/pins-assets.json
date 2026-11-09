@@ -24,8 +24,8 @@
   "sha": "7ee80b68d9480853b40ff8836d11af6bae7edd5b"
  },
  "/modules/album-cartes-v1.js": {
-  "pin": 51,
-  "sha": "c5f7f8a40386ba013ac3c51f3204179dd7fa21dd"
+  "pin": 52,
+  "sha": "51e3ef93bb53bed30a0ab9a1dfc9a2efdb029855"
  },
  "/modules/album-titans-v1.js": {
   "pin": 8,
@@ -628,12 +628,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 243,
-  "sha": "e39426b0ef028fc24c5b6554054ba9f36914f11a"
+  "pin": 244,
+  "sha": "5f412e75365153fa08e3c959519846ed30afa552"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 880,
-  "sha": "f303d6bcb206f4434884c103fb82158be682462a"
+  "pin": 881,
+  "sha": "53e9196a2e22d9c171abe22e2a83bddd7a7684c5"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -728,12 +728,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 919,
-  "sha": "1584de79c0885ecbed1cb6fff384fe688bc2f93b"
+  "pin": 920,
+  "sha": "e52a71dd2cd161fb773f697fbce7f0563da62e21"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 740,
-  "sha": "c7da919cf20135aae0f9ddd5556435ae371a02c0"
+  "pin": 741,
+  "sha": "5b1c9996aad082484b6746c72629f97d56cd03a9"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

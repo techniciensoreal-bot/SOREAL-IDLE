@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Si l’image d’un monstre n’arrive pas en Aventure, elle est redemandée toute seule (après 1, 3 puis 8 secondes) au lieu de rester vide.",
-    "L’image du monstre sur l’écran de la Machine temporelle est maintenant entière et centrée : elle n’est plus agrandie ni coupée (un slime métallique apparaissait zoomé et mal placé)."
+    "Sur téléphone, les pages de l’album tournent en glissant à plat vers la gauche, plus vite et sans pivot en 3D : bien moins de choses à redessiner. Sur PC, le tour de page ne change pas."
   ] };
 })();

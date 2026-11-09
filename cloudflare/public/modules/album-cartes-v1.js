@@ -476,6 +476,8 @@ function tournerUne(sens,D,silencieux){
     if(passePrepa===q)passePrepa=null;
     else if(!reduit()&&!pretes(q)){tourne=true;preparer(q).then(function(){tourne=false;passePrepa=q;tournerUne(sens,D,silencieux).then(function(r){ok(r);});});return;}
     if(etroit()&&(p===0||q===0))glisserVers(classeur,q===0);
+    /* TÉLÉPHONE (Norman, 2026-11-09 : « faire tourner les pages vers la gauche redessine énormément de choses ; trouve un moyen moins coûteux pour le téléphone ») : pas de pivot 3D (perspective, translateZ, face arrière, ombres qui s'animent, pages à trous découpés qu'il faut repeindre à chaque image) mais un simple GLISSEMENT à plat de la feuille vers la gauche (transform et opacité seulement, composités sans repeindre), en 0,38 s au lieu de 1,15 s. Le PC garde le tour de page en 3D. */
+    if(!deux)D=Math.min(D,380);
     var E=D<DUREE?'cubic-bezier(.4,0,.55,1)':EASE;
     var pd=livre.querySelector('.alb-page-d'),pg=livre.querySelector('.alb-page-g'),fd=pd.querySelector('.alb-feuille'),fg=pg.querySelector('.alb-feuille');
     if(reduit()||typeof pd.animate!=='function'){afficher(q);if(!silencieux)setTimeout(verifierPage,450);ok(true);return;}
@@ -506,13 +508,13 @@ function tournerUne(sens,D,silencieux){
       if(sens>0){
         if(emporte){var cibleAv=facesAV.querySelector('.alb-feuille');while(fd.firstChild)cibleAv.appendChild(fd.firstChild);}
         fd.innerHTML=contenuPage(q);                    /* dessous : la page suivante, déjà en place */
-        livre.appendChild(feuille);basculer(facesAV,facesAR,true,D,E);
+        livre.appendChild(feuille);if(deux)basculer(facesAV,facesAR,true,D,E);
         anim=feuille.animate(deux
           ?[{transform:'translateZ(0) rotateY(0deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(-180deg)'}]
-          :[{transform:'translateZ(0) rotateY(0deg)',opacity:1},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(-160deg)',opacity:0}],
+          :[{transform:'translateX(0)',opacity:1},{transform:'translateX(-100%)',opacity:0}],
           {duration:D,easing:E,fill:'forwards'});
-        [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:D,easing:E});});
-        ombreD.animate([{opacity:.65},{opacity:0}],{duration:D*.75,easing:'ease-out',fill:'forwards'});
+        if(deux)[ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:D,easing:E});});
+        if(deux)ombreD.animate([{opacity:.65},{opacity:0}],{duration:D*.75,easing:'ease-out',fill:'forwards'});
         if(deux)ombreG.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.6,offset:.8},{opacity:0}],{duration:D,fill:'forwards'});
         fin(anim).then(function(){
           if(deux){var nf=facesAR.querySelector('.alb-feuille');if(nf&&fg.parentNode){fg.parentNode.replaceChild(nf,fg);}else fg.innerHTML=gaucheHtml(q);}
@@ -520,13 +522,13 @@ function tournerUne(sens,D,silencieux){
         });
       }else{
         if(deux)fg.innerHTML=gaucheHtml(q);             /* dessous (à gauche) : la page d'avant, révélée quand la feuille se lève */
-        livre.appendChild(feuille);basculer(facesAV,facesAR,false,D,E);
+        livre.appendChild(feuille);if(deux)basculer(facesAV,facesAR,false,D,E);
         anim=feuille.animate(deux
           ?[{transform:'translateZ(0) rotateY(-180deg)'},{transform:'translateZ(70px) rotateY(-90deg)',offset:.5},{transform:'translateZ(0) rotateY(0deg)'}]
-          :[{transform:'translateZ(0) rotateY(-160deg)',opacity:0},{transform:'translateZ(70px) rotateY(-90deg)',opacity:1,offset:.5},{transform:'translateZ(0) rotateY(0deg)',opacity:1}],
+          :[{transform:'translateX(-100%)',opacity:0},{transform:'translateX(0)',opacity:1}],
           {duration:D,easing:E,fill:'forwards'});
-        [ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:D,easing:E});});
-        ombreD.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.65,offset:.85},{opacity:0}],{duration:D,fill:'forwards'});
+        if(deux)[ombresFace[0],ombresFace[1]].forEach(function(o){o.animate([{opacity:0},{opacity:.55,offset:.5},{opacity:0}],{duration:D,easing:E});});
+        if(deux)ombreD.animate([{opacity:0},{opacity:0,offset:.4},{opacity:.65,offset:.85},{opacity:0}],{duration:D,fill:'forwards'});
         if(deux)ombreG.animate([{opacity:.6},{opacity:0}],{duration:D*.75,easing:'ease-out',fill:'forwards'});
         fin(anim).then(function(){
           var nf=facesAV.querySelector('.alb-feuille');if(nf&&fd.parentNode){fd.parentNode.replaceChild(nf,fd);}else fd.innerHTML=droiteHtml(q);

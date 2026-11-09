@@ -31,6 +31,9 @@
         nom:'Les monstres reviennent',
         date:'2026-11-09',
         groupes:[
+          {menu:'chroniques', titre:'Chroniques', points:[
+            'Sur téléphone, les pages de l’album tournent en glissant à plat vers la gauche, plus vite et sans pivot en 3D : bien moins de choses à redessiner. Sur PC, le tour de page ne change pas.'
+          ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Si l’image d’un monstre n’arrive pas en Aventure, elle est redemandée toute seule (après 1, 3 puis 8 secondes) au lieu de rester vide.'
           ]}
