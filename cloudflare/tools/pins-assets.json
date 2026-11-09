@@ -20,8 +20,8 @@
   "sha": "1cabc2d046be6ca8973992e973fd4d4e94936278"
  },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2048,
-  "sha": "983991152304beb50e3858226897fe840d6b1e55"
+  "pin": 2049,
+  "sha": "7ee80b68d9480853b40ff8836d11af6bae7edd5b"
  },
  "/modules/album-cartes-v1.js": {
   "pin": 51,
@@ -628,12 +628,12 @@
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 242,
-  "sha": "d2c520d65e5802907b0d557b8295b2ab6d9b8043"
+  "pin": 243,
+  "sha": "e39426b0ef028fc24c5b6554054ba9f36914f11a"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 878,
-  "sha": "1200fa4709992b8917070f01b67b4bf31807f705"
+  "pin": 879,
+  "sha": "ec7ef3548429ef4f48719922bc52b8da7256ee17"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -728,12 +728,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 918,
-  "sha": "84be76552f035789426c4763fb6e8cef9857ca7d"
+  "pin": 919,
+  "sha": "1584de79c0885ecbed1cb6fff384fe688bc2f93b"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 739,
-  "sha": "4a8e920a4e5118156f857299411519db1b493d29"
+  "pin": 740,
+  "sha": "c7da919cf20135aae0f9ddd5556435ae371a02c0"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

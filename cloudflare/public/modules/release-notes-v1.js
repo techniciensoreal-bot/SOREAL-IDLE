@@ -39,6 +39,9 @@
             'Redimensionner la fenêtre ne provoque plus d’erreur dans les barres lumineuses.',
             'Thème Magic : 45 cartes de boss retrouvent les écritures de l’image d’origine (noms, chiffres, panneaux).'
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Si l’image d’un monstre n’arrive pas en Aventure, elle est redemandée toute seule (après 1, 3 puis 8 secondes) au lieu de rester vide.'
+          ]},
           {menu:'machine', titre:'Machine temporelle', points:[
             'Dans « En direct », quand un joueur règle sa Machine temporelle (il y ajoute de l’énergie ou de la magie), la phrase dit combien d’or par seconde elle produit chez lui (« 1,37 Qa d’or par seconde »).',
             'Le tas d’or sous la goulotte grossit avec l’or par seconde de la machine (B, T, Qa, Qi, Sx… par seconde) et non plus avec le butin d’une barre : dix tas différents.',

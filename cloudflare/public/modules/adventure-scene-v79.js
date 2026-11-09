@@ -235,7 +235,18 @@
 
     var img=wrap.querySelector('#sorealIdleAdventureSceneMobV1');
     var url=mobUrl_(fight);
-    if(img&&img.getAttribute('src')!==url)img.setAttribute('src',url);
+    /* Image du monstre qui n'arrive pas (Norman, 2026-11-09 : « l'image du slime métallique n'apparaît plus en Aventure » ; avant : « les mobs n'ont pas d'image, j'ai dû changer d'onglet et revenir ») : un chargement raté n'était jamais retenté tant que l'adresse ne changeait pas (et le navigateur garde une réponse d'erreur 60 s). Trois nouvelles tentatives (1 s, 3 s, 8 s), chacune avec une adresse différente (&r=n) pour passer outre le cache ; l'adresse demandée est mémorisée (__urlV1) pour ne pas relancer le chargement à chaque rendu. */
+    if(img&&!img.__retentesV1){
+      img.__retentesV1=1;
+      img.addEventListener('error',function(){
+        var n=(img.__essaisV1||0)+1;img.__essaisV1=n;
+        if(n>3||!img.__urlV1)return;
+        var base=img.__urlV1;
+        setTimeout(function(){if(img.__urlV1===base)img.setAttribute('src',base+(base.indexOf('?')<0?'?':'&')+'r='+n);},[1000,3000,8000][n-1]);
+      });
+      img.addEventListener('load',function(){img.__essaisV1=0;});
+    }
+    if(img&&img.__urlV1!==url){img.__urlV1=url;img.__essaisV1=0;img.setAttribute('src',url);}
   }
 
 
