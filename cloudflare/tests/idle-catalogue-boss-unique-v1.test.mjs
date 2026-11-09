@@ -43,8 +43,8 @@ assert.ok(srcTrad.includes("design/catalogue/boss.json"), "traductions lit le fi
 assert.ok(lire("cloudflare/src/idle-sqlite-runtime.js").includes("design/catalogue/boss.json"), "moteur lit le fichier unique");
 assert.ok(!/ngu-boss-names-fr\.json/.test(srcTrad));
 
-/* La graine (catalogue de production) ne diverge que sur le 289, ecrase par le moteur. */
-{
+/* La graine (catalogue de production) ne diverge que sur le 289, ecrase par le moteur. Elle est recoltee en production sur la machine de Norman et n'est pas versionnee : absente (CI), on saute cette partie. */
+if (fs.existsSync("desktop/graine/catalogue.json")) {
   const g = json("desktop/graine/catalogue.json");
   const lignes = g.feuilles.filter((f) => f[0] === "IDLE_BOSS").map((f) => JSON.parse(f[2]));
   const iId = lignes[0].indexOf("ID"), iNom = lignes[0].indexOf("Nom");
