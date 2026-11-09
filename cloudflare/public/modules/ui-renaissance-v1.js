@@ -140,10 +140,10 @@
        * un éclair doré couvre tout ; la Renaissance se joue dessous ; puis l'éclair s'ouvre en cercle depuis le centre et laisse voir le Combat de boss. Calque posé sur le body (hors de la page redessinée : règle n°4).
        * Web Animations seulement (transform, opacity, une variable de masque) ; rien n'est lu dans la page pendant l'animation ; mouvement réduit : aucune animation.
        */
-      function voyageTempsRenaissanceIdleV1_(){
+      function voyageTempsRenaissanceIdleV1_(sourceDonnee){
         const nul={fin:function(apres){try{if(apres)apres();}catch(_e){}},annuler:function(){}};
         try{
-          const source=document.querySelector('#sorealIdleRenaissanceModalV63 .rn-icone');
+          const source=sourceDonnee||document.querySelector('#sorealIdleRenaissanceModalV63 .rn-icone');
           if(!source||!document.body.animate)return nul;
           if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return nul;
           const masque=typeof CSS!=='undefined'&&typeof CSS.registerProperty==='function';
@@ -240,6 +240,31 @@
         }catch(_e){
           return nul;
         }
+      }
+
+      /*
+       * Lancer un défi fait renaître : même voyage dans le temps que la Renaissance (Norman, 2026-11-09 : « l'animation de renaissance avec l'horloge en zoom doit aussi être utilisée quand on lance un défi »). Il n'y a pas de fenêtre de Renaissance
+       * à cloner : on construit la même horloge (celle de la carte de la fenêtre) au milieu de l'écran, invisible le temps que le calque la copie, puis on la retire. Renvoie null si le voyage est impossible (le défi se lance alors sans animation).
+       */
+      function voyageTempsDefiIdleV1_(){
+        try{
+          const api=window.__SOREAL_IDLE_RENAISSANCE_FENETRE_V1__;
+          if(!api||typeof api.carte!=='function')return null;
+          const tmp=document.createElement('div');
+          tmp.innerHTML=api.carte({gain:1,actuel:1,rapport:1,refermes:[],fmt:String});
+          const horloge=tmp.querySelector('.rn-icone');
+          if(!horloge)return null;
+          const hote=document.createElement('div');
+          hote.id='sorealIdleVoyageSourceDefiV1';
+          hote.setAttribute('aria-hidden','true');
+          hote.style.cssText='position:fixed;left:50%;top:50%;width:34vmin;height:34vmin;margin:-17vmin 0 0 -17vmin;visibility:hidden;pointer-events:none';
+          horloge.style.cssText='width:100%;height:100%;margin:0';
+          hote.appendChild(horloge);
+          document.body.appendChild(hote);
+          let voyage=null;
+          try{voyage=voyageTempsRenaissanceIdleV1_(horloge);}finally{hote.remove();}
+          return voyage;
+        }catch(_e){return null;}
       }
 
       function executerRenaissanceIdleV63_(){
@@ -726,6 +751,7 @@
     fermerPopupRenaissanceIdleV63_:fermerPopupRenaissanceIdleV63_,
     executerRenaissanceIdleV63_:executerRenaissanceIdleV63_,
     voyageTempsRenaissanceIdleV1_:voyageTempsRenaissanceIdleV1_,
+    voyageTempsDefiIdleV1_:voyageTempsDefiIdleV1_,
     formatDureeRunIdleV1_:formatDureeRunIdleV1_,
     dureeRunSecondesIdleV1_:dureeRunSecondesIdleV1_,
     pageRenaissanceIdleV28_:pageRenaissanceIdleV28_,

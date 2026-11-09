@@ -32,10 +32,18 @@
         date:'2026-11-09',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Dans le tutoriel, Cthulhu n’a plus de voix : son texte s’écrit lettre après lettre avec un petit bip, comme dans les vieux jeux, et il suffit de toucher l’écran pour passer au texte suivant (« Touchez l’écran » apparaît quand la phrase est finie).',
             'Le menu Renaissance apparaît tout seul à la fin des 3 minutes de la partie, sans avoir besoin de cliquer sur un autre menu.',
             'Sur téléphone, le défilement de la page et de la barre de menus démarre plus vite : seul un doigt posé sur une case d’objet ou sur le Cube attend l’écran, le reste de l’écran répond tout de suite.',
             'Les pelles deviennent des scientifiques partout : récompenses des défis, boutiques (« emplacement de labo »), phrases d’« En direct », menu et Machine temporelle. Seuls les textes lus pendant les défis gardent leurs anciens mots.',
             'Le cadre qui contient tous les menus ne bouge plus quand tu passes d’une page longue à une page courte : la place de la barre de défilement est toujours réservée.'
+          ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'Un consommable acheté ne s’utilise plus à l’achat : il est mis de côté et attend que tu décides de l’utiliser, comme les potions.'
+          ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Lancer un défi joue maintenant la même animation que la Renaissance : l’horloge qui fonce vers l’écran, l’éclair, puis l’arrivée sur la borne de combat.',
+            'Le bouton « Jouer » d’un défi est grisé tant que les 3 minutes de la partie ne sont pas passées (avec le temps restant), puis il s’allume tout seul, comme la Renaissance. Plus de bruit de machine sans que le défi se lance.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Les monstres d’Aventure dont le nom a changé (« Un slime métallique », « 743 poulets furax »…) retrouvent leur image.',

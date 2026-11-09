@@ -28,7 +28,7 @@ import {
 import { IDLE_WISHES_CATALOG_V1 } from "../src/idle-wishes-v1.js";
 import { idlePerkByIdV1 } from "../src/idle-perks-v1.js";
 import { idleQuirkByIdV1 } from "../src/idle-quirks-v1.js";
-import { idleSelloutShopBuyV1 } from "../src/idle-sellout-shop-v1.js";
+import { idleSelloutShopBuyV1, idleSelloutUsePotionV1 } from "../src/idle-sellout-shop-v1.js";
 
 /*
  * Système Cards et Mayo (idle-cards-v1.js). Chaque valeur verrouillée ici est
@@ -290,7 +290,11 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   idleSelloutShopBuyV1(s, "mayoGenerator");
   idleSelloutShopBuyV1(s, "extraTagSlot");
   idleSelloutShopBuyV1(s, "mayoInfuser");
-  assert.equal(s.selloutEffects.remaining.mayoInfuser, 86400, "24 h");
+  /* Norman (2026-11-09) : un consommable acheté ne s'utilise plus à l'achat, il est rangé dans la valise */
+  assert.equal(s.selloutEffects.remaining.mayoInfuser, undefined, "rien d'actif à l'achat");
+  assert.equal(s.selloutEffects.stock.mayoInfuser, 1, "rangé dans la valise");
+  idleSelloutUsePotionV1(s, "mayoInfuser");
+  assert.equal(s.selloutEffects.remaining.mayoInfuser, 86400, "24 h une fois utilisé");
   const m = idleCardsModifiersV1(s);
   assert.deepEqual([m.deckSize, m.generators, m.tagSlots], [11, 2, 2]);
   near(m.mayoSpeed, 1.02, 1e-12, "+2 % par slot de générateur");

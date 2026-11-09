@@ -88,6 +88,12 @@ function installerStyle_(){
     '#'+ID+'.tu-bulle .tu-haut,#'+ID+'.tu-bulle .tu-compte,#'+ID+'.tu-bulle .tu-indice,#'+ID+'.tu-bulle .tu-apercu{display:none}'+
     '#'+ID+'.tu-bulle .tu-texte{font-size:17px;line-height:1.4;font-weight:700;color:#1b2238;max-height:none;overflow:visible}'+
     '#'+ID+'.tu-bulle .tu-texte p{margin:0 0 6px}'+
+    /* Texte écrit lettre après lettre (Norman, 2026-11-09 : « je ne veux que du texte ; on touche l'écran pour passer au suivant ; “Touchez l'écran” quand la phrase est terminée ») : le texte entier est posé dès le début (la bulle garde sa taille finale), les lettres pas encore écrites sont invisibles. */
+    '#'+ID+'.tu-bulle .tu-texte .tu-reste{visibility:hidden}'+
+    '#'+ID+'.tu-bulle .tu-toucher{margin:4px 0 0;text-align:center;font-size:13px;font-weight:700;letter-spacing:.06em;color:#6a4d1c;animation:tuToucher 1.6s ease-in-out infinite}'+
+    '#'+ID+'.tu-bulle .tu-toucher[hidden]{display:none}'+
+    '@keyframes tuToucher{0%,100%{opacity:.35}50%{opacity:1}}'+
+    '@media (prefers-reduced-motion:reduce){#'+ID+'.tu-bulle .tu-toucher{animation:none}}'+
     '#'+ID+'.tu-bulle .tu-actions{display:none}'+
     '#'+ID+'.tu-bulle .tu-actions button{min-height:34px;font-size:15px;border-radius:999px;border:2px solid #1b1630;box-shadow:0 3px 0 rgba(10,8,25,.4)}'+
     '#'+ID+'.tu-bulle .tu-actions button.discret{background:#fff;color:#1b2238;border-color:#1b1630}'+
@@ -292,6 +298,8 @@ function texteParle_(guide,i){
 function lireEtape_(s,force){
   var tts=window.__SOREAL_IDLE_TUTORIAL_TTS_V209__;
   s.voixEnCours=false;
+  /* Plus aucune voix pour Cthulhu (Norman, 2026-11-09 : « supprime toutes les voix de Cthulhu dans le tuto ; je ne veux que du texte ») : son texte s'écrit lettre après lettre avec un petit bip (lhu-voix-v1.js) ; les voix des autres guides ne changent pas. */
+  if(s.guide&&s.guide.mascotte)return;
   if(!tts||typeof tts.readText!=='function')return;
   if(!force&&!(typeof tts.enabled==='function'&&tts.enabled()))return;
   try{
@@ -412,6 +420,7 @@ function programmerDevoilement_(fin){
 function fermer_(vu){
   var s=etat.enCours;
   arreterBoucle_();
+  arreterDictee_();
   retirerAnneaux_();
   var finLhu=null;
   try{var sc=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;if(sc&&sc.existe())finLhu=sc.partir();}catch(_e){}
@@ -482,6 +491,71 @@ function etapeAvecPlace_(s,e){
   if(!e.scene&&s.guide.mascotte&&e.avanceAuClic&&e.cible&&e.cible.selecteur&&sc&&typeof sc.existe==='function'&&sc.existe())return Object.assign({},e,{scene:'place',mascotteSur:e.mascotteSur||e.cible.selecteur});
   return e;
 }
+/*
+ * Dictée de Cthulhu (Norman, 2026-11-09) : le texte s'écrit lettre après lettre avec un bip (lhu-voix-v1.js), plus aucune voix. Phrase finie : « Touchez l'écran » apparaît ; un toucher n'importe où passe au texte suivant (un toucher pendant l'écriture
+ * l'affiche en entier d'abord). Sur une étape qui demande de cliquer sur un élément, rien n'est intercepté : la bulle se range quelques secondes après la fin de l'écriture, comme avant. Mouvement réduit : texte entier tout de suite, sans bip.
+ */
+var dictee=0;
+var CADENCE_DICTEE_MS=34,PAUSE_VIRGULE=3,PAUSE_FIN=7,RANGER_APRES_MS=1800,TOUCHER_MAX_MS=180000;
+function arreterDictee_(){if(dictee){clearInterval(dictee);dictee=0;}}
+function rendreDictee_(d){
+  var reste=d.n;
+  d.ps.forEach(function(p,i){
+    var plein=d.pleins[i],k=Math.max(0,Math.min(plein.length,reste));reste-=k;
+    if(p.firstChild&&p.firstChild.textContent!==plein.slice(0,k))p.firstChild.textContent=plein.slice(0,k);
+    if(p.lastChild&&p.lastChild.textContent!==plein.slice(k))p.lastChild.textContent=plein.slice(k);
+  });
+}
+function finirDictee_(s,d){
+  arreterDictee_();
+  d.n=d.total;rendreDictee_(d);
+  d.fini=true;d.finiA=Date.now();
+  var b=document.getElementById(ID),h=b&&b.querySelector('.tu-toucher');
+  if(h)h.hidden=false;
+}
+function demarrerDictee_(s){
+  arreterDictee_();
+  s.dict=null;
+  if(!(s.guide&&s.guide.mascotte))return;
+  var b=document.getElementById(ID);
+  if(!b||!b.classList.contains('tu-bulle'))return;
+  var ps=[].slice.call(b.querySelectorAll('.tu-texte p[data-plein]'));
+  var pleins=ps.map(function(p){return p.getAttribute('data-plein')||'';});
+  var total=pleins.reduce(function(a,x){return a+x.length;},0);
+  var d=s.dict={ps:ps,pleins:pleins,total:total,n:0,fini:false,finiA:0,lettres:0,pause:0};
+  var reduit=false;try{reduit=Boolean(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);}catch(_e){}
+  if(!total||reduit){finirDictee_(s,d);return;}
+  var B=window.__SOREAL_IDLE_LHU_BIP_V1__;
+  var texte=pleins.join('');
+  dictee=setInterval(function(){
+    if(etat.enCours!==s||s.dict!==d){arreterDictee_();return;}
+    var bb=document.getElementById(ID);
+    if(!bb||bb.hidden)return;   /* la bulle n'est pas encore là (scène de vol) : on n'écrit pas dans le vide */
+    if(d.pause>0){d.pause-=1;return;}
+    var ch=texte.charAt(d.n);
+    d.n+=1;
+    rendreDictee_(d);
+    if(B&&B.parlable(ch)){d.lettres+=1;if(d.lettres%B.pas===1)B.bip(null,d.n);}
+    if(/[,;:]/.test(ch))d.pause=PAUSE_VIRGULE;else if(/[.!?…]/.test(ch))d.pause=PAUSE_FIN;
+    if(d.n>=d.total)finirDictee_(s,d);
+  },CADENCE_DICTEE_MS);
+}
+/* Un toucher est attendu ? (bulle de Cthulhu visible, sans élément à cliquer, sans scène de vol, jamais plus de 3 minutes de suite : garde-fou). */
+function dialogueTouche_(){
+  var s=etat.enCours;
+  if(!s||!s.guide||!s.guide.mascotte||s.attenteClic||s.sceneEnCours||s.cache||!s.dict)return null;
+  var b=document.getElementById(ID);
+  if(!b||b.hidden||!b.classList.contains('tu-bulle'))return null;
+  if(Date.now()-s.debutEtape>TOUCHER_MAX_MS)return null;
+  return s;
+}
+function toucherDialogue_(s){
+  var d=s.dict;
+  if(!d)return;
+  if(!d.fini){finirDictee_(s,d);return;}
+  if(s.i>=s.guide.etapes.length-1)fermer_(true);
+  else{s.i+=1;afficherEtape_(true);}
+}
 function afficherEtape_(garderTaille){
   var s=etat.enCours;if(!s)return;
   var e=s.guide.etapes[s.i];if(!e){fermer_(true);return;}
@@ -498,7 +572,16 @@ function afficherEtape_(garderTaille){
   if(!b){b=document.createElement('div');b.id=ID;b.setAttribute('role','dialog');b.setAttribute('data-soreal-tts-ignore','1');b.setAttribute('aria-live','polite');document.body.appendChild(b);}
   if(!c){c=document.createElement('div');c.id=ID_CADRE;c.hidden=true;document.body.appendChild(c);}
   var nbEtapes=s.guide.etapes.length;
-  var paragraphes=texteDyn_(e.texte||'').split(/\n+/).filter(function(x){return x.trim();}).map(function(x){return '<p>'+esc_(x)+'</p>';}).join('');
+  /* Bulle de Cthulhu : texte écrit lettre après lettre, traduit ici (le traducteur ne touche pas à un texte qui change à chaque lettre : data-sans-traduction). */
+  var sceneDit=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;
+  var dialogue=Boolean(s.guide.mascotte&&sceneDit&&(e.scene||(typeof sceneDit.existe==='function'&&sceneDit.existe())));
+  var trad=window.__SOREAL_IDLE_TRADUCTION_ANGLAIS_V1__;
+  var traduit=function(x){try{return trad&&typeof trad.actif==='function'&&trad.actif()?trad.traduire(x):x;}catch(_e){return x;}};
+  var paragraphes=texteDyn_(e.texte||'').split(/\n+/).filter(function(x){return x.trim();}).map(function(x){
+    if(!dialogue)return '<p>'+esc_(x)+'</p>';
+    var t=traduit(x);
+    return '<p data-plein="'+esc_(t)+'"><span class="tu-dit"></span><span class="tu-reste">'+esc_(t)+'</span></p>';
+  }).join('');
   var dernier=s.i>=nbEtapes-1;
   /* « Avance au clic » : on attend le clic sur la cible (indice affiché, bouton Suivant masqué le temps du délai). */
   s.attenteClic=Boolean(e.avanceAuClic&&e.cible&&e.cible.selecteur);
@@ -506,6 +589,7 @@ function afficherEtape_(garderTaille){
   /* Guide « sans fenêtre » (Norman, 2026-10-27 : « pour le premier tuto, rien ne doit apparaître à l'écran, ni texte ni fenêtre rétrécie ») : la fenêtre existe pour la logique (voix, clic) mais reste cachée ; le cadre lumineux de la cible n'est pas touché. */
   s.cache=s.guide.afficher===false;
   s.debutEtape=Date.now();s.aVoix=false;s.voixFinieA=0;
+  s.dict=null;arreterDictee_();
   s.tempsLecture=s.guide.mascotte?Math.max(3200,Math.min(60000,texteDyn_(e.texte||'').length*65+1500)):Math.max(2500,Math.min(60000,String(e.texte||'').length*60));   /* bulle de Lhu : le temps de lire */
   /* Scène de vol de Lhu : la fenêtre (texte, voix) n'apparaît qu'à la FIN du mouvement ; rien ne se clique avant. */
   var scene=window.__SOREAL_IDLE_CTHULHU_SCENE_V1__;
@@ -521,7 +605,8 @@ function afficherEtape_(garderTaille){
     (s.apercu?'<div class="tu-apercu">👁 Aperçu — rien n’est enregistré</div>':'')+
     (s.guide.mascotte?mascotteHtml_(e):'')+
     '<div class="tu-haut"><span class="tu-titre">'+esc_(e.titre||s.guide.titre||'')+'</span><span class="tu-compte">'+(s.i+1)+'/'+nbEtapes+'</span></div>'+
-    '<div class="tu-texte">'+paragraphes+'</div>'+
+    '<div class="tu-texte"'+(dialogue?' data-sans-traduction="1"':'')+'>'+paragraphes+'</div>'+
+    (dialogue&&!s.attenteClic?'<div class="tu-toucher" hidden>Touchez l’écran</div>':'')+
     (s.attenteClic?'<div class="tu-indice">'+(e.scene||e.surbrillance===false?'👆 Clique pour continuer.':'👆 Clique sur l’élément entouré pour continuer.')+'</div>':'')+
     '<div class="tu-actions">'+
       '<button type="button" class="discret" data-tu="ecouter" title="Écouter cette étape" aria-label="Écouter cette étape">🔊</button>'+
@@ -541,13 +626,14 @@ function afficherEtape_(garderTaille){
       if(etat.enCours!==s||s.i!==indiceScene)return;
       s.sceneEnCours=false;s.debutEtape=Date.now();s.aVoix=false;s.voixFinieA=0;
       var bb=document.getElementById(ID);if(bb&&!s.cache)bb.hidden=false;
-      lireEtape_(s,false);suivre_();
+      lireEtape_(s,false);demarrerDictee_(s);suivre_();
     };
     var p=null;try{p=scene.jouer(e.scene,{sur:e.mascotteSur||''});}catch(_e){}
     Promise.resolve(p).then(fini,fini);
     return;
   }
   lireEtape_(s,false);
+  demarrerDictee_(s);
 }
 
 function suivre_(){
@@ -583,7 +669,10 @@ function suivre_(){
     s.i=iEtape+1;afficherEtape_(true);return;
   }
   /* Bulle de Lhu (Norman, 2026-11-07 : « juste une bulle avec du texte ; quand le temps prévu pour lire est passé, ça passe à la bulle suivante ; quand il nous demande de faire un truc, sa bulle disparaît ») : aucun bouton. Le temps de lecture écoulé (et la voix finie), la bulle suivante vient seule ; sur une étape qui demande un clic, la bulle se range et l'élément qui clignote reste seul. */
-  if(b.classList.contains('tu-bulle')&&!s.sceneEnCours&&pretASuivre_(s)){
+  if(b.classList.contains('tu-bulle')&&!s.sceneEnCours&&s.guide.mascotte){
+    /* Dialogue de Cthulhu (2026-11-09) : rien ne passe tout seul ; le toucher fait avancer (toucherDialogue_). Seule une étape qui demande de cliquer sur un élément range la bulle, un moment après la fin de l'écriture. */
+    if(s.attenteClic&&s.dict&&s.dict.fini&&Date.now()-s.dict.finiA>=RANGER_APRES_MS&&!b.hidden)b.hidden=true;
+  }else if(b.classList.contains('tu-bulle')&&!s.sceneEnCours&&pretASuivre_(s)){
     if(s.attenteClic){if(!b.hidden)b.hidden=true;}
     else if(s.i>=s.guide.etapes.length-1){fermer_(true);return;}
     else{s.i+=1;afficherEtape_(true);return;}
@@ -649,6 +738,25 @@ function clicRefuse_(ev){
     ev.stopPropagation();ev.stopImmediatePropagation();
   },true);
 });
+/*
+ * Toucher l'écran pour passer au texte de Cthulhu suivant (Norman, 2026-11-09) : tant qu'un texte de Cthulhu attend un toucher, n'importe quel toucher ou clic ne va PAS au jeu (il ferait aussi un achat, un menu…) : il fait avancer le dialogue. Les événements de
+ * pression et de relâchement sont seulement arrêtés (pas annulés : le navigateur produit encore le « clic » du toucher) ; le clic, lui, est annulé et avance le dialogue. Les boutons de la fenêtre (aperçu de l'éditeur) restent utilisables.
+ */
+['pointerdown','mousedown','touchstart','pointerup','mouseup','touchend','dblclick'].forEach(function(nom){
+  window.addEventListener(nom,function(ev){
+    if(!dialogueTouche_())return;
+    if(ev.target&&ev.target.closest&&ev.target.closest('#'+ID+' [data-tu]'))return;
+    ev.stopPropagation();ev.stopImmediatePropagation();
+  },true);
+});
+window.addEventListener('click',function(ev){
+  var s=dialogueTouche_();
+  if(!s)return;
+  if(ev.target&&ev.target.closest&&ev.target.closest('#'+ID+' [data-tu]'))return;
+  if(ev.cancelable)ev.preventDefault();
+  ev.stopPropagation();ev.stopImmediatePropagation();
+  toucherDialogue_(s);
+},true);
 /*
  * Étape « avance au clic » : un clic sur la cible (ou dedans) passe à l'étape suivante, APRÈS que le jeu a traité le clic (le bouton fait son travail, puis le guide avance). L'écouteur est en phase de capture pour ne rien
  * rater, mais l'avance est différée.

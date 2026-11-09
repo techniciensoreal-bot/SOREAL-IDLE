@@ -291,7 +291,9 @@ export const IDLE_POTIONS_STOCK_V1 = Object.freeze([
   "magicPotionAlpha", "magicPotionBeta", "magicPotionDelta",
   "resource3PotionAlpha", "resource3PotionBeta", "resource3PotionDelta",
   /* Porte-bonheur (Norman, 2026-11-01 : « j'ai reçu un Lucky Charm, il s'est activé automatiquement ; je veux pouvoir stocker les consommables, avec un bouton Utiliser ») : rangés dans la valise comme les potions, activés seulement par « Utiliser » (action usePotion), même effet qu'avant (Drop Chance x2, 30 min / 12 h). */
-  "luckyCharm", "superLuckyCharm"
+  "luckyCharm", "superLuckyCharm",
+  /* Bar Bars, MacGuffin Muffin et Mayo Infuser (Norman, 2026-11-09 : « aucun consommable qu'on achète ne doit s'utiliser à l'achat ; les barres d'énergie fonctionnent encore comme ça ; tout ce qui est acheté en consommable doit être stocké dans la valise et utilisé quand bon nous semble ») : rangés dans la valise, activés seulement par « Utiliser » (usePotion), même effet qu'avant. */
+  "energyBarBar", "magicBarBar", "macguffinMuffin", "mayoInfuser"
 ]);
 
 export function createSelloutEffectsV1(raw) {

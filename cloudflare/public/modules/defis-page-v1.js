@@ -49,7 +49,10 @@ function pageChallengesIdleV1_(j){
       }
 
 function demarrerDefiIdleV1_(challengeId){
-        /* Comme un Rebirth (Norman, 2026-10-27) : même bruit de machine à voyager dans le temps. */
+        /* Un seul lancement à la fois : tant que le voyage tourne, un second clic ne fait rien (le défi part, la réponse du moteur arrive). */
+        if(window.__SOREAL_IDLE_VOYAGE_DEFI_V1__)return;
+        /* Comme un Rebirth (Norman, 2026-10-27) : même bruit de machine à voyager dans le temps ; et (2026-11-09) la même animation : l'horloge qui fonce vers l'écran, l'éclair, puis la borne. Résolu par la réponse du moteur (meta-progression-v130.js, voyageDefiResoudreV1_). */
+        try{window.__SOREAL_IDLE_VOYAGE_DEFI_V1__=window.__SOREAL_IDLE_REG__.voyageTempsDefiIdleV1_()||null;}catch(_e){window.__SOREAL_IDLE_VOYAGE_DEFI_V1__=null;}
         try{window.__SOREAL_IDLE_REG__.jouerEffetAudioIdleV199_('timeMachine');}catch(_e){}
         actionMetaIdleV130_({action:'challenge',mode:'start',challenge:String(challengeId)});
       }

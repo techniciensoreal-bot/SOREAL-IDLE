@@ -3,10 +3,10 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 443,
+  "keyframes": 444,
   "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 12,
-  "pointsEntreeRejouables": 264,
+  "pointsEntreeRejouables": 267,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
@@ -3894,6 +3894,15 @@
    ]
   },
   {
+   "nom": "tuToucher",
+   "definiePar": [
+    "modules/tutoriel-v1.js"
+   ],
+   "utilisePar": [
+    "modules/tutoriel-v1.js"
+   ]
+  },
+  {
    "nom": "vlAnse",
    "definiePar": [
     "modules/valise-v1.js"
@@ -4498,6 +4507,7 @@
   "__SOREAL_IDLE_DAYCARE_SKIN_POPUP_V1__": "modules/daycare-skin-popup-v1.js",
   "__SOREAL_IDLE_DEFI100_V1__": "modules/defi-niveaux-100-v1.js",
   "__SOREAL_IDLE_DEFILEMENT_V1__": "modules/defilement-theme-v1.js",
+  "__SOREAL_IDLE_DEFIS_ATTENTE_V1__": "modules/challenges-v1.js",
   "__SOREAL_IDLE_DEFIS_ECHAP_V1__": "modules/challenges-v1.js",
   "__SOREAL_IDLE_DEFIS_PAGE_V1__": "modules/defis-page-v1.js",
   "__SOREAL_IDLE_DEFIS_TEMPS_V1__": "modules/challenges-v1.js",
@@ -4574,6 +4584,7 @@
   "__SOREAL_IDLE_LANGUE_CHANGEE_V1__": "modules/traduction-anglais-v1.js",
   "__SOREAL_IDLE_LANGUE_V1__": "standalone-bridge.js",
   "__SOREAL_IDLE_LECTEUR_CHRONIQUES_V1__": "modules/lecteur-chroniques-v1.js",
+  "__SOREAL_IDLE_LHU_BIP_V1__": "modules/lhu-voix-v1.js",
   "__SOREAL_IDLE_LIAISON_V1__": "modules/liaison-v1.js",
   "__SOREAL_IDLE_LIGNE_UNIQUE_V1__": "modules/ligne-unique-items-v1.js",
   "__SOREAL_IDLE_LIMITEUR_V1__": "modules/limiteur-audio-v1.js",
@@ -4680,6 +4691,7 @@
   "__SOREAL_IDLE_VICTOIRE_EN_COURS__": "modules/morts-boss-nouvelles-v1.js",
   "__SOREAL_IDLE_VOIX_NOMMEES_V1__": "modules/voix-nommees-v1.js",
   "__SOREAL_IDLE_VOIX_UI_V1__": "modules/voix-ui-v1.js",
+  "__SOREAL_IDLE_VOYAGE_DEFI_V1__": "modules/defis-page-v1.js",
   "__SOREAL_IDLE_WANDOOS_V1__": "modules/wandoos-retro-v1.js",
   "__SOREAL_IDLE_WISHES_PAGE_V1__": "modules/wishes-page-v1.js",
   "__SOREAL_IDLE_YGG_DIGGERS_PAGE_V1__": "modules/yggdrasil-diggers-page-v1.js",

@@ -369,6 +369,28 @@ function etoiles(fait,max){
 }
 
 var dernierDefis={defs:[],tier:'normal',actif:false};
+/*
+ * Un défi fait renaître : pas avant les 3 minutes de run (Norman, 2026-11-09 : « on peut lancer un défi même si les 3 minutes ne sont pas passées ; il fait le bruit mais ne se lance pas ; il faut que le bouton soit grisé avant 3 minutes et qu'il s'allume à 3 minutes comme la renaissance »).
+ * Minimum publié par le moteur (challengeMinSecondes, le même que son refus), début du run et heure du serveur comme le chrono du bandeau : le bouton « Jouer » existe mais reste grisé (aucun clic) jusqu'à l'heure, avec le temps restant, puis s'allume tout seul.
+ */
+var dernierMinDefi=180,dernierRunDebut=0;
+function resteAvantDefi(){
+  var hoteJ=hote(),j=hoteJ.getIdleEtat&&hoteJ.getIdleEtat();
+  var min=Number(j&&j.systemes&&j.systemes.challengeMinSecondes);
+  if(Number.isFinite(min))dernierMinDefi=min;
+  var debut=Number(j&&j.renaissance&&j.renaissance.runDebuteA);
+  if(debut>0)dernierRunDebut=debut;
+  if(!(dernierRunDebut>0))return 0;   /* début du run inconnu : on ne grise pas à tort, le moteur refuse de toute façon */
+  return Math.max(0,Math.ceil(dernierMinDefi-(maintenantServeur()-dernierRunDebut)/1000));
+}
+function formaterReste(s){s=Math.max(0,Math.floor(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function boutonJouer(id,gros){
+  var action="window.__demarrerDefiIdleV1__('"+id+"')"+(gros?";window.__fermerDefiIdleV1__()":"");
+  var cl='dfi-jouer'+(gros?' dfi-jouer-gros':'');
+  var reste=resteAvantDefi();
+  if(reste>0)return '<button type="button" class="'+cl+' dfi-attente" aria-disabled="true" data-dfi-action="'+h(action)+'" title="Un défi te fait renaître : il faut au moins '+h(Math.round(dernierMinDefi/60*10)/10)+' minutes de partie.">Jouer<small class="dfi-reste" data-dfi-reste>'+formaterReste(reste)+'</small></button>';
+  return '<button type="button" class="'+cl+'" onclick="'+(gros?'':'event.stopPropagation();')+action+'">Jouer</button>';
+}
 function infosDefi(def,tier){
   var t=DEFIS[def.id];
   if(!t)return null;
@@ -419,7 +441,7 @@ function tuileDefi(def,tier){
     '<h3 class="dfi-nom">'+h(i.t.nom)+'</h3>'+
     '<div class="dfi-niveau">'+etoiles(i.fait,max)+'<span class="dfi-compte">'+i.fait+' / '+max+'</span></div>'+
     '<div class="dfi-gains">'+pastilleGain('exp',i.exp)+pastilleGain('ap',i.ap)+'</div>'+
-    (i.peutDemarrer?'<button type="button" class="dfi-jouer" onclick="event.stopPropagation();window.__demarrerDefiIdleV1__(\''+id+'\')">Jouer</button>':'<span class="dfi-voir">Voir la fiche</span>')+
+    (i.peutDemarrer?boutonJouer(id,false):'<span class="dfi-voir">Voir la fiche</span>')+
   '</article>';
 }
 
@@ -452,7 +474,7 @@ function ficheDefi(def,tier){
     '<div class="dfi-parchemin">'+etiquette('📜','Description')+desc.split('\n\n').map(function(p){return '<p>'+h(p)+'</p>';}).join('')+'</div>'+
     (conseil?'<div class="dfi-bulle">'+etiquette('💡','Conseil')+'<p>'+h(conseil)+'</p></div>':'')+
     '<div class="dfi-butin">'+etiquette('🎁','Récompenses')+'<ul class="dfi-slots">'+(slots||'<li class="dfi-slot"><span class="dfi-slot-t">Seulement de l’EXP et des AP.</span></li>')+'</ul><p class="dfi-note">Au-delà du maximum, plus d’EXP, d’AP ni de bonus.</p></div>'+
-    (i.peutDemarrer?'<div class="dfi-actions"><button type="button" class="dfi-jouer dfi-jouer-gros" onclick="window.__demarrerDefiIdleV1__(\''+id+'\');window.__fermerDefiIdleV1__()">Jouer</button></div>':'')+
+    (i.peutDemarrer?'<div class="dfi-actions">'+boutonJouer(id,true)+'</div>':'')+
   '</div>';
 }
 function fermerFiche(){
@@ -507,6 +529,23 @@ function compteurDefi(debut){
   var t=Number(debut);
   if(!(t>0))return '<p>Le compteur démarre au prochain lancement d’un défi.</p>';
   return '<p><b class="dfi-temps" data-dfi-temps="'+Math.floor(t)+'">'+h(dureeLongue(maintenantServeur()-t))+'</b></p><p class="dfi-note-temps">Lancé le '+h(new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}))+'</p>';
+}
+/* Le bouton « Jouer » grisé décompte et s'allume à l'heure (même instant que le menu Renaissance), sans clic ni redessin de la page. */
+if(typeof setInterval==='function'&&typeof document!=='undefined'&&!window.__SOREAL_IDLE_DEFIS_ATTENTE_V1__){
+  window.__SOREAL_IDLE_DEFIS_ATTENTE_V1__=true;
+  setInterval(function(){
+    if(document.hidden)return;
+    var els=document.querySelectorAll('.dfi-jouer.dfi-attente');
+    if(!els.length)return;
+    var reste=resteAvantDefi();
+    Array.prototype.forEach.call(els,function(b){
+      if(reste>0){var p=b.querySelector('[data-dfi-reste]'),t=formaterReste(reste);if(p&&p.textContent!==t)p.textContent=t;return;}
+      b.classList.remove('dfi-attente');b.removeAttribute('aria-disabled');b.removeAttribute('title');
+      var a=b.getAttribute('data-dfi-action')||'';b.removeAttribute('data-dfi-action');
+      if(a)b.setAttribute('onclick',(b.classList.contains('dfi-jouer-gros')?'':'event.stopPropagation();')+a);
+      var s=b.querySelector('[data-dfi-reste]');if(s)s.remove();
+    });
+  },1000);
 }
 if(typeof setInterval==='function'&&typeof document!=='undefined'&&!window.__SOREAL_IDLE_DEFIS_TEMPS_V1__){
   window.__SOREAL_IDLE_DEFIS_TEMPS_V1__=true;

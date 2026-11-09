@@ -27,7 +27,11 @@
     {id:'resource3PotionBeta',nom:'Potion de Ressource 3 β',img:'resource-3-potion-beta'},
     {id:'resource3PotionDelta',nom:'Potion de Ressource 3 δ',img:'resource-3-potion-delta'},
     {id:'luckyCharm',nom:'Porte-bonheur',img:'lucky-charm'},
-    {id:'superLuckyCharm',nom:'Super porte-bonheur',img:'super-lucky-charm'}
+    {id:'superLuckyCharm',nom:'Super porte-bonheur',img:'super-lucky-charm'},
+    {id:'energyBarBar',nom:'Bar Bar d’énergie',img:'energy-bar-bar'},
+    {id:'magicBarBar',nom:'Bar Bar de magie',img:'magic-bar-bar'},
+    {id:'macguffinMuffin',nom:'MacGuffin Muffin',img:'macguffin-muffin'},
+    {id:'mayoInfuser',nom:'Mayo Infuser',img:'mayo-infuser'}
   ];
   var EFFETS=[
     {id:'energyPower',nom:'Potion d’énergie',img:'energy-potion-alpha',beta:'energy-potion-beta'},
@@ -35,7 +39,9 @@
     {id:'r3Power',nom:'Potion de Ressource 3',img:'resource-3-potion-alpha',beta:'resource-3-potion-beta'},
     {id:'energyBars',nom:'Bar Bar d’énergie',img:'energy-bar-bar'},
     {id:'magicBars',nom:'Bar Bar de magie',img:'magic-bar-bar'},
-    {id:'luck',nom:'Porte-bonheur',img:'lucky-charm'}
+    {id:'luck',nom:'Porte-bonheur',img:'lucky-charm'},
+    {id:'macguffinMuffin',nom:'MacGuffin Muffin',img:'macguffin-muffin'},
+    {id:'mayoInfuser',nom:'Mayo Infuser',img:'mayo-infuser'}
   ];
   var RESERVES=[
     {id:'seeds',nom:'Graines',img:'',icone:'graine'},
@@ -202,6 +208,10 @@
     luck:'Double les chances de drop en Adventure pendant le temps indiqué, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.',
     luckyCharm:'Double les chances de drop en Adventure pendant 30 minutes, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.',
     superLuckyCharm:'Double les chances de drop en Adventure pendant 12 heures, même à travers plusieurs Rebirths. Se cumule avec les autres effets de loot.',
+    energyBarBar:'Double tes barres d’Énergie pendant 60 minutes, même à travers plusieurs Rebirths.',
+    magicBarBar:'Double tes barres de Magie pendant 60 minutes, même à travers plusieurs Rebirths.',
+    macguffinMuffin:'Double le bonus que tu reçois des MacGuffins quand tu renais, pendant 24 heures. S’applique au moins à un Rebirth, même passé les 24 heures.',
+    mayoInfuser:'Double la vitesse de génération de la mayo pendant 24 heures. Augmente aussi la récompense des fruits.',
     seeds:'Les graines servent à améliorer tes fruits dans Yggdrasil. Manger un fruit en rapporte ; le récolter en rapporte davantage.',
     poop:'Accorde +50 % lors de la récolte ou de la consommation d’un fruit d’Yggdrasil. Chaque tas vaut pour un fruit.',
     beastButters:'Double la récompense de QP de ta prochaine quête.',

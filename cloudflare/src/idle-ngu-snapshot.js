@@ -77,7 +77,7 @@ function nguSnapshotV1(state, context) {
 function consommablesSnapshotV1(state) {
   const fx = state.selloutEffects && typeof state.selloutEffects === "object" ? state.selloutEffects : {};
   const restant = {};
-  for (const k of ["energyPower", "magicPower", "r3Power", "energyBars", "magicBars", "luck"]) {
+  for (const k of ["energyPower", "magicPower", "r3Power", "energyBars", "magicBars", "luck", "macguffinMuffin", "mayoInfuser"]) {
     const v = num(fx.remaining && fx.remaining[k], 0);
     if (v > 0) restant[k] = Math.ceil(v);
   }
@@ -138,6 +138,8 @@ function construireSnapshotNguV1(state, context, now) {
     difficultyPeaks: clone(state.difficultyPeaks),
     /* difficultyUnlockRequirements et earlyGameTimeline ne sont plus envoyés au client (audit du 2026-10-10, IDLE-AUDIT-GP-002) : le client ne les lit pas, et ils listaient les boss à battre pour débloquer chaque système. */
     challenge: clone(state.challenge),
+    /* Minimum de run avant de LANCER un défi (secondes ; 180 moins le souhait 20) : la page grise « Jouer » jusque-là et l'allume à l'heure du serveur (Norman, 2026-11-09). Même valeur que le refus du moteur (defiTropTotV1). */
+    challengeMinSecondes: minRebirthSecondsV1(state),
     challengeDefinitions: challengeSnapshotDefinitions(state,context),
     challengeBonuses: challengePermanentBonuses(state),
     bank: clone(state.bank),

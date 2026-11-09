@@ -16,7 +16,7 @@ import {
   macguffinOnTitanKillV1,
   macguffinRandomPoolV1
 } from "../src/idle-macguffins-v1.js";
-import { idleSelloutShopBuyV1, IDLE_SELLOUT_EFFECTS_V1 } from "../src/idle-sellout-shop-v1.js";
+import { idleSelloutShopBuyV1, idleSelloutUsePotionV1, IDLE_SELLOUT_EFFECTS_V1 } from "../src/idle-sellout-shop-v1.js";
 
 const T0 = 1_000_000_000;
 const ctx = { bosses: 120 };
@@ -82,6 +82,10 @@ function fragment(s, type, level, equipped) {
   assert.equal(macguffinSlotCountV1(s), 2);
   idleSelloutShopBuyV1(s, "macguffinMuffin");
   assert.equal(s.currencies.ap, 0, "Muffin : 50 000 AP.");
+  /* Norman (2026-11-09) : rangé dans la valise à l'achat, activé seulement par « Utiliser » */
+  assert.equal(s.selloutEffects.remaining.macguffinMuffin, undefined);
+  assert.equal(s.selloutEffects.stock.macguffinMuffin, 1);
+  idleSelloutUsePotionV1(s, "macguffinMuffin");
   assert.equal(s.selloutEffects.remaining.macguffinMuffin, 86400);
   assert.equal(s.selloutEffects.armed.macguffinMuffin, true);
 }

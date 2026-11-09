@@ -156,11 +156,21 @@
         }
       }
 
+      /* Voyage dans le temps d'un lancement de défi (defis-page-v1.js) : réussi = l'éclair s'ouvre sur la borne, sinon il s'efface (refus du moteur, erreur, action jamais envoyée). Un seul voyage à la fois. */
+      function voyageDefiResoudreV1_(payload,reussi){
+        if(!(payload&&payload.action==='challenge'&&payload.mode==='start'))return;
+        const v=window.__SOREAL_IDLE_VOYAGE_DEFI_V1__;
+        window.__SOREAL_IDLE_VOYAGE_DEFI_V1__=null;
+        if(!v)return;
+        try{if(reussi)v.fin();else v.annuler();}catch(_e){}
+      }
+
       function actionMetaNoyauIdleV130_(payload){
         if(
           idleMetaBusyV130 ||
           !SOREAL_SESSION
         ){
+          voyageDefiResoudreV1_(payload,false);
           libererDemarrageCombatEnEchecV1_(payload);
           return;
         }
@@ -173,6 +183,7 @@
           function(res){
             idleMetaBusyV130=false;
             finCombatLocaleRecueV1_(payload);
+            voyageDefiResoudreV1_(payload,Boolean(res&&res.ok&&res.joueur&&res.resultat&&res.resultat.started));
 
             if(
               res &&
@@ -578,6 +589,7 @@
           function(e){
             idleMetaBusyV130=false;
             finCombatLocaleRecueV1_(payload);
+            voyageDefiResoudreV1_(payload,false);
             libererDemarrageCombatEnEchecV1_(payload);
             if(payload&&payload.action==='collect'&&payload.system==='dailySpin'&&window.__SOREAL_IDLE_ROUE_V1__)window.__SOREAL_IDLE_ROUE_V1__.echec();
 
