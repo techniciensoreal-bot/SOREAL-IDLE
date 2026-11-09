@@ -2,6 +2,7 @@ import { idlePortraitPickR2KeyV1 } from "./idle-portraits-v1.js";
 import { IDLE_DAYCARE_SKIN_IDS_V1 } from "./idle-daycare-skins-v1.js";
 import ENNEMIS_FR_V1 from "../../design/traductions/fr/mobs.json" with { type: "json" };
 import { idleItopodRosterReponseV1, idleItopodImagePartageeV1 } from "./idle-itopod-roster-v1.js";
+import { IDLE_ADVENTURE_MOB_BESTIARY_V1 } from "./idle-adventure-zones.js";
 const IDLE_ADVENTURE_R2_PREFIX="idle/backgrounds/adventure/";
 const IDLE_ADVENTURE_R2_EXTENSIONS=Object.freeze(["webp","png","jpg","jpeg","avif"]);
 /*
@@ -823,6 +824,20 @@ async function dossierZoneAventureR2_(env,zone){
   if(!env.SOREAL_R2||typeof env.SOREAL_R2.list!=="function")return "";
   return choisirDossierZoneR2_(await dossiersAventureR2_(env),zone);
 }
+/*
+ * Nom d'ORIGINE du monstre tiré (Norman, 2026-11-09 : « 743 poulets furieux et Un slime métallique n'apparaissent plus en Aventure, ils sont pourtant partout ailleurs ; avant ils apparaissaient »). Depuis le 2026-11-07 le nom d'un ennemi d'Aventure porte le nouveau nom
+ * d'un boss RENOMMÉ par l'administrateur (« Un slime métallique ») : le client le renvoie dans ?name=, mais ce nom ne figure dans aucune table (mobs.json), donc aucune image de boss ne portait ce nom et le serveur retombait sur le choix par index, qui ne trouve rien
+ * (R2 idle/aventure/ n'a plus ces images : elles sont celles des boss). Or le NUMÉRO du monstre (?seed=) est son rang dans le bestiaire de la zone (monsterIndex, idle-adventure-combat.js) : le nom d'origine s'en déduit sans dépendre d'aucune traduction ni d'aucun renommage.
+ */
+export function nomOrigineMobV1_(zone,boss,seed){
+  const def=IDLE_ADVENTURE_MOB_BESTIARY_V1[String(zone||"")];
+  const n=Number(seed);
+  if(!def||!Number.isFinite(n)||n<0)return "";
+  const pool=boss?def.boss:def.normal;
+  if(!pool||!pool.length)return "";
+  const e=pool[Math.floor(n)%pool.length];
+  return e&&typeof e==="object"?String(e.name||""):String(e||"");
+}
 async function adventureMob_(request,env,url){
   const zone=String(url.searchParams.get("zone")||"").trim().toLowerCase();
   const folder=await dossierZoneAventureR2_(env,zone);
@@ -833,7 +848,9 @@ async function adventureMob_(request,env,url){
 
   const nomDemande=url.searchParams.get("name");
   /* 1. L'image du BOSS de mÃªme nom (les mÃªmes images ne sont plus gardÃ©es en double). */
-  let key=nomDemande?choisirCleBossR2ParNom_(await objetsBossR2_(env),nomDemande):"";
+  const nomOrigine=nomOrigineMobV1_(zone,url.searchParams.get("boss")==="1",url.searchParams.get("seed"));
+  let key=nomOrigine?choisirCleBossR2ParNom_(await objetsBossR2_(env),nomOrigine):"";
+  if(!key&&nomDemande)key=choisirCleBossR2ParNom_(await objetsBossR2_(env),nomDemande);
   if(!key){
     const keys=(await objetsDossierMobR2_(env,IDLE_ADVENTURE_MOBS_R2_PREFIX+folder+"/"))
       .filter(k=>!/_safe_zone\.[a-z0-9]+$/i.test(String(k)));
@@ -841,7 +858,7 @@ async function adventureMob_(request,env,url){
       keys,
       url.searchParams.get("boss")==="1",
       url.searchParams.get("seed"),
-      nomDemande
+      nomOrigine||nomDemande
     );
     /* 2. Mob choisi par index : s'il existe un boss de mÃªme numÃ©ro, c'est son image. */
     const num=key&&String(key).split("/").pop().match(/^Adv_(\d+)_/i);
