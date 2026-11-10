@@ -639,13 +639,21 @@
   "pin": 2,
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
+ "/modules/release-notes-anciennes-1-v1.js": {
+  "pin": 1,
+  "sha": "bcfcf628d446a5c8bbf9a1fb386cefdd2a1c7a83"
+ },
+ "/modules/release-notes-anciennes-2-v1.js": {
+  "pin": 2,
+  "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
+ },
  "/modules/release-notes-nouveautes-v1.js": {
   "pin": 267,
   "sha": "4559fcad5310bda95e16a636940e30f4c89a6ca3"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 905,
-  "sha": "88e03a2a959c08e3b2c7c7bdab12b06ca333744c"
+  "pin": 907,
+  "sha": "7746445f2e7eb17b2b33019f197d2f3d5c6b2c34"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,

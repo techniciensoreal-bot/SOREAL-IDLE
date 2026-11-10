@@ -8,6 +8,8 @@ const fichiers = [
   "cloudflare/public/modules/titans-comportements-v1.js",
   "cloudflare/public/modules/journal-attaques-v1.js",
   "cloudflare/public/modules/release-notes-v1.js",
+  "cloudflare/public/modules/release-notes-anciennes-1-v1.js",
+  "cloudflare/public/modules/release-notes-anciennes-2-v1.js",
   "cloudflare/src/idle-titans-combat-v1.js"
 ];
 const sansCommentaires = (s) => s.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:'"\\])\/\/[^\n]*/g, "$1");

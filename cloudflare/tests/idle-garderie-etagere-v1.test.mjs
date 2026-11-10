@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireNotes, chargerNotes } from "./_notes.mjs";
 import { PAGES_META } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
@@ -200,7 +201,7 @@ state = applyIdleNguAction(state, { action: "daycarePlace", itemId: id }, ctx, T
 
 /* 6. Note de mise à jour : groupe réservé à ceux qui ont la garderie, sans parler du Coffre. */
 {
-  const notes = pub("modules/release-notes-v1.js");
+  const notes = lireNotes();
   const bloc = /\{menu:'daycare'[\s\S]*?\]\},/.exec(notes);
   assert.ok(bloc, "groupe « Garderie » dans la note du jour");
   assert.ok(!/coffre|valise/i.test(bloc[0]), "la note ne nomme pas le Coffre");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireNotes, chargerNotes } from "./_notes.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 
@@ -9,7 +10,7 @@ const lire = (f) => readFileSync("cloudflare/public/" + f, "utf8");
 const meta = lire("modules/meta-progression-v130.js") + lirePagesMeta();
 const chal = lire("modules/challenges-v1.js");
 const prof = lire("modules/profile-v1.js");
-const notes = lire("modules/release-notes-v1.js");
+const notes = lireNotes();
 
 // Explication de la Puissance (boutique EXP) : aucune activité nommée.
 const iPuiss = meta.indexOf("id:'power',");

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireNotes, chargerNotes } from "./_notes.mjs";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 
@@ -26,9 +27,7 @@ const A_TRANCHER_MAX_2026_11_09 = 40;
 /* Le nom du jeu lui-meme n'est pas un systeme (visible des l'ecran de connexion). */
 const NOM_DU_JEU = ["soreal ngu idle", "ngu idle", "n de ngu"];
 
-const window = {};
-vm.runInNewContext(readFileSync("cloudflare/public/modules/release-notes-v1.js", "utf8"), { window });
-const n = JSON.parse(JSON.stringify(window.__SOREAL_IDLE_RELEASE_NOTES_V1__));
+const n = JSON.parse(JSON.stringify(chargerNotes()));
 
 /* Mot entier (pluriel permis) : « défi » ne doit pas attraper « défiler », ni « ngu » « longue ». */
 const motEntier = (mot) => new RegExp("(?<![\\p{L}])" + mot.split(" ").join(" ") + "(?:s|x)?(?![\\p{L}])", "u");

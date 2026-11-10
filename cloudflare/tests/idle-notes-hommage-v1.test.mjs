@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireNotes, chargerNotes } from "./_notes.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -15,9 +16,7 @@ assert.ok(bloc.indexOf("htmlVersionNotesMajIdleV1_(v,possedes)") < bloc.indexOf(
 assert.equal(m[1], "🐾 En hommage à Grizboule", "Norman (2026-10-11) : seulement une patte de chat et « En hommage à Grizboule »");
 // Norman (2026-10-11) : les versions déjà publiées gardent l'ancien hommage ; le texte court ne vaut qu'à partir d'aujourd'hui.
 import vm from "node:vm";
-const w = {};
-vm.runInNewContext(notes, { window: w });
-const nn = w.__SOREAL_IDLE_RELEASE_NOTES_V1__;
+const nn = chargerNotes();
 const ancien = nn.versions.filter((v) => v.version !== "5.5" && v.version !== "5.4" && v.version !== "5.3" && v.version !== "2.6" && v.version !== "2.7" && v.version !== "2.8" && v.version !== "2.9" && v.version !== "3.0" && v.version !== "3.1" && v.version !== "3.2" && v.version !== "3.3" && v.version !== "3.4" && v.version !== "3.5" && v.version !== "3.6" && v.version !== "3.7" && v.version !== "3.8" && v.version !== "3.9" && v.version !== "4.0" && v.version !== "4.1" && v.version !== "4.2" && v.version !== "4.4" && v.version !== "4.5" && v.version !== "4.6" && v.version !== "4.7" && v.version !== "4.8" && v.version !== "5.0" && v.version !== "5.2" && v.version !== "5.1" && v.version !== "4.9" && v.version !== "4.3");
 assert.equal(ancien.length, 16);
 for (const v of ancien) assert.ok(String(v.hommage).startsWith("🐾 En souvenir de Grizboule, mon chat adoré") && String(v.hommage).includes("je t’aime et tu me manques.") && dict[v.hommage], "ancien hommage conservé et traduit : " + v.version);

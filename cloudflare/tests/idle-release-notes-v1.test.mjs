@@ -1,12 +1,11 @@
 import assert from "node:assert/strict";
+import { lireNotes, chargerNotes } from "./_notes.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import vm from "node:vm";
 import { readFileSync } from "node:fs";
 
 /* Norman (2026-09-25) : version Beta avec un petit nom ; « Notes de mise à jour » dans Settings. Refonte 2026-10-02 : une entrée par jour (1.0 -> 3.0). */
-const window = {};
-vm.runInNewContext(readFileSync("cloudflare/public/modules/release-notes-v1.js", "utf8"), { window });
-const n = JSON.parse(JSON.stringify(window.__SOREAL_IDLE_RELEASE_NOTES_V1__));
+const n = JSON.parse(JSON.stringify(chargerNotes()));
 
 assert.equal(n.courante, "5.5");
 assert.deepEqual(n.versions.map((v) => v.version), ["5.5", "5.4", "5.3", "5.2", "5.1", "5.0", "4.9", "4.8", "4.7", "4.6", "4.5", "4.4", "4.3", "4.2", "4.1", "4.0", "3.9", "3.8", "3.7", "3.6", "3.5", "3.4", "3.3", "3.2", "3.1", "3.0", "2.9", "2.8", "2.7", "2.6", "2.5", "2.4", "2.3", "2.2", "2.1", "2.0", "1.9", "1.8", "1.7", "1.6", "1.5", "1.4", "1.3", "1.2", "1.1", "1.0"], "une entrée par jour : 1.0 le 2026-09-23 puis +0.1 par jour, la plus récente en tête");
@@ -38,7 +37,11 @@ for (const interdit of ["classement", "cooking", "titan", "tippi", "evil", "sadi
 const ui = lireUiComplet();
 assert.ok(ui.includes("📝 Notes de mise à jour") && ui.includes("window.__basculerNotesMajIdleV1__"));
 assert.ok(ui.includes("Build <b style=\"color:#dce5f3\">Beta '+idleHtml_(notesMajIdleV1_().courante)"), "version affichée = courante des notes");
-assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/release-notes-v1.js"));
+{
+  const h = readFileSync("cloudflare/public/index.html", "utf8");
+  const i = [1, 2].map((k) => h.indexOf("/modules/release-notes-anciennes-" + k + "-v1.js?v="));
+  assert.ok(i[0] > 0 && i[1] > i[0] && h.indexOf("/modules/release-notes-v1.js?v=") > i[1], "les anciennes notes (1 puis 2) sont chargées avant les notes principales");
+}
 
 console.log("idle-release-notes-v1 OK");
 

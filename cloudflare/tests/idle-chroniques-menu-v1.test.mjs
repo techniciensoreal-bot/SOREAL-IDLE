@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { lireNotes, chargerNotes } from "./_notes.mjs";
 import { lireUiComplet } from "./_ui-sources.mjs";
 import { readFileSync } from "node:fs";
 
@@ -8,7 +9,7 @@ import { readFileSync } from "node:fs";
  */
 const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
-const notes = readFileSync("cloudflare/public/modules/release-notes-v1.js", "utf8");
+const notes = lireNotes();
 
 const bloc = ui.slice(ui.indexOf("const IDLE_MENUS_V1=["), ui.indexOf("];", ui.indexOf("const IDLE_MENUS_V1=[")));
 const ids = [...bloc.matchAll(/\{id:'([A-Za-z]+)'/g)].map((m) => m[1]);

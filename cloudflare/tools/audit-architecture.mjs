@@ -220,7 +220,6 @@ const SEUIL_OCTETS = 150 * 1024;
 const OCTETS_PAR_FICHIER = {
   "public/modules/borne-led-v1.js": 239616,
   "public/modules/sang-rituel-decor-v1.js": 211968,
-  "public/modules/release-notes-v1.js": 208896,   /* relevé à 204 Ko avec l accord de Norman (2026-11-10) : une entrée de note par jour */
   "public/modules/augmentations-page-v1.js": 157696,
 };
 /* Feuilles de style : plafond de lignes par feuille (taille du 2026-11-09), jamais en hausse. Une feuille absente d'ici est limitée à MAX_LIGNES_FICHIER. */
