@@ -64,12 +64,13 @@
  * (« Rainbow Heart (set): x1.10 » vitesse des cartes et du mayo) et Blue Heart
  * (« Mayo Infusers: x2, or x2.2 with Blue Heart Set »).
  */
+import { nombreV1, entierV1 } from "./idle-outils-v1.js";
 import { idleHeartsCardMayoSpeedMultiplierV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { idleTheEndGrantV1, idleTheEndHasV1, IDLE_THE_END_CARD_CHANCE_V1, IDLE_THE_END_CARD_MAYO_V1 } from "./idle-the-end-v1.js";
 
-const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
-const I = (v, d = 0) => Math.floor(N(v, d));
+const N = nombreV1;   /* outil commun (corps identique) */
+const I = entierV1;   /* outil commun (corps identique) */
 
 /* Page Cards, section « Card bonus formula » : constantes C1..C4 par type. */
 export const IDLE_CARDS_TYPES_V1 = Object.freeze([

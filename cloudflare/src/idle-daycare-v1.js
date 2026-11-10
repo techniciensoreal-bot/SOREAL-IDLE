@@ -40,6 +40,7 @@
  * s'applique rétroactivement, exactement comme le décrit le wiki. Ce module ne lit aucun état de
  * idle-ngu-progression.js : les bonus lui sont passés déjà calculés (idleDaycareFactorsV1).
  */
+import { numV1 } from "./idle-outils-v1.js";
 import { idleAdventureAddItemV1 } from "./idle-adventure-v47.js";
 
 /* Niveau maximum d'un objet (page Inventory : « maximum level of 100 »), même borne que MAX dans idle-adventure-v47.js. */
@@ -376,7 +377,7 @@ export const IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 = Object.freeze({
   506: 96, // Mysterious Grey Liquid
 });
 
-const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
+const num = numV1;   /* outil commun (corps identique) */
 const int = (v, d = 0) => Math.floor(num(v, d));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, num(v, a)));
 const clone = (v) => JSON.parse(JSON.stringify(v));

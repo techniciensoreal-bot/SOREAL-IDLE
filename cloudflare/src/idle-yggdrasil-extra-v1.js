@@ -39,11 +39,12 @@
  *    niveau, place dans l'arrondi non publiée).
  */
 
+import { nombreV1, entierV1 } from "./idle-outils-v1.js";
 import { idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 
-const N = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
-const I = (v, d = 0) => Math.floor(N(v, d));
+const N = nombreV1;   /* outil commun (corps identique) */
+const I = entierV1;   /* outil commun (corps identique) */
 
 /* ---------- Poop ---------- */
 
