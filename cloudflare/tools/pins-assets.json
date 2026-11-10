@@ -3,6 +3,10 @@
   "pin": 4,
   "sha": "35a7ab483993dac1e3a03af6ae49f36bdcaea69b"
  },
+ "/machine-ecran-tv-v1.css": {
+  "pin": 8,
+  "sha": "96363aaec9e751bd0fa01caa7b89c91026e07f30"
+ },
  "/modules/achievement-notice-v1.js": {
   "pin": 1,
   "sha": "23b8ce8bec16f4e65192f832b4bebcfb851525d0"
@@ -36,8 +40,8 @@
   "sha": "4421e472d8a840de4970dd542ecea6fc0eac6c28"
  },
  "/modules/ambient-audio-v1.js": {
-  "pin": 13,
-  "sha": "be7c37fdb684da75aec2c641c6dd5f4bbceeb712"
+  "pin": 14,
+  "sha": "02181034e164e8872e1ff1fdad5fc3bcb8502282"
  },
  "/modules/animations-hors-ecran-v1.js": {
   "pin": 2,
@@ -80,8 +84,8 @@
   "sha": "171dea1e1f4b302d065032efc1e8dabcb96dae89"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 57,
-  "sha": "c6c2749382cafc4d48b102a500ae2404a4240f06"
+  "pin": 60,
+  "sha": "51b6c2e8b62532cb2ea25f5d8e257a14c34656b1"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 13,
@@ -488,8 +492,8 @@
   "sha": "cbb8cda820f410aefaad2c9a22cf7203036da398"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 24,
-  "sha": "60da20fb99071fe2dcd4ceceeb1158297cd2b939"
+  "pin": 26,
+  "sha": "313218265aca82f808a5a5694a54498aac7cfb28"
  },
  "/modules/machine-sons-v1.js": {
   "pin": 6,
@@ -648,12 +652,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 268,
-  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
+  "pin": 269,
+  "sha": "f271ae3fd2fbb90c54384780409e9b0f4cfddd54"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 907,
-  "sha": "7746445f2e7eb17b2b33019f197d2f3d5c6b2c34"
+  "pin": 911,
+  "sha": "b19de9e37140f5c51315a264ea71fb69d45eeb6b"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -680,8 +684,8 @@
   "sha": "1e1a5b18e6602de359bf39ead25c2e71f4004f58"
  },
  "/modules/shop-music-v1.js": {
-  "pin": 5,
-  "sha": "ece5be6b123ba482c3d465b5932c3263782cce24"
+  "pin": 6,
+  "sha": "262cb0aa68ff6a9db937d3614dd1fdae44fe51b2"
  },
  "/modules/stats-detail-v1.js": {
   "pin": 3,
@@ -748,12 +752,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 944,
-  "sha": "97a73bd1be3e0e33cd0d6ed91afd08227e4ef6d0"
+  "pin": 949,
+  "sha": "0558df27c431609d0dce249cfa4d29fbd7bea290"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 765,
-  "sha": "23efcd859652f7e6f4af034b548b67107b4db49b"
+  "pin": 770,
+  "sha": "d4972c61b33edba7f01687ab08bd1a7f80bef128"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -1016,8 +1020,8 @@
   "sha": "093507640a6ddd259c5b5d82e14978837c3d0729"
  },
  "/soreal-idle-machine.css": {
-  "pin": 26,
-  "sha": "037ceb5f8cb9c4e7f99c50b7f8134416b6150103"
+  "pin": 31,
+  "sha": "ea8af771b552f406e097d31623d10091adbad610"
  },
  "/soreal-idle-menus-boutons-v1.css": {
   "pin": 49,

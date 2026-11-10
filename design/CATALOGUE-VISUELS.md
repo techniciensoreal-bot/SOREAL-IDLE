@@ -5,7 +5,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 ## Résumé
 - menus : **29**
 - pages : **33**
-- keyframes : **444**
+- keyframes : **448**
 - fichiersAvecWebAnimations : **20**
 - fichiersCanvas : **12**
 - pointsEntreeRejouables : **269**
@@ -57,7 +57,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `img/mineurs/labos` : 17
 - `intro` : 16
 - `machine-v2` : 3
-- `machine-v3` : 3
+- `machine-v3` : 9
 - `magic/boss` : 299
 - `magic/fonds` : 32
 - `magic/safe` : 32

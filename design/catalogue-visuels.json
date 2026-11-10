@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 444,
+  "keyframes": 448,
   "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 12,
   "pointsEntreeRejouables": 269,
@@ -3816,10 +3816,10 @@
   {
    "nom": "tmmBalayage",
    "definiePar": [
-    "soreal-idle-machine.css"
+    "machine-ecran-tv-v1.css"
    ],
    "utilisePar": [
-    "soreal-idle-machine.css"
+    "machine-ecran-tv-v1.css"
    ]
   },
   {
@@ -3851,12 +3851,48 @@
    ]
   },
   {
-   "nom": "tmmScintille",
+   "nom": "tmmTvBandeE",
    "definiePar": [
-    "soreal-idle-machine.css"
+    "machine-ecran-tv-v1.css"
    ],
    "utilisePar": [
-    "soreal-idle-machine.css"
+    "machine-ecran-tv-v1.css"
+   ]
+  },
+  {
+   "nom": "tmmTvBandeI",
+   "definiePar": [
+    "machine-ecran-tv-v1.css"
+   ],
+   "utilisePar": [
+    "machine-ecran-tv-v1.css"
+   ]
+  },
+  {
+   "nom": "tmmTvDecal",
+   "definiePar": [
+    "machine-ecran-tv-v1.css"
+   ],
+   "utilisePar": [
+    "machine-ecran-tv-v1.css"
+   ]
+  },
+  {
+   "nom": "tmmTvGrain",
+   "definiePar": [
+    "machine-ecran-tv-v1.css"
+   ],
+   "utilisePar": [
+    "machine-ecran-tv-v1.css"
+   ]
+  },
+  {
+   "nom": "tmmTvScintille",
+   "definiePar": [
+    "machine-ecran-tv-v1.css"
+   ],
+   "utilisePar": [
+    "machine-ecran-tv-v1.css"
    ]
   },
   {
@@ -4813,7 +4849,7 @@
   "img/mineurs/labos": 17,
   "intro": 16,
   "machine-v2": 3,
-  "machine-v3": 3,
+  "machine-v3": 9,
   "magic/boss": 299,
   "magic/fonds": 32,
   "magic/safe": 32,

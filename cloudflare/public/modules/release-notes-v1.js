@@ -30,7 +30,16 @@
         date:'2026-11-10',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Les sons d’ambiance et les musiques de menu s’arrêtent dès que tu quittes le jeu (changement d’appli, écran éteint) : plus de lecteur multimédia qui reste affiché sur le téléphone. Ils repartent quand tu reviens.',
             'La bannière « Nouvelle version disponible » ne revient plus toutes les 3 minutes alors que rien n’a changé : elle n’apparaît que si une vraie nouvelle version est sortie.'
+          ]},
+          {menu:'avance', titre:'Entraînement avancé', points:[
+            'Chaque ligne de l’Entraînement avancé a un bouton « Max » : il place sur cette compétence toute l’énergie idle disponible.'
+          ]},
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'L’écran du monstre de la Machine temporelle devient une télé en noir et blanc : l’image remplit tout le cadre et subit des interférences (bandes qui décalent l’image, grain, lignes de balayage).',
+            'Les tours Énergie et Magie sont un peu réduites et mieux placées : leurs connecteurs sont maintenant en face de ceux de la machine centrale.',
+            'La Machine temporelle a un nouveau décor : le liquide des tubes d’Énergie et de Magie et l’image du monstre passent derrière le cadre de la machine, qui leur sert de filtre, et remplissent toute leur ouverture (de tout en bas à tout en haut).'
           ]}
         ]
       },
