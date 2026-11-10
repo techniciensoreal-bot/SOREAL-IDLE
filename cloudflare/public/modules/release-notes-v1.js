@@ -22,10 +22,20 @@
   /* Ancien hommage (2026-10-07 à 2026-10-10) : il reste sous les versions déjà publiées ; depuis 2026-10-11 le texte est raccourci (champ `hommage` global ci-dessous, utilisé par la version 2.6 et les suivantes). Chaque version peut avoir son propre champ `hommage`. */
   var HOMMAGE_ANCIEN='🐾 En souvenir de Grizboule, mon chat adoré, qui m’a accompagné dans toutes mes galères, adorable de notre première rencontre jusqu’à son dernier jour. Repose-toi bien là-haut, petit compagnon : je t’aime et tu me manques.';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.4',
+    courante:'5.5',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'5.5',
+        nom:'Une version sans fausse alerte',
+        date:'2026-11-10',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'La bannière « Nouvelle version disponible » ne revient plus toutes les 3 minutes alors que rien n’a changé : elle n’apparaît que si une vraie nouvelle version est sortie.'
+          ]}
+        ]
+      },
       {
         version:'5.4',
         nom:'Les monstres reviennent',
