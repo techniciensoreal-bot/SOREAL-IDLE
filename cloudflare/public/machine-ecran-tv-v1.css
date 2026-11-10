@@ -1,0 +1,63 @@
+/* Écran de télé noir et blanc de la Machine temporelle (Norman, 2026-11-10). Feuille à part : soreal-idle-machine.css est plafonnée (audit d'architecture). */
+/*
+ * ÉCRAN DE TÉLÉ NOIR ET BLANC (Norman, 2026-11-10 : « un effet télé noir et blanc pour cet écran, avec interférences de l'image ; change l'effet actuel »). Remplace l'ancien voile vert et sa bande lumineuse.
+ * L'image du mob remplit toute l'ouverture (« cover », centrée), passée en gris. Interférences : deux bandes qui descendent en décalant l'image sur le côté (une copie de l'image, décalée par paliers), du grain qui saute, des lignes de balayage, une vignette et
+ * une bande claire qui roule. Tout ne bouge que par transform / opacity (processeur graphique). Boucles sans à-coup (règle n°3) : les bandes d'interférence font tout leur trajet hors de la vue de départ à la vue d'arrivée puis attendent HORS du cadre avant de repartir,
+ * le grain est un bruit sans repère, le scintillement revient à 1. La bande est une copie de l'image : sa « cale » annule exactement le déplacement de la bande (mêmes durées, mêmes décalages, signes opposés) pour que l'image ne glisse jamais, seul son décalage latéral se voit.
+ */
+.tmm-ecran-mob{position:absolute;left:8.66%;top:7.17%;width:21.92%;height:18.19%;overflow:hidden;pointer-events:none;z-index:2;container-type:size;background:transparent;filter:grayscale(1) contrast(1.22) brightness(1.04);animation:tmmTvScintille 6s steps(1) infinite}
+.tmm-tv-img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%;display:block;max-width:none}
+.tmm-tv-bande{position:absolute;left:0;right:0;top:0;overflow:hidden;will-change:transform;filter:brightness(1.35) contrast(1.15)}
+.tmm-tv-bande-a{height:13cqh;animation:tmmTvBandeE 6.4s linear infinite}
+.tmm-tv-bande-b{height:6cqh;animation:tmmTvBandeE 10.3s linear -3.7s infinite}
+.tmm-tv-bande::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(180deg,rgba(255,255,255,.4),rgba(255,255,255,.12) 22%,rgba(255,255,255,.06) 78%,rgba(255,255,255,.34))}
+.tmm-tv-cale{position:absolute;left:0;top:0;width:100%;height:100cqh;will-change:transform}
+.tmm-tv-bande-a .tmm-tv-cale{animation:tmmTvBandeI 6.4s linear infinite}
+.tmm-tv-bande-b .tmm-tv-cale{animation:tmmTvBandeI 10.3s linear -3.7s infinite}
+.tmm-tv-decal{position:absolute;left:0;top:0;width:100%;height:100%;animation:tmmTvDecal .9s steps(1) infinite}
+.tmm-tv-bande-b .tmm-tv-decal{animation-duration:.6s;animation-direction:reverse}
+.tmm-tv-grain{position:absolute;left:-50%;top:-50%;width:200%;height:200%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");background-size:120px 120px;opacity:.2;animation:tmmTvGrain .45s steps(1) infinite;will-change:transform}
+.tmm-ecran-mob::before{content:"";position:absolute;left:0;right:0;top:0;height:26%;z-index:3;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.14),rgba(255,255,255,0));transform:translateY(-110%);animation:tmmBalayage 5.2s linear infinite;will-change:transform}
+.tmm-ecran-mob::after{content:"";position:absolute;inset:0;z-index:3;background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,0) 52%,rgba(0,0,0,.6) 100%),repeating-linear-gradient(0deg,rgba(0,0,0,.34) 0 1px,rgba(0,0,0,0) 1px 3px)}
+@keyframes tmmBalayage{0%{transform:translateY(-110%)}100%{transform:translateY(420%)}}
+@keyframes tmmTvScintille{0%,100%{opacity:1}41%{opacity:.9}42%{opacity:1}77%{opacity:.84}78%{opacity:1}}
+@keyframes tmmTvBandeE{0%{transform:translateY(-15cqh)}40%,100%{transform:translateY(112cqh)}}
+@keyframes tmmTvBandeI{0%{transform:translateY(15cqh)}40%,100%{transform:translateY(-112cqh)}}
+@keyframes tmmTvDecal{0%{transform:translateX(8cqw)}17%{transform:translateX(-6cqw)}33%{transform:translateX(11cqw)}50%{transform:translateX(-9cqw)}67%{transform:translateX(5cqw)}83%{transform:translateX(-12cqw)}}
+@keyframes tmmTvGrain{0%{transform:translate(0,0)}25%{transform:translate(-9%,7%)}50%{transform:translate(6%,-11%)}75%{transform:translate(-4%,-5%)}}
+@media (prefers-reduced-motion:reduce){.tmm-ecran-mob,.tmm-ecran-mob::before,.tmm-tv-bande,.tmm-tv-cale,.tmm-tv-decal,.tmm-tv-grain{animation:none}.tmm-tv-bande{display:none}}
+
+/*
+ * LES BARRES ET L'ÉCRAN PASSENT DERRIÈRE LA MACHINE (Norman, 2026-11-10 : il a rendu transparentes les ouvertures des trois images ; « une plus grosse barre mais à l'arrière, la machine servira de filtre »). Pour chaque carte :
+ *  - fond  (*-fond.webp)  : l'image avec ses ouvertures remplies de noir (comme avant) ; les zones d'écriture (titre, afficheurs, boutons) gardent ce fond sombre ;
+ *  - cadre (*-cadre.webp) : l'image de Norman, ouvertures TRANSPARENTES, posée par-dessus (::before, z-index 1, aucun clic) : elle sert de filtre ; le liquide des tubes et l'image du monstre sont dessous, plus grands que leur ouverture, et tout ce qui dépasse est caché par le cadre.
+ * Les trois cadres sont les images de Norman réduites à 576 x 753, 580 x 753 et 762 x 753 (mêmes tailles que les anciennes cartes) ; les ouvertures des tubes et de l'écran ont été mesurées sur leur transparence :
+ * Énergie x 44-116, y 246-546 ; Magie x 468-543, y 250-558 ; écran du monstre x 66-231, y 51-191 ; les tubes et l'écran les dépassent de 3 à 4 px de chaque côté.
+ */
+.tmm-gauche{background-image:url(/machine-v3/tour-energie-fond.webp?v=1);isolation:isolate}
+.tmm-droite{background-image:url(/machine-v3/tour-magie-fond.webp?v=1);isolation:isolate}
+.tmm-centre{background-image:url(/machine-v3/centre-fond.webp?v=1);isolation:isolate}
+.tmm-gauche::before,.tmm-droite::before,.tmm-centre::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background-repeat:no-repeat;background-position:center;background-size:100% 100%}
+.tmm-gauche::before{background-image:url(/machine-v3/tour-energie-cadre.webp?v=1)}
+.tmm-droite::before{background-image:url(/machine-v3/tour-magie-cadre.webp?v=1)}
+.tmm-centre::before{background-image:url(/machine-v3/centre-cadre.webp?v=1)}
+.tmm-gauche .tmm-tube{left:7.12%;top:32.27%;width:13.54%;height:40.64%;border-radius:0;z-index:0;background:#08090d}
+.tmm-droite .tmm-tube{left:80.17%;top:32.8%;width:13.97%;height:41.7%;border-radius:0;z-index:0;background:#08090d}
+.tmm-centre .tmm-ecran-mob{left:8.14%;top:6.24%;width:22.7%;height:19.65%;z-index:0}
+/*
+ * LES CONNECTEURS SE FONT FACE (Norman, 2026-11-10 : « réduis la hauteur des 2 modules Énergie et Magie pour qu'ils aient la même taille que la machine, les connecteurs ne sont pas en face l'un de l'autre »). Mesuré sur les trois cadres (carte de 753 de haut) : les deux saillies de connecteur sont à
+ * y = 216 et 498 sur le centre (côtés gauche et droit), à y = 215 et 516 sur la tour Énergie (côté droit), à y = 215 et 526 sur la tour Magie (côté gauche) : les tours sont dessinées plus grandes que la machine. Elles sont donc réduites de 7,6 % (échelle 0,924, la même pour les deux : les écritures gardent
+ * la même taille) et descendues de 19,7 (Énergie) et 15,6 (Magie) unités de 753, ce qui met chaque connecteur en face de son vis-à-vis à 2,7 unités près au plus. La grille des trois cartes garde les proportions des images (largeur de chaque colonne = largeur d'origine x 0,924 pour les tours) ;
+ * le décalage vers le bas est un pourcentage de la largeur de la colonne de la tour (19,7 / 532,2 et 15,6 / 535,9). Téléphone : une seule colonne, rien n'est réduit ni décalé.
+ */
+.tmm-machine{grid-template-columns:532.2fr 762fr 535.9fr}
+.tmm-machine.tmm-sans-magie{grid-template-columns:532.2fr 762fr}
+.tmm-gauche{margin-top:3.7%}
+.tmm-droite{margin-top:2.91%}
+@container (max-width:900px){
+  .tmm-machine,.tmm-machine.tmm-sans-magie{grid-template-columns:minmax(0,1fr)}
+  .tmm-gauche,.tmm-droite{margin-top:0}
+}
+/* Les dessins ronds des tours (rouage vert, orbe bleu) sont centrés dans le cercle du nouveau décor (Norman, 2026-11-10) : cercles mesurés sur la transparence des cadres, Énergie x 267-330, y 185-246 (carte de 576 x 753) ; Magie x 251-312, y 187-248 (580 x 753). */
+.tmm-gauche .tmm-haut{left:46.35%;top:24.57%;width:10.94%;height:8.1%}
+.tmm-droite .tmm-haut{left:43.28%;top:24.83%;width:10.52%;height:8.1%}

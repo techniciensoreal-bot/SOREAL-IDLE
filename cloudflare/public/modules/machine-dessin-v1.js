@@ -102,21 +102,19 @@
     var multi=opts.multi?String(opts.multi):'×1';
     var pieces='';
     for(var p=0;p<8;p++)pieces+='<g class="tmm-piece" data-rang="'+p+'"><circle cx="560.5" cy="1142" r="22" fill="url(#tmmPiece)" stroke="#0a0a0c" stroke-width="4"/><circle cx="560.5" cy="1142" r="13" fill="none" stroke="#a86a00" stroke-width="3"/></g>';
-    var ecran;
-    if(url){
-      ecran='<image id="tmmImage" class="tmm-mob" x="69" y="57" width="159" height="135" preserveAspectRatio="xMidYMid meet" href="'+esc(url)+'"/>';
-    }else{
-      /* Aucun butin d'Or encore cette renaissance : un cadran d'horloge qui attend. */
-      ecran='<g id="tmmAttente" transform="translate(148.5 124.5)" opacity=".85"><circle r="46" fill="none" stroke="#2cff9f" stroke-opacity=".5" stroke-width="5"/><circle r="38" fill="none" stroke="#2cff9f" stroke-opacity=".25" stroke-width="2"/><path d="M0 -26 V0 L18 12" fill="none" stroke="#2cff9f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>';
+    var ecran='';
+    if(!url){
+      /* Aucun butin d'Or encore cette renaissance : un cadran d'horloge qui attend (en noir et blanc, comme tout l'écran). */
+      ecran='<g id="tmmAttente" transform="translate(149.5 122)" opacity=".85"><circle r="46" fill="none" stroke="#d8dde2" stroke-opacity=".5" stroke-width="5"/><circle r="38" fill="none" stroke="#d8dde2" stroke-opacity=".25" stroke-width="2"/><path d="M0 -26 V0 L18 12" fill="none" stroke="#d8dde2" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></g>';
     }
     /* sept rouages qui engrènent dans la fenêtre longue : 18-12-18-12-18-12-18 dents, grands en acier, petits en orange */
     var train=chaineDansZone(ZONE_FENETRE,[18,12,18,12,18,12,18],['#9aa3ad','#e3a23a']);
     var F='font-family="Orbitron,Russo One,sans-serif" font-weight="700"';
     return '<svg class="tmm-svg" viewBox="0 0 762 753" role="img" aria-label="La machine à remonter le temps" data-morph-vivant="1" data-tmm-centre="1" data-sans-couleur-nombre="1">'+
-      '<clipPath id="tmmClipEcran"><rect x="69" y="57" width="159" height="135" rx="8"/></clipPath>'+
+      '<clipPath id="tmmClipEcran"><polygon points="'+POLYGONE_ECRAN+'"/></clipPath>'+
       '<clipPath id="tmmClipChute"><rect x="497" y="1124" width="127" height="151"/></clipPath>'+
       /* petit écran du mob (Norman, 2026-11-08 : « un slime métallique apparaît zoomé et mal placé dans la Time Machine » : l'image est maintenant ENTIÈRE et centrée, « meet », au lieu d'être agrandie et rognée, « slice », ce qui coupait les mobs d'un autre format) : l'image du meilleur butin d'Or est posée dans le cadre (l'effet d'écran est posé par-dessus, voir .tmm-ecran-mob) */
-      '<g clip-path="url(#tmmClipEcran)"><rect x="69" y="57" width="159" height="135" fill="#07201a"/>'+ecran+'</g>'+
+      '<g clip-path="url(#tmmClipEcran)"><rect x="62" y="50" width="176" height="144" fill="#050607"/>'+ecran+'</g>'+
       /* grand écran d'informations : le nom du mob, puis le meilleur butin d'Or */
       '<text id="tmmNomMob" x="0" y="0" transform="translate(298 100) skewX(-8)" '+F+' font-size="'+tailleNom(nom)+'" fill="#e8f7ee" opacity=".95">'+esc(nom)+'</text>'+
       '<text x="0" y="0" transform="translate(298 134) skewX(-8)" '+F+' font-size="13" letter-spacing="4" fill="#7dffd0" opacity=".85">MEILLEUR BUTIN D’OR</text>'+
@@ -138,8 +136,25 @@
       '<g transform="'+TRANSFORME_CHUTE+'"><g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="539" y="1130" width="43" height="70" rx="14" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
       '<g id="tmmTas" data-niveau="'+(opts.tas|0)+'">'+tasInterieur(opts.tas|0)+'</g></g>'+
       '</svg>'+
-      /* effet d'écran sur le mob : lignes de balayage, vignette, bande lumineuse (CSS : .tmm-ecran-mob) */
-      '<div class="tmm-ecran-mob" aria-hidden="true"></div>';
+      /* écran de télé en noir et blanc (CSS : .tmm-ecran-mob) : l'image du mob, deux bandes d'interférence qui la décalent, grain, lignes de balayage */
+      ecranTelevision(url);
+  }
+
+  /*
+   * Ouverture du petit écran dans l'image du centre : x 66-231, y 51-191 (mesurée sur la transparence de public/machine-v3/centre-cadre.webp, l'image de Norman du 2026-11-10 dont les ouvertures sont transparentes). Sous le cadre (qui fait filtre), un rectangle noir un peu plus grand ;
+   * la couche HTML de l'image du monstre (.tmm-ecran-mob, voir machine-ecran-tv-v1.css) dépasse aussi de 4 px de chaque côté : c'est le cadre qui la découpe.
+   */
+  var POLYGONE_ECRAN='62,47 236,47 236,195 62,195';
+  /*
+   * L'écran du mob est une télé noir et blanc (Norman, 2026-11-10) : l'image remplit tout le cadre (centrée, rognée au besoin : « cover »), passée en gris, avec des INTERFÉRENCES qui décalent l'image (deux bandes qui descendent, une copie de l'image
+   * décalée de quelques pixels), du grain et des lignes de balayage. Tout est en HTML et ne bouge que par transform / opacity (processeur graphique) : rien de plus à calculer dans le dessin SVG de la machine.
+   */
+  function ecranTelevision(url){
+    var img=function(id){return '<img'+(id?' id="'+id+'"':'')+' class="tmm-tv-img" alt="" decoding="async" draggable="false" src="'+esc(url)+'">';};
+    var bande=function(k){return '<div class="tmm-tv-bande tmm-tv-bande-'+k+'"><div class="tmm-tv-cale"><div class="tmm-tv-decal">'+img('')+'</div></div></div>';};
+    return '<div class="tmm-ecran-mob" aria-hidden="true">'+
+      (url?img('tmmImage')+bande('a')+bande('b'):'')+
+      '<div class="tmm-tv-grain"></div></div>';
   }
 
   /* ---------- le socle rond des tours : deux rouages qui engrènent (Énergie) ; l'orbe et son anneau (Magie) ---------- */
@@ -285,7 +300,8 @@
     var nomMob=document.getElementById('tmmNomMob');var nom=v.bestGoldMob&&v.bestGoldMob.name?String(v.bestGoldMob.name):'';if(nomMob){if(nomMob.textContent!==nom)nomMob.textContent=nom;var tn=String(tailleNom(nom));if(nomMob.getAttribute('font-size')!==tn)nomMob.setAttribute('font-size',tn);}
     /* Le mob a changé (un meilleur butin a été obtenu) : image remplacée sur place ; première apparition (aucun mob avant) : la page est redessinée par l'appelant. */
     var u=urlMob(v.bestGoldMob);
-    ['tmmImage','tmmFond'].forEach(function(id){var im=document.getElementById(id);if(im&&u&&im.getAttribute('href')!==u)im.setAttribute('href',u);});
+    /* l'image du petit écran et ses copies d'interférence (couche HTML .tmm-ecran-mob) */
+    if(u)document.querySelectorAll('.tmm-ecran-mob img').forEach(function(im){if(im.getAttribute('src')!==u)im.setAttribute('src',u);});
     var presente=Boolean(document.getElementById('tmmImage')),attendue=Boolean(u);
     if(presente!==attendue&&typeof H.rafraichirMenuRacineIdleV28_==='function'&&Date.now()-(maj.__redessin||0)>1500){maj.__redessin=Date.now();H.rafraichirMenuRacineIdleV28_();}
   }
