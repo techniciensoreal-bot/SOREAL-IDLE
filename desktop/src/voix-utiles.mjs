@@ -46,7 +46,7 @@ export function empreintesLiees(api, catalogue, racine = RACINE) {
   const ajouter = (t) => { for (const e of api.planNarration(api.retirerParentheses(String(t)))) if (e.chunk != null) out.add(api.hashBloc(e.chunk)); };
   const ajouterChronique = (t) => { for (const e of api.planNarration(String(t))) if (e.chunk != null) out.add(api.hashBloc(e.chunk)); };
   const noms = new Map(); const originaux = new Map();
-  try { for (const b of lireJson(path.join(racine, "design", "ngu-boss-names-fr.json"))) noms.set(Number(b.id), String(b.nomFr || "")); } catch (_e) { /* facultatif */ }
+  try { for (const b of lireJson(path.join(racine, "design", "catalogue", "boss.json")).boss) noms.set(Number(b.id), String(b.nomFr || "")); } catch (_e) { /* facultatif */ }
   for (const f of ["ngu-boss-stories-fr.json", "ngu-boss-stories-complement-fr.json"]) {
     try { for (const b of lireJson(path.join(racine, "design", f))) if (String(b.story || "").trim()) originaux.set(Number(b.id), String(b.story)); } catch (_e) { /* facultatif */ }
   }
