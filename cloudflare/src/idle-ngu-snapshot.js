@@ -28,6 +28,7 @@ import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAu
 import { IDLE_AT_ORDRE_V1, beardActiveIdsV1, beardSlotsV1, beardTrackUnlocked, bloodMagicViewV1, finiOuNullV1, timeMachineViewV1, wandoosViewV1, wishSlotCountV1, wishSlotsSnapshotV1 } from "./idle-ngu-pistes.js";
 import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, castBloodSpell, createTrollStateV1, diggerLaboVisibleV1, diggerViewV1, ritualUnlocked, yggMaxTier, yggTierUpgradeCost, apercuYggFruitV1 } from "./idle-ngu-systemes.js";
 import { IDLE_WANDOOS_OS_V1, RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, idleTheEndFinalHackSnapshotV1 } from "./idle-ngu-etat.js";
+/* Fruit à découvrir (anti-spoil, règle n°2) : les fruits de Mayo (système Cards) et le Fruit of Numbers (5e complétion du défi Troll) n'apparaissent qu'une fois obtenus, même Yggdrasil découvert. */const yggFruitSecretV1 = (id) => idleYggIsMayoFruitV1(id) || id === "numbers";
 
 function nguSnapshotV1(state, context) {
   const s = state.systems.ngu;
@@ -303,9 +304,9 @@ function construireSnapshotNguV1(state, context, now) {
     /* Rien tant que Blood Magic n'est pas découvert (audit du 2026-10-10, IDLE-AUDIT-GP-002) : un rituel sans drapeau de déblocage était listé même système verrouillé. */
     bloodRituals: state.systems.bloodMagic?.unlocked ? clone(IDLE_NGU_BLOOD_RITUALS.filter(def => ritualUnlocked(def, context, state))) : [],
     bloodMagicView: bloodMagicViewV1(state),
-    yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0))),
+    yggFruits: clone(IDLE_NGU_YGG_FRUITS.filter(def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!yggFruitSecretV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0))),
     /* Yggdrasil : Poop, Auto-Activate, durée d'un tier, coût du prochain tier (idle-yggdrasil-extra-v1.js). */
-    yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { fruitVisible: def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!idleYggIsMayoFruitV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0), maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost, apercu: (def, f, poopFactor) => apercuYggFruitV1(state, def, f, poopFactor) }),
+    yggExtra: idleYggExtraSnapshotV1(state, IDLE_NGU_YGG_FRUITS, { fruitVisible: def => (state.systems.yggdrasil?.unlocked || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0) && (!yggFruitSecretV1(def.id) || idleYggFruitUnlockedV1(state, def.id) || num(state.systems.yggdrasil?.data?.fruits?.[def.id]?.tier, 0) > 0), maxTier: yggMaxTier(state), tierCost: yggTierUpgradeCost, apercu: (def, f, poopFactor) => apercuYggFruitV1(state, def, f, poopFactor) }),
     /* Anti-spoil : la liste des mineurs n'existe pas tant que le système n'est pas découvert. */
     diggerDefinitions: state.systems.diggers?.unlocked ? clone(IDLE_NGU_DIGGERS.filter(def => diggerLaboVisibleV1(state, def.id))) : [],
     /* Page Mineurs d'or : bonus de chaque mineur, drain, GPS brut, emplacements (idle-ngu-systemes.js, diggerViewV1). */

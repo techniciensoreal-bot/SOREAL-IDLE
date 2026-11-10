@@ -43,6 +43,13 @@ for (const id of ["diggers", "yggdrasil", "perks", "quirks", "macguffins", "card
 const d = idleNguSnapshot(neuf, {}, t0);
 assert.ok(d.diggerDefinitions.length > 0, "mineurs découverts");
 assert.ok(d.yggFruits.length > 0, "fruits découverts");
+/* Le Fruit of Numbers se mérite (5e complétion du défi Troll) : Yggdrasil découvert ne suffit pas à le montrer. */
+assert.ok(!d.yggFruits.some((x) => x.id === "numbers") && !Object.keys(d.yggExtra.fruits).includes("numbers"), "Fruit of Numbers : caché avant le défi Troll");
+neuf.challenge = neuf.challenge || {};
+neuf.challenge.completions = Object.assign({}, neuf.challenge.completions, { troll: 5 });
+const d5 = idleNguSnapshot(neuf, {}, t0);
+assert.ok(d5.yggFruits.some((x) => x.id === "numbers") && Object.keys(d5.yggExtra.fruits).includes("numbers"), "Fruit of Numbers : visible après la 5e complétion");
+neuf.challenge.completions.troll = 0;
 assert.ok(d.perkDefinitions.length > 0, "atouts découverts");
 assert.ok(d.quirkDefinitions.length > 0, "manies découvertes");
 assert.ok(d.macguffins.types.length > 0, "MacGuffins découverts");

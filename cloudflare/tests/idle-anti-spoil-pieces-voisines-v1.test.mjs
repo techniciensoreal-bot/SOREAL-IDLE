@@ -29,6 +29,7 @@ function verifier(nom, sys) {
     assert.deepEqual(sys.cards.mayoTypes, [], nom + " : aucun nom de mayo avant les Cartes");
     for (const m of MAYO) assert.ok(!extra.includes(m), nom + " : fruit " + m + " non découvert");
   }
+  assert.ok(!extra.includes("numbers") && !ids.has("numbers"), nom + " : le Fruit of Numbers n apparait qu apres la 5e completion du defi Troll");
   assert.ok(!JSON.stringify(sys).includes("\"maxSlots\""), nom + " : aucun maximum d'emplacements");
   assert.ok(sys.wishSlots.slots.length <= sys.wishSlots.slotCount, nom + " : seulement les emplacements de souhait obtenus");
   assert.ok(sys.wishSlots.slots.every((s) => s.unlocked), nom + " : aucun emplacement verrouillé");
