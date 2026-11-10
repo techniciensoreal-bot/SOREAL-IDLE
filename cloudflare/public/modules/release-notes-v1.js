@@ -33,6 +33,9 @@
             'Les sons d’ambiance et les musiques de menu s’arrêtent dès que tu quittes le jeu (changement d’appli, écran éteint) : plus de lecteur multimédia qui reste affiché sur le téléphone. Ils repartent quand tu reviens.',
             'La bannière « Nouvelle version disponible » ne revient plus toutes les 3 minutes alors que rien n’a changé : elle n’apparaît que si une vraie nouvelle version est sortie.'
           ]},
+          {menu:'shop', titre:'Boutique', points:[
+            'L’image de l’« emplacement de labo » dans la boutique est maintenant une fiole au lieu d’une pelle.'
+          ]},
           {menu:'avance', titre:'Entraînement avancé', points:[
             'Chaque ligne de l’Entraînement avancé a un bouton « Max » : il place sur cette compétence toute l’énergie idle disponible.'
           ]},
