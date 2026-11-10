@@ -19,6 +19,7 @@
   function signatureCourante(){
     const urls=[];
     document.querySelectorAll('script[src],link[rel="stylesheet"][href]').forEach(function(n){
+      if(n.hasAttribute('data-soreal-differe'))return;   /* module chargé à la demande (chargeur-v1.js) : absent d'index.html, jamais une différence de version */
       urls.push(n.getAttribute('src')||n.getAttribute('href')||'');
     });
     return signature(urls);

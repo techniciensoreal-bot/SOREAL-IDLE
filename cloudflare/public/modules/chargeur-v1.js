@@ -34,6 +34,7 @@
     f.promesse=new Promise(function(ok,ko){
       var s=document.createElement('script');
       s.src=url;
+      s.setAttribute('data-soreal-differe','1');   /* nouvelle-version-v1.js ignore ces scripts : index.html ne les liste pas */
       s.async=false;   /* l'ordre d'exécution est celui de l'insertion */
       s.onload=function(){f.charge=true;ok();};
       s.onerror=function(){

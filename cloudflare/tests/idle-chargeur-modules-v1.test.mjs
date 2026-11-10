@@ -65,7 +65,7 @@ function monde({ echecs = 0 } = {}) {
   const document = {
     head: tete,
     getElementById: (id) => (id === "soreal-modules-differes-v1" ? { textContent: JSON.stringify({ admin: ["/modules/a.js?v=3", "/modules/b.js?v=7"], autre: ["/modules/a.js?v=3"] }) } : null),
-    createElement: () => ({})
+    createElement: () => ({ setAttribute() {} })
   };
   const fenetre = { document, Promise, Date, JSON, Array, Error, console };
   fenetre.window = fenetre;

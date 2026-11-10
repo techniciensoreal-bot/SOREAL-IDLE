@@ -168,8 +168,8 @@
   "sha": "8532ac510dc8ad430e9ec4594bb8f05be145255a"
  },
  "/modules/chargeur-v1.js": {
-  "pin": 1,
-  "sha": "fa0edcef52c0a2d97943b4270a1e251ba7502c20"
+  "pin": 2,
+  "sha": "983dd94db4afe1c3f9c2f46a581b7ff74340b718"
  },
  "/modules/chat-v1.js": {
   "pin": 19,
@@ -556,8 +556,8 @@
   "sha": "3ecd5873fb86b3fb7d5e4e86992876e3b452e82c"
  },
  "/modules/nouvelle-version-v1.js": {
-  "pin": 3,
-  "sha": "c30d0d94a51be71e8a0f494036026bbe6d8c1f50"
+  "pin": 4,
+  "sha": "bb8165a57dfa14c7bf02b0b9a615011d3c7a64f3"
  },
  "/modules/nuke-blindage-v1.js": {
   "pin": 4,
