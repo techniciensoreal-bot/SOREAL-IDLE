@@ -1644,6 +1644,7 @@
             '<div class="soreal-idle-at-boutons-v1">'+
               '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'plus\')">+</button>'+
               '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'moins\')">−</button>'+
+              '<button type="button" class="soreal-idle-at-max-v1" style="font-size:15px" title="Toute l’énergie idle libre" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'max\')">Max</button>'+
               '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterAdvancedTrainingIdleV1__(\''+idH+'\',\'zero\')">0</button>'+
             '</div>'+
             (id==='wandoosMagic'?cacaCoinHtml_(j):'')+
@@ -1896,10 +1897,10 @@
         const courant=atEnergieDePisteIdleV1_(s,id);
         const pas=montantAugmentLireIdleV1_();
         const libre=Math.max(0,H.idleNombre_(j&&j.energie));
-        const valeur=Math.max(0,H.idleEntier_(mode==='zero'?0:mode==='plus'?courant+Math.min(pas,libre):Math.max(0,courant-pas)));
+        const valeur=Math.max(0,H.idleEntier_(mode==='zero'?0:mode==='max'?courant+libre:mode==='plus'?courant+Math.min(pas,libre):Math.max(0,courant-pas)));
         const delta=valeur-courant;
         if(delta!==0){
-          if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_(mode==='plus'?'btPlus':'btMinus');
+          if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_(mode==='plus'||mode==='max'?'btPlus':'btMinus');
           /* Ancien contrat : on matérialise d'abord l'allocation unique sur la piste active, pour ne rien compter deux fois. */
           const dejaParPiste=Object.keys(s.state.data.tracks).some(function(k){return Math.max(0,H.idleNombre_(s.state.data.tracks[k].energy))>0;});
           if(!dejaParPiste){
