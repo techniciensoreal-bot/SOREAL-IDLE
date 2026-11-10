@@ -77,5 +77,17 @@ function comparer(titre, id, haut, energie, dts) {
 }
 for (const id of ["scissors", "milk"]) for (const e of [1e4, 1e6, 1e8, 1e10]) comparer("augment " + id, id, false, e, [0.5, 3, 20, 120, 600]);
 for (const id of ["scissors"]) for (const e of [1e6, 1e9, 1e11]) comparer("upgrade " + id, id, true, e, [0.5, 3, 20, 120]);
+/* Changer l allocation garde la FRACTION de la barre (l écran recalcule la durée seulement, recalculerPisteFractionIdleV1_) : le moteur fait pareil, pour une allocation qui monte, qui baisse ou qui tombe à zéro. */
+for (const [id, haut] of [["scissors", false], ["milk", false], ["scissors", true]]) {
+  for (const [e1, e2, dt] of [[1e4, 1e8, 5], [1e8, 1e4, 5], [1e6, 1e9, 20], [1e9, 1e6, 2], [1e6, 0, 3]]) {
+    const run = partie();
+    agir(run, { action: "allocateAugment", pair: id, upgrade: haut, value: e1 });
+    decalage += 2000; run("synchroniserSorealIdle");
+    decalage += dt * 1000; const a = lire(run("synchroniserSorealIdle"), id, haut);
+    const b = lire(agir(run, { action: "allocateAugment", pair: id, upgrade: haut, value: e2 }), id, haut);
+    assert.equal(b.niveau, a.niveau, id + " : le niveau ne bouge pas au changement d allocation");
+    assert.ok(Math.abs(b.fraction - a.fraction) < 1e-9, id + (haut ? " (upgrade) " : " ") + e1 + " -> " + e2 + " : fraction " + a.fraction + " -> " + b.fraction);
+  }
+}
 if (process.env.SOREAL_ECARTS === "1") console.log(ECARTS.map((x) => x.join(" ")).join(String.fromCharCode(10)));
 console.log("idle-augment-projection-moteur-v1: OK");
