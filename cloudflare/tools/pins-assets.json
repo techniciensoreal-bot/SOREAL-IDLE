@@ -536,8 +536,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 207,
-  "sha": "1ac5e5c5af8b7ab3544c7f2097b7aa4f1211916c"
+  "pin": 208,
+  "sha": "817c14cc5c5ee7372200381259e3d4d10b6fe2ad"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -748,8 +748,8 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 943,
-  "sha": "4f0b2eb95353001f26b89a962d91cec9f9964d3c"
+  "pin": 944,
+  "sha": "97a73bd1be3e0e33cd0d6ed91afd08227e4ef6d0"
  },
  "/modules/traduction-anglais-v1.js": {
   "pin": 764,

@@ -51,7 +51,7 @@ export function validerFichierPartieV1(f) {
   for (const c of f.cells) { if (typeof c === "string") total += c.length; else if (c !== null && typeof c !== "number" && typeof c !== "boolean") return { ok: false, erreur: "COLONNES_INVALIDES" }; }
   if (total > TAILLE_MAX_LIGNE) return { ok: false, erreur: "FICHIER_TROP_GROS" };
   const etatVersion = etatVersionDuFichierPartieV1(f);
-  if (etatVersion > ETAT_VERSION_COURANTE) return { ok: false, erreur: "ETAT_PLUS_RECENT", etatVersion, etatVersionMoteur: ETAT_VERSION_COURANTE, message: "Cette partie vient d'une version plus récente du jeu (sauvegarde v" + etatVersion + ", ce jeu comprend jusqu'à la v" + ETAT_VERSION_COURANTE + "). Mets le jeu à jour avant de la charger ; ta partie actuelle n'a pas changé." };
+  if (etatVersion > ETAT_VERSION_COURANTE) return { ok: false, erreur: "ETAT_PLUS_RECENT", etatVersion, etatVersionMoteur: ETAT_VERSION_COURANTE, message: "Cette partie vient d'une version plus récente du jeu. Mets le jeu à jour avant de la charger ; ta partie actuelle n'a pas changé." };
   return { ok: true };
 }
 
