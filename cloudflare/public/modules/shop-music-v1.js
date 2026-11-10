@@ -82,7 +82,17 @@
     fondreVers_(m,0,function(){if(!dansLeMenu_(m)){try{a.pause();}catch(_e){}}});
   }
 
+  /* Son du jeu, pas un média (Norman, 2026-11-10) : page en arrière-plan = élément libéré (plus de lecteur dans les notifications du téléphone) ; la musique repart au retour, depuis le début. */
+  function liberer_(m){
+    if(m.fondu){cancelAnimationFrame(m.fondu);m.fondu=0;m.cible=-1;}
+    if(!m.audio)return;
+    try{m.audio.pause();m.audio.removeAttribute('src');m.audio.load();}catch(_e){}
+    m.audio=null;
+  }
+  document.addEventListener('visibilitychange',function(){if(document.hidden)MUSIQUES.forEach(liberer_);});
+
   setInterval(function(){
+    if(document.hidden){MUSIQUES.forEach(liberer_);return;}
     MUSIQUES.forEach(function(m){
       /* Case « Ambiance » décochée : coupure franche (muted, respecté aussi sur iPhone où volume est ignoré) ; recochée : le son revient avec le fondu. */
       if(m.audio){try{m.audio.muted=!(volume_()>0);}catch(_e){}}

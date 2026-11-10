@@ -32,7 +32,7 @@ const rafs = [];
 const intervalles = [];
 const ctx = {
   window: {},
-  document: { hidden: false, querySelector: () => ({ getAttribute: () => menu }) },
+  document: { hidden: false, addEventListener() {}, querySelector: () => ({ getAttribute: () => menu }) },
   Audio: FauxAudio,
   Date: { now: () => maintenant },
   Math, Number, Promise, console,

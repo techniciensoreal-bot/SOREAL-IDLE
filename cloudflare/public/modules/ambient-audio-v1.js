@@ -306,6 +306,8 @@
 
   function demarrer_(){
     if(demarre)return;
+    /* Page en arrière-plan : rien ne démarre (reprise par visibilitychange, plus bas). */
+    if(document.hidden)return;
     demarre=true;
     CRENEAUX.forEach(function(def,i){
       var slot={audio:null,minuterie:0,cle:'',probabiliteSilence:def.probabiliteSilence};
@@ -326,6 +328,8 @@
         try{slot.audio.pause();}catch(_){}
         slot.audio.onended=null;
         slot.audio.onerror=null;
+        /* Élément libéré (Norman, 2026-11-10) : un <audio> encore attaché reste un « contenu multimédia » pour le téléphone (lecteur dans la barre de notifications). */
+        try{slot.audio.removeAttribute('src');slot.audio.load();}catch(_){}
         slot.audio=null;
       }
       if(slot.gainNode){
@@ -336,6 +340,18 @@
     slots=[];
     demarre=false;
   }
+
+  /*
+   * Le son d'ambiance est un son DU JEU, pas un média (Norman, 2026-11-10 : « les pistes d'ambiance sont lues comme du contenu multimédia sur les téléphones… un lecteur qui reste en haut quand on change d'appli ») :
+   * dès que la page passe en arrière-plan (changement d'appli, écran éteint, autre onglet) tout est coupé et l'élément libéré, donc plus de lecteur ; au retour, l'enchaînement repart.
+   */
+  document.addEventListener('visibilitychange',function(){
+    if(document.hidden){
+      if(actif)arreterTout_();
+    }else if(actif&&!suspendu){
+      demarrer_();
+    }
+  });
 
   function verifier(debloque){
     var nouveau=Boolean(debloque);
