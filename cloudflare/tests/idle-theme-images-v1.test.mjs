@@ -124,7 +124,7 @@ assert.ok(lire("cloudflare/public/modules/adventure-fond-zone-v1.js").includes("
 assert.ok(lire("cloudflare/public/modules/adventure-scene-v79.js").includes("th.habiller('safe',zoneVisuelle,base)"), "zones sûres via le thème");
 assert.ok(lire("cloudflare/public/modules/adventure-scene-v79.js").includes("th.habiller('mob',String(fight.mobName),base,base+'&theme=magic')"), "ennemis d'Aventure via le thème");
 const reg = lire("cloudflare/public/modules/ui-reglages-v1.js");
-assert.ok(reg.includes("htmlReglagesThemeIdleV1_()+\n            htmlReglagesAudioIdleV1_()+") && reg.includes("window.__changerThemeIdleV1__=function(code)"), "section « Thème des images » dans Son et image");
+assert.ok(reg.includes("htmlReglagesThemeIdleV1_()+\n            htmlReglagesEffetsIdleV1_();") && reg.includes("window.__changerThemeIdleV1__=function(code)"), "section « Thème des images » dans la catégorie Affichage (2026-11-11)");
 assert.ok(lire("cloudflare/public/index.html").includes('/modules/theme-images-v1.js?v='), "module chargé");
 assert.ok(lire("cloudflare/public/_headers").includes("/magic/*"), "en-tête de cache du dossier du thème");
 console.log("idle-theme-images-v1 : OK");
