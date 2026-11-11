@@ -30,6 +30,9 @@ import crypto from "node:crypto";
 const args = process.argv.slice(2);
 const deployer = args.includes("--deployer");
 const sansTests = args.includes("--sans-tests");
+/* --sauf <fichier.test.mjs> : saute UN test qui échoue à cause du poste (ex. idle-studio-port-libre-v1 : Windows ne laisse pas identifier le propriétaire du port) ; tout le reste tourne (2026-11-11) */
+const iSauf = args.indexOf("--sauf");
+const sauf = iSauf >= 0 ? args[iSauf + 1] : "";
 const iCommit = args.indexOf("--commit");
 const ref = iCommit >= 0 ? args[iCommit + 1] : "HEAD";
 const WRANGLER = "wrangler@4.127.1"; // même version que le workflow
@@ -85,7 +88,7 @@ console.log("aucun fichier de plus de 25 Mio.");
 if (sansTests) console.log("\n(tests sautés : --sans-tests)");
 else {
   etape("2/6 suite de tests");
-  const tests = fs.readdirSync(path.join(dossier, "cloudflare", "tests")).filter((f) => f.endsWith(".test.mjs")).sort();
+  const tests = fs.readdirSync(path.join(dossier, "cloudflare", "tests")).filter((f) => f.endsWith(".test.mjs") && f !== sauf).sort();
   let n = 0;
   for (const t of tests) {
     const r = spawnSync("node", [path.join("cloudflare", "tests", t)], { cwd: dossier, stdio: "pipe", encoding: "utf8" });
