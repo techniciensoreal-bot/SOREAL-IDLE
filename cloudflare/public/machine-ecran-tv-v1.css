@@ -61,3 +61,15 @@
 /* Les dessins ronds des tours (rouage vert, orbe bleu) sont centrés dans le cercle du nouveau décor (Norman, 2026-11-10) : cercles mesurés sur la transparence des cadres, Énergie x 267-330, y 185-246 (carte de 576 x 753) ; Magie x 251-312, y 187-248 (580 x 753). */
 .tmm-gauche .tmm-haut{left:46.35%;top:24.57%;width:10.94%;height:8.1%}
 .tmm-droite .tmm-haut{left:43.28%;top:24.83%;width:10.52%;height:8.1%}
+/*
+ * ALIGNEMENT DE LA TOUR MAGIE SUR CELUI DE LA TOUR ÉNERGIE (Norman, 2026-11-11 : « la machine temporelle Magie n'a pas le même alignement de textes que celle d'Énergie ; les + − doivent être centrés »). Les emplacements de la nouvelle image Magie (580 x 753) ne sont pas aux mêmes hauteurs que ceux de l'Énergie : mesurés sur la transparence de tour-magie-cadre.webp,
+ * afficheurs x 86-412, y 277-366 et 405-487 ; petits afficheurs y 551-597 (x 90-227 et 273-409) ; boutons y 631-700 (x 92-170, 205-289, 324-393, 427-498). Chaque élément reprend le même retrait dans son emplacement que sur l'Énergie (afficheurs : 2 px de côté, haut aligné ; petits afficheurs et boutons : centrés avec le même décalage).
+ */
+.tmm-droite .tmm-lcds>.tmm-lcd:nth-child(1){left:15.17%;top:36.79%;width:55.52%;height:11.82%}
+.tmm-droite .tmm-lcds>.tmm-lcd:nth-child(2){left:15.17%;top:54.58%;width:55.52%;height:9.83%}
+.tmm-droite .tmm-boutons{left:15.86%;top:84.6%;width:70%;grid-template-columns:78fr 84fr 69fr 71fr;column-gap:8.62%}
+/* Énergie : colonnes = emplacements de l'image exactement (x 86-158, 193-262, 298-375, 411-488 ; centres des boutons = centres des emplacements) */
+.tmm-gauche .tmm-boutons{left:14.93%;width:69.79%;grid-template-columns:72fr 69fr 77fr 77fr;column-gap:8.88%}
+.tmm-droite .tmm-ligne{left:15.86%;top:74.44%;width:54.31%;column-gap:15.9%}
+/* le « 0 » (22 px, interligne 1) tombait 1,5 à 2 px trop haut dans son emplacement : léger rembourrage haut pour le centrer en hauteur */
+.tmm-gauche .tmm-boutons button:last-child,.tmm-droite .tmm-boutons button:last-child{padding-top:.8cqw}

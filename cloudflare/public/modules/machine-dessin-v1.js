@@ -119,16 +119,16 @@
       '<text id="tmmNomMob" x="0" y="0" transform="translate(298 100) skewX(-8)" '+F+' font-size="'+tailleNom(nom)+'" fill="#e8f7ee" opacity=".95">'+esc(nom)+'</text>'+
       '<text x="0" y="0" transform="translate(298 134) skewX(-8)" '+F+' font-size="13" letter-spacing="4" fill="#7dffd0" opacity=".85">MEILLEUR BUTIN D’OR</text>'+
       '<text id="tmmButin" x="0" y="0" transform="translate(686 176) skewX(-8)" text-anchor="end" '+F+' font-size="34" fill="#ffd84a" stroke="#000" stroke-width="4" style="paint-order:stroke">'+esc(butin)+'</text>'+
-      /* afficheur de gauche : la vitesse */
-      '<text x="0" y="0" transform="translate(120 298) skewX(-8)" '+F+' font-size="11" letter-spacing="4" fill="#6fd9b3" opacity=".85">VITESSE</text>'+
-      '<text id="tmmVitesse" x="0" y="0" transform="translate(280 321) skewX(-8)" text-anchor="end" '+F+' font-size="27" fill="#7dffd0" stroke="#042a1c" stroke-width="3" style="paint-order:stroke">'+Math.round(ticks)+' /s</text>'+
+      /* afficheur de gauche : la vitesse (Norman, 2026-11-11 : VITESSE et MULTIPLICATEUR centrés en hauteur dans leur emplacement : emplacements mesurés y 278-321, bloc titre + valeur remonté de 6 px) */
+      '<text x="0" y="0" transform="translate(120 292) skewX(-8)" '+F+' font-size="11" letter-spacing="4" fill="#6fd9b3" opacity=".85">VITESSE</text>'+
+      '<text id="tmmVitesse" x="0" y="0" transform="translate(280 315) skewX(-8)" text-anchor="end" '+F+' font-size="27" fill="#7dffd0" stroke="#042a1c" stroke-width="3" style="paint-order:stroke">'+Math.round(ticks)+' /s</text>'+
       /* cadran de tiques par seconde */
       '<g transform="translate(386 293)">'+
       '<g id="tmmAiguille" style="transform:rotate('+arr(-120+240*ticks/50,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)"><path d="M-3 6 L0 -27 L3 6 Z" fill="#ff4a3a" stroke="#0a0a0c" stroke-width="1.5" stroke-linejoin="round"/></g>'+
       '<circle r="5" fill="#b9c2cc" stroke="#0a0a0c" stroke-width="2"/></g>'+
       /* afficheur de droite : le MULTIPLICATEUR d'Or (la Magie le fait monter, et les niveaux d'Énergie au-dessus de 50 aussi) */
-      '<text x="0" y="0" transform="translate(490 298) skewX(-8)" '+F+' font-size="11" letter-spacing="3" fill="#6fd9b3" opacity=".85">MULTIPLICATEUR</text>'+
-      '<text id="tmmMulti" x="0" y="0" transform="translate(653 321) skewX(-8)" text-anchor="end" '+F+' font-size="'+taillePoliceMulti(multi)+'" fill="#ffd84a" stroke="#3a2a00" stroke-width="3" style="paint-order:stroke">'+esc(multi)+'</text>'+
+      '<text x="0" y="0" transform="translate(490 292) skewX(-8)" '+F+' font-size="11" letter-spacing="3" fill="#6fd9b3" opacity=".85">MULTIPLICATEUR</text>'+
+      '<text id="tmmMulti" x="0" y="0" transform="translate(653 315) skewX(-8)" text-anchor="end" '+F+' font-size="'+taillePoliceMulti(multi)+'" fill="#ffd84a" stroke="#3a2a00" stroke-width="3" style="paint-order:stroke">'+esc(multi)+'</text>'+
       /* fenêtre longue : les rouages qui engrènent, et la lueur qui monte avec la vitesse */
       train+
       '<rect id="tmmLueurBaie" x="89" y="382" width="590" height="113" rx="10" fill="url(#tmmLueur)" opacity="0"/>'+
