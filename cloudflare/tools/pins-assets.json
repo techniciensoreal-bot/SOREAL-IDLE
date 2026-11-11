@@ -812,8 +812,8 @@
   "sha": "7088a0296633fcb3af9e952492a559eaebbec9ee"
  },
  "/modules/ui-boutique-v1.js": {
-  "pin": 4,
-  "sha": "3ac46f2faf410b857602b8bdf09d372272f6a3ff"
+  "pin": 5,
+  "sha": "fc89a4b70181cca7e8330d7b201babec978d3e93"
  },
  "/modules/ui-chroniques-v1.js": {
   "pin": 14,
