@@ -52,7 +52,7 @@ for (const niv of [0, 4, 9]) {
 }
 const n = (niv) => (D.tasInterieur(niv).match(/<ellipse /g) || []).length;
 assert.ok(n(0) >= 5 && n(9) > n(0) && n(9) <= 50, "le tas grossit avec le niveau (" + n(0) + " -> " + n(9) + " pièces)");
-assert.ok(d.includes("var debut=-46,fin=sommetTas(niv)+24-1142") && /opacity:1,offset:\+f\.toFixed\(4\)/.test(d), "pièce : entre au-dessus du bord de la sortie, tombe jusqu'au sommet du tas puis s'y enfonce (jamais effacée avant)");
+assert.ok(d.includes("var debut=-86,fin=sommetTas(niv)+24-1142") && /opacity:1,offset:\+f\.toFixed\(4\)/.test(d), "pièce : entre au-dessus du bord de la sortie, tombe jusqu'au sommet du tas puis s'y enfonce (jamais effacée avant)");
 assert.ok(d.includes("tas.innerHTML=tasInterieur(nv);reglerPieces(racine);"), "un nouveau niveau de tas refait la chute");
 const ent = fs.readFileSync("cloudflare/public/_headers", "utf8");
 assert.ok(ent.includes("/machine-v3/*"), "images en cache immuable");

@@ -112,7 +112,7 @@
     var F='font-family="Orbitron,Russo One,sans-serif" font-weight="700"';
     return '<svg class="tmm-svg" viewBox="0 0 762 753" role="img" aria-label="La machine à remonter le temps" data-morph-vivant="1" data-tmm-centre="1" data-sans-couleur-nombre="1">'+
       '<clipPath id="tmmClipEcran"><polygon points="'+POLYGONE_ECRAN+'"/></clipPath>'+
-      '<clipPath id="tmmClipChute"><rect x="497" y="1124" width="127" height="151"/></clipPath>'+
+      '<clipPath id="tmmClipChute"><rect x="497" y="1030" width="127" height="245"/></clipPath>'+
       /* petit écran du mob (Norman, 2026-11-08 : « un slime métallique apparaît zoomé et mal placé dans la Time Machine » : l'image est maintenant ENTIÈRE et centrée, « meet », au lieu d'être agrandie et rognée, « slice », ce qui coupait les mobs d'un autre format) : l'image du meilleur butin d'Or est posée dans le cadre (l'effet d'écran est posé par-dessus, voir .tmm-ecran-mob) */
       '<g clip-path="url(#tmmClipEcran)"><rect x="62" y="50" width="176" height="144" fill="#050607"/>'+ecran+'</g>'+
       /* grand écran d'informations : le nom du mob, puis le meilleur butin d'Or */
@@ -133,7 +133,7 @@
       train+
       '<rect id="tmmLueurBaie" x="89" y="382" width="590" height="113" rx="10" fill="url(#tmmLueur)" opacity="0"/>'+
       /* sortie du bas : pièces qui tombent en file, flux continu à grande vitesse, tas d'Or (dessin d'origine réduit à 70 %) */
-      '<g transform="'+TRANSFORME_CHUTE+'"><g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="539" y="1130" width="43" height="70" rx="14" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
+      '<g transform="'+TRANSFORME_CHUTE+'"><g clip-path="url(#tmmClipChute)"><rect id="tmmFluxOr" x="539" y="1062" width="43" height="138" rx="14" fill="url(#tmmPiece)" opacity="0" style="transition:opacity .6s ease"/>'+pieces+'</g>'+
       '<g id="tmmTas" data-niveau="'+(opts.tas|0)+'">'+tasInterieur(opts.tas|0)+'</g></g>'+
       '</svg>'+
       /* écran de télé en noir et blanc (CSS : .tmm-ecran-mob) : l'image du mob, deux bandes d'interférence qui la décalent, grain, lignes de balayage */
@@ -225,7 +225,7 @@
     if(racine.__cadencePieces===cad&&racine.__niveauPieces===niv&&racine.querySelector('.tmm-piece').__tmmAnim)return;
     racine.__cadencePieces=cad;racine.__niveauPieces=niv;
     var periode=8/cad;
-    var debut=-46,fin=sommetTas(niv)+24-1142,dist=fin-debut,f=Math.min(.99,(dist/280)/periode);   /* 280 px/s : vitesse constante, quel que soit le niveau du tas ; début : pièce entièrement au-dessus du bord de la sortie (rognée) ; fin : pièce entièrement sous le sommet du tas */
+    var debut=-86,fin=sommetTas(niv)+24-1142,dist=fin-debut,f=Math.min(.99,(dist/280)/periode);   /* 280 px/s : vitesse constante, quel que soit le niveau du tas ; début : pièce entièrement cachée DERRIÈRE le décor (la bande d'acier au-dessus du réceptacle, Norman, 2026-11-11 : « les pièces tombent de l'arrière du décor, depuis la zone noire du réceptacle ») ; fin : pièce entièrement sous le sommet du tas */
     var kf=[{transform:'translateY('+debut+'px)',opacity:1},{transform:'translateY('+fin.toFixed(1)+'px)',opacity:1,offset:+f.toFixed(4)},{transform:'translateY('+fin.toFixed(1)+'px)',opacity:1}];
     racine.querySelectorAll('.tmm-piece').forEach(function(g){
       var rang=parseInt(g.getAttribute('data-rang'),10)||0;

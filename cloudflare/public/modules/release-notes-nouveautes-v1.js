@@ -8,6 +8,7 @@
     "La page ne fait plus de petit saut quand une barre d’énergie ou de magie du bandeau se vide : la barre s’efface en fondu mais garde sa place.",
     "La vague de victoire sur la borne est refaite en vrai ras de marée : un mur d’eau haut qui déferle de gauche à droite avec sa crête de mousse, qui porte le mot VICTOIRE ! avant de se retirer.",
     "Les yeux de la borne ont de nouvelles animations. Quand tu perds un combat, ils jouent au hasard l’une de ces fins : explosion, spirale hypnotique, larmes, télé qui s’éteint ou chute. Quand tu gagnes : les yeux se transforment en cœurs ou en étoiles. Pendant un long combat ils peuvent s’énerver, avec une colère qui monte lentement. Et après deux minutes sans rien faire sur le combat de boss, une mouche vient les embêter.",
-    "Dans un défi, les récompenses parlent maintenant de labos au lieu de Diggers (bonus global des labos, emplacement de labo)."
+    "Dans un défi, les récompenses parlent maintenant de labos au lieu de Diggers (bonus global des labos, emplacement de labo).",
+    "Les pièces de la Machine temporelle tombent maintenant de l’arrière du décor : elles sortent de derrière le haut du réceptacle noir au lieu d’apparaître en plein milieu."
   ] };
 })();
