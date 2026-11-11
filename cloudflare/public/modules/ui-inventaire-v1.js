@@ -531,6 +531,18 @@
           return (ca===undefined?9:ca)-(cb===undefined?9:cb);
         });
 
+        /* Filtre de butin depuis les Chroniques (Norman, 2026-11-11 : « on doit pouvoir filtrer les objets qui tombent en aventure via cette page, et les boosts aussi »). Le MÊME bouton, la MÊME liste (lootItems, globale) et la même action que le Coffre : cocher ici ou dans le Coffre revient au même. Il n'existe qu'une fois le filtre amélioré acheté et seulement sur les objets déjà découverts (cette page ne montre que ceux-là) ; pas sur les consommables (le Coffre ne les propose pas non plus). Un boost filtré est versé dans le Cube si « Filter Boosts into Infinity Cube! » est acheté et le Cube débloqué (moteur, disposeFilteredV1). */
+        const iaFiltreCh=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.inventoryAuto;
+        const filtreAmelioreCh=Boolean(iaFiltreCh&&iaFiltreCh.unlocked&&iaFiltreCh.unlocked.lootFilterImproved);
+        const defsFiltreesCh=filtreAmelioreCh&&iaFiltreCh.lootFilter&&Array.isArray(iaFiltreCh.lootFilter.items)?iaFiltreCh.lootFilter.items.map(String):[];
+        const boostVersCubeCh=Boolean(iaFiltreCh&&iaFiltreCh.unlocked&&iaFiltreCh.unlocked.filterBoostsIntoCube&&cube&&cube.unlocked);
+        function boutonFiltreChroniquesV1_(id,boost){
+          if(!filtreAmelioreCh)return '';
+          const filtre=defsFiltreesCh.indexOf(String(id))!==-1;
+          const infoBoost=boost?(boostVersCubeCh?' Il part directement dans le Cube.':' Il est détruit (sans l’option du Cube, il n’est pas versé dans le Cube).'):'';
+          return '<button type="button" class="soreal-idle-coffre-filtre-v1'+(filtre?' actif':'')+'" title="'+(filtre?'Filtré : cet objet n’est plus ramassé. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet.'+infoBoost)+'" onclick="event.stopPropagation();window.__filtrerObjetCoffreIdleV1__(\''+idleHtml_(String(id))+'\',this)">'+(filtre?'🚫':'🧹')+'</button>';
+        }
+
         const totalPagesEquipement=Math.max(1,Math.ceil(idsEquipementToutes.length/REG.IDLE_PAGINATION_TAILLE_V1));
         if(idlePageCollectionEquipementV1>totalPagesEquipement)idlePageCollectionEquipementV1=totalPagesEquipement;
         const debutPageEquipement=(idlePageCollectionEquipementV1-1)*REG.IDLE_PAGINATION_TAILLE_V1;
@@ -602,7 +614,7 @@
               },'collection');
             }
 
-            return '<div class="soreal-idle-collection-card-v1'+(maxAtteint?' maxed':' nonmax')+(rareteClasse?' '+rareteClasse:'')+'" '+
+            return '<div class="soreal-idle-collection-card-v1'+(maxAtteint?' maxed':' nonmax')+(rareteClasse?' '+rareteClasse:'')+'" style="position:relative" '+
               (estStatBearing?'data-popup-objet-v1="'+idleHtml_(clePopupCollection)+'" ':'')+
               'onclick="'+(estStatBearing?'window.__consulterObjetIdleV1__(\''+idleHtml_(clePopupCollection)+'\',this)':'window.__afficherDetailsCollectionIdleV1__(\''+idleHtml_(id)+'\')')+'">'+
               (maxAtteint?'<div class="soreal-idle-collection-check-v1" title="Niveau 100 + statistiques boostées à 100 %">✔</div>':'')+
@@ -613,6 +625,7 @@
               (estEquipement
                 ?'<div class="soreal-idle-collection-card-level-v1">Niv. '+niveau+'/100</div>'
                 :'')+
+              (def.consumable||def.slot==='consumable'?'':boutonFiltreChroniquesV1_(id,false))+
               '<div class="soreal-idle-collection-card-details-v1" id="soreal-idle-collection-details-'+idleHtml_(id)+'" style="display:none">'+
                 (estStatBearing
                   ?'<div>Puissance '+formatGrandNombreIdleV70_(puissance)+'</div><div>Endurance '+formatGrandNombreIdleV70_(solidite)+'</div>'
@@ -637,12 +650,13 @@
               const nomBoost='Boost '+type.charAt(0).toUpperCase()+type.slice(1)+' +'+force;
               /* Boost fusionné jusqu'au niveau 100 (Norman, 2026-10-03) : le petit V vert comme sur les autres objets ; chaque boost maximisé donne +2 % d'efficacité à tous les boosts (récompense déjà versée par le serveur). */
               const boostMaxe=Boolean(itemList[id]&&idleEntier_(itemList[id].maxLevel)>=100);
-              return '<div class="soreal-idle-collection-card-v1'+(boostMaxe?' maxed':' nonmax')+'">'+
+              return '<div class="soreal-idle-collection-card-v1'+(boostMaxe?' maxed':' nonmax')+'" style="position:relative">'+
                 (boostMaxe?'<div class="soreal-idle-collection-check-v1" title="Niveau 100 : +2 % d’efficacité de tous les boosts">✔</div>':'')+
                 '<div class="soreal-idle-collection-card-icon-v1">'+
                   iconeObjetAdventureIdleV138_({kind:'boost',boostType:type,strength:force})+
                 '</div>'+
                 '<div class="soreal-idle-collection-card-name-v1">'+idleHtml_(nomBoost)+'</div>'+
+                boutonFiltreChroniquesV1_(id,true)+
               '</div>';
             }).join('')+
             '</div>'

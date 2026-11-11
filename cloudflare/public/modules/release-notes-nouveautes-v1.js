@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "L’écran du monstre de la Machine temporelle est maintenant en couleurs, avec l’aspect d’une vraie télé cathodique : couleurs un peu délavées, image légèrement floue, petits points rouges, verts et bleus, lignes de balayage, coins arrondis et bords sombres, plus les interférences."
+    "Dans l’onglet Équipement, chaque objet déjà découvert (boosts compris) a le même bouton de filtre que le Coffre : un objet filtré n’est plus ramassé en Aventure. La liste est la même que celle du Coffre. Un boost filtré part directement dans le Cube si tu as acheté l’option. Disponible une fois le filtre amélioré acheté."
   ] };
 })();
