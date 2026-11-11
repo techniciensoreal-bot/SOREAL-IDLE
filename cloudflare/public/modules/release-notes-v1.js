@@ -30,6 +30,7 @@
         date:'2026-11-11',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'La page ne fait plus de saut quand une barre d’énergie ou de magie du haut disparaît ou revient (par exemple après avoir tout dépensé d’un coup) : le bandeau et son décalage changent en même temps.',
             'Les barres d’énergie et de magie du haut ne clignotent plus quand tu dépenses tout d’un coup : elles ne disparaissent que si elles restent vraiment vides (plus de flash du fond ni des écritures).',
             'Tous les textes du jeu changent de police : fini l’écriture « traitement de texte », place à une police de jeu vidéo plus nette et plus lisible, la même que celle des Chroniques et des Réglages.',
             'Les Réglages sont entièrement refaits, dans un style jeu vidéo : plaques d’acier colorées pour chaque catégorie (Mon jeu, Profil, Audio, Affichage, Ma partie, Infos), cadres, icônes dessinées, interrupteurs à levier, curseurs de volume et gros boutons lisibles. Le son et l’image sont maintenant deux catégories séparées, et les sections de test de développement ont disparu.'

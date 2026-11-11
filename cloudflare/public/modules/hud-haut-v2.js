@@ -49,7 +49,26 @@
    * Une barre qui revient (ou qui part) ouvre (ou referme) sa place EN DOUCEUR (max-height + marge, voir soreal-idle-themes.css) : le bandeau grandit ou rétrécit et tout ce qui est dessous suit, la Vie reste dans le bandeau
    * et ne chevauche jamais les boutons du dessous (Norman, 2026-10-11 : « ma barre de vie fait un saut et se retrouve au-dessus des boutons attaque, défense, or »). Plus de décalage par transform ni de marge négative.
    */
+  /*
+   * Aucun saut de page quand une barre part ou revient (Norman, 2026-11-11 : « toute la page faisait un saut ; ça ne le fait plus avec le panneau fixe, mais je ne veux pas de panneau fixe : seules les barres qui ont de l'énergie idle, et elles disparaissent quand il n'y en a plus »).
+   * Cause : le bandeau rétrécissait au changement de classe, et sa marge de compensation (--hud-decalage) n'était corrigée qu'ensuite par le ResizeObserver ; entre les deux, le document raccourcissait d'une barre et le navigateur ramenait le défilement en arrière quand on était près du bas de la page, sans le rendre ensuite.
+   * Maintenant la compensation est écrite DANS LA MÊME TÂCHE, juste avant le changement de classe, à partir de la hauteur déjà connue de la barre (mesurée quand elle est visible, sans provoquer de mise en page) : bandeau et marge changent ensemble, le document garde exactement sa hauteur.
+   */
+  function hauteurBarre(p){var r=p.getBoundingClientRect(),cs=getComputedStyle(p);return r.height+(parseFloat(cs.marginTop)||0)+(parseFloat(cs.marginBottom)||0);}
+  function poserDecalage(deltaBarres){   /* deltaBarres : variation de la hauteur d'écran des barres (négative = elles disparaissent) */
+    if(!hudEl||!hudEl.isConnected)return;
+    var z=zoomHud(hudEl),d=parseFloat(document.documentElement.style.getPropertyValue('--hud-decalage'))||0,v=d-deltaBarres/z;
+    document.documentElement.style.setProperty('--hud-decalage',v+'px');dernierDecalage=v+'px';
+  }
+  function masquerSansDecaler(panneau){
+    if(!panneau.classList.contains('soreal-idle-vide-v2')){
+      var h=hauteurBarre(panneau);panneau.__hBarre=h;
+      poserDecalage(-h);
+    }
+    panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');
+  }
   function reapparaitSansDecaler(panneau){
+    if(panneau.__hBarre>0)poserDecalage(panneau.__hBarre);
     panneau.classList.remove('soreal-idle-vide-v2');
     panneau.classList.remove('soreal-idle-superpose-v2');
     panneau.style.removeProperty('margin-bottom');
@@ -64,7 +83,7 @@
       if(!videDepuis[cle])videDepuis[cle]=maintenant;
       /* Instantané (Norman, 2026-11-01 : « les barres d'énergie et de magie disparaissent instantanément quand on n'en a plus et réapparaissent instantanément quand on en récupère ») : plus de délai de 1,2 s ni de 0,7 s. */
       /* Délai de 0,6 s avant de masquer (Norman, 2026-11-11 : « quand on clique sur Au maximum des labos, les barres du haut clignotent, le fond et les écritures ») : une dépense totale met l'énergie à 0 tout de suite, puis la réponse du serveur en rend 0,3 s plus tard ; sans délai la barre disparaissait puis revenait. Elle ne disparaît que si elle reste vide. */
-      if(maintenant-videDepuis[cle]>=600){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');}
+      if(maintenant-videDepuis[cle]>=600)masquerSansDecaler(panneau);
       pleinDepuis[cle]=0;
     }else{
       videDepuis[cle]=0;
