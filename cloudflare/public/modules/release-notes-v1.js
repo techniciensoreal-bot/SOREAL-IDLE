@@ -47,6 +47,7 @@
             'Dans l’onglet Équipement, chaque objet déjà découvert (boosts compris) a le même bouton de filtre que le Coffre : un objet filtré n’est plus ramassé en Aventure. La liste est la même que celle du Coffre. Un boost filtré part directement dans le Cube si tu as acheté l’option. Disponible une fois le filtre amélioré acheté.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[
+            'Les deux ronds du haut des tours Énergie et Magie reprennent le même baromètre que la machine centrale : graduations de 0 à 50, aiguille dorée qui suit la vitesse de la barre, et bulle de verre par-dessus le rouage ou l’orbe qui tourne toujours derrière.',
             'Le baromètre de la machine centrale est refait : graduations de 0 à 50 tics avec leurs chiffres (la zone chaude en orange), une aiguille dorée de machine à remonter le temps, et le tout sous une bulle de verre bombée avec son reflet.',
             'L’écran du monstre de la Machine temporelle a un vrai effet de tube cathodique : vitre bombée, couleurs légèrement décalées vers les bords, lignes de balayage douces, reflet sur la vitre et bords sombres, à la place de l’ancienne grille de points.',
             'Dans la Machine temporelle, la tour Magie a maintenant le même alignement des textes que la tour Énergie (afficheurs, ligne Cible, boutons + − Max 0 bien centrés), et la vitesse et le multiplicateur de la machine centrale sont centrés en hauteur.',

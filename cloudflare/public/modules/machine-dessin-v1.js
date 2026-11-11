@@ -107,13 +107,8 @@
       '<linearGradient id="tmmVerreReflet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".62"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'+
       '</defs><g clip-path="url(#tmmClipCadran)">'+
       '<circle r="37.5" fill="url(#tmmCadranFond)"/><circle r="35.2" fill="none" stroke="#28514c" stroke-width=".8"/>',
-      k,a,s,co,r1,r2,sw,x;
-    for(k=0;k<=50;k++){
-      a=(-120+240*k/50)*Math.PI/180;s=Math.sin(a);co=Math.cos(a);
-      r1=R0;r2=R0-(k%10===0?7:k%5===0?4.8:2.6);sw=k%10===0?1.15:k%5===0?.85:.5;
-      out+='<line x1="'+arr(r1*s,2)+'" y1="'+arr(-r1*co,2)+'" x2="'+arr(r2*s,2)+'" y2="'+arr(-r2*co,2)+'" stroke="'+(k>=40?'#ffa45a':'#8fffd8')+'" stroke-width="'+sw+'" stroke-linecap="round" opacity="'+(k%5===0?1:.8)+'"/>';
-      if(k%10===0){x=R0-12.2;out+='<text x="'+arr(x*s,2)+'" y="'+arr(-x*co+2,2)+'" text-anchor="middle" font-family="Orbitron,Russo One,sans-serif" font-weight="700" font-size="6" fill="'+(k>=40?'#ffb877':'#a8ffe2')+'">'+k+'</text>';}
-    }
+      k;
+    out+=graduations(R0,6,true);
     out+='<text y="19.5" text-anchor="middle" font-family="Orbitron,Russo One,sans-serif" font-weight="700" font-size="4.6" letter-spacing=".8" fill="#6fd9b3" opacity=".85">TICS / S</text>'+
       /* l'aiguille : fer de lance, œilleton, contrepoids ; elle part de 12 h (0 tic = -120 degrés) */
       '<g id="tmmAiguille" style="transform:rotate('+arr(-120+240*ticks/50,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)">'+
@@ -227,15 +222,50 @@
   }
 
   /* ---------- le socle rond des tours : deux rouages qui engrènent (Énergie) ; l'orbe et son anneau (Magie) ---------- */
+  /* Les 51 graduations d'un baromètre (de 0 à 50 tics sur 240 degrés, de -120 à +120) : un trait long tous les 10 (avec son chiffre si avecChiffres), moyen tous les 5, fin sinon ; zone chaude (40 à 50) en orange. r0 : rayon extérieur des traits. */
+  function graduations(r0,taillePolice,avecChiffres){
+    var out='',k,a,s,co,r1,r2,sw,x,fin=r0>30?1:.6;
+    for(k=0;k<=50;k++){
+      a=(-120+240*k/50)*Math.PI/180;s=Math.sin(a);co=Math.cos(a);
+      r1=r0;r2=r0-(k%10===0?7:k%5===0?4.8:2.6)*(r0>30?1:.75);sw=(k%10===0?1.15:k%5===0?.85:.5)*(r0>30?1:1.15);
+      out+='<line x1="'+arr(r1*s,2)+'" y1="'+arr(-r1*co,2)+'" x2="'+arr(r2*s,2)+'" y2="'+arr(-r2*co,2)+'" stroke="'+(k>=40?'#ffa45a':'#8fffd8')+'" stroke-width="'+sw+'" stroke-linecap="round" opacity="'+(k%5===0?1:.8)+'"/>';
+      if(avecChiffres&&k%10===0){x=r0-12.2;out+='<text x="'+arr(x*s,2)+'" y="'+arr(-x*co+2,2)+'" text-anchor="middle" font-family="Orbitron,Russo One,sans-serif" font-weight="700" font-size="'+taillePolice+'" fill="'+(k>=40?'#ffb877':'#a8ffe2')+'">'+k+'</text>';}
+    }
+    return out;
+  }
+  /* Aiguille dorée de machine à remonter le temps, pointée vers 12 h (longueur L) ; id/classe donnés ; angle de départ en degrés */
+  function aiguilleOr(L,attrs,angle){
+    var q=L/31;
+    return '<g '+attrs+' style="transform:rotate('+arr(angle,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)">'+
+      '<path d="M0 '+arr(-31*q,1)+' L'+arr(2.2*q,1)+' '+arr(-17*q,1)+' L'+arr(.9*q,1)+' '+arr(-4*q,1)+' L'+arr(.9*q,1)+' '+arr(8*q,1)+' L'+arr(-.9*q,1)+' '+arr(8*q,1)+' L'+arr(-.9*q,1)+' '+arr(-4*q,1)+' L'+arr(-2.2*q,1)+' '+arr(-17*q,1)+' Z" fill="url(#tmmAigOr)" stroke="#140c02" stroke-width=".7" stroke-linejoin="round"/>'+
+      '<circle cy="'+arr(-11.5*q,1)+'" r="'+arr(3.1*q,1)+'" fill="#091217" stroke="url(#tmmAigOr)" stroke-width="1.2"/>'+
+      '<path d="M'+arr(-1.3*q,1)+' '+arr(8*q,1)+' L0 '+arr(12.5*q,1)+' L'+arr(1.3*q,1)+' '+arr(8*q,1)+' Z" fill="#d9a94a" stroke="#140c02" stroke-width=".6"/>'+
+      '<circle cy="'+arr(13.6*q,1)+'" r="'+arr(2.3*q,1)+'" fill="url(#tmmAigOr)" stroke="#140c02" stroke-width=".7"/></g>';
+  }
+  /* Bulle de verre bombée (voile bleuté, reflet, éclat, liseré) : à poser par-dessus l'aiguille ; rayon r */
+  function bulleVerre(r){
+    var q=r/37.5;
+    return '<circle r="'+r+'" fill="url(#tmmVerreCorps)"/>'+
+      '<ellipse cx="'+arr(-12*q,1)+'" cy="'+arr(-19*q,1)+'" rx="'+arr(19*q,1)+'" ry="'+arr(9.5*q,1)+'" transform="rotate(-32 '+arr(-12*q,1)+' '+arr(-19*q,1)+')" fill="url(#tmmVerreReflet)"/>'+
+      '<path d="M'+arr(22*q,1)+' '+arr(22*q,1)+' A'+arr(30*q,1)+' '+arr(30*q,1)+' 0 0 0 '+arr(31*q,1)+' '+arr(6*q,1)+'" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="'+arr(2.2*q,1)+'" stroke-linecap="round"/>'+
+      '<circle cx="'+arr(18*q,1)+'" cy="'+arr(-24*q,1)+'" r="'+arr(1.6*q,1)+'" fill="#fff" opacity=".7"/>';
+  }
+  /* Les deux ronds des tours (Énergie, Magie) : même baromètre que la machine centrale (Norman, 2026-11-11 : « pareil pour la partie gauche et droite, les 2 ronds ») ; le rouage vert ou l'orbe bleu tourne derrière comme avant, l'aiguille dorée marque les niveaux par seconde de la barre (0 à 50, comme la machine) et la bulle de verre est par-dessus. L'aiguille est posée par maj/appliquerVitesse. */
+  function cadranTour(face){
+    return '<svg viewBox="-40 -40 80 80" aria-hidden="true" data-morph-vivant="1"><defs><clipPath id="tmmClipTour"><circle r="38"/></clipPath><radialGradient id="tmmTourFond" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#14262b"/><stop offset=".75" stop-color="#091217"/><stop offset="1" stop-color="#03070a"/></radialGradient></defs>'+
+      '<g clip-path="url(#tmmClipTour)"><circle r="38" fill="url(#tmmTourFond)"/>'+face+graduations(36.5,0,false)+
+      aiguilleOr(30,'class="tmm-aig-tour"',-120)+
+      '<circle r="4.2" fill="url(#tmmAigOr)" stroke="#140c02" stroke-width="1.1"/><circle r="1.6" fill="#140c02"/>'+bulleVerre(38)+'</g><circle r="37" fill="none" stroke="#dff7ff" stroke-opacity=".38" stroke-width="1.3"/></svg>';
+  }
   function hautEnergie(){
     /* UN SEUL rouage, plus grand, VERT (Norman, 2026-11-07 : « ne mets qu'un seul engrenage à gauche, plus grand, et fais-le vert pour l'énergie ») : il remplit le disque du socle */
     var g=G(),ch=g.chaine({m:3.7,n:[14],y:0,x0:0}),cx=ch.xMin+ch.largeur/2;
-    return '<svg viewBox="'+arr(cx-33,1)+' -33 66 66" aria-hidden="true" data-morph-vivant="1">'+g.svg(ch,{corps:['#2fd06b'],trait:'#0a0a0c',classe:'tmm-rot'})+'</svg>';
+    return cadranTour('<svg x="-20" y="-20" width="40" height="40" viewBox="'+arr(cx-33,1)+' -33 66 66" overflow="visible">'+g.svg(ch,{corps:['#2fd06b'],trait:'#0a0a0c',classe:'tmm-rot'})+'</svg>');
   }
   function hautMagie(){
-    return '<svg viewBox="-44 -44 88 88" aria-hidden="true" data-morph-vivant="1"><circle class="tmm-orbe" r="40" fill="#3d8bff" opacity=".35"/>'+
+    return cadranTour('<svg x="-22" y="-22" width="44" height="44" viewBox="-44 -44 88 88" overflow="visible">    <circle class="tmm-orbe" r="40" fill="#3d8bff" opacity=".35"/>'+
       '<g class="tmm-anneau"><circle r="34" fill="none" stroke="#0a0a0c" stroke-width="7"/><circle r="34" fill="none" stroke="#5aa2ff" stroke-width="3.5" stroke-dasharray="14 7"/></g>'+
-      '<circle r="19" fill="url(#tmmOrbe)" stroke="#0a0a0c" stroke-width="3"/><path d="M-9 -8 Q-3 -15 6 -12" fill="none" stroke="#fff" opacity=".55" stroke-width="3" stroke-linecap="round"/></svg>';
+      '<circle r="19" fill="url(#tmmOrbe)" stroke="#0a0a0c" stroke-width="3"/><path d="M-9 -8 Q-3 -15 6 -12" fill="none" stroke="#fff" opacity=".55" stroke-width="3" stroke-linecap="round"/></svg>');
   }
 
   /* ---------- animation : la vitesse change, la phase ne saute jamais ---------- */
@@ -268,6 +298,7 @@
   function lancerRoues(racine){
     if(calme)return;
     if(!racine.__toursInit){racine.__toursInit=true;viserTours(true);}
+    poserAiguillesTours(racine);
     racine.querySelectorAll('.tmm-rot').forEach(function(r){
       if(r.__tmmAnim)return;
       var off=parseFloat(r.getAttribute('data-off'))||0,sens=parseFloat(r.getAttribute('data-sens'))||1;
@@ -306,6 +337,13 @@
       if(g.style.display)g.style.display='';
     });
   }
+  /* aiguille dorée de chaque tour : niveaux par seconde de sa barre (lissés comme les roues), de 0 à 50 */
+  function poserAiguillesTours(racine){
+    ['vitesse','or'].forEach(function(c){
+      var n=racine.querySelector('.tmm-tour.'+c+' .tmm-aig-tour');
+      if(n)n.style.transform='rotate('+arr(-120+240*Math.min(50,Math.max(0,tours[c].vue))/50,1)+'deg)';
+    });
+  }
   function appliquerVitesse(){
     var racine=document.querySelector('.tmm-machine');
     if(!racine)return;
@@ -316,6 +354,7 @@
       if(g.__tmmAnim)g.__tmmAnim.playbackRate=rythmeAnneau(tours.or.vue);
     });
     reglerPieces(racine);
+    poserAiguillesTours(racine);
     var flux=document.getElementById('tmmFluxOr');if(flux)flux.style.opacity=String(Math.max(0,Math.min(1,(vue-18)/20))*.85);
     var lueur=document.getElementById('tmmLueurBaie');if(lueur)lueur.style.opacity=String(Math.max(0,(vue-6)/44)*.9);
   }
