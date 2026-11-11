@@ -17,8 +17,8 @@ const css = fs.readFileSync("cloudflare/public/soreal-idle-machine.css", "utf8")
 assert.ok(css.includes("/machine-v3/centre.webp") && css.includes("/machine-v3/tour-energie.webp") && css.includes("/machine-v3/tour-magie.webp"), "trois images en fond");
 assert.ok(css.includes("grid-template-columns:576fr 762fr 580fr"), "colonnes proportionnelles aux largeurs d'origine (même hauteur)");
 /* Écran de télé noir et blanc (Norman, 2026-11-10, remplace le voile vert et la bande lumineuse du 2026-11-07) : image en gris qui remplit tout le cadre, interférences (bandes qui décalent l'image), grain, lignes de balayage, vignette ; tout par transform / opacity */
-assert.ok(css.includes(".tmm-ecran-mob") && css.includes("tmmBalayage") && css.includes("repeating-linear-gradient(0deg,rgba(0,0,0,.34)"), "effet d'écran sur le mob (lignes de balayage, vignette, bande)");
-assert.ok(!css.includes("grayscale(1)") && css.includes("saturate(.82)") && css.includes("rgba(255,40,40,.13)"), "l'écran est en couleurs, avec le masque rouge-vert-bleu d'une télé cathodique (2026-11-11)");
+assert.ok(css.includes(".tmm-ecran-mob") && css.includes("tmmBalayage") && css.includes("linear-gradient(0deg,rgba(0,0,0,.4) 0,rgba(0,0,0,.1) 38%"), "effet d'écran sur le mob (lignes de balayage, vignette, bande)");
+assert.ok(!css.includes("grayscale(1)") && css.includes("filter:url(#tmmCrt)") && css.includes("2.7cqh") && !css.includes("rgba(255,40,40,.13)"), "l'écran est en couleurs ; tube cathodique : vitre bombée et aberration chromatique par un filtre, lignes de balayage douces, reflet et bords sombres (2026-11-11 : plus de grille de pixels rouge-vert-bleu)");
 assert.ok(css.includes(".tmm-tv-img{") && css.includes("object-fit:cover"), "l'image remplit tout le cadre");
 for (const k of ["tmmTvBandeE", "tmmTvBandeI", "tmmTvDecal", "tmmTvGrain", "tmmTvScintille"]) assert.ok(css.includes("@keyframes " + k), "interférence : " + k);
 assert.ok(!css.includes("@keyframes tmmScintille{"), "l'ancien effet (voile vert) est remplacé");
@@ -39,6 +39,7 @@ assert.ok(fonts.includes("font-family:'Orbitron'") && fonts.includes("/fonts/orb
 
 const d = fs.readFileSync("cloudflare/public/modules/machine-dessin-v1.js", "utf8");
 assert.ok(d.includes('viewBox="0 0 762 753"') && d.includes('class="tmm-ecran-mob"'), "centre dessiné dans la viewBox de l'image, effet d'écran posé par-dessus");
+assert.ok(d.includes("id=\"tmmCrt\"") && d.includes("feDisplacementMap") && d.includes("feOffset"), "filtre du tube cathodique (bombé + aberration chromatique)");
 assert.ok(d.includes("POLYGONE_ECRAN") && d.includes('class="tmm-tv-img"') && d.includes("tmm-tv-bande"), "l'écran du mob : contour mesuré de l'ouverture, image HTML et bandes d'interférence");
 assert.ok(!d.includes('<image id="tmmImage"'), "plus d'image SVG pour le mob (couche HTML en noir et blanc)");
 /* le tas : de vraies pièces (ellipses d'or), aucune petite pièce ; les pièces qui tombent entrent par le haut (rognées) et s'enfoncent dans le tas */

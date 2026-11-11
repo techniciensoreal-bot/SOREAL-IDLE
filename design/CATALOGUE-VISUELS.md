@@ -7,7 +7,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - pages : **33**
 - keyframes : **448**
 - fichiersAvecWebAnimations : **20**
-- fichiersCanvas : **12**
+- fichiersCanvas : **13**
 - pointsEntreeRejouables : **270**
 - mortsDeBase : **3**
 - retoursJoueur : **8**
@@ -41,7 +41,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 ## Fichiers qui animent par script (Web Animations) et qui dessinent en canvas
 `modules/album-cartes-v1.js` (27) · `modules/augmentations-page-v1.js` (1) · `modules/borne-led-v1.js` (1) · `modules/boss-reveal-v1.js` (1) · `modules/cthulhu-scene-v1.js` (1) · `modules/engrenages-v1.js` (1) · `modules/feu-v1.js` (2) · `modules/foudre-borne-v1.js` (2) · `modules/machine-dessin-v1.js` (4) · `modules/nettoyage-ap-v1.js` (2) · `modules/orage-v1.js` (1) · `modules/reapparitions-v1.js` (1) · `modules/sang-rituel-decor-v1.js` (2) · `modules/theme-images-v1.js` (1) · `modules/ui-boucle-v1.js` (1) · `modules/ui-entrainement-v1.js` (1) · `modules/ui-menus-v1.js` (1) · `modules/ui-renaissance-v1.js` (8) · `modules/wandoos-retro-v1.js` (2) · `modules/yggdrasil-elfes-v1.js` (4)
 
-`modules/apparition-boss-v1.js` (7) · `modules/aug-led-barres-v1.js` (5) · `modules/borne-led-v1.js` (3) · `modules/moqueurs-fuite-v1.js` (1) · `modules/mort-joueur-v1.js` (2) · `modules/morts-boss-nouvelles-v1.js` (5) · `modules/morts-joueur-nouvelles-v1.js` (2) · `modules/profil-visage-v1.js` (3) · `modules/sang-rituel-decor-v1.js` (2) · `modules/steam-v1.js` (1) · `modules/tm-bulles-canvas-v1.js` (3) · `modules/victoire-boss-arcade-v1.js` (3)
+`modules/apparition-boss-v1.js` (7) · `modules/aug-led-barres-v1.js` (5) · `modules/borne-led-v1.js` (3) · `modules/machine-dessin-v1.js` (1) · `modules/moqueurs-fuite-v1.js` (1) · `modules/mort-joueur-v1.js` (2) · `modules/morts-boss-nouvelles-v1.js` (5) · `modules/morts-joueur-nouvelles-v1.js` (2) · `modules/profil-visage-v1.js` (3) · `modules/sang-rituel-decor-v1.js` (2) · `modules/steam-v1.js` (1) · `modules/tm-bulles-canvas-v1.js` (3) · `modules/victoire-boss-arcade-v1.js` (3)
 
 ## Ressources par dossier
 - `chargement` : 3

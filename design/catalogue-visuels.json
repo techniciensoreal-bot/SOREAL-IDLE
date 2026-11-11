@@ -5,7 +5,7 @@
   "pages": 33,
   "keyframes": 448,
   "fichiersAvecWebAnimations": 20,
-  "fichiersCanvas": 12,
+  "fichiersCanvas": 13,
   "pointsEntreeRejouables": 270,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
@@ -4341,6 +4341,10 @@
   {
    "fichier": "modules/borne-led-v1.js",
    "contextes": 3
+  },
+  {
+   "fichier": "modules/machine-dessin-v1.js",
+   "contextes": 1
   },
   {
    "fichier": "modules/moqueurs-fuite-v1.js",

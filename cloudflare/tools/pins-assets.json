@@ -4,8 +4,8 @@
   "sha": "35a7ab483993dac1e3a03af6ae49f36bdcaea69b"
  },
  "/machine-ecran-tv-v1.css": {
-  "pin": 12,
-  "sha": "6e2f6c1e57cb2a11f8d5127fb90424b399698876"
+  "pin": 13,
+  "sha": "31e480a87fa1a19d2a7d287d9101f6650eee8b3b"
  },
  "/modules/achievement-notice-v1.js": {
   "pin": 1,
@@ -492,8 +492,8 @@
   "sha": "cbb8cda820f410aefaad2c9a22cf7203036da398"
  },
  "/modules/machine-dessin-v1.js": {
-  "pin": 28,
-  "sha": "ed047a2b2e6bab7de0606db8df35adb25fd1e696"
+  "pin": 29,
+  "sha": "127bab0a6b7440c6c2d71dadf763da150fb18895"
  },
  "/modules/machine-sons-v1.js": {
   "pin": 6,
@@ -656,12 +656,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 285,
-  "sha": "20e92ba12560e257f30b1ccee1534c62a041df6b"
+  "pin": 286,
+  "sha": "c967d6f1587346912dc22c3d4f7dc54adde27727"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 927,
-  "sha": "93f85555d703a4c95230226ce8d910a489f82e4e"
+  "pin": 928,
+  "sha": "90920c5c382e2995af8d63258eb8362766202032"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -756,12 +756,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 965,
-  "sha": "5dec61d6fd3099bdf923f2db5bf837ddb728c650"
+  "pin": 966,
+  "sha": "dd37352f1a236b4a644e0e9c1217c4aecafd403f"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 786,
-  "sha": "4a9f5d1164fa5177cc83e6f8edd687ce8e7b35d2"
+  "pin": 787,
+  "sha": "cd648e043e60cafe102ed0fc6dba97b12e91abd4"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

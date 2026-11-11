@@ -149,10 +149,43 @@
    * L'écran du mob est une télé noir et blanc (Norman, 2026-11-10) : l'image remplit tout le cadre (centrée, rognée au besoin : « cover »), passée en gris, avec des INTERFÉRENCES qui décalent l'image (deux bandes qui descendent, une copie de l'image
    * décalée de quelques pixels), du grain et des lignes de balayage. Tout est en HTML et ne bouge que par transform / opacity (processeur graphique) : rien de plus à calculer dans le dessin SVG de la machine.
    */
+  /*
+   * TUBE CATHODIQUE (Norman, 2026-11-11 : « l'effet tube cathodique n'est pas bien fait, on dirait une grille placée au hasard »). Un vrai écran de tube : (1) la vitre est BOMBÉE (l'image est comprimée vers les bords, déformation en tonneau, par un filtre SVG qui déplace chaque point d'après une petite carte de déplacement générée une fois) ;
+   * (2) les trois couleurs sont décalées de moins d'un pixel de chaque côté (aberration chromatique, visible vers les bords) ; (3) un léger flou de phosphore. Les lignes de balayage, la vignette et le reflet de la vitre sont dessinés dans la feuille (machine-ecran-tv-v1.css) et suivent la courbure parce que le filtre porte sur tout l'écran.
+   */
+  var CRT_CARTE='';
+  function carteTonneau(){
+    if(CRT_CARTE)return CRT_CARTE;
+    try{
+      var n=48,cv=document.createElement('canvas');cv.width=cv.height=n;
+      var cx=cv.getContext('2d'),im=cx.createImageData(n,n),i,j,u,v,r2,p;
+      for(j=0;j<n;j++)for(i=0;i<n;i++){
+        u=(i+.5)/n*2-1;v=(j+.5)/n*2-1;r2=(u*u+v*v)/2;p=(j*n+i)*4;
+        im.data[p]=Math.round(127.5*(1+u*r2));im.data[p+1]=Math.round(127.5*(1+v*r2));im.data[p+2]=128;im.data[p+3]=255;
+      }
+      cx.putImageData(im,0,0);CRT_CARTE=cv.toDataURL('image/png');
+    }catch(_e){CRT_CARTE='';}
+    return CRT_CARTE;
+  }
+  function filtreTube(){
+    var m=carteTonneau();
+    if(!m)return '';
+    return '<svg class="tmm-crt-defs" width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false" data-sans-traduction><defs>'+
+      '<filter id="tmmCrt" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">'+
+        '<feImage href="'+m+'" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="carte"/>'+
+        '<feDisplacementMap in="SourceGraphic" in2="carte" scale="0.1" xChannelSelector="R" yChannelSelector="G" result="bombe"/>'+
+        '<feColorMatrix in="bombe" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>'+
+        '<feColorMatrix in="bombe" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="g"/>'+
+        '<feColorMatrix in="bombe" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="b"/>'+
+        '<feOffset in="r" dx="-0.007" dy="0" result="r2"/><feOffset in="b" dx="0.007" dy="0" result="b2"/>'+
+        '<feBlend in="r2" in2="g" mode="screen" result="rg"/><feBlend in="rg" in2="b2" mode="screen" result="rgb"/>'+
+        '<feGaussianBlur in="rgb" stdDeviation="0.004 0.006"/>'+
+      '</filter></defs></svg>';
+  }
   function ecranTelevision(url){
     var img=function(id){return '<img'+(id?' id="'+id+'"':'')+' class="tmm-tv-img" alt="" decoding="async" draggable="false" src="'+esc(url)+'">';};
     var bande=function(k){return '<div class="tmm-tv-bande tmm-tv-bande-'+k+'"><div class="tmm-tv-cale"><div class="tmm-tv-decal">'+img('')+'</div></div></div>';};
-    return '<div class="tmm-ecran-mob" aria-hidden="true">'+
+    return filtreTube()+'<div class="tmm-ecran-mob" aria-hidden="true">'+
       (url?img('tmmImage')+bande('a')+bande('b'):'')+
       '<div class="tmm-tv-grain"></div></div>';
   }
