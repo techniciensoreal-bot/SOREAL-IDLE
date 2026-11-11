@@ -2022,7 +2022,8 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.sore
     max-height:24px;transition:none;   /* instantané (Norman, 2026-11-01) */
   }
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energy-panel-v34.soreal-idle-vide-v2{
-    opacity:0;max-height:0;margin-bottom:0!important;pointer-events:none;overflow:clip;overflow-clip-margin:8px;
+    /* 2026-11-11 (Norman : « quand je clique sur Max, la page entière fait un petit saut ») : la barre vide s'efface (opacité) mais sa PLACE reste réservée : elle ne se referme plus, donc le bandeau garde sa hauteur et rien ne bouge en dessous (Max vide toute l'énergie, le serveur en rend 0,3 s après : le bandeau se refermait puis se rouvrait). */
+    opacity:0;pointer-events:none;
     transition:none;
   }
 }
