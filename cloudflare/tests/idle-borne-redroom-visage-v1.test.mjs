@@ -65,9 +65,9 @@ for (const [W, H] of [[140, 34], [120, 16], [140, 24], [100, 12]]) {
 }
 assert.ok(ev("SC.ko.dur({anim:'redroom'})") === ev("KO_RR_DUR") && ev("KO_RR_DUR") >= T1 + 2, "durée de la défaite en Red Room : visage puis texte");
 assert.ok(T1 - T0 >= 3, "visage prévu au moins 3 s");
-assert.ok(ev("SC.ko.dur({anim:'mascot'})") === 8.8 && ev("SC.ko.dur({anim:'sweep'})") === 8.8 && ev("SC.ko.dur({})") === 6.4, "les autres défaites gardent leur durée");
-assert.ok(/ko:\{fn:sKO,dur:function\(p\)\{return p\.anim==='yeuxcb'\?ycFin\(p,'ko'\)\+6\.4:p\.anim==='redroom'\?KO_RR_DUR/.test(code), "durée de la défaite redroom");
-assert.ok(ev("coupeApres({id:'ko',p:{anim:'redroom'},dur:9.6})") === 9.6 && ev("coupeApres({id:'ko',p:{anim:'mascot'},dur:8.8})") === 4.2, "un nouveau combat n'interrompt pas le visage ; les autres défaites gardent leur coupe");
+assert.ok(ev("SC.ko.dur({anim:'mascot'})") === 8.8 && ev("SC.ko.dur({anim:'sweep'})") === 8.8 && ev("SC.ko.dur({})") === 4.3, "les autres défaites gardent leur durée");
+assert.ok(/ko:\{fn:sKO,dur:function\(p\)\{return p\.anim==='yeuxcb'\?ycFin\(p,'ko'\)\+4\.3:p\.anim==='redroom'\?KO_RR_DUR/.test(code), "durée de la défaite redroom");
+assert.ok(ev("coupeApres({id:'ko',p:{anim:'redroom'},dur:9.6})") === 9.6 && ev("coupeApres({id:'ko',p:{anim:'mascot'},dur:8.8})") === 2.8, "un nouveau combat n'interrompt pas le visage ; les autres défaites gardent leur coupe");
 
 /* 3. éclairs : irréguliers, espacés d'au moins 0,45 s */
 const ECL = ev("VIS_ECL.map(function(e){return e[0];})");

@@ -39,9 +39,9 @@
             'En Aventure, la fenêtre de statistiques affiche maintenant directement le total (Puissance, Endurance, PV Max, Regen), en vert quand tu as des bonus, au lieu de la base avec l’équipement et le Cube entre parenthèses. Un petit « i » à côté de chaque statistique ouvre le détail : la base, l’équipement, le Cube, puis chaque source de bonus avec son multiplicateur.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Quand tu gagnes un combat, la borne joue soit les yeux contents (cœurs ou étoiles), soit la vague, mais plus les deux à la suite : la victoire est bien plus courte et le nom du boss suivant arrive plus vite.',
+            'Quand tu gagnes un combat, la borne joue soit les yeux contents (arcs heureux ou cœurs), soit la vague, mais plus les deux à la suite : la victoire est bien plus courte et le nom du boss suivant arrive plus vite.',
             'La vague de victoire sur la borne est refaite en vrai ras de marée : un mur d’eau haut qui déferle de gauche à droite avec sa crête de mousse, qui porte le mot VICTOIRE ! avant de se retirer.',
-            'Les yeux de la borne ont de nouvelles animations. Quand tu perds un combat, ils jouent au hasard l’une de ces fins : explosion, spirale hypnotique, larmes, télé qui s’éteint ou chute. Quand tu gagnes : les yeux se transforment en cœurs ou en étoiles. Pendant un long combat ils peuvent s’énerver, avec une colère qui monte lentement. Et après deux minutes sans rien faire sur le combat de boss, une mouche vient les embêter.'
+            'Les yeux de la borne ont de nouvelles animations. Quand tu perds un combat, ils jouent au hasard l’une de ces fins : explosion, spirale hypnotique, larmes, télé qui s’éteint ou croix. Quand tu gagnes : les yeux en U à l’envers ou qui se transforment peu à peu en cœurs. Les larmes, la vague, FIGHT !, VICTOIRE ! et K.O. sont accélérés de moitié. Et après deux minutes sans rien faire sur le combat de boss, une mouche vient les embêter.'
           ]},
           {menu:'challenges', titre:'Défis', points:[
             'Dans un défi, les récompenses parlent maintenant de labos au lieu de Diggers (bonus global des labos, emplacement de labo).'

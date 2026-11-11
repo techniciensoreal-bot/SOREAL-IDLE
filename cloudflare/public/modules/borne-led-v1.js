@@ -786,6 +786,7 @@ function sRire(t){
 /* Norman (2026-11-05) : « la victoire du bonhomme qui court est trop longue » : durée 5,6 s pour la mascotte (entrée au château dès le début, feux d'artifice finis vers 3,7 s), texte effacé dès 5,0 s */
 function sWin(t){
   var W=P.W,H=P.H,x,y,an=P.p.anim;if(an==='yeuxcb'){var Yw=yeuxMod(),yf=ycFin(P.p,'win');if(t<yf){if(Yw)Yw.fin(t,'win',P.p);return;}t-=yf;an=null;}
+  if(!an)t*=1.5;   /* victoire simple et ras de marée : ×1,5 (choix de Norman, galerie du 2026-11-11) */
   if(an==='redroom'&&P.p.ange!==false&&angOk()){winAnge(t);return;}   /* Red Room : l'ange numérisé (winAnge) ; écran trop petit : ci-dessous, comme avant */
   if(an){                                                          /* la fin de l'animation du combat : château et feux d'artifice, ou la danse de Leatherface ; « VICTOIRE ! » écrit dans l'espace vide à droite */
     P.p.fin=true;if(an==='redroom')sRedroom(t);else if(an==='egout')sEgout(t);else (an==='sweep'?sSweep:sMascot)(t);
@@ -1339,6 +1340,7 @@ function perduEgout(t){
 }
 function sKO(t){
   var W=P.W,H=P.H,an=P.p.anim==='sweep',am=P.p.anim==='mascot';if(P.p.anim==='yeuxcb'){var Yk=yeuxMod(),yf=ycFin(P.p,'ko');if(t<yf){if(Yk)Yk.fin(t,'ko',P.p);return;}t-=yf;}
+  if(!P.p.anim||P.p.anim==='yeuxcb')t*=1.5;   /* K.O. simple : ×1,5 (choix de Norman, galerie du 2026-11-11) */
   var rr=P.p.anim==='redroom',fv=rr&&visOk(),eg=P.p.anim==='egout',tg=t;
   if(an)tueRie(t);else if(am)ecrase(t);else if(fv)koVisage(t);else if(rr)perduRedroom(t);else if(eg)perduEgout(t);
   var tk=t-(eg?EG_TXT-(P.p.suite?EG_A:0):an||am||(rr&&!fv)?2.4:fv?VIS_TXT:0),bl=P.reduced?1:clamp(0.5+1.2*Math.sin(6.2832*2.5*tk),0,1);
@@ -2144,12 +2146,12 @@ var SC={
   morts:{fn:sMorts,dur:4,prio:1,cap:1.0},
   score:{fn:sScore,dur:4,prio:1,cap:2.0},
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
-  fight:{fn:sFight,dur:Infinity,prio:0,cap:2.0},
-  win:{fn:sWin,dur:function(p){return p.anim==='redroom'&&p.ange!==false?WIN_RR_DUR:p.anim==='yeuxcb'?ycFin(p,'win')+ycQ(p):p.anim==='mascot'?5.6:p.anim?8.6:7.2;},prio:5,cap:4.2},
-  ko:{fn:sKO,dur:function(p){return p.anim==='yeuxcb'?ycFin(p,'ko')+6.4:p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:6.4;},prio:5,cap:3.9}
+  fight:{fn:function(t){sFight(t*1.5);},dur:Infinity,prio:0,cap:2.0},
+  win:{fn:sWin,dur:function(p){return p.anim==='redroom'&&p.ange!==false?WIN_RR_DUR:p.anim==='yeuxcb'?ycFin(p,'win')+ycQ(p):p.anim==='mascot'?5.6:p.anim?8.6:4.8;},prio:5,cap:4.2},
+  ko:{fn:sKO,dur:function(p){return p.anim==='yeuxcb'?ycFin(p,'ko')+4.3:p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:4.3;},prio:5,cap:3.9}
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */
-var COUPE={win:5.0,ko:4.2,rire:RIRE_DUR};
+var COUPE={win:3.4,ko:2.8,rire:RIRE_DUR};
 /* Temps minimum avant que le combat suivant (et le nom de son boss) puisse couper la scène : la victoire AVEC animation (Leatherface qui danse, ou le personnage qui saute) est vue EN ENTIER (Norman, 2026-11-02 : « je veux que l'animation de victoire soit montrée en entier avant »). */
 function coupeApres(s){if(s.p&&s.p.anim==='yeuxcb'&&(s.id==='win'||s.id==='ko'))return s.id==='win'?s.dur:ycFin(s.p,s.id)+COUPE[s.id];return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}
 

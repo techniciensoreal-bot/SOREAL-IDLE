@@ -31,7 +31,7 @@ var YEUX_EXPR={
   colere:function(){return ex({lt:0.22,tl:-0.9,py:0.1,ps:0.9,z:0.98});},
   clin:function(u){var o=ex({});o.clin=u>0.25&&u<0.75?1:0;return o;}   /* clin d'œil de l'œil droit */
 };
-var YEUX_TIRAGE=['alalter','content','triste','soupcon','surpris','endormi','colere','clin','haut','gauche','droite'];
+var YEUX_TIRAGE=['alalter','content','triste','soupcon','surpris','endormi','colere','haut','gauche','droite'];
 function yeuxParams(){
   var seq=['neutre'],pool=YEUX_TIRAGE.slice(),n=3,i,k;
   for(i=0;i<n;i++){k=Math.floor(Math.random()*pool.length);seq.push(pool[k]);pool.splice(k,1);if(i%2===1)seq.push('neutre');}
@@ -168,7 +168,7 @@ function sCombat(t){
   st.t=t;
   if(st.pj>=0&&st.pj-pj>=0.03)st.coup=t;
   st.pj=pj;
-  var ce=P.reduced?-1:colereEp(t,S&&S.num||1);if(ce>=0&&vie>0.08&&(ce>0.5||pj>=0.25)){aColere(ce);return;}   /* de temps en temps pendant un combat long : la colère monte (14 s) puis retombe */
+  var ce=-1;   /* colère retirée : non cochée dans la galerie de Norman (2026-11-11) ; fonctions gardées pour une réintégration */if(ce>=0&&vie>0.08&&(ce>0.5||pj>=0.25)){aColere(ce);return;}   /* de temps en temps pendant un combat long : la colère monte (14 s) puis retombe */
   var cible=humeur(t,pp,vie,pj,pp.issue,st);
   /* le regard : le bout de la barre de vie du boss (en bas de l'écran) ; de temps en temps un coup d'œil vers la vie du joueur (en haut à gauche), puis de nouveau la barre */
   if(st.serreT===undefined||t-st.serreT>0.5||t<st.serreT){st.serreT=t;st.serre=typeof O.serre==='function'?Boolean(O.serre()):false;}
@@ -210,10 +210,10 @@ function sFin(t,issue,p){
 /* ---------------------------------------------------------------- DIX NOUVELLES ANIMATIONS DES YEUX (Norman, 2026-11-11 : « d'autres animations pour les yeux de la borne ; par exemple quand on perd, ses yeux nous regardent grand ouverts, tremblants, et ils explosent ; fais-moi une dizaine d'animations que j'en valide quelques unes »).
    Chaque animation est une fonction pure du temps t (secondes depuis son début) ; elle dessine avec les mêmes primitives que les yeux existants (dessiner, px) et tourne dans la scène « yeuxanim » (params : { id }). Elles ne sont PAS encore branchées sur le jeu : aperçu seulement, en attendant le choix de Norman.
    DÉFAITES : explosion, spirale, larmes, tvoff (la télé s'éteint), chute. VICTOIRES : coeurs, etoiles, clin (clin d'œil étincelant). REPOS : mouche, colere (yeux rouges fumants). Animation réduite : yeux fixes, sans tremblement ni particules. */
-var COLERE_DUR=17,VAGUE_DUR=5.4;
-var ANIM_DUREES={explosion:5.4,spirale:5.6,larmes:6.8,tvoff:4.2,chute:5.0,coeurs:4.8,etoiles:4.2,mouche:7.8,colere:COLERE_DUR};
+var COLERE_DUR=17,VAGUE_DUR=3.6;   /* vague : 5,4 s ÷ 1,5 (galerie de Norman, 2026-11-11) */
+var ANIM_DUREES={arcs:3.2,croix:2.8,explosion:5.4,spirale:5.6,larmes:4.6,tvoff:4.2,chute:5.0,coeurs:4.8,etoiles:4.2,mouche:7.8,colere:COLERE_DUR};
 var ANIM_IDS=['explosion','spirale','larmes','tvoff','chute','coeurs','etoiles','mouche','colere'];
-var FIN_DEFAITE=['explosion','spirale','larmes','tvoff','chute'],FIN_VICTOIRE=['coeurs','etoiles','vague','vague'];   /* victoire : une chance sur deux la vague, sinon cœurs ou étoiles */   /* choix de Norman (2026-11-11) : 1 à 5 quand on perd un combat, 6 et 7 quand on gagne ; 8 (clin d'œil) refusé ; 9 (mouche) : page Fight Boss après 2 min sans rien faire ; 10 (colère) : de temps en temps pendant un combat long */
+var FIN_DEFAITE=['explosion','spirale','larmes','tvoff','croix'],FIN_VICTOIRE=['arcs','coeurs','vague'];   /* choix de la galerie (Norman, 2026-11-11) : chute et étoiles retirées, croix et arcs (le U à l'envers) remis */   /* choix de Norman (2026-11-11) : 1 à 5 quand on perd un combat, 6 et 7 quand on gagne ; 8 (clin d'œil) refusé ; 9 (mouche) : page Fight Boss après 2 min sans rien faire ; 10 (colère) : de temps en temps pendant un combat long */
 function cl(id){var o=O[id];return o===undefined?O.BLA:o;}
 /* géométrie des deux yeux (la même que dessiner) */
 function geom(z,ox,oy){var P=paneau(),W=P.W,H=P.H,eh=Math.max(2.4,Math.max(6,Math.min(12,H-2))*z),ew=eh*1.2,gap=ew*0.9,a=ew/2,b=eh/2,y0=(H-eh)/2+(oy||0);
@@ -359,7 +359,10 @@ function colereEp(t,n){
   k=Math.floor((t-t0)/per);u=t-t0-k*per;
   return u<COLERE_DUR?u:-1;
 }
-function anim(id,t){var f={explosion:aExplosion,spirale:aSpirale,larmes:aLarmes,tvoff:aTvOff,chute:aChute,coeurs:aCoeurs,etoiles:aEtoiles,mouche:aMouche,colere:aColere}[id];if(f)f(t);}
+/* les deux fins d'origine, redevenues choisissables (Norman, 2026-11-11 : « tu as retiré l'animation des yeux contents, ses yeux faisaient un U à l'envers ; je l'aimais bien ») : arcs heureux et étincelles qui sautent (victoire), croix qui s'éloignent (défaite) */
+function aArcs(t){sFin(t,'win');}
+function aCroix(t){sFin(t,'ko');}
+function anim(id,t){var f={arcs:aArcs,croix:aCroix,explosion:aExplosion,spirale:aSpirale,larmes:function(t){aLarmes(t*1.5);},tvoff:aTvOff,chute:aChute,coeurs:aCoeurs,etoiles:aEtoiles,mouche:aMouche,colere:aColere}[id];if(f)f(t);}
 /* scène de l'aperçu (et du jeu plus tard) : params { id } ; enregistrée dans la table des scènes de la borne dès que ce module est chargé par elle. */
 if(O.SC&&!O.SC.yeuxanim)O.SC.yeuxanim={fn:function(t){anim(paneau().p.id||"coeurs",t);},dur:function(p){return ANIM_DUREES[p.id]||5;},prio:5,cap:1.0};
 /* RAS DE MARÉE (victoire ; Norman, 2026-11-11 : « la vague de victoire doit avoir l'air d'un ras de marée, pas ce truc étrange ») : un mur d'eau haut et raide qui traverse tout l'écran de gauche à droite. Face avant presque verticale, qui déferle (la lèvre de la crête se recourbe vers l'avant, mousse blanche), longue traîne d'eau agitée derrière, embruns devant la crête ; l'eau est bleue, plus claire vers le haut, striée de courants qui glissent, puis elle se retire. Dessinée seulement ici ; la scène de victoire (borne-led-v1.js) y ajoute ensuite les lettres. t : secondes ; TV : durée de la traversée. */

@@ -97,8 +97,8 @@ const lancer = (e, anim) => {
 // combat court (1 s prévue) : FIGHT ! simple, aucune animation, scènes de fin COURTES
 let r = lancer(etat({ bossPv: 1000, bossPvMax: 1000 }));
 assert.deepEqual(r, { scene: "fight", decision: -1, anim: "" }, "combat court : pas d'animation");
-assert.equal(ev("mk('win',2000).dur"), 7.2, "victoire courte : scène de fin sans animation");
-assert.equal(ev("mk('ko',2000).dur"), 6.4, "défaite courte : scène de fin sans animation");
+assert.equal(ev("mk('win',2000).dur"), 4.8, "victoire courte : scène de fin sans animation");
+assert.equal(ev("mk('ko',2000).dur"), 4.3, "défaite courte : scène de fin sans animation");
 assert.equal(ev("mk('win',2000).p.anim"), "");
 // combat long : l'animation tirée démarre tout de suite, et les scènes de fin longues suivent
 for (const a of ["redroom", "sweep", "mascot"]) {

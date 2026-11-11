@@ -112,7 +112,7 @@ const base = ev(`(function(){var p=new Panel(document.createElement('canvas'),12
 assert.ok(base > 20, "« SOREAL IDLE » s'affiche sans boss connu");
 
 /* FIGHT ! reste affiché tout le combat : durée infinie, priorité la plus basse, boucle parfaite de 2 s (même image à t et t + 2 s une fois l'apparition passée) */
-assert.ok(/fight:\{fn:sFight,dur:Infinity,prio:0/.test(src), "FIGHT ! dure tant que dure le combat");
+assert.ok(/fight:\{fn:function\(t\)\{sFight\(t\*1\.5\);\},dur:Infinity,prio:0/.test(src), "FIGHT ! dure tant que dure le combat");
 const identique = ev(`(function(){
   var p=new Panel(document.createElement('canvas'),120,14);S.boss=true;S.nom='X';
   function img(t){P=p;p.c.fill(0);p.v.fill(0);p.yoff=0;p.cy0=0;p.cy1=p.H-1;p.p={};sFight(t);P=null;return Array.prototype.join.call(p.v,',')+'|'+Array.prototype.join.call(p.c,',');}
@@ -121,7 +121,7 @@ assert.deepEqual(Array.from(identique), [true, true, true], "FIGHT ! : boucle pa
 
 /* priorités : un coup, une victoire, un K.O. passent devant ; FIGHT ! enchaîné (boss suivant) ne se relance pas */
 assert.ok(src.includes("if(enCombat(cur)&&S.num===combatNum)return;"), "FIGHT ! déjà affiché pour le MÊME boss : pas de redémarrage ; un nouveau boss repart par l'écriture de son nom (Norman, 2026-11-02)");
-assert.ok(/win:\{fn:sWin,dur:function\(p\)\{return p\.anim==='redroom'&&p\.ange!==false\?WIN_RR_DUR:p\.anim==='yeuxcb'\?ycFin\(p,'win'\)\+ycQ\(p\):p\.anim==='mascot'\?5\.6:p\.anim\?8\.6:7\.2;\},prio:5/.test(src) && /ko:\{fn:sKO,dur:function\(p\)\{return p\.anim==='yeuxcb'\?ycFin\(p,'ko'\)\+6\.4:p\.anim==='redroom'\?KO_RR_DUR:p\.anim==='egout'\?KO_EG_DUR-\(p\.suite\?EG_A:0\):p\.anim\?8\.8:6\.4;\},prio:5/.test(src) && /hit:\{fn:sHits,dur:1\.5,prio:3/.test(src));
+assert.ok(/win:\{fn:sWin,dur:function\(p\)\{return p\.anim==='redroom'&&p\.ange!==false\?WIN_RR_DUR:p\.anim==='yeuxcb'\?ycFin\(p,'win'\)\+ycQ\(p\):p\.anim==='mascot'\?5\.6:p\.anim\?8\.6:4\.8;\},prio:5/.test(src) && /ko:\{fn:sKO,dur:function\(p\)\{return p\.anim==='yeuxcb'\?ycFin\(p,'ko'\)\+4\.3:p\.anim==='redroom'\?KO_RR_DUR:p\.anim==='egout'\?KO_EG_DUR-\(p\.suite\?EG_A:0\):p\.anim\?8\.8:4\.3;\},prio:5/.test(src) && /hit:\{fn:sHits,dur:1\.5,prio:3/.test(src));
 
 /* ---------- branchement dans le jeu ---------- */
 /* le panneau REMPLACE la plaque du boss : plus de « 👹 BOSS #n » ni de nom visible, un nom masqué (sr-only) et l'aria-label du panneau */
