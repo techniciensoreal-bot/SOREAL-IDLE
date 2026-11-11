@@ -121,7 +121,7 @@ assert.deepEqual(Array.from(identique), [true, true, true], "FIGHT ! : boucle pa
 
 /* priorités : un coup, une victoire, un K.O. passent devant ; FIGHT ! enchaîné (boss suivant) ne se relance pas */
 assert.ok(src.includes("if(enCombat(cur)&&S.num===combatNum)return;"), "FIGHT ! déjà affiché pour le MÊME boss : pas de redémarrage ; un nouveau boss repart par l'écriture de son nom (Norman, 2026-11-02)");
-assert.ok(/win:\{fn:sWin,dur:function\(p\)\{return p\.anim==='redroom'&&p\.ange!==false\?WIN_RR_DUR:p\.anim==='yeuxcb'\?ycFin\(p,'win'\)\+7\.2:p\.anim==='mascot'\?5\.6:p\.anim\?8\.6:7\.2;\},prio:5/.test(src) && /ko:\{fn:sKO,dur:function\(p\)\{return p\.anim==='yeuxcb'\?ycFin\(p,'ko'\)\+6\.4:p\.anim==='redroom'\?KO_RR_DUR:p\.anim==='egout'\?KO_EG_DUR-\(p\.suite\?EG_A:0\):p\.anim\?8\.8:6\.4;\},prio:5/.test(src) && /hit:\{fn:sHits,dur:1\.5,prio:3/.test(src));
+assert.ok(/win:\{fn:sWin,dur:function\(p\)\{return p\.anim==='redroom'&&p\.ange!==false\?WIN_RR_DUR:p\.anim==='yeuxcb'\?ycFin\(p,'win'\)\+ycQ\(p\):p\.anim==='mascot'\?5\.6:p\.anim\?8\.6:7\.2;\},prio:5/.test(src) && /ko:\{fn:sKO,dur:function\(p\)\{return p\.anim==='yeuxcb'\?ycFin\(p,'ko'\)\+6\.4:p\.anim==='redroom'\?KO_RR_DUR:p\.anim==='egout'\?KO_EG_DUR-\(p\.suite\?EG_A:0\):p\.anim\?8\.8:6\.4;\},prio:5/.test(src) && /hit:\{fn:sHits,dur:1\.5,prio:3/.test(src));
 
 /* ---------- branchement dans le jeu ---------- */
 /* le panneau REMPLACE la plaque du boss : plus de « 👹 BOSS #n » ni de nom visible, un nom masqué (sr-only) et l'aria-label du panneau */

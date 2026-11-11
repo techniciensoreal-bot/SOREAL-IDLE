@@ -36,6 +36,7 @@
             'Les Réglages sont entièrement refaits, dans un style jeu vidéo : plaques d’acier colorées pour chaque catégorie (Mon jeu, Profil, Audio, Affichage, Ma partie, Infos), cadres, icônes dessinées, interrupteurs à levier, curseurs de volume et gros boutons lisibles. Le son et l’image sont maintenant deux catégories séparées, et les sections de test de développement ont disparu.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Quand tu gagnes un combat, la borne joue soit les yeux contents (cœurs ou étoiles), soit la vague, mais plus les deux à la suite : la victoire est bien plus courte et le nom du boss suivant arrive plus vite.',
             'La vague de victoire sur la borne est refaite en vrai ras de marée : un mur d’eau haut qui déferle de gauche à droite avec sa crête de mousse, qui porte le mot VICTOIRE ! avant de se retirer.',
             'Les yeux de la borne ont de nouvelles animations. Quand tu perds un combat, ils jouent au hasard l’une de ces fins : explosion, spirale hypnotique, larmes, télé qui s’éteint ou chute. Quand tu gagnes : les yeux se transforment en cœurs ou en étoiles. Pendant un long combat ils peuvent s’énerver, avec une colère qui monte lentement. Et après deux minutes sans rien faire sur le combat de boss, une mouche vient les embêter.'
           ]},

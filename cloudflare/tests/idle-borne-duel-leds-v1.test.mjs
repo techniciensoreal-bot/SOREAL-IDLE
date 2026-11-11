@@ -123,7 +123,7 @@ console.log("idle-borne-duel-leds-v1: OK");
 }
 {
   const led2 = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
-  assert.ok(led2.includes("function coupeApres(s){if(s.p&&s.p.anim==='yeuxcb'&&(s.id==='win'||s.id==='ko'))return ycFin(s.p,s.id)+COUPE[s.id];return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
+  assert.ok(led2.includes("function coupeApres(s){if(s.p&&s.p.anim==='yeuxcb'&&(s.id==='win'||s.id==='ko'))return s.id==='win'?s.dur:ycFin(s.p,s.id)+COUPE[s.id];return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}") && led2.includes("<coupeApres(cur)){pend=true;return;}") && led2.includes(">=coupeApres(cur))&&!(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]&&now<graceFin)){pend=false;graceFin=0;combatFight(now,true);}"), "victoire avec animation : vue en entier avant le nom du boss suivant (Norman, 2026-11-02)");
   assert.ok(led2.includes("if(cur&&cur.p&&cur.p.long&&ANIMS_LONGUES[cur.id]){if(!graceFin)graceFin=now+GRACE_FIN_S*1000;pend=true;return;}") && led2.includes("pend=false;graceFin=0;demarrer(s);"), "le combat suivant qui démarre avant le drapeau de victoire n'écrase plus l'animation longue : on attend la scène de fin (Norman, 2026-11-03)");
 }
 {
