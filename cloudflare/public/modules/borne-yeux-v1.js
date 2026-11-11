@@ -59,7 +59,7 @@ function clignement(t,seed){
 function frisson(t){return {x:0.07*Math.sin(t*2.3)+0.05*Math.sin(t*5.1+1),y:0.05*Math.sin(t*1.9+2)};}
 /* DESSIN d'une paire d'yeux. e : expression ; ox, oy : décalage de la paire (tremblement, saut) ; fermeture : 0..1 (clignement) ; e.z : distance (Norman, 2026-11-07 : « fais-le se rapprocher, s'éloigner ») : 1 = tout près, pleine taille ; les dimensions sont des nombres décimaux, donc la taille varie en douceur (taille de la paire, écart entre les yeux, pupilles). */
 function dessiner(t,e,ox,oy,ferm,petit){
-  var P=paneau(),W=P.W,H=P.H,z=e.z===undefined?1:e.z,eh=Math.max(2.4,Math.max(6,Math.min(12,H-2))*z),ew=eh*1.2,gap=ew*0.9,y0=(H-eh)/2+(oy||0),i,x,y,j,fr=P.reduced?{x:0,y:0}:frisson(t);
+  var BLA=e.col||O.BLA,P=paneau(),W=P.W,H=P.H,z=e.z===undefined?1:e.z,eh=Math.max(2.4,Math.max(6,Math.min(12,H-2))*z),ew=eh*1.2,gap=ew*0.9,y0=(H-eh)/2+(oy||0),i,x,y,j,fr=P.reduced?{x:0,y:0}:frisson(t);
   var a=ew/2,b=eh/2,cxs=[];
   for(i=0;i<2;i++){
     var cx=(W-1)/2+(i?1:-1)*(gap/2+a)+(ox||0),cy=y0+b-0.5,ext=i?1:-1;   /* ext : côté extérieur de l'œil */
@@ -80,7 +80,7 @@ function dessiner(t,e,ox,oy,ferm,petit){
           if(interne||y>cy+b*0.3)continue;
         }else{
           if(y<haut-0.5||y>bas-0.5)continue;
-          var pr=Math.max(1.2,eh*0.2*e.ps),pcx=cx+(e.px+fr.x)*a*0.45,pcy=cy+(e.py+fr.y)*b*0.4;
+          var pr=Math.max(1.2,eh*0.2*e.ps),pcx=cx+(e.px+fr.x+(e.cross||0)*(i?-1:1))*a*0.45,pcy=cy+(e.py+fr.y)*b*0.4;
           if((x-pcx)*(x-pcx)+(y-pcy)*(y-pcy)<=pr*pr){
             /* reflet : un point allumé dans la pupille, en haut à gauche, qui donne le regard */
             if(pr>=1.6&&Math.abs(x-Math.round(pcx-pr*0.45))<0.6&&Math.abs(y-Math.round(pcy-pr*0.45))<0.6)px(x,y,BLA,255);
@@ -199,11 +199,163 @@ function sFin(t,issue){
   var zv=P.reduced?1:0.80+0.22*sm(t/0.9)+0.05*Math.sin(t*9);                                      /* il s'approche en sautant de joie */
   if(t<0.3)dessiner(t,ex({ps:0.55,z:zv}),0,h,0,true);else dessiner(t,ex({sh:1,sp:1,z:zv}),0,h,0,true);
 }
+/* ---------------------------------------------------------------- DIX NOUVELLES ANIMATIONS DES YEUX (Norman, 2026-11-11 : « d'autres animations pour les yeux de la borne ; par exemple quand on perd, ses yeux nous regardent grand ouverts, tremblants, et ils explosent ; fais-moi une dizaine d'animations que j'en valide quelques unes »).
+   Chaque animation est une fonction pure du temps t (secondes depuis son début) ; elle dessine avec les mêmes primitives que les yeux existants (dessiner, px) et tourne dans la scène « yeuxanim » (params : { id }). Elles ne sont PAS encore branchées sur le jeu : aperçu seulement, en attendant le choix de Norman.
+   DÉFAITES : explosion, spirale, larmes, tvoff (la télé s'éteint), chute. VICTOIRES : coeurs, etoiles, clin (clin d'œil étincelant). REPOS : mouche, colere (yeux rouges fumants). Animation réduite : yeux fixes, sans tremblement ni particules. */
+var ANIM_DUREES={explosion:5.4,spirale:5.6,larmes:6.8,tvoff:4.2,chute:5.0,coeurs:5.6,etoiles:5.2,clin:4.6,mouche:7.8,colere:5.8};
+var ANIM_IDS=['explosion','spirale','larmes','tvoff','chute','coeurs','etoiles','clin','mouche','colere'];
+function cl(id){var o=O[id];return o===undefined?O.BLA:o;}
+/* géométrie des deux yeux (la même que dessiner) */
+function geom(z,ox,oy){var P=paneau(),W=P.W,H=P.H,eh=Math.max(2.4,Math.max(6,Math.min(12,H-2))*z),ew=eh*1.2,gap=ew*0.9,a=ew/2,b=eh/2,y0=(H-eh)/2+(oy||0);
+  return {a:a,b:b,eh:eh,y0:y0,cy:y0+b-0.5,cx:[(W-1)/2-(gap/2+a)+(ox||0),(W-1)/2+(gap/2+a)+(ox||0)],W:W,H:H};}
+/* efface un point de la matrice (les formes creusées dans un œil allumé) */
+function creuser(x,y){var P=paneau();x=Math.round(x+(P.xoff||0));y=Math.round(y+P.yoff);if(x<0||y<0||x>=P.W||y>=P.YM)return;P.v[y*P.W+x]=0;}
+function ellipse(cx,cy,a,b,col,v,vide){var x,y,nx,ny;for(y=Math.floor(cy-b-1);y<=Math.ceil(cy+b+1);y++)for(x=Math.floor(cx-a-1);x<=Math.ceil(cx+a+1);x++){nx=(x-cx)/Math.max(0.5,a);ny=(y-cy)/Math.max(0.5,b);if(nx*nx+ny*ny<=1){if(vide)creuser(x,y);else px(x,y,col,v);}}}
+function coeur(cx,cy,s,col,v){var x,y,u,w;for(y=Math.floor(cy-s*1.2);y<=Math.ceil(cy+s*1.2);y++)for(x=Math.floor(cx-s*1.3);x<=Math.ceil(cx+s*1.3);x++){u=(x-cx)/s;w=-(y-cy)/s*1.05+0.15;if(Math.pow(u*u+w*w-1,3)-u*u*w*w*w<=0)px(x,y,col,v);}}
+function croix(x,y,r,col,v){var k;px(x,y,col,v);for(k=1;k<=r;k++){px(x-k,y,col,v*0.7);px(x+k,y,col,v*0.7);px(x,y-k,col,v*0.7);px(x,y+k,col,v*0.7);}}
+function etincelle(x,y,r,col,v){var k;croix(x,y,r,col,v);for(k=1;k<=Math.max(1,r-1);k++){px(x-k,y-k,col,v*0.45);px(x+k,y-k,col,v*0.45);px(x-k,y+k,col,v*0.45);px(x+k,y+k,col,v*0.45);}}
+/* 1. EXPLOSION (défaite) : yeux grands ouverts qui nous fixent, de plus en plus gros et tremblants, qui rougissent, puis explosent en pixels qui retombent */
+function aExplosion(t){
+  var P=paneau(),R=P.reduced,B=O.BLA;
+  if(t<2.7){
+    var u=clamp((t-0.35)/2.3,0,1),z=0.5+0.5*sm(clamp(t/0.45,0,1))+0.26*u,amp=R?0:(0.12+2.3*u*u),
+        ox=Math.round(Math.sin(t*(58+32*u))*amp),oy=Math.round(Math.sin(t*(49+22*u)+1)*amp*0.55),e=ex({ps:0.42-0.2*u,z:z,px:0,py:0});
+    if(u>0.72&&Math.floor(t*13)%2===0)e.col=cl('ROU');
+    dessiner(t,e,ox,oy,0,true);
+    return;
+  }
+  var u2=t-2.7,g=geom(1.26,0,0),i,x,y,id,dx,dy,vx,vy,al,d,r;
+  if(u2<0.14){for(i=0;i<2;i++)ellipse(g.cx[i],g.cy,g.a*1.08,g.b*1.08,B,255);return;}   /* éclair blanc */
+  for(i=0;i<2;i++){
+    if(u2<0.55){r=(u2-0.14)*52;for(y=0;y<P.H;y++)for(x=0;x<P.W;x++){d=Math.sqrt((x-g.cx[i])*(x-g.cx[i])+(y-g.cy)*(y-g.cy)*1.4);if(Math.abs(d-r)<0.9)px(x,y,cl('AMB'),210*(1-(u2-0.14)/0.41));}}   /* onde de choc */
+    for(y=Math.floor(g.cy-g.b-1);y<=Math.ceil(g.cy+g.b+1);y++)for(x=Math.floor(g.cx[i]-g.a-1);x<=Math.ceil(g.cx[i]+g.a+1);x++){
+      dx=(x-g.cx[i])/g.a;dy=(y-g.cy)/g.b;if(dx*dx+dy*dy>1)continue;
+      id=hash(x*31+y*17+i*7);vx=dx*(30+26*id)+(hash(id*91)-0.5)*16;vy=dy*(16+14*id)-9+(hash(id*53)-0.5)*14;
+      var uu=u2-0.1;al=255*clamp(1-uu/(1.0+id*1.3),0,1);if(al<=0)continue;
+      px(g.cx[i]+vx*uu,g.cy+vy*uu+0.5*26*uu*uu,id<0.28?cl('AMB'):id>0.86?cl('ROU'):B,al);
+    }
+  }
+}
+/* 2. SPIRALE (défaite) : yeux hypnotiques qui tournent, la tête qui tangue, des étoiles qui tournent autour */
+function aSpirale(t){
+  var P=paneau(),R=P.reduced,g=geom(1.0,R?0:Math.round(5*Math.sin(t*1.5)),R?0:Math.round(1.2*Math.sin(t*2.3))),i,th,n=0,r,fade=clamp(t/0.5,0,1)*clamp((5.6-t)/0.9,0,1),ph=R?0:t*5.2,k;
+  for(i=0;i<2;i++){
+    for(th=0;th<13.8;th+=0.1){
+      r=th/13.8;
+      px(g.cx[i]+Math.cos((i?-1:1)*(th+ph))*r*g.a,g.cy+Math.sin((i?-1:1)*(th+ph))*r*g.b,O.BLA,240*fade);
+    }
+  }
+  if(!R)for(k=0;k<3;k++){var an=t*3+k*2.09;etincelle(Math.round(P.W/2+Math.cos(an)*14),Math.round(g.y0-2+Math.sin(an)*2),1,cl('AMB'),230*fade);}
+}
+/* 3. LARMES (défaite) : yeux tristes qui se remplissent, des gouttes qui tombent et forment une flaque, les paupières se ferment */
+function aLarmes(t){
+  var P=paneau(),R=P.reduced,u=clamp(t/6.0,0,1),e=ex({lt:0.16+0.26*sm(u),tl:0.85,py:0.6,ps:1.15,z:0.9}),ferm=clamp((t-5.2)/1.4,0,1),g=geom(0.9,0,0),i,k,tk,y,f,nb=0,bas=P.H-2;
+  dessiner(t,e,0,0,ferm,true);
+  if(R)return;
+  for(i=0;i<2;i++)for(k=0;k<4;k++){
+    tk=0.9+k*1.15+i*0.55;f=t-tk;if(f<0||t>5.6)continue;
+    y=g.cy+g.b*0.75+0.5*9*f*f;
+    if(y<bas){px(g.cx[i]+(i?1:-1)*g.a*0.55,y,cl('BLE'),230);px(g.cx[i]+(i?1:-1)*g.a*0.55,y-1,cl('BLE'),130);}
+    else nb++;
+  }
+  if(nb>0){var w=2+nb*1.1,cx=P.W/2,x;for(x=Math.round(cx-w*2.4);x<=Math.round(cx+w*2.4);x++)px(x,P.H-1,cl('BLE'),150);}
+}
+/* 4. TV OFF (défaite) : les yeux s'aplatissent en un trait lumineux, qui se resserre en un point, puis s'éteint comme une vieille télé */
+function aTvOff(t){
+  var P=paneau(),g=geom(1.1,0,0),i,s,w,v;
+  if(t<0.9){dessiner(t,ex({ps:0.5,z:1.1}),0,0,0,true);return;}
+  for(i=0;i<2;i++){
+    if(t<1.5){s=1-sm((t-0.9)/0.6);ellipse(g.cx[i],g.cy,g.a*(1+0.35*(1-s)),Math.max(0.5,g.b*s),O.BLA,255);}
+    else if(t<2.3){w=1-sm((t-1.5)/0.8);ellipse(g.cx[i],g.cy,Math.max(0.5,g.a*1.35*w),0.5,O.BLA,255);}
+    else{v=255*clamp(1-(t-2.3)/1.2,0,1);if(v>0){px(g.cx[i],g.cy,O.BLA,v);px(g.cx[i]+1,g.cy,O.BLA,v*0.5);px(g.cx[i]-1,g.cy,O.BLA,v*0.5);}}
+  }
+}
+/* 5. CHUTE (défaite) : les yeux tombent, rebondissent deux fois au bas de l'écran en s'écrasant, puis se ferment */
+function aChute(t){
+  var P=paneau(),R=P.reduced,z=0.72,g=geom(z,0,0),sol=(P.H-1)-(g.y0+g.eh),oy=0,e=ex({z:z,py:1,ps:0.85}),imp=false;
+  if(t<0.7)e=ex({z:z,ps:0.5,py:0});
+  else if(!R){
+    var u=t-0.7,G=64,t1=Math.sqrt(2*sol/G);
+    if(u<t1)oy=0.5*G*u*u;
+    else{var v1=G*t1*0.46,tb=2*v1/G,u2=u-t1;
+      if(u2<tb){oy=sol-(v1*u2-0.5*G*u2*u2);}
+      else{var v2=v1*0.45,tb2=2*v2/G,u3=u2-tb;oy=u3<tb2?sol-(v2*u3-0.5*G*u3*u3):sol;}
+      if(u2<0.12||(u2>tb&&u2<tb+0.1))imp=true;
+    }
+    if(u<t1&&u>t1-0.06)imp=false;
+  }else oy=sol;
+  if(imp){e.lt=0.32;e.lb=0.32;e.tl=0.6;}
+  dessiner(t,e,0,Math.round(oy),clamp((t-3.6)/0.8,0,1),true);
+}
+/* 6. CŒURS (victoire) : des cœurs à la place des yeux, qui battent, et d'autres qui s'envolent */
+function aCoeurs(t){
+  var P=paneau(),R=P.reduced,g=geom(1.0,0,0),i,k,beat=R?0:Math.max(0,Math.sin(t*7.5))*Math.max(0,Math.sin(t*7.5)),s=g.b*1.1*(1+0.14*beat),fade=clamp(t/0.5,0,1)*clamp((5.6-t)/0.7,0,1),ph;
+  for(i=0;i<2;i++){coeur(g.cx[i],g.cy+0.5,s,cl('ROS'),245*fade);}
+  if(R)return;
+  for(k=0;k<6;k++){ph=((t*0.55+k*0.171)%1);coeur(P.W/2+Math.sin(k*2.3+t*1.1)*(14+k*3),g.y0+g.eh*0.5-ph*(P.H*0.9),1.1,cl('ROU'),210*Math.sin(ph*Math.PI)*fade);}
+}
+/* 7. ÉTOILES (victoire) : des yeux scintillants, une étoile à quatre branches qui tourne dans chaque œil, des étincelles autour */
+function aEtoiles(t){
+  var P=paneau(),R=P.reduced,z=R?1:0.95+0.07*Math.sin(t*5),g=geom(z,0,0),i,k,sc,an,x,y,fade=clamp(t/0.45,0,1)*clamp((5.2-t)/0.7,0,1);
+  for(i=0;i<2;i++){
+    ellipse(g.cx[i],g.cy,g.a,g.b,O.BLA,235*fade);
+    sc=g.b*0.82*(0.7+0.3*Math.sin(t*6+i));an=R?0:t*2.2*(i?-1:1);
+    for(k=0;k<8;k++){var lg=(k%2?0.55:1)*sc,aa=an+k*Math.PI/4;for(var m=0;m<=lg;m+=0.5)creuser(g.cx[i]+Math.cos(aa)*m,g.cy+Math.sin(aa)*m*0.95);}
+    creuser(g.cx[i],g.cy);
+  }
+  if(!R)for(k=0;k<7;k++){var ph=(t*1.3+k*0.29)%1,al=Math.sin(ph*Math.PI);if(al>0.2){x=P.W/2+Math.cos(k*2.1)*(10+k*5.2);y=g.y0+g.eh/2+Math.sin(k*3.3)*(g.b*1.7);etincelle(Math.round(x),Math.round(y),al>0.7?2:1,k%2?cl('AMB'):O.BLA,230*al*fade);}}
+}
+/* 8. CLIN D'ŒIL ÉTINCELANT (victoire) : un regard assuré, un clin d'œil de l'œil droit avec une étincelle, puis un second plus appuyé et le sourire des yeux */
+function aClin(t){
+  var P=paneau(),R=P.reduced,e=ex({ps:1,tl:-0.2,lt:0.08,z:0.9}),g=geom(0.9,0,0),wk=0,sp=0;
+  if(!R){
+    if(t>=0.5&&t<1.25){wk=1;sp=clamp((t-0.7)/0.55,0,1);}
+    else if(t>=2.3&&t<3.2){wk=1;sp=clamp((t-2.5)/0.7,0,1);}
+  }
+  if(t>=3.3){e=ex({sh:1,sp:1,z:0.92});}
+  else if(wk){e.clin=1;e.tl=-0.5;e.z=0.95;}
+  e.px=t<2.1&&t>1.3?0.7:0;
+  dessiner(t,e,0,0,0,true);
+  if(sp>0&&sp<1.001){var big=t<2?1:2,r=Math.round(big*(0.6+Math.sin(sp*Math.PI)*1.6)),ex2=Math.round(g.cx[1]+g.a+2),ey=Math.round(g.y0-0.5);etincelle(ex2,ey,r,O.BLA,255*Math.sin(sp*Math.PI));}
+}
+/* 9. MOUCHE (repos) : une mouche vole dans l'écran, les yeux la suivent, elle se pose entre les yeux qui louchent, SPLAT */
+function aMouche(t){
+  var P=paneau(),R=P.reduced,W=P.W,H=P.H,fx,fy,vis=true,e=ex({ps:0.95,z:0.86}),i,u,tt=R?0:t;
+  var ex0=W/2,ey0=H/2;
+  if(t<4.6){fx=ex0+Math.sin(tt*1.9)*W*0.36+Math.sin(tt*7.3)*2;fy=ey0+Math.sin(tt*2.6+1)*H*0.34+Math.sin(tt*9.1)*1.2;}
+  else if(t<5.9){u=sm((t-4.6)/1.3);var fx0=ex0+Math.sin(4.6*1.9)*W*0.36,fy0=ey0+Math.sin(4.6*2.6+1)*H*0.34;fx=fx0+(ex0-fx0)*u;fy=fy0+(ey0-fy0)*u;}
+  else{fx=ex0;fy=ey0;}
+  if(t>=6.35)vis=false;
+  e.px=clamp((fx-W/2)/(W*0.36),-1,1);e.py=clamp((fy-H/2)/(H*0.34),-1,1);
+  if(t>=4.9&&t<6.35){e.cross=1;e.px=0;e.py=0.2;e.lt=0.1;e.ps=0.85;}
+  if(t>=6.35){e=ex({sh:t>6.6?1:0,sp:t>6.6?1:0,z:0.9});if(t<6.6)e.lb=0.2;}
+  dessiner(t,e,0,0,(t>=6.3&&t<6.45)?1:0,true);
+  if(vis&&!R){px(fx,fy,cl('AMB'),255);var f2=Math.floor(t*40)%2;px(fx-1,fy-1+f2,O.BLA,160);px(fx+1,fy-1+f2,O.BLA,160);}
+  else if(vis)px(fx,fy,cl('AMB'),255);
+  if(t>=6.35&&t<7.0&&!R){var q=(t-6.35)/0.65,k;for(k=0;k<5;k++){var an=k*1.256+0.4;px(ex0+Math.cos(an)*q*7,ey0+Math.sin(an)*q*4,cl('AMB'),220*(1-q));}}
+}
+/* 10. COLÈRE FUMANTE (repos) : yeux rouges qui se plissent, tremblent de plus en plus, de la fumée qui monte et un signe de colère qui bat */
+function aColere(t){
+  var P=paneau(),R=P.reduced,u=clamp(t/4.6,0,1),fade=clamp((5.8-t)/0.7,0,1),z=0.9+0.28*u,amp=R?0:0.2+1.3*u*u,
+      e=ex({lt:0.22,tl:-0.9,ps:0.9-0.5*u,z:z,py:0.1,col:cl('ROU')}),ox=Math.round(Math.sin(t*(48+20*u))*amp),g=geom(z,ox,0),i,k,ph,al;
+  e.col=cl('ROU');
+  dessiner(t,e,ox,0,t>5.2?clamp((t-5.2)/0.4,0,1)*0.5:0,true);
+  if(R)return;
+  for(i=0;i<2;i++)for(k=0;k<4;k++){
+    ph=((t*0.7+k*0.25+i*0.13)%1);al=Math.sin(ph*Math.PI)*u*fade;if(al<=0.05)continue;
+    var x=g.cx[i]+(i?1:-1)*(g.a*0.4)+Math.sin(ph*6+k)*2.2,y=g.y0-1-ph*(P.H*0.42);
+    px(x,y,O.BLA,200*al);px(x+1,y,O.BLA,150*al);px(x,y-1,O.BLA,120*al);
+  }
+  var bat=Math.max(0,Math.sin(t*9))*u;if(u>0.3)croix(Math.round(P.W/2+g.a*2.6),Math.round(g.y0+0.5),1+(bat>0.5?1:0),cl('ROU'),255*fade);
+}
+function anim(id,t){var f={explosion:aExplosion,spirale:aSpirale,larmes:aLarmes,tvoff:aTvOff,chute:aChute,coeurs:aCoeurs,etoiles:aEtoiles,clin:aClin,mouche:aMouche,colere:aColere}[id];if(f)f(t);}
+/* scène de l'aperçu (et du jeu plus tard) : params { id } ; enregistrée dans la table des scènes de la borne dès que ce module est chargé par elle. */
+if(O.SC&&!O.SC.yeuxanim)O.SC.yeuxanim={fn:function(t){anim(paneau().p.id||"clin",t);},dur:function(p){return ANIM_DUREES[p.id]||5;},prio:5,cap:1.0};
 /* Inactivité : instant du dernier clic / touche / toucher (au chargement : maintenant, donc jamais d'yeux dans les premières secondes) ; yeuxAt : une apparition toutes les 22 à 48 s au plus. */
 var dernierClic=(window.performance&&performance.now)?performance.now():0,yeuxAt=0;
 (function(){var f=function(){dernierClic=(window.performance&&performance.now)?performance.now():0;};try{window.addEventListener('pointerdown',f,true);window.addEventListener('keydown',f,true);window.addEventListener('touchstart',f,true);}catch(_e){}})();
 function du(now,combat){return !combat&&now-dernierClic>=YEUX_INACTIF_MS&&now>=yeuxAt;}
 function lancer(now){yeuxAt=now+YEUX_PAUSE_MIN_MS+Math.random()*YEUX_PAUSE_ALEA_MS;return yeuxParams();}
-return {scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
+return {anim:anim,animIds:ANIM_IDS,animDuree:function(id){return ANIM_DUREES[id]||5;},scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
 };
 })();

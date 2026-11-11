@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Les barres d’énergie et de magie du haut ne clignotent plus quand tu dépenses tout d’un coup : elles ne disparaissent que si elles restent vraiment vides (plus de flash du fond ni des écritures).",
     "La page ne fait plus de petit saut quand une barre d’énergie ou de magie du bandeau se vide : la barre s’efface en fondu mais garde sa place.",
     "Dans un défi, les récompenses parlent maintenant de labos au lieu de Diggers (bonus global des labos, emplacement de labo)."
   ] };

@@ -63,7 +63,8 @@
     if(vide){
       if(!videDepuis[cle])videDepuis[cle]=maintenant;
       /* Instantané (Norman, 2026-11-01 : « les barres d'énergie et de magie disparaissent instantanément quand on n'en a plus et réapparaissent instantanément quand on en récupère ») : plus de délai de 1,2 s ni de 0,7 s. */
-      if(true){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');}
+      /* Délai de 0,6 s avant de masquer (Norman, 2026-11-11 : « quand on clique sur Au maximum des labos, les barres du haut clignotent, le fond et les écritures ») : une dépense totale met l'énergie à 0 tout de suite, puis la réponse du serveur en rend 0,3 s plus tard ; sans délai la barre disparaissait puis revenait. Elle ne disparaît que si elle reste vide. */
+      if(maintenant-videDepuis[cle]>=600){panneau.classList.add('soreal-idle-vide-v2');panneau.classList.remove('soreal-idle-superpose-v2');panneau.style.removeProperty('margin-bottom');panneau.style.removeProperty('transform');}
       pleinDepuis[cle]=0;
     }else{
       videDepuis[cle]=0;
