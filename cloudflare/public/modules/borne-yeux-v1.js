@@ -115,6 +115,7 @@ function zoomRepos(t,dur,ze){
 }
 function sYeux(t){
   var P=paneau(),p=P.p,seq=p.seq||['neutre','neutre'];
+  if(p.id){anim(p.id,t);return;}   /* animation nommée (la mouche, après 2 minutes sur Fight Boss) */
   var e=P.reduced?YEUX_EXPR.neutre(0):yeuxEtat(t,seq),bk=P.reduced?0:clignement(t,0.9),dur=p.dur||8;
   e.z=P.reduced?1:zoomRepos(t,dur,e.z===undefined?0.84:e.z);
   dessiner(t,e,0,0,bk);
@@ -167,6 +168,7 @@ function sCombat(t){
   st.t=t;
   if(st.pj>=0&&st.pj-pj>=0.03)st.coup=t;
   st.pj=pj;
+  var ce=P.reduced?-1:colereEp(t,S&&S.num||1);if(ce>=0&&vie>0.08&&(ce>0.5||pj>=0.25)){aColere(ce);return;}   /* de temps en temps pendant un combat long : la colère monte (14 s) puis retombe */
   var cible=humeur(t,pp,vie,pj,pp.issue,st);
   /* le regard : le bout de la barre de vie du boss (en bas de l'écran) ; de temps en temps un coup d'œil vers la vie du joueur (en haut à gauche), puis de nouveau la barre */
   if(st.serreT===undefined||t-st.serreT>0.5||t<st.serreT){st.serreT=t;st.serre=typeof O.serre==='function'?Boolean(O.serre()):false;}
@@ -187,7 +189,11 @@ function sCombat(t){
   dessiner(t,o,Math.round(g),0,ferm,true);
 }
 /* ---------------------------------------------------------------- la FIN du combat : arcs heureux et étincelles (victoire) ou croix (défaite) */
-function sFin(t,issue){
+/* animation de fin choisie une fois par combat (au hasard dans la liste de l'issue) et gardée dans les paramètres de la scène */
+function choixFin(p,issue){if(!p.yf){var l=issue==='ko'?FIN_DEFAITE:FIN_VICTOIRE;p.yf=l[Math.floor(Math.random()*l.length)];}return p.yf;}
+function finDuree(p,issue){return ANIM_DUREES[choixFin(p,issue)]||2.6;}
+function sFin(t,issue,p){
+  if(p){anim(choixFin(p,issue),t);return;}
   var P=paneau(),sh=P.reduced?0:Math.sin(t*70);
   if(issue==='ko'){
     if(t<0.3){dessiner(t,ex({ps:0.35,z:P.reduced?1:1.0}),0,0,0,true);return;}                      /* le choc : yeux grands, pupilles minuscules */
@@ -202,8 +208,10 @@ function sFin(t,issue){
 /* ---------------------------------------------------------------- DIX NOUVELLES ANIMATIONS DES YEUX (Norman, 2026-11-11 : « d'autres animations pour les yeux de la borne ; par exemple quand on perd, ses yeux nous regardent grand ouverts, tremblants, et ils explosent ; fais-moi une dizaine d'animations que j'en valide quelques unes »).
    Chaque animation est une fonction pure du temps t (secondes depuis son début) ; elle dessine avec les mêmes primitives que les yeux existants (dessiner, px) et tourne dans la scène « yeuxanim » (params : { id }). Elles ne sont PAS encore branchées sur le jeu : aperçu seulement, en attendant le choix de Norman.
    DÉFAITES : explosion, spirale, larmes, tvoff (la télé s'éteint), chute. VICTOIRES : coeurs, etoiles, clin (clin d'œil étincelant). REPOS : mouche, colere (yeux rouges fumants). Animation réduite : yeux fixes, sans tremblement ni particules. */
-var ANIM_DUREES={explosion:5.4,spirale:5.6,larmes:6.8,tvoff:4.2,chute:5.0,coeurs:5.6,etoiles:5.2,clin:4.6,mouche:7.8,colere:5.8};
-var ANIM_IDS=['explosion','spirale','larmes','tvoff','chute','coeurs','etoiles','clin','mouche','colere'];
+var COLERE_DUR=17;
+var ANIM_DUREES={explosion:5.4,spirale:5.6,larmes:6.8,tvoff:4.2,chute:5.0,coeurs:6.2,etoiles:5.4,mouche:7.8,colere:COLERE_DUR};
+var ANIM_IDS=['explosion','spirale','larmes','tvoff','chute','coeurs','etoiles','mouche','colere'];
+var FIN_DEFAITE=['explosion','spirale','larmes','tvoff','chute'],FIN_VICTOIRE=['coeurs','etoiles'];   /* choix de Norman (2026-11-11) : 1 à 5 quand on perd un combat, 6 et 7 quand on gagne ; 8 (clin d'œil) refusé ; 9 (mouche) : page Fight Boss après 2 min sans rien faire ; 10 (colère) : de temps en temps pendant un combat long */
 function cl(id){var o=O[id];return o===undefined?O.BLA:o;}
 /* géométrie des deux yeux (la même que dessiner) */
 function geom(z,ox,oy){var P=paneau(),W=P.W,H=P.H,eh=Math.max(2.4,Math.max(6,Math.min(12,H-2))*z),ew=eh*1.2,gap=ew*0.9,a=ew/2,b=eh/2,y0=(H-eh)/2+(oy||0);
@@ -287,36 +295,29 @@ function aChute(t){
   if(imp){e.lt=0.32;e.lb=0.32;e.tl=0.6;}
   dessiner(t,e,0,Math.round(oy),clamp((t-3.6)/0.8,0,1),true);
 }
-/* 6. CŒURS (victoire) : des cœurs à la place des yeux, qui battent, et d'autres qui s'envolent */
+/* 6. CŒURS (victoire) : les yeux, d'abord normaux et fixés sur nous, se TRANSFORMENT peu à peu en cœurs (le globe fond pendant que le cœur naît dans l'œil, grandit, passe du blanc au rose, avec un petit rebond), puis les cœurs battent et d'autres s'envolent (Norman : « il faut une transformation de l'œil en cœur, pas en une seule image ») */
 function aCoeurs(t){
-  var P=paneau(),R=P.reduced,g=geom(1.0,0,0),i,k,beat=R?0:Math.max(0,Math.sin(t*7.5))*Math.max(0,Math.sin(t*7.5)),s=g.b*1.1*(1+0.14*beat),fade=clamp(t/0.5,0,1)*clamp((5.6-t)/0.7,0,1),ph;
-  for(i=0;i<2;i++){coeur(g.cx[i],g.cy+0.5,s,cl('ROS'),245*fade);}
-  if(R)return;
-  for(k=0;k<6;k++){ph=((t*0.55+k*0.171)%1);coeur(P.W/2+Math.sin(k*2.3+t*1.1)*(14+k*3),g.y0+g.eh*0.5-ph*(P.H*0.9),1.1,cl('ROU'),210*Math.sin(ph*Math.PI)*fade);}
+  var P=paneau(),R=P.reduced,g=geom(1.0,0,0),i,k,fade=clamp((6.2-t)/0.7,0,1),m=R?1:sm(clamp((t-0.9)/1.8,0,1)),
+      beat=(R||m<1)?0:Math.pow(Math.max(0,Math.sin((t-2.7)*7.5)),2),s=g.b*1.1*(1+0.14*beat)*(0.22+0.78*m+0.2*Math.sin(m*Math.PI)),ph;
+  if(t<0.9&&!R){dessiner(t,ex({ps:0.9,z:1.0}),0,0,0,true);return;}
+  for(i=0;i<2;i++){
+    if(m<1)ellipse(g.cx[i],g.cy,g.a*(1-0.5*m),g.b*(1-0.5*m),O.BLA,235*(1-m)*fade);
+    coeur(g.cx[i],g.cy+0.5*m,s,cl('ROS'),(70+175*m)*fade);
+  }
+  if(R||t<2.6)return;
+  for(k=0;k<6;k++){ph=(((t-2.6)*0.55+k*0.171)%1);coeur(P.W/2+Math.sin(k*2.3+t*1.1)*(14+k*3),g.y0+g.eh*0.5-ph*(P.H*0.9),1.1,cl('ROU'),210*Math.sin(ph*Math.PI)*fade);}
 }
-/* 7. ÉTOILES (victoire) : des yeux scintillants, une étoile à quatre branches qui tourne dans chaque œil, des étincelles autour */
+/* 7. ÉTOILES (victoire) : des yeux scintillants ; la pupille se change peu à peu en étoile à quatre branches qui tourne, des étincelles autour */
 function aEtoiles(t){
-  var P=paneau(),R=P.reduced,z=R?1:0.95+0.07*Math.sin(t*5),g=geom(z,0,0),i,k,sc,an,x,y,fade=clamp(t/0.45,0,1)*clamp((5.2-t)/0.7,0,1);
+  var P=paneau(),R=P.reduced,z=R?1:0.95+0.07*Math.sin(t*5),g=geom(z,0,0),i,k,sc,an,x,y,fade=clamp(t/0.45,0,1)*clamp((5.4-t)/0.7,0,1),gr=R?1:sm(clamp((t-0.8)/0.9,0,1));
+  if(t<0.8&&!R){dessiner(t,ex({ps:0.9,z:0.95}),0,0,0,true);return;}
   for(i=0;i<2;i++){
     ellipse(g.cx[i],g.cy,g.a,g.b,O.BLA,235*fade);
-    sc=g.b*0.82*(0.7+0.3*Math.sin(t*6+i));an=R?0:t*2.2*(i?-1:1);
+    sc=g.b*0.82*(0.7+0.3*Math.sin(t*6+i))*gr;an=R?0:t*2.2*(i?-1:1);
     for(k=0;k<8;k++){var lg=(k%2?0.55:1)*sc,aa=an+k*Math.PI/4;for(var m=0;m<=lg;m+=0.5)creuser(g.cx[i]+Math.cos(aa)*m,g.cy+Math.sin(aa)*m*0.95);}
     creuser(g.cx[i],g.cy);
   }
-  if(!R)for(k=0;k<7;k++){var ph=(t*1.3+k*0.29)%1,al=Math.sin(ph*Math.PI);if(al>0.2){x=P.W/2+Math.cos(k*2.1)*(10+k*5.2);y=g.y0+g.eh/2+Math.sin(k*3.3)*(g.b*1.7);etincelle(Math.round(x),Math.round(y),al>0.7?2:1,k%2?cl('AMB'):O.BLA,230*al*fade);}}
-}
-/* 8. CLIN D'ŒIL ÉTINCELANT (victoire) : un regard assuré, un clin d'œil de l'œil droit avec une étincelle, puis un second plus appuyé et le sourire des yeux */
-function aClin(t){
-  var P=paneau(),R=P.reduced,e=ex({ps:1,tl:-0.2,lt:0.08,z:0.9}),g=geom(0.9,0,0),wk=0,sp=0;
-  if(!R){
-    if(t>=0.5&&t<1.25){wk=1;sp=clamp((t-0.7)/0.55,0,1);}
-    else if(t>=2.3&&t<3.2){wk=1;sp=clamp((t-2.5)/0.7,0,1);}
-  }
-  if(t>=3.3){e=ex({sh:1,sp:1,z:0.92});}
-  else if(wk){e.clin=1;e.tl=-0.5;e.z=0.95;}
-  e.px=t<2.1&&t>1.3?0.7:0;
-  dessiner(t,e,0,0,0,true);
-  if(sp>0&&sp<1.001){var big=t<2?1:2,r=Math.round(big*(0.6+Math.sin(sp*Math.PI)*1.6)),ex2=Math.round(g.cx[1]+g.a+2),ey=Math.round(g.y0-0.5);etincelle(ex2,ey,r,O.BLA,255*Math.sin(sp*Math.PI));}
+  if(!R&&gr>0.6)for(k=0;k<7;k++){var ph=(t*1.3+k*0.29)%1,al=Math.sin(ph*Math.PI);if(al>0.2){x=P.W/2+Math.cos(k*2.1)*(10+k*5.2);y=g.y0+g.eh/2+Math.sin(k*3.3)*(g.b*1.7);etincelle(Math.round(x),Math.round(y),al>0.7?2:1,k%2?cl('AMB'):O.BLA,230*al*fade);}}
 }
 /* 9. MOUCHE (repos) : une mouche vole dans l'écran, les yeux la suivent, elle se pose entre les yeux qui louchent, SPLAT */
 function aMouche(t){
@@ -334,28 +335,39 @@ function aMouche(t){
   else if(vis)px(fx,fy,cl('AMB'),255);
   if(t>=6.35&&t<7.0&&!R){var q=(t-6.35)/0.65,k;for(k=0;k<5;k++){var an=k*1.256+0.4;px(ex0+Math.cos(an)*q*7,ey0+Math.sin(an)*q*4,cl('AMB'),220*(1-q));}}
 }
-/* 10. COLÈRE FUMANTE (repos) : yeux rouges qui se plissent, tremblent de plus en plus, de la fumée qui monte et un signe de colère qui bat */
+/* 10. COLÈRE FUMANTE (pendant un combat long, de temps en temps) : une montée de l'énervement LONGUE (14 s) puis 3 s de retombée. Yeux d'abord blancs et plissés, ils passent à l'orange puis au rouge, de plus en plus gros et tremblants ; de la fumée monte, un signe de colère bat de plus en plus vite ; au sommet les yeux clignotent rouge et blanc ; puis ça retombe. */
 function aColere(t){
-  var P=paneau(),R=P.reduced,u=clamp(t/4.6,0,1),fade=clamp((5.8-t)/0.7,0,1),z=0.9+0.28*u,amp=R?0:0.2+1.3*u*u,
-      e=ex({lt:0.22,tl:-0.9,ps:0.9-0.5*u,z:z,py:0.1,col:cl('ROU')}),ox=Math.round(Math.sin(t*(48+20*u))*amp),g=geom(z,ox,0),i,k,ph,al;
-  e.col=cl('ROU');
-  dessiner(t,e,ox,0,t>5.2?clamp((t-5.2)/0.4,0,1)*0.5:0,true);
+  var P=paneau(),R=P.reduced,up=clamp(t/14,0,1),cool=clamp((t-14)/(COLERE_DUR-14),0,1),u=up*(1-cool),z=0.86+0.36*u,amp=R?0:(u<0.3?0:Math.pow((u-0.3)/0.7,2)*2.4),
+      e=ex({lt:0.06+0.2*clamp(u*2,0,1),tl:-0.95*clamp(u*1.5,0,1),ps:0.95-0.55*u,z:z,py:0.12}),ox=R?0:Math.round(Math.sin(t*(30+30*u))*amp),g=geom(z,ox,0),i,k,ph,al,x,y;
+  e.col=u<0.22?O.BLA:u<0.5?cl('AMB'):cl('ROU');
+  if(!R&&u>0.88&&Math.floor(t*12)%2===0)e.col=O.BLA;
+  dessiner(t,e,ox,0,cool>0.7?(cool-0.7)/0.3*0.6:0,true);
   if(R)return;
   for(i=0;i<2;i++)for(k=0;k<4;k++){
-    ph=((t*0.7+k*0.25+i*0.13)%1);al=Math.sin(ph*Math.PI)*u*fade;if(al<=0.05)continue;
-    var x=g.cx[i]+(i?1:-1)*(g.a*0.4)+Math.sin(ph*6+k)*2.2,y=g.y0-1-ph*(P.H*0.42);
+    ph=((t*0.7+k*0.25+i*0.13)%1);al=Math.sin(ph*Math.PI)*clamp((u-0.18)*1.7,0,1);if(al<=0.05)continue;
+    x=g.cx[i]+(i?1:-1)*(g.a*0.4)+Math.sin(ph*6+k)*2.2;y=g.y0-1-ph*(P.H*0.42);
     px(x,y,O.BLA,200*al);px(x+1,y,O.BLA,150*al);px(x,y-1,O.BLA,120*al);
   }
-  var bat=Math.max(0,Math.sin(t*9))*u;if(u>0.3)croix(Math.round(P.W/2+g.a*2.6),Math.round(g.y0+0.5),1+(bat>0.5?1:0),cl('ROU'),255*fade);
+  if(u>0.5){var bat=Math.max(0,Math.sin(t*(5+u*9)));croix(Math.round(P.W/2+g.a*2.6),Math.round(g.y0+0.5),1+(bat>0.5?1:0),cl('ROU'),255);}
 }
-function anim(id,t){var f={explosion:aExplosion,spirale:aSpirale,larmes:aLarmes,tvoff:aTvOff,chute:aChute,coeurs:aCoeurs,etoiles:aEtoiles,clin:aClin,mouche:aMouche,colere:aColere}[id];if(f)f(t);}
+/* épisodes de colère pendant un combat : fonction PURE du temps de combat t et du numéro du boss (aucun état, donc elle reprend où elle en était si un coup ou un objet interrompt la scène) ; le premier 24 à 38 s après le début, puis un tous les 62 à 92 s ; renvoie le temps dans l'épisode (0..COLERE_DUR) ou -1. */
+function colereEp(t,n){
+  var t0=24+14*hash(n*1.7),per=COLERE_DUR+45+30*hash(n*2.9),k,u;
+  if(t<t0)return -1;
+  k=Math.floor((t-t0)/per);u=t-t0-k*per;
+  return u<COLERE_DUR?u:-1;
+}
+function anim(id,t){var f={explosion:aExplosion,spirale:aSpirale,larmes:aLarmes,tvoff:aTvOff,chute:aChute,coeurs:aCoeurs,etoiles:aEtoiles,mouche:aMouche,colere:aColere}[id];if(f)f(t);}
 /* scène de l'aperçu (et du jeu plus tard) : params { id } ; enregistrée dans la table des scènes de la borne dès que ce module est chargé par elle. */
-if(O.SC&&!O.SC.yeuxanim)O.SC.yeuxanim={fn:function(t){anim(paneau().p.id||"clin",t);},dur:function(p){return ANIM_DUREES[p.id]||5;},prio:5,cap:1.0};
+if(O.SC&&!O.SC.yeuxanim)O.SC.yeuxanim={fn:function(t){anim(paneau().p.id||"coeurs",t);},dur:function(p){return ANIM_DUREES[p.id]||5;},prio:5,cap:1.0};
 /* Inactivité : instant du dernier clic / touche / toucher (au chargement : maintenant, donc jamais d'yeux dans les premières secondes) ; yeuxAt : une apparition toutes les 22 à 48 s au plus. */
 var dernierClic=(window.performance&&performance.now)?performance.now():0,yeuxAt=0;
 (function(){var f=function(){dernierClic=(window.performance&&performance.now)?performance.now():0;};try{window.addEventListener('pointerdown',f,true);window.addEventListener('keydown',f,true);window.addEventListener('touchstart',f,true);}catch(_e){}})();
+/* La mouche (Norman, 2026-11-11) : sur la page Fight Boss, 2 minutes sans rien faire ; ensuite une fois toutes les 2 minutes si rien n'est fait. */
+var moucheAt=0;
+function moucheDu(now,menu){return menu==='combat'&&now-dernierClic>=120000&&now>=moucheAt&&(moucheAt=now+120000,true);}
 function du(now,combat){return !combat&&now-dernierClic>=YEUX_INACTIF_MS&&now>=yeuxAt;}
 function lancer(now){yeuxAt=now+YEUX_PAUSE_MIN_MS+Math.random()*YEUX_PAUSE_ALEA_MS;return yeuxParams();}
-return {anim:anim,animIds:ANIM_IDS,animDuree:function(id){return ANIM_DUREES[id]||5;},scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
+return {anim:anim,animIds:ANIM_IDS,finDuree:finDuree,mouche:moucheDu,colereEp:colereEp,animDuree:function(id){return ANIM_DUREES[id]||5;},scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
 };
 })();

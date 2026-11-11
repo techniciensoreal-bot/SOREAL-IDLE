@@ -35,6 +35,9 @@
             'Tous les textes du jeu changent de police : fini l’écriture « traitement de texte », place à une police de jeu vidéo plus nette et plus lisible, la même que celle des Chroniques et des Réglages.',
             'Les Réglages sont entièrement refaits, dans un style jeu vidéo : plaques d’acier colorées pour chaque catégorie (Mon jeu, Profil, Audio, Affichage, Ma partie, Infos), cadres, icônes dessinées, interrupteurs à levier, curseurs de volume et gros boutons lisibles. Le son et l’image sont maintenant deux catégories séparées, et les sections de test de développement ont disparu.'
           ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Les yeux de la borne ont de nouvelles animations. Quand tu perds un combat, ils jouent au hasard l’une de ces fins : explosion, spirale hypnotique, larmes, télé qui s’éteint ou chute. Quand tu gagnes : les yeux se transforment en cœurs ou en étoiles. Pendant un long combat ils peuvent s’énerver, avec une colère qui monte lentement. Et après deux minutes sans rien faire sur le combat de boss, une mouche vient les embêter.'
+          ]},
           {menu:'challenges', titre:'Défis', points:[
             'Dans un défi, les récompenses parlent maintenant de labos au lieu de Diggers (bonus global des labos, emplacement de labo).'
           ]},

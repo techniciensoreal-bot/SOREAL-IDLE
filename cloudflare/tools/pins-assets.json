@@ -112,12 +112,12 @@
   "sha": "21cbbadf75dc045c9cacd3bb1324a99a6054f644"
  },
  "/modules/borne-led-v1.js": {
-  "pin": 182,
-  "sha": "33c92930d374a7dcd23f9b1b0e7bc81628708515"
+  "pin": 183,
+  "sha": "ca90658596c95b201de4cd1ae98d57b90fab099c"
  },
  "/modules/borne-yeux-v1.js": {
-  "pin": 15,
-  "sha": "140af57afcdefa544e6d463a1aceca87dc4accf3"
+  "pin": 17,
+  "sha": "38943f61232064b889de6f5542c1c9bbda8802ae"
  },
  "/modules/boss-reveal-v1.js": {
   "pin": 2,
@@ -656,12 +656,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 278,
-  "sha": "4621e1bbf085c369d25bafdd67e84066e6fe3737"
+  "pin": 279,
+  "sha": "a379d88c19c3b6f86480b90e2daaf6a4dfcd49d1"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 920,
-  "sha": "4acbbb07fbb9416e0982aa5bcbbf5bb06d423ab9"
+  "pin": 921,
+  "sha": "6ca39ede24ab3f46222a6db559d145ddbb489e4f"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -756,12 +756,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 958,
-  "sha": "fd864bb59a2f46a2dfc0626060a01796c1fd312f"
+  "pin": 959,
+  "sha": "a222024347fc9b229f5265634aeaaff25d5a676c"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 779,
-  "sha": "b56a8b9a5de81580a55a6ef31021045a01ad062e"
+  "pin": 780,
+  "sha": "a3539637469184c04138a0552070b118d35c10ec"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

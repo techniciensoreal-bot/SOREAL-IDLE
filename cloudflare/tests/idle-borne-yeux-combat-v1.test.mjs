@@ -111,6 +111,6 @@ function monde(serre) {
 const led = fs.readFileSync("cloudflare/public/modules/borne-led-v1.js", "utf8");
 assert.ok(led.includes("yeuxcb:{fn:function(t){var Y=yeuxMod();if(Y)Y.combat(t);},dur:9,prio:0,cap:1.0}"), "scène de combat enregistrée");
 assert.ok(led.includes("if(animChoisie==='yeuxcb'||pr.secondes>=ANIM_DUREE_MIN_S||serreV1(pr))"), "les yeux apparaissent à CHAQUE combat, court ou long");
-assert.ok(led.includes("Yw.fin(t,'win')") && led.includes("Yk.fin(t,'ko')"), "victoire et défaite commencent par les yeux (arcs / croix) puis le message habituel");
+assert.ok(led.includes("Yw.fin(t,'win',P.p)") && led.includes("Yk.fin(t,'ko',P.p)"), "victoire et défaite commencent par les yeux (arcs / croix) puis le message habituel");
 assert.ok(led.includes("S:function(){return S;}"), "le module lit l'état du jeu (vie du boss, vie du joueur)");
 console.log("idle-borne-yeux-combat-v1: OK");
