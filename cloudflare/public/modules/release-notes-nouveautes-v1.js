@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "L’image de l’« emplacement de labo » dans la boutique est maintenant une fiole au lieu d’une pelle."
+    "L’écran du monstre de la Machine temporelle est maintenant en couleurs, avec l’aspect d’une vraie télé cathodique : couleurs un peu délavées, image légèrement floue, petits points rouges, verts et bleus, lignes de balayage, coins arrondis et bords sombres, plus les interférences."
   ] };
 })();

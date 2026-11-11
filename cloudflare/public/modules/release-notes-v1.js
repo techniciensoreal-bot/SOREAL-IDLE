@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.5',
+    courante:'5.6',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'5.6',
+        nom:'Une télé d’un autre temps',
+        date:'2026-11-11',
+        groupes:[
+          {menu:'machine', titre:'Machine temporelle', points:[
+            'L’écran du monstre de la Machine temporelle est maintenant en couleurs, avec l’aspect d’une vraie télé cathodique : couleurs un peu délavées, image légèrement floue, petits points rouges, verts et bleus, lignes de balayage, coins arrondis et bords sombres, plus les interférences.'
+          ]}
+        ]
+      },
       {
         version:'5.5',
         nom:'Une version sans fausse alerte',

@@ -18,7 +18,7 @@ assert.ok(css.includes("/machine-v3/centre.webp") && css.includes("/machine-v3/t
 assert.ok(css.includes("grid-template-columns:576fr 762fr 580fr"), "colonnes proportionnelles aux largeurs d'origine (même hauteur)");
 /* Écran de télé noir et blanc (Norman, 2026-11-10, remplace le voile vert et la bande lumineuse du 2026-11-07) : image en gris qui remplit tout le cadre, interférences (bandes qui décalent l'image), grain, lignes de balayage, vignette ; tout par transform / opacity */
 assert.ok(css.includes(".tmm-ecran-mob") && css.includes("tmmBalayage") && css.includes("repeating-linear-gradient(0deg,rgba(0,0,0,.34)"), "effet d'écran sur le mob (lignes de balayage, vignette, bande)");
-assert.ok(css.includes("filter:grayscale(1)"), "l'écran est en noir et blanc");
+assert.ok(!css.includes("grayscale(1)") && css.includes("saturate(.82)") && css.includes("rgba(255,40,40,.13)"), "l'écran est en couleurs, avec le masque rouge-vert-bleu d'une télé cathodique (2026-11-11)");
 assert.ok(css.includes(".tmm-tv-img{") && css.includes("object-fit:cover"), "l'image remplit tout le cadre");
 for (const k of ["tmmTvBandeE", "tmmTvBandeI", "tmmTvDecal", "tmmTvGrain", "tmmTvScintille"]) assert.ok(css.includes("@keyframes " + k), "interférence : " + k);
 assert.ok(!css.includes("@keyframes tmmScintille{"), "l'ancien effet (voile vert) est remplacé");
