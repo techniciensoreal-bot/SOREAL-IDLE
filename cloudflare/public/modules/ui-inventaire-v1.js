@@ -510,6 +510,18 @@
               :'';
           }).filter(Boolean)
         );
+        /* Filtre de butin depuis les Chroniques (Norman, 2026-11-11 : « on doit pouvoir filtrer les objets qui tombent en aventure via cette page, et les boosts aussi »). Le MÊME bouton, la MÊME liste (lootItems, globale) et la même action que le Coffre : cocher ici ou dans le Coffre revient au même. Il n'existe qu'une fois le filtre amélioré acheté et seulement sur les objets déjà découverts (cette page ne montre que ceux-là) ; pas sur les consommables (le Coffre ne les propose pas non plus). Un boost filtré est versé dans le Cube si « Filter Boosts into Infinity Cube! » est acheté et le Cube débloqué (moteur, disposeFilteredV1). */
+        const iaFiltreCh=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.inventoryAuto;
+        const filtreAmelioreCh=Boolean(iaFiltreCh&&iaFiltreCh.unlocked&&iaFiltreCh.unlocked.lootFilterImproved);
+        const defsFiltreesCh=filtreAmelioreCh&&iaFiltreCh.lootFilter&&Array.isArray(iaFiltreCh.lootFilter.items)?iaFiltreCh.lootFilter.items.map(String):[];
+        const boostVersCubeCh=Boolean(iaFiltreCh&&iaFiltreCh.unlocked&&iaFiltreCh.unlocked.filterBoostsIntoCube&&cube&&cube.unlocked);
+        function boutonFiltreChroniquesV1_(id,boost){
+          if(!filtreAmelioreCh)return '';
+          const filtre=defsFiltreesCh.indexOf(String(id))!==-1;
+          const infoBoost=boost?(boostVersCubeCh?' Il part directement dans le Cube.':' Il est détruit (sans l’option du Cube, il n’est pas versé dans le Cube).'):'';
+          return '<button type="button" class="soreal-idle-coffre-filtre-v1'+(filtre?' actif':'')+'" title="'+(filtre?'Filtré : cet objet n’est plus ramassé. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet.'+infoBoost)+'" onclick="event.stopPropagation();window.__filtrerObjetCoffreIdleV1__(\''+idleHtml_(String(id))+'\',this)">'+(filtre?'🚫':'🧹')+'</button>';
+        }
+
         const idsEquipementToutes=Object.keys(catalog).filter(function(id){
           const def=catalog[id];
           if(!def)return false;
@@ -530,18 +542,6 @@
           const ca=ORDRE_COULEUR_BOOST_V1[ma[1]],cb=ORDRE_COULEUR_BOOST_V1[mb[1]];
           return (ca===undefined?9:ca)-(cb===undefined?9:cb);
         });
-
-        /* Filtre de butin depuis les Chroniques (Norman, 2026-11-11 : « on doit pouvoir filtrer les objets qui tombent en aventure via cette page, et les boosts aussi »). Le MÊME bouton, la MÊME liste (lootItems, globale) et la même action que le Coffre : cocher ici ou dans le Coffre revient au même. Il n'existe qu'une fois le filtre amélioré acheté et seulement sur les objets déjà découverts (cette page ne montre que ceux-là) ; pas sur les consommables (le Coffre ne les propose pas non plus). Un boost filtré est versé dans le Cube si « Filter Boosts into Infinity Cube! » est acheté et le Cube débloqué (moteur, disposeFilteredV1). */
-        const iaFiltreCh=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.inventoryAuto;
-        const filtreAmelioreCh=Boolean(iaFiltreCh&&iaFiltreCh.unlocked&&iaFiltreCh.unlocked.lootFilterImproved);
-        const defsFiltreesCh=filtreAmelioreCh&&iaFiltreCh.lootFilter&&Array.isArray(iaFiltreCh.lootFilter.items)?iaFiltreCh.lootFilter.items.map(String):[];
-        const boostVersCubeCh=Boolean(iaFiltreCh&&iaFiltreCh.unlocked&&iaFiltreCh.unlocked.filterBoostsIntoCube&&cube&&cube.unlocked);
-        function boutonFiltreChroniquesV1_(id,boost){
-          if(!filtreAmelioreCh)return '';
-          const filtre=defsFiltreesCh.indexOf(String(id))!==-1;
-          const infoBoost=boost?(boostVersCubeCh?' Il part directement dans le Cube.':' Il est détruit (sans l’option du Cube, il n’est pas versé dans le Cube).'):'';
-          return '<button type="button" class="soreal-idle-coffre-filtre-v1'+(filtre?' actif':'')+'" title="'+(filtre?'Filtré : cet objet n’est plus ramassé. Clique pour le ramasser de nouveau.':'Clique pour ne plus ramasser cet objet.'+infoBoost)+'" onclick="event.stopPropagation();window.__filtrerObjetCoffreIdleV1__(\''+idleHtml_(String(id))+'\',this)">'+(filtre?'🚫':'🧹')+'</button>';
-        }
 
         const totalPagesEquipement=Math.max(1,Math.ceil(idsEquipementToutes.length/REG.IDLE_PAGINATION_TAILLE_V1));
         if(idlePageCollectionEquipementV1>totalPagesEquipement)idlePageCollectionEquipementV1=totalPagesEquipement;

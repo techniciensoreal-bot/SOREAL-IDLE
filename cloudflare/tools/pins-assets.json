@@ -836,8 +836,8 @@
   "sha": "9cdfc3e6d1e70696b611ed0b0fbfd24f848b04c8"
  },
  "/modules/ui-inventaire-v1.js": {
-  "pin": 18,
-  "sha": "67311a0883f1c7c018a6c4cfee0647a23c2a0322"
+  "pin": 19,
+  "sha": "7cc31b087c6da20936b20668e72c00e349af88fa"
  },
  "/modules/ui-machine-temporelle-v1.js": {
   "pin": 25,
