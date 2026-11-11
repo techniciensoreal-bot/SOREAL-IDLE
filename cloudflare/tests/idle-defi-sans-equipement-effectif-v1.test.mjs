@@ -38,6 +38,6 @@ console.log("idle-defi-sans-equipement-effectif-v1: OK");
 {
   const snapSrc = readFileSync("cloudflare/src/idle-ngu-snapshot.js", "utf8"), sceneSrc = readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8");
   assert.ok(snapSrc.includes("snap.statsSansEquipement = {") && snapSrc.includes('idleEquipementEffectifV1({ challenge: { active: "noEquipment" } })'), "le serveur envoie les stats sans équipement ni Cube");
-  assert.ok(sceneSrc.includes("var baseAff=sans>0?Math.max(base,sans):base;") && sceneSrc.includes("var bonus=Math.max(0,total-baseAff-cube);") && sceneSrc.includes("format_(baseAff,precision)"), "l'écran affiche cette valeur comme base");
+  assert.ok(snapSrc.includes("snap.statsDetail =") && sceneSrc.includes("ligne('Équipement bloqué par le défi'") && sceneSrc.includes("ecrire_(baseEl,format_(total,precision))"), "l'écran affiche le total (2026-11-11) ; ce que l'équipement donnerait reste dans le détail, barré");
   console.log("idle-defi-sans-equipement-effectif-v1 (valeur de base) : OK");
 }

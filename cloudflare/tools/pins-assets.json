@@ -24,8 +24,8 @@
   "sha": "1cabc2d046be6ca8973992e973fd4d4e94936278"
  },
  "/modules/adventure-scene-v79.js": {
-  "pin": 2050,
-  "sha": "f232c3bc480dbfffecf287bc9476b378350c88a6"
+  "pin": 2052,
+  "sha": "b9a4f1f34c092508815ead6846cc00f64d08f8ba"
  },
  "/modules/album-cartes-v1.js": {
   "pin": 52,
@@ -540,8 +540,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 209,
-  "sha": "649ade79c559384049de40d7405b27fcad9225c9"
+  "pin": 210,
+  "sha": "930d303918e05bc21e49926b3b6793e2cf7ffa33"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -656,12 +656,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 290,
-  "sha": "8e5632b1a7cea580edda7944887d5fcbcd9795f6"
+  "pin": 291,
+  "sha": "028d5b172604e61a60596c3b43ab57c77fb116db"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 932,
-  "sha": "3d29157212b7146b782a8e1ebaf8e4f74d30695f"
+  "pin": 933,
+  "sha": "86ae55b93706bdd7a99e1b59598f82efc988be07"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -756,12 +756,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 970,
-  "sha": "0c4d9436748430a03f31e8ebdf2d924eb2a64b23"
+  "pin": 971,
+  "sha": "737a62ff7d5aa999ba561f29ed7011f9c3797c4c"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 791,
-  "sha": "4debc3bbbf68b8f54be52569deadec2eb1b376f0"
+  "pin": 792,
+  "sha": "f51a828bcf51da483c7ba9c96b6ee0ef3529390f"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -1038,6 +1038,10 @@
  "/soreal-idle-renaissance.css": {
   "pin": 3,
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
+ },
+ "/soreal-idle-stats-detail-v1.css": {
+  "pin": 1,
+  "sha": "fa0684de0cf6982eb3c259f00649e72cb08091a6"
  },
  "/soreal-idle-themes.css": {
   "pin": 164,

@@ -2,45 +2,16 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 /*
- * Norman (2026-09-29) : « Comme par exemple ne plus avoir (+0 cube) mais juste (+0) » -- précisé
- * en clarification : le petit cadre de stats du joueur en mode Aventure (panneau
- * .soreal-idle-adventure-player-panel-v1, sous l'image du monstre).
- *
- * Cause réelle : playerStat() (modules/adventure-scene-v79.js) affichait déjà le tag "cube"
- * seulement si `cube>0` (jamais si le Cube n'a aucune contribution) -- mais format_(cube,precision)
- * ARRONDIT à l'entier le plus proche (maximumFractionDigits par défaut 0, Intl.NumberFormat). Une
- * contribution Cube réelle mais petite (ex. 0,4 après le softcap) passait donc `cube>0` (vrai) tout
- * en s'AFFICHANT "0" une fois arrondie -- exactement "(+0 cube)" à l'écran, malgré la garde. Même
- * défaut potentiel pour le tag "bonus" juste au-dessus (même formatage, même arrondi).
+ * Norman (2026-09-29) : « ne plus avoir (+0 cube) mais juste (+0) ». Refonte du 2026-11-11 (Norman : « je ne veux plus puissance de base, en vert le stuff et en mauve le cube : je veux le total déjà additionné, écrit en vert ») :
+ * la ligne n'affiche plus que le TOTAL ; les tags (+bonus) et (+cube) sont vidés, donc plus aucun « (+0 cube) » possible. La provenance de chaque part est dans le « i » (ouvrirDetailStat_).
  */
 const source = readFileSync("cloudflare/public/modules/adventure-scene-v79.js", "utf8");
-
 const debut = source.indexOf("function playerStat(key,base,total,precision,cubeContribution){");
 const fin = source.indexOf("\n    }\n", debut) + "\n    }\n".length;
 assert.ok(debut > 0 && fin > debut, "playerStat introuvable");
 const corps = source.slice(debut, fin);
-
-// La garde compare désormais le texte réellement affiché (déjà arrondi), pas seulement la valeur brute.
-assert.match(
-  corps,
-  /var bonusTexte=format_\(bonus,precision\);\s*\n\s*if\(extra\)ecrire_\(extra,bonus>0&&bonusTexte!==['"]0['"]\?/,
-  "le tag bonus doit comparer le texte déjà formaté à \"0\", pas seulement bonus>0"
-);
-assert.match(
-  corps,
-  /var cubeTexte=format_\(cube,precision\);\s*\n\s*if\(cubeExtra\)ecrire_\(cubeExtra,cube>0&&cubeTexte!==['"]0['"]\?/,
-  "le tag cube doit comparer le texte déjà formaté à \"0\", pas seulement cube>0"
-);
-
-// La prémisse du bug : Intl.NumberFormat (format_ réel du module) arrondit bien 0,4 à "0" à précision 0 --
-// exactement le cas qui passait `cube>0` (vrai) tout en affichant "(+0 cube)" avant ce correctif.
-function format_(value, precision) {
-  const n = Number(value);
-  if (Math.abs(n) < 1000000) return new Intl.NumberFormat("fr-FR", { maximumFractionDigits: precision || 0 }).format(n);
-  return new Intl.NumberFormat("fr-FR", { notation: "compact", maximumFractionDigits: 2 }).format(n);
-}
-assert.equal(format_(0.4, 0), "0", "0,4 doit bien s'arrondir à \"0\" en précision entière -- la vraie cause du bug");
-assert.equal(format_(5, 0), "5", "une vraie contribution reste affichée normalement");
-assert.equal(format_(0, 0), "0");
-
+assert.ok(corps.includes("ecrire_(baseEl,format_(total,precision))"), "la ligne affiche le total déjà additionné");
+assert.ok(corps.includes("classList.toggle('soreal-idle-v79-stat-vert',total>base0+1e-9)"), "vert dès qu'il y a un bonus au-dessus de la base (même vert que le multiplicateur de drop)");
+for (const n of ["stat-bonus", "stat-bloque", "stat-cube", "stat-cube-bloque"]) assert.ok(corps.includes("'" + n + "'"), "le tag " + n + " est vidé");
+assert.ok(!/ cube\)/.test(corps), "plus de « (+x cube) » dans la ligne");
 console.log("idle-adventure-player-stat-cube-zero-v1: OK");

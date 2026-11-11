@@ -1,0 +1,18 @@
+/* Détail de la provenance des statistiques d'Aventure (le « i », Norman, 2026-11-11) : fenêtre et bouton ; script : modules/adventure-scene-v79.js (ouvrirDetailStat_). */
+html body .sd-fond{position:fixed;inset:0;z-index:99990;display:grid;place-items:center;padding:16px;background:rgba(2,4,10,.62)}
+html body .sd-carte{width:min(420px,100%);max-height:88vh;overflow:auto;padding:12px 14px 14px;border:3px solid #000;border-radius:12px;background:linear-gradient(180deg,#26324a,#141b2c);color:#eaf1ff;box-shadow:0 0 0 2px #6f8fc8,0 14px 40px rgba(0,0,0,.6);font-family:var(--f-texte,"Russo One",sans-serif)}
+html body .sd-tete{display:flex;align-items:baseline;gap:8px;margin:0 0 8px;padding:0 0 7px;border-bottom:2px solid #6f8fc8}
+html body .sd-tete h4{margin:0;font:400 22px Bangers,cursive;letter-spacing:.06em;color:#fff}
+html body .sd-tete small{flex:1;opacity:.75;font-size:12px}
+html body .sd-x{appearance:none;border:2px solid #000;border-radius:6px;background:#3a4a6c;color:#fff;font-size:18px;line-height:1;padding:1px 9px;cursor:pointer}
+html body .sd-l{display:flex;justify-content:space-between;gap:12px;padding:4px 2px;font-size:14px;border-bottom:1px solid rgba(255,255,255,.08)}
+html body .sd-l b{font-weight:400;color:#1eff00;white-space:nowrap}
+html body .sd-l.sd-cube b{color:#c79bff}
+html body .sd-l.sd-st{border-bottom:2px solid rgba(255,255,255,.2)}
+html body .sd-l.sd-st b{color:#fff}
+html body .sd-l.sd-total{margin-top:4px;font-size:16px;border:0}
+html body .sd-l.sd-total b{color:#1eff00}
+html body .sd-l.sd-bloque{opacity:.6;text-decoration:line-through}
+html body .sd-t{margin:8px 0 2px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9fb4e0}
+html body .soreal-idle-v79-info-btn{display:inline-grid;place-items:center;width:17px;height:17px;margin-left:7px;border:1.5px solid #9fb4e0;border-radius:50%;font:700 11px/1 Georgia,serif;font-style:italic;color:#cfe0ff;background:rgba(80,110,170,.35);cursor:pointer;vertical-align:middle;user-select:none}
+html body .soreal-idle-v79-info-btn:hover{background:rgba(110,150,230,.6);color:#fff}

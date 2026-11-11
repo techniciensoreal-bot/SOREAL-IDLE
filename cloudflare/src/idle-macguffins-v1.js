@@ -411,6 +411,8 @@ export function macguffinApplyToBonusesV1(bonuses, state) {
   mul("adventureMultiplier", m.adventure);
   mul("adventurePowerMultiplier", m.adventure);
   mul("adventureToughnessMultiplier", m.adventure);
+  /* provenance (écran de détail des statistiques d'Aventure) */
+  if (Number.isFinite(m.adventure) && Math.abs(m.adventure - 1) > 1e-9) (bonuses.adventureSources = bonuses.adventureSources || []).push(["macguffins", m.adventure]);
   mul("dropMultiplier", m.dropChance);
   mul("adventureGoldMultiplier", m.goldDrops);
   mul("energyPowerMultiplier", m.energyPower);

@@ -891,6 +891,22 @@ function idleNguBonusesSansMacguffinCoeurV1(state) {
       atToughnessBonus,
     /* Block Damage Reduction (wiki Advanced Training) : (Level + 50) / (Level + 100) -- 50 % au niveau 0. */
     blockReduction: (Math.max(0, atBlock) + 50) / (Math.max(0, atBlock) + 100),
+    /*
+     * Provenance des statistiques d'Aventure (Norman, 2026-11-11 : « un i sur lequel on peut cliquer et on voit le détail de la provenance de chaque bonus ») : les MÊMES facteurs que ci-dessus, un par source (seulement ceux qui changent quelque chose), pour l'écran de détail. Aucun nombre inventé : ce sont les termes du produit.
+     * Les parts du Cube et des cartes / MacGuffins sont ajoutées par leurs modules. Libellés : l'écran (adventure-scene-v79.js).
+     */
+    adventureSources: [
+      ["defi", challengeBonuses.adventureStatsMultiplier], ["perk", perkBonuses.adventureStatsMultiplier], ["quirk", quirkBonuses.adventureStatsMultiplier], ["souhait", wishBonuses.adventureStatsMultiplier],
+      ["set", evilAccsAdventureStats], ["barbe", beardAdventure], ["labo", diggers.adventure], ["ngu", nguFx.adventure], ["hack", hackFx.adventureStats]
+    ].filter(s => Number.isFinite(s[1]) && Math.abs(s[1] - 1) > 1e-9),
+    adventureSourcesPuissance: atPowerBonus,
+    adventureSourcesEndurance: atToughnessBonus,
+    adventureFlatSources: {
+      power: { fruit: num(yggPermanent.adventurePower, 0), perk: perkBonuses.adventurePowerFlat, pilule: ironPillPoints },
+      toughness: { fruit: num(yggPermanent.adventureToughness, 0), perk: perkBonuses.adventureToughnessFlat, pilule: ironPillPoints },
+      hp: { fruit: num(yggPermanent.adventureHp, 0), pilule: ironPillPoints * 3 },
+      regen: { fruit: num(yggPermanent.adventureRegen, 0), pilule: ironPillPoints * 0.03 }
+    },
     /* Gains absolus hors équipement : Fruit of Adventure, perk Newbie (+100), Iron Pill (Blood^0.25 : Power/Toughness, HP x3, regen x0,03). */
     adventureBaseFlat: {
       power: num(yggPermanent.adventurePower, 0) + perkBonuses.adventurePowerFlat + ironPillPoints,
@@ -1203,7 +1219,17 @@ export function idleAdventureCombatStatsV1(gear, context, bonuses) {
   const flat = (bo && bo.adventureBaseFlat) || { power: 0, toughness: 0, hp: 0, regen: 0 };
   const multPower = Math.max(0, num(bo && bo.adventurePowerMultiplier, 1));
   const multToughness = Math.max(0, num(bo && bo.adventureToughnessMultiplier, 1));
-  return Object.assign({}, g, {
+  /* Détail pour l'écran (provenance de chaque part) : parts additives avant le multiplicateur, puis le multiplicateur et ses sources. Les valeurs sont celles du calcul ci-dessous. */
+  const cubeP = Math.max(0, num(g.cubePowerContribution, 0)), cubeT = Math.max(0, num(g.cubeToughnessContribution, 0));
+  const parts = (base, equip, cube, perm, plat, flatSrc) => ({ base, equipement: Math.max(0, equip - cube), cube, permanent: Math.max(0, perm), plat: Math.max(0, plat), plats: flatSrc || {} });
+  const sourcesMult = (extra) => (bo && Array.isArray(bo.adventureSources) ? bo.adventureSources : []).concat(extra ? [extra] : []);
+  const detail = !(context && context.detailV1) ? undefined : {
+    power: Object.assign(parts(baseAdventurePower, num(g.power, 0), cubeP, num(permanent.adventurePower, 0), num(flat.power, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.power), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
+    toughness: Object.assign(parts(baseAdventureToughness, num(g.toughness, 0), cubeT, num(permanent.adventureToughness, 0), num(flat.toughness, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.toughness), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) }),
+    hp: Object.assign(parts(hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1, num(g.hp, 0), 0, num(permanent.adventureHp, 0), num(flat.hp, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.hp), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
+    regen: Object.assign(parts(baseAdventureRegen, num(g.regen, 0), 0, num(permanent.adventureRegen, 0), num(flat.regen, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.regen), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) })
+  };
+  return Object.assign({}, g, detail ? { detailV1: detail } : {}, {
     power:
       (baseAdventurePower +
         Math.max(0, num(g.power, 0)) +

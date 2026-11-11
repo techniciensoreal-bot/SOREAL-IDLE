@@ -335,19 +335,13 @@
     function playerStat(key,base,total,precision,cubeContribution){
       var line=player.querySelector('[data-player-stat="'+key+'"]');
       if(!line)return;
-      var cube=Math.max(0,number_(cubeContribution));
-      /* Valeur de base = TOI : la base, plus tout ce qui vient du Money Pit et des autres systèmes (stats sans équipement ni Cube, calculées par le serveur) ; entre parenthèses seulement l'équipement et le Cube. */
-      var sans=a&&a.statsSansEquipement&&typeof a.statsSansEquipement==='object'?number_(a.statsSansEquipement[key]):0;
-      var baseAff=sans>0?Math.max(base,sans):base;
-      var bonus=Math.max(0,total-baseAff-cube);
-      ecrire_(line.querySelector('.soreal-idle-v79-stat-base'),format_(baseAff,precision));
-      var extra=line.querySelector('.soreal-idle-v79-stat-bonus');
-      var bonusTexte=format_(bonus,precision);
-      if(extra)ecrire_(extra,bonus>0&&bonusTexte!=='0'?' (+'+bonusTexte+')':'');
-      ecrireBloque_(line,key,precision);
-      var cubeExtra=line.querySelector('.soreal-idle-v79-stat-cube');
-      var cubeTexte=format_(cube,precision);
-      if(cubeExtra)ecrire_(cubeExtra,cube>0&&cubeTexte!=='0'?' (+'+cubeTexte+(cubePalierN>=1?'':' cube')+')':'');
+      /* Le TOTAL déjà additionné (Norman, 2026-11-11 : « je ne veux plus puissance de base, en vert le stuff et en mauve le cube : le total déjà additionné, écrit en vert ») ; vert (celui du multiplicateur de drop) dès qu'il y a un bonus au-dessus de la base ; la provenance de chaque part est dans le « i ». */
+      var det=a&&a.statsDetail&&a.statsDetail[key]?a.statsDetail[key]:null;
+      var base0=det?number_(det.base):base;
+      var baseEl=line.querySelector('.soreal-idle-v79-stat-base');
+      ecrire_(baseEl,format_(total,precision));
+      if(baseEl&&baseEl.classList)baseEl.classList.toggle('soreal-idle-v79-stat-vert',total>base0+1e-9);
+      ['stat-bonus','stat-bloque','stat-cube','stat-cube-bloque'].forEach(function(n){ecrire_(line.querySelector('.soreal-idle-v79-'+n),'');});
     }
     playerStat('power',basePower,number_(stats.power),0,cubePower);
     playerStat('toughness',baseToughness,number_(stats.toughness),0,cubeToughness);
@@ -471,10 +465,10 @@
       +    '<div class="soreal-idle-v79-player-card soreal-idle-v79-stat-card">'
       +      '<div class="soreal-idle-v79-card-name"></div>'
       +      '<div class="soreal-idle-v79-stat-lines">'
-      +        '<div data-player-stat="power"><span class="soreal-idle-v79-stat-label">Puissance</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b><b class="soreal-idle-v79-stat-cube"></b><b class="soreal-idle-v79-stat-cube-bloque"></b></span></div>'
-      +        '<div data-player-stat="toughness"><span class="soreal-idle-v79-stat-label">Endurance</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b><b class="soreal-idle-v79-stat-cube"></b><b class="soreal-idle-v79-stat-cube-bloque"></b></span></div>'
-      +        '<div data-player-stat="hp"><span class="soreal-idle-v79-stat-label">PV Max</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b></span></div>'
-      +        '<div data-player-stat="regen"><span class="soreal-idle-v79-stat-label">Regen PV/s</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b></span></div>'
+      +        '<div data-player-stat="power"><span class="soreal-idle-v79-stat-label">Puissance</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b><b class="soreal-idle-v79-stat-cube"></b><b class="soreal-idle-v79-stat-cube-bloque"></b></span><b class="soreal-idle-v79-info-btn" role="button" tabindex="0" data-info-stat="power" title="Détail de la provenance" aria-label="Détail">i</b></div>'
+      +        '<div data-player-stat="toughness"><span class="soreal-idle-v79-stat-label">Endurance</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b><b class="soreal-idle-v79-stat-cube"></b><b class="soreal-idle-v79-stat-cube-bloque"></b></span><b class="soreal-idle-v79-info-btn" role="button" tabindex="0" data-info-stat="toughness" title="Détail de la provenance" aria-label="Détail">i</b></div>'
+      +        '<div data-player-stat="hp"><span class="soreal-idle-v79-stat-label">PV Max</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b></span><b class="soreal-idle-v79-info-btn" role="button" tabindex="0" data-info-stat="hp" title="Détail de la provenance" aria-label="Détail">i</b></div>'
+      +        '<div data-player-stat="regen"><span class="soreal-idle-v79-stat-label">Regen PV/s</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b><b class="soreal-idle-v79-stat-bloque"></b></span><b class="soreal-idle-v79-info-btn" role="button" tabindex="0" data-info-stat="regen" title="Détail de la provenance" aria-label="Détail">i</b></div>'
       +        '<div data-player-stat="drop"><span class="soreal-idle-v79-stat-label">Multiplicateur de drop</span><span class="soreal-idle-v79-stat-value"><b class="soreal-idle-v79-stat-base"></b><b class="soreal-idle-v79-stat-bonus"></b></span></div>'
       +      '</div>'
       +    '</div>'
@@ -519,6 +513,52 @@
     }
   }
 
+
+  /* ---------- détail de la provenance d'une statistique (le « i ») ---------- */
+  var derniereAdv_=null;
+  var LIB_STAT_V1={power:'Puissance',toughness:'Endurance',hp:'PV Max',regen:'Regen PV/s'};
+  var LIB_SOURCE_V1={defi:'Défis',perk:'Perks',quirk:'Quirks',souhait:'Souhaits',set:'Bonus de set',barbe:'Barbes',labo:'Labos',ngu:'NGU',hack:'Hacks',avance:'Entraînement avancé',cartes:'Cartes',macguffins:'MacGuffins'};
+  var LIB_PLAT_V1={fruit:'Fruit d’Aventure',perk:'Perk (bonus fixe)',pilule:'Pilule de fer'};
+  function fermerDetailStat_(){var d=document.getElementById('sorealIdleStatDetailV1');if(d)d.remove();}
+  function ouvrirDetailStat_(key){
+    var a=derniereAdv_;if(!a||!LIB_STAT_V1[key])return;
+    var det=a.statsDetail&&a.statsDetail[key]?a.statsDetail[key]:null;
+    var prec=key==='regen'?2:0,total=number_(a.stats&&a.stats[key]);
+    var l=[];
+    function ligne(lib,txt,cl){l.push('<div class="sd-l'+(cl?' '+cl:'')+'"><span>'+html_(lib)+'</span><b>'+html_(txt)+'</b></div>');}
+    if(det){
+      ligne('Base','+'+format_(det.base,prec));
+      if(number_(det.equipement)>0)ligne('Équipement','+'+format_(det.equipement,prec));
+      if(number_(det.cube)>0)ligne('Cube','+'+format_(det.cube,prec),'sd-cube');
+      if(number_(det.permanent)>0)ligne('Bonus permanents','+'+format_(det.permanent,prec));
+      Object.keys(det.plats||{}).forEach(function(k){var v=number_(det.plats[k]);if(v>0&&LIB_PLAT_V1[k])ligne(LIB_PLAT_V1[k],'+'+format_(v,prec));});
+      var somme=number_(det.base)+number_(det.equipement)+number_(det.cube)+number_(det.permanent)+number_(det.plat);
+      ligne('Sous-total',format_(somme,prec),'sd-st');
+      var m=number_(det.multiplicateur);
+      if(m>1.0000001||m<0.9999999){
+        l.push('<div class="sd-t">Multiplicateur</div>');
+        (det.sources||[]).forEach(function(s){if(s&&LIB_SOURCE_V1[s[0]])ligne(LIB_SOURCE_V1[s[0]],'×'+format_(s[1],2));});
+        ligne('Multiplicateur total','×'+format_(m,2),'sd-st');
+      }
+    }
+    var bl=a.statsEquipementBloque&&number_(a.statsEquipementBloque[key])>0?number_(a.statsEquipementBloque[key]):0;
+    if(bl>0)ligne('Équipement bloqué par le défi','(+'+format_(bl,prec)+')','sd-bloque');
+    ligne('Total',format_(total,prec),'sd-total');
+    fermerDetailStat_();
+    var d=document.createElement('div');d.id='sorealIdleStatDetailV1';d.className='sd-fond';
+    d.innerHTML='<div class="sd-carte" role="dialog" aria-label="Détail"><div class="sd-tete"><h4>'+html_(LIB_STAT_V1[key])+'</h4><small>Détail</small><button type="button" class="sd-x" aria-label="Fermer">×</button></div>'+l.join('')+'</div>';
+    d.addEventListener('click',function(e){if(e.target===d||(e.target.closest&&e.target.closest('.sd-x')))fermerDetailStat_();});
+    document.body.appendChild(d);
+  }
+  document.addEventListener('click',function(e){
+    var b=e.target&&e.target.closest?e.target.closest('.soreal-idle-v79-info-btn'):null;
+    if(b){e.stopPropagation();ouvrirDetailStat_(b.getAttribute('data-info-stat'));}
+  },true);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape')fermerDetailStat_();
+    else if((e.key==='Enter'||e.key===' ')&&e.target&&e.target.classList&&e.target.classList.contains('soreal-idle-v79-info-btn')){e.preventDefault();ouvrirDetailStat_(e.target.getAttribute('data-info-stat'));}
+  });
+
   function render_(){
     var root=root_();if(!adventurePage_(root))return;
     runtime=window.__SOREAL_IDLE_RUNTIME_V1__||runtime;
@@ -527,6 +567,7 @@
       if(root_()!==root||!adventurePage_(root))return;
       var a=adventure_(state);
       if(!a)return;
+      derniereAdv_=a;
       scene_(root,a);
       overlay_(root,a);
       stats_(root,a);

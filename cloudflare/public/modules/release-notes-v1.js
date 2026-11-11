@@ -35,6 +35,9 @@
             'Tous les textes du jeu changent de police : fini l’écriture « traitement de texte », place à une police de jeu vidéo plus nette et plus lisible, la même que celle des Chroniques et des Réglages.',
             'Les Réglages sont entièrement refaits, dans un style jeu vidéo : plaques d’acier colorées pour chaque catégorie (Mon jeu, Profil, Audio, Affichage, Ma partie, Infos), cadres, icônes dessinées, interrupteurs à levier, curseurs de volume et gros boutons lisibles. Le son et l’image sont maintenant deux catégories séparées, et les sections de test de développement ont disparu.'
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'En Aventure, la fenêtre de statistiques affiche maintenant directement le total (Puissance, Endurance, PV Max, Regen), en vert quand tu as des bonus, au lieu de la base avec l’équipement et le Cube entre parenthèses. Un petit « i » à côté de chaque statistique ouvre le détail : la base, l’équipement, le Cube, puis chaque source de bonus avec son multiplicateur.'
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Quand tu gagnes un combat, la borne joue soit les yeux contents (cœurs ou étoiles), soit la vague, mais plus les deux à la suite : la victoire est bien plus courte et le nom du boss suivant arrive plus vite.',
             'La vague de victoire sur la borne est refaite en vrai ras de marée : un mur d’eau haut qui déferle de gauche à droite avec sa crête de mousse, qui porte le mot VICTOIRE ! avant de se retirer.',

@@ -187,7 +187,7 @@ function construireSnapshotNguV1(state, context, now) {
       const gearReel = snap.stats || idleAdventureEquipmentStatsV47(state.adventure);
       const defiSansEquipement = state.challenge?.active === "noEquipment";
       const gear = defiSansEquipement ? idleEquipementEffectifV1(state) : gearReel;
-      snap.stats = idleAdventureCombatStatsV1(gear, context, idleNguBonuses(state));
+      snap.stats = idleAdventureCombatStatsV1(gear, Object.assign({}, context, { detailV1: true }), idleNguBonuses(state));
       /*
        * Ce qui fait partie de « toi » (Norman, 2026-10-17 : « les statistiques du Money Pit et des autres systèmes sont "nous" : je les veux comptées comme valeur de base, 572 directement, pas 15 (+557) ») : les stats SANS l'équipement
        * ni le Cube. L'écran les affiche comme valeur de base ; seuls l'équipement (vert) et le Cube (mauve) restent entre parenthèses.
@@ -196,6 +196,8 @@ function construireSnapshotNguV1(state, context, now) {
         const sansEquip = defiSansEquipement ? snap.stats : idleAdventureCombatStatsV1(idleEquipementEffectifV1({ challenge: { active: "noEquipment" } }), context, idleNguBonuses(state));
         /* Chance de drop (Norman, 2026-10-19) : la base est de 100 % ; le multiplicateur TOTAL réellement appliqué au butin (équipement, cartes, MacGuffins, Money Pit, Perks, NGU, Yggdrasil, Blood Spaghetti…) est exposé pour afficher « 100 % (+X %) ». */
         snap.dropChance = { base: 1, total: Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1)) };
+        snap.statsDetail = snap.stats && snap.stats.detailV1 ? snap.stats.detailV1 : undefined;
+        if (snap.stats && snap.stats.detailV1) delete snap.stats.detailV1;
         snap.statsSansEquipement = { power: num(sansEquip.power, 0), toughness: num(sansEquip.toughness, 0), hp: num(sansEquip.hp, 0), regen: num(sansEquip.regen, 0) };
       }
       /* Défi sans équipement : ce que l'équipement porté DONNERAIT (barré à l'écran, jamais compté) ; absent hors du défi. */

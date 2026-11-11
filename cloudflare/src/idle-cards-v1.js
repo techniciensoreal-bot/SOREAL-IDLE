@@ -663,6 +663,8 @@ export function idleCardsApplyToBonusesV1(state, bonuses) {
   mul("adventureMultiplier", m.adventure);
   mul("adventurePowerMultiplier", m.adventure);
   mul("adventureToughnessMultiplier", m.adventure);
+  /* provenance (écran de détail des statistiques d'Aventure) */
+  if (Number.isFinite(m.adventure) && Math.abs(m.adventure - 1) > 1e-9) (bonuses.adventureSources = bonuses.adventureSources || []).push(["cartes", m.adventure]);
   mul("dropMultiplier", m.drop);
   mul("adventureGoldMultiplier", m.gold);
   mul("ppMultiplier", m.pp);
