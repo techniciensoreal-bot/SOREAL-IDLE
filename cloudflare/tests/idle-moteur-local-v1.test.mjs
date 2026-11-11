@@ -136,7 +136,7 @@ assert.ok(locales.includes("synchroniserSorealIdle") && locales.includes("obteni
 
 // Sauvegarde sur l'appareil : la ligne du joueur est gardée dans IndexedDB, reprise si elle est plus récente que celle du serveur, effacée une fois reçue.
 assert.ok(mod.includes("__envoyerPartieServeurIdleV1__") && fs.readFileSync(new URL("../public/modules/ui-reglages-v1.js", import.meta.url), "utf8").includes("Envoyer ma partie vers le serveur"), "bouton Réglages");
-assert.ok(mod.includes("indexedDB.open(\"soreal_idle_moteur_local_v1\"") && mod.includes("enMs(rec.cells[15])>enMs(srv[15])") && mod.includes("kv(\"effacer\",cleSauve)"), "sauvegarde appareil absente");
+assert.ok(mod.includes("indexedDB.open(\"soreal_idle_moteur_local_v1\"") && mod.includes("enMs(rec.cells[15])>refServeurMs")&&mod.includes("exp.progressionAt") && mod.includes("kv(\"effacer\",cleSauve)"), "sauvegarde appareil absente");
 
 // Fichiers construits à jour : l'adresse du Worker et du wasm porte l'empreinte de leur contenu.
 const crypto = await import("node:crypto");

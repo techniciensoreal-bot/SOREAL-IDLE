@@ -4,7 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "La barre des menus ne bouge plus quand tu cliques sur un bouton d’une page dont les lignes changent de texte : chaque ligne réserve désormais sa place, plus aucun saut.",
-    "Son bouton de menu passe à un mélange de rose et de mauve : il ne ressemble plus à ses voisins."
+    "Au rechargement du jeu, les dernières secondes de progression (Or, niveaux, barres) ne sont plus perdues : la partie gardée sur l’appareil est maintenant bien reprise quand elle est plus récente que celle du serveur.",
+    "Les barres qui coûtent de l’Or ne reculent plus au démarrage : l’heure du calcul est suivie sans à-coup, et un Or encore inconnu ne fige plus la barre."
   ] };
 })();

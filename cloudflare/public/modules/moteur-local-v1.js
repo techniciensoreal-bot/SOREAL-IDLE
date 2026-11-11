@@ -214,7 +214,9 @@
     if(rec===null)copieEnAttente=true;   /* lecture en échec : on ne sait pas s'il y a une copie, on n'y touche pas */
     else if(rec&&Array.isArray(rec.cells)){
       let srv=[];try{srv=JSON.parse(exp.joueurs.ligne);}catch(_){}
-      if(enMs(rec.cells[15])>enMs(srv[15])){
+      /* Recul à chaque rechargement (audit du démarrage à froid, 2026-11-11) : l'export du serveur LIT l'état avant de renvoyer la ligne, et cette lecture réécrit la colonne 16 (dernière synchro) à « maintenant » : la copie de l'appareil, forcément plus ancienne que cet instant, perdait toujours la comparaison et les dernières secondes de progression pas encore envoyées (Or, niveaux, barres) étaient perdues. La date à comparer est celle de la dernière PROGRESSION reçue (progressionAt : écrite seulement par un envoi accepté, une action passée par le serveur ou une restauration), avec la colonne 16 en repli si le serveur ne la donne pas. */
+      const refServeurMs=Number(exp&&exp.progressionAt)>0?Number(exp.progressionAt):enMs(srv[15]);
+      if(enMs(rec.cells[15])>refServeurMs){
         const fusion=rec.cells.slice();
         [0,1,17,18,19].forEach(function(c){fusion[c]=srv[c];});
         exp.joueurs.ligne=JSON.stringify(fusion);
@@ -226,7 +228,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=93c487c994");
+    worker=new Worker("/moteur-local-worker-v1.js?v=9cc6bf82ca");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;

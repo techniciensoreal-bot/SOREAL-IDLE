@@ -19,12 +19,20 @@ import { invaliderTrajectoireV1 } from "../src/idle-runtime-etat.js";
  */
 let ecartMs = 0;
 const DateReelle = Date;
+/* Horloge du moteur MONOTONE à court terme (audit de recul à froid, 2026-11-11) : l'écart serveur est remesuré (première mesure lente au démarrage, remplacée par une plus courte ; mesure de plus de 2 minutes acceptée) ; s'il BAISSE de quelques centaines de ms, le moteur recevait un temps plus court que l'écran n'avait déjà projeté et la barre reculait de ce temps. Une baisse de 2 s ou moins est donc absorbée (le temps reste figé le temps de la rattraper) ; une vraie correction plus grande (horloge d'appareil très fausse) passe telle quelle. */
+let dernierInstantMs = 0;
+function instantMoteur() {
+  const v = DateReelle.now() + ecartMs;
+  if (v < dernierInstantMs && dernierInstantMs - v <= 2000) return dernierInstantMs;
+  dernierInstantMs = v;
+  return v;
+}
 class DateServeur extends DateReelle {
   constructor(...a) {
-    if (a.length === 0) super(DateReelle.now() + ecartMs);
+    if (a.length === 0) super(instantMoteur());
     else super(...a);
   }
-  static now() { return DateReelle.now() + ecartMs; }
+  static now() { return instantMoteur(); }
 }
 self.Date = DateServeur;
 function regler(ecart) { if (Number.isFinite(ecart)) ecartMs = ecart; }
@@ -157,6 +165,8 @@ self.onmessage = async (ev) => {
       const reelDebut = performance.timeOrigin + performance.now();
       const res = coord.runStandaloneSessionOperationV1({ sessionToken: jeton, operation: m.operation, args: Array.isArray(m.args) ? m.args : [], catalogHashes: m.catalogHashes, langue: m.langue });
       if (res && res.joueur && typeof res.joueur === "object" && !Object.isFrozen(res.joueur)) res.joueur.__serveurAtV1 = Math.max(debut, versionLocale + 1);
+      /* écart d'horloge avec lequel CET état a été daté : le pont retranche l'âge avec ce même écart, jamais avec un écart remesuré entre l'envoi et la réponse (démarrage à froid : la première mesure, lente, est remplacée par une plus courte pendant le premier calcul, la barre reculait de Δécart ; audit du 2026-11-11) */
+      if (Number.isFinite(Number(m.ecart))) res.joueur.__ecartAppelV1 = Number(m.ecart);
       versionLocale = Math.max(debut, versionLocale + 1);
       const reelFin = performance.timeOrigin + performance.now();
       self.postMessage({ id: m.id, ok: true, resultat: res, mesure: { debut: reelDebut, calcul: reelFin - reelDebut, fin: reelFin, spans: SPANS_V1.actif ? spansPrelever() : undefined } });

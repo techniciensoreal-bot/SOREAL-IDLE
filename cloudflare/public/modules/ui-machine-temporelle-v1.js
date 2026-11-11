@@ -130,13 +130,14 @@
             if(el.__tmDebitesAt!==el.dataset.tmEtaAt){el.__tmDebitesAt=el.dataset.tmEtaAt;el.__tmDebites=0;}
             const deja0=el.__tmDebites||0;
             const monnaiesTm=REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies;
+            const orConnuTm=!!(monnaiesTm&&monnaiesTm.gold!==undefined&&monnaiesTm.gold!==null);   /* Or absent de l'état (démarrage) : pas de contrôle d'Or plutôt qu'un Or de 0 qui figerait la barre pleine puis la ferait chuter */
             const orTm0=idleNombre_(monnaiesTm&&monnaiesTm.gold);
             const PROJ_TM=window.__SOREAL_IDLE_TM_PROJECTION_V1__;
-            const proj=PROJ_TM.projeter({palier:palier,brut:vueD100?idleNombre_(vueD100[(piste==='or'||piste==='gold')?'goldStepBrut':'speedStepBrut']):undefined,fill0:fill0,ecoule:(maintenant-at)/1000,niveau0:niveau0,or:monnaiesTm?orTm0:null,deja:deja0,plafond:plafD100});
+            const proj=PROJ_TM.projeter({palier:palier,brut:vueD100?idleNombre_(vueD100[(piste==='or'||piste==='gold')?'goldStepBrut':'speedStepBrut']):undefined,fill0:fill0,ecoule:(maintenant-at)/1000,niveau0:niveau0,or:orConnuTm?orTm0:null,deja:deja0,plafond:plafD100});
             franchis=proj.franchis;faussesOr=proj.faussesOr;manqueOr=proj.manqueOr;bloqueDefi=proj.bloqueDefi;restant=proj.restant;palier=proj.palier;
             if(faussesOr&&!bloqueDefi)orPresent=proj.or===null?0:proj.or;
             if(D100)D100.noter(supportD100,cleD100,franchis);
-            if(monnaiesTm&&proj.deja!==deja0){monnaiesTm.gold=Math.max(0,proj.or);patcherResumeStatsIdleV28_(REG.idleEtat);}
+            if(orConnuTm&&proj.deja!==deja0){monnaiesTm.gold=Math.max(0,proj.or);patcherResumeStatsIdleV28_(REG.idleEtat);}
             el.__tmDebites=proj.deja;
           }else{
             restant=Math.max(0,restant);

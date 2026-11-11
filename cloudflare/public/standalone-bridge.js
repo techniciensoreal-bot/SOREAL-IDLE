@@ -148,9 +148,12 @@
    */
   function calerRecuPerfV1_(joueur,perfMaintenant,dateMaintenant){
     const serveurAt=Number(joueur&&joueur.__serveurAtV1);
-    if(!heureServeurV1.connu||!(serveurAt>0))return perfMaintenant;
+    const ecartAppel=Number(joueur&&joueur.__ecartAppelV1);
+    const ecart=Number.isFinite(ecartAppel)?ecartAppel:(heureServeurV1.connu?heureServeurV1.ecart:null);   /* l'écart de l'appel (jeu local) prime : voir moteur-local-worker.js */
+    if(ecart===null||!(serveurAt>0))return perfMaintenant;
     const ML=typeof window!=="undefined"?window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__:null;
-    const age=dateMaintenant-(serveurAt-heureServeurV1.ecart);
+    let age=dateMaintenant-(serveurAt-ecart);
+    if(age<0&&age>-500)age=0;   /* quelques centaines de ms d'imprécision d'horloge : âge nul, pas un retour à la valeur de réception (l'ancre arrivait en retard du temps de calcul du moteur) */
     if(!(age>=0)||age>30000)return perfMaintenant;
     /* En jeu local la réponse ne voyage pas : pas de demi aller-retour à retrancher. */
     return perfMaintenant-age+((ML&&ML.actif&&ML.actif())?0:heureServeurV1.rtt/2);

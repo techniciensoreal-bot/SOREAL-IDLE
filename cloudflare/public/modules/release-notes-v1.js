@@ -30,6 +30,8 @@
         date:'2026-11-11',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Au rechargement du jeu, les dernières secondes de progression (Or, niveaux, barres) ne sont plus perdues : la partie gardée sur l’appareil est maintenant bien reprise quand elle est plus récente que celle du serveur.',
+            'Les barres qui coûtent de l’Or ne reculent plus au démarrage : l’heure du calcul est suivie sans à-coup, et un Or encore inconnu ne fige plus la barre.',
             'La barre des menus ne bouge plus quand tu cliques sur un bouton d’une page dont les lignes changent de texte : chaque ligne réserve désormais sa place, plus aucun saut.',
             'La page ne fait plus de saut quand une barre d’énergie ou de magie du haut disparaît ou revient (par exemple après avoir tout dépensé d’un coup) : le bandeau et son décalage changent en même temps.',
             'Les barres d’énergie et de magie du haut ne clignotent plus quand tu dépenses tout d’un coup : elles ne disparaissent que si elles restent vraiment vides (plus de flash du fond ni des écritures).',
