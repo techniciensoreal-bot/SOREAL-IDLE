@@ -67,6 +67,7 @@
             'L’image de l’« emplacement de labo » dans la boutique est maintenant une fiole au lieu d’une pelle.'
           ]},
           {menu:'avance', titre:'Entraînement avancé', points:[
+            'Quand « Faire suivre l’énergie » est cochée, le compteur « Énergie placée » de chaque ligne se met maintenant à jour tout de suite quand l’énergie passe à la ligne suivante, au lieu d’attendre ton prochain clic.',
             'Chaque ligne de l’Entraînement avancé a un bouton « Max » : il place sur cette compétence toute l’énergie idle disponible.'
           ]},
           {menu:'machine', titre:'Machine temporelle', points:[

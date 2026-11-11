@@ -389,6 +389,10 @@
             if(REG.idleMenuActifV28==='machine'&&REG.idleEtat&&REG.idleEtat.systemes&&REG.idleEtat.systemes.timeMachineView){
               try{patcherBarresTimeMachineIdleV1_(REG.idleEtat);}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('machine_synchro',e);}
             }
+            /* Entraînement avancé (Norman, 2026-11-11 : « avec Faire suivre l'énergie, l'énergie passe bien mais le compteur Énergie placée ne se met pas à jour ») : ce menu n'est pas synchronisé en continu ; quand le moteur déplace ou rend l'énergie d'une ligne (Target atteint), la synchro demandée par la page apportait le nouvel état mais les lignes n'étaient mises à jour qu'au clic suivant. Chaque synchro les met maintenant à jour EN PLACE (énergie placée, Target, repère des barres), sans redessiner la page ni toucher un champ en cours de saisie. */
+            if(REG.idleMenuActifV28==='avance'&&REG.idleEtat&&window.__SOREAL_IDLE_AUGMENTATIONS_PAGE_V1__&&typeof window.__SOREAL_IDLE_AUGMENTATIONS_PAGE_V1__.patcherAdvancedTrainingIdleV1_==='function'){
+              try{window.__SOREAL_IDLE_AUGMENTATIONS_PAGE_V1__.patcherAdvancedTrainingIdleV1_(REG.idleEtat);}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('avance_synchro',e);}
+            }
             /* ITOPOD : seuls les chiffres sont mis à jour (la scène animée et les champs d'étage ne sont jamais redessinés). */
             if(REG.idleMenuActifV28==='tower'&&REG.idleEtat&&typeof window.__rafraichirItopodIdleV1__==='function'){
               try{window.__rafraichirItopodIdleV1__(REG.idleEtat);}catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('itopod_chiffres',e);}

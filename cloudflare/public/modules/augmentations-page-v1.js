@@ -1844,7 +1844,7 @@
           const travailParS=gratuit?Infinity:alloc*taux;
           const niveauxParS=gratuit?50:Math.min(50,travailParS/(etat.n+1));
           const atteint=cible>0&&etat.n>=cible;
-          /* Norman (2026-11-07) : « quand l'énergie m'est rendue, Énergie placée ne repasse pas à 0 » : l'Entraînement avancé n'est pas un menu synchronisé en continu, donc l'énergie rendue (ou passée à la ligne suivante) par le moteur n'apparaissait qu'au prochain clic. Dès qu'un Target est atteint (ou qu'une cible -1 doit passer son énergie), on demande une synchro, au plus une fois toutes les 3 s par ligne. */
+          /* Norman (2026-11-07) : « quand l'énergie m'est rendue, Énergie placée ne repasse pas à 0 » : l'énergie rendue (ou passée à la ligne suivante) par le moteur n'apparaissait qu'au prochain clic. Dès qu'un Target est atteint (ou qu'une cible -1 doit passer son énergie), on demande une synchro, au plus une fois toutes les 3 s par ligne. */
           if(alloc>0&&(atteint||(cible<0&&avanceCochee))){
             const tSync=Date.now();
             if(tSync-(el.__atSyncT||0)>3000){el.__atSyncT=tSync;try{const Rg=window.__SOREAL_IDLE_REG__;if(Rg&&typeof Rg.synchroniserJeuIdleV7_==='function')Rg.synchroniserJeuIdleV7_(true);}catch(_e){}}
@@ -1997,6 +1997,7 @@
     exclamationOrIdleV1_:exclamationOrIdleV1_,
     pageBloodMagicIdleV48_:pageBloodMagicIdleV48_,
     emojiNomIdleV1_:emojiNomIdleV1_,
-    pageAdvancedTrainingIdleV1_:pageAdvancedTrainingIdleV1_
+    pageAdvancedTrainingIdleV1_:pageAdvancedTrainingIdleV1_,
+    patcherAdvancedTrainingIdleV1_:patcherAdvancedTrainingIdleV1_
   };
 })();
