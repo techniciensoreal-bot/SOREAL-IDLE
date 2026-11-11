@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync, statSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, readdirSync, statSync, writeFileSync, existsSync, renameSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
@@ -68,7 +68,8 @@ export function lireUiComplet() {
   const cache = join(tmpdir(), "soreal-idle-ui-virtuel-" + h.digest("hex").slice(0, 16) + ".js");
   if (existsSync(cache)) return readFileSync(cache, "utf8");
   const texte = construire();
-  try { writeFileSync(cache, texte); } catch (_) { /* cache facultatif */ }
+  /* écriture ATOMIQUE (2026-11-11) : les tests tournent à 4 en parallèle ; un test qui lisait le cache pendant qu'un autre l'écrivait en recevait la moitié et échouait au hasard (« recovery guard missing ») */
+  try { const tmp = cache + "." + process.pid + ".tmp"; writeFileSync(tmp, texte); try { renameSync(tmp, cache); } catch (_) { try { unlinkSync(tmp); } catch (_2) { /* rien */ } } } catch (_) { /* cache facultatif */ }
   return texte;
 }
 export function lireModulesUi() {
