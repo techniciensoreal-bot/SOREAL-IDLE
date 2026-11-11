@@ -164,7 +164,7 @@ var DEFIS={
     restriction:'La Time Machine ne te donne aucun or (aucun GPS).',
     conseil:{normal:'De grosses stats d’Aventure, de gros bonus de butin d’or, tout ce qui te fait gagner de l’or sans la Time Machine.'},
     recompenses:{
-      normal:[R('chaque','+100 % à ton GPS (or par seconde)'),R('premiere','+5 % au bonus global des Diggers',true),R(5,'+1 emplacement de Digger',true)],
+      normal:[R('chaque','+100 % à ton GPS (or par seconde)'),R('premiere','+5 % au bonus global des labos',true),R(5,'+1 emplacement de labo',true)],
       difficile:[R('chaque','+10 % de vitesse de montée de la Time Machine'),R('premiere','+100 % d’or gagné en butin')],
       extreme:[]
     }
