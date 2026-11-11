@@ -93,6 +93,44 @@
   var CHUTE_PX=64;   /* distance de chute d'une pièce (px de la viewBox d'origine du tas, avant réduction à 70 %), du haut de la sortie jusqu'au tas */
   /* le tas et les pièces gardent leur dessin d'origine (viewBox 1122 x 1402) : un groupe les réduit à 70 % et les pose dans la sortie du bas (x 255 à 512, y 567 à 675) */
   var TRANSFORME_CHUTE='translate(-8.75 -216.6) scale(.7)';
+  /*
+   * BAROMÈTRE DES TICS PAR SECONDE (Norman, 2026-11-11 : « les graduations jusqu'à 50 tics sur le baromètre, un aspect machine à remonter le temps pour l'aiguille, et qu'il soit sous une bulle de verre »). Centré dans l'ouverture ronde du décor (x 343-418, y 251-327 : centre 380,5 ; 289, rayon 37,5).
+   * Graduations : 51 traits de 0 à 50 sur 240 degrés (de -120 à +120), un long tous les 10 avec son chiffre, un moyen tous les 5, les autres fins ; la zone chaude (40 à 50) est orange. L'aiguille (id tmmAiguille, tournée par script à chaque tic : rotate(-120 + 240 x tics / 50)) est une aiguille dorée de pendule : fer de lance, œilleton,
+   * contrepoids. Au-dessus : le verre bombé (reflet, bord, léger voile bleuté), puis rien. Tout est clippé au cercle de l'ouverture.
+   */
+  function cadran(ticks){
+    var R0=34,out='<g transform="translate(380.5 289)"><defs>'+
+      '<clipPath id="tmmClipCadran"><circle r="37.5"/></clipPath>'+
+      '<radialGradient id="tmmCadranFond" cx=".5" cy=".5" r=".6"><stop offset="0" stop-color="#14262b"/><stop offset=".7" stop-color="#091217"/><stop offset="1" stop-color="#03070a"/></radialGradient>'+
+      '<linearGradient id="tmmAigOr" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#8a5a12"/><stop offset=".45" stop-color="#ffe7a0"/><stop offset="1" stop-color="#b87a1a"/></linearGradient>'+
+      '<radialGradient id="tmmVerreCorps" cx=".5" cy=".5" r=".55"><stop offset=".55" stop-color="#9fe8ff" stop-opacity="0"/><stop offset="1" stop-color="#9fe8ff" stop-opacity=".26"/></radialGradient>'+
+      '<linearGradient id="tmmVerreReflet" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".62"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'+
+      '</defs><g clip-path="url(#tmmClipCadran)">'+
+      '<circle r="37.5" fill="url(#tmmCadranFond)"/><circle r="35.2" fill="none" stroke="#28514c" stroke-width=".8"/>',
+      k,a,s,co,r1,r2,sw,x;
+    for(k=0;k<=50;k++){
+      a=(-120+240*k/50)*Math.PI/180;s=Math.sin(a);co=Math.cos(a);
+      r1=R0;r2=R0-(k%10===0?7:k%5===0?4.8:2.6);sw=k%10===0?1.15:k%5===0?.85:.5;
+      out+='<line x1="'+arr(r1*s,2)+'" y1="'+arr(-r1*co,2)+'" x2="'+arr(r2*s,2)+'" y2="'+arr(-r2*co,2)+'" stroke="'+(k>=40?'#ffa45a':'#8fffd8')+'" stroke-width="'+sw+'" stroke-linecap="round" opacity="'+(k%5===0?1:.8)+'"/>';
+      if(k%10===0){x=R0-12.2;out+='<text x="'+arr(x*s,2)+'" y="'+arr(-x*co+2,2)+'" text-anchor="middle" font-family="Orbitron,Russo One,sans-serif" font-weight="700" font-size="6" fill="'+(k>=40?'#ffb877':'#a8ffe2')+'">'+k+'</text>';}
+    }
+    out+='<text y="19.5" text-anchor="middle" font-family="Orbitron,Russo One,sans-serif" font-weight="700" font-size="4.6" letter-spacing=".8" fill="#6fd9b3" opacity=".85">TICS / S</text>'+
+      /* l'aiguille : fer de lance, œilleton, contrepoids ; elle part de 12 h (0 tic = -120 degrés) */
+      '<g id="tmmAiguille" style="transform:rotate('+arr(-120+240*ticks/50,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)">'+
+        '<path d="M0 -31 L2.2 -17 L.9 -4 L.9 8 L-.9 8 L-.9 -4 L-2.2 -17 Z" fill="url(#tmmAigOr)" stroke="#140c02" stroke-width=".7" stroke-linejoin="round"/>'+
+        '<circle cy="-11.5" r="3.1" fill="#091217" stroke="url(#tmmAigOr)" stroke-width="1.2"/>'+
+        '<path d="M-1.3 8 L0 12.5 L1.3 8 Z" fill="#d9a94a" stroke="#140c02" stroke-width=".6"/>'+
+        '<circle cy="13.6" r="2.3" fill="url(#tmmAigOr)" stroke="#140c02" stroke-width=".7"/>'+
+      '</g>'+
+      '<circle r="4.4" fill="url(#tmmAigOr)" stroke="#140c02" stroke-width="1.1"/><circle r="1.7" fill="#140c02"/><circle r="0.7" fill="#ffe7a0"/>'+
+      /* la bulle de verre, par-dessus l'aiguille : voile bleuté sur les bords, reflet en haut à gauche, petit éclat, liseré */
+      '<circle r="37.5" fill="url(#tmmVerreCorps)"/>'+
+      '<ellipse cx="-12" cy="-19" rx="19" ry="9.5" transform="rotate(-32 -12 -19)" fill="url(#tmmVerreReflet)"/>'+
+      '<path d="M22 22 A30 30 0 0 0 31 6" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="2.2" stroke-linecap="round"/>'+
+      '<circle cx="18" cy="-24" r="1.6" fill="#fff" opacity=".7"/>'+
+      '</g><circle r="36.6" fill="none" stroke="#dff7ff" stroke-opacity=".38" stroke-width="1.3"/></g>';
+    return out;
+  }
   function centre(opts){
     opts=opts||{};
     var ticks=Math.max(1,Math.min(50,Number(opts.ticks)||1));
@@ -122,10 +160,8 @@
       /* afficheur de gauche : la vitesse (Norman, 2026-11-11 : VITESSE et MULTIPLICATEUR centrés en hauteur dans leur emplacement : emplacements mesurés y 278-321, bloc titre + valeur remonté de 6 px) */
       '<text x="0" y="0" transform="translate(120 292) skewX(-8)" '+F+' font-size="11" letter-spacing="4" fill="#6fd9b3" opacity=".85">VITESSE</text>'+
       '<text id="tmmVitesse" x="0" y="0" transform="translate(280 315) skewX(-8)" text-anchor="end" '+F+' font-size="27" fill="#7dffd0" stroke="#042a1c" stroke-width="3" style="paint-order:stroke">'+Math.round(ticks)+' /s</text>'+
-      /* cadran de tiques par seconde */
-      '<g transform="translate(386 293)">'+
-      '<g id="tmmAiguille" style="transform:rotate('+arr(-120+240*ticks/50,1)+'deg);transition:transform .45s cubic-bezier(.2,.8,.2,1)"><path d="M-3 6 L0 -27 L3 6 Z" fill="#ff4a3a" stroke="#0a0a0c" stroke-width="1.5" stroke-linejoin="round"/></g>'+
-      '<circle r="5" fill="#b9c2cc" stroke="#0a0a0c" stroke-width="2"/></g>'+
+      /* baromètre des tics par seconde : graduations de 0 à 50, aiguille de machine à remonter le temps, sous une bulle de verre */
+      cadran(ticks)+
       /* afficheur de droite : le MULTIPLICATEUR d'Or (la Magie le fait monter, et les niveaux d'Énergie au-dessus de 50 aussi) */
       '<text x="0" y="0" transform="translate(490 292) skewX(-8)" '+F+' font-size="11" letter-spacing="3" fill="#6fd9b3" opacity=".85">MULTIPLICATEUR</text>'+
       '<text id="tmmMulti" x="0" y="0" transform="translate(653 315) skewX(-8)" text-anchor="end" '+F+' font-size="'+taillePoliceMulti(multi)+'" fill="#ffd84a" stroke="#3a2a00" stroke-width="3" style="paint-order:stroke">'+esc(multi)+'</text>'+

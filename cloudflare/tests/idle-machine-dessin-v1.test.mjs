@@ -26,6 +26,8 @@ const sens = roues.slice(0, 5).map((r) => Number(/data-sens="(-?1)"/.exec(r)[1])
 assert.deepEqual(sens, [1, -1, 1, -1, 1], "deux roues voisines tournent en sens contraire");
 assert.ok(svg.includes('id="tmmVitesse"') && svg.includes(">37 /s<") && svg.includes("+1,24 Qa Or") && svg.includes("Le Balourd"));
 assert.ok(svg.includes("/api/idle/media/mob?zone=forest&amp;boss=0&amp;seed=2&amp;name=Le+Balourd"), "même route d'image que la scène d'Aventure");
+assert.equal((svg.match(/<line /g)||[]).length >= 51, true, "baromètre : 51 graduations de 0 à 50 tics");
+assert.ok(svg.includes('tmmVerreCorps') && svg.includes('tmmAigOr') && svg.includes('>TICS / S<'), "baromètre : bulle de verre, aiguille dorée, libellé");
 assert.ok(svg.includes('id="tmmAiguille"') && svg.includes("rotate(") && svg.includes('class="tmm-piece"'), "cadran et pièces");
 // Deuxième écran LCD « multiplicateur » (Magie et niveaux d'Énergie au-dessus de 50), à la place des trois voyants.
 assert.ok(svg.includes('id="tmmMulti"') && svg.includes("MULTIPLICATEUR") && svg.includes(">×1<"), "écran du multiplicateur");
