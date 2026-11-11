@@ -19,8 +19,6 @@
   function texteVoixNouveauteIdleV1_(){return REG.texteVoixNouveauteIdleV1_.apply(null,arguments);}
   function texteVoixTutorielIdleV1_(){return REG.texteVoixTutorielIdleV1_.apply(null,arguments);}
   function htmlProfilPseudoIdleV1_(){return REG.htmlProfilPseudoIdleV1_.apply(null,arguments);}
-  function htmlReglagesMusiqueTitanIdleV1_(){return REG.htmlReglagesMusiqueTitanIdleV1_.apply(null,arguments);}
-  function htmlReglagesOrageSortsIdleV1_(){return REG.htmlReglagesOrageSortsIdleV1_.apply(null,arguments);}
   function estAdminSorealIdle_(){return REG.estAdminSorealIdle_.apply(null,arguments);}
 
       /* Trois parties pour tout le monde (Norman, 2026-10-26) : A (la tienne), B et C (essais, hors classement et hors « En direct »). Un clic sur une partie la remplace par la précédente, la page se recharge. */
@@ -442,15 +440,18 @@
        * Les blocs « Développement » (parties A/B, bruits de diarrhée, sons de défaite) et « Administrateur » (accès à SOREAL IDLE, outils de test) ne sont plus dans ce menu.
        */
       const REGLAGES_ONGLETS_IDLE_V1=[
-        {id:'jeu',icone:'👤',nom:'Mon jeu',aide:'Ton profil, ta place dans le classement et la langue.'},
-        {id:'profil',icone:'🧑',nom:'Profil',aide:'Ton badavatar : place et redimensionne ses éléments, puis enregistre.'},
-        {id:'son',icone:'🔊',nom:'Son et image',aide:'Le volume, les musiques et les effets visuels.'},
-        {id:'partie',icone:'💾',nom:'Ma partie',aide:'Sauvegarder, changer d’appareil, tout recommencer.'},
-        {id:'infos',icone:'ℹ️',nom:'Infos',aide:'Explications des menus, version et signalement de bug.'}
+        {id:'jeu',icone:'jeu',nom:'Mon jeu',aide:'Ton profil, ta place dans le classement et la langue.'},
+        {id:'profil',icone:'profil',nom:'Profil',aide:'Ton badavatar : place et redimensionne ses éléments, puis enregistre.'},
+        {id:'audio',icone:'audio',nom:'Audio',aide:'Le volume des voix, des ambiances, des musiques et des sons.'},
+        {id:'affichage',icone:'affichage',nom:'Affichage',aide:'Les effets visuels, pour alléger le jeu si besoin.'},
+        {id:'partie',icone:'partie',nom:'Ma partie',aide:'Sauvegarder, changer d’appareil, tout recommencer.'},
+        {id:'infos',icone:'infos',nom:'Infos',aide:'Explications des menus, version et signalement de bug.'}
       ];
+      /* Refonte « jeu vidéo » (Norman, 2026-11-11) : l'ancienne catégorie « Son et image » (clé 'son', gardée sur les appareils) est coupée en Audio et Affichage. */
       function reglagesOngletActifIdleV1_(){
         let id='jeu';
         try{id=String(localStorage.getItem('soreal_idle_reglages_onglet_v1')||'jeu');}catch(_e){}
+        if(id==='son')id='audio';
         return REGLAGES_ONGLETS_IDLE_V1.some(function(o){return o.id===id;})?id:'jeu';
       }
       window.__reglagesOngletIdleV1__=function(id){
@@ -485,12 +486,13 @@
           const EDI=window.__SOREAL_IDLE_PROFIL_EDITEUR_V1__;
           corps='<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🧑 Mon badavatar</div><div id="profilBadavEditeurV1"></div></div>';
           if(EDI){requestAnimationFrame(EDI.monter);setTimeout(EDI.monter,150);}
-        }else if(actif==='son'){
+        }else if(actif==='audio'){
+          /* Sections « (développement) » retirées (Norman, 2026-11-11 : « je veux le même panneau Réglages que tout le monde ; je n'ai plus besoin des tests de pentacles ni de musique de Titan »). */
+          corps=
+            htmlReglagesAudioIdleV1_();
+        }else if(actif==='affichage'){
           corps=
             htmlReglagesThemeIdleV1_()+
-            htmlReglagesAudioIdleV1_()+
-            htmlReglagesMusiqueTitanIdleV1_()+
-            htmlReglagesOrageSortsIdleV1_()+
             htmlReglagesEffetsIdleV1_();
         }else if(actif==='partie'){
           corps=
@@ -598,18 +600,20 @@
             (window.__SOREAL_IDLE_BUG_REPORT_V1__?window.__SOREAL_IDLE_BUG_REPORT_V1__.html(estAdminSorealIdle_()):'');
         }
 
+        /* Habillage « jeu vidéo » (reglages-design-v1.js, soreal-idle-reglages-v1.css) : barre de catégories colorées, panneau encadré, titres de section avec icône dessinée. */
+        const D=window.__SOREAL_IDLE_REGLAGES_DESIGN_V1__;
+        if(!D){
+          return entetePageIdleV28_('⚙️ Settings','')+corps;
+        }
         return entetePageIdleV28_(
           '⚙️ Settings',
           ''
         )+
-          '<div class="rg-onglets-v1" role="tablist">'+
-            REGLAGES_ONGLETS_IDLE_V1.map(function(o){
-              return '<button type="button" role="tab" aria-selected="'+(o.id===actif?'true':'false')+'" class="rg-onglet-v1'+(o.id===actif?' actif':'')+'" data-onglet="'+o.id+'" onclick="window.__reglagesOngletIdleV1__(this.dataset.onglet)">'+
-                '<i>'+o.icone+'</i><b>'+o.nom+'</b></button>';
-            }).join('')+
-          '</div>'+
-          '<div class="rg-aide-v1">'+onglet.aide+'</div>'+
-          corps;
+          '<div class="rg2-v1 rg2-ong-'+actif+'">'+
+            D.onglets(REGLAGES_ONGLETS_IDLE_V1,actif,'window.__reglagesOngletIdleV1__(this.dataset.onglet)')+
+            '<div class="rg-aide-v1">'+onglet.aide+'</div>'+
+            '<div class="rg2-pan" data-ong="'+actif+'">'+D.habiller(corps,onglet.icone)+'</div>'+
+          '</div>';
       }
 
   Object.assign(REG,{

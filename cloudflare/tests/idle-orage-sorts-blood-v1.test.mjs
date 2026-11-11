@@ -13,7 +13,7 @@ assert.ok(sortie.includes("basculerSurOrage_();") && orage.includes("A.forcerOra
 assert.ok(amb.includes("function forcerOrage(){") && amb.includes("var MOTIF_ORAGE=/thunder|orage|storm|tonnerre/i;") && amb.includes("if(cleForcee){var f=cleForcee;cleForcee='';forceProchaine=true;return f;}") && amb.includes("forcerOrage:forcerOrage"), "bascule sur la piste d'orage puis reprise normale");
 assert.ok(orage.includes("localStorage.getItem('soreal_idle_effet_orage_v1')!=='0'") && orage.includes("mouvementReduit_()"), "respecte l'effet coupé et le mouvement réduit");
 assert.ok(blood.includes("o.sort(String(id||''))"), "branché sur le lancement d'un sort");
-assert.ok(ui.includes("window.__apercuOrageSortIdleV1__") && ui.includes("htmlReglagesOrageSortsIdleV1_()+"), "aperçu de chaque sort dans les Réglages de développement");
+assert.ok(ui.includes("window.__apercuOrageSortIdleV1__"), "aperçu de chaque sort conservé dans le module (sa section a été retirée des Réglages le 2026-11-11 : Norman n'en a plus besoin)");
 /* « sang » et « Nombre » partout : sorts traduits */
 assert.ok(trad.includes("['Blood NUMBER Boost','Boost du nombre par le sang'],['Blood Spaghetti','Spaghetti au sang']") && trad.includes("['BLOOD','SANG'],['Blood','sang']"), "traduction automatique : sang, Nombre, noms de sorts");
 assert.ok(blood.includes("nom:'Boost du nombre par le sang'") && blood.includes("' sang</b></div>'") && !/Pas assez de Blood/.test(blood), "textes de la page Magie du sang en français");

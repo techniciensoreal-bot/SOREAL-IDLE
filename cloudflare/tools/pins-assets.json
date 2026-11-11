@@ -643,6 +643,10 @@
   "pin": 2,
   "sha": "43aeb5c44931e3e9f421fefd751c41e80c85214a"
  },
+ "/modules/reglages-design-v1.js": {
+  "pin": 7,
+  "sha": "25e9c1fb02e24d3e8991ac069482a2b782f1a4b4"
+ },
  "/modules/release-notes-anciennes-1-v1.js": {
   "pin": 1,
   "sha": "bcfcf628d446a5c8bbf9a1fb386cefdd2a1c7a83"
@@ -652,12 +656,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 272,
-  "sha": "c54afc0c9dff68ac2e337ee7b73cb5329f3a78ac"
+  "pin": 273,
+  "sha": "241d3f0f5f1adbe4d1aabcfb681eca4262f97240"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 914,
-  "sha": "1f4b404c4716fb38db4c1a0a9982be96d506fe01"
+  "pin": 915,
+  "sha": "210b48153d89acfa1be70aaad1178265e688c5d4"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -752,12 +756,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 952,
-  "sha": "101009d9f6e20d949ff127b037e2db467648a15f"
+  "pin": 953,
+  "sha": "41fc4eba1fcb8825d09912ecbc6d7abd85dfd740"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 773,
-  "sha": "87882809164740a03bb7283d638d567fbf54e3e0"
+  "pin": 774,
+  "sha": "08dd72896ffa43df9c2b26f0faf039136240708b"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -864,8 +868,8 @@
   "sha": "e72753f4bb2478369408c7ef13d9f85fb31ae510"
  },
  "/modules/ui-reglages-v1.js": {
-  "pin": 23,
-  "sha": "41eb9020b0fc80c27682f052b0739595930bfa8e"
+  "pin": 26,
+  "sha": "67297d7712b3eb5ce1b6f09b2ffae26497029a4c"
  },
  "/modules/ui-renaissance-v1.js": {
   "pin": 13,
@@ -1027,13 +1031,17 @@
   "pin": 49,
   "sha": "cdd0b13565c0d04716efada54638c758b2fd157d"
  },
+ "/soreal-idle-reglages-v1.css": {
+  "pin": 13,
+  "sha": "7a4ab3e40155f51af74e82d3279511c765f004f0"
+ },
  "/soreal-idle-renaissance.css": {
   "pin": 3,
   "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
  },
  "/soreal-idle-themes.css": {
-  "pin": 161,
-  "sha": "efa971ff3f96fd7ddf0ea135c4aca2e2e8faadc5"
+  "pin": 162,
+  "sha": "607d45059e96248d92c2a0145656d726e307a545"
  },
  "/soreal-idle-ui.css": {
   "pin": 78,

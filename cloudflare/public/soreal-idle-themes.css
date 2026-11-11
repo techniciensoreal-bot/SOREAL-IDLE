@@ -835,12 +835,7 @@ body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]{
   --pg-btn:linear-gradient(180deg,#ffb84a,#d9740a);--pg-btn-ink:#241200;
 }
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]{padding-top:20px}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] :is(.soreal-idle-section-v8,.soreal-idle-card-v4){border-left:5px solid var(--th-a)!important}
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .soreal-idle-page-title-v28{text-transform:uppercase;letter-spacing:.12em}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .soreal-idle-expand-button-v25{border-radius:2px!important;text-transform:uppercase}
-body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .soreal-idle-danger-button-v67{
-  background:linear-gradient(180deg,#ff6a5a,#b3201a)!important;color:#fff!important;border:1px solid rgba(255,255,255,.3)!important;
-}
 
 /* ---- Admin : le terminal ---- */
 body.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="admin"]{

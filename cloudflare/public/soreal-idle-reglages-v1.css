@@ -1,0 +1,128 @@
+/*
+ * SOREAL IDLE — menu Réglages, design « options de jeu vidéo » (Norman, 2026-11-11). Même famille que soreal-idle-chroniques.css : plaques d'acier à coins coupés, Bangers (titres), Russo One (textes), une couleur par catégorie.
+ * Préfixe de spécificité P = html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 pour passer devant les anciennes feuilles (themes.css, ui.css).
+ * Aucune animation en boucle (règle n°3) ; seuls des survols et un petit enfoncement au clic. Les sections gardent leur contenu : seul l'habillage change (cadres, titres, interrupteurs, curseurs, boutons).
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1{
+  --noir:#0a0709;--char:#17131a;--char2:#241d2a;--acier:#9aa4b0;--acier2:#4a525c;--parch:#ecdcb8;--encre:#120d10;--or:#d9a94a;--or2:#f7de92;
+  --a:#4f8fc4;--glow:rgba(79,143,196,.5);--a2:#27507a;
+  font-family:"Russo One",system-ui,sans-serif;color:var(--parch);
+}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1.rg2-ong-jeu{--a:#4f8fc4;--a2:#27507a;--glow:rgba(79,143,196,.5)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1.rg2-ong-profil{--a:#e0a82e;--a2:#7a5a14;--glow:rgba(224,168,46,.5)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1.rg2-ong-audio{--a:#e0661a;--a2:#7a3510;--glow:rgba(224,102,26,.5)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1.rg2-ong-affichage{--a:#9a6ae0;--a2:#4a2f80;--glow:rgba(154,106,224,.5)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1.rg2-ong-partie{--a:#3da35d;--a2:#1d5a31;--glow:rgba(61,163,93,.5)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1.rg2-ong-infos{--a:#9aa4b0;--a2:#4a525c;--glow:rgba(154,164,176,.45)}
+
+/* ---------- barre de catégories : plaques forgées, chacune sa couleur ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglets{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:7px;margin:4px 0 10px;padding:0 0 4px;background:none;border:0;box-shadow:none;border-radius:0;filter:drop-shadow(0 3px 0 rgba(0,0,0,.75)) drop-shadow(0 7px 8px rgba(0,0,0,.5))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet{--ch:12px;--ch2:10px;--ca:#9aa4b0;position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:62px;padding:8px 6px;border:0;border-radius:0;cursor:pointer;
+  color:#bda987;font-family:Bangers,cursive;font-size:17px;letter-spacing:.07em;text-transform:uppercase;text-shadow:0 2px 0 #000;background:linear-gradient(180deg,#8a8f98,#3d4147 50%,#16181b);
+  clip-path:polygon(var(--ch) 0,calc(100% - var(--ch)) 0,100% var(--ch),100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,var(--ch) 100%,0 calc(100% - var(--ch)),0 var(--ch));transition:transform .12s ease,filter .12s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet::before{content:"";position:absolute;inset:2px;z-index:-1;background:linear-gradient(180deg,#27212b,#100c13);
+  clip-path:polygon(var(--ch2) 0,calc(100% - var(--ch2)) 0,100% var(--ch2),100% calc(100% - var(--ch2)),calc(100% - var(--ch2)) 100%,var(--ch2) 100%,0 calc(100% - var(--ch2)),0 var(--ch2))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet b{font-weight:400;line-height:1;text-align:center;font-family:Bangers,cursive}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet-ico{display:grid;place-items:center;width:30px;height:30px;font-style:normal;color:var(--ca);filter:drop-shadow(0 2px 0 rgba(0,0,0,.8))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-ico{width:100%;height:100%;display:block}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet:hover{transform:translateY(-1px);filter:brightness(1.18)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet:active{transform:translateY(1px)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet.actif{color:#fff;background:linear-gradient(180deg,var(--ca),var(--a2) 55%,#0b0810)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet.actif::before{background:radial-gradient(120% 90% at 50% 0,color-mix(in srgb,var(--ca) 55%,#1a1420),#120d16 80%)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet.actif .rg2-onglet-ico{color:#fff;filter:drop-shadow(0 0 6px var(--ca)) drop-shadow(0 2px 0 rgba(0,0,0,.8))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-c-jeu{--ca:#4f8fc4}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-c-profil{--ca:#e0a82e}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-c-audio{--ca:#e0661a}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-c-affichage{--ca:#9a6ae0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-c-partie{--ca:#3da35d}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-c-infos{--ca:#9aa4b0}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg-aide-v1{margin:0 0 12px;padding:0 6px;font-size:13px;letter-spacing:.02em;color:color-mix(in srgb,var(--a) 55%,#cdbf9c);text-align:center}
+
+/* ---------- panneau de la catégorie (cadre doré-acier à la couleur de la catégorie) ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"]>.rg2-v1{column-span:all;break-inside:auto}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-pan{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));align-items:start;gap:14px;padding:18px 14px 16px;border-radius:6px;border:2px solid #000;
+  box-shadow:inset 0 0 0 2px var(--a2),inset 0 0 0 4px #000,inset 0 0 40px rgba(0,0,0,.6),0 10px 24px -8px rgba(0,0,0,.8);
+  background:radial-gradient(120% 55% at 50% -5%,color-mix(in srgb,var(--a) 26%,transparent),transparent 70%),repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 5px),linear-gradient(180deg,#1d1722,#0c090f)}
+
+/* textes courants des panneaux : Russo One, nette et large (Norman, 2026-11-11 : la police des textes au-dessus des boutons faisait « traitement de texte »). Spécificité nulle pour les éléments (:where) : titres et boutons gardent leur police. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-pan :where(div,span,label,p,b,small,li){font-family:"Russo One",system-ui,sans-serif;font-weight:400;letter-spacing:.01em}
+
+/* ---------- sections : plaques de verre fumé encadrées ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-section-v8{position:relative;margin:0;padding:14px 14px 14px;border:2px solid #000;border-radius:4px;
+  background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,0) 40%),linear-gradient(180deg,#241d2a,#130f17);
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--a) 55%,#000),inset 0 0 22px rgba(0,0,0,.55),0 4px 0 rgba(0,0,0,.55);color:var(--parch)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-section-v8::before,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-section-v8::after{content:"";position:absolute;top:6px;width:7px;height:7px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d8dde3,#59616b 60%,#1a1d21);box-shadow:0 1px 0 #000}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-section-v8::before{left:6px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-section-v8::after{right:6px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg-danger-v1{box-shadow:inset 0 0 0 1px #b3262d,inset 0 0 22px rgba(120,0,0,.45),0 4px 0 rgba(0,0,0,.55);background:linear-gradient(180deg,#2e1519,#160a0c)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-window-title-v31{display:flex;align-items:center;gap:10px;margin:-2px 0 12px;padding:0 0 9px;border:0;border-bottom:2px solid color-mix(in srgb,var(--a) 60%,#000);
+  background:none;color:#fff;font-family:Bangers,cursive;font-size:23px;font-weight:400;letter-spacing:.08em;text-transform:uppercase;text-shadow:0 2px 0 #000,0 0 14px var(--glow)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-sico{display:grid;place-items:center;flex:none;width:30px;height:30px;padding:5px;border-radius:50%;color:#fff;background:radial-gradient(circle at 35% 25%,color-mix(in srgb,var(--a) 85%,#fff),var(--a2) 75%);
+  box-shadow:inset 0 0 0 2px #000,0 0 0 2px color-mix(in srgb,var(--a) 70%,#000),0 0 12px -2px var(--glow);font-style:normal}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-section-v8 :is(div,label,span):not([class],.rg2-bouton *){color:#e4d9bd;font-size:14.5px;line-height:1.6}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-section-v8 b:not(.rg2-bouton *){color:#f7de92}
+
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-info-titre-v1{justify-content:space-between;cursor:pointer}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-info-titre-v1>span:first-child{display:flex;align-items:center;gap:10px}
+
+/* ---------- interrupteurs (cases à cocher) : levier à glissière ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="checkbox"]{-webkit-appearance:none;appearance:none;flex:none;position:relative;width:46px;height:24px;margin:0;cursor:pointer;border:2px solid #000;border-radius:4px;
+  background:linear-gradient(180deg,#0d0a10,#241d2a);box-shadow:inset 0 2px 5px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.08);transition:background .15s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="checkbox"]::before{content:"";position:absolute;top:1px;left:1px;width:18px;height:18px;border-radius:3px;border:1px solid #000;background:linear-gradient(180deg,#b9c0c8,#5a626b 55%,#2a2f35);box-shadow:0 2px 0 rgba(0,0,0,.6);transition:transform .15s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="checkbox"]:checked{background:linear-gradient(180deg,color-mix(in srgb,var(--a) 60%,#000),var(--a));box-shadow:inset 0 2px 5px rgba(0,0,0,.6),0 0 10px -1px var(--glow)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="checkbox"]:checked::before{transform:translateX(22px);background:linear-gradient(180deg,#fff,#d8dee6 55%,#8d97a3)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="checkbox"]:focus-visible{outline:2px solid var(--or2);outline-offset:2px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="checkbox"]:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- curseurs (volumes) : jauge rainurée ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:20px;margin:4px 0 0;background:none;cursor:pointer}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="range"]::-webkit-slider-runnable-track{height:12px;border:2px solid #000;border-radius:3px;background:linear-gradient(180deg,#07050a,#1c1622);box-shadow:inset 0 2px 4px rgba(0,0,0,.8),0 1px 0 rgba(255,255,255,.07)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="range"]::-moz-range-track{height:8px;border:2px solid #000;border-radius:3px;background:linear-gradient(180deg,#07050a,#1c1622)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="range"]::-moz-range-progress{height:8px;border-radius:2px;background:linear-gradient(180deg,color-mix(in srgb,var(--a) 70%,#fff),var(--a))}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:24px;margin-top:-8px;border:2px solid #000;border-radius:3px;background:linear-gradient(180deg,#f4f6f8,#aab3bd 50%,#4a525c);box-shadow:0 2px 0 rgba(0,0,0,.6),0 0 10px -2px var(--glow)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="range"]::-moz-range-thumb{width:16px;height:22px;border:2px solid #000;border-radius:3px;background:linear-gradient(180deg,#f4f6f8,#aab3bd 50%,#4a525c)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="range"]:disabled{opacity:.45}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 input[type="range"]:focus-visible{outline:2px solid var(--or2);outline-offset:2px}
+
+/* ---------- boutons : plaques forgées à coins coupés ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 :is(.rg2-bouton,.soreal-idle-tts-read-v203){--ch:8px;position:relative;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:8px 18px;border:0;border-radius:0;cursor:pointer;
+  color:#fff;font-family:Bangers,cursive;font-size:18px;font-weight:400;letter-spacing:.07em;text-transform:uppercase;text-shadow:none;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--a) 80%,#000),var(--a2));box-shadow:none;outline:0;
+  clip-path:polygon(var(--ch) 0,calc(100% - var(--ch)) 0,100% var(--ch),100% calc(100% - var(--ch)),calc(100% - var(--ch)) 100%,var(--ch) 100%,0 calc(100% - var(--ch)),0 var(--ch));transition:transform .1s ease,filter .1s ease}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 :is(.rg2-bouton,.soreal-idle-tts-read-v203):hover:not(:disabled){filter:brightness(1.18)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 :is(.rg2-bouton,.soreal-idle-tts-read-v203):active:not(:disabled){transform:translateY(1px);filter:brightness(.9)}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 :is(.rg2-bouton,.soreal-idle-tts-read-v203):disabled{filter:grayscale(.6) brightness(.7);cursor:default}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 .rg2-bouton[aria-pressed="true"]{background:linear-gradient(180deg,#f7de92,#d9a94a 45%,#7a5a14);color:#2a1a06;text-shadow:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 .rg2-danger{background:linear-gradient(180deg,#ff6b6b,#c0262d 45%,#6a1014)}
+
+/* le bouton actif d'un choix (parties A/B/C) garde son contour doré ; les sections « danger » ont leur icône rouge */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 .rg2-partie{flex-direction:column;text-align:left;font-size:15px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 .rg2-partie span{font-family:"Russo One",system-ui,sans-serif;text-transform:none;letter-spacing:0;color:#f0e6cc;text-shadow:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg-danger-v1{--a:#d1262d;--a2:#7c1a1d;--glow:rgba(209,38,45,.5)}
+
+/* polices Bangers des plaques, des boutons et du bouton des notes (la règle générale du jeu impose Comic Neue en priorité forcée) ; le bouton des notes garde sa classe d'origine (un script la cherche) : seuls fond, forme, couleur et bordure sont forcés */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 :is(.rg2-onglet,.rg2-onglet b,.rg2-bouton){font-family:Bangers,cursive!important}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 .rg2-bouton.soreal-idle-notes-maj-bouton-v1{background:linear-gradient(180deg,color-mix(in srgb,var(--a) 80%,#000),var(--a2))!important;clip-path:polygon(8px 0,calc(100% - 8px) 0,100% 8px,100% calc(100% - 8px),calc(100% - 8px) 100%,8px 100%,0 calc(100% - 8px),0 8px)!important;color:#fff!important}
+
+/* la règle générale du jeu impose sa police aux textes : Russo One pour les textes courants (hors titres et boutons) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 .rg2-pan :is(div,span,label,p,b,small,li):not(.soreal-idle-window-title-v31,.rg2-bouton,.rg2-bouton *,.rg2-sico){font-family:"Russo One",system-ui,sans-serif!important}
+
+/* ---------- champs de texte et listes ---------- */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 :is(input[type="text"],input[type="search"],input:not([type]),select,textarea){border:2px solid #000;border-radius:3px;background:linear-gradient(180deg,#0c090f,#1c1622);color:var(--parch);box-shadow:inset 0 2px 5px rgba(0,0,0,.7);font-family:"Russo One",system-ui,sans-serif}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 :is(input[type="text"],input[type="search"],input:not([type]),select,textarea):focus{outline:2px solid var(--a);outline-offset:0}
+
+@media (max-width:520px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglets{gap:4px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet{--ch:8px;--ch2:6px;min-height:54px;padding:6px 2px;font-size:12.5px;letter-spacing:.03em}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-onglet-ico{width:24px;height:24px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .soreal-idle-window-title-v31{font-size:19px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 .rg2-pan{padding:12px 8px}
+}
+@media (prefers-reduced-motion:reduce){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .rg2-v1 *{transition:none}
+}
+
+/* texte des boutons toujours lisible : aucune ombre, un trait net (Norman, 2026-11-11) */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 .rg2-bouton :is(span,b,i){text-shadow:none}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="parametres"] .rg2-v1.rg2-v1 :is(.rg2-bouton,.rg2-bouton *){-webkit-text-stroke:0;text-shadow:none;opacity:1}

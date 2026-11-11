@@ -27,7 +27,7 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
   assert.ok(bloc.includes("(actif?'checked ':'')"), "cochée de base");
 }
 /* Depuis le 2026-10-08, la section « Effets visuels » s'intercale entre l'Audio et la Version. */
-assert.ok(ui.includes("htmlReglagesAudioIdleV1_()+")&&ui.includes("htmlReglagesMusiqueTitanIdleV1_()+")&&ui.includes("htmlReglagesEffetsIdleV1_();"), "catégorie Son et image (2026-10-25) : audio, musique, orage, effets visuels");
+assert.ok(ui.includes("htmlReglagesAudioIdleV1_();")&&ui.includes("htmlReglagesEffetsIdleV1_();")&&!readFileSync("cloudflare/public/modules/ui-reglages-v1.js","utf8").includes("htmlReglagesMusiqueTitanIdleV1_()")&&!readFileSync("cloudflare/public/modules/ui-reglages-v1.js","utf8").includes("htmlReglagesOrageSortsIdleV1_()"), "catégories Audio et Affichage (2026-11-11) : audio d'un côté, effets visuels de l'autre ; plus de sections « développement » (musique de Titan, pentacles)");
 
 // --- Le curseur ajuste le module de réglages sans re-rendre toute la page (pas de perte de focus en plein glissement) ---
 assert.match(ui, /window\.__reglerVolumeIdleV1__=function\(type,valeur\)\{/);

@@ -29,6 +29,9 @@
         nom:'Une télé d’un autre temps',
         date:'2026-11-11',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Les Réglages sont entièrement refaits, dans un style jeu vidéo : plaques d’acier colorées pour chaque catégorie (Mon jeu, Profil, Audio, Affichage, Ma partie, Infos), cadres, icônes dessinées, interrupteurs à levier, curseurs de volume et gros boutons lisibles. Le son et l’image sont maintenant deux catégories séparées, et les sections de test de développement ont disparu.'
+          ]},
           {menu:'chroniques', titre:'Chroniques', points:[
             'Dans l’onglet Équipement, chaque objet déjà découvert (boosts compris) a le même bouton de filtre que le Coffre : un objet filtré n’est plus ramassé en Aventure. La liste est la même que celle du Coffre. Un boost filtré part directement dans le Cube si tu as acheté l’option. Disponible une fois le filtre amélioré acheté.'
           ]},
