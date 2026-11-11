@@ -4491,7 +4491,7 @@
   "__SOREAL_IDLE_APK_CONNEXION_V1__": "modules/apk-connexion-v1.js",
   "__SOREAL_IDLE_APK_SYNCHRO_V1__": "modules/apk-synchro-v1.js",
   "__SOREAL_IDLE_APPARITION_BOSS_V1__": "modules/apparition-boss-v1.js",
-  "__SOREAL_IDLE_APRES_REDESSIN_V1__": "modules/aug-led-barres-v1.js",
+  "__SOREAL_IDLE_APRES_REDESSIN_V1__": "modules/at-hauteur-stable-v1.js",
   "__SOREAL_IDLE_AT_PAGE_V2__": "modules/augmentations-page-v1.js",
   "__SOREAL_IDLE_AT_TICK_V1__": "modules/augmentations-page-v1.js",
   "__SOREAL_IDLE_AUDIO_BORNE_V1__": "modules/audio-borne-v1.js",

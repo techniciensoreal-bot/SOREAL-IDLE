@@ -1,0 +1,2 @@
+/* Hauteurs réservées pour que la page ne bouge jamais au clic ; valeurs posées par modules/at-hauteur-stable-v1.js */
+html body .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-detail-v1{min-height:var(--at-detail-h,0px)}
