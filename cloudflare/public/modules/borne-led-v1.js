@@ -798,16 +798,7 @@ function sWin(t){
   /* LA OLA (Norman, 2026-11-03 : « elle doit être mieux faite ») : une vraie ola de stade, UNE SEULE crête large et douce qui traverse l'écran de gauche à droite (front net, longue traîne qui s'efface), dégradé vert, ambre puis blanc, tête plus claire avec un reflet ; puis les lettres de VICTOIRE ! sont portées par la vague : chacune monte quand la crête passe sous elle, avec un petit rebond. Confettis conservés. */
   var s=T('win'),sc=bigSc(s),tw=twidth(s,sc),bt=Math.round((H-7*sc)/2),tx=Math.floor((W-tw)/2),vf=1-sm((t-6.6)/0.5),k,ch,pre;
   if(P.reduced){text(s,tx,bt,VER,sc,255*sm((t-2.8)/0.4)*vf,{fn:function(){return VER;}});return;}   /* mouvement réduit : le mot seul, fixe */
-  var TV=2.4,uu=clamp(t/TV,0,1),xc=W*(-0.3+1.6*uu),A=sm(t/0.35)*(1-sm((t-2.3)/0.6)),wf=Math.max(7,W*0.13),wt=Math.max(14,W*0.28);
-  if(A>0)for(x=0;x<W;x++){
-    var dd=x-xc,pf=dd>=0?Math.exp(-(dd*dd)/(wf*wf)):Math.exp(-Math.pow(-dd/wt,1.3)),hg=Math.round((H-1)*0.8*pf*A);
-    if(hg<=0)continue;
-    var lum=0.3+0.7*Math.pow(pf,0.6);
-    for(y=0;y<hg;y++){var r=y/((H-1)*0.8),col=r<0.42?VER:r<0.72?AMB:BLA;
-      px(x,H-1-y,col,255*lum*(0.55+0.45*y/hg));}
-    px(x,H-1-hg,BLA,255*lum);px(x,H-hg,BLA,200*lum);                  /* la tête de la vague, plus claire */
-    if(dd>=0&&dd<wf*0.5&&hg>4)px(x,H-1-Math.round(hg*0.62),BLA,230*lum);   /* le reflet sur le front */
-  }
+  var TV=3.0,Ym=yeuxMod();if(Ym)Ym.maree(t,TV);   /* ras de marée : borne-yeux-v1.js */
   for(k=0;k<s.length;k++){                                           /* les lettres, portées par la vague */
     ch=canon(s)[k];if(ch===' ')continue;pre=canon(s).slice(0,k);
     var lx=tx+twidth(pre,sc)+(k?sc:0),ci=lx+gl(ch).w*sc/2,ti=TV*((ci/W+0.3)/1.6),v0=clamp((t-ti)/0.5,0,1);

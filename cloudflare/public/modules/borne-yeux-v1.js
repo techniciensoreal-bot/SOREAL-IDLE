@@ -360,6 +360,26 @@ function colereEp(t,n){
 function anim(id,t){var f={explosion:aExplosion,spirale:aSpirale,larmes:aLarmes,tvoff:aTvOff,chute:aChute,coeurs:aCoeurs,etoiles:aEtoiles,mouche:aMouche,colere:aColere}[id];if(f)f(t);}
 /* scène de l'aperçu (et du jeu plus tard) : params { id } ; enregistrée dans la table des scènes de la borne dès que ce module est chargé par elle. */
 if(O.SC&&!O.SC.yeuxanim)O.SC.yeuxanim={fn:function(t){anim(paneau().p.id||"coeurs",t);},dur:function(p){return ANIM_DUREES[p.id]||5;},prio:5,cap:1.0};
+/* RAS DE MARÉE (victoire ; Norman, 2026-11-11 : « la vague de victoire doit avoir l'air d'un ras de marée, pas ce truc étrange ») : un mur d'eau haut et raide qui traverse tout l'écran de gauche à droite. Face avant presque verticale, qui déferle (la lèvre de la crête se recourbe vers l'avant, mousse blanche), longue traîne d'eau agitée derrière, embruns devant la crête ; l'eau est bleue, plus claire vers le haut, striée de courants qui glissent, puis elle se retire. Dessinée seulement ici ; la scène de victoire (borne-led-v1.js) y ajoute ensuite les lettres. t : secondes ; TV : durée de la traversée. */
+function maree(t,TV){
+  var P=paneau(),W=P.W,H=P.H,u=clamp(t/TV,0,1),xc=W*(-0.28+1.5*sm(u)),A=sm(t/0.3)*(1-sm((t-TV)/1.5)),Hc=(H-1)*1.0,wf=Math.max(6,W*0.09),wt=Math.max(26,W*0.56),lip=Math.max(5,Math.round(W*0.055)),
+      x,y,dd,hh,hg,r,lum,mod,j,k,yt,fr=Math.floor(t*16);
+  if(A<=0)return;
+  for(x=0;x<W;x++){
+    dd=x-xc;
+    hh=dd>=0?(dd<wf?Hc*Math.pow(1-dd/wf,0.5):0):Hc*(0.38+0.62*Math.exp(-Math.pow(-dd/wt,1.2)));
+    hg=Math.round(hh*A);if(hg<=0)continue;
+    for(y=0;y<hg;y++){
+      r=y/Math.max(1,hg-1);lum=0.3+0.7*r;mod=0.8+0.2*Math.sin(x*0.65-t*12+y*0.95);
+      px(x,H-1-y,r>0.88?O.BLA:O.BLE,255*lum*mod);
+    }
+    px(x,H-1-hg,O.BLA,255);
+    if(hg>3&&hash(x*7+fr)<0.3)px(x,H-2-hg-Math.floor(hash(x*3+fr)*3),O.BLA,190);          /* mousse qui crépite sur le dessus */
+  }
+  yt=H-1-Math.round(Hc*A);
+  for(j=0;j<lip;j++){px(xc+j,yt+Math.round(Math.pow(j/lip,1.8)*4),O.BLA,255);px(xc+j,yt+1+Math.round(Math.pow(j/lip,1.8)*4),O.BLE,230*(1-j/lip));}   /* la lèvre qui déferle */
+  for(k=0;k<16;k++)px(xc+lip*0.6+hash(k*5+fr)*lip*1.8,yt+hash(k*11+fr)*9-2,O.BLA,160+90*hash(k+fr));   /* embruns devant la crête */
+}
 /* Inactivité : instant du dernier clic / touche / toucher (au chargement : maintenant, donc jamais d'yeux dans les premières secondes) ; yeuxAt : une apparition toutes les 22 à 48 s au plus. */
 var dernierClic=(window.performance&&performance.now)?performance.now():0,yeuxAt=0;
 (function(){var f=function(){dernierClic=(window.performance&&performance.now)?performance.now():0;};try{window.addEventListener('pointerdown',f,true);window.addEventListener('keydown',f,true);window.addEventListener('touchstart',f,true);}catch(_e){}})();
@@ -368,6 +388,6 @@ var moucheAt=0;
 function moucheDu(now,menu){return menu==='combat'&&now-dernierClic>=120000&&now>=moucheAt&&(moucheAt=now+120000,true);}
 function du(now,combat){return !combat&&now-dernierClic>=YEUX_INACTIF_MS&&now>=yeuxAt;}
 function lancer(now){yeuxAt=now+YEUX_PAUSE_MIN_MS+Math.random()*YEUX_PAUSE_ALEA_MS;return yeuxParams();}
-return {anim:anim,animIds:ANIM_IDS,finDuree:finDuree,mouche:moucheDu,colereEp:colereEp,animDuree:function(id){return ANIM_DUREES[id]||5;},scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
+return {maree:maree,anim:anim,animIds:ANIM_IDS,finDuree:finDuree,mouche:moucheDu,colereEp:colereEp,animDuree:function(id){return ANIM_DUREES[id]||5;},scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
 };
 })();
