@@ -15,7 +15,7 @@ assert.ok(/new MutationObserver\(function\(\)\{\s*var h=document\.getElementById
 assert.ok(hud.indexOf("new MutationObserver(function(){") < hud.indexOf("setInterval(function(){if(!document.hidden)maj();},250)"), "l'observateur est posé avant le minuteur");
 
 const html = readFileSync(new URL("../public/index.html", import.meta.url), "utf8");
-for (const f of ["bangers-400-latin", "comic-neue-400-latin", "comic-neue-700-latin", "russo-one-400-latin"]) {
+for (const f of ["bangers-400-latin", "russo-one-400-latin"]) {
   assert.ok(new RegExp('<link rel="preload" href="/fonts/' + f + '\\.woff2" as="font" type="font/woff2" crossorigin>').test(html), f + " doit être préchargée (sinon le texte change de taille au chargement)");
 }
 console.log("idle-cls-chargement-v1 : OK");

@@ -108,7 +108,7 @@ function styles(){
     '.gsp-cadre{display:flex;justify-content:center;margin:6px auto 8px}'+
     '.gsp-img{display:block;width:min(46vw,180px);max-height:34dvh;height:auto;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.55));animation:gspFlotte 3.2s ease-in-out infinite}'+
     '.gsp-portrait{width:min(40vw,170px);border-radius:14px;border:3px solid var(--gsp-bord);box-sizing:border-box;image-rendering:auto}.gsp-nom{margin:4px 0 6px;font-family:"Russo One",Bangers,sans-serif;font-size:21px;letter-spacing:.5px;color:var(--gsp-acc);text-shadow:1px 1px 0 #000}'+
-    '.gsp-phrase{margin:6px 0;font-family:"Comic Neue","Comic Sans MS",sans-serif;font-weight:700;font-size:16px;line-height:1.35}'+
+    '.gsp-phrase{margin:6px 0;font-family:"Russo One",system-ui,sans-serif;font-weight:400;font-size:16px;line-height:1.35}'+
     '.gsp-indice{margin:6px 0 14px;font-size:13.500px;opacity:.82}'+
     '.gsp-bouton{min-width:170px;padding:11px 26px;border:3px solid #000;border-radius:10px;font-family:Bangers,"Comic Sans MS",cursive;font-size:24px;letter-spacing:1.5px;color:var(--gsp-btnT);background:linear-gradient(180deg,var(--gsp-btnA),var(--gsp-btnB));box-shadow:0 4px 0 #000;cursor:pointer}'+
     '.gsp-bouton:focus-visible{outline:4px solid #fff;outline-offset:3px}'+

@@ -72,7 +72,7 @@ function installerStyle_(){
     '#'+LISTE_ID+' button.principal,#'+EDITEUR_ID+' button.principal{background:linear-gradient(180deg,#34c46a,#1f8f4c)}'+
     '#'+LISTE_ID+' button.danger,#'+EDITEUR_ID+' button.danger{background:linear-gradient(180deg,#c94a4a,#8f2a2a)}'+
     '#'+LISTE_ID+' .at-ancien{margin-top:10px;padding:9px 10px;border-radius:10px;border:1px dashed rgba(242,201,76,.6);font-size:14px}'+
-    '#'+EDITEUR_ID+'{position:fixed;inset:0;z-index:99990;overflow:auto;background:#050810;color:#eef2ff;padding:14px;box-sizing:border-box;font-family:"Comic Neue","Comic Sans MS",sans-serif}'+
+    '#'+EDITEUR_ID+'{position:fixed;inset:0;z-index:99990;overflow:auto;background:#050810;color:#eef2ff;padding:14px;box-sizing:border-box;font-family:"Russo One",system-ui,sans-serif}'+
     '#'+EDITEUR_ID+'[hidden]{display:none}'+
     '#'+EDITEUR_ID+' .at-panneau{max-width:820px;margin:0 auto}'+
     '#'+EDITEUR_ID+' h2{font-family:Bangers,"Comic Sans MS",cursive;letter-spacing:.05em;color:#f2c94c;margin:0 0 10px}'+

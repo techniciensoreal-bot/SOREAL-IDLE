@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Tous les textes du jeu changent de police : fini l’écriture « traitement de texte », place à une police de jeu vidéo plus nette et plus lisible, la même que celle des Chroniques et des Réglages.",
     "Les Réglages sont entièrement refaits, dans un style jeu vidéo : plaques d’acier colorées pour chaque catégorie (Mon jeu, Profil, Audio, Affichage, Ma partie, Infos), cadres, icônes dessinées, interrupteurs à levier, curseurs de volume et gros boutons lisibles. Le son et l’image sont maintenant deux catégories séparées, et les sections de test de développement ont disparu."
   ] };
 })();

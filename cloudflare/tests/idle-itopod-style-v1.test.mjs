@@ -26,7 +26,7 @@ for (const fragment of ["border:3px solid #000", "5px 5px 0 #000", "page-root-v2
 assert.ok(!/@import|url\(\s*["']?https?:/i.test(css), "aucune ressource externe");
 // Écritures « BD » : Bangers (titres, boutons) et Comic Neue (textes), chargées par index.html ; seul l'écran rétro garde sa police.
 assert.ok((index.includes('href="/fonts/fonts.css"') || index.includes('href="/fonts/fonts.css?v=')) && !index.includes("fonts.googleapis.com"), "polices BD chargées par la page, hébergées sur le site (plus de Google)");
-assert.ok(css.includes('--f-titre:"Bangers"') && css.includes('--f-texte:"Comic Neue"'), "deux familles : titres et textes");
+assert.ok(css.includes('--f-titre:"Bangers"') && css.includes('--f-texte:"Russo One"'), "deux familles : titres et textes");
 assert.ok(css.includes(":not(.wd-ecran)") && css.includes(":not(.wd-touche)"), "l'ordinateur rétro garde sa police d'écran");
 assert.ok(css.includes("-webkit-text-stroke:1px #000"), "contour noir des titres (lettres de BD)");
 // Montée en puissance : six rangs, chacun avec un fond de plus en plus foncé ; le dernier est la couleur de base, très foncée ; titres de Basic Training en bandeaux de combat.

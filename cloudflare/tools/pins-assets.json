@@ -16,8 +16,8 @@
   "sha": "2cfbc955db2c6c83af5835bdacd6658ab4047ffc"
  },
  "/modules/admin-tutoriel-v1.js": {
-  "pin": 15,
-  "sha": "4169bab8a8aed9480a3f9bf875f07cdd2f955baa"
+  "pin": 16,
+  "sha": "4e642c2cb2d950c2280a01ada3d0b8a846f90434"
  },
  "/modules/adventure-fond-zone-v1.js": {
   "pin": 4,
@@ -248,8 +248,8 @@
   "sha": "479d3de1e75d12aa3430204d7267cd5502aae6e1"
  },
  "/modules/daycare-skin-popup-v1.js": {
-  "pin": 3,
-  "sha": "24e04d10ff39f0846ade71f19e0ce171b0cf3121"
+  "pin": 4,
+  "sha": "2d2fab18361ff1c3da3e2f1f6e247005863ebd3a"
  },
  "/modules/defi-niveaux-100-v1.js": {
   "pin": 1,
@@ -500,8 +500,8 @@
   "sha": "09f08f1e97a0892de374d624360e0f2f7e15be8f"
  },
  "/modules/maj-v1.js": {
-  "pin": 3,
-  "sha": "2dea62a5fbcdfbc56f14f14d8ec1e4464aa17e5f"
+  "pin": 4,
+  "sha": "73b88326c5f00742e1892096986ffbcd9ea6af9f"
  },
  "/modules/menu-drapeaux-v1.js": {
   "pin": 1,
@@ -656,12 +656,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 273,
-  "sha": "241d3f0f5f1adbe4d1aabcfb681eca4262f97240"
+  "pin": 274,
+  "sha": "2e8dd5cb5b31ebf7a59ed4224885642bab194726"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 915,
-  "sha": "210b48153d89acfa1be70aaad1178265e688c5d4"
+  "pin": 916,
+  "sha": "4b812a9aa02c8450e291bdb9da233e55f5174758"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -756,12 +756,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 953,
-  "sha": "41fc4eba1fcb8825d09912ecbc6d7abd85dfd740"
+  "pin": 954,
+  "sha": "1f820ee6ddb5f9156fbe21da59e02565af860d1a"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 774,
-  "sha": "08dd72896ffa43df9c2b26f0faf039136240708b"
+  "pin": 775,
+  "sha": "a4409ef0db9e49d198cc5405245e5ea0433189fa"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -1008,8 +1008,8 @@
   "sha": "9d048156fb59791eff3b410985504a578deefa14"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 351,
-  "sha": "6f3e58be83232077c550ef39289a7dbbed2fee6a"
+  "pin": 352,
+  "sha": "e563c6f45bbfea3f2c12bd121d5541b2f2efa97d"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,

@@ -38,9 +38,9 @@ function taille(o){var m=Number(o)/1048576;return m>=10?Math.round(m)+' Mo':m.to
 function style(){
   if(document.getElementById(ID+'Style'))return;
   var s=document.createElement('style');s.id=ID+'Style';
-  s.textContent='#'+ID+'{position:fixed;left:0;right:0;top:0;z-index:2147483000;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 14px;background:linear-gradient(180deg,#1f4fa8,#173a7d);color:#fff;font:600 14px/1.3 "Comic Neue","Segoe UI",system-ui,sans-serif;box-shadow:0 3px 14px rgba(0,0,0,.55);border-bottom:2px solid #7fb2ff}'+
+  s.textContent='#'+ID+'{position:fixed;left:0;right:0;top:0;z-index:2147483000;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 14px;background:linear-gradient(180deg,#1f4fa8,#173a7d);color:#fff;font:600 14px/1.3 "Russo One","Segoe UI",system-ui,sans-serif;box-shadow:0 3px 14px rgba(0,0,0,.55);border-bottom:2px solid #7fb2ff}'+
     '#'+ID+' .maj-texte{flex:1 1 260px;min-width:0}#'+ID+' .maj-texte b{color:#ffd24a}'+
-    '#'+ID+' button{font:800 14px "Comic Neue","Segoe UI",system-ui,sans-serif;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,.7);cursor:pointer;color:#fff;background:rgba(255,255,255,.12)}'+
+    '#'+ID+' button{font:800 14px "Russo One","Segoe UI",system-ui,sans-serif;padding:6px 14px;border-radius:999px;border:2px solid rgba(255,255,255,.7);cursor:pointer;color:#fff;background:rgba(255,255,255,.12)}'+
     '#'+ID+' button.principal{background:#2fbf4a;border-color:#fff;color:#06210d}#'+ID+' button:disabled{opacity:.6;cursor:default}'+
     '#'+ID+' .maj-barre{flex:1 1 220px;height:12px;border-radius:999px;background:rgba(0,0,0,.35);overflow:hidden}#'+ID+' .maj-barre i{display:block;height:100%;width:0;background:#ffd24a;border-radius:999px}'+
     '#'+ID+' .maj-erreur{color:#ffd0d0}';
