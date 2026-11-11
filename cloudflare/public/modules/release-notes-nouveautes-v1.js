@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "La page ne fait plus de petit saut quand une barre d’énergie ou de magie du bandeau se vide (par exemple avec « Max » dans l’Entraînement avancé) : la barre s’efface en fondu mais garde sa place."
+    "La page ne fait plus de petit saut quand une barre d’énergie ou de magie du bandeau se vide : la barre s’efface en fondu mais garde sa place."
   ] };
 })();
