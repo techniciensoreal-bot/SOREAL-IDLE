@@ -60,8 +60,11 @@ const tar = path.join(copie, "src.tar");
 execFileSync("git", ["archive", "--format=tar", "-o", tar, sha]);
 const dossier = path.join(copie, "depot");
 fs.mkdirSync(dossier);
-execFileSync("tar", ["-xf", tar, "-C", dossier]);
+/* Windows : le tar de Git Bash lit « C: » comme une machine distante (« Cannot connect to C: resolve failed ») ; on prend celui de Windows (2026-11-11) */
+execFileSync(WIN ? path.join(process.env.SystemRoot || "C:\\Windows", "System32", "tar.exe") : "tar", ["-xf", tar, "-C", dossier]);
 fs.rmSync(tar);
+/* Un dépôt vide dans la copie : l'inventaire des visuels liste les fichiers par « git ls-files » (comme en CI, où le dépôt est extrait avec son .git) ; sans dépôt il comptait 0 dossier de ressources et le test du catalogue échouait (2026-11-11) */
+execFileSync("git", ["init", "-q"], { cwd: dossier });
 console.log("Copie : " + dossier);
 
 // garde-fous sur le contenu publié
