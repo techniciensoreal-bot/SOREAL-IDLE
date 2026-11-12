@@ -121,7 +121,7 @@ function ouvrir(cle){
   o.addEventListener('mousedown',function(ev){if(ev.target===o)fermer();});
   dessiner();
   /* Les niveaux évoluent en continu : le détail suit. */
-  MINUTEUR=setInterval(dessiner,1000);
+  MINUTEUR=setInterval(function(){if(!document.hidden)dessiner();},1000);
 }
 
 style();

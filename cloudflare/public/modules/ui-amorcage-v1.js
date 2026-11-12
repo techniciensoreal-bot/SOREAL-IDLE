@@ -826,9 +826,9 @@ if(typeof window!=='undefined')window.__chroniquesOngletIdleV1__=function(id){
       };
 }
 
-      /* @amorce S:if(typeof setInterval==='function')setInterval(actualiserNavAlimenteIdleV1_,500) */
+      /* @amorce S:if(typeof setInterval==='function')setInterval(function(){if(!document.hidden)actualiserNavAlimenteIdleV1_();},500) */
 function __amorcer_445(){
-if(typeof setInterval==='function')setInterval(actualiserNavAlimenteIdleV1_,500);
+if(typeof setInterval==='function')setInterval(function(){if(!document.hidden)actualiserNavAlimenteIdleV1_();},500);
 }
 
       /* @amorce S:window.__reglerRangeesMenuIdleV1__=function(n){ n=n===1||n===3?n:2;  */

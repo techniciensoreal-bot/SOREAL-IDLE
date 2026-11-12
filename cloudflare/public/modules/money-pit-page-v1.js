@@ -31,7 +31,7 @@
       let minuteurRechargeIdleV1=null;
       function demarrerMinuteurRechargeIdleV1_(){
         if(minuteurRechargeIdleV1||typeof setInterval!=='function')return;
-        minuteurRechargeIdleV1=setInterval(function(){
+        minuteurRechargeIdleV1=setInterval(function(){if(document.hidden)return;
         const boutons=document.querySelectorAll('[data-idle-recharge-v1]');
         if(!boutons.length)return;
         const maintenant=(typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now());
@@ -61,7 +61,7 @@
       let guetteurPalierTrouIdleV1=null,derniereSynchroPalierIdleV1=0;
       function guetterPalierTrouIdleV1_(){
         if(guetteurPalierTrouIdleV1||typeof setInterval!=='function')return;
-        guetteurPalierTrouIdleV1=setInterval(function(){
+        guetteurPalierTrouIdleV1=setInterval(function(){if(document.hidden)return;
           const carte=document.querySelector('[data-trou-v1][data-mp-palier]');
           if(!carte)return;
           const H=window.__SOREAL_IDLE_META_HOST_V130__;

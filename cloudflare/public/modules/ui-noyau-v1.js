@@ -470,7 +470,7 @@
         const avant=node.nodeValue;
         /* Le chiffre de Wandoos a changé : le « lol » collé à l'ancien 69 % s'en va. */
         const suiv=node.nextSibling;
-        if(suiv&&suiv.nodeType===1&&suiv.classList&&suiv.classList.contains('wd-lol-v1')&&!/^s*69s?%s*$/.test(avant||''))suiv.remove();
+        if(suiv&&suiv.nodeType===1&&suiv.classList&&suiv.classList.contains('wd-lol-v1')&&!/^\s*69\s?%\s*$/.test(avant||''))suiv.remove();
         if(!avant||avant.indexOf('69')<0)return;
         const parent=node.parentElement;
         if(!parent||/^(SCRIPT|STYLE|TEXTAREA|INPUT|OPTION)$/i.test(parent.tagName))return;

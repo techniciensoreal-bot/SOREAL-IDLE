@@ -484,7 +484,7 @@
             fermerInfobulleEnergieIdleV1_();
           }
         });
-        setInterval(rafraichirInfobulleEnergieIdleV1_,1000);
+        setInterval(function(){if(!document.hidden)rafraichirInfobulleEnergieIdleV1_();},1000);
       }
 
       function rafraichirEnergieEtBoutonsIdleV9_(){

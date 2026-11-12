@@ -612,7 +612,8 @@ export function idleNguBonuses(raw) {
     ? raw
     : normalizeIdleNguState(raw, {}, raw?.updatedAt || Date.now());
   if (__nguCtx.__porteeBonusV1 && __nguCtx.__porteeBonusV1.state === state) {
-    if (__nguCtx.__porteeBonusV1.valeur === null) __nguCtx.__porteeBonusV1.valeur = idleNguBonusesMemoV1(state);
+    /* Audit 2026-11-12 : sans copie profonde (la valeur de portée n'est jamais modifiée : lecture seule, comme hors portée). */
+    if (__nguCtx.__porteeBonusV1.valeur === null) __nguCtx.__porteeBonusV1.valeur = idleNguBonusesMemoV1(state, true);
     return structuredClone(__nguCtx.__porteeBonusV1.valeur);
   }
   return idleNguBonusesMemoV1(state);

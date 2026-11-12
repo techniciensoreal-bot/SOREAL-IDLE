@@ -1822,6 +1822,8 @@ export const SET_ITEM_NAMES_EN_V1=Object.freeze({
 /* Noms français (Norman, 2026-10-03) : la table anglaise ci-dessus garde les noms du wiki pour référence ; le jeu affiche la traduction. */
 export const SET_ITEM_NAMES_V1=Object.freeze({...SET_ITEM_NAMES_EN_V1,...NOMS_PIECES_FR_V1});
 
-export const defById=id=>{const [set,slot]=String(id).split(":");return SETS[set]?.slots.includes(slot)?{kind:"set",set,slot}:SPECIALS[id]?{kind:"special",id}:null};
+/* Audit 2026-11-12 : 6 140 appels par synchro (mesuré), fonction pure de l'identifiant : résultat gardé (objet gelé, jamais modifié par les appelants) ; seuls les identifiants connus sont gardés, la table ne grossit donc pas avec des identifiants inventés. */
+const DEF_PAR_ID_V1=new Map();
+export const defById=id=>{const c=DEF_PAR_ID_V1.get(id);if(c!==undefined)return c;const [set,slot]=String(id).split(":");const r=SETS[set]?.slots.includes(slot)?Object.freeze({kind:"set",set,slot}):SPECIALS[id]?Object.freeze({kind:"special",id}):null;if(r!==null&&(typeof id==="string"))DEF_PAR_ID_V1.set(id,r);return r};
 
 export const IDLE_ADVENTURE_SPECIAL_ORDRE_V1=Object.freeze(Object.fromEntries(Object.keys(SPECIALS).map((id,i)=>[id,i])));
