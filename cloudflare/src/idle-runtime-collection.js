@@ -727,9 +727,26 @@ function parserStatsMemoV1_(valeur) {
     const brut = parserJsonSorealIdle_(valeur, {});
     __statsTexteMemoV1.texte = valeur;
     __statsTexteMemoV1.objet = brut;
-    return copieJsonV1(brut);
+    return copierSansMetaNguV1_(brut);
   }
-  return copieJsonV1(__statsTexteMemoV1.objet);
+  return copierSansMetaNguV1_(__statsTexteMemoV1.objet);
+}
+/* Audit 2026-11-12 : les statistiques (130 à 144 Ko) étaient recopiées EN ENTIER à chaque lecture (6 par synchro, environ 12 % du temps du moteur, mesuré), alors que presque tout le volume est metaNgu et que la plupart des lectures n'y touchent pas. metaNgu devient un accesseur paresseux : copié (profondément, depuis l'objet gardé qui n'est jamais rendu) à la PREMIÈRE lecture seulement, et chaque appel garde sa propre copie ; une affectation le remplace. Test : idle-stats-metangu-paresseux-v1. */
+function copierSansMetaNguV1_(brut) {
+  if (!brut || typeof brut !== 'object' || Array.isArray(brut) || !Object.prototype.hasOwnProperty.call(brut, 'metaNgu')) return copieJsonV1(brut);
+  const s = {};
+  for (const k of Object.keys(brut)) {
+    if (k === 'metaNgu') continue;
+    const c = copieJsonV1(brut[k]);
+    if (c !== undefined) s[k] = c;
+  }
+  let valeur, charge = false;
+  Object.defineProperty(s, 'metaNgu', {
+    enumerable: true, configurable: true,
+    get() { if (!charge) { valeur = copieJsonV1(brut.metaNgu); charge = true; } return valeur; },
+    set(v) { valeur = v; charge = true; }
+  });
+  return s;
 }
 export function statsJoueurSorealIdle_(valeur) {
   const s=parserStatsMemoV1_(valeur);
@@ -749,7 +766,7 @@ export function statsJoueurSorealIdle_(valeur) {
       ? s.cooldownsSorts
       : {};
 
-  return {
+  const resultatStatsV1 = {
     lootsObtenus:Math.max(0,Math.floor(nombreSorealIdle_(s.lootsObtenus,0))),
     objetsRecycles:Math.max(0,Math.floor(nombreSorealIdle_(s.objetsRecycles,0))),
     fusions:Math.max(0,Math.floor(nombreSorealIdle_(s.fusions,0))),
@@ -934,12 +951,7 @@ export function statsJoueurSorealIdle_(valeur) {
     legacyXpMigratedV54:
       Boolean(s.legacyXpMigratedV54),
 
-    metaNgu:
-      s.metaNgu &&
-      typeof s.metaNgu === 'object' &&
-      !Array.isArray(s.metaNgu)
-        ? s.metaNgu
-        : null,
+    metaNgu: null,   /* accesseur paresseux défini après le littéral (voir copierSansMetaNguV1_) */
 
     aventureDerniereRequestId:
       String(
@@ -952,6 +964,18 @@ export function statsJoueurSorealIdle_(valeur) {
         ? s.aventureDernierResultat
         : null
   };
+  {
+    let valeur, charge = false;
+    Object.defineProperty(resultatStatsV1, 'metaNgu', {
+      enumerable: true, configurable: true,
+      get() {
+        if (!charge) { const m = s.metaNgu; valeur = m && typeof m === 'object' && !Array.isArray(m) ? m : null; charge = true; }
+        return valeur;
+      },
+      set(v) { valeur = v; charge = true; }
+    });
+  }
+  return resultatStatsV1;
 }
 
 function cleBestiaireBossPrincipalSorealIdle_(

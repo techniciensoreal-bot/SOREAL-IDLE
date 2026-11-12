@@ -178,10 +178,11 @@ export function idleAdventureEquipmentStatsV47(raw){
 export function idleAdventureCleEquipementV1(raw){
   if(!raw||typeof raw!=="object")return null;
   const e=raw.equipment&&typeof raw.equipment==="object"?raw.equipment:{};
-  const ids=[e.head,e.chest,e.legs,e.boots,e.weapon,e.weapon2,...(Array.isArray(e.accessories)?e.accessories:[])].filter(Boolean);
-  const portes=Array.isArray(raw.inventory)?raw.inventory.filter(x=>x&&ids.includes(x.id)):[];
+  const ids=new Set([e.head,e.chest,e.legs,e.boots,e.weapon,e.weapon2,...(Array.isArray(e.accessories)?e.accessories:[])].filter(Boolean));
+  const portes=Array.isArray(raw.inventory)?raw.inventory.filter(x=>x&&ids.has(x.id)):[];
   /* La normalisation rejoue checkSets : les récompenses de sets dépendent de la liste d'objets (itemList), des sets complétés et du niveau de CHAQUE objet du sac (record) : ils entrent dans la clé, le sac sous forme compacte (définition, niveau). */
-  const sac=Array.isArray(raw.inventory)?raw.inventory.map(x=>x?[x.definitionId,x.level]:0):[];
+  /* Audit 2026-11-12 : sac à plat (définition, niveau, définition, niveau…) au lieu d'une paire par objet (450 petits tableaux par appel) ; ids dans un Set (au lieu de includes par objet). La clé change de FORME seulement : elle reste fonction de ce que le calcul lit (idle-equipement-cle-v1). */
+  const sac=[];if(Array.isArray(raw.inventory))for(const x of raw.inventory){if(x){sac.push(x.definitionId,x.level)}else sac.push(0,0)}
   return JSON.stringify([raw.version,e,portes,raw.dualWieldRatio,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac]);
 }
 function idleAdventureEquipmentStatsMemoV47(raw,lecture){

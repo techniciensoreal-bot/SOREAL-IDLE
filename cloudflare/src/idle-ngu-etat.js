@@ -1013,12 +1013,13 @@ function normalizeSystem(def, raw) {
  * obsolete player-level / Renaissance / Essence mechanics. Migration is
  * one-way and idempotent: once normalized, the save is native schema 47.
  */
-export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
+/* possede (audit 2026-11-12) : l'appelant CÈDE `raw` (il ne le relit plus et le remplace par le résultat) : la copie profonde d'entrée (2,7 ms sur 130 Ko, 5 fois par synchro) est alors inutile. Jamais pour un état que l'appelant garde. */
+export function normalizeIdleNguState(raw, context = {}, now = Date.now(), possede = false) {
   const t = nowMs(now);
   /* Registre de migrations (idle-migrations-v1.js) : phase « brut » ici (ancienne sauvegarde -> format natif V47), phase « normalise » plus bas (jalons V51/V52). Une version PLUS RÉCENTE que celle du moteur n'est ni migrée ni abaissée. */
   const plusRecent = etatPlusRecentV1(raw);
   const isV47 = plusRecent || estNatifV47V1(raw);
-  const source = isV47 ? clone(raw) : migrerEtatV1(raw, { now: t, jeu: context, phase: "brut" }).etat;
+  const source = isV47 ? (possede ? raw : clone(raw)) : migrerEtatV1(raw, { now: t, jeu: context, phase: "brut" }).etat;
   const state = Object.assign(baseState(t), source);
   const versionAvant = versionEffectiveV1(source);
 

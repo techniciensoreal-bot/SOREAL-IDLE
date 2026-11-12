@@ -49,3 +49,11 @@ Restes (décision ou chantier à part) : sac d'Aventure (compteur de version par
 - F6 analysé : les globales « posées jamais lues » sont couplées à `_ui-ordre-origine.json` (fixture d'ordre) et `__ouvrirSorealIdleAvecEtatV108__` est lue par le shim de SOREAL-APP : gain ≈ 10 lignes, risque réel, non fait.
 - F7 analysé : 8 formateurs de durée / 4 de nombre dans des fermetures ; les remplacer change des arrondis et des textes anglais sans preuve possible hors navigateur (règle de Norman : valider visuellement) : non fait.
 - F1 fait (simulateur d'énergie inerte remplacé par ses effets exacts), F8 fait : moteur local reconstruit, pins, catalogue des visuels régénéré, suite complète (seuls les 3 échecs connus de la machine).
+
+## Troisième passe (Norman : « tu push quand tu as besoin, tu vérifies, tu reprends l'audit jusqu'au bout »)
+- PUSH 2d17ff86 fait (note 5.7 complétée, anglais, nouveautés vertes) : CI verte, déployé.
+- G1 clé d'équipement : ids dans un Set, sac à plat (sensibilité inchangée : 19 928 + 15 088 mutations OK).
+- G2 `metaNgu` des statistiques copié paresseusement (accesseur ; test idle-stats-metangu-paresseux-v1) : profil CPU total 13,5 s -> 12,3 à 12,5 s (-8 %), le poste copieJsonV1 de statsJoueur passe de ≈ 1,7 s à ≈ 0,8 s.
+- G3 clé de bonus par concaténation (au lieu de réencoder la clé d'équipement comme chaîne) : MESURÉ sans effet (12,4 à 13,4 s dans les deux cas) : ANNULÉ.
+- G4 `normalizeIdleNguState(..., possede)` : les 2 appels chauds (état du joueur, progression) cèdent leur copie privée de metaNgu : la copie d'entrée est sautée pour eux (autres appelants inchangés). Parties de référence identiques, suite complète OK avec et sans SOREAL_IDLE_VERIF_BONUS=1 (seulement les 3 échecs connus de la machine).
+- Mesure : le bruit de la machine (±5 %) masque les gains de 2 à 3 % ; comparer les profils CPU (`--cpu-prof`) plutôt que les moyennes du banc.
