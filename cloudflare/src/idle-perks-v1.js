@@ -376,6 +376,13 @@ export function idlePerkNextCostV1(perk, currentLevel) {
  * already are — so idleNguBonuses() can fold this in with the same
  * "multiply/add into the existing total" pattern instead of a parallel one.
  */
+/* Audit 2026-11-12 : Object.entries(perk.bonus) refait pour chaque perk possédé à chaque appel (240 appels par synchro, mesuré) : paires calculées une fois par perk (catalogue figé). */
+const PERK_BONUS_PAIRES_V1 = new WeakMap();
+function perkBonusPairesV1(perk) {
+  let p = PERK_BONUS_PAIRES_V1.get(perk);
+  if (!p) { p = Object.entries(perk.bonus || {}); PERK_BONUS_PAIRES_V1.set(perk, p); }
+  return p;
+}
 export function perkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
   const totals = {};
@@ -388,7 +395,7 @@ export function perkBonusesV1(levelsById) {
     if (!level) continue;
     if (perk.bonus && perk.bonus.boostPowerPct) boostPowerProduct *= 1 + perk.bonus.boostPowerPct * level;
     if (perk.bonus && perk.bonus.daycareTimePct) daycareTimeProduct *= Math.max(0, 1 - perk.bonus.daycareTimePct * level);
-    for (const [key, perLevel] of Object.entries(perk.bonus || {})) {
+    for (const [key, perLevel] of perkBonusPairesV1(perk)) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
     if (Array.isArray(perk.fibonacciMilestones)) {

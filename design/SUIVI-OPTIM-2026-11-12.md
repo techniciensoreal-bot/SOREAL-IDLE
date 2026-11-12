@@ -6,8 +6,8 @@ Demande de Norman : tout faire sans poser de questions. Règles : commits LOCAUX
 - [x] E1 Gardes `document.hidden` : ui-amorcage-v1.js:831, money-pit-page-v1.js:34 et :64, stats-detail-v1.js:124, ui-magie-energie-v1.js:487 (PAS le Nuke auto :970)
 - [x] E2 Regex « 69 % » sans antislash : ui-noyau-v1.js:473
 - [x] E3 Moteur : `defById` mémoïsé (idle-adventure-sets.js / objets) ; `idle-ngu-bonus.js:629` en `sansCopie` (`true`)
-- [ ] E4 Moteur : valeurs par défaut des pistes sans 1 323 clones (idle-ngu-catalogues.js:136, idle-ngu-etat.js:79)
-- [ ] E5 Moteur : catalogue des perks précalculé (idle-perks-v1.js:378) ; lectures répétées de fonctions pures
+- [x] E4 Moteur : valeurs par défaut des pistes sans 1 323 clones (idle-ngu-catalogues.js:136, idle-ngu-etat.js:79)
+- [x] E5 Moteur : catalogue des perks précalculé (idle-perks-v1.js:378) ; lectures répétées de fonctions pures
 - [ ] E6 Moteur : trajectoire, normaliser une fois + mémo pendant la projection (idle-runtime-etat.js:2051)
 - [ ] E7 Moteur : sac d'Aventure, clé d'équipement une seule fois, normalisation sautée si déjà normalisé (idle-adventure-objets.js:343)
 - [ ] E8 Moteur : adaptateur d'énergie inerte `simulateurEnergieAuto` + bloc p15 + expression morte (idle-runtime-progression.js:2254, 507)
@@ -21,3 +21,4 @@ Demande de Norman : tout faire sans poser de questions. Règles : commits LOCAUX
 
 ## Journal
 - E1-E3 faits ; banc partie de référence : synchro 57 ms, allocation 78 ms, départ d'Aventure 167 ms (avant 60/85/190). Test idle-menu-alimente-effets mis à jour (chaîne gardée).
+- E4 (un seul gabarit de pistes par appel ; le gros du clone reste la copie de l'état entier dans normalizeIdleNguState, 1021) et E5 (paires de bonus par perk calculées une fois) faits : synchro 56 ms, allocation 76 ms, départ 165 ms. Parties de référence OK.

@@ -790,7 +790,7 @@ function normalizeTracks(def, rawData) {
   const created = createTrackState(def);
   if (!created.tracks) return rawData && typeof rawData === "object" ? clone(rawData) : {};
   const source = rawData && typeof rawData === "object" ? rawData : {};
-  const out = createTrackState(def);
+  const out = created;   /* audit 2026-11-12 : un seul gabarit par appel (il était fabriqué deux fois, le premier ne servait qu'au test ci-dessus) */
   for (const track of IDLE_NGU_TRACKS[def.id] || []) {
     const src = source.tracks?.[track.id] || {};
     out.tracks[track.id] = {
