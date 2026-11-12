@@ -6,3 +6,5 @@ tmp-*.mjs
 .claude/*
 !.claude/launch.json
 *.log
+__pycache__/
+*.pyc
