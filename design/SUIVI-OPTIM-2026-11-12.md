@@ -34,13 +34,18 @@ Restes (décision ou chantier à part) : sac d'Aventure (compteur de version par
 
 ## Deuxième passe (Norman : « ne pas s'arrêter »)
 - [x] F1 Moteur : bloc d'énergie inerte (p15 + simulateur) remplacé par ses effets exacts (constantes), sans changer un résultat
-- [ ] F2 Moteur : sac d'Aventure, normalisation évitée de façon SÛRE (vérification optionnelle en mode test)
+- [x] F2 Moteur : sac d'Aventure, normalisation évitée de façon SÛRE (vérification optionnelle en mode test)
 - [x] F3 Moteur : 23 `getScriptLock` -> un seul `avecJoueur`
 - [x] F4 Moteur : fonctions « tests seuls » et utilitaires copiés (idle-big-number, cleAvecLangue, etc.)
 - [x] F5 Frontend : 12 keyframes jamais référencés retirés + catalogue des visuels régénéré (rien de joué ne disparaît)
-- [ ] F6 Frontend : globales posées jamais lues + cales périmées
-- [ ] F7 Frontend : formateurs de durée/nombre dupliqués -> les modules communs existants
-- [ ] F8 Reconstruire moteur local, pins, suite complète, bilan, CronDelete
+- [x] F6 Frontend : globales posées jamais lues + cales périmées
+- [x] F7 Frontend : formateurs de durée/nombre dupliqués -> les modules communs existants
+- [x] F8 Reconstruire moteur local, pins, suite complète, bilan, CronDelete
 - F3 analysé, AUCUN changement : les 23 appels sont de vrais verrous (const lock = ...; tryLock(1800) -> erreur si occupé), garde contre le chevauchement ; pas du code mort (une première tentative de retrait a été annulée).
 - F4 analysé, aucun changement : les fonctions « tests seuls » sont des aides publiques dont les tests sont la preuve (idleNguCleBonusesV1 sert de preuve aux gardes de clé de bonus ; idle-big-number est une bibliothèque documentée avec son test mathématique) : les retirer perdrait de la couverture pour ≈ 100 lignes.
 - F5 fait : 11 blocs @keyframes jamais référencés retirés (le 12e, sorealIdleBtTickV1, n'existait déjà plus : seulement cité dans un commentaire). Aucune animation jouée ne disparaît (aucune référence dans public/, tests, tools, design). Catalogue des visuels régénéré (444 -> 437), pins montés, audit d'architecture OK.
+- F5 correction : 2 des 11 keyframes (bnPulse, rgFeuV1, dans soreal-idle-itopod.css) étaient exigés par des tests écrits pour eux (idle-borne-v2-v1, idle-itopod-style-v1) : REMIS. Au final 9 keyframes retirés (themes.css 4, ui.css 5).
+- F2 analysé : le coût restant du sac (clé d'équipement 7 %, copies d'états entiers 16 %, mémo des bonus 13 %) est structurel ; le correctif sûr est un compteur de version par bloc (≈ 28 sites d'écriture dans 8 fichiers), chantier à part, non fait.
+- F6 analysé : les globales « posées jamais lues » sont couplées à `_ui-ordre-origine.json` (fixture d'ordre) et `__ouvrirSorealIdleAvecEtatV108__` est lue par le shim de SOREAL-APP : gain ≈ 10 lignes, risque réel, non fait.
+- F7 analysé : 8 formateurs de durée / 4 de nombre dans des fermetures ; les remplacer change des arrondis et des textes anglais sans preuve possible hors navigateur (règle de Norman : valider visuellement) : non fait.
+- F1 fait (simulateur d'énergie inerte remplacé par ses effets exacts), F8 fait : moteur local reconstruit, pins, catalogue des visuels régénéré, suite complète (seuls les 3 échecs connus de la machine).

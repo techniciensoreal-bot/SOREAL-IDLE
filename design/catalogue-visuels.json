@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 437,
+  "keyframes": 439,
   "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 13,
   "pointsEntreeRejouables": 270,
@@ -973,6 +973,13 @@
    "utilisePar": [
     "soreal-idle-itopod.css"
    ]
+  },
+  {
+   "nom": "bnPulse",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": []
   },
   {
    "nom": "bnScint",
@@ -2651,6 +2658,13 @@
    "utilisePar": [
     "soreal-idle-itopod.css"
    ]
+  },
+  {
+   "nom": "rgFeuV1",
+   "definiePar": [
+    "soreal-idle-itopod.css"
+   ],
+   "utilisePar": []
   },
   {
    "nom": "rgSheenV1",

@@ -544,8 +544,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 215,
-  "sha": "21214140856c67d40f7d514187499e0b55397104"
+  "pin": 216,
+  "sha": "25c534f7b790e88994820da53c4f3d1d4011c30f"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -1012,8 +1012,8 @@
   "sha": "9d048156fb59791eff3b410985504a578deefa14"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 353,
-  "sha": "d1fab869f8a0ab3cdfdbd40f6f6b626d76f3a458"
+  "pin": 354,
+  "sha": "e563c6f45bbfea3f2c12bd121d5541b2f2efa97d"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,
