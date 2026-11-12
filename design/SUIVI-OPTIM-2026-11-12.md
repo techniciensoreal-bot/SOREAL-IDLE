@@ -31,3 +31,13 @@ Demande de Norman : tout faire sans poser de questions. Règles : commits LOCAUX
 ## Bilan (E12)
 Partie de référence avancée, banc `bench-moteur-partie-v1.mjs` : synchro 60 -> 54 ms (-10 %), allocation 85 -> 72 ms (-15 %), départ d'Aventure 190 -> 163 ms (-14 %). Rien n'est poussé (pas d'ordre) : 5 commits locaux + un dernier de régénération. Avant le push : note du jour (verifier-note-du-jour.mjs) + marquer-nouveautes-push.mjs.
 Restes (décision ou chantier à part) : sac d'Aventure (compteur de version par bloc), p15/energieTickResteMs, getScriptLock, 12 keyframes morts, 9 animations de la borne, 18 opérations désactivées, colonnes héritées, observateur central, chargement à la demande, CSS vers transform.
+
+## Deuxième passe (Norman : « ne pas s'arrêter »)
+- [x] F1 Moteur : bloc d'énergie inerte (p15 + simulateur) remplacé par ses effets exacts (constantes), sans changer un résultat
+- [ ] F2 Moteur : sac d'Aventure, normalisation évitée de façon SÛRE (vérification optionnelle en mode test)
+- [ ] F3 Moteur : 23 `getScriptLock` -> un seul `avecJoueur`
+- [ ] F4 Moteur : fonctions « tests seuls » et utilitaires copiés (idle-big-number, cleAvecLangue, etc.)
+- [ ] F5 Frontend : 12 keyframes jamais référencés retirés + catalogue des visuels régénéré (rien de joué ne disparaît)
+- [ ] F6 Frontend : globales posées jamais lues + cales périmées
+- [ ] F7 Frontend : formateurs de durée/nombre dupliqués -> les modules communs existants
+- [ ] F8 Reconstruire moteur local, pins, suite complète, bilan, CronDelete
