@@ -342,9 +342,11 @@
           const memeBoss=bossCombattuV1>0&&Boolean(image)&&(dejaRemplaceV1||idleEntier_(REG.idleEtat&&REG.idleEtat.bossSelection||0)===bossCombattuV1);
           /* Cinq nouvelles morts de boss (Norman, 2026-10-28, modules/morts-boss-nouvelles-v1.js) : mêmes conditions que l'écran de victoire (vrai combat d'au moins 5 s, jamais un NUKE) ; tirage parmi elles et l'éclatement en pixels d'avant. */
           const nouvelle=window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__;
+          /* Norman (2026-11-12) : « tué avec Fight, mais en one shot : pas de transition 106 > 107 » : un combat d'un coup ne laisse ni début de combat ni durée ; la mort SPÉCIALE d'un boss (la perruque du 106) se joue quand même, dès que l'image du boss tué est là (jamais pour un NUKE). */
+          const speciale=Boolean(nouvelle&&nouvelle.speciales&&image&&nouvelle.speciales.some(function(x){return x.boss===idMortV1;}));
           /* une mort ou un écran de victoire déjà en cours : on n'en lance pas une seconde par-dessus (double son, apparition du boss suivant jouée deux fois) ; celle qui tourne appelle l'apparition à sa fin */
           if(window.__SOREAL_IDLE_VICTOIRE_EN_COURS__&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=true;
-          else if(nouvelle&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=Boolean(nouvelle.jouerSurHote(host,image,idMortV1));
+          else if(nouvelle&&arcade&&!REG.idleNukeEnCoursV1&&((memeBoss&&debutCombatV1)||speciale))victoireArcadeIdleV1=Boolean(nouvelle.jouerSurHote(host,image,idMortV1));
           if(!victoireArcadeIdleV1&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)victoireArcadeIdleV1=Boolean(arcade.jouer(host,image,REG.idleEtat,Date.now()-debutCombatV1,bossCombattuV1));
           /* pas d'écran de victoire : le boss suivant apparaît tout de suite avec son effet (le calque d'attente éventuel est remplacé) */
           if(!victoireArcadeIdleV1){const app=window.__SOREAL_IDLE_APPARITION_BOSS_V1__;if(app&&app.jouerApres)app.jouerApres(host,idMortV1);else if(app&&app.jouer)app.jouer(host);}

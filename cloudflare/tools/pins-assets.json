@@ -832,8 +832,8 @@
   "sha": "ffadce6f8734d3dcfab60d5b880c644bbc8010ba"
  },
  "/modules/ui-combat-1-v1.js": {
-  "pin": 32,
-  "sha": "4ba7b1d58b6ac993483f93e5f9bddebad63ab360"
+  "pin": 33,
+  "sha": "df71495e5381548e29eb2bb8b7a9569f2db7e4ce"
  },
  "/modules/ui-combat-2-v1.js": {
   "pin": 45,
