@@ -104,13 +104,13 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
 }
 // 4. S'ouvre EN DEUX VOLETS comme les anciennes portes (Norman, 2026-11-02) : chaque moitié pivote sur son bord extérieur, une lueur passe, le tout se fond ; la fermeture est la même animation à l'envers ; elle déborde du cadre (rien de noir) ; mouvement réduit : pas d'animation.
 {
-  assert.ok(src.includes("@keyframes yggHerse{0%{transform:translateY(0)}8%{transform:translateY(1.2%)}14%{transform:translateY(-.8%)}22%{transform:translateY(-2.5%)}100%{transform:translateY(-102%)}}") && src.includes("clip-path:inset(calc(5.8824% - var(--ygg-ecart,1.1cqw)) 0 0 0);}"), "la porte se relève par le haut comme une herse, coupée par le BAS DE LA PLAQUE DU TITRE (clip-path, voir idle-ygg-porte-derriere-titre-v1)");
+  assert.ok(src.includes("@keyframes yggHerse{0%{transform:translateY(0)}8%{transform:translateY(1.2%)}14%{transform:translateY(-.8%)}22%{transform:translateY(-2.5%)}100%{transform:translateY(-102%)}}") && src.includes("clip-path:inset(calc(6.1644% - var(--ygg-ecart,1.1cqw)) 0 0 0);}"), "la porte se relève par le haut comme une herse, coupée par le BAS DE LA PLAQUE DU TITRE (clip-path, voir idle-ygg-porte-derriere-titre-v1)");
   assert.ok(!src.includes("rotateY(-104deg)") && !src.includes("rotateY(104deg)"), "plus de volets qui pivotent");
   assert.ok(src.includes(".ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d{animation:yggHerse") && src.includes(".ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{animation:yggHerse") && src.includes("both reverse;}"), "ouverture, et fermeture à l'envers");
   const m = monde(); const h = m.api.porte_("gold", false);
   assert.ok(h.includes('class="ygg-porte-g"') && h.includes('class="ygg-porte-d"') && h.split("<img ").length === 3, "deux volets, chacun avec l'image de la porte");
   assert.ok(src.includes(".ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;") && src.includes(".ygg-porte-d img{right:0;}"), "chaque volet montre sa moitié de l'image");
-  assert.ok(src.includes(".ygg-porte{position:absolute;inset:-6.25% 0 0 0;z-index:9;") && src.includes("background:transparent;}") && src.includes(".ygg-vitre.ygg-decor{overflow:visible;border:0;}"), "la porte déborde du cadre, aucun fond ni bordure noirs");
+  assert.ok(src.includes(".ygg-porte{position:absolute;inset:-7.03125%;z-index:9;") && src.includes("background:transparent;}") && src.includes(".ygg-vitre.ygg-decor{overflow:visible;border:0;}"), "la porte déborde du cadre, aucun fond ni bordure noirs");
   assert.ok(src.includes("@media (prefers-reduced-motion:reduce){.ygg-porte.ouvre,.ygg-porte.referme{display:none;}}"), "mouvement réduit : pas d'animation");
   const corps = src.slice(src.indexOf("function porteDe_(id,actif){"), src.indexOf("function porteDe_(id,actif){") + 1800);
   assert.ok(!corps.includes("setInterval") && !corps.includes("setTimeout"), "aucune minuterie pour les portes");

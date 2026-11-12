@@ -932,8 +932,8 @@
   "sha": "2d7181e2cd05767307369f9008ad0d6e6bb76aa1"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 97,
-  "sha": "3901b606f4c15cadaa37e5e638ecbf26dbd872cb"
+  "pin": 98,
+  "sha": "3d5ffe8ad6a6f0ae3d3cfaffc404095e8db5ded4"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 19,

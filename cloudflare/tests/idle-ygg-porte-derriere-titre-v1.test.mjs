@@ -28,8 +28,8 @@ assert.ok(!/overflow|clip-path/.test(porte), "porte fermée : rien n'est coupé 
 const m = porteAnim.match(/clip-path:inset\(calc\(([\d.]+)% - var\(--ygg-ecart,([\d.]+cqw)\)\) 0 0 0\)/);
 assert.ok(m, "clip-path inset(haut = bas de la plaque, 0 0 0)");
 // La boîte déborde de 6,25 % du cadre en haut : (6,25 / 112,5) = 5,5556 % de sa propre hauteur ; l'écart plaque-cadre est celui de la carte.
-assert.ok(porte.includes("inset:-6.25% 0 0 0;"));
-assert.ok(Math.abs(Number(m[1]) - (6.25 / 106.25) * 100) < 0.001, "décalage du bord de coupe = débord de la porte (en % de sa hauteur)");
+assert.ok(porte.includes("inset:-7.03125%;"));
+assert.ok(Math.abs(Number(m[1]) - (7.03125 / 114.0625) * 100) < 0.001, "décalage du bord de coupe = débord de la porte (en % de sa hauteur)");
 const carte = regle(".ygg-carte");
 assert.ok(/--ygg-ecart:1\.1cqw/.test(carte) && /gap:var\(--ygg-ecart\)/.test(carte), "l'écart plaque-cadre est la variable utilisée par le gap ET par la découpe");
 assert.equal(m[2], "1.1cqw", "valeur de repli = écart de la carte");
