@@ -376,8 +376,8 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   if (p.choixAppareil !== true && p.importPartie !== true && alertes.some((a) => a.code === "renaissances_recul")) {
     const copie = cells.slice();
     for (const c of COLS_DU_SERVEUR) copie[c] = serveur[c];
-    copier(coord, emailsDe(effectif(s.user))[0] || "", JSON.stringify(copie), "appareil-ecrase", Date.now(), appareil);
-    return { ok: false, conflit: true, error: "IDLE_PARTIE_REPRISE_AILLEURS", renaissancesRecul: true, serveurAt: Date.now() };
+    copier(coord, emailsDe(effectif(s.user))[0] || "", JSON.stringify(copie), "appareil-ecrase", maintenantSrv, appareil);
+    return { ok: false, conflit: true, error: "IDLE_PARTIE_REPRISE_AILLEURS", renaissancesRecul: true, serveurAt: maintenantSrv };
   }
   let ecrit = false;
   /* Choix d'appareil : le joueur a décidé que la partie de cet appareil REMPLACE celle du serveur, même si la date de la sienne est plus ancienne ; l'ancienne est gardée 30 jours (« avant-choix-appareil »). */
