@@ -42,6 +42,12 @@
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'L’image de deux perks a été remplacée.',
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Les portes des fruits ont de nouvelles images, transparentes sur les bords : les ornements dépassent du cadre et les longs bords tombent pile sur le cadre de l’arbre.'
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Les touches CAP et + ne placent plus que des unités entières : une fraction d’énergie ou de magie (affichée 0 dans la barre) ne se retrouve plus placée, puis reprise sans jamais réapparaître.'
           ]}
         ]
       },
@@ -140,7 +146,6 @@
             'Quand toutes les barres sont allumées, l’allumage du menu ne fait plus un énorme bruit : seul le son de la plus grosse barre est joué.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
-            'Les portes des fruits ont de nouvelles images, transparentes sur les bords : elles se fondent dans le cadre, sans liseré sombre autour.',
             'Sur téléphone, la page ne saute plus quand un fruit devient mûr : l’aperçu de ce qu’il donne se pose sur son image au lieu d’agrandir la carte, et « Récolter » n’est plus coupé.',
             'Le cadre « Manger / récolter tous les fruits » est maintenant en haut de la page, juste sous tes compteurs de graines, et ses boutons tiennent sur une seule ligne.'
           ]},

@@ -413,7 +413,9 @@ export function setAllocation(state, id, resource, value, context = {}) {
   const previous=Math.max(0,num(s.allocation[resource],0));
   const usedElsewhere = totalAllocated(state, resource, id) + externalResourceAllocation(context,resource);
   const maxByCapacity=Math.max(0,cap-usedElsewhere);
-  const maxByOwned=Math.max(0,previous+num(r.current,0));
+  /* Norman (2026-11-12) : « je suis à 0 énergie et 0 magie, mais en cliquant sur CAP de Wandoos j'ai 1 magie qui se met ; avec − elle est reprise mais n'apparaît pas ». Le stock libre est à virgule (0,6) alors que le bandeau l'affiche arrondi vers le bas (0) : Wandoos ne prend que des unités ENTIÈRES du stock libre (comme l'affiche le bandeau) ; la fraction reste libre. Limité à Wandoos : les autres systèmes gardent leur règle (les parties de référence ne bougent pas). */
+  const libreDispo=Math.max(0,num(r.current,0));
+  const maxByOwned=Math.max(0,previous+(id==="wandoos"?Math.floor(libreDispo+1e-9):libreDispo));
   const target=clamp(value,0,Math.min(maxByCapacity,maxByOwned));
   const delta=target-previous;
   s.allocation[resource]=target;

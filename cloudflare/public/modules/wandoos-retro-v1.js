@@ -790,6 +790,8 @@
     var cleLibre=res==='energy'?'energieLibre':'magieLibre';
     /* Libre = valeur VIVANTE (idleEtat.energie / magie, avancée à chaque tick), jamais celle de la dernière synchro (wandoosView.energieLibre, jusqu'à ~4 s d'âge : elle ne compte pas ce qui s'est produit depuis). */
     var libre=libreVivante_(j,res,Math.max(0,nb_(e.vue[cleLibre]))),actuelle=Math.max(0,nb_(e.al[res]));
+    /* Unités ENTIÈRES seulement (Norman, 2026-11-12 : 0,6 libre s'affichait 1 dans Wandoos et 0 dans le bandeau) : le moteur ne place que des entiers (idle-ngu-ressources.js), l'écran de même. */
+    libre=Math.floor(libre+1e-9);
     var vis=visee_[res];
     if(vis&&Date.now()-vis.at<2500){var total=actuelle+libre;actuelle=Math.max(0,Math.min(vis.v,total));libre=total-actuelle;}
     var montant=analyser_(saisie_(),libre+actuelle);
