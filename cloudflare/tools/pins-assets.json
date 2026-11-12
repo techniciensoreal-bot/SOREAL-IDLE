@@ -971,6 +971,10 @@
   "pin": 14,
   "sha": "1f79de11864d9ae85900cd80854d84748bc36b93"
  },
+ "/soreal-idle-blood-entete-tel-v1.css": {
+  "pin": 1,
+  "sha": "0223f4c3343c79bc2be1db7c18868dd6a318d45a"
+ },
  "/soreal-idle-borne-joueur-v1.css": {
   "pin": 3,
   "sha": "f9c49987bf6515601467ba25fca2e64a8d9b1072"
@@ -1020,8 +1024,8 @@
   "sha": "61d8dd6bd41075d00f635a3cbaac5c0d548cbe1d"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 355,
-  "sha": "0812f3e98465472fe32473b5d6ebb0ff9412732d"
+  "pin": 356,
+  "sha": "e563c6f45bbfea3f2c12bd121d5541b2f2efa97d"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,
