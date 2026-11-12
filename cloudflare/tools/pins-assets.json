@@ -520,8 +520,8 @@
   "sha": "779bf584bbef6a83ac7da05f6b12b7358b39f5d7"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 30,
-  "sha": "cb479e6df2f108ca6eabe53fe51475cf87a3b2dc"
+  "pin": 31,
+  "sha": "11d9928b6760d29794a1ac17aa133fde23e8bcc0"
  },
  "/modules/moqueurs-fuite-v1.js": {
   "pin": 6,
@@ -544,8 +544,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 214,
-  "sha": "1418392369a97acb75fad3638aacf77b52a453c9"
+  "pin": 215,
+  "sha": "21214140856c67d40f7d514187499e0b55397104"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -696,8 +696,8 @@
   "sha": "262cb0aa68ff6a9db937d3614dd1fdae44fe51b2"
  },
  "/modules/stats-detail-v1.js": {
-  "pin": 3,
-  "sha": "f274a48d5ab2852f865c75baf2e1f26a21a0b250"
+  "pin": 4,
+  "sha": "637023a4932f4ef3c915f8a54f0fb02fa7ee1c32"
  },
  "/modules/steam-v1.js": {
   "pin": 2,
@@ -804,8 +804,8 @@
   "sha": "842f859ac3ab20f0a1ee7d6c142c959fbe6df312"
  },
  "/modules/ui-amorcage-v1.js": {
-  "pin": 16,
-  "sha": "30f4f3e9ff76a92008e055587a5b328e2b39bdc7"
+  "pin": 17,
+  "sha": "5f6174be53226d53df136b8cbd128094cac6432e"
  },
  "/modules/ui-aventure-1-v1.js": {
   "pin": 35,
@@ -852,8 +852,8 @@
   "sha": "73676cea9be5ef4d2e66fd76770cac77c5e2b21c"
  },
  "/modules/ui-magie-energie-v1.js": {
-  "pin": 6,
-  "sha": "215f157c6811bb65075b23816ef048a558586261"
+  "pin": 7,
+  "sha": "12cad4f0c40a3d07d4de1457f3e3c85867d5fe44"
  },
  "/modules/ui-menus-v1.js": {
   "pin": 29,
@@ -864,8 +864,8 @@
   "sha": "3bffd8805bffc124043f8f1c2a774b931ccc7dcb"
  },
  "/modules/ui-noyau-v1.js": {
-  "pin": 23,
-  "sha": "218fdaebd6187da851b58137038fcb1564e25af8"
+  "pin": 24,
+  "sha": "a93c2dd106c7443d47265c036e15fe118bfdee15"
  },
  "/modules/ui-popups-v1.js": {
   "pin": 15,

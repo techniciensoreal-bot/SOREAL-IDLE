@@ -13,8 +13,8 @@ Demande de Norman : tout faire sans poser de questions. Règles : commits LOCAUX
 - [~] E8 Moteur : adaptateur d'énergie inerte `simulateurEnergieAuto` + bloc p15 + expression morte (idle-runtime-progression.js:2254, 507)
 - [~] E9 Moteur : 23 `getScriptLock` remplacés par un `avecJoueur(fn)` (garder idle-run-operation-sync-critical-section)
 - [x] E10 Hygiène : retirer les `.pyc` suivis (voice-studio/__pycache__) + `.gitignore` ; outils sans citation (voir audit) ; fonctions mortes ou « tests seuls » sûres (hors borne)
-- [ ] E11 Reconstruire le moteur local, maj-pins, bancs avant/après, suite complète `preparer-push.mjs --a-blanc` si possible
-- [ ] E12 Bilan chiffré ici + supprimer la tâche planifiée (CronDelete)
+- [x] E11 Reconstruire le moteur local, maj-pins, bancs avant/après, suite complète `preparer-push.mjs --a-blanc` si possible
+- [x] E12 Bilan chiffré ici + supprimer la tâche planifiée (CronDelete)
 
 ## Reporté (décision de Norman requise)
 12 @keyframes morts, 9 animations de la borne, 18 opérations désactivées du contrat, colonnes héritées, `idle_players.state_json`, observateur central et chargement à la demande (changements visuels à valider avec lui), CSS `filter`/`background-position` vers `transform`.
@@ -27,3 +27,7 @@ Demande de Norman : tout faire sans poser de questions. Règles : commits LOCAUX
 - E8 REPORTÉ : le bloc p15 n'est pas purement mort : il remet `statsCombat.energieTickResteMs` à 0 (resteMs du simulateur inerte) ; le retirer pourrait changer un résultat. À traiter avec une vérification de cette valeur, hors vitesse.
 - E9 REPORTÉ : 23 `getScriptLock` à remplacer, gain de vitesse nul (verrou = booléen), touche le test de section critique ; faible intérêt.
 - E10 fait : `.pyc` retirés de git + `.gitignore`. Outils « sans citation » CONSERVÉS : figer-partie-reference.mjs (régénère les parties de référence, AGENTS.md), banc-barres-v1.js, decouper/detourer/gabarits-machine (production d'images), lancer-jeu-local.bat, titans-r2-renommage (trace de migration).
+- E11 fait : moteur local reconstruit, pins montés. Suite complète (1 250 fichiers, 6 à la fois) : seuls les 3 échecs connus de la machine (idle-graine-contenu-v1, idle-histoires-utiles-v1, idle-studio-port-libre-v1, signalés à l'audit du 09/11).
+## Bilan (E12)
+Partie de référence avancée, banc `bench-moteur-partie-v1.mjs` : synchro 60 -> 54 ms (-10 %), allocation 85 -> 72 ms (-15 %), départ d'Aventure 190 -> 163 ms (-14 %). Rien n'est poussé (pas d'ordre) : 5 commits locaux + un dernier de régénération. Avant le push : note du jour (verifier-note-du-jour.mjs) + marquer-nouveautes-push.mjs.
+Restes (décision ou chantier à part) : sac d'Aventure (compteur de version par bloc), p15/energieTickResteMs, getScriptLock, 12 keyframes morts, 9 animations de la borne, 18 opérations désactivées, colonnes héritées, observateur central, chargement à la demande, CSS vers transform.
