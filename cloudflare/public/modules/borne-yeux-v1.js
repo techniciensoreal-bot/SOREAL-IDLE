@@ -192,8 +192,10 @@ function sCombat(t){
 /* animation de fin choisie une fois par combat (au hasard dans la liste de l'issue) et gardée dans les paramètres de la scène */
 function choixFin(p,issue){if(!p.yf){var l=issue==='ko'?FIN_DEFAITE:FIN_VICTOIRE;p.yf=l[Math.floor(Math.random()*l.length)];}return p.yf;}
 /* Victoire : SOIT les yeux contents (cœurs ou étoiles) SOIT la vague, jamais les deux enchaînés (Norman, 2026-11-11 : « ça dure trop longtemps avant que le nom du boss suivant apparaisse »). finDuree : durée de la partie « yeux » (0 si c'est la vague) ; winReste : durée de la vague qui suit (0 si ce sont les yeux). */
-function finDuree(p,issue){var id=choixFin(p,issue);return id==='vague'?0:(ANIM_DUREES[id]||2.6);}
+function finDuree(p,issue){var id=choixFin(p,issue);return (id==='vague'||id==='texte')?0:(ANIM_DUREES[id]||2.6);}
 function winReste(p){return choixFin(p,'win')==='vague'?VAGUE_DUR:0;}
+/* Défaite (Norman, 2026-11-12 : « l'animation Perdu. On recommence ? ne doit pas non plus suivre l'animation de défaite des yeux ; soit l'animation perdu, soit les yeux tristes ») : un tirage entre les yeux ET l'écran « Perdu. On recommence ? », jamais les deux à la suite ; koReste = durée de cet écran (0 si les yeux jouent) */
+function koReste(p){return choixFin(p,'ko')==='texte'?KO_TEXTE_DUR:0;}
 function sFin(t,issue,p){
   if(p){anim(choixFin(p,issue),t);return;}
   var P=paneau(),sh=P.reduced?0:Math.sin(t*70);
@@ -213,7 +215,8 @@ function sFin(t,issue,p){
 var COLERE_DUR=17,VAGUE_DUR=3.6;   /* vague : 5,4 s ÷ 1,5 (galerie de Norman, 2026-11-11) */
 var ANIM_DUREES={arcs:3.2,croix:2.8,explosion:5.4,spirale:5.6,larmes:4.6,tvoff:4.2,chute:5.0,coeurs:4.8,etoiles:4.2,mouche:7.8,colere:COLERE_DUR};
 var ANIM_IDS=['explosion','spirale','larmes','tvoff','chute','coeurs','etoiles','mouche','colere'];
-var FIN_DEFAITE=['explosion','spirale','larmes','tvoff','croix'],FIN_VICTOIRE=['arcs','coeurs','vague'];   /* choix de la galerie (Norman, 2026-11-11) : chute et étoiles retirées, croix et arcs (le U à l'envers) remis */   /* choix de Norman (2026-11-11) : 1 à 5 quand on perd un combat, 6 et 7 quand on gagne ; 8 (clin d'œil) refusé ; 9 (mouche) : page Fight Boss après 2 min sans rien faire ; 10 (colère) : de temps en temps pendant un combat long */
+var KO_TEXTE_DUR=4.3;
+var FIN_DEFAITE=['explosion','spirale','larmes','tvoff','croix','texte','texte'],FIN_VICTOIRE=['arcs','coeurs','vague'];   /* choix de la galerie (Norman, 2026-11-11) : chute et étoiles retirées, croix et arcs (le U à l'envers) remis */   /* choix de Norman (2026-11-11) : 1 à 5 quand on perd un combat, 6 et 7 quand on gagne ; 8 (clin d'œil) refusé ; 9 (mouche) : page Fight Boss après 2 min sans rien faire ; 10 (colère) : de temps en temps pendant un combat long */
 function cl(id){var o=O[id];return o===undefined?O.BLA:o;}
 /* géométrie des deux yeux (la même que dessiner) */
 function geom(z,ox,oy){var P=paneau(),W=P.W,H=P.H,eh=Math.max(2.4,Math.max(6,Math.min(12,H-2))*z),ew=eh*1.2,gap=ew*0.9,a=ew/2,b=eh/2,y0=(H-eh)/2+(oy||0);
@@ -393,6 +396,6 @@ var moucheAt=0;
 function moucheDu(now,menu){return menu==='combat'&&now-dernierClic>=120000&&now>=moucheAt&&(moucheAt=now+120000,true);}
 function du(now,combat){return !combat&&now-dernierClic>=YEUX_INACTIF_MS&&now>=yeuxAt;}
 function lancer(now){yeuxAt=now+YEUX_PAUSE_MIN_MS+Math.random()*YEUX_PAUSE_ALEA_MS;return yeuxParams();}
-return {winReste:winReste,maree:maree,anim:anim,animIds:ANIM_IDS,finDuree:finDuree,mouche:moucheDu,colereEp:colereEp,animDuree:function(id){return ANIM_DUREES[id]||5;},scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
+return {winReste:winReste,koReste:koReste,maree:maree,anim:anim,animIds:ANIM_IDS,finDuree:finDuree,mouche:moucheDu,colereEp:colereEp,animDuree:function(id){return ANIM_DUREES[id]||5;},scene:sYeux,combat:sCombat,fin:sFin,regard:regardCombat,params:yeuxParams,du:du,lancer:lancer,clic:function(){return dernierClic;},yeuxAt:function(){return yeuxAt;},regler:function(c,a){dernierClic=c;yeuxAt=a;}};
 };
 })();

@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Au rechargement du jeu, les dernières secondes de progression (Or, niveaux, barres) ne sont plus perdues : la partie gardée sur l’appareil est maintenant bien reprise quand elle est plus récente que celle du serveur.",
-    "Les barres qui coûtent de l’Or ne reculent plus au démarrage : l’heure du calcul est suivie sans à-coup, et un Or encore inconnu ne fige plus la barre."
+    "Quand tu perds un combat, la borne joue soit l’animation des yeux, soit l’écran « Perdu. On recommence ? », mais plus les deux à la suite : la défaite est plus courte."
   ] };
 })();

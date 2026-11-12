@@ -1339,7 +1339,7 @@ function perduEgout(t){
   }
 }
 function sKO(t){
-  var W=P.W,H=P.H,an=P.p.anim==='sweep',am=P.p.anim==='mascot';if(P.p.anim==='yeuxcb'){var Yk=yeuxMod(),yf=ycFin(P.p,'ko');if(t<yf){if(Yk)Yk.fin(t,'ko',P.p);return;}t-=yf;}
+  var W=P.W,H=P.H,an=P.p.anim==='sweep',am=P.p.anim==='mascot';if(P.p.anim==='yeuxcb'){var Yk=yeuxMod(),yf=ycFin(P.p,'ko');if(t<yf){if(Yk)Yk.fin(t,'ko',P.p);return;}t-=yf;if(ycQk(P.p)<=0)return;}   /* les yeux ont joué la défaite : pas d'écran « Perdu. On recommence ? » ensuite */
   if(!P.p.anim||P.p.anim==='yeuxcb')t*=1.5;   /* K.O. simple : ×1,5 (choix de Norman, galerie du 2026-11-11) */
   var rr=P.p.anim==='redroom',fv=rr&&visOk(),eg=P.p.anim==='egout',tg=t;
   if(an)tueRie(t);else if(am)ecrase(t);else if(fv)koVisage(t);else if(rr)perduRedroom(t);else if(eg)perduEgout(t);
@@ -2148,12 +2148,12 @@ var SC={
   hit:{fn:sHits,dur:1.5,prio:3,cap:0.8},
   fight:{fn:function(t){sFight(t*1.5);},dur:Infinity,prio:0,cap:2.0},
   win:{fn:sWin,dur:function(p){return p.anim==='redroom'&&p.ange!==false?WIN_RR_DUR:p.anim==='yeuxcb'?ycFin(p,'win')+ycQ(p):p.anim==='mascot'?5.6:p.anim?8.6:4.8;},prio:5,cap:4.2},
-  ko:{fn:sKO,dur:function(p){return p.anim==='yeuxcb'?ycFin(p,'ko')+4.3:p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:4.3;},prio:5,cap:3.9}
+  ko:{fn:sKO,dur:function(p){return p.anim==='yeuxcb'?ycFin(p,'ko')+ycQk(p):p.anim==='redroom'?KO_RR_DUR:p.anim==='egout'?KO_EG_DUR-(p.suite?EG_A:0):p.anim?8.8:4.3;},prio:5,cap:3.9}
 };
 /* un combat qui recommence pendant VICTOIRE ! / K.O. : son FIGHT ! attend que le message ait été vu */
 var COUPE={win:3.4,ko:2.8,rire:RIRE_DUR};
 /* Temps minimum avant que le combat suivant (et le nom de son boss) puisse couper la scène : la victoire AVEC animation (Leatherface qui danse, ou le personnage qui saute) est vue EN ENTIER (Norman, 2026-11-02 : « je veux que l'animation de victoire soit montrée en entier avant »). */
-function coupeApres(s){if(s.p&&s.p.anim==='yeuxcb'&&(s.id==='win'||s.id==='ko'))return s.id==='win'?s.dur:ycFin(s.p,s.id)+COUPE[s.id];return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}
+function coupeApres(s){if(s.p&&s.p.anim==='yeuxcb'&&(s.id==='win'||s.id==='ko'))return (s.id==='win'||ycQk(s.p)<=0)?s.dur:ycFin(s.p,s.id)+COUPE[s.id];return (s.id==='win'&&s.p&&s.p.anim)||(s.id==='ko'&&s.p&&(s.p.anim==='redroom'||s.p.anim==='egout'))?s.dur:COUPE[s.id];}
 
 /* ------------------------------------------------------------------ rendu : un seul canvas */
 var BARH=19;   /* rangées sous la zone des scènes : rainure (1), vide (1), jauge (9), vide (0), régénération (7) ; tout est lu dans l'état du jeu, jamais écrit */
@@ -2319,7 +2319,7 @@ var L={ok:false,debut:0,res:0,hitN:0,mot:0,vic:false,def:false,combat:false,nuke
 var animBossJoue=-1;   /* numéro du boss pour lequel une animation longue a DÉJÀ été jouée (Norman, 2026-11-03 : après une défaite, refaire Fight ne relance pas l'animation : le boss n'a presque plus de vie et elle révélerait la scène de victoire) ; un autre boss la libère */
 var animIssue='',animDur=0;   /* issue (victoire | defaite) et durée PRÉVUES du combat en cours : la scène de l'égout s'y règle (le bateau avance seul, la barre de vie ne le retient plus) */
 var combatAnim='',animChoisie='',animDecision=0,combatT0=0,combatNum=0,pct0=-1;   /* animChoisie : tirée au début ; combatAnim : seulement quand le combat est jugé assez long (6 s au moins, voir majAnimation) */
-var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1,egout:1,yeuxcb:1},GRACE_FIN_S=2.5,graceFin=0,YC_FIN_S=2.6;function ycQ(p){var Y=yeuxMod();return Y&&Y.winReste?Y.winReste(p):7.2;}function ycFin(p,i){var Y=yeuxMod();return Y&&Y.finDuree?Y.finDuree(p,i):YC_FIN_S;}/* DÉSACTIVÉES DU JEU (Norman, 2026-11-07 : « retire les animations de la borne : le clown, la tronçonneuse et Twin Peaks. Ne supprime pas, désactive totalement ; je les réintégrerai plus tard ») : egout (le clown), sweep (le héros à la tronçonneuse), redroom (Twin Peaks) et la scène « rire » (les hommes de la Red Room, à l'abandon d'un défi). TOUT le code des scènes reste en place ; pour en réintégrer une : la mettre à 1 ici. */var ANIMS_ACTIVES_V1={mascot:0,sweep:0,redroom:0,egout:0,rire:0,yeuxcb:1},ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout','yeuxcb'].filter(function(k){return ANIMS_ACTIVES_V1[k];});
+var ANIMS_LONGUES={mascot:1,sweep:1,redroom:1,egout:1,yeuxcb:1},GRACE_FIN_S=2.5,graceFin=0,YC_FIN_S=2.6;function ycQ(p){var Y=yeuxMod();return Y&&Y.winReste?Y.winReste(p):7.2;}function ycQk(p){var Y=yeuxMod();return Y&&Y.koReste?Y.koReste(p):4.3;}function ycFin(p,i){var Y=yeuxMod();return Y&&Y.finDuree?Y.finDuree(p,i):YC_FIN_S;}/* DÉSACTIVÉES DU JEU (Norman, 2026-11-07 : « retire les animations de la borne : le clown, la tronçonneuse et Twin Peaks. Ne supprime pas, désactive totalement ; je les réintégrerai plus tard ») : egout (le clown), sweep (le héros à la tronçonneuse), redroom (Twin Peaks) et la scène « rire » (les hommes de la Red Room, à l'abandon d'un défi). TOUT le code des scènes reste en place ; pour en réintégrer une : la mettre à 1 ici. */var ANIMS_ACTIVES_V1={mascot:0,sweep:0,redroom:0,egout:0,rire:0,yeuxcb:1},ANIMS_TIRAGE_V1=['mascot','sweep','redroom','egout','yeuxcb'].filter(function(k){return ANIMS_ACTIVES_V1[k];});
 var apresVictoire=false;   /* une scène de victoire (VICTOIRE ! ou NUKE) vient d'être lancée : la première scène de repos qui suit est le nom du boss */
 var cur=null,pend=false,rot=0,jk=0,last='',fightT0=0,interAt=0,interN=0,objAt=0,objTour=0,objI=0;
 function enCombat(s){return Boolean(s&&(EN_COMBAT[s.id]||(s.id==='objet'&&s.p.inter)));}

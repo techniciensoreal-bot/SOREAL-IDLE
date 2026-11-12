@@ -113,4 +113,17 @@ assert.ok(led.includes("yeuxcb:{fn:function(t){var Y=yeuxMod();if(Y)Y.combat(t);
 assert.ok(led.includes("if(animChoisie==='yeuxcb'||pr.secondes>=ANIM_DUREE_MIN_S||serreV1(pr))"), "les yeux apparaissent à CHAQUE combat, court ou long");
 assert.ok(led.includes("Yw.fin(t,'win',P.p)") && led.includes("Yk.fin(t,'ko',P.p)"), "victoire et défaite commencent par les yeux (arcs / croix) puis le message habituel");
 assert.ok(led.includes("S:function(){return S;}"), "le module lit l'état du jeu (vie du boss, vie du joueur)");
+/* Défaite (Norman, 2026-11-12) : soit les yeux tristes, soit l'écran « Perdu. On recommence ? », jamais les deux à la suite : le module dit combien de temps dure chaque partie */
+{
+  const w = monde();
+  for (const id of ["explosion", "spirale", "larmes", "tvoff", "croix"]) {
+    const p = { yf: id };
+    assert.ok(w.Y.finDuree(p, "ko") > 0 && w.Y.koReste(p) === 0, id + " : les yeux jouent, pas d'écran Perdu ensuite");
+  }
+  const t = { yf: "texte" };
+  assert.ok(w.Y.finDuree(t, "ko") === 0 && w.Y.koReste(t) > 0, "texte : l'écran Perdu seul, aucune animation des yeux avant");
+  const vus = new Set();
+  for (let i = 0; i < 400; i += 1) { const p = {}; w.Y.finDuree(p, "ko"); vus.add(p.yf); }
+  assert.ok(vus.has("texte") && vus.has("explosion") && vus.has("croix") && !vus.has("chute"), "le tirage couvre les yeux ET l'écran Perdu (la chute reste retirée)");
+}
 console.log("idle-borne-yeux-combat-v1: OK");
