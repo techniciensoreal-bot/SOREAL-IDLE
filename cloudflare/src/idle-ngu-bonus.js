@@ -106,8 +106,8 @@ export function achievementsSnapshotV1(state) {
   };
 }
 
-export function syncIdleNguState(raw, context = {}, now = Date.now(), possede = false) {
-  const state = span("sync:normaliser", () => normalizeIdleNguState(raw, context, now, possede));
+export function syncIdleNguState(raw, context = {}, now = Date.now()) {
+  const state = span("sync:normaliser", () => normalizeIdleNguState(raw, context, now));
   const elapsed = Math.max(0, (nowMs(now) - state.updatedAt) / 1000);
   return span("sync:avancer", () => advanceIdleNguState(state, elapsed, context, now, true));
 }

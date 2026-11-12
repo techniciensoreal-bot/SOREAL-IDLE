@@ -524,8 +524,7 @@ function appliquerProgressionEnergieSorealIdle__p1(feuille, ligne){
         statsRessourceV55,
         collectionRessourceV55
       ),
-      instantSyncNguV1_(statsRessourceV55.metaNgu),
-      true   /* copie privée de cet appel, remplacée par le résultat juste après */
+      instantSyncNguV1_(statsRessourceV55.metaNgu)
     );
 
   /* Titans tués par l'Auto-Kill depuis la dernière synchronisation : [{ id, n }] (le client n'affiche que ceux qu'il connaît). */

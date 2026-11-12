@@ -161,8 +161,7 @@ function construireEtatJoueurSorealIdle__p1(feuille, ligne){
     syncIdleNguState(
       statsEtat.metaNgu,
       contexteMetaNguEtat,
-      Date.now(),
-      true   /* statsEtat.metaNgu est une copie privée de cet appel, remplacée par le résultat juste après (p2) */
+      Date.now()
     );
 
   /* Attaque et défense du boss AVEC la difficulté du joueur : le moteur de combat (appliquerProgressionEnergieSorealIdle__p5) les calcule ainsi ; l'état annonçait celles du mode Normal, le client (qui calcule qui tombe en premier à partir de cet état) s'écartait donc du moteur dès un autre mode. */
