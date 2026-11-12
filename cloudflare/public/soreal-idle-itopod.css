@@ -1883,6 +1883,13 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .soreal-idle-page-head-v28[data-entete-menu] .soreal-idle-page-sub-v28{font-size:12px;line-height:1.15}
 }
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .bm-entete[data-entete-menu] .bm-sous-titre{font-size:clamp(13px,2.4vw,18px);line-height:1.25;color:#f3c3cb}
+/* Téléphone (Norman, 2026-11-12 : « le cadre du haut de Blood Magic coupe les écritures ») : le cadre a la hauteur de 4 barres (~117 px) mais gardait ses marges de bureau (18 + 14 px), un titre de 30 px et une mini phrase de 13 px sur 3 lignes : le bas du texte était coupé. Marges réduites, titre et phrase plus petits, phrase limitée à 2 lignes. */
+@media (max-width:560px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .bm-entete[data-entete-menu]{padding:6px 8px;gap:6px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .bm-entete[data-entete-menu] .bm-titre{font-size:clamp(20px,6vw,26px);letter-spacing:.06em}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .bm-entete[data-entete-menu] .bm-sous-titre{margin-top:3px;font-size:12px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .bm-entete[data-entete-menu] .bm-bougie{width:clamp(20px,5.5vw,28px)}
+}
 
 /* Wandoos sur ordinateur : une salle de serveurs lugubre éclairée aux néons derrière tout le cadre (Norman, 2026-10-30) ; le titre reste AU-DESSUS, un peu rentré : le dessin dépasse en haut, à gauche et à droite. Le poste (écran et clavier) se pose par-dessus au centre. Téléphone : fond d'origine. */
 @media (min-width:701px){
