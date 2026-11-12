@@ -14,20 +14,22 @@ const regle = (sel) => {
 const z = (r) => Number(r.match(/z-index:(\d+)/)[1]);
 
 const porte = regle(".ygg-porte");
+const porteAnim = regle(".ygg-porte.ouvre,.ygg-porte.referme");
 const nom = regle(".ygg-nom");
 // 1. Empilement : plaque au-dessus de la porte, porte au-dessus de l'image du fruit (couches 0 à 6 du cadre).
 assert.ok(/position:relative/.test(nom), "la plaque porte son z-index (position:relative)");
-assert.ok(z(nom) > z(porte), "plaque du titre au-dessus de la porte");
-assert.ok(z(porte) > 6, "porte au-dessus de l'image du fruit et du liseré du cadre (z-index 6)");
+assert.ok(z(nom) > z(porteAnim), "plaque du titre au-dessus de la porte en mouvement");
+assert.ok(z(porteAnim) > 6 && z(porteAnim) < z(nom), "porte en mouvement : sous la plaque, au-dessus de l'image du fruit et du liseré du cadre (z-index 6)");
+assert.ok(z(porte) > z(nom), "porte FERMÉE : au-dessus de la plaque, les ornements dépassent et restent visibles (Norman, 2026-11-12)");
 // 2. Aucune transparence sur la plaque.
 assert.ok(!/opacity/.test(nom), "plaque entière, sans transparence");
 // 3. Découpe : clip-path dont le HAUT est le bas de la plaque, jamais un overflow:hidden de la porte.
-assert.ok(!/overflow/.test(porte), "la boîte de la porte ne coupe pas par overflow (rien au-dessus de la plaque)");
-const m = porte.match(/clip-path:inset\(calc\(([\d.]+)% - var\(--ygg-ecart,([\d.]+cqw)\)\) 0 0 0\)/);
+assert.ok(!/overflow|clip-path/.test(porte), "porte fermée : rien n'est coupé ; la boîte de la porte ne coupe pas par overflow (rien au-dessus de la plaque)");
+const m = porteAnim.match(/clip-path:inset\(calc\(([\d.]+)% - var\(--ygg-ecart,([\d.]+cqw)\)\) 0 0 0\)/);
 assert.ok(m, "clip-path inset(haut = bas de la plaque, 0 0 0)");
 // La boîte déborde de 6,25 % du cadre en haut : (6,25 / 112,5) = 5,5556 % de sa propre hauteur ; l'écart plaque-cadre est celui de la carte.
-assert.ok(porte.includes("inset:0;"));
-assert.ok(Math.abs(Number(m[1]) - 0) < 0.001, "décalage du bord de coupe = débord de la porte (en % de sa hauteur)");
+assert.ok(porte.includes("inset:-6.25% 0 0 0;"));
+assert.ok(Math.abs(Number(m[1]) - (6.25 / 106.25) * 100) < 0.001, "décalage du bord de coupe = débord de la porte (en % de sa hauteur)");
 const carte = regle(".ygg-carte");
 assert.ok(/--ygg-ecart:1\.1cqw/.test(carte) && /gap:var\(--ygg-ecart\)/.test(carte), "l'écart plaque-cadre est la variable utilisée par le gap ET par la découpe");
 assert.equal(m[2], "1.1cqw", "valeur de repli = écart de la carte");
