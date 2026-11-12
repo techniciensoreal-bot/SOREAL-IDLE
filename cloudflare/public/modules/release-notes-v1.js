@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.6',
+    courante:'5.7',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'5.7',
+        nom:'Une défaite plus nette',
+        date:'2026-11-12',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Quand tu perds un combat, la borne joue soit l’animation des yeux, soit l’écran « Perdu. On recommence ? », mais plus les deux à la suite : la défaite est plus courte.',
+          ]}
+        ]
+      },
       {
         version:'5.6',
         nom:'Une télé d’un autre temps',
@@ -42,7 +52,6 @@
             'En Aventure, la fenêtre de statistiques affiche maintenant directement le total (Puissance, Endurance, PV Max, Regen), en vert quand tu as des bonus, au lieu de la base avec l’équipement et le Cube entre parenthèses. Un petit « i » à côté de chaque statistique ouvre le détail : la base, l’équipement, le Cube, puis chaque source de bonus avec son multiplicateur.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Quand tu perds un combat, la borne joue soit l’animation des yeux, soit l’écran « Perdu. On recommence ? », mais plus les deux à la suite : la défaite est plus courte.',
             'Quand tu gagnes un combat, la borne joue soit les yeux contents (arcs heureux ou cœurs), soit la vague, mais plus les deux à la suite : la victoire est bien plus courte et le nom du boss suivant arrive plus vite.',
             'La vague de victoire sur la borne est refaite en vrai ras de marée : un mur d’eau haut qui déferle de gauche à droite avec sa crête de mousse, qui porte le mot VICTOIRE ! avant de se retirer.',
             'Les yeux de la borne ont de nouvelles animations. Quand tu perds un combat, ils jouent au hasard l’une de ces fins : explosion, spirale hypnotique, larmes, télé qui s’éteint ou croix. Quand tu gagnes : les yeux en U à l’envers ou qui se transforment peu à peu en cœurs. Les larmes, la vague, FIGHT !, VICTOIRE ! et K.O. sont accélérés de moitié. Et après deux minutes sans rien faire sur le combat de boss, une mouche vient les embêter.'
