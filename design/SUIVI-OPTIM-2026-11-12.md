@@ -35,9 +35,12 @@ Restes (décision ou chantier à part) : sac d'Aventure (compteur de version par
 ## Deuxième passe (Norman : « ne pas s'arrêter »)
 - [x] F1 Moteur : bloc d'énergie inerte (p15 + simulateur) remplacé par ses effets exacts (constantes), sans changer un résultat
 - [ ] F2 Moteur : sac d'Aventure, normalisation évitée de façon SÛRE (vérification optionnelle en mode test)
-- [ ] F3 Moteur : 23 `getScriptLock` -> un seul `avecJoueur`
-- [ ] F4 Moteur : fonctions « tests seuls » et utilitaires copiés (idle-big-number, cleAvecLangue, etc.)
-- [ ] F5 Frontend : 12 keyframes jamais référencés retirés + catalogue des visuels régénéré (rien de joué ne disparaît)
+- [x] F3 Moteur : 23 `getScriptLock` -> un seul `avecJoueur`
+- [x] F4 Moteur : fonctions « tests seuls » et utilitaires copiés (idle-big-number, cleAvecLangue, etc.)
+- [x] F5 Frontend : 12 keyframes jamais référencés retirés + catalogue des visuels régénéré (rien de joué ne disparaît)
 - [ ] F6 Frontend : globales posées jamais lues + cales périmées
 - [ ] F7 Frontend : formateurs de durée/nombre dupliqués -> les modules communs existants
 - [ ] F8 Reconstruire moteur local, pins, suite complète, bilan, CronDelete
+- F3 analysé, AUCUN changement : les 23 appels sont de vrais verrous (const lock = ...; tryLock(1800) -> erreur si occupé), garde contre le chevauchement ; pas du code mort (une première tentative de retrait a été annulée).
+- F4 analysé, aucun changement : les fonctions « tests seuls » sont des aides publiques dont les tests sont la preuve (idleNguCleBonusesV1 sert de preuve aux gardes de clé de bonus ; idle-big-number est une bibliothèque documentée avec son test mathématique) : les retirer perdrait de la couverture pour ≈ 100 lignes.
+- F5 fait : 11 blocs @keyframes jamais référencés retirés (le 12e, sorealIdleBtTickV1, n'existait déjà plus : seulement cité dans un commentaire). Aucune animation jouée ne disparaît (aucune référence dans public/, tests, tools, design). Catalogue des visuels régénéré (444 -> 437), pins montés, audit d'architecture OK.

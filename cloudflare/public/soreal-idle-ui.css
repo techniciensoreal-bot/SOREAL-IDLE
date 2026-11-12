@@ -356,12 +356,7 @@ html,body{overflow-x:hidden}
             animation:none !important;
           }
 
-          @keyframes sorealIdleEnergyShineV11{
-            from{transform:translateX(-30px)}
-            to{transform:translateX(280px)}
-          }
-
-          .soreal-idle-item-v10.commun{
+                    .soreal-idle-item-v10.commun{
             border-left:5px solid #8d929a;
           }
 
@@ -557,11 +552,7 @@ html,body{overflow-x:hidden}
             color:#7a5a12;
           }
 
-          @keyframes sorealIdleNavBloodPulseV1{
-            0%,100%{box-shadow:0 0 0 rgba(120,0,0,0)}
-            50%{box-shadow:0 0 18px 5px rgba(145,0,20,.48);background:#3b1820}
-          }
-          @keyframes sorealIdleNavGreenPulseV1{
+                    @keyframes sorealIdleNavGreenPulseV1{
             0%,100%{box-shadow:0 0 10px 2px rgba(46,204,113,.30)}
             50%{box-shadow:0 0 24px 7px rgba(46,204,113,.72)}
           }
@@ -2428,20 +2419,7 @@ html,body{overflow-x:hidden}
             transition:none !important;
           }
 
-          @keyframes sorealIdleVictoryV49{
-            0%{
-              transform:scale(.86);
-              opacity:.2;
-              filter:brightness(1.8);
-            }
-            100%{
-              transform:scale(1);
-              opacity:1;
-              filter:brightness(1);
-            }
-          }
-
-          /* Les titres standards ne restent plus blanc sur fond clair */
+                    /* Les titres standards ne restent plus blanc sur fond clair */
           body.soreal-idle-active-v47 .soreal-idle-window-title-v31{
             background:
               linear-gradient(
@@ -2583,22 +2561,7 @@ html,body{overflow-x:hidden}
             background:#a9573d;
           }
 
-          @keyframes sorealIdlePendingFightV50{
-            from{
-              opacity:.45;
-              filter:brightness(.85);
-              transform:scaleX(.82);
-              transform-origin:left;
-            }
-            to{
-              opacity:1;
-              filter:brightness(1.25);
-              transform:scaleX(1);
-              transform-origin:left;
-            }
-          }
-
-          @media(max-width:700px){
+                    @media(max-width:700px){
 
             .soreal-idle-item-v10{
               min-height:210px !important;
@@ -2657,12 +2620,7 @@ html,body{overflow-x:hidden}
             }
           }
 
-          @keyframes sorealIdleLoadingShineV55{
-            from{transform:translateX(-90px)}
-            to{transform:translateX(680px)}
-          }
-
-          /* ===== FEEDBACK CLIC V60 ===== */
+                    /* ===== FEEDBACK CLIC V60 ===== */
           .soreal-idle-action-button-v50,
           .soreal-idle-forge-button-v25,
           .soreal-idle-shop-buy-v12,

@@ -1512,8 +1512,6 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="ave
 @keyframes sorealAlRenaitV1{0%,100%{filter:drop-shadow(0 0 3px #f59e0b);transform:rotate(-8deg) scale(1)}50%{filter:drop-shadow(0 0 10px #fde047);transform:rotate(8deg) scale(1.14)}}
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1[data-effet-v1="renaissance"] .soreal-idle-nav-emoji-v2{animation:sorealAlRenaitV1 1.8s ease-in-out infinite}
 /* Étoiles de la Renaissance (Norman, 2026-10-19) : elles ne glissent plus, elles scintillent sur place comme des étoiles dans la nuit (étoile à quatre branches, blanc doré doux, deux étoiles à rythmes différents). Boucle sans à-coup : opacité 0 au début et à la fin. */
-@keyframes sorealAlEtoileV1{0%,100%{opacity:0;transform:scale(.45)}22%{opacity:.35;transform:scale(.7)}45%{opacity:.9;transform:scale(1)}58%{opacity:.5;transform:scale(.82)}78%{opacity:.2;transform:scale(.6)}}
-
 /* Défis : le drapeau de course flotte et le contour clignote comme un damier rouge et jaune. */
 @keyframes sorealAlDrapeauV1{0%,100%{transform:skewX(-8deg) rotate(-5deg)}50%{transform:skewX(8deg) rotate(5deg)}}
 @keyframes sorealAlDamierV1{0%,100%{box-shadow:0 0 0 2px #ffe600,0 0 10px #ffe600}50%{box-shadow:0 0 0 2px #ff3b3b,0 0 10px #ff3b3b}}
@@ -1929,7 +1927,6 @@ body.soreal-idle-active-v47 .soreal-idle-hud-v2{display:contents}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3bar-v2{background:linear-gradient(90deg,#9b5cff,#d59bff)!important;box-shadow:0 0 12px rgba(155,92,255,.45)!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-pvbar-v2{background:linear-gradient(180deg,#d0192f 0%,#a30f22 45%,#6b0716 100%)!important;box-shadow:inset 0 6px 5px rgba(255,120,120,.40),inset 0 -6px 7px rgba(30,0,5,.55),0 0 10px rgba(160,10,30,.55)!important;transition:width .28s linear,background .4s ease,box-shadow .4s ease}
 }
-@keyframes sorealHudPvBasV2{from{opacity:1}to{opacity:.55}}
 @media (prefers-reduced-motion:reduce){body.soreal-idle-active-v47 .soreal-idle-hud-pv-v2.bas .soreal-idle-hud-pvbar-v2{animation:none}}
 
 /* ====== Barres du bandeau en tubes de verre (maquette téléphone) : capsule translucide, reflet brillant sur le dessus, liquide qui remplit, ombre de cylindre. ====== */
@@ -1976,7 +1973,6 @@ body.soreal-idle-active-v47 .soreal-idle-hud-v2{display:contents}
 /* Braises de l'énergie et code de la 3e ressource : glissent par TRANSFORM (carte graphique) au lieu de background-position (Norman, 2026-10-26, audit 60 fps : motif repeint à chaque image sur 1 300 px de large, sur toutes les pages). Le motif déborde d'une période (--p) à gauche (le conteneur .soreal-idle-bulles-v2 coupe : overflow:hidden) et glisse d'exactement une période : même rendu, boucle sans à-coup. */
 @keyframes sorealHudBgx{to{transform:translate3d(var(--p,79px),0,0)}}
 body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2),.soreal-idle-hud-r3-v2) .soreal-idle-bulles-v2::before,body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.soreal-idle-energy-panel-v34:not(.soreal-idle-magic-panel-v1):not(.soreal-idle-hud-r3-v2):not(.soreal-idle-hud-pv-v2),.soreal-idle-hud-r3-v2) .soreal-idle-bulles-v2::after{left:calc(var(--p,79px)*-1);will-change:transform}
-@keyframes sorealHudDroite{from{transform:translateX(-200px)}to{transform:translateX(0)}}
 @keyframes sorealHudPulse{from{opacity:.2}to{opacity:1}}
 @keyframes sorealHudPlasma{to{background-position:-200% 0}}
 @media (prefers-reduced-motion:reduce){
@@ -2009,8 +2005,6 @@ body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 :is(.sore
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-bulles-v2::before{animation-duration:6s!important}
   body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-hud-r3-v2 .soreal-idle-bulles-v2::after{animation-duration:10s!important}
 }
-@keyframes sorealHudRuneAncien{0%,100%{opacity:0;transform:translate(0,2px) scale(.8)}25%,65%{opacity:.95}50%{transform:translate(7px,-1px) scale(1)}}
-
 /* Menu + barres : paquet collé tout en haut (téléphone), rien ne glisse derrière ni au-dessus ni sur les côtés. */
 @media (max-width:700px){
   body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{top:0!important;box-shadow:0 0 0 8px var(--th-bg2,#0d1426),0 6px 16px rgba(0,0,0,.4)!important}

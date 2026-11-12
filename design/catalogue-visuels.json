@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 448,
+  "keyframes": 437,
   "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 13,
   "pointsEntreeRejouables": 270,
@@ -973,13 +973,6 @@
    "utilisePar": [
     "soreal-idle-itopod.css"
    ]
-  },
-  {
-   "nom": "bnPulse",
-   "definiePar": [
-    "soreal-idle-itopod.css"
-   ],
-   "utilisePar": []
   },
   {
    "nom": "bnScint",
@@ -2660,13 +2653,6 @@
    ]
   },
   {
-   "nom": "rgFeuV1",
-   "definiePar": [
-    "soreal-idle-itopod.css"
-   ],
-   "utilisePar": []
-  },
-  {
    "nom": "rgSheenV1",
    "definiePar": [
     "soreal-idle-itopod.css"
@@ -2921,13 +2907,6 @@
    "utilisePar": [
     "soreal-idle-themes.css"
    ]
-  },
-  {
-   "nom": "sorealAlEtoileV1",
-   "definiePar": [
-    "soreal-idle-themes.css"
-   ],
-   "utilisePar": []
   },
   {
    "nom": "sorealAlFenetresV1",
@@ -3255,13 +3234,6 @@
    ]
   },
   {
-   "nom": "sorealHudDroite",
-   "definiePar": [
-    "soreal-idle-themes.css"
-   ],
-   "utilisePar": []
-  },
-  {
    "nom": "sorealHudPlasma",
    "definiePar": [
     "soreal-idle-themes.css"
@@ -3280,13 +3252,6 @@
    ]
   },
   {
-   "nom": "sorealHudPvBasV2",
-   "definiePar": [
-    "soreal-idle-themes.css"
-   ],
-   "utilisePar": []
-  },
-  {
    "nom": "sorealHudRune",
    "definiePar": [
     "soreal-idle-themes.css"
@@ -3294,13 +3259,6 @@
    "utilisePar": [
     "soreal-idle-themes.css"
    ]
-  },
-  {
-   "nom": "sorealHudRuneAncien",
-   "definiePar": [
-    "soreal-idle-themes.css"
-   ],
-   "utilisePar": []
   },
   {
    "nom": "sorealHudSigle",
@@ -3365,13 +3323,6 @@
    "utilisePar": []
   },
   {
-   "nom": "sorealIdleEnergyShineV11",
-   "definiePar": [
-    "soreal-idle-ui.css"
-   ],
-   "utilisePar": []
-  },
-  {
    "nom": "sorealIdleFireV112",
    "definiePar": [
     "soreal-idle-ui.css"
@@ -3399,13 +3350,6 @@
    ]
   },
   {
-   "nom": "sorealIdleLoadingShineV55",
-   "definiePar": [
-    "soreal-idle-ui.css"
-   ],
-   "utilisePar": []
-  },
-  {
    "nom": "sorealIdleModalFadeV63",
    "definiePar": [
     "soreal-idle-ui.css"
@@ -3422,13 +3366,6 @@
    "utilisePar": [
     "soreal-idle-ui.css"
    ]
-  },
-  {
-   "nom": "sorealIdleNavBloodPulseV1",
-   "definiePar": [
-    "soreal-idle-ui.css"
-   ],
-   "utilisePar": []
   },
   {
    "nom": "sorealIdleNavClignoteV1",
@@ -3474,13 +3411,6 @@
    "utilisePar": [
     "soreal-idle-ui.css"
    ]
-  },
-  {
-   "nom": "sorealIdlePendingFightV50",
-   "definiePar": [
-    "soreal-idle-ui.css"
-   ],
-   "utilisePar": []
   },
   {
    "nom": "sorealIdlePlayerHitV46",
@@ -3553,13 +3483,6 @@
    "utilisePar": [
     "modules/ui-tutoriel-v1.js"
    ]
-  },
-  {
-   "nom": "sorealIdleVictoryV49",
-   "definiePar": [
-    "soreal-idle-ui.css"
-   ],
-   "utilisePar": []
   },
   {
    "nom": "sorealNavAnneauV1",

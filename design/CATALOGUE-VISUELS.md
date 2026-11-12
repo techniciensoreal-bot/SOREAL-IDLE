@@ -5,7 +5,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 ## Résumé
 - menus : **29**
 - pages : **33**
-- keyframes : **448**
+- keyframes : **437**
 - fichiersAvecWebAnimations : **20**
 - fichiersCanvas : **13**
 - pointsEntreeRejouables : **270**
@@ -36,7 +36,7 @@ soreal_idle_effet_decor_v1, soreal_idle_effet_feu_v1, soreal_idle_effet_nav_v1, 
 Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 270 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
 
 ## Animations CSS orphelines (définies mais nommées nulle part ailleurs)
-`bnPulse` (soreal-idle-itopod.css) · `rgFeuV1` (soreal-idle-itopod.css) · `sorealAlEtoileV1` (soreal-idle-themes.css) · `sorealHudDroite` (soreal-idle-themes.css) · `sorealHudPvBasV2` (soreal-idle-themes.css) · `sorealHudRuneAncien` (soreal-idle-themes.css) · `sorealIdleBtTickV1` (soreal-idle-ui.css) · `sorealIdleEnergyShineV11` (soreal-idle-ui.css) · `sorealIdleLoadingShineV55` (soreal-idle-ui.css) · `sorealIdleNavBloodPulseV1` (soreal-idle-ui.css) · `sorealIdlePendingFightV50` (soreal-idle-ui.css) · `sorealIdleVictoryV49` (soreal-idle-ui.css)
+`sorealIdleBtTickV1` (soreal-idle-ui.css)
 
 ## Fichiers qui animent par script (Web Animations) et qui dessinent en canvas
 `modules/album-cartes-v1.js` (27) · `modules/augmentations-page-v1.js` (1) · `modules/borne-led-v1.js` (1) · `modules/boss-reveal-v1.js` (1) · `modules/cthulhu-scene-v1.js` (1) · `modules/engrenages-v1.js` (1) · `modules/feu-v1.js` (2) · `modules/foudre-borne-v1.js` (2) · `modules/machine-dessin-v1.js` (4) · `modules/nettoyage-ap-v1.js` (2) · `modules/orage-v1.js` (1) · `modules/reapparitions-v1.js` (1) · `modules/sang-rituel-decor-v1.js` (2) · `modules/theme-images-v1.js` (1) · `modules/ui-boucle-v1.js` (1) · `modules/ui-entrainement-v1.js` (1) · `modules/ui-menus-v1.js` (1) · `modules/ui-renaissance-v1.js` (8) · `modules/wandoos-retro-v1.js` (2) · `modules/yggdrasil-elfes-v1.js` (4)
