@@ -216,7 +216,9 @@
       let srv=[];try{srv=JSON.parse(exp.joueurs.ligne);}catch(_){}
       /* Recul à chaque rechargement (audit du démarrage à froid, 2026-11-11) : l'export du serveur LIT l'état avant de renvoyer la ligne, et cette lecture réécrit la colonne 16 (dernière synchro) à « maintenant » : la copie de l'appareil, forcément plus ancienne que cet instant, perdait toujours la comparaison et les dernières secondes de progression pas encore envoyées (Or, niveaux, barres) étaient perdues. La date à comparer est celle de la dernière PROGRESSION reçue (progressionAt : écrite seulement par un envoi accepté, une action passée par le serveur ou une restauration), avec la colonne 16 en repli si le serveur ne la donne pas. */
       const refServeurMs=Number(exp&&exp.progressionAt)>0?Number(exp.progressionAt):enMs(srv[15]);
-      if(enMs(rec.cells[15])>refServeurMs){
+      /* Garde anti-retour (Sébastien, 2026-11-12 : une vieille copie du 7 novembre, 225 renaissances, a écrasé la partie du serveur à 228) : le nombre de renaissances ne redescend JAMAIS ; une copie qui en compte moins que le serveur est une vieille copie, quelle que soit sa date (colonne 25). */
+      const copieEnRetard=Number(rec.cells[24])<Number(srv[24]);
+      if(!copieEnRetard&&enMs(rec.cells[15])>refServeurMs){
         const fusion=rec.cells.slice();
         [0,1,17,18,19].forEach(function(c){fusion[c]=srv[c];});
         exp.joueurs.ligne=JSON.stringify(fusion);
@@ -228,7 +230,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=043cbbfbc6");
+    worker=new Worker("/moteur-local-worker-v1.js?v=f61dce6cd4");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;

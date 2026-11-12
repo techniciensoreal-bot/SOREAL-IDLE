@@ -30,6 +30,7 @@
         date:'2026-11-12',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Une ancienne partie gardée sur un appareil ne peut plus écraser une partie plus avancée de ton compte : elle est refusée et mise de côté.',
             'Quand tu perds un combat, la borne joue soit l’animation des yeux, soit l’écran « Perdu. On recommence ? », mais plus les deux à la suite : la défaite est plus courte.',
           ]}
         ]

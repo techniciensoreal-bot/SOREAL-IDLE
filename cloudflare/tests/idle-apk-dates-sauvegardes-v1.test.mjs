@@ -43,7 +43,7 @@ assert.ok(derniereSynchroExport > instant + 10 * 60000, "« Dernière synchro »
 assert.equal(exporterPourMoteurLocalV1(coord, T, "pc", true).progressionAt, instant, "relire n'avance rien");
 
 // 3. Un envoi REFUSE (plus ancien que le serveur) ne change pas la date.
-const vieux = a.slice(); vieux[15] = new Date(Date.now() - 3 * 3600000).toISOString(); vieux[24] = 0;
+const vieux = a.slice(); vieux[15] = new Date(Date.now() - 3 * 3600000).toISOString(); vieux[24] = 3;
 r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: vieux, appareil: "pc", depuis: e1.serveurAt });
 assert.equal(r.ecrit, false);
 assert.equal(exporterPourMoteurLocalV1(coord, T, "pc", true).progressionAt, instant, "un envoi refusé n'est pas une progression");

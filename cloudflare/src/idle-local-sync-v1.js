@@ -368,6 +368,17 @@ export function recevoirDuMoteurLocalV1(coord, p) {
    */
   const versionRecue = etatVersionDeLigneV1(cells), versionServeur = etatVersionDeLigneV1(serveur);
   const versionTropAncienne = p.choixAppareil !== true && p.importPartie !== true && versionRecue > 0 && versionServeur > 0 && versionRecue < versionServeur;
+  /*
+   * Garde anti-retour (Norman, 2026-11-12 : la partie de Sébastien est revenue de 228 à 225 renaissances, une vieille copie de l'appareil a écrasé celle du serveur, acceptée parce que sa date était plus récente).
+   * Le nombre de renaissances ne redescend jamais dans un jeu honnête : un envoi normal qui en compte MOINS que la ligne du serveur est une vieille partie. Il n'est pas appliqué ; il est gardé 30 jours
+   * (« appareil-ecrase », rien n'est perdu), et la page reçoit « Partie reprise ailleurs » : elle se recharge sur la partie du serveur. Ne concerne ni un choix d'appareil ni un import par fichier (voulus par le joueur).
+   */
+  if (p.choixAppareil !== true && p.importPartie !== true && alertes.some((a) => a.code === "renaissances_recul")) {
+    const copie = cells.slice();
+    for (const c of COLS_DU_SERVEUR) copie[c] = serveur[c];
+    copier(coord, emailsDe(effectif(s.user))[0] || "", JSON.stringify(copie), "appareil-ecrase", Date.now(), appareil);
+    return { ok: false, conflit: true, error: "IDLE_PARTIE_REPRISE_AILLEURS", renaissancesRecul: true, serveurAt: Date.now() };
+  }
   let ecrit = false;
   /* Choix d'appareil : le joueur a décidé que la partie de cet appareil REMPLACE celle du serveur, même si la date de la sienne est plus ancienne ; l'ancienne est gardée 30 jours (« avant-choix-appareil »). */
   const choix = p.choixAppareil === true;
