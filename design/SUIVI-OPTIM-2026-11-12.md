@@ -8,7 +8,7 @@ Demande de Norman : tout faire sans poser de questions. Règles : commits LOCAUX
 - [x] E3 Moteur : `defById` mémoïsé (idle-adventure-sets.js / objets) ; `idle-ngu-bonus.js:629` en `sansCopie` (`true`)
 - [x] E4 Moteur : valeurs par défaut des pistes sans 1 323 clones (idle-ngu-catalogues.js:136, idle-ngu-etat.js:79)
 - [x] E5 Moteur : catalogue des perks précalculé (idle-perks-v1.js:378) ; lectures répétées de fonctions pures
-- [ ] E6 Moteur : trajectoire, normaliser une fois + mémo pendant la projection (idle-runtime-etat.js:2051)
+- [x] E6 Moteur : trajectoire, normaliser une fois + mémo pendant la projection (idle-runtime-etat.js:2051)
 - [ ] E7 Moteur : sac d'Aventure, clé d'équipement une seule fois, normalisation sautée si déjà normalisé (idle-adventure-objets.js:343)
 - [ ] E8 Moteur : adaptateur d'énergie inerte `simulateurEnergieAuto` + bloc p15 + expression morte (idle-runtime-progression.js:2254, 507)
 - [ ] E9 Moteur : 23 `getScriptLock` remplacés par un `avecJoueur(fn)` (garder idle-run-operation-sync-critical-section)
@@ -22,3 +22,4 @@ Demande de Norman : tout faire sans poser de questions. Règles : commits LOCAUX
 ## Journal
 - E1-E3 faits ; banc partie de référence : synchro 57 ms, allocation 78 ms, départ d'Aventure 167 ms (avant 60/85/190). Test idle-menu-alimente-effets mis à jour (chaîne gardée).
 - E4 (un seul gabarit de pistes par appel ; le gros du clone reste la copie de l'état entier dans normalizeIdleNguState, 1021) et E5 (paires de bonus par perk calculées une fois) faits : synchro 56 ms, allocation 76 ms, départ 165 ms. Parties de référence OK.
+- E6 fait : la trajectoire normalise l'état une fois (copie par instant) ; SOREAL_IDLE_VERIF_TRAJECTOIRE=1 compare les multiplicateurs à l'ancien chemin (stats-instantanees et augments OK ; ne PAS le combiner avec idle-parties-reference : il tire du hasard en plus). Parties de référence identiques sans le mode. Banc : synchro 54 ms, allocation 72, départ 163.

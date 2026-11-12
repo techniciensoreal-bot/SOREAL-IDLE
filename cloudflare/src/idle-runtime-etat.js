@@ -3,8 +3,9 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
-import { avecProjectionSansMemoV1, syncIdleNguState, idleNguResourceGenerationPerSecond, idleNguEffectiveResourceStat, REBIRTH_UNLOCK_BOSS_V1, idleNguSnapshot, idleNguBonuses } from "./idle-ngu-progression.js";
+import { avecProjectionSansMemoV1, syncIdleNguState, normalizeIdleNguState, advanceIdleNguState, idleNguResourceGenerationPerSecond, idleNguEffectiveResourceStat, REBIRTH_UNLOCK_BOSS_V1, idleNguSnapshot, idleNguBonuses } from "./idle-ngu-progression.js";
 import { enveloppeSpan, span } from "./idle-spans-v1.js";
+import { copieJsonV1 } from "./idle-copie-json-v1.js";
 import { basicTrainingSnapshotV411, normalizeBasicTrainingStateV411 } from "./idle-basic-training.js";
 import { idleDevEstAdminV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { nomBossSurchargeV1 } from "./idle-textes-v1.js";
@@ -2067,7 +2068,20 @@ export function trajectoireMultiplicateursCombatSorealIdle_(metaNgu, contexte, b
   return liste;
 }
 function trajectoireCalculerV1_(metaNgu, contexte, bossesRun, A, D, maintenant) {
-  const projeter = (dt) => avecProjectionSansMemoV1(() => multiplicateursCombatSorealIdle_(idleNguBonuses(syncIdleNguState(metaNgu, contexte, maintenant + dt)), bossesRun));
+  /* Audit 2026-11-12 : chaque projection refaisait la normalisation complète de l'état (2,7 ms, mesuré) puis l'avance ; l'état est normalisé UNE fois, copié pour chaque instant (la copie coûte dix fois moins), puis avancé comme le fait syncIdleNguState. SOREAL_IDLE_VERIF_TRAJECTOIRE=1 compare chaque projection à l'ancien chemin et échoue au moindre écart (à lancer sur toute la suite après un changement de la normalisation). */
+  const base = normalizeIdleNguState(metaNgu, contexte, maintenant);
+  const etatA = (dt) => { const s = copieJsonV1(base); return advanceIdleNguState(s, Math.max(0, (maintenant + dt - s.updatedAt) / 1000), contexte, maintenant + dt, true); };
+  const verif = typeof process !== "undefined" && process.env && process.env.SOREAL_IDLE_VERIF_TRAJECTOIRE === "1";
+  const projeter = (dt) => avecProjectionSansMemoV1(() => {
+    const etat = etatA(dt);
+    const rep = multiplicateursCombatSorealIdle_(idleNguBonuses(etat), bossesRun);
+    if (verif) {
+      /* Seuls les multiplicateurs comptent ici : l'état d'Aventure avancé tire du butin au hasard (niveaux, identifiants), donc deux avances successives ne sont jamais identiques octet pour octet, ni avant ni après ce changement. */
+      const ancien = multiplicateursCombatSorealIdle_(idleNguBonuses(syncIdleNguState(metaNgu, contexte, maintenant + dt)), bossesRun);
+      if (!proche(ancien.attaque, rep.attaque) || !proche(ancien.defense, rep.defense)) throw new Error("SOREAL_IDLE_TRAJECTOIRE_DIVERGENTE " + JSON.stringify({ dt, ancien, rep }).slice(0, 300));
+    }
+    return rep;
+  });
   const horizon = TRAJECTOIRE_PAS_MS_V1[TRAJECTOIRE_PAS_MS_V1.length - 1];
   const fin = projeter(horizon);
   if (fin.attaque === A && fin.defense === D) return [];
