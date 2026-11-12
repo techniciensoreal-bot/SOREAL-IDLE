@@ -166,7 +166,7 @@ self.onmessage = async (ev) => {
       const res = coord.runStandaloneSessionOperationV1({ sessionToken: jeton, operation: m.operation, args: Array.isArray(m.args) ? m.args : [], catalogHashes: m.catalogHashes, langue: m.langue });
       if (res && res.joueur && typeof res.joueur === "object" && !Object.isFrozen(res.joueur)) res.joueur.__serveurAtV1 = Math.max(debut, versionLocale + 1);
       /* écart d'horloge avec lequel CET état a été daté : le pont retranche l'âge avec ce même écart, jamais avec un écart remesuré entre l'envoi et la réponse (démarrage à froid : la première mesure, lente, est remplacée par une plus courte pendant le premier calcul, la barre reculait de Δécart ; audit du 2026-11-11) */
-      if (Number.isFinite(Number(m.ecart))) res.joueur.__ecartAppelV1 = Number(m.ecart);
+      if (res && res.joueur && typeof res.joueur === "object" && !Object.isFrozen(res.joueur) && Number.isFinite(Number(m.ecart))) res.joueur.__ecartAppelV1 = Number(m.ecart);
       versionLocale = Math.max(debut, versionLocale + 1);
       const reelFin = performance.timeOrigin + performance.now();
       self.postMessage({ id: m.id, ok: true, resultat: res, mesure: { debut: reelDebut, calcul: reelFin - reelDebut, fin: reelFin, spans: SPANS_V1.actif ? spansPrelever() : undefined } });

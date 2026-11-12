@@ -13,6 +13,7 @@ const pont = fs.readFileSync("cloudflare/public/standalone-bridge.js", "utf8");
 const tm = fs.readFileSync("cloudflare/public/modules/ui-machine-temporelle-v1.js", "utf8");
 
 assert.ok(/res\.joueur\.__ecartAppelV1 = Number\(m\.ecart\)/.test(worker), "le Worker date l'état avec l'écart de l'appel");
+assert.ok(worker.includes('if (res && res.joueur && typeof res.joueur === "object" && !Object.isFrozen(res.joueur) && Number.isFinite(Number(m.ecart))) res.joueur.__ecartAppelV1'), "l'écart n'est posé que si la réponse porte un joueur (sans cela : « Cannot set properties of undefined (setting '__ecartAppelV1') », vu en production le 2026-11-12)");
 assert.ok(/joueur\.__ecartAppelV1/.test(pont) && /Number\.isFinite\(ecartAppel\)\?ecartAppel:/.test(pont), "le pont retranche l'âge avec l'écart de l'appel s'il existe");
 assert.ok(/if\(age<0&&age>-500\)age=0;/.test(pont), "une petite imprécision donne un âge nul, jamais un retour à la valeur de réception");
 
