@@ -4,8 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "La zone du sac est réorganisée : une ligne fine repliable regroupe les cases d’automatisation et des boutons à dessin au choix, au-dessus du cadre du sac.",
-    "Un boss a désormais une mort qui lui est propre.",
-    "L’image de deux perks a été remplacée."
+    "Les portes des fruits ont de nouvelles images, transparentes sur les bords : elles se fondent dans le cadre, sans liseré sombre autour."
   ] };
 })();

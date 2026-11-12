@@ -14,7 +14,13 @@ def preparer(src, sortie, taille=1024, seuil=60, marge=3):
     for f in sorted(glob.glob(os.path.join(src, "*Door.png"))):
         nom = os.path.basename(f)[:-8]
         nom = nom[0].lower() + nom[1:]
-        im = Image.open(f).convert("RGB")
+        im = Image.open(f).convert("RGBA")
+        if im.getchannel("A").getextrema()[0] == 0:  # bords DEJA transparents (version du 2026-11-12) : rien a recadrer, on garde la transparence
+            sortie_img = os.path.join(sortie, nom + ".webp")
+            im.resize((taille, taille), Image.LANCZOS).save(sortie_img, "WEBP", quality=82, method=6)
+            print(nom, "transparent", os.path.getsize(sortie_img) // 1024, "Ko")
+            continue
+        im = im.convert("RGB")
         w, h = im.size
         lum = lambda c: int(0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2])
         moy = lambda box: lum(im.crop(box).resize((1, 1), Image.BOX).getpixel((0, 0)))
