@@ -40,7 +40,7 @@ function pagePerksIdleV1_(j){
           if(filtre.abordables&&!abordable)return '';
           const barre=cap>0?Math.min(100,niveau*100/cap):0;
           return '<article class="pk-vitrine'+(auMax?' pk-max':abordable?' pk-abordable':'')+(niveau>0?' pk-possede':'')+'">'+
-            '<div class="pk-socle"><img class="pk-image" src="/perks/'+H.idleEntier_(perk.id)+'.webp" alt="" loading="lazy" onerror="this.hidden=true"></div>'+
+            '<div class="pk-socle"><img class="pk-image" src="/perks/'+H.idleEntier_(perk.id)+'.webp'+(perk.id===52||perk.id===53?'?v=2':'')+'" alt="" loading="lazy" onerror="this.hidden=true"></div>'+
             '<div class="pk-corps">'+
               '<div class="pk-nom">'+H.idleHtml_(nom)+'</div>'+
               '<div class="pk-effet">'+H.idleHtml_(perk.effect||'')+'</div>'+

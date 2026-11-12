@@ -68,22 +68,45 @@
     return ' · prochain dans <span data-idle-auto-v1="1" data-rest="'+Number(secondes)+'" data-at="'+ancre+'" data-cycle="'+Math.max(1,Number(s.intervalSeconds)||1)+'">'+duree(secondes)+'</span>';
   }
   function aventure(j){return j&&j.systemes&&j.systemes.adventure||null;}
-  /* Bande « Auto Merge / Auto Boost » : seulement ce qui est débloqué ET activé (anti-spoil : rien sinon). */
-  function bandeMinuteurs(j){
+  /*
+   * Barre « Auto Merge / Auto Boost » au-dessus du cadre du sac (Norman, 2026-11-12 : « auto merge et auto boost au-dessus du cadre du sac, cochables » ; puis « à cocher séparément »).
+   * Deux cases SÉPARÉES, chacune seulement si elle est débloquée (anti-spoil : rien sinon), chacune avec son minuteur. Les explications d'Auto Merge sont dans la Boutique EXP (bouton « i » de l'article).
+   */
+  function barreAuto(j,compact,bascule){
     var s=snap(j);
     if(!s)return '';
     var u=s.unlocked||{},r=s.settings||{};
+    if(!u.autoMerge&&!u.autoBoost)return '';
     var rtt=typeof window.__SOREAL_IDLE_RTT_V1__==='function'?window.__SOREAL_IDLE_RTT_V1__():0;
     var recu=j&&Number(j.__recuPerfV1);
     var ancre=(recu>0?recu:performance.now())-rtt/2;
     var cycle=Math.max(1,Number(s.intervalSeconds)||1);
-    function pastille(actif,debloque,icone,nom,reste){
-      if(!debloque||!actif||reste==null)return '';
-      return '<span class="soreal-idle-inv-timer-v1">'+icone+' '+nom+' <b data-idle-auto-v1="1" data-fmt="min" data-rest="'+Number(reste)+'" data-at="'+ancre+'" data-cycle="'+cycle+'">'+dureeMin(reste)+'</b></span>';
+    var minuterie=false;
+    function ligne(cle,nom,debloque,reste){
+      if(!debloque)return '';
+      var coche=Boolean(voulu_('r:'+cle,r[cle]));
+      var chrono='';
+      if(!compact&&coche&&reste!=null){chrono='<span class="ic-chrono">prochain dans <b data-idle-auto-v1="1" data-fmt="min" data-rest="'+Number(reste)+'" data-at="'+ancre+'" data-cycle="'+cycle+'">'+dureeMin(reste)+'</b></span>';minuterie=true;}
+      return '<span class="ic-ligne"><label class="ic-coche"><input type="checkbox" '+(coche?'checked ':'')+'onchange="window.__inventaireAutoReglageV1__(\''+cle+'\',this.checked)"><span class="ic-boite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12.500 5 5L20 6" fill="none" stroke="#0b2a15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>'+(compact?nom.replace('Auto ','<span class="ic-pref">Auto </span>'):nom)+'</span></label>'+chrono+'</span>';
     }
-    var contenu=pastille(r.autoMerge,u.autoMerge,'🔁','Auto Merge',s.mergeRemainingSeconds)+pastille(r.autoBoost,u.autoBoost,'✨','Auto Boost',s.boostRemainingSeconds);
-    if(contenu)minuteurAuto();
-    return contenu;
+    var contenu=ligne('autoMerge','Auto Merge',u.autoMerge,s.mergeRemainingSeconds)+ligne('autoBoost','Auto Boost',u.autoBoost,s.boostRemainingSeconds);
+    if(compact)return contenu;
+    if(minuterie)minuteurAuto();
+    var aide=u.autoBoost?'<span class="ic-aide">Auto Boost : les boosts vont d’abord aux objets équipés, puis aux accessoires et aux cases d’automerge ; le reste ne va dans le Cube que lorsque tout est au maximum. Les objets protégés ne sont jamais utilisés.</span>':'';
+    return '<div class="ic-barre">'+contenu+(bascule||'')+aide+'</div>';
+  }
+  /*
+   * Bloc replié / déplié (Norman, 2026-11-12 : « le panneau doit pouvoir être fermé et ne tenir que sur une ligne fine avec les cases à cocher et les icônes en plus petit ; quand on ouvre, on a le détail »).
+   * Fermé : une ligne (cases + petites icônes + flèche). Ouvert : les minuteurs, l'aide et les configurations en grand. Préférence de COMPTE (règle n°6 : clé soreal_idle_…), fermé par défaut.
+   */
+  var CLE_ZONE='soreal_idle_inv_zone_ouverte_v1';
+  function zoneOuverte_(){try{return localStorage.getItem(CLE_ZONE)==='1';}catch(_e){return false;}}
+  window.__inventaireAutoZoneV1__=function(){
+    try{localStorage.setItem(CLE_ZONE,zoneOuverte_()?'0':'1');}catch(_e){}
+    rendre();
+  };
+  function basculeHtml_(ouv){
+    return '<button type="button" class="ic-bascule" aria-expanded="'+(ouv?'true':'false')+'" aria-label="'+(ouv?'Fermer le détail':'Ouvrir le détail')+'" onclick="window.__inventaireAutoZoneV1__()"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+(ouv?'m6 15 6-6 6 6':'m6 9 6 6 6-6')+'" fill="none" stroke="currentColor" stroke-width="3.400" stroke-linecap="round" stroke-linejoin="round"/></svg></button>';
   }
 
   /*
@@ -274,19 +297,22 @@
   window.__inventaireAutoFiltreTypeV1__=function(slot,v){var z=zoneFiltre_();var extra={slot:String(slot),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('t:'+z+':'+slot,'lootFilterType',extra);};
   window.__inventaireAutoFiltreObjetV1__=function(def,v){var z=zoneFiltre_();(function(){var P=lireFiltre_();if(P===null){var sn=snap(dernierEtat);P=sn&&sn.lootFilter&&Array.isArray(sn.lootFilter.items)?sn.lootFilter.items.map(String):[];}var d=String(def),i=P.indexOf(d);if(v){if(i<0)P.push(d);}else if(i>=0)P.splice(i,1);ecrireFiltre_(P);})();var extra={definitionId:String(def),filtered:Boolean(v)};if(z)extra.zone=z;envoyerFiable_('i:'+z+':'+def,'lootFilterItem',extra);};
   function nomConfig_(i){var s=snap(dernierEtat),lo=s&&Array.isArray(s.loadouts)?s.loadouts[i]:null;return lo&&lo.name?String(lo.name):'';}
-  window.__inventaireAutoLoadoutV1__=function(op,index){
-    var i=entier(index);
-    if(op==='save'){
+  function configVide_(i){var s=snap(dernierEtat),lo=s&&Array.isArray(s.loadouts)?s.loadouts[i]:null;return !lo||lo.vide||!(lo.items&&lo.items.length);}
+  function apresAction_(){setTimeout(rafraichir,250);}
+  /* Configurations d'équipement (bande et éditeur : modules/inventory-configs-v1.js). */
+  window.__inventaireAutoConfigV1__=function(op,index,extra){
+    var i=entier(index),C=window.__SOREAL_IDLE_INV_CONFIGS_V1__;
+    if(op==='equiper'){action('loadoutApply',{index:i});apresAction_();return;}
+    if(op==='editer'){if(C)C.ouvrir(i,dernierEtat);return;}
+    if(op==='sauver'){
+      if(configVide_(i)){action('loadoutSave',{index:i});apresAction_();return;}
       var nom=nomConfig_(i);
-      window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Enregistrer l’équipement que tu portes dans '+(nom?'« '+nom+' »':'la configuration '+(i+1))+' ? Son contenu actuel sera remplacé.',{titre:'Enregistrer l’équipement',ok:'Enregistrer'}).then(function(ok){if(ok)action('loadoutSave',{index:i});});
+      window.__SOREAL_IDLE_DIALOGUE_V1__.confirmer('Enregistrer l’équipement que tu portes dans '+(nom?'« '+nom+' »':'la configuration '+(i+1))+' ? Son contenu actuel sera remplacé.',{titre:'Enregistrer l’équipement',ok:'Enregistrer'}).then(function(ok){if(ok){action('loadoutSave',{index:i});apresAction_();}});
       return;
     }
-    if(op==='rename'){
-      window.__SOREAL_IDLE_DIALOGUE_V1__.saisir('Donne un nom à la configuration '+(i+1)+' (24 caractères au plus).',{titre:'Nommer la configuration',valeur:nomConfig_(i),max:24,placeholder:'Ex. : Boss, Aventure…',ok:'Nommer'}).then(function(v){if(v!==null)action('loadoutRename',{index:i,name:v});});
-      return;
-    }
-    if(op==='haut'||op==='bas'){action('loadoutMove',{index:i,direction:op==='haut'?-1:1});return;}
-    action('loadoutApply',{index:i});
+    if(op==='nom'){action('loadoutRename',{index:i,name:String(extra==null?'':extra)});apresAction_();return;}
+    if(op==='dessin'){action('loadoutIcon',{index:i,icon:String(extra||'')});apresAction_();return;}
+    if(op==='gauche'||op==='droite'){var d=op==='gauche'?-1:1;action('loadoutMove',{index:i,direction:d});if(C)C.ouvrir(i+d,dernierEtat);apresAction_();}
   };
 
   /* ---------- panneau ---------- */
@@ -362,26 +388,17 @@
     var u=s.unlocked||{},r=s.settings||{};
     var lignes=[];
 
-    var autoItems=
-      (u.autoMerge?'<div>'+caseACocher('🔁 Auto Merge'+(r.autoMerge&&s.mergeRemainingSeconds!=null?prochainAuto(j,s,s.mergeRemainingSeconds):''),r.autoMerge,'window.__inventaireAutoReglageV1__(\'autoMerge\',this.checked)',true)+'</div>':'')+
-      (u.autoBoost?'<div>'+caseACocher('✨ Auto Boost'+(r.autoBoost&&s.boostRemainingSeconds!=null?prochainAuto(j,s,s.boostRemainingSeconds):''),r.autoBoost,'window.__inventaireAutoReglageV1__(\'autoBoost\',this.checked)',true)+'</div>':'');
-    /* Bouton de versement groupé dans le Cube supprimé (Norman, 2026-10-09) : le clic droit (ou le double tap) sur le Cube suffit. */
+    /* Auto Merge et Auto Boost : une case au-dessus du sac (barreAuto) ; les explications sont dans la Boutique EXP (Norman, 2026-11-12). Bouton de versement groupé dans le Cube supprimé (Norman, 2026-10-09) : le clic droit (ou le double tap) sur le Cube suffit. */
     lignes.push(section('🤖 Automatisation',
-      (autoItems?'<div style="display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr))">'+autoItems+'</div>'+
-      '<div class="soreal-idle-note-v4" style="margin-top:10px">Minuteur : <b>'+duree(s.intervalSeconds)+'</b>'+
-        (u.autoBoost
-          ?' · Recyclage des boosts : <b>'+Math.round(Number(s.boostRecycleChance||0)*100)+' %</b><br>Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge ; l’Auto Boost ne verse les boosts restants dans le Cube que lorsque tout est au maximum. Les objets protégés (Shift) ne sont jamais consommés.'
-          :'<br>Les objets équipés passent d’abord, puis les accessoires, puis les slots d’automerge. Les objets protégés (Shift) ne sont jamais consommés.')+'</div>':'')+
-      '<div style="margin-top:10px">'+caseACocher(u.autoBoost?'♻️ A + clic / Auto Boost réutilisent aussitôt les boosts recyclés':'♻️ A + clic réutilise aussitôt les boosts recyclés',r.consumeRecycled!==false,'window.__inventaireAutoReglageV1__(\'consumeRecycled\',this.checked)')+
-        '<div class="soreal-idle-note-v4" style="margin:4px 0 0">Désactivé : un boost recyclé reste dans le sac jusqu’à la passe suivante.</div></div>'
+      '<div>'+caseACocher(u.autoBoost?'♻️ A + clic / Auto Boost réutilisent aussitôt les boosts recyclés':'♻️ A + clic réutilise aussitôt les boosts recyclés',r.consumeRecycled!==false,'window.__inventaireAutoReglageV1__(\'consumeRecycled\',this.checked)')+'</div>'
     ));
 
-    /* Anti-spoil : on n'affiche que le nombre déjà obtenu, sans maximum ; rien tant qu'aucun slot n'est obtenu. */
+    /* Anti-spoil : on n'affiche que le nombre déjà obtenu, sans maximum ; rien tant qu'aucun slot n'est obtenu. Les explications sont dans la Boutique EXP (bouton « i », Norman, 2026-11-12). */
     lignes.push(section('🟦 Slots d’automerge · '+entier(s.mergeSlots),
       entier(s.mergeSlots)>0?('<div style="display:flex;gap:14px;flex-wrap:wrap">'+
-        caseACocher('Fusion automatique',r.mergeSlotsMerge,'window.__inventaireAutoReglageV1__(\'mergeSlotsMerge\',this.checked)')+
-        (u.autoBoost?caseACocher('Boost automatique',r.mergeSlotsBoost,'window.__inventaireAutoReglageV1__(\'mergeSlotsBoost\',this.checked)'):'')+
-      '</div><div class="soreal-idle-note-v4" style="margin-top:6px">Les premières cases du sac (contour bleu) : aucun butin n’y tombe, dépose-y les objets à faire monter.</div>'):
+        caseACocher('Fusion automatique',voulu_('r:mergeSlotsMerge',r.mergeSlotsMerge),'window.__inventaireAutoReglageV1__(\'mergeSlotsMerge\',this.checked)')+
+        (u.autoBoost?caseACocher('Boost automatique',voulu_('r:mergeSlotsBoost',r.mergeSlotsBoost),'window.__inventaireAutoReglageV1__(\'mergeSlotsBoost\',this.checked)'):'')+
+      '</div>'):
       ''
     ));
 
@@ -393,7 +410,7 @@
       (u.autoTransform?'<label style="display:flex;gap:8px;align-items:center;margin-top:8px">Boosts reçus : <select onchange="window.__inventaireAutoReglageV1__(\'autoTransform\',this.value)">'+optionsTransfo+'</select></label>':'')
     ));
 
-    /* Action au clic pour les écrans tactiles (Norman, 2026-11-04 : « pour le tel il faut le mettre dans le menu ») : sans clavier, impossible de tenir A, D, Q, W ou E. Le sélecteur avait disparu avec le passage de l'automatisation en interrupteurs ; Q/W/E ne sont proposées que si la transformation est débloquée (rien de verrouillé n'apparaît). */
+    /* Action au clic pour les écrans tactiles (Norman, 2026-11-04 : « pour le tel il faut le mettre dans le menu ») : sans clavier, impossible de tenir A, D, Q, W ou E. Q/W/E ne sont proposées que si la transformation est débloquée. */
     var optionsClic=[['','Normale'],['a','A · Booster tout'],['d','D · Fusionner tout']].concat(u.boostTransform?[['q','Q · Transformer en Puissance'],['w','W · Transformer en Endurance'],['e','E · Transformer en Spécial']]:[]).map(function(o){
       return '<option value="'+o[0]+'"'+(modeClic===o[0]?' selected':'')+'>'+o[1]+'</option>';
     }).join('');
@@ -412,46 +429,6 @@
       (u.filterBoostsIntoCube?'<div class="soreal-idle-note-v4" style="margin-top:8px">Les boosts filtrés partent dans le Cube de l’infini (sans recyclage).</div>':'');
     lignes.push(section('🧹 Filtre de butin'+(zoneNom?' <span style="font-size:14px;font-weight:600;color:#aeb5c8">· zone : '+html(zoneNom)+' (chaque zone a son filtre)</span>':''),
       contenuFiltre
-    ));
-
-    var los=Array.isArray(s.loadouts)?s.loadouts:[];
-    /* Configurations d'équipement (Norman, 2026-11-04) : un NOM, des flèches pour les réorganiser, le TOTAL des bonus de leurs pièces. Tout texte venu du joueur (nom, pièces) est échappé. */
-    var fmt=(window.__SOREAL_IDLE_REG__&&window.__SOREAL_IDLE_REG__.formatGrandNombreIdleV70_)||formatGrandNombre;
-    var lib=(window.__SOREAL_IDLE_REG__&&window.__SOREAL_IDLE_REG__.idleLabelSpecialBonusV1_)||function(t){return String(t);};
-    function totalHtml_(t){
-      if(!t)return '';
-      var parts=[];
-      if(t.power>0)parts.push('<span class="lo-st lo-p">Puissance <b>'+html(fmt(t.power))+'</b></span>');
-      if(t.toughness>0)parts.push('<span class="lo-st lo-e">Endurance <b>'+html(fmt(t.toughness))+'</b></span>');
-      if(t.hp>0)parts.push('<span class="lo-st lo-p">PV max <b>'+html(fmt(t.hp))+'</b></span>');
-      if(t.regen>0)parts.push('<span class="lo-st lo-e">Regen PV <b>'+html(fmt(t.regen,2))+'</b></span>');
-      Object.keys(t.specials||{}).forEach(function(k){var v=Number(t.specials[k])||0;if(v>0)parts.push('<span class="lo-st lo-s">'+html(lib(k))+' <b>+'+html(fmt(v,2))+'</b></span>');});
-      if(!parts.length&&!t.auCoffre)return '';
-      return '<div class="lo-total" aria-label="Total des bonus de cette configuration">'+parts.join('')+(t.auCoffre>0?'<span class="lo-st lo-cof">'+entier(t.auCoffre)+' pièce'+(t.auCoffre>1?'s':'')+' au coffre : reprise'+(t.auCoffre>1?'s':'')+' automatiquement</span>':'')+(t.absentes>0?'<span class="lo-st lo-abs">'+entier(t.absentes)+' pièce'+(t.absentes>1?'s':'')+' absente'+(t.absentes>1?'s':'')+' du sac</span>':'')+'</div>';
-    }
-    lignes.push(section('🎽 Configurations d’équipement · '+entier(s.loadoutSlots),
-      los.length?('<div class="lo-liste">'+los.map(function(lo,i){
-        var vide=!lo||lo.vide||!(lo.items&&lo.items.length);
-        var nom=lo&&lo.name?String(lo.name):'';
-        var contenu=vide?'vide':lo.items.map(function(x){return html(x.name||'objet absent');}).join(', ');
-        return '<div class="lo-carte'+(vide?' lo-vide':'')+'">'+
-          '<div class="lo-tete">'+
-            '<span class="lo-nom"><b>'+(i+1)+'.</b> '+(nom?html(nom):'<i class="lo-sans">Configuration '+(i+1)+'</i>')+'</span>'+
-            '<span class="lo-acts">'+
-              '<button type="button" class="lo-ico" title="Renommer" aria-label="Renommer la configuration '+(i+1)+'" onclick="window.__inventaireAutoLoadoutV1__(\'rename\','+i+')">✎</button>'+
-              '<button type="button" class="lo-ico" title="Monter" aria-label="Monter la configuration '+(i+1)+'"'+(i===0?' disabled':'')+' onclick="window.__inventaireAutoLoadoutV1__(\'haut\','+i+')">▲</button>'+
-              '<button type="button" class="lo-ico" title="Descendre" aria-label="Descendre la configuration '+(i+1)+'"'+(i===los.length-1?' disabled':'')+' onclick="window.__inventaireAutoLoadoutV1__(\'bas\','+i+')">▼</button>'+
-            '</span>'+
-          '</div>'+
-          '<div class="lo-contenu">'+contenu+'</div>'+
-          (vide?'':totalHtml_(lo.total))+
-          '<div class="lo-boutons">'+
-            '<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'save\','+i+')">Enregistrer</button>'+
-            (vide?'':'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__inventaireAutoLoadoutV1__(\'apply\','+i+')">Équiper</button>')+
-          '</div>'+
-        '</div>';
-      }).join('')+'</div>'):
-      ''
     ));
 
     var estOuvert=ouvert();
@@ -482,29 +459,11 @@
        * catégories. Tout doit être clair. ») : chaque réglage dans sa propre carte, un peu de
        * respiration entre elles, un titre qui se détache clairement du contenu.
        */
-      '#soreal-idle-inv-timers-v1{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}'+
-      '.soreal-idle-inv-timer-v1{padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(166,188,229,.2);font:700 12px/1.2 "Segoe UI",system-ui;color:#dce5f3}'+
-      '.soreal-idle-inv-timer-v1 b{color:#ffd27a;font-variant-numeric:tabular-nums}'+
       '.soreal-idle-inv-auto-sections-v1{display:grid;gap:10px;margin-top:10px}'+
       '.soreal-idle-inv-auto-section-v1{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(166,188,229,.14)}'+
       '.soreal-idle-inv-auto-section-titre-v1{font:800 13px/1.25 "Segoe UI Variable Text","Segoe UI",system-ui;color:#dce5f3;margin-bottom:9px;display:flex;align-items:center;flex-wrap:wrap;gap:6px}'+
       '.soreal-idle-inv-auto-section-v1 .soreal-idle-note-v4{color:#aeb5c8;line-height:1.5}'+
-      /* Configurations d'équipement : une carte par configuration (nom, flèches, contenu, total des bonus, boutons) */
-      '.lo-liste{display:grid;gap:10px}'+
-      '.lo-carte{display:grid;gap:7px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.18);border:1px solid rgba(166,188,229,.16)}'+
-      '.lo-carte.lo-vide{opacity:.78}'+
-      '.lo-tete{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}'+
-      '.lo-nom{font:800 15px/1.2 system-ui;color:#fff3c9;overflow-wrap:anywhere}'+
-      '.lo-sans{font-style:normal;font-weight:600;color:#aeb5c8}'+
-      '.lo-acts{display:flex;gap:5px}'+
-      '.lo-ico{min-width:32px;height:30px;padding:0 8px;border-radius:8px;border:1px solid rgba(166,188,229,.3);background:rgba(255,255,255,.07);color:#e8eefb;font:700 14px/1 system-ui;cursor:pointer}'+
-      '.lo-ico:disabled{opacity:.35;cursor:default}'+
-      '.lo-ico:focus-visible{outline:2px solid #7fb0ff;outline-offset:1px}'+
-      '.lo-contenu{font-size:13px;line-height:1.4;color:#aeb5c8;overflow-wrap:anywhere}'+
-      '.lo-total{display:flex;flex-wrap:wrap;gap:6px 12px;padding:7px 9px;border-radius:9px;background:rgba(255,255,255,.04);font-size:13px}'+
-      '.lo-st b{font-variant-numeric:tabular-nums;color:#fff}'+
-      '.lo-p{color:#ffb35c}.lo-e{color:#7fb7ff}.lo-s{color:#ffe36e}.lo-abs{color:#ff9a9a}.lo-cof{color:#a8f0cc}'+
-      '.lo-boutons{display:flex;gap:8px;flex-wrap:wrap}';
+      '.soreal-idle-inv-auto-section-v1 .soreal-idle-note-v4{color:#aeb5c8;line-height:1.5}';
     document.head.appendChild(st);
   }
 
@@ -521,21 +480,39 @@
       cases[i].classList.toggle('idle-merge-slot-v1',idx<k);
     }
     var colonnes=sac.closest('.soreal-idle-v151-inventory-columns')||sac;
+    var C=window.__SOREAL_IDLE_INV_CONFIGS_V1__;
+    if(C){C.etat(dernierEtat);C.rafraichir(dernierEtat);}
     var bande=document.getElementById('soreal-idle-inv-timers-v1');
-    var contenuBande=bandeMinuteurs(dernierEtat);
-    if(!contenuBande){
+    var ouv=zoneOuverte_();
+    var htmlBarre,htmlConfigs;
+    if(ouv){
+      htmlBarre=barreAuto(dernierEtat,false,basculeHtml_(true));
+      htmlConfigs=C?C.bande(dernierEtat,htmlBarre?'':basculeHtml_(true)):'';
+    }else{
+      var fin=barreAuto(dernierEtat,true)+(C?C.mini(dernierEtat):'');
+      htmlBarre=fin?'<div class="ic-fin">'+fin+basculeHtml_(false)+'</div>':'';
+      htmlConfigs='';
+    }
+    if(!htmlBarre&&!htmlConfigs){
       if(bande&&bande.parentNode)bande.parentNode.removeChild(bande);
     }else{
       if(!bande){
         bande=document.createElement('div');
         bande.id='soreal-idle-inv-timers-v1';
+        bande.className='soreal-idle-section-v8';
         bande.setAttribute('data-morph-garder','1');
       }
-      if(bande.parentNode!==colonnes.parentNode||bande.nextSibling!==colonnes)colonnes.parentNode.insertBefore(bande,colonnes);
-      if(bande.getAttribute('data-sig')!==contenuBande){
-        bande.innerHTML=contenuBande;
-        bande.setAttribute('data-sig',contenuBande);
-      }
+      if(bande.classList.contains('ic-ferme')===ouv)bande.classList.toggle('ic-ferme',!ouv);
+      if(bande.parentNode!==sac.parentNode||bande.nextSibling!==sac)sac.parentNode.insertBefore(bande,sac);
+      [['ic-zone-barre',htmlBarre],['ic-zone-configs',htmlConfigs]].forEach(function(z){
+        var el=bande.querySelector('.'+z[0]);
+        if(!z[1]){if(el)el.parentNode.removeChild(el);return;}
+        if(!el){el=document.createElement('div');el.className=z[0];bande.appendChild(el);}
+        if(el.getAttribute('data-sig')!==z[1]){el.innerHTML=z[1];el.setAttribute('data-sig',z[1]);}
+      });
+      /* ordre fixe : la barre, puis les configurations */
+      var zb=bande.querySelector('.ic-zone-barre'),zc=bande.querySelector('.ic-zone-configs');
+      if(zb&&zc&&zb.nextSibling!==zc)bande.insertBefore(zb,zc);
     }
     var bloc=document.getElementById('soreal-idle-inventory-auto-v1');
     /* 2026-09-24 (Norman) : le Coffre passe avant toutes les options (filtre de butin, etc.) ; sans Coffre, sous le sac. */
@@ -635,5 +612,5 @@
   }
   brancher();
 
-  window.__SOREAL_IDLE_INVENTORY_AUTO_V1__={reconcilierFiltre:reconcilierFiltre_,etat:function(j){dernierEtat=j;},filtreCompte:lireFiltre_,panneau:panneau,rendre:rendre,prevoirBoosts:prevoirBoosts_,expliquerAucunBoost:expliquerAucunBoost_};
+  window.__SOREAL_IDLE_INVENTORY_AUTO_V1__={barre:barreAuto,reconcilierFiltre:reconcilierFiltre_,etat:function(j){dernierEtat=j;},filtreCompte:lireFiltre_,panneau:panneau,rendre:rendre,prevoirBoosts:prevoirBoosts_,expliquerAucunBoost:expliquerAucunBoost_};
 })();

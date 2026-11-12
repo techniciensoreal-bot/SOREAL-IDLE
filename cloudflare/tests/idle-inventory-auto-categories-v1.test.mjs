@@ -10,15 +10,14 @@ const mod = readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8
 // 1. Un helper de section dédié existe et est utilisé pour chaque catégorie.
 assert.match(mod, /function section\(titre,contenu\)\{/, "un helper de section doit exister");
 const occurrences = (mod.match(/lignes\.push\(section\(/g) || []).length;
-assert.equal(occurrences, 6, "les 6 catégories (Automatisation, Slots d automerge, Transformation, Action au clic pour le tactile (Norman, 2026-11-04), Filtre de butin, Configurations) doivent chacune être une section");
+assert.equal(occurrences, 5, "les 5 catégories (Automatisation, Slots d automerge, Transformation, Action au clic pour le tactile (Norman, 2026-11-04), Filtre de butin) doivent chacune être une section (les Configurations d'équipement sont dans la zone du sac depuis le 2026-11-12)");
 
 // 2. Chaque catégorie garde son propre titre reconnaissable.
 for (const titre of [
   "🤖 Automatisation",
   "🟦 Slots d’automerge",
   "🔀 Transformation des boosts",
-  "🧹 Filtre de butin",
-  "🎽 Configurations d’équipement"
+  "🧹 Filtre de butin"
 ]) {
   assert.ok(mod.includes(titre), `catégorie manquante : ${titre}`);
 }

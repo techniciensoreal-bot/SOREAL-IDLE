@@ -38,8 +38,8 @@ assert.ok(ui.includes("clicDroitCubeIdleV1_"), "le clic droit sur le Cube reste"
 
 // 3. Panneau Automatisation : l'Auto Boost n'est mentionné qu'une fois débloqué.
 {
-  const bloc = auto.slice(auto.indexOf("    var autoItems="), auto.indexOf("    /* Anti-spoil : on n'affiche que le nombre déjà obtenu"));
-  assert.match(bloc, /\(u\.autoBoost\s*\?' · Recyclage des boosts[\s\S]*?l’Auto Boost ne verse[\s\S]*?:'<br>Les objets équipés passent d’abord[^']*ne sont jamais consommés\.'\)/, "texte Auto Boost seulement si débloqué");
+  assert.ok(auto.includes("var aide=u.autoBoost?'<span class=\"ic-aide\">Auto Boost : les boosts vont") && auto.includes("le reste ne va dans le Cube que lorsque tout est au maximum"), "texte Auto Boost seulement si débloqué (au-dessus du sac)");
+  assert.ok(auto.includes("ligne('autoBoost','Auto Boost',u.autoBoost,"), "case Auto Boost séparée, seulement si débloquée");
   assert.ok(auto.includes("(u.autoBoost?caseACocher('Boost automatique'"), "case « Boost automatique » seulement si l'Auto Boost est débloqué");
 }
 

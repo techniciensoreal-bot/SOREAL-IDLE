@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Maquette : Auto Merge et configurations d'équipement</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<style>
+/* MAQUETTE LOCALE (jamais déployée) : disposition de la zone du sac, version PC et téléphone. Les couleurs reprennent la page Inventaire actuelle. */
+:root{
+  --fond:#0d1712; --carte:#13261d; --carte2:#183126; --bord:#c79a3d; --bord2:#6b5a2c; --case:#1c3328; --case-bord:#2f4f3f;
+  --texte:#e9efe9; --doux:#9db2a4; --or:#f6c431; --vert:#4ade80; --bleu:#5aa9ff; --rouge:#ff6b6b; --encre:#16100c;
+  --titre:'Bangers',system-ui,sans-serif; --corps:'Russo One',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--fond);color:var(--texte);font-family:var(--corps);-webkit-text-size-adjust:100%}
+body{padding:12px max(12px,env(safe-area-inset-left)) 60px}
+.outil{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 auto 12px;max-width:1100px;font-size:13px;color:var(--doux)}
+.outil button{font:inherit;color:var(--texte);background:#22382d;border:1px solid var(--case-bord);border-radius:8px;padding:6px 10px;cursor:pointer}
+.outil b{color:var(--or)}
+.page{max-width:1100px;margin:0 auto;display:grid;min-width:0;gap:12px;grid-template-columns:minmax(300px,380px) 1fr;grid-template-areas:"equip sac" "coffre coffre"}
+.carte{background:linear-gradient(180deg,var(--carte2),var(--carte));border:2px solid var(--bord2);border-radius:14px;padding:10px 12px;position:relative;box-shadow:inset 0 0 0 1px #000a,0 4px 0 #0007}
+.titre{font-family:var(--titre);letter-spacing:.06em;font-size:20px;color:var(--or);margin:0 0 8px;text-shadow:0 2px 0 #000a}
+#equip{grid-area:equip}
+#sac-zone{grid-area:sac;display:flex;flex-direction:column;gap:8px;min-width:0}
+#equip,#coffre{min-width:0}
+#coffre{grid-area:coffre;color:var(--doux);font-size:14px;text-align:center;padding:18px}
+/* emplacements d'équipement (silhouettes : dessin non refait dans la maquette) */
+.slots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.slot{aspect-ratio:1;background:var(--case);border:2px solid var(--case-bord);border-radius:10px;display:grid;place-items:center;color:#4c6a59;font-size:11px}
+/* ---------- NOUVEAU : barre Auto Merge au-dessus du cadre du sac ---------- */
+.barre-auto{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#102018;border:2px solid var(--bord2);border-radius:12px;padding:8px 12px}
+.coche{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:16px;-webkit-tap-highlight-color:transparent;user-select:none}
+.coche input{position:absolute;opacity:0;pointer-events:none}
+.coche .boite{width:28px;height:28px;border-radius:7px;border:3px solid var(--bord);background:#0b140f;display:grid;place-items:center;flex:none}
+.coche input:checked + .boite{background:var(--vert);border-color:#1c6b3a}
+.coche .boite svg{width:18px;height:18px;opacity:0}
+.coche input:checked + .boite svg{opacity:1}
+.coche input:focus-visible + .boite{outline:3px solid #fff8}
+.chrono{color:var(--doux);font-size:14px}.chrono b{color:var(--texte)}
+.aide{margin-left:auto;font-size:12px;color:var(--doux)}
+/* sac */
+.grille-sac{display:grid;grid-template-columns:repeat(12,1fr);gap:6px}
+.case{aspect-ratio:1;background:var(--case);border:2px solid var(--case-bord);border-radius:8px;display:grid;place-items:center;font-family:var(--titre);font-size:20px}
+.case.o{background:#3b2a12;border-color:#c79a3d;color:#ffb347}.case.b{background:#12304a;border-color:#4f9ae0;color:#8cc8ff}.case.j{background:#403b10;border-color:#d6c33a;color:#ffe45c}
+/* ---------- NOUVEAU : configurations d'équipement (bande de boutons-dessins) ---------- */
+.configs{margin-top:10px;padding-top:8px;border-top:2px dashed var(--bord2)}
+.configs-tete{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:6px}
+.configs-tete h3{margin:0;font-family:var(--titre);font-size:17px;letter-spacing:.06em;color:var(--or)}
+.configs-tete span{font-size:12px;color:var(--doux)}
+.bande{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;min-width:0}
+.cfg{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.cfg-bouton{width:100%;aspect-ratio:1;border-radius:12px;border:3px solid var(--bord2);background:linear-gradient(180deg,#25402f,#16291f);display:grid;place-items:center;cursor:pointer;padding:5px;font:inherit;color:inherit;box-shadow:0 3px 0 #0008}
+.cfg-bouton:hover{border-color:var(--bord);transform:translateY(-1px)}
+.cfg-bouton:active{transform:translateY(2px);box-shadow:0 1px 0 #0008}
+.cfg.actif .cfg-bouton{border-color:var(--vert);box-shadow:0 0 0 2px #4ade8055,0 3px 0 #0008}
+.cfg-bouton svg{width:100%;height:100%}
+.cfg-num{position:absolute;left:-4px;top:-4px;min-width:20px;height:20px;border-radius:10px;background:#0b140f;border:2px solid var(--bord2);font-size:11px;display:grid;place-items:center;pointer-events:none}
+.cfg-edit{position:absolute;right:-6px;top:-6px;width:30px;height:30px;border-radius:50%;background:#0b140f;border:2px solid var(--bord2);display:grid;place-items:center;cursor:pointer;padding:0;color:var(--doux)}
+.cfg-edit svg{width:14px;height:14px}
+.cfg-nom{font-size:11px;color:var(--doux);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cfg.vide .cfg-bouton{border-style:dashed;background:transparent;color:var(--doux);font-size:26px}
+.bulle{position:absolute;z-index:5;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:210px;background:#0b140f;border:2px solid var(--bord);border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.35;display:none;pointer-events:none}
+.bulle b{color:var(--or);display:block;font-size:13px;margin-bottom:2px}
+.bulle i{font-style:normal;display:block;color:var(--vert)}
+.cfg:hover .bulle,.cfg.montre .bulle{display:block}
+/* ---------- NOUVEAU : éditeur (fenêtre) + choix du dessin ---------- */
+.voile{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:20;padding:12px}
+.voile.ouvert{display:flex}
+.fenetre{width:min(640px,100%);max-height:calc(100dvh - 24px);overflow:auto;background:var(--carte);border:3px solid var(--bord);border-radius:16px;padding:14px 16px}
+.fenetre h2{margin:0 0 10px;font-family:var(--titre);font-size:24px;letter-spacing:.06em;color:var(--or)}
+.champ{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.champ input{flex:1;min-width:0;font:inherit;font-size:16px;color:var(--texte);background:#0b140f;border:2px solid var(--case-bord);border-radius:8px;padding:8px 10px}
+.groupe{margin:8px 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--doux)}
+.dessins{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;min-width:0}
+.dessin{display:flex;flex-direction:column;align-items:center;gap:2px;background:#0f1d16;border:2px solid var(--case-bord);border-radius:10px;padding:5px 3px 3px;cursor:pointer;font:inherit;color:var(--doux);font-size:10px;line-height:1.15;text-align:center}
+.dessin svg{width:46px;height:46px}
+.dessin.choisi{border-color:var(--vert);background:#173a27;color:var(--texte)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.bouton{font:inherit;font-size:15px;color:#1a1204;background:linear-gradient(180deg,#ffd45e,#e3a925);border:2px solid #6a4a0a;border-radius:10px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #0008;min-height:44px}
+.bouton.sec{color:var(--texte);background:linear-gradient(180deg,#2b4637,#1b3024);border-color:var(--case-bord)}
+.note{font-size:12px;color:var(--doux);margin-top:8px}
+@media (max-width:760px){
+  .page{grid-template-columns:minmax(0,1fr);grid-template-areas:"equip" "sac" "coffre"}
+  .grille-sac{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .bande{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+  .aide{display:none}
+  .bulle{display:none!important}
+}
+</style>
+</head>
+<body>
+<!-- sprites : dessins originaux, contour sombre, même esprit que les icônes du jeu (.dsn-v1) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="b-eclair" viewBox="0 0 48 48"><path d="M28 3 11 27h11l-3 18 19-26H27z" fill="#4ade80" stroke="#0f3a1f" stroke-width="3" stroke-linejoin="round"/><path d="M26 9 17 24h7" fill="none" stroke="#c9ffd9" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="b-orbe" viewBox="0 0 48 48"><circle cx="24" cy="25" r="16" fill="#4f9bff" stroke="#0e2a55" stroke-width="3"/><path d="M14 20a11 11 0 0 1 9-8" fill="none" stroke="#d6ecff" stroke-width="3" stroke-linecap="round"/><path d="m33 10 1.6 3.4 3.4 1.6-3.4 1.6L33 20l-1.6-3.4L28 15l3.4-1.6z" fill="#fff" stroke="#0e2a55" stroke-width="1.4" stroke-linejoin="round"/></symbol>
+    <symbol id="b-or" viewBox="0 0 48 48"><circle cx="24" cy="24" r="18" fill="#f6c431" stroke="#5a3d05" stroke-width="3"/><circle cx="24" cy="24" r="12" fill="none" stroke="#b8820f" stroke-width="3"/><path d="m24 15 3 6 6 .8-4.4 4.2 1 6-5.6-3-5.6 3 1-6-4.4-4.2 6-.8z" fill="#fff3b0" stroke="#b8820f" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <symbol id="b-epee" viewBox="0 0 48 48"><path d="M36 5h7v7L21 34l-7-7z" fill="#dfe6ee" stroke="#1d2530" stroke-width="3" stroke-linejoin="round"/><path d="m12 29 7 7-4 4-7-7z" fill="#b5763a" stroke="#2c1a09" stroke-width="3" stroke-linejoin="round"/><path d="m5 38 5 5" stroke="#2c1a09" stroke-width="4" stroke-linecap="round"/></symbol>
+    <symbol id="b-bouclier" viewBox="0 0 48 48"><path d="M24 4 8 10v13c0 10 7 17 16 21 9-4 16-11 16-21V10z" fill="#5b7cc4" stroke="#14203d" stroke-width="3" stroke-linejoin="round"/><path d="M24 4v40c-9-4-16-11-16-21V10z" fill="#7c9be0" opacity=".55"/><path d="M24 13v17M16 20h16" stroke="#e9f0ff" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="b-coeur" viewBox="0 0 48 48"><path d="M24 42C8 31 5 21 8 15c3-6 12-6 16 1 4-7 13-7 16-1 3 6 0 16-16 27z" fill="#ff5a6e" stroke="#4a0c18" stroke-width="3" stroke-linejoin="round"/><path d="M13 17c2-3 6-3 8 0" fill="none" stroke="#ffd0d6" stroke-width="3" stroke-linecap="round"/></symbol>
+    <symbol id="b-sac" viewBox="0 0 48 48"><path d="M18 9h12l-2 6h-8z" fill="#9a6a34" stroke="#2c1a09" stroke-width="3" stroke-linejoin="round"/><path d="M19 15c-9 4-13 12-11 20 2 6 9 8 16 8s14-2 16-8c2-8-2-16-11-20z" fill="#c98f4b" stroke="#2c1a09" stroke-width="3" stroke-linejoin="round"/><path d="m24 22 2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5-3.6-3.5 5-.7z" fill="#fff3b0" stroke="#8a5a12" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+    <symbol id="b-etoile" viewBox="0 0 48 48"><path d="m24 4 6 13 14 2-10 10 2.5 14L24 36l-12.500 7L14 29 4 19l14-2z" fill="#ff9d2e" stroke="#5a2b04" stroke-width="3" stroke-linejoin="round"/><path d="m24 11 3.5 8 8 1.200" fill="none" stroke="#ffe0b0" stroke-width="2.4" stroke-linecap="round"/></symbol>
+    <symbol id="b-diamant" viewBox="0 0 48 48"><path d="M24 4 41 18 24 44 7 18z" fill="#7c9cff" stroke="#16224d" stroke-width="3" stroke-linejoin="round"/><path d="M7 18h34M24 4l-6 14 6 26 6-26z" fill="none" stroke="#dbe5ff" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <!-- modificateurs (dans une pastille) : puissance, plafond, vitesse, barres -->
+    <symbol id="m-puissance" viewBox="0 0 24 24"><path d="M12 3 4 13h5v8h6v-8h5z" fill="#fff" stroke="#16100c" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="m-plafond" viewBox="0 0 24 24"><path d="M4 4h16" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M12 8v12M7 13l5-5 5 5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="m-vitesse" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.500" fill="none" stroke="#fff" stroke-width="3"/><path d="M12 7v5l3.500 2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="m-barres" viewBox="0 0 24 24"><path d="M5 20V12M12 20V5M19 20V9" stroke="#fff" stroke-width="4" stroke-linecap="round"/></symbol>
+    <symbol id="i-crayon" viewBox="0 0 24 24"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-coche" viewBox="0 0 24 24"><path d="m4 12.500 5 5L20 6" fill="none" stroke="#0b2a15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<div class="outil">
+  <b>Maquette</b> (jamais déployée) · Disposition de la zone du sac.
+  <button onclick="ouvrir(1)">Ouvrir l’éditeur (configuration 2)</button>
+  <button onclick="fermer()">Fermer</button>
+  <button onclick="montrer()">Montrer l’infobulle (PC)</button>
+</div>
+
+<main class="page">
+  <section class="carte" id="equip">
+    <h1 class="titre">Équipement</h1>
+    <div class="slots" aria-label="Emplacements d’équipement (dessin non refait dans la maquette)">
+      <div class="slot">casque</div><div class="slot">plastron</div><div class="slot">jambes</div><div class="slot">bottes</div>
+      <div class="slot">arme</div><div class="slot">arme 2</div><div class="slot">accessoire</div><div class="slot">accessoire</div>
+    </div>
+
+    <!-- NOUVEAU : configurations d'équipement, dans la zone du sac, un dessin par configuration -->
+    <div class="configs" id="configs">
+      <div class="configs-tete"><h3>Configurations</h3><span>Touche : équipe · ✎ : modifie</span></div>
+      <div class="bande" id="bande"></div>
+    </div>
+  </section>
+
+  <section id="sac-zone">
+    <!-- NOUVEAU : une seule case, au-dessus du cadre du sac -->
+    <div class="barre-auto" id="barre-auto">
+      <label class="coche"><input type="checkbox" checked id="auto"><span class="boite"><svg><use href="#i-coche"/></svg></span><span>Auto Merge</span></label>
+      <span class="chrono">prochain dans <b>12 min</b></span>
+      <span class="aide">Fusionne et booste tout seul. Détails : Boutique EXP, bouton « i ».</span>
+    </div>
+    <div class="carte">
+      <h2 class="titre">Sac (4 / 24)</h2>
+      <div class="grille-sac" id="grille"></div>
+    </div>
+  </section>
+
+  <section class="carte" id="coffre">Coffre (0) · Automatisation de l’inventaire ▼ <br>(plus d’Auto Merge ni d’Auto Boost ici ; plus de Configurations d’équipement non plus)</section>
+</main>
+
+<div class="voile" id="voile" onclick="if(event.target===this)fermer()">
+  <div class="fenetre" role="dialog" aria-modal="true" aria-labelledby="ed-titre">
+    <h2 id="ed-titre">Configuration 2</h2>
+    <div class="champ"><input id="nom" value="Puissance magique" maxlength="24" aria-label="Nom de la configuration"></div>
+    <div class="groupe">Choisis un dessin</div>
+    <div id="choix"></div>
+    <div class="note">Seuls les dessins des effets que tu as déjà découverts sont proposés.</div>
+    <div class="actions">
+      <button class="bouton" onclick="fermer()">Enregistrer mon équipement actuel ici</button>
+      <button class="bouton sec" onclick="fermer()">◀ Décaler</button>
+      <button class="bouton sec" onclick="fermer()">Décaler ▶</button>
+      <button class="bouton sec" onclick="fermer()">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* fabrique un dessin : base (grande) + modificateur (pastille en bas à droite) */
+function dessin(base,mod,couleurBadge){
+  var b='<use href="#'+base+'"/>';
+  var m=mod?'<g transform="translate(26 26)"><circle cx="11" cy="11" r="11" fill="'+(couleurBadge||'#222')+'" stroke="#16100c" stroke-width="2.4"/><use href="#'+mod+'" x="3" y="3" width="16" height="16"/></g>':'';
+  return '<svg viewBox="0 0 48 48" aria-hidden="true">'+b+m+'</svg>';
+}
+var CATALOGUE=[
+  ['Combat',[['Puissance','b-epee'],['Endurance','b-bouclier'],['Points de vie','b-coeur']]],
+  ['Énergie',[['Vitesse','b-eclair','m-vitesse'],['Puissance','b-eclair','m-puissance'],['Plafond','b-eclair','m-plafond'],['Barres','b-eclair','m-barres']]],
+  ['Magie',[['Vitesse','b-orbe','m-vitesse'],['Puissance','b-orbe','m-puissance'],['Plafond','b-orbe','m-plafond'],['Barres','b-orbe','m-barres']]],
+  ['Butin et progression',[['Or','b-or'],['Chance de butin','b-sac'],['EXP','b-etoile'],['Points AP','b-diamant']]]
+];
+var BADGE={'m-vitesse':'#8a5a12','m-puissance':'#9b2f2f','m-plafond':'#2f6b9b','m-barres':'#4b4b9b'};
+var CONFIGS=[
+  {nom:'Or',base:'b-or',tip:'Pièce d’or : cette configuration augmente l’Or gagné.',stat:'Gold Drops +184 %'},
+  {nom:'Puissance magique',base:'b-orbe',mod:'m-puissance',tip:'Orbe + flèche : Puissance de la Magie.',stat:'Magic Power +312 %',actif:true},
+  {nom:'Plafond énergie',base:'b-eclair',mod:'m-plafond',tip:'Éclair + plafond : Plafond de l’Énergie.',stat:'Energy Cap +205 %'},
+  {nom:'Puissance énergie',base:'b-eclair',mod:'m-puissance',tip:'Éclair + flèche : Puissance de l’Énergie.',stat:'Energy Power +290 %'},
+  {nom:'Plafond magie',base:'b-orbe',mod:'m-plafond',tip:'Orbe + plafond : Plafond de la Magie.',stat:'Magic Cap +176 %'},
+  {nom:'Attaque',base:'b-epee',tip:'Épée : Puissance au combat.',stat:'Puissance 1,2 M'},
+  {vide:true}
+];
+function rendreBande(){
+  document.getElementById('bande').innerHTML=CONFIGS.map(function(c,i){
+    if(c.vide)return '<div class="cfg vide"><button class="cfg-bouton" aria-label="Enregistrer l’équipement actuel dans une nouvelle configuration" onclick="ouvrir('+i+')">+</button><span class="cfg-nom">Nouvelle</span></div>';
+    return '<div class="cfg'+(c.actif?' actif':'')+'" id="cfg'+i+'">'+
+      '<button class="cfg-bouton" aria-label="Équiper : '+c.nom+'">'+dessin(c.base,c.mod,BADGE[c.mod])+'</button>'+
+      '<span class="cfg-num">'+(i+1)+'</span>'+
+      '<button class="cfg-edit" aria-label="Modifier la configuration '+(i+1)+'" onclick="ouvrir('+i+')"><svg><use href="#i-crayon"/></svg></button>'+
+      '<span class="cfg-nom">'+c.nom+'</span>'+
+      '<div class="bulle"><b>'+(i+1)+'. '+c.nom+'</b>'+c.tip+'<i>'+c.stat+'</i></div></div>';
+  }).join('');
+}
+function rendreChoix(){
+  document.getElementById('choix').innerHTML=CATALOGUE.map(function(g){
+    return '<div class="groupe">'+g[0]+'</div><div class="dessins">'+g[1].map(function(d){
+      var choisi=(d[1]==='b-orbe'&&d[2]==='m-puissance');
+      return '<button class="dessin'+(choisi?' choisi':'')+'" onclick="this.parentNode.querySelectorAll(\'.dessin\').forEach(function(x){x.classList.remove(\'choisi\')});this.classList.add(\'choisi\')">'+dessin(d[1],d[2],BADGE[d[2]])+d[0]+'</button>';
+    }).join('')+'</div>';
+  }).join('');
+}
+function ouvrir(i){var c=CONFIGS[i]||{};document.getElementById('ed-titre').textContent='Configuration '+(i+1);document.getElementById('nom').value=c.nom||'';document.getElementById('voile').classList.add('ouvert')}
+function fermer(){document.getElementById('voile').classList.remove('ouvert')}
+function montrer(){var e=document.getElementById('cfg1');if(e)e.classList.toggle('montre')}
+(function(){
+  rendreBande();rendreChoix();
+  var g='',v=[['o','1'],['b','1'],['j','1'],['','']];
+  for(var i=0;i<24;i++){var x=i<4?v[i]:['',''];g+='<div class="case '+x[0]+'">'+x[1]+'</div>'}
+  document.getElementById('grille').innerHTML=g;
+  if(location.hash==='#editeur')ouvrir(1);if(location.hash==='#infobulle')montrer();
+})();
+</script>
+</body>
+</html>

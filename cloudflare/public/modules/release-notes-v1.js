@@ -33,6 +33,15 @@
             'Le jeu calcule plus vite (environ 10 à 15 % sur chaque synchronisation) et dépense moins de ressources quand l’onglet est caché.',
             'Une ancienne partie gardée sur un appareil ne peut plus écraser une partie plus avancée de ton compte : elle est refusée et mise de côté.',
             'Quand tu perds un combat, la borne joue soit l’animation des yeux, soit l’écran « Perdu. On recommence ? », mais plus les deux à la suite : la défaite est plus courte.',
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'La zone du sac est réorganisée : une ligne fine repliable regroupe les cases d’automatisation et des boutons à dessin au choix, au-dessus du cadre du sac.',
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Un boss a désormais une mort qui lui est propre.',
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'L’image de deux perks a été remplacée.',
           ]}
         ]
       },

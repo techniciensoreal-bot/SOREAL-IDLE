@@ -4,6 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le jeu calcule plus vite (environ 10 à 15 % sur chaque synchronisation) et dépense moins de ressources quand l’onglet est caché."
+    "La zone du sac est réorganisée : une ligne fine repliable regroupe les cases d’automatisation et des boutons à dessin au choix, au-dessus du cadre du sac.",
+    "Un boss a désormais une mort qui lui est propre.",
+    "L’image de deux perks a été remplacée."
   ] };
 })();

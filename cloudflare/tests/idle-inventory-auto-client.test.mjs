@@ -12,7 +12,7 @@ const noop = () => {};
 const document = { getElementById: () => null, addEventListener: noop, querySelectorAll: () => [], head: { appendChild: noop }, createElement: () => ({}) };
 const window = { document, addEventListener: noop, __actionMetaV47__: (p) => actions.push(p), confirm: () => true };
 /* le panneau d'options est repliable (fermé par défaut) : ces vérifications lisent son contenu, donc panneau ouvert */
-const sandbox = { window, document, setTimeout: () => 0, localStorage: { getItem: () => "1", setItem() {} } };
+const sandbox = { window, document, performance: { now: () => 0 }, setTimeout: () => 0, localStorage: { getItem: () => "1", setItem() {} } };
 vm.runInNewContext(readFileSync("cloudflare/public/modules/inventory-auto-v1.js", "utf8"), sandbox);
 const api = window.__SOREAL_IDLE_INVENTORY_AUTO_V1__;
 assert.ok(api && typeof api.panneau === "function", "module chargé");
@@ -39,17 +39,21 @@ const t0 = 5_000_000;
   for (const item of ["autoMerge", "basicLootFilter", "loadoutSlots", "inventoryMergeSlot"]) s = applyIdleNguAction(s, { action: "buyExpShop", item }, ctx, t0).state;
   const snap = idleNguSnapshot(s, ctx, t0);
   const html = api.panneau({ systemes: snap });
-  assert.match(html, /Minuteur : <b>1 h 00 min<\/b>/);
+  /* Norman (2026-11-12) : Auto Merge / Auto Boost sont au-dessus du cadre du sac (barre), les configurations dans la zone du sac (bande) : plus dans ce panneau. */
+  assert.doesNotMatch(html, /Minuteur|Configurations d’équipement|Auto Merge|Auto Boost/, "plus de case d'automatisation ni de configuration dans le panneau");
   assert.doesNotMatch(html, /Achat « Auto Merge »/);
   assert.match(html, /Slots d’automerge · 1</);
-  assert.match(html, /Configurations d’équipement · 2</);
-  assert.match(html, /Casque/);
+  const barre = api.barre({ systemes: snap });
+  assert.match(barre, /Auto Merge/, "case Auto Merge au-dessus du sac une fois achetée");
+  assert.doesNotMatch(barre, /Auto Boost/, "Auto Boost : rien tant qu'il n'est pas débloqué (anti-spoil)");
+  assert.equal((barre.match(/type="checkbox"/g) || []).length, 1, "une case par automatisation débloquée");
+  assert.equal(api.barre({ systemes: idleNguSnapshot(normalizeIdleNguState({}, ctx, t0), ctx, t0) }), "", "rien du tout tant qu'aucune automatisation n'est obtenue");
   /* 2026-09-24 : réglage « consommer les boosts recyclés » (Build History 2018, build .367), coché par défaut. */
   assert.match(html, /<input type="checkbox" class="sw-in" checked onchange="window\.__inventaireAutoReglageV1__\('consumeRecycled',this\.checked\)">[\s\S]*♻️/);
 }
 window.__inventaireAutoReglageV1__("autoMerge", true);
 window.__inventaireAutoFiltreTypeV1__("head", true);
-window.__inventaireAutoLoadoutV1__("apply", 1);
+window.__inventaireAutoConfigV1__("equiper", 1);
 window.__inventaireAutoReglageV1__("consumeRecycled", false);
 assert.deepEqual(JSON.parse(JSON.stringify(actions)), [
   { action: "inventoryAuto", mode: "settings", autoMerge: true },

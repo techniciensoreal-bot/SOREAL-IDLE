@@ -27,6 +27,13 @@ var VARIANTES=[
   {id:'enfoncement',nom:'Enfoncement',duree:3.8,aide:'La terre tremble, le boss s’enfonce dans le sol qui se referme.'}
 ];
 
+/* Mort SPÉCIALE d'un boss précis (jamais dans la file ci-dessus) : jouée à chaque mort de ce boss. Boss 106 : la perruque (Norman, 2026-11-12). */
+var SPECIALES=[
+  {id:'perruque',boss:106,nom:'Perruque',duree:4.6,aide:'Toute l’image du boss 106 s’écoule comme des mèches de cheveux ; le boss 107 apparaît derrière, dans le tas.'}
+];
+function varianteDe(id){return VARIANTES.concat(SPECIALES).filter(function(x){return x.id===id;})[0];}
+function specialeDuBoss(idBoss){return SPECIALES.filter(function(x){return x.boss===idBoss;})[0]||null;}
+
 /* ---------- préparation ---------- */
 function coupe(img,LW,LH,filtre){
   var cv=document.createElement('canvas');cv.width=LW;cv.height=LH;
@@ -86,6 +93,8 @@ function preparer(id,img,LW,LH){
     k.neg=coupe(img,LW,LH,'negatif');k.brule=coupe(img,LW,LH,'brule');
     k.cells=cellules(k.brule,LW,LH,3);
     k.cells.forEach(function(c,i){c.t=(c.y/LH)*.9+rnd(i*.7)*.5;c.vx=(rnd(i*1.3)-.5)*80;c.vy=-10+rnd(i*1.9)*40;});
+  }else if(id==='perruque'){
+    preparerPerruque(img,LW,LH,k);
   }else if(id==='enfoncement'){
     k.terre=[];for(var tx=0;tx<LW;tx+=4)k.terre.push(rnd(tx*.21)*6);
     k.poussieres=[];for(var p=0;p<70;p++)k.poussieres.push({x:(rnd(p*3)-.5)*LW*1.1+LW/2,v:20+rnd(p+1)*60,r:3+rnd(p+2)*9,t:rnd(p+5)*.9,d:(rnd(p+7)-.5)*50});
@@ -257,8 +266,90 @@ function dessinerEnfoncement(c,t,k,LW,LH){
   if(t>T_SENFONCE){var m=lisse((t-T_SENFONCE)/.6)*(1-lisse((t-3.2)/.6));c.fillStyle='rgba(90,66,40,'+m.toFixed(2)+')';c.beginPath();c.ellipse(LW/2,sol,LW*.12,LH*.03*m,0,Math.PI,0);c.fill();}
 }
 
+/*
+ * Mort SPÉCIALE du boss 106, la perruque (Norman, 2026-11-12 : « une perruque qui tombe en cheveux sur le sol, ce qui laisse place au boss 107 » ; puis « toute l'image tombe comme des cheveux, pas juste les cheveux »).
+ * TOUTE l'image du 106 devient des cheveux : elle est coupée en fines colonnes (2 px) regroupées en MÈCHES qui se détachent l'une après l'autre (au hasard, avec une légère vague de gauche à droite), puis tombent en s'accélérant en ondulant le long de leur
+ * longueur, comme des mèches qui glissent ; en bas, un tas de cheveux dorés grossit. Derrière, la photo du 107 (calque transparent, voir jouerSurHote) : à mesure que les mèches tombent, il apparaît, le tas se fond dans le sien. Aucun texte : que des pixels de l'image.
+ */
+function preparerPerruque(img,LW,LH,k){
+  var cols=[],n=0,x=0,mecheId=0;
+  /* mèches FINES de 1 à 3 colonnes (2 à 6 px) : même retard, même vitesse, même ondulation, à peine décalées entre elles */
+  while(x<LW){
+    var nb=1+Math.floor(rnd(mecheId*7.7+1)*3),lock={d:.3+rnd(mecheId*1.9+5)*1.9,v:.65+rnd(mecheId*3.3+2)*.95,ph:rnd(mecheId*5.1+9)*6.28,sw:.55+rnd(mecheId*2.7+4)*.9};
+    lock.d+=(x/LW)*.3;
+    for(var j=0;j<nb&&x<LW;j++,x+=2){
+      cols.push({x:x,d:lock.d+rnd(n*.37+x)*.05,v:lock.v*(.97+rnd(n*.71)*.06),ph:lock.ph+j*.04,sw:lock.sw,dr:(rnd(n*1.3+6)-.35)*.5});
+      n++;
+    }
+    mecheId++;
+  }
+  k.cols=cols;k.pileX=LW*.62;
+  /* quelques poils isolés, de la couleur du pixel d'où ils partent */
+  var d=k.img.getContext('2d').getImageData(0,0,LW,LH).data;
+  k.poils=[];
+  for(var s=0;s<70;s++){
+    var px=Math.floor(rnd(s*5.3+7)*LW),py=Math.floor(rnd(s*3.7+3)*LH*.8),i=(py*LW+px)*4;
+    k.poils.push({x:px,y:py,d:.4+rnd(s*1.9)*1.9,l:LH*(.03+rnd(s+17)*.04),v:LH*(.5+rnd(s+19)*.5),sw:(rnd(s+23)-.5)*LW*.06,ph:rnd(s)*6.28,c:'rgb('+d[i]+','+d[i+1]+','+d[i+2]+')'});
+  }
+  /* mèches du tas (courbes dorées) */
+  k.tas=[];
+  for(var q=0;q<60;q++)k.tas.push({a:rnd(q*2.1+1),b:rnd(q*3.7+2),c:rnd(q*5.3+3),l:.5+rnd(q+8)*.8});
+}
+function dessinerPerruque(c,t,k,LW,LH){
+  vide(c,LW,LH);
+  var G=LH*2.6,i,SEG=8;
+  /* avant la chute : toute l'image frémit */
+  var amp=t<.5?lisse(t/.15)*1.6:lisse((.9-t)/.4)*1.2;
+  var jx=Math.sin(t*61)*Math.max(0,amp),jy=Math.cos(t*43)*Math.max(0,amp)*.5;
+  var fondu=1-lisse((t-3.6)/.9);
+  /* le tas de cheveux, derrière les mèches qui tombent */
+  var haut=lisse((t-1.3)/2.0)*LH*.075;
+  if(haut>.5&&fondu>0){
+    c.save();c.globalAlpha=fondu;
+    var cx=k.pileX,sol=k.sol,larg=LW*.27;
+    c.beginPath();c.moveTo(cx-larg,sol+LH*.04);
+    c.quadraticCurveTo(cx-larg*.5,sol-haut*.9,cx,sol-haut);c.quadraticCurveTo(cx+larg*.55,sol-haut*.9,cx+larg,sol+LH*.04);c.closePath();
+    c.globalAlpha=fondu*.8;c.fillStyle='#b3832a';c.fill();c.globalAlpha=fondu;
+    c.lineCap='round';
+    for(i=0;i<k.tas.length;i++){
+      var m=k.tas[i],sx=cx-larg*.85+m.a*larg*1.7,sy=sol+LH*.02-m.b*haut*(1-Math.abs(m.a-.5)*1.4),ln=larg*.38*m.l;
+      c.strokeStyle=m.c>.5?'#f2c744':'#9a6a1a';c.lineWidth=1;
+      c.beginPath();c.moveTo(sx,sy);c.quadraticCurveTo(sx+ln*.5,sy-haut*.25*m.c,sx+ln,sy+haut*.05);c.stroke();
+    }
+    c.restore();
+  }
+  /* les mèches : colonnes par segments de 8 px (l'ondulation varie le long de la mèche) */
+  c.save();
+  for(i=0;i<k.cols.length;i++){
+    var co=k.cols[i],tt=t-co.d,dy=0,off=0;
+    if(tt>0){dy=.5*G*co.v*tt*tt;}
+    if(dy>LH*1.05)continue;
+    for(var ys=0;ys<LH;ys+=SEG){
+      var yd=ys+dy;if(yd>LH)break;
+      /* ondulation le long de la mèche, qui s'amplifie avec la chute, + dérive de côté + léger gauchissement : une mèche, pas une lamelle */
+      var ond=tt>0?(Math.sin(tt*5.5+ys/LH*9+co.ph)*LW*.032*co.sw+co.dr*LW*.05*tt*(ys/LH+.3))*Math.min(1,tt*1.6):0;
+      /* la tête de la mèche est effilée et fondue : étroite et transparente en haut, pleine plus bas */
+      var tete=tt>0?Math.min(1,ys/46):1,larg2=tt>0?.7+.8*tete:2;
+      c.globalAlpha=tt>0?Math.min(1,.15+tete*.95):1;
+      c.drawImage(k.img,co.x,ys,2,SEG,co.x+ond+(tt>0?(2-larg2)/2:jx),yd+(tt>0?0:jy),larg2,SEG);
+    }
+  }
+  c.restore();
+  /* poils isolés */
+  c.save();c.lineCap='round';
+  for(i=0;i<k.poils.length;i++){
+    var po=k.poils[i],pt=t-po.d;if(pt<=0)continue;
+    var py2=po.y+po.v*pt*(1+pt*.9),px2=po.x+Math.sin(pt*5+po.ph)*po.sw;
+    if(py2>LH)continue;
+    c.globalAlpha=.9;c.strokeStyle=po.c;c.lineWidth=.9;
+    c.beginPath();c.moveTo(px2,py2);c.quadraticCurveTo(px2+Math.sin(pt*5+po.ph)*po.l*.5,py2+po.l*.5,px2,py2+po.l);c.stroke();
+  }
+  c.restore();
+}
+
 function dessiner(id,c,t,k,LW,LH){
-  if(id==='eboulement')dessinerEboulement(c,t,k,LW,LH);
+  if(id==='perruque')dessinerPerruque(c,t,k,LW,LH);
+  else if(id==='eboulement')dessinerEboulement(c,t,k,LW,LH);
   else if(id==='poussiere')dessinerPoussiere(c,t,k,LW,LH);
   else if(id==='fonte')dessinerFonte(c,t,k,LW,LH);
   else if(id==='foudre')dessinerFoudre(c,t,k,LW,LH);
@@ -286,7 +377,7 @@ function ton(a,t0,type,f0,f1,dur,pic,att){
   var g=a.createGain();env(g,t0,att||.01,dur,pic);o.connect(g);g.connect(sortieCourante||maitre(a));o.start(t0);o.stop(t0+dur+.1);
   return o;
 }
-var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000};
+var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000,perruque:4800};
 function construireSon(a,id){
   var t=a.currentTime+.03,i;
   if(id==='eboulement'){
@@ -309,6 +400,12 @@ function construireSon(a,id){
     for(i=0;i<34;i++){var d3=.05+Math.random()*1.0;souffle(a,t+d3,.03,'bandpass',2500+Math.random()*4000,2000,7,.2+Math.random()*.2,.002);}   /* crépitement */
     ton(a,t+.15,'square',120,120,1.0,.04,.05);                                                                    /* ronflement électrique */
     for(i=0;i<14;i++)ton(a,t+1.6+Math.random()*1.3,'sine',2000+Math.random()*3500,1500,.06,.08,.002);              /* étincelles qui retombent */
+  }else if(id==='perruque'){
+    for(i=0;i<9;i++)souffle(a,t+Math.random()*.5,.05,'bandpass',900+Math.random()*900,1800,4,.12,.003);                          /* la perruque frémit */
+    souffle(a,t+.5,2.4,'bandpass',2600,1400,.9,.1,.5);souffle(a,t+.9,2.1,'highpass',3200,5200,.6,.05,.6);                       /* froissement des mèches qui glissent */
+    for(i=0;i<22;i++){var d5=.9+Math.pow(Math.random(),.8)*1.9;souffle(a,t+d5,.09,'lowpass',500+Math.random()*350,180,.9,.16+Math.random()*.12,.006);}   /* mèches qui touchent le sol */
+    for(i=0;i<5;i++)ton(a,t+1.5+i*.28+Math.random()*.1,'sine',95-i*8,58,.2,.16,.004);                                          /* petits chocs sourds du tas */
+    souffle(a,t+2.9,1.3,'lowpass',420,110,.7,.2,.15);ton(a,t+3.0,'sine',130,60,.7,.1,.02);                                       /* le tas s'affaisse */
   }else if(id==='enfoncement'){
     souffle(a,t,2.6,'lowpass',200,60,.9,.5,.4);ton(a,t,'sine',48,34,2.6,.5,.3);                                    /* séisme */
     try{var lfo=a.createOscillator(),lg=a.createGain(),osc=ton(a,t+.1,'sine',55,38,2.4,.3,.3);lfo.frequency.value=9;lg.gain.value=4;lfo.connect(lg);lg.connect(osc.frequency);lfo.start(t);lfo.stop(t+3);}catch(_e){}
@@ -334,7 +431,7 @@ function son(id){
 /* ---------- lecture sur un <canvas> ---------- */
 function jouer(id,canvas,img,opts){
   opts=opts||{};
-  var v=VARIANTES.filter(function(x){return x.id===id;})[0];
+  var v=varianteDe(id);
   if(!v||!canvas||!img)return Promise.resolve(false);
   var LW=canvas.width,LH=canvas.height,k=preparer(id,img,LW,LH),c=canvas.getContext('2d');c.imageSmoothingEnabled=true;
   if(opts.avecSon!==false)son(id);
@@ -342,7 +439,7 @@ function jouer(id,canvas,img,opts){
   return new Promise(function(fin){
     (function image(now){
       var t=(now-t0)/1000;
-      if(t>=v.duree){c.fillStyle=FOND;c.fillRect(0,0,LW,LH);fin(true);return;}
+      if(t>=v.duree){if(window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__)c.clearRect(0,0,LW,LH);else{c.fillStyle=FOND;c.fillRect(0,0,LW,LH);}fin(true);return;}
       dessiner(id,c,t,k,LW,LH);
       requestAnimationFrame(image);
     })(t0);
@@ -380,13 +477,15 @@ function jouerSurHote(hote,image,idMort){
     if(!hote||!image||enCours)return false;
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
     /* « classique » = l'éclatement en gros pixels d'origine (victoire-boss-arcade-v1.js) : il ouvre la file, les nouvelles morts viennent à la suite, dans l'ordre de VARIANTES (les ajouts se mettent à la fin) */
-    var choix=suivante_(['classique'].concat(VARIANTES.map(function(v){return v.id;})));
+    /* mort SPÉCIALE du boss (la perruque du 106) : toujours celle-là, hors file : la file n'avance pas */
+    var spe=specialeDuBoss(idMort);
+    var choix=spe?spe.id:suivante_(['classique'].concat(VARIANTES.map(function(v){return v.id;})));
     if(choix==='classique')return false;
     if(!(image.naturalWidth>0))return false;
     var r=hote.getBoundingClientRect();
     if(!(r.width>20&&r.height>20))return false;
     var LW=Math.round(Math.min(220,Math.max(100,r.width))),LH=Math.round(LW*r.height/r.width);
-    var v=VARIANTES.filter(function(x){return x.id===choix;})[0];
+    var v=varianteDe(choix);
     var k=preparer(choix,image,LW,LH);
     styleHote();
     var calque=document.createElement('div');
@@ -425,5 +524,5 @@ function jouerSurHote(hote,image,idMort){
   }catch(_e){enCours=false;return false;}
 }
 
-window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__={variantes:VARIANTES,preparer:preparer,dessiner:dessiner,son:son,jouer:jouer,jouerSurHote:jouerSurHote,duree:function(){return 3.8;}};
+window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__={variantes:VARIANTES,speciales:SPECIALES,preparer:preparer,dessiner:dessiner,son:son,jouer:jouer,jouerSurHote:jouerSurHote,duree:function(){return 3.8;}};
 })();

@@ -90,7 +90,8 @@ const lire = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 // client : nom, flèches, total ; confirmation au format du site
 {
   const ui = lire("public/modules/inventory-auto-v1.js");
-  assert.ok(ui.includes("loadoutRename") && ui.includes("loadoutMove") && ui.includes("lo-total") && ui.includes("window.__SOREAL_IDLE_DIALOGUE_V1__.saisir("), "nom, déplacement et total dans le panneau");
+  const cfg = lire("public/modules/inventory-configs-v1.js");
+  assert.ok(ui.includes("loadoutRename") && ui.includes("loadoutMove") && ui.includes("loadoutIcon") && cfg.includes("ic-total") && cfg.includes("ic-nom-champ"), "nom, dessin, déplacement et total dans la bande et l'éditeur (zone du sac)");
   assert.ok(!/window\.confirm|[^.\w]confirm\(/.test(ui), "plus de confirm natif dans le panneau");
 }
 

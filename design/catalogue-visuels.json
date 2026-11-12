@@ -6,7 +6,7 @@
   "keyframes": 439,
   "fichiersAvecWebAnimations": 20,
   "fichiersCanvas": 13,
-  "pointsEntreeRejouables": 270,
+  "pointsEntreeRejouables": 271,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
@@ -4293,7 +4293,7 @@
   },
   {
    "fichier": "modules/morts-boss-nouvelles-v1.js",
-   "contextes": 5
+   "contextes": 6
   },
   {
    "fichier": "modules/morts-joueur-nouvelles-v1.js",
@@ -4549,6 +4549,7 @@
   "__SOREAL_IDLE_INVENTORY_AUTO_V1__": "modules/inventory-auto-v1.js",
   "__SOREAL_IDLE_INVENTORY_PERF_V160__": "modules/ui-amorcage-v1.js",
   "__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__": "modules/inventory-presentation-v1.js",
+  "__SOREAL_IDLE_INV_CONFIGS_V1__": "modules/inventory-configs-v1.js",
   "__SOREAL_IDLE_ITEM_DIFFICULTE_V1__": "modules/item-difficulte-v1.js",
   "__SOREAL_IDLE_ITEM_EXTRA_IMAGES_R2_V77_TEST__": "modules/item-extra-r2-v77.js",
   "__SOREAL_IDLE_ITEM_EXTRA_IMAGES_R2_V77__": "modules/item-extra-r2-v77.js",

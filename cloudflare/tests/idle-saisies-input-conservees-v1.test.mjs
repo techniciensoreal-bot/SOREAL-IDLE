@@ -178,6 +178,8 @@ const CLES_CHAMPS = ["soreal_idle_montant_input_v1", "soreal_idle_montants_menu_
     "ui-chroniques-v1.js": 1, "ui-popups-v1.js": 1,
     // administrateur uniquement
     "admin-histoires-v1.js": 3, "admin-tutoriel-v1.js": 6, "textes-admin-v1.js": 5, "credit-exp-admin-v1.js": 2,
+    // nom d'une configuration d'équipement (2026-11-12) : gardé dans l'état du jeu côté serveur (action inventoryAuto loadoutRename), pas dans les préférences
+    "inventory-configs-v1.js": 1,
     // angle d'une pièce du badavatar : enregistré dans le profil du compte (serveur, bouton Enregistrer), pas dans les préférences
     "profil-badavatar-editeur-v1.js": 1,
     // sans nombre à garder

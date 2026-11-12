@@ -127,12 +127,17 @@ const EPS = 1e-9;
 /* Nom d'une configuration (Norman, 2026-11-04 : « on doit pouvoir leur donner un nom ») : 24 caractères au plus, espaces compactés, jamais interprété comme du HTML côté client. */
 const IDLE_LOADOUT_NOM_MAX_V1 = 24;
 function nomLoadoutV1(v) { return String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, IDLE_LOADOUT_NOM_MAX_V1); }
+/* Dessin d'une configuration (Norman, 2026-11-12 : « choisir parmi une liste de dessins, pour que ce soit sur le bouton ») : un identifiant court (a-z, 0-9, _ et -, 32 caractères au plus) ; le catalogue des dessins est côté client (inventory-configs-v1.js), le serveur ne garde que l'identifiant, jamais du texte libre. */
+function iconeLoadoutV1(v) { const t = String(v == null ? "" : v).toLowerCase(); return /^[a-z0-9_-]{1,32}$/.test(t) ? t : ""; }
 function normalizeLoadoutV1(raw) {
   if (!raw || typeof raw !== "object") return null;
   const out = {};
   for (const slot of CORE_SLOTS) out[slot] = String(raw[slot] || "");
   out.accessories = (Array.isArray(raw.accessories) ? raw.accessories : []).map(String).filter(Boolean);
   out.name = nomLoadoutV1(raw.name);
+  /* Additif : le champ n'existe QUE s'il y a un dessin (une partie sans dessin garde exactement le même état qu'avant : parties de référence identiques). */
+  const dessin = iconeLoadoutV1(raw.icon);
+  if (dessin) out.icon = dessin;
   return out;
 }
 /* Une configuration sans aucune pièce (seulement un nom) est VIDE : l'équiper ne déséquipe jamais tout. */
@@ -708,7 +713,8 @@ function loadoutSaveV1(s, index, env) {
   if (i < 0 || i >= Math.max(0, I(env?.loadoutSlots, 0))) throw new Error("LOADOUT_VERROUILLE");
   const eq = s.equipment || {};
   const nomGarde = cfg.loadouts[i] ? cfg.loadouts[i].name : "";
-  cfg.loadouts[i] = normalizeLoadoutV1({ ...eq, accessories: Array.isArray(eq.accessories) ? eq.accessories : [], name: nomGarde });
+  const iconeGardee = cfg.loadouts[i] ? cfg.loadouts[i].icon : "";
+  cfg.loadouts[i] = normalizeLoadoutV1({ ...eq, accessories: Array.isArray(eq.accessories) ? eq.accessories : [], name: nomGarde, icon: iconeGardee });
   return { index: i, loadout: X(cfg.loadouts[i]) };
 }
 
@@ -721,6 +727,18 @@ function loadoutRenameV1(s, index, nom, env) {
   lo.name = nomLoadoutV1(nom);
   cfg.loadouts[i] = lo;
   return { index: i, name: lo.name };
+}
+
+/* Choisir le dessin d'une configuration (même vide) : comme le nom, il ne change aucune pièce. */
+function loadoutIconV1(s, index, icone, env) {
+  const cfg = cfgV1(s);
+  const i = I(index, -1);
+  if (i < 0 || i >= Math.max(0, I(env?.loadoutSlots, 0))) throw new Error("LOADOUT_VERROUILLE");
+  const lo = cfg.loadouts[i] || normalizeLoadoutV1({ accessories: [] });
+  const dessin = iconeLoadoutV1(icone);
+  if (dessin) lo.icon = dessin; else delete lo.icon;
+  cfg.loadouts[i] = lo;
+  return { index: i, icon: dessin };
 }
 
 /* Réorganiser : échange la configuration avec sa voisine (direction -1 = vers le haut, 1 = vers le bas), dans les emplacements débloqués seulement. */
@@ -863,6 +881,7 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
   if (mode === "transformBoost") return idleInventoryTransformBoostV1(s, payload.itemId || payload.id, String(payload.type || ""), env);
   if (mode === "loadoutSave") return loadoutSaveV1(s, payload.index, env);
   if (mode === "loadoutRename") return loadoutRenameV1(s, payload.index, payload.name, env);
+  if (mode === "loadoutIcon") return loadoutIconV1(s, payload.index, payload.icon, env);
   if (mode === "loadoutMove") return loadoutMoveV1(s, payload.index, payload.direction, env);
   if (mode === "loadoutApply") {
     /* Pendant le No Equipment Challenge on peut changer de tenue (Norman, 2026-10-17) : les pièces ne comptent pas, voir idleEquipementEffectifV1. */
@@ -968,6 +987,7 @@ export function idleInventoryAutoSnapshotV1(s, env) {
     loadoutsMax: IDLE_INVENTORY_LOADOUTS_MAX_V1,
     loadouts: cfg.loadouts.slice(0, slots).map((lo) => (lo ? {
       name: lo.name || "",
+      ...(lo.icon ? { icon: lo.icon } : {}),   /* additif : absent sans dessin (réponses des parties de référence identiques) */
       vide: loadoutVideV1(lo),
       items: [...CORE_SLOTS.map((slot) => ({ slot, id: lo[slot], name: nom(lo[slot]) })), ...lo.accessories.map((id) => ({ slot: "accessory", id, name: nom(id) }))].filter((x) => x.id),
       total: totalLoadoutV1(lo, byId, coffreById)

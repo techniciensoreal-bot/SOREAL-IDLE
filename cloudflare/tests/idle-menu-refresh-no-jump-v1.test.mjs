@@ -133,7 +133,9 @@ for (const fonction of [
   assert.ok(!auto.includes("Tous les boosts dans le Cube"), "plus de bouton du Cube (supprimé le 2026-10-09, le clic droit suffit)");
   /* Norman (2026-11-04) : « pour le tel il faut le mettre dans le menu » : le sélecteur « Action au clic » revient pour les écrans tactiles (sans clavier, impossible de tenir A, D, Q, W ou E). */
   assert.ok(auto.includes("👆 Action au clic") && auto.includes("window.__inventaireAutoModeClicV1__(this.value)"), "« Action au clic » est de retour pour le téléphone");
-  assert.ok(!auto.includes('<input type="checkbox" \'+(coche'), "plus de case à cocher brute");
+  /* le panneau n'a que des interrupteurs ; seule la barre Auto Merge / Auto Boost au-dessus du sac a de vraies cases à cocher (Norman, 2026-11-12 : « cochables »). */
+  const panneau = auto.slice(auto.indexOf("  function panneau(j){"), auto.indexOf("  function style(){"));
+  assert.ok(!panneau.includes('<input type="checkbox"'), "plus de case à cocher brute dans le panneau");
 }
 
 // 7. Réponse du serveur en retard après un clic (Norman, 2026-10-07 : 10K, 2 s, 10K : la barre saute en arrière) : le visuel local est reporté sur l'état qui arrive.

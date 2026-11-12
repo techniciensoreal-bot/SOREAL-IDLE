@@ -76,8 +76,8 @@ assert.equal(normaliserActiviteV1({ t: "libre", menu: "<script>" }).menu, undefi
   assert.equal(dureeMin(60), "1 min");
   assert.equal(dureeMin(59), "59 s", "dernière minute en secondes");
   assert.equal(dureeMin(0), "0 s");
-  assert.ok(src.includes("if(!debloque||!actif||reste==null)return '';"), "rien si verrouillé, désactivé ou sans minuteur (anti-spoil)");
-  assert.ok(src.includes("colonnes.parentNode.insertBefore(bande,colonnes)"), "bande placée au-dessus de l'inventaire");
+  assert.ok(src.includes("if(!debloque)return '';") && src.includes("if(!compact&&coche&&reste!=null){chrono="), "rien si verrouillé (anti-spoil) ; minuteur seulement si la case est cochée");
+  assert.ok(src.includes("sac.parentNode.insertBefore(bande,sac)"), "bande placée au-dessus du cadre du sac");
 }
 
 // 6. Plus de popup « Progression mise à jour »

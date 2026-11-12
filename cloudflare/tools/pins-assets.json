@@ -132,8 +132,8 @@
   "sha": "0fee17c84eae531f87cbbb1525105ebe63423cf3"
  },
  "/modules/boutique-info-i-v1.js": {
-  "pin": 1,
-  "sha": "0610cf04b43cce5cc3a8b55d3ecbe219d6ac6fde"
+  "pin": 3,
+  "sha": "3a471c7d5f354b9baf4a159fa42771282ab37da8"
  },
  "/modules/boutique-nouveautes-v1.js": {
   "pin": 1,
@@ -404,8 +404,12 @@
   "sha": "82c1710ecb539ba9d9da0468070211749858867d"
  },
  "/modules/inventory-auto-v1.js": {
-  "pin": 28,
-  "sha": "11db5eef4e8d2a8596aafec5fd33a9328dd370bf"
+  "pin": 32,
+  "sha": "5408864fcdc8eb875908817ed5c49911f02df8c3"
+ },
+ "/modules/inventory-configs-v1.js": {
+  "pin": 3,
+  "sha": "b67a405ce716ea8f018082f1e69636a665db79e3"
  },
  "/modules/inventory-presentation-v1.js": {
   "pin": 1,
@@ -444,8 +448,8 @@
   "sha": "8c6d9b1e555610fb3a107fb501eece956b956f79"
  },
  "/modules/itopod-perks-page-v1.js": {
-  "pin": 3,
-  "sha": "24cbf3ddcbc4538fa724bede50f28bb55cdfcdcc"
+  "pin": 4,
+  "sha": "764e2c7a16259a43101c93c3864d206278be7dd9"
  },
  "/modules/itopod-scene-v1.js": {
   "pin": 14,
@@ -536,16 +540,16 @@
   "sha": "4f560279c2fa43e46a4befc7c6dce2f12c2297d0"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
-  "pin": 6,
-  "sha": "de59b83acea2515a676fca2c30bfb075abddf59c"
+  "pin": 7,
+  "sha": "85075b97488cb21479f292dfa89e3a89e9311732"
  },
  "/modules/morts-joueur-nouvelles-v1.js": {
   "pin": 8,
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 218,
-  "sha": "ebece4d70ed7a4a881a32ab8f25ab2f6b373b567"
+  "pin": 221,
+  "sha": "94588b9dc287b73b51c1a1fb95e6e7e6c7fe9f13"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -660,12 +664,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 300,
-  "sha": "f6738b0b2cf470a1a19f4a01db8a8ba2cdf16067"
+  "pin": 301,
+  "sha": "b993f11f8f2681d87eaf42f06fe5aa879ff58203"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 941,
-  "sha": "29cec51a95f4f4d312dfb289416ac27d377e332d"
+  "pin": 942,
+  "sha": "9d367458edfee8233587573320309cabb25dbd12"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -760,12 +764,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 979,
-  "sha": "7488d11ce4ba5f75a5f45b23d8d24cad0104a0d6"
+  "pin": 981,
+  "sha": "6f828ca756ac561651c0b0602f4b57cb58e0d4ae"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 800,
-  "sha": "d8f54f071583e7a806ea312f5b07a5b52cc44ed5"
+  "pin": 802,
+  "sha": "a751a108a84408c31483b1679a0355f5ff74a351"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -1010,6 +1014,10 @@
  "/soreal-idle-entrainement-puissance-v1.css": {
   "pin": 23,
   "sha": "9d048156fb59791eff3b410985504a578deefa14"
+ },
+ "/soreal-idle-inv-configs-v1.css": {
+  "pin": 7,
+  "sha": "61d8dd6bd41075d00f635a3cbaac5c0d548cbe1d"
  },
  "/soreal-idle-itopod.css": {
   "pin": 354,

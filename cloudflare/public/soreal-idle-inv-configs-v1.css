@@ -1,0 +1,93 @@
+/* Bloc « Auto Merge + configurations d'équipement » de la page Inventaire (Norman, 2026-11-12). Le cadre doré vient de la règle commune des colonnes (.soreal-idle-v151-inventory-columns>.soreal-idle-section-v8). */
+@media (min-width:700px){
+  .soreal-idle-v151-inventory-columns:has(>#soreal-idle-inv-timers-v1)>.soreal-idle-v138-equipment-sticky{grid-row:1/span 2}
+  .soreal-idle-v151-inventory-columns>#soreal-idle-inv-timers-v1,.soreal-idle-v151-inventory-columns>#soreal-idle-v138-bag-section{grid-column:2}
+}
+#soreal-idle-inv-timers-v1{display:flex;flex-direction:column;gap:10px;padding:10px 14px;min-width:0}
+#soreal-idle-inv-timers-v1 .ic-barre{display:flex;align-items:center;gap:8px 22px;flex-wrap:wrap}
+#soreal-idle-inv-timers-v1 .ic-ligne{display:inline-flex;align-items:center;gap:4px 12px;flex-wrap:wrap}
+.ic-coche{display:inline-flex;align-items:center;gap:10px;cursor:pointer;font-size:16px;color:#f3f7f1;-webkit-tap-highlight-color:transparent;position:relative;user-select:none}
+.ic-coche input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.ic-boite{width:28px;height:28px;border-radius:7px;border:3px solid #c79a3d;background:#0b140f;display:grid;place-items:center;flex:none}
+.ic-boite svg{width:18px;height:18px;opacity:0}
+.ic-coche input:checked+.ic-boite{background:#4ade80;border-color:#1c6b3a}
+.ic-coche input:checked+.ic-boite svg{opacity:1}
+.ic-coche input:focus-visible+.ic-boite{outline:3px solid #fff8;outline-offset:2px}
+#soreal-idle-inv-timers-v1 .ic-chrono{font-size:14px;color:#aeb9b0}
+#soreal-idle-inv-timers-v1 .ic-chrono b{color:#ffd27a;font-variant-numeric:tabular-nums}
+#soreal-idle-inv-timers-v1 .ic-aide{flex:1 1 100%;font-size:12px;line-height:1.4;color:#9db2a4}
+#soreal-idle-inv-timers-v1 .ic-configs{padding-top:2px}
+#soreal-idle-inv-timers-v1 .ic-barre+.ic-configs{border-top:2px dashed rgba(199,154,61,.4);padding-top:8px}
+.ic-configs-tete{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.ic-configs-tete b{font-family:"Bangers","Russo One",Impact,sans-serif;font-weight:400;font-size:18px;letter-spacing:.06em;color:#f6c431}
+.ic-configs-tete span{font-size:12px;color:#9db2a4}
+.ic-bande{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:10px 8px;min-width:0}
+.ic-cfg{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}
+.ic-bouton{width:100%;aspect-ratio:1;border-radius:12px;border:3px solid #6b5a2c;background:linear-gradient(180deg,#25402f,#16291f);display:grid;place-items:center;cursor:pointer;padding:5px;color:#e9efe9;box-shadow:0 3px 0 #0008;font-size:26px}
+.ic-bouton:hover:not(:disabled){border-color:#c79a3d;transform:translateY(-1px)}
+.ic-bouton:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #0008}
+.ic-bouton:focus-visible,.ic-crayon:focus-visible,.ic-dessin:focus-visible,.ic-bt:focus-visible{outline:3px solid #fff9;outline-offset:2px}
+.ic-bouton:disabled{opacity:.55;cursor:default}
+.ic-cfg.ic-actif .ic-bouton{border-color:#4ade80;box-shadow:0 0 0 2px #4ade8055,0 3px 0 #0008}
+.ic-cfg.ic-vide .ic-bouton{border-style:dashed;background:transparent;color:#9db2a4}
+.ic-dessin-v1{width:100%;height:100%;display:block}
+.ic-num{position:absolute;left:-4px;top:-4px;min-width:20px;height:20px;border-radius:10px;background:#0b140f;border:2px solid #6b5a2c;font-size:11px;display:grid;place-items:center;pointer-events:none;color:#e9efe9}
+.ic-crayon{position:absolute;right:-6px;top:-6px;width:30px;height:30px;border-radius:50%;background:#0b140f;border:2px solid #6b5a2c;display:grid;place-items:center;cursor:pointer;padding:0;color:#9db2a4}
+.ic-crayon svg{width:14px;height:14px}
+.ic-nom{font-size:11px;color:#9db2a4;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ic-bulle{position:absolute;z-index:6;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:230px;background:#0b140f;border:2px solid #c79a3d;border-radius:10px;padding:8px 10px;font-size:12px;line-height:1.4;color:#dfe8e0;display:none;pointer-events:none;overflow-wrap:anywhere}
+.ic-bulle b{display:block;color:#f6c431;font-size:13px;margin-bottom:2px}
+.ic-total{display:flex;flex-wrap:wrap;gap:2px 10px;margin-top:4px;color:#4ade80}
+.ic-total b{color:#fff;font-variant-numeric:tabular-nums}
+@media (hover:hover){.ic-cfg:hover .ic-bulle{display:block}}
+@media (max-width:699px){.ic-bande{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px 10px}}
+/* éditeur : fenêtre au-dessus de tout (le Coffre, les bulles du tutoriel) */
+.ic-voile{position:fixed;inset:0;z-index:100050;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:12px}
+.ic-voile.ic-ouvert{display:flex}
+.ic-fenetre{width:min(640px,100%);max-height:calc(100dvh - 24px);overflow:auto;background:#13261d;border:3px solid #c79a3d;border-radius:16px;padding:14px 16px;color:#e9efe9;font-family:"Russo One","Arial Black",Impact,sans-serif}
+.ic-fenetre h2{margin:0 0 10px;font-family:"Bangers","Russo One",Impact,sans-serif;font-weight:400;font-size:26px;letter-spacing:.06em;color:#f6c431}
+.ic-champ{margin-bottom:10px}
+.ic-champ input{width:100%;box-sizing:border-box;font:inherit;font-size:16px;color:#e9efe9;background:#0b140f;border:2px solid #2f4f3f;border-radius:8px;padding:8px 10px}
+.ic-groupe{margin:10px 0 4px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#9db2a4}
+.ic-groupe-tete{margin-top:0;color:#e9efe9}
+.ic-choix{display:grid;grid-template-columns:repeat(auto-fill,minmax(70px,1fr));gap:8px}
+.ic-dessin{display:flex;flex-direction:column;align-items:center;gap:2px;background:#0f1d16;border:2px solid #2f4f3f;border-radius:10px;padding:5px 3px 3px;cursor:pointer;font:inherit;color:#9db2a4;font-size:10px;line-height:1.15;text-align:center;min-width:0}
+.ic-dessin .ic-dessin-v1{width:46px;height:46px}
+.ic-dessin.ic-choisi{border-color:#4ade80;background:#173a27;color:#e9efe9}
+.ic-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ic-bt{font:inherit;font-size:15px;color:#1a1204;background:linear-gradient(180deg,#ffd45e,#e3a925);border:2px solid #6a4a0a;border-radius:10px;padding:10px 14px;cursor:pointer;box-shadow:0 3px 0 #0008;min-height:44px}
+.ic-bt.ic-sec{color:#e9efe9;background:linear-gradient(180deg,#2b4637,#1b3024);border-color:#2f4f3f}
+.ic-bt:disabled{opacity:.4;cursor:default}
+@media (prefers-reduced-motion:reduce){.ic-bouton{transition:none}}
+/* Bloc replié : UNE ligne fine (cases à cocher, petites icônes, flèche) ; déplié : le détail ci-dessus (Norman, 2026-11-12). */
+#soreal-idle-inv-timers-v1.ic-ferme{padding:5px 10px;gap:0}
+.ic-fin{display:flex;align-items:center;gap:6px 14px;flex-wrap:nowrap;min-width:0}
+.ic-fin .ic-ligne{flex:none}
+.ic-fin .ic-coche{font-size:13px;gap:6px}
+.ic-fin .ic-boite{width:20px;height:20px;border-width:2px;border-radius:5px}
+.ic-fin .ic-boite svg{width:13px;height:13px}
+.ic-mini{display:flex;align-items:center;gap:6px;min-width:0;flex:1 1 auto}
+.ic-mini .ic-cfg{position:relative;flex:none}
+.ic-mini-bt{width:30px;height:30px;border-radius:8px;border:2px solid #6b5a2c;background:linear-gradient(180deg,#25402f,#16291f);display:grid;place-items:center;cursor:pointer;padding:2px;color:#e9efe9;font-size:18px;line-height:1;box-shadow:0 2px 0 #0008}
+.ic-mini-bt:hover:not(:disabled){border-color:#c79a3d}
+.ic-mini-bt:active:not(:disabled){transform:translateY(1px);box-shadow:none}
+.ic-mini-bt:focus-visible,.ic-bascule:focus-visible{outline:3px solid #fff9;outline-offset:2px}
+.ic-mini-bt:disabled{opacity:.55;cursor:default}
+.ic-mini .ic-actif .ic-mini-bt{border-color:#4ade80;box-shadow:0 0 0 2px #4ade8055,0 2px 0 #0008}
+.ic-mini .ic-vide .ic-mini-bt{border-style:dashed;background:transparent;color:#9db2a4}
+.ic-bascule{flex:none;margin-left:auto;width:30px;height:30px;border-radius:8px;border:2px solid #6b5a2c;background:#0b140f;color:#c9d6cc;display:grid;place-items:center;cursor:pointer;padding:0}
+.ic-bascule svg{width:18px;height:18px}
+.ic-bascule:hover{border-color:#c79a3d}
+#soreal-idle-inv-timers-v1 .ic-barre{position:relative;padding-right:40px;min-height:30px}
+#soreal-idle-inv-timers-v1 .ic-barre .ic-bascule{position:absolute;top:0;right:0;margin:0}
+.ic-configs-tete .ic-bascule{margin-left:8px}
+@media (max-width:699px){
+  .ic-mini{overflow-x:auto;scrollbar-width:none}
+  .ic-mini::-webkit-scrollbar{display:none}
+}
+@media (max-width:520px){.ic-fin{gap:6px 10px}.ic-fin .ic-pref{display:none}}
+/* Téléphone (mode volet : grille à deux colonnes, la poignée du tiroir occupe la colonne 2) : la barre est COLLÉE au bas de l'équipement et au haut du sac (Norman, 2026-11-12 : « trop grand espace »).
+   1) la poignée s'étirait sur les 2 premières rangées : avec la barre en 2e rangée, celle-ci était étirée à 184 px au lieu de 46 ; elle couvre maintenant les 3 rangées ;
+   2) l'écart entre rangées (14 px) est annulé autour de la barre. */
+.soreal-idle-v151-inventory-columns[data-volet]:has(>#soreal-idle-inv-timers-v1)::after{grid-row:1/span 3}
+.soreal-idle-v151-inventory-columns[data-volet]>#soreal-idle-inv-timers-v1,.soreal-idle-v151-inventory-columns[data-volet]>#soreal-idle-inv-timers-v1+#soreal-idle-v138-bag-section{margin-top:-14px}
