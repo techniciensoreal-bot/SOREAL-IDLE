@@ -37,7 +37,7 @@ for (const id of ids) assert.ok(src.includes("id==='" + id + "'"), "son de " + i
 const idx = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(idx.includes("/modules/morts-boss-nouvelles-v1.js?v="), "module chargé par le jeu (validé par Norman le 2026-10-28)");
 const combat = readFileSync("cloudflare/public/modules/ui-combat-1-v1.js", "utf8");
-assert.ok(combat.includes("nouvelle.jouerSurHote(host,image,idMortV1)") && combat.includes("if(nouvelle&&arcade&&!REG.idleNukeEnCoursV1&&memeBoss&&debutCombatV1)"), "branché sur la mort du boss, mêmes conditions que l'écran de victoire (plus de durée minimale : tout combat lancé avec Fight ; jamais un NUKE)");
+assert.ok(combat.includes("nouvelle.jouerSurHote(host,image,idMortV1)") && /* 2026-11-13 : condition élargie par 1b5cc7bb (mort spéciale d'un boss tué en un coup, test idle-mort-boss-106-one-shot-v1) ; cette ligne n'avait pas suivi et bloquait le déploiement. */ combat.includes("if(nouvelle&&arcade&&!REG.idleNukeEnCoursV1&&((memeBoss&&debutCombatV1)||speciale))"), "branché sur la mort du boss, mêmes conditions que l'écran de victoire (plus de durée minimale : tout combat lancé avec Fight ; jamais un NUKE)");
 assert.ok(combat.indexOf("nouvelle.jouerSurHote") < combat.indexOf("arcade.jouer(host,image"), "tirage avant l'éclatement en pixels : s'il retombe dessus, l'ancien comportement joue");
 assert.ok(src.includes("jouerSurHote") && src.includes("app.jouerApres(hote,idMort,true)") && src.includes("data-morph-garder") && src.includes("suivante_(['classique']"), "calque gardé par le redessin, passage de main à l'apparition, mort suivante de la file (plus de hasard)");
 console.log("idle-morts-boss-nouvelles-v1: OK");

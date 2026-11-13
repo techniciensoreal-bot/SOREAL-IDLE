@@ -12,6 +12,12 @@ Modèle d'entrée :
 
 ---
 
+## 2026-11-13 17:00 — Fable
+- Fait : commit « fix(tests) » : `idle-morts-boss-nouvelles-v1` cherchait encore l'ancienne condition de la mort de boss, changée par 1b5cc7bb ; il échouait donc depuis ce matin et BLOQUAIT le déploiement (le push b947a2e5 n'a très probablement jamais été mis en ligne : Norman ne voyait aucune nouvelle version). Assertion alignée sur `((memeBoss&&debutCombatV1)||speciale)`. Puis push de main sur ordre de Norman (journal, Walderp 10daceb8, note 8303b577, ce correctif).
+- En cours / non commité : rien.
+- À vérifier par Norman : que la nouvelle version arrive bien en ligne (onglet Actions de GitHub : `gh` n'est pas connecté ici, je ne peux pas lire la CI) ; puis Walderp, la perruque du 106 en un coup et le cadre de Blood Magic sur téléphone, qui arrivent tous avec ce déploiement.
+- Attention pour l'autre session : suite complète verte avant le push, sauf `idle-graine-contenu-v1` et `idle-histoires-utiles-v1`, qui échouent SEULEMENT ici à cause de `desktop/graine/catalogue.json` (fichier local ignoré par git, incomplet : textes / histoires manquants) et passent dans une copie propre du dépôt. Après un changement de code, relancer le test voisin du même sujet, pas seulement le nouveau.
+
 ## 2026-11-13 16:15 — Fable
 - Fait : 10daceb8 (Walderp, voir l'entrée du dessous) puis un commit « feat(notes) » qui ajoute 4 lignes au groupe Aventure de la note 5.8 (cache-cache, Auto-kill, délai entre formes ; lignes neutres, sans nom de titan) + traduction anglaise. Rien de poussé : main a 3 commits d'avance sur origin/main.
 - En cours / non commité : rien.
