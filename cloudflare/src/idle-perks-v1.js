@@ -390,17 +390,30 @@ export function perkBonusesV1(levelsById) {
   let boostPowerProduct = 1;
   /* Page « Item Daycare » : Blessing I et II sont deux facteurs de temps distincts (x95 % x x95 %). */
   let daycareTimeProduct = 1;
+  /*
+   * Attack/Defense (2026-11-13, décision de Norman) : les niveaux d'UN atout s'additionnent, les atouts DISTINCTS se multiplient.
+   * Sources : page « Evil difficulty » du wiki (« 100,000% rich jerks, 500% rich perks (40 PP), and the Newbie Stat Perk (1 PP) is sufficient »
+   * pour 1 M % : 1000 x 5 x 2 = 10 000 ; en additionnant, 1000 x 6 ne suffit pas) et discussion Steam « weird rich perk stats » (15 août 2024) :
+   * Fel, « Rich perk are additive for the same entry [...] but multiplicative with each separate entry » ; jshepler, d'après le code du jeu,
+   * « Attack Boost For Rich Jerks x The Newbie Stat Perk x Stat Boost For Rich Perks I x Stat Boost For Rich Perks II ».
+   * Avant : tous les statPct étaient additionnés (Newbie + palier 377 = x5,77 au lieu de 2 x 4,77 = x9,54).
+   * Le palier 377 de Fibonacci (« 377% Attack/Defense multiplier ») est un facteur à part, lu +377 % comme le « 100% multiplier » de la Newbie
+   * Stat Perk (x2) : aucune source ne le chiffre autrement.
+   */
+  let statProduct = 1;
   for (const perk of IDLE_PERKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(perk.cap, Number(levels[perk.id]) || 0));
     if (!level) continue;
     if (perk.bonus && perk.bonus.boostPowerPct) boostPowerProduct *= 1 + perk.bonus.boostPowerPct * level;
     if (perk.bonus && perk.bonus.daycareTimePct) daycareTimeProduct *= Math.max(0, 1 - perk.bonus.daycareTimePct * level);
+    if (perk.bonus && perk.bonus.statPct) statProduct *= 1 + perk.bonus.statPct * level;
     for (const [key, perLevel] of perkBonusPairesV1(perk)) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
     if (Array.isArray(perk.fibonacciMilestones)) {
       for (const tier of perk.fibonacciMilestones) {
         if (level < tier.level) continue;
+        if (tier.statPct) statProduct *= 1 + tier.statPct;
         for (const [key, value] of Object.entries(tier)) {
           if (key === "level") continue;
           totals[key] = (totals[key] || 0) + value;
@@ -418,7 +431,7 @@ export function perkBonusesV1(levelsById) {
     adventureToughnessFlat: totals.adventureToughnessFlat || 0,
     adventureStatsMultiplier: 1 + (totals.adventureStatsPct || 0),
     dropChanceMultiplier: 1 + (totals.dropChancePct || 0),
-    statMultiplier: 1 + (totals.statPct || 0),
+    statMultiplier: statProduct,
     energyPowerMultiplier: 1 + (totals.energyPowerPct || 0),
     energyBarsMultiplier: 1 + (totals.energyBarsPct || 0),
     energyCapMultiplier: 1 + (totals.energyCapPct || 0),

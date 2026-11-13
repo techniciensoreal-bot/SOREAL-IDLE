@@ -4,9 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Un adversaire qui se cache se cherche maintenant pour de vrai : plus aucun indice, sa petite image apparaît dans un de tes menus, presque invisible puis de plus en plus visible, et il change de cachette toutes les 3 minutes.",
-    "Il ne peut plus se cacher dans un endroit impossible à ouvrir.",
-    "Son Auto-kill demande désormais 3 victoires sur sa dernière forme, en plus des statistiques.",
-    "Le délai entre deux de ses formes profite maintenant des réductions de délai que tu as déjà gagnées."
+    "Les atouts qui augmentent l’attaque et la défense se multiplient maintenant entre eux au lieu de s’additionner : dès que tu en as plusieurs, ton attaque et ta défense montent."
   ] };
 })();

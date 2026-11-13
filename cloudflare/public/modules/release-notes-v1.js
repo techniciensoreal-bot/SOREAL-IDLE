@@ -40,6 +40,9 @@
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Sur téléphone, le cadre du haut ne coupe plus le titre ni la mini phrase.'
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'Les atouts qui augmentent l’attaque et la défense se multiplient maintenant entre eux au lieu de s’additionner : dès que tu en as plusieurs, ton attaque et ta défense montent.'
           ]}
         ]
       },

@@ -896,7 +896,7 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
  * Perks and Quirks") -- l'exemple donné sur la page "Evil difficulty"
  * ("500% rich perks (40 PP), and the Newbie Stat Perk (1 PP) is
  * sufficient") liste la Newbie Stat Perk comme participant elle aussi au
- * total, donc "ITOPOD stat bonus (PP)" = la somme de TOUS les perks payés
+ * total, donc "ITOPOD stat bonus (PP)" = l'ensemble de TOUS les perks payés (2026-11-13 : multipliés entre atouts distincts, plus additionnés)
  * en PP qui boostent Attack/Defense (statPct), pas seulement les 2 perks
  * nommés "Rich Perks" -- exactement perkBonusesV1(...).statMultiplier
  * (idle-perks-v1.js), déjà agrégé sur tout le catalogue (ids 4/5/54).

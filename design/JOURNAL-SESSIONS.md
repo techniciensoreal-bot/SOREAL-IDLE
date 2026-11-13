@@ -12,6 +12,12 @@ Modèle d'entrée :
 
 ---
 
+## 2026-11-13 19:20 — Fable
+- Fait : commit local « fix(perks) » : les atouts d'attaque/défense DISTINCTS se multiplient (niveaux d'un même atout additionnés), `statMultiplier` de `perkBonusesV1` ; palier 377 de Fibonacci = facteur à part x4,77. Ligne ajoutée à la note 5.8 (groupe ITOPOD) + traduction. Parties de référence régénérées (changement de règle voulu : attaque x1,47 sur la partie 1). Non poussé.
+- En cours / non commité : rien. Hors dépôt : j'ai décodé une sauvegarde du VRAI NGU Idle de Norman (format .NET BinaryFormatter, deux couches base64) dans mon dossier temporaire ; lecteur et comparaisons à reprendre dans le dépôt si Norman valide le banc de comparaison.
+- À vérifier par Norman : premières comparaisons vrai jeu / SOREAL sur sa sauvegarde (boss 15, 2 Rebirths) : stats du boss 15 identiques ; facteur de temps de Rebirth identique (7,0049) ; attaque et défense de base (niveau^1,3 x valeur) x (1 + équipement %) identiques à 0,001 % près. Les Quirks et Wishes d'attaque/défense sont encore ADDITIONNÉS (même question que les atouts, non traitée faute de source).
+- Attention pour l'autre session : suite complète verte avec SOREAL_IDLE_VERIF_BONUS=1, sauf les deux tests liés à `desktop/graine/catalogue.json` (local). Moteur local reconstruit, `maj-pins` et `marquer-nouveautes-push` relancés (liste verte : 1 ligne).
+
 ## 2026-11-13 18:10 — Fable
 - Fait : recherche sur internet pour le palier 377 de Fibonacci (aucune source ne le chiffre directement). Aucun code modifié.
 - En cours / non commité : rien.
