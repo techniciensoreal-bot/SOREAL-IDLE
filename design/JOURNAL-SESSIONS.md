@@ -12,6 +12,14 @@ Modèle d'entrée :
 
 ---
 
+## 2026-11-13 (suite, vers 17 h 45 réelles) — Fable
+- Note : les heures de mes entrées précédentes du jour sont approximatives et trop tardives (écrites sans lire l'horloge) ; l'ordre, lui, est juste.
+- Fait : commit local « fix(quirks, wishes) » : quirks DISTINCTS et souhaits DISTINCTS d'attaque/défense multipliés entre eux (niveaux d'une même entrée additionnés), comme les atouts. Mesuré dans le vrai jeu en Evil : quirks 7x100 + 51x50 = x4 ; souhaits 0x1 + 5x3 = x8 ; 5x2 + 30x2 = x9 ; atout 4 x quirk 7 = x4. Nouveau test `idle-stat-multiplie-entre-entrees-v1`. Ligne de note 5.8 (ITOPOD) complétée + traduction.
+- Fait aussi : le BANC DE COMPARAISON AVEC LE VRAI JEU est dans le dépôt : `cloudflare/tools/banc-vrai-jeu/` (lire LISEZMOI.md). Boucle entièrement automatique, environ 75 s par essai : écrire une sauvegarde modifiée, lancer NGU Idle, cliquer « Load Autosave », attendre l'enregistrement automatique, fermer, relire.
+- En cours / non commité : rien. Six commits locaux non poussés (atouts, palier 377, quirks et souhaits, journal).
+- À vérifier par Norman : rien à faire dans le jeu. Pistes suivantes pour le banc : souhait 189 (1 % ou 100 % par niveau), bonus d'énergie et de magie (additionnés ou multipliés entre atouts, quirks, souhaits), stats d'Aventure, NGU, barbes, mineurs, vitesses.
+- Attention pour l'autre session : le banc lance le vrai jeu et prend la souris une seconde à chaque essai ; ne pas le lancer pendant que Norman utilise la machine sans le prévenir. Un fichier `steam_appid.txt` a été ajouté dans le dossier d'installation de NGU Idle (hors dépôt). `NGUSaveSteam.txt` du jeu est réécrit par chaque essai.
+
 ## 2026-11-13 20:30 — Fable
 - Fait : commit local « fix(perks) palier 377 » : MESURÉ DANS LE VRAI JEU (build 1260, copies A/B/C rechargées et sauvegardées par Norman) : Newbie 1 + Rich Perks I 40 = x10,00000 ; Fibonacci 377 seul = x3,77000 ; Newbie + Fibonacci 377 = x7,54000 (attaque et défense). Donc les atouts distincts se multiplient (b61d8fdf confirmé) et le palier 377 vaut x3,77, pas x4,77 : `statPct` 2,77 dans `fibonacciMilestones`. L'indice de `adventure.itopod.perkLevel` = l'id d'atout de SOREAL (4, 5, 94 confirmés). Référence `synchro-appels-avant.json` régénérée. Non poussé.
 - En cours / non commité : rien.

@@ -1,0 +1,22 @@
+{
+ "quirks-7x100-51x50": {
+  "ok": true,
+  "attaque": 1.999999647171613,
+  "defense": 1.9999996787781091
+ },
+ "souhaits-0x1-5x3": {
+  "ok": true,
+  "attaque": 0.9999998510153055,
+  "defense": 0.9999998715071948
+ },
+ "souhaits-5x2-30x2": {
+  "ok": true,
+  "attaque": 0.9999998784435123,
+  "defense": 0.9999999036238377
+ },
+ "atout4-quirk7x100-souhait5x1": {
+  "ok": true,
+  "attaque": 3.999999458936741,
+  "defense": 3.9999995502781283
+ }
+}

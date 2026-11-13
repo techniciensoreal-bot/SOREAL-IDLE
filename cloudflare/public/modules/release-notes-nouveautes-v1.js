@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les atouts qui augmentent l’attaque et la défense se multiplient maintenant entre eux au lieu de s’additionner : dès que tu en as plusieurs, ton attaque et ta défense montent."
+    "Les atouts qui augmentent l’attaque et la défense se multiplient maintenant entre eux au lieu de s’additionner : dès que tu en as plusieurs, ton attaque et ta défense montent. Il en va de même pour les autres bonus du même genre que tu débloqueras."
   ] };
 })();

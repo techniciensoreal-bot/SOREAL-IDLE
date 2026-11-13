@@ -222,10 +222,17 @@ export function quirkBonusesV1(levelsById) {
   const totals = {};
   /* Page Boost : « Beasted Boosts I à IV, chacun multiplicatif avec les autres » (1,5 x 2,2 x 1,5 x 1,25 au maximum). */
   let boostPowerProduct = 1;
+  /*
+   * Attack/Defense : niveaux d'un même quirk additionnés, quirks DISTINCTS multipliés. MESURÉ DANS LE VRAI JEU le 2026-11-13 (build 1260, sauvegarde
+   * de Norman modifiée puis recalculée par le jeu, difficulté Evil) : quirk 7 niveau 100 (x2) + quirk 51 niveau 50 (x2) = x4,000, pas x3.
+   * En difficulté normale le quirk 51 (Evil) est sans effet (x2,000 avec le seul quirk 7) : même filtre que idleQuirkNiveauxV1.
+   */
+  let statProduct = 1;
   for (const quirk of IDLE_QUIRKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(quirk.cap, Number(levels[quirk.id]) || 0));
     if (!level) continue;
     if (quirk.bonus && quirk.bonus.boostPowerPct) boostPowerProduct *= 1 + quirk.bonus.boostPowerPct * level;
+    if (quirk.bonus && quirk.bonus.statPct) statProduct *= 1 + quirk.bonus.statPct * level;
     for (const [key, perLevel] of Object.entries(quirk.bonus || {})) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
@@ -238,7 +245,7 @@ export function quirkBonusesV1(levelsById) {
     magicCapMultiplier: 1 + (totals.magicCapPct || 0),
     magicBarsMultiplier: 1 + (totals.magicBarsPct || 0),
     adventureStatsMultiplier: 1 + (totals.adventureStatsPct || 0),
-    statMultiplier: 1 + (totals.statPct || 0),
+    statMultiplier: statProduct,
     adventureGoldMultiplier: 1 + (totals.adventureGoldPct || 0),
     seedYieldMultiplier: 1 + (totals.seedYieldPct || 0),
     /* Quirk_Ygg (rendement des fruits d'Yggdrasil). */

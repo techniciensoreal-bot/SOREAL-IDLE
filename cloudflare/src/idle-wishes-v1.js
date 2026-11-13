@@ -297,9 +297,16 @@ export function idleWishByIdV1(id) {
 export function wishBonusesV1(tracksById) {
   const tracks = tracksById && typeof tracksById === "object" ? tracksById : {};
   const totals = {};
+  /*
+   * Attack/Defense : niveaux d'un même souhait additionnés, souhaits DISTINCTS multipliés. MESURÉ DANS LE VRAI JEU le 2026-11-13 (build 1260,
+   * sauvegarde de Norman modifiée puis recalculée par le jeu, difficulté Evil) : souhait 0 niveau 1 (x2) + souhait 5 niveau 3 (x4) = x8,000, pas x5 ;
+   * souhait 5 niveau 2 (x3) + souhait 30 niveau 2 (x3) = x9,001, pas x5. En difficulté normale ces souhaits sont sans effet (x1,000).
+   */
+  let statProduct = 1;
   for (const wish of IDLE_WISHES_CATALOG_V1) {
     const level = Math.max(0, Math.min(wish.levels, Number(tracks[wish.id]?.level) || 0));
     if (!level) continue;
+    if (wish.bonus && wish.bonus.statPct) statProduct *= 1 + wish.bonus.statPct * level;
     for (const [key, perLevel] of Object.entries(wish.bonus || {})) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
@@ -315,7 +322,7 @@ export function wishBonusesV1(tracksById) {
     r3CapMultiplier: 1 + (totals.r3CapPct || 0),
     r3BarsMultiplier: 1 + (totals.r3BarsPct || 0),
     adventureStatsMultiplier: 1 + (totals.adventureStatsPct || 0),
-    statMultiplier: 1 + (totals.statPct || 0),
+    statMultiplier: statProduct,
     wishSpeedMultiplier: 1 + (totals.wishSpeedPct || 0),
     hackSpeedMultiplier: 1 + (totals.hackSpeedPct || 0),
     /* Souhaits "I wish I had more Inventory space" : 1 emplacement par niveau (leur effet le dit). */

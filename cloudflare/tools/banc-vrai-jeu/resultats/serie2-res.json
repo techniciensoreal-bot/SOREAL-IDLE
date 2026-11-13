@@ -1,0 +1,22 @@
+{
+ "evil-seul": {
+  "ok": true,
+  "attaque": 9.999998510265978e-31,
+  "defense": 9.99999871516916e-31
+ },
+ "evil-quirks-7x100-51x50": {
+  "ok": true,
+  "attaque": 3.9999993492745245e-30,
+  "defense": 3.999999421856793e-30
+ },
+ "evil-souhaits-0x1-5x3": {
+  "ok": true,
+  "attaque": 7.999998698578831e-30,
+  "defense": 7.999998843740008e-30
+ },
+ "evil-souhaits-5x2-30x2": {
+  "ok": true,
+  "attaque": 8.99999853593469e-30,
+  "defense": 8.999998699237234e-30
+ }
+}

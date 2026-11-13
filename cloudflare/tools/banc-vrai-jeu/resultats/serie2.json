@@ -1,0 +1,6 @@
+{
+ "evil-seul": {"settings.rebirthDifficulty.value__":1},
+ "evil-quirks-7x100-51x50": {"settings.rebirthDifficulty.value__":1,"beastQuest.quirkLevel[7]":100,"beastQuest.quirkLevel[51]":50},
+ "evil-souhaits-0x1-5x3": {"settings.rebirthDifficulty.value__":1,"wishes.wishes[0].level":1,"wishes.wishes[5].level":3},
+ "evil-souhaits-5x2-30x2": {"settings.rebirthDifficulty.value__":1,"wishes.wishes[5].level":2,"wishes.wishes[30].level":2}
+}
