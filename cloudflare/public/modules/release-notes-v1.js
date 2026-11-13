@@ -20,10 +20,23 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.7',
+    courante:'5.8',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'5.8',
+        nom:'Le sang sans coupure',
+        date:'2026-11-13',
+        groupes:[
+          {menu:'combat', titre:'Combat de boss', points:[
+            'La mort propre à un boss se joue maintenant aussi quand tu le tues en un seul coup avec Fight.'
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Sur téléphone, le cadre du haut ne coupe plus le titre ni la mini phrase.'
+          ]}
+        ]
+      },
       {
         version:'5.7',
         nom:'Une défaite plus nette',

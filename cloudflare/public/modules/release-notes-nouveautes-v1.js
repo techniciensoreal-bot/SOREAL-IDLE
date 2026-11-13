@@ -4,7 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les portes des fruits ont de nouvelles images, transparentes sur les bords : les ornements dépassent du cadre et les longs bords tombent pile sur le cadre de l’arbre.",
-    "Les touches CAP et + ne placent plus que des unités entières : une fraction d’énergie ou de magie (affichée 0 dans la barre) ne se retrouve plus placée, puis reprise sans jamais réapparaître."
+    "La mort propre à un boss se joue maintenant aussi quand tu le tues en un seul coup avec Fight.",
+    "Sur téléphone, le cadre du haut ne coupe plus le titre ni la mini phrase."
   ] };
 })();
