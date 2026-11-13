@@ -26,7 +26,6 @@ var MESSAGES_ERREUR={
   AUCUN_COMBAT_ACTIF:'Aucun combat n’est en cours.'
 };
 var LIBELLES_PALIERS={easy:'Easy',normal:'Normal',hard:'Hard',brutal:'Brutal'};
-var MENUS_WALDERP={combat:'Fight Boss',entrainement:'Basic Training',inventaire:'Inventory',bestiaire:'Bestiary',parametres:'Settings'};
 var registre={};
 
 function hote(){return window.__SOREAL_IDLE_META_HOST_V130__||{};}
@@ -146,9 +145,11 @@ function seuilsRecommandes(t,palier){
  * Ce que fait la case « Auto-kill » (Norman, 2026-10-11 : « l'auto kill est coché pour GRB mais il ne meurt pas, le bouton est grisé ») : le Titan n'est vaincu qu'à sa RÉAPPARITION (le délai passe d'abord) et seulement
  * si tes stats atteignent celles de l'Auto-kill ; la carte le dit en clair au lieu de laisser croire à un bug.
  */
+/* Walderp : victoires exigées avant l'Auto-kill (formes 1 à 4, puis le nombre de kills voulu sur la forme finale ; même règle que le moteur, titanFormesKillsAutoKillV1). */
+function killsFormesAutoKill(t){var f=t.forms[t.forms.length-1];return t.forms.length-1+Math.max(1,ent(f&&f.autoKillKills));}
 function seuilAutoKill(t){
   var kills=ent(t.state&&t.state.kills);
-  if(Array.isArray(t.forms)&&t.forms.length)return kills>=t.forms.length?t.forms[t.forms.length-1]:null;
+  if(Array.isArray(t.forms)&&t.forms.length)return kills>=killsFormesAutoKill(t)?t.forms[t.forms.length-1]:null;
   if(t.difficulties&&typeof t.difficulties==='object'){
     var cles=Object.keys(t.difficulties),meilleur=null;
     cles.forEach(function(k){var e=t.difficulties[k];if(e&&Number(e.autoKillP)>0&&(!meilleur||Number(e.autoKillP)<Number(meilleur.autoKillP)))meilleur=e;});
@@ -559,7 +560,7 @@ function autoKillCochable(t){
   if(!moi)return true;
   function ok(s){return s&&Number(s.autoKillP)>0&&moi.power>=Number(s.autoKillP)&&moi.toughness>=Number(s.autoKillT);}
   var kills=ent(t.state&&t.state.kills);
-  if(Array.isArray(t.forms)&&t.forms.length)return kills>=t.forms.length&&ok(t.forms[t.forms.length-1]);
+  if(Array.isArray(t.forms)&&t.forms.length)return kills>=killsFormesAutoKill(t)&&ok(t.forms[t.forms.length-1]);
   if(t.difficulties&&typeof t.difficulties==='object'){
     return Object.keys(t.difficulties).some(function(k){
       var e=t.difficulties[k];
@@ -576,7 +577,7 @@ function seTueTout(t){
   if(!moi)return false;
   function ok(s){return s&&Number(s.autoKillP)>0&&moi.power>=Number(s.autoKillP)&&moi.toughness>=Number(s.autoKillT);}
   var kills=ent(t.state&&t.state.kills);
-  if(Array.isArray(t.forms)&&t.forms.length)return kills>=t.forms.length&&ok(t.forms[t.forms.length-1]);
+  if(Array.isArray(t.forms)&&t.forms.length)return kills>=killsFormesAutoKill(t)&&ok(t.forms[t.forms.length-1]);
   if(t.difficulties&&typeof t.difficulties==='object'){
     return Object.keys(t.difficulties).some(function(k){
       var e=t.difficulties[k];

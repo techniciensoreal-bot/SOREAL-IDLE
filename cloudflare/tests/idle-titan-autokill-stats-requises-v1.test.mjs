@@ -34,6 +34,12 @@ const coche = (etat, ctx, enabled, id = "t1") => applyIdleNguAction(etat, { acti
   const walderp = IDLE_ADVENTURE_TITANS.find((t) => t.forms);
   assert.ok(walderp, "un titan à formes existe");
   assert.equal(titanAutoKillPossibleV1(s, walderp, { power: 1e300, toughness: 1e300 }), false, "titan à formes : forme finale non battue");
+  /* wiki Walderp : « 3 kills on Walderp's final form » (4 formes + 3 = 7 victoires). */
+  const sw = { titans: { [walderp.id]: { kills: 6, nextAt: 0 } }, unlockFlags: { walderpFinalDefeated: true } };
+  assert.equal(titanAutoKillPossibleV1(sw, walderp, { power: 1e300, toughness: 1e300 }), false, "titan à formes : 2 kills sur la forme finale ne suffisent pas");
+  sw.titans[walderp.id].kills = 7;
+  assert.equal(titanAutoKillPossibleV1(sw, walderp, { power: 1e300, toughness: 1e300 }), true, "titan à formes : 3 kills sur la forme finale et stats atteintes");
+  assert.equal(titanAutoKillPossibleV1(sw, walderp, { power: 1, toughness: 1 }), false, "titan à formes : les kills ne remplacent pas les stats");
   /* Un titan à paliers : atteindre les stats du palier le plus facile suffit. */
   const palier = IDLE_ADVENTURE_TITANS.find((t) => t.difficulties && Object.values(t.difficulties).some((e) => e && e.autoKillP > 0));
   assert.ok(palier);

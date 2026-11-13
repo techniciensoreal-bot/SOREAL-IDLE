@@ -220,20 +220,16 @@ export function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)re
  * directement d.p/d.t comme avant, comportement inchangé.
  */
 /*
- * V147 — Walderp (t5) : cache-cache réel entre les 5 formes. Un panneau
- * de l'app est tiré au sort à chaque forme intermédiaire vaincue (1-4) ;
- * le combat suivant reste bloqué (TITAN_CACHE) tant que titanFound()
- * n'a pas été appelée depuis CE panneau précis côté client. Liste
- * volontairement restreinte à des pages toujours accessibles (jamais
- * Aventure elle-même, où on le combat).
- */
-/*
- * V147bis — "boutique"/"magie"/"personnage" existent encore comme routes
- * de rendu (contenuMenuIdleV28_) mais ne sont PLUS dans la navigation
- * visible (retirés en parité NGU, cf. le test "Menu maison interdit en
- * parité NGU") : y cacher Walderp l'aurait rendu introuvable pour de
- * vrai. Liste corrigée aux seuls menus RÉELLEMENT navigables et déjà
- * débloqués bien avant boss 116 (navigationIdleV28_, Soreal_Idle_UI.html).
+ * V147 — Walderp (t5) : cache-cache réel entre les 5 formes. À chaque
+ * forme intermédiaire vaincue (1-4) il se cache ; le combat suivant reste
+ * bloqué (TITAN_CACHE) tant que titanFound() n'a pas été appelée.
+ * 2026-11-13 (« fais comme dans le vrai jeu ») : plus de liste de panneaux
+ * dans le moteur. Il ne garde que hiddenSince (instant de la cachette) et
+ * hiddenSeed (graine tirée une fois) ; le menu du cycle de 3 minutes en
+ * cours (hideCycleMs, idle-adventure-zones.js) est déduit par l'interface
+ * parmi les menus réellement ouverts au joueur. hiddenPanel reste le
+ * drapeau « caché » lu partout (valeur "menu", ou un ancien nom de
+ * panneau dans une sauvegarde d'avant : seul le fait d'être non vide compte).
  */
 /*
  * V148 — trouvé en auditant l'intégration après Walderp (2026-09-11,
@@ -247,7 +243,6 @@ export function titanGate(s,d){const own=s.titans[d.id]||{};if(I(own.kills)>0)re
  * exactement comme les autres unlockFlags déjà posés ailleurs
  * (ringOfApathyMaxed, tutorialCubeMaxed).
  */
-export const WALDERP_HIDE_PANELS_V147=Object.freeze(["combat","entrainement","inventaire","bestiaire","parametres"]);
 
 /*
  * Récompenses de base des titans -- colonne "Base Rewards" de la page Titans
@@ -337,14 +332,20 @@ function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0){
  *    combat de titan que par un seuil Power/Toughness statique (fonction titan() ci-dessus), jamais par une
  *    simulation dans la durée ; ce champ est donc sans effet ici, pour la même raison qu'il l'est déjà pour les
  *    seuils Manual/Idle existants ;
- *  - Walderp : réservé au joueur ayant déjà vaincu sa forme finale au moins une fois manuellement
- *    (unlockFlags.walderpFinalDefeated) -- le butin garanti de cette 1re victoire (la canne, le déblocage
+ *  - Walderp : réservé au joueur ayant déjà vaincu sa forme finale 3 fois (wiki : « 3 kills on Walderp's final
+ *    form », titanFormesKillsAutoKillV1), dont la première manuellement (unlockFlags.walderpFinalDefeated) -- le butin garanti de cette 1re victoire (la canne, le déblocage
  *    MacGuffins) n'est jamais accordé par Auto-Kill, uniquement par un combat manuel.
  *
  * Aucun objet ne tombe (ni butin garanti, ni tirage aléatoire) : seuls l'or, l'EXP, l'AP, la PP-progress et le QP
  * sont crédités, via creditTitanRewardsV1 -- jamais rollTitanLootV1 ni les objets garantis spéciaux (Wandoos 98,
  * canne de Walderp) que titan() (combat manuel) accorde en plus.
  */
+/* Walderp : nombre total de victoires exigé avant l'Auto-kill = formes 1 à 4 + « 3 kills on Walderp's final form » (wiki Walderp, infobox et section Fighting). */
+export function titanFormesKillsAutoKillV1(d){
+  const f=d.forms[d.forms.length-1];
+  return d.forms.length-1+Math.max(1,I(f&&f.autoKillKills,0));
+}
+
 export function advanceTitanAutoKillV1(s,ctx,seconds,t){
   if(!s||!(seconds>0))return{kills:0};
   const debut=t-seconds*1000;
@@ -369,7 +370,7 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
      */
     let tier=null,tierKey="";
     if(d.forms){
-      if(st.kills<d.forms.length||!s.unlockFlags.walderpFinalDefeated)continue;
+      if(I(st.kills)<titanFormesKillsAutoKillV1(d)||!s.unlockFlags.walderpFinalDefeated)continue;
       const essai=d.forms[d.forms.length-1];
       if(N(essai.autoKillP)>0&&N(stats.power)>=essai.autoKillP&&N(stats.toughness)>=essai.autoKillT)tier=essai;
     }else if(d.difficulties){
@@ -821,7 +822,7 @@ export function idleAdventureTitanCooldownMsV1(id,ctx,kills){
   return Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,N(d.cooldown,0)-reduction);
 }
 
-export function titan(s,id,ctx,t,difficulty,opts={}){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(!opts.fromFight&&(N(q.power)<tier.p||N(q.toughness)<tier.t))throw Error("PUISSANCE_INSUFFISANTE");if(opts.preview)return{id,d,st,tier,tierKey,formIndex};st.kills++;st.rebirthKills=I(st.rebirthKills)+1;if(tierKey){if(!st.difficultyKills||typeof st.difficultyKills!=="object")st.difficultyKills={};st.difficultyKills[tierKey]=I(st.difficultyKills[tierKey],0)+1}/* Défis No Rebirth : -15 min par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */const titanRank=TITAN_RANK_V1[id]||0;const challengeRespawnReduction=Math.max(0,(titanRank>=3?N(ctx.titanCooldownReductionMs,0):0)+(titanRank>=7?N(ctx.titanCooldownReductionEvilMs,0):0)+(titanRank>=10?N(ctx.titanCooldownReductionSadisticMs,0):0));/* Page Titans : le délai ne descend jamais sous 60 minutes (TITAN_COOLDOWN_FLOOR_MS_V1). */if(d.forms&&st.kills<d.forms.length){st.hiddenPanel=WALDERP_HIDE_PANELS_V147[I(Math.random()*WALDERP_HIDE_PANELS_V147.length)];st.hiddenSince=t;st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
+export function titan(s,id,ctx,t,difficulty,opts={}){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6",titan7:"t7"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);if(!d||I(ctx.bosses)<d.boss)throw Error("TITAN_VERROUILLE");if(d.evilOnly&&!["difficile","extreme"].includes(String(ctx.difficulty||"")))throw Error("DIFFICULTE_EVIL_REQUISE");if(d.sadisticOnly&&String(ctx.difficulty||"")!=="extreme")throw Error("DIFFICULTE_SADISTIC_REQUISE");if(d.flag&&!s.unlockFlags[d.flag])throw Error("PROTECTION_TITAN_REQUISE");if(!titanGate(s,d))throw Error("PROGRESSION_TITAN_REQUISE");const st=s.titans[id]||{kills:0,nextAt:0,hiddenPanel:""};if(d.forms&&st.hiddenPanel)throw Error("TITAN_CACHE");if(t<N(st.nextAt))throw Error("TITAN_EN_REAPPARITION");const formIndex=d.forms?Math.min(I(st.kills),d.forms.length-1):-1;const tier=formIndex>=0?d.forms[formIndex]:(d.difficulties?(d.difficulties[difficulty]?d.difficulties[difficulty]:d.difficulties.easy):d);const tierKey=d.difficulties?(d.difficulties[difficulty]?difficulty:"easy"):"";const q=ctx.stats||{};if(!opts.fromFight&&(N(q.power)<tier.p||N(q.toughness)<tier.t))throw Error("PUISSANCE_INSUFFISANTE");if(opts.preview)return{id,d,st,tier,tierKey,formIndex};st.kills++;st.rebirthKills=I(st.rebirthKills)+1;if(tierKey){if(!st.difficultyKills||typeof st.difficultyKills!=="object")st.difficultyKills={};st.difficultyKills[tierKey]=I(st.difficultyKills[tierKey],0)+1}/* Défis No Rebirth : -15 min par complétion à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */const titanRank=TITAN_RANK_V1[id]||0;const challengeRespawnReduction=Math.max(0,(titanRank>=3?N(ctx.titanCooldownReductionMs,0):0)+(titanRank>=7?N(ctx.titanCooldownReductionEvilMs,0):0)+(titanRank>=10?N(ctx.titanCooldownReductionSadisticMs,0):0));/* Page Titans : le délai ne descend jamais sous 60 minutes (TITAN_COOLDOWN_FLOOR_MS_V1). */if(d.forms&&st.kills<d.forms.length){st.hiddenPanel="menu";st.hiddenSince=t;st.hiddenSeed=I(Math.random()*2147483647);st.nextAt=Infinity}else{st.hiddenPanel="";st.hiddenSince=0;st.hiddenSeed=0;st.nextAt=t+Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,d.cooldown-challengeRespawnReduction)}s.titans[id]=st;let firstDrop="";if(d.drop&&st.kills===1&&!s.unlockItems[d.drop]){s.unlockItems[d.drop]=true;firstDrop=d.drop}const drops=[];const challengeTitanLootLevel=Math.max(0,I(ctx.titanLootLevelBonus,0));/*
  * 2026-09-23 (audit NGU, parité wiki) : butin et récompenses des titans
  * lus sur la section Loot de leur page (miroir local NGU-Wiki) au lieu
  * d'objets garantis inventés. Voir rollTitanLootV1 / TITAN_REWARDS_V1.
@@ -854,12 +855,17 @@ if(id==="t7"&&tierKey==="brutal")s.unlockFlags.exileBrutalDefeated=true;
 return{id,kills:st.kills,nextAt:st.nextAt,hiddenPanel:st.hiddenPanel||undefined,firstDrop,difficulty:tierKey||undefined,drops:drops.filter(Boolean),gold:recompenses.gold,experience:recompenses.experience,ap:recompenses.ap,ppProgress:recompenses.ppProgress,qp:recompenses.qp}}
 
 /*
- * V147 — retrouver Walderp caché. Purement déclaratif côté serveur (le
- * client sait déjà où il se cache via le snapshot — il ne "devine" rien,
- * il confirme juste avoir cliqué au bon endroit) : vide hiddenPanel et
+ * V147 — retrouver Walderp caché. Purement déclaratif côté moteur (c'est
+ * l'interface qui sait dans quel menu il se trouve et qui confirme le
+ * clic sur son image) : vide hiddenPanel et
  * démarre ALORS le vrai cooldown avant la forme suivante.
  */
-export function titanFound(s,id,t){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);const st=s.titans[id];if(!d||!st||!st.hiddenPanel)throw Error("TITAN_PAS_CACHE");st.hiddenPanel="";st.hiddenSince=0;st.nextAt=t+Math.max(0,N(d.cooldown));s.titans[id]=st;return{id,nextAt:st.nextAt}}
+/*
+ * Délai entre deux formes : même règle que tout délai de titan (page Titans : « Cooldown periods may be shortened by 15 minutes per completed No
+ * Rebirth Challenge, but this won't decrease it below the 60 min minimum » ; Normal dès le titan 3, donc Walderp compris). Avant le 2026-11-13 le
+ * délai repartait à 180 minutes pleines, sans réduction.
+ */
+export function titanFound(s,id,t,ctx){const aliases={titan1:"t1",titan2:"t2",titan3:"t3",titan4:"t4",titan5:"t5",titan6:"t6"};id=aliases[id]||id;const d=IDLE_ADVENTURE_TITANS.find(x=>x.id===id);const st=s.titans[id];if(!d||!st||!st.hiddenPanel)throw Error("TITAN_PAS_CACHE");const c=ctx||{};const rang=TITAN_RANK_V1[id]||0;const reduction=Math.max(0,(rang>=3?N(c.titanCooldownReductionMs,0):0)+(rang>=7?N(c.titanCooldownReductionEvilMs,0):0)+(rang>=10?N(c.titanCooldownReductionSadisticMs,0):0));st.hiddenPanel="";st.hiddenSince=0;st.hiddenSeed=0;st.nextAt=t+Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,N(d.cooldown)-reduction);s.titans[id]=st;return{id,nextAt:st.nextAt}}
 
 export function consume(s,id){const flag=unlockMap[id];if(!flag)throw Error("OBJET_DEBLOCAGE_ABSENT");/* Depuis 2026-10-04 le déblocage dû est un vrai objet du sac (convertirDeblocagesEnObjetsV1) : l'ancienne action par clé utilise cet objet. */if(!s.unlockItems[id]){const defId=Object.keys(UNLOCK_PAR_OBJET_V1).find(k=>UNLOCK_PAR_OBJET_V1[k]===id);const o=defId&&s.inventory.find(x=>x&&x.definitionId===defId);if(!o)throw Error("OBJET_DEBLOCAGE_ABSENT");return useUnlockItem(s,o.id)}s.unlockFlags[flag]=true;s.unlockItems[id]=false;return{flag}}
 
@@ -964,14 +970,14 @@ export function setAutoKillTitansV1(s,enabled){
 /* Case à cocher « Auto-kill » d'UN titan (Norman, 2026-10-10 : « pour les titans, on doit avoir une case à cocher pour auto kill ou non »). */
 /*
  * L'Auto-kill d'un titan ne peut être COCHÉ que si le joueur remplit déjà ses conditions (Norman, 2026-10-14 : « on ne doit pas pouvoir cocher auto kill pour un titan quand on n'a pas les statistiques nécessaires »).
- * Mêmes conditions que advanceTitanAutoKillV1 (qui garde la main sur l'exécution) : forme finale battue et stats de la forme finale (Walderp) ; sinon au moins un palier dont les stats Auto-kill sont atteintes
+ * Mêmes conditions que advanceTitanAutoKillV1 (qui garde la main sur l'exécution) : forme finale battue 3 fois et stats de la forme finale (Walderp) ; sinon au moins un palier dont les stats Auto-kill sont atteintes
  * (ou dont le nombre de kills voulu est atteint) ; sinon les stats Auto-kill du titan. Décocher reste toujours possible.
  */
 export function titanAutoKillPossibleV1(s,d,stats){
   const st=(s&&s.titans&&s.titans[d.id])||{kills:0,nextAt:0};
   const puissance=N(stats&&stats.power),robustesse=N(stats&&stats.toughness);
   if(d.forms){
-    if(I(st.kills)<d.forms.length||!(s.unlockFlags&&s.unlockFlags.walderpFinalDefeated))return false;
+    if(I(st.kills)<titanFormesKillsAutoKillV1(d)||!(s.unlockFlags&&s.unlockFlags.walderpFinalDefeated))return false;
     const f=d.forms[d.forms.length-1];
     return N(f.autoKillP)>0&&puissance>=f.autoKillP&&robustesse>=f.autoKillT;
   }

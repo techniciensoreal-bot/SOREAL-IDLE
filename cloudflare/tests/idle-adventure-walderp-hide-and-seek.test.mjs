@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import {
-  IDLE_ADVENTURE_TITANS,WALDERP_HIDE_PANELS_V147,
+  IDLE_ADVENTURE_TITANS,
   normalizeIdleAdventureStateV47,applyIdleAdventureActionV47,idleAdventureSnapshotV47
 } from "../src/idle-adventure-v47.js";
 
@@ -17,20 +17,10 @@ function tirageForce(valeur,fn){
 
 
 /*
- * "boutique"/"magie"/"personnage" existent encore comme routes de rendu
- * côté client (contenuMenuIdleV28_) mais ne sont PLUS dans la navigation
- * visible depuis la parité NGU — y cacher Walderp le rendrait
- * introuvable pour de vrai. Cette liste doit rester EXACTEMENT
- * synchronisée avec IDLE_WALDERP_PANEL_LABELS_V147 côté SOREAL-APP
- * (Soreal_Idle_UI.html) — voir idle-adventure-walderp-panel-labels.test.mjs
- * côté APP pour le miroir de cette vérification.
+ * 2026-11-13 (Norman : « fais comme dans le vrai jeu ») : le moteur n'a plus de liste de panneaux. L'ancienne contenait « inventaire » et « bestiaire »,
+ * qui n'étaient plus des menus (2026-09-24, 2026-10-08) : Walderp y restait introuvable. Le menu du cycle est déduit par l'interface parmi les menus
+ * ouverts au joueur (modules/walderp-cachette-v1.js, test idle-walderp-cachette-v1) ; le moteur ne garde que l'instant, une graine et la durée du cycle.
  */
-assert.deepEqual(
-  WALDERP_HIDE_PANELS_V147,
-  ["combat","entrainement","inventaire","bestiaire","parametres"],
-  "Chaque panneau doit être un menu réellement navigable (navigationIdleV28_), jamais un menu retiré de la navigation (boutique/magie/personnage)."
-);
-
 /*
  * Norman (2026-09-11) : d'abord accepté comme simplifié (forme unique,
  * combat direct), puis reconsidéré : "c'est pas vraiment des minijeu,
@@ -46,9 +36,8 @@ assert.deepEqual(
  * - Aucun butin sur les formes 1-4 (wiki : "After killing Walderp's
  *   final form he will begin to drop his items") — seule la 5e forme
  *   (et toutes les suivantes, "Final Form" permanente) donne le butin.
- * Simplification assumée et documentée dans idle-adventure-v47.js : pas
- * de fenêtre de 3 minutes ni de visibilité progressive — une fois
- * caché, il reste dans le MÊME panneau jusqu'à ce qu'on le trouve.
+ * - Cycle de 3 minutes du wiki (hideCycleMs) : visibilité progressive puis
+ *   changement de menu, joués par l'interface.
  */
 
 const t5=IDLE_ADVENTURE_TITANS.find(x=>x.id==="t5");
@@ -56,6 +45,7 @@ const t5=IDLE_ADVENTURE_TITANS.find(x=>x.id==="t5");
 assert.equal(t5.name,"Walderp");
 assert.equal(t5.boss,116);
 assert.equal(t5.cooldown/3600000,3);
+assert.equal(t5.hideCycleMs,180000,"wiki Walderp : « You will have 3 minutes to find him [...] After 3 minutes he will reset his visibility and change menus ».");
 assert.deepEqual(
   t5.forms,
   [
@@ -64,7 +54,8 @@ assert.deepEqual(
     {p:2400000,t:1500000},
     {p:3200000,t:2300000},
     /* AutoKill (2026-09-27, correctif docs/HORS-LIGNE.md point 1) : seule la forme finale (répétable) en a un publié (wiki, page Walderp : "forms 1-4 cannot autokill"). */
-    {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000}
+    /* 2026-11-13 : « 3 kills on Walderp's final form » (infobox autokill5), en plus des stats. */
+    {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000,autoKillKills:3}
   ],
   "Les 5 formes doivent être les vrais seuils Manual (+ AutoKill sur la finale) du wiki, jamais inventés."
 );
@@ -88,6 +79,11 @@ function tuerFormeEtTrouver(s,formeIndex,t){
   if(formeIndex<4){
     // Caché : impossible de recombattre tant qu'on ne l'a pas trouvé.
     assert.ok(s.titans.t5.hiddenPanel,"Walderp doit se cacher après chaque forme sauf la dernière.");
+    assert.equal(s.titans.t5.hiddenSince,t,"L'instant de la cachette est gardé : les cycles de 3 minutes partent de là.");
+    assert.ok(Number.isInteger(s.titans.t5.hiddenSeed)&&s.titans.t5.hiddenSeed>=0,"Une graine entière est tirée une fois par cachette.");
+    assert.equal(normalizeIdleAdventureStateV47(s).titans.t5.hiddenSeed,s.titans.t5.hiddenSeed,"La graine survit à la normalisation de l'état.");
+    const vue=idleAdventureSnapshotV47(s,116).titans.find(x=>x.id==="t5");
+    assert.ok(vue.state.hiddenPanel&&vue.state.hiddenSince===t&&vue.state.hiddenSeed===s.titans.t5.hiddenSeed&&vue.hideCycleMs===180000,"L'interface reçoit l'instant, la graine et la durée du cycle.");
     assert.throws(
       ()=>applyIdleAdventureActionV47(s,{action:"titan",titan:"t5"},{bosses:116,stats:STATS_PAR_FORME[formeIndex+1]},t+1),
       /TITAN_CACHE/,
@@ -96,6 +92,7 @@ function tuerFormeEtTrouver(s,formeIndex,t){
     const trouve=applyIdleAdventureActionV47(s,{action:"titanFound",titan:"t5"},{},t+1);
     s=trouve.state;
     assert.equal(s.titans.t5.hiddenPanel,"","Le retrouver doit vider hiddenPanel.");
+    assert.equal(s.titans.t5.hiddenSeed,0,"Le retrouver remet la graine à zéro.");
     assert.equal(trouve.result.nextAt,t+1+3*3600000,"Retrouver Walderp doit démarrer le VRAI cooldown de 180 minutes maintenant, pas avant.");
   }
   return {state:s,result:combat.result};
@@ -160,6 +157,18 @@ function tuerFormeEtTrouver(s,formeIndex,t){
     ()=>applyIdleAdventureActionV47(s,{action:"titanFound",titan:"t5"},{},1),
     /TITAN_PAS_CACHE/
   );
+}
+
+// Délai entre deux formes : -15 min par No Rebirth Challenge (page Titans, Normal dès le titan 3), plancher 60 min.
+{
+  const depart=()=>applyIdleAdventureActionV47(normalizeIdleAdventureStateV47({}),{action:"titan",titan:"t5"},{bosses:116,stats:STATS_PAR_FORME[0]},1000).state;
+  const M=60000;
+  const deux=applyIdleAdventureActionV47(depart(),{action:"titanFound",titan:"t5"},{titanCooldownReductionMs:30*M},2000);
+  assert.equal(deux.result.nextAt,2000+150*M,"2 No Rebirth Challenges : 180 - 30 = 150 minutes entre deux formes.");
+  const beaucoup=applyIdleAdventureActionV47(depart(),{action:"titanFound",titan:"t5"},{titanCooldownReductionMs:300*M},2000);
+  assert.equal(beaucoup.result.nextAt,2000+60*M,"Jamais sous le plancher de 60 minutes.");
+  const evil=applyIdleAdventureActionV47(depart(),{action:"titanFound",titan:"t5"},{titanCooldownReductionEvilMs:30*M,titanCooldownReductionSadisticMs:30*M},2000);
+  assert.equal(evil.result.nextAt,2000+180*M,"Les réductions Evil (titan 7+) et Sadistic (titan 10+) ne touchent pas Walderp.");
 }
 
 // Alias titan5 (comme titan1..titan4/titan6 déjà existants).

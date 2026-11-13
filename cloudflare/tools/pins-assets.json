@@ -548,8 +548,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 223,
-  "sha": "68751fc8e9ca4a1d1a193d1700e5d84b826e7090"
+  "pin": 225,
+  "sha": "3d23d5fa70e38205d2305b7807b23c16fc2b544c"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -752,8 +752,8 @@
   "sha": "318a4d2f666b94cfea35a09596a53799a0ad79a0"
  },
  "/modules/titans-v1.js": {
-  "pin": 22,
-  "sha": "712e02cc944e115b34dcc5d2c091bdfc5367b22a"
+  "pin": 24,
+  "sha": "aa82061ae9c4ce0bf5705536ad2ed6547dd2923b"
  },
  "/modules/tm-bulles-canvas-v1.js": {
   "pin": 5,
@@ -860,8 +860,8 @@
   "sha": "12cad4f0c40a3d07d4de1457f3e3c85867d5fe44"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 29,
-  "sha": "724e6edd9362f87107084c9058b5fb182a6c49a8"
+  "pin": 30,
+  "sha": "3de15acb5dae8eeeb3d74a13b439cc6665caf469"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 17,
@@ -918,6 +918,10 @@
  "/modules/voix-ui-v1.js": {
   "pin": 3,
   "sha": "232419b2bae595259e4ee2440beb07323cfb68a0"
+ },
+ "/modules/walderp-cachette-v1.js": {
+  "pin": 2,
+  "sha": "3af45c0d42e8bcf1ba5a2a860f0110ac80e788ff"
  },
  "/modules/wandoos-retro-v1.js": {
   "pin": 82,
@@ -1068,8 +1072,8 @@
   "sha": "ac888ed7122dd8db80cf0c5e747777cbba94f61a"
  },
  "/soreal-idle-ui.css": {
-  "pin": 79,
-  "sha": "b9da5d366aa7a1839f5c7366e2d6c02887c654b0"
+  "pin": 81,
+  "sha": "c1209421e1731f1ce9b71be1a36eb85468ec0390"
  },
  "/soreal-idle-ui.js": {
   "pin": 662,

@@ -525,32 +525,13 @@ html,body{overflow-x:hidden}
             backdrop-filter:blur(12px);
           }
           /*
-           * V147 — bannière Walderp, injectée une seule fois sous la
-           * nav (déjà sticky, top:6px) — jamais dupliquée par page. Ton
-           * neutre tant qu'on n'est pas au bon endroit, accentué (bordure
-           * + fond doré) une fois arrivé sur le bon panneau, pour que le
-           * bouton "Le débusquer !" soit immédiatement repérable.
+           * Walderp caché dans un menu (2026-11-13, modules/walderp-cachette-v1.js) : sa petite image, posée dans l'écran, presque invisible au
+           * début de chaque cycle de 3 minutes (opacité de départ : choix SOREAL, non publié par le wiki ; la montée est animée par le module).
            */
-          .soreal-idle-walderp-hide-v147{
-            margin:0 0 14px;
-            padding:10px 14px;
-            border-radius:14px;
-            background:rgba(255,255,255,.9);
-            border:1px solid rgba(36,48,78,.08);
-            font-size:14px;
-            font-weight:800;
-            color:#4a5270;
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:10px;
-            flex-wrap:wrap;
-          }
-          .soreal-idle-walderp-hide-v147.here{
-            background:rgba(244,212,122,.16);
-            border-color:rgba(244,212,122,.55);
-            color:#7a5a12;
-          }
+          .soreal-idle-walderp-cachette-v1{position:fixed;z-index:25;margin:0;padding:0;border:0;background:none;width:clamp(34px,5vw,52px);line-height:0;cursor:pointer;opacity:.04;-webkit-tap-highlight-color:transparent;transform:translate(-50%,-50%)}
+          .soreal-idle-walderp-cachette-v1[hidden]{display:none}
+          .soreal-idle-walderp-cachette-v1 img{display:block;width:100%;height:auto;image-rendering:pixelated;pointer-events:none;user-select:none}
+          .soreal-idle-walderp-cachette-v1 span{display:block;font-size:34px;line-height:1}
 
                     @keyframes sorealIdleNavGreenPulseV1{
             0%,100%{box-shadow:0 0 10px 2px rgba(46,204,113,.30)}

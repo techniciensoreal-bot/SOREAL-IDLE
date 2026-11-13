@@ -67,11 +67,17 @@ const TITAN_ITEM_IDS = ["aNumber", "giantSeed", "scrapPaper", "uugHair", "wander
   const dix_jours = 10 * 24 * 3600;
   const sansFlag = advanceIdleNguState(structuredClone(state), dix_jours, ctx, 1000 + dix_jours * 1000);
   assert.ok(!sansFlag.adventure.titans.t5 || sansFlag.adventure.titans.t5.kills === 0, "Walderp jamais vaincu manuellement : pas d'Auto-Kill");
-  // une fois la forme finale déjà vaincue une fois (flag posé) : Auto-Kill actif
+  // wiki Walderp : « 3 kills on Walderp's final form » -> 4 formes + 3 = 7 victoires ; avec 1 ou 2 kills sur la forme finale, toujours rien
   state.adventure.unlockFlags.walderpFinalDefeated = true;
-  state.adventure.titans.t5 = { kills: 5, nextAt: 2000, rebirthKills: 5 };
+  for (const kills of [5, 6]) {
+    const tropTot = structuredClone(state);
+    tropTot.adventure.titans.t5 = { kills, nextAt: 2000, rebirthKills: kills };
+    const apres = advanceIdleNguState(tropTot, dix_jours, ctx, 1000 + dix_jours * 1000);
+    assert.equal(apres.adventure.titans.t5.kills, kills, "Walderp : pas d'Auto-Kill avant 3 kills sur la forme finale (" + (kills - 4) + ")");
+  }
+  state.adventure.titans.t5 = { kills: 7, nextAt: 2000, rebirthKills: 7 };
   state = advanceIdleNguState(state, dix_jours, ctx, 1000 + dix_jours * 1000);
-  assert.ok(state.adventure.titans.t5.kills > 5, "Walderp Auto-Kill actif une fois la forme finale déjà vaincue");
+  assert.ok(state.adventure.titans.t5.kills > 7, "Walderp Auto-Kill actif après 3 kills sur la forme finale");
 }
 
 // --- IT HUNGERS : alternative "5 kills à cette difficulté" (wiki), même avec des stats bien en dessous du seuil AutoKill ---

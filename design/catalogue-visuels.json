@@ -4,9 +4,9 @@
   "menus": 29,
   "pages": 33,
   "keyframes": 439,
-  "fichiersAvecWebAnimations": 20,
+  "fichiersAvecWebAnimations": 21,
   "fichiersCanvas": 13,
-  "pointsEntreeRejouables": 271,
+  "pointsEntreeRejouables": 272,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
@@ -4258,6 +4258,10 @@
    "appels": 8
   },
   {
+   "fichier": "modules/walderp-cachette-v1.js",
+   "appels": 1
+  },
+  {
    "fichier": "modules/wandoos-retro-v1.js",
    "appels": 2
   },
@@ -4675,6 +4679,7 @@
   "__SOREAL_IDLE_VOIX_NOMMEES_V1__": "modules/voix-nommees-v1.js",
   "__SOREAL_IDLE_VOIX_UI_V1__": "modules/voix-ui-v1.js",
   "__SOREAL_IDLE_VOYAGE_DEFI_V1__": "modules/defis-page-v1.js",
+  "__SOREAL_IDLE_WALDERP_CACHETTE_V1__": "modules/walderp-cachette-v1.js",
   "__SOREAL_IDLE_WANDOOS_V1__": "modules/wandoos-retro-v1.js",
   "__SOREAL_IDLE_WISHES_PAGE_V1__": "modules/wishes-page-v1.js",
   "__SOREAL_IDLE_YGG_DIGGERS_PAGE_V1__": "modules/yggdrasil-diggers-page-v1.js",

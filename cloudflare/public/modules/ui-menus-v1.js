@@ -1543,36 +1543,14 @@
 
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-209 */
       /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-210 */
-      const IDLE_WALDERP_PANEL_LABELS_V147={
-        combat:'⚔️ Fight Boss',
-        entrainement:'🥊 Basic Training',
-        inventaire:'🎒 Inventory',
-        bestiaire:'📖 Bestiary',
-        parametres:'⚙️ Settings'
-      };
-
-      function walderpCacheIdleV147_(j){
-        const a=aventureMetaIdleV47_(j);
-        const titans=a&&Array.isArray(a.titans)?a.titans:[];
-        const walderp=titans.find(function(t){
-          return t&&t.id==='t5'&&t.state&&t.state.hiddenPanel;
-        });
-        if(!walderp)return null;
-        return String(walderp.state.hiddenPanel||'')||null;
-      }
-
+      /*
+       * Walderp caché (2026-11-13, « fais comme dans le vrai jeu ») : plus de bandeau ni d'indice. Son image apparaît dans le menu où il se cache
+       * (modules/walderp-cachette-v1.js, nœud persistant hors de la page redessinée) ; ce rendu complet demande seulement sa mise à jour.
+       */
       function walderpBanniereIdleV147_(j){
-        const panel=walderpCacheIdleV147_(j);
-        if(!panel)return '';
-
-        const ici=panel===REG.idleMenuActifV28;
-        const nomPage=IDLE_WALDERP_PANEL_LABELS_V147[panel]||panel;
-
-        return '<div class="soreal-idle-walderp-hide-v147'+(ici?' here':'')+'">'+
-          (ici
-            ?'👻 Walderp se cache ici ! <button type="button" class="soreal-idle-expand-button-v25" onclick="window.__trouverWalderpIdleV147__()">Le débusquer !</button>'
-            :'👻 Walderp se cache quelque part… essaie : <b>'+idleHtml_(nomPage)+'</b>')+
-        '</div>';
+        const api=window.__SOREAL_IDLE_WALDERP_CACHETTE_V1__;
+        if(api&&typeof api.mettreAJour==='function')Promise.resolve().then(function(){try{api.mettreAJour();}catch(_e){}});
+        return '';
       }
 
       function systemeMetaParIdIdleV130_(j,id){

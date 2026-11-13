@@ -47,7 +47,8 @@ assert.ok(
 assert.ok(
   ui.includes("titre:'Fight Boss'") &&
   ui.includes("menu Fight Boss") &&
-  ui.includes("'⚔️ Fight Boss',"),
+  /* 2026-11-13 : cette ligne ne tenait plus que par l'ancien libellé de cachette de Walderp (retiré) ; elle vise maintenant le vrai bouton du menu. */
+  ui.includes("{id:'combat',icon:'⚔️',nom:'Fight Boss'}"),
   "Le tutoriel et l'en-tête de l'écran doivent utiliser Fight Boss."
 );
 

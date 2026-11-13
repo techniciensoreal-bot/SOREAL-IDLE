@@ -550,17 +550,27 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * un minijeu... il faut juste aller à certains endroits et faire
  * certaines choses" — reproduit pour de vrai (V147) : 5 formes (Manual
  * P/T du wiki, forms[] ci-dessous), et entre chaque forme (sauf la
- * dernière), Walderp se cache dans un panneau de l'app tiré au sort
- * (WALDERP_HIDE_PANELS_V147) — le combat suivant reste bloqué
- * (TITAN_CACHE) tant que le joueur ne l'a pas retrouvé (action
- * titanFound, cf. plus bas), qui démarre ALORS le vrai cooldown de 180
- * minutes avant la forme suivante. Aucun butin sur les formes 1-4 (le
+ * dernière), Walderp se cache dans un menu du jeu — le combat suivant
+ * reste bloqué (TITAN_CACHE) tant que le joueur ne l'a pas retrouvé
+ * (action titanFound, cf. plus bas), qui démarre ALORS le vrai cooldown
+ * de 180 minutes avant la forme suivante. Aucun butin sur les formes 1-4 (le
  * wiki : "After killing Walderp's final form he will begin to drop his
  * items") — seule la 5e forme (et toutes les suivantes, "Final Form"
- * permanente) donne le butin. Simplification assumée : pas de fenêtre
- * de 3 minutes ni de visibilité progressive (le wiki décrit un cycle où
- * il se re-cache si on met trop de temps) — une fois cache, il reste
- * dans le MÊME panneau jusqu'à ce qu'on le trouve, sans limite de temps.
+ * permanente) donne le butin.
+ *
+ * Cache-cache du vrai jeu (Norman, 2026-11-13 : « fais comme dans le vrai
+ * jeu ») — wiki Walderp : "he will hide in a random UI. You will have 3
+ * minutes to find him as he becomes more visible in the screen he is
+ * hiding in, as he starts out nearly invisible each 3 minute cycle. [...]
+ * After 3 minutes he will reset his visibility and change menus."
+ * hideCycleMs = ces 3 minutes. Le moteur ne garde que l'instant où il
+ * s'est caché (hiddenSince) et une graine tirée une fois (hiddenSeed) ;
+ * le menu du cycle en cours est déduit par l'interface parmi les menus
+ * que CE joueur peut ouvrir (modules/walderp-cachette-v1.js), pour qu'il
+ * ne se cache jamais dans un menu inaccessible. Avant : liste fixe de 5
+ * panneaux dont 2 (« inventaire », « bestiaire ») n'étaient plus des
+ * menus depuis les 2026-09-24 et 2026-10-08 : Walderp y restait
+ * introuvable.
  *
  * The Beast : les 4 paliers réels (Easy/Normal/Hard/Brutal, Manual P/T
  * du wiki, ×10 à chaque palier) SONT reproduits — Norman (2026-09-11) :
@@ -579,12 +589,13 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * demandée ; le garantir à la place reste honnête : plus dur = strictement
  * plus de butin, jamais moins).
  */
-{id:"t5",name:"Walderp",boss:116,cooldown:3*H,drop:"wanderersCane",avatarLevel:6,forms:[
+{id:"t5",name:"Walderp",boss:116,cooldown:3*H,drop:"wanderersCane",avatarLevel:6,hideCycleMs:180000,forms:[
   {p:800000,t:400000},
   {p:1600000,t:800000},
   {p:2400000,t:1500000},
   {p:3200000,t:2300000},
-  {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000}
+  /* wiki Walderp, infobox « autokill5 » : « 13M Power, 7M Toughness, 150k Health Regen, 3 kills on Walderp's final form ». Ici autoKillKills s'AJOUTE aux stats (ce n'est pas une alternative comme pour les titans à difficultés). */
+  {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000,autoKillKills:3}
 ]},
 {id:"t6",name:"The Beast",boss:132,cooldown:3.5*H,drop:"heroicSigil",avatarLevel:6,difficulties:{
   easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8,autoKillP:2.5e9,autoKillT:1.6e9},

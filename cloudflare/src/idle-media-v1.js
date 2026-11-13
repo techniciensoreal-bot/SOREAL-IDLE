@@ -1483,9 +1483,20 @@ const IDLE_TITAN_IMAGES_JETONS_V1=Object.freeze({
 });
 const IDLE_TITAN_PALIERS_V1=Object.freeze({easy:"v1",normal:"v2",hard:"v3",brutal:"v4"});
 function normaliserNomR2_(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"")}
-export function choisirCleTitanR2_(keys,id,tier,form){
+export function choisirCleTitanR2_(keys,id,tier,form,sprite){
   const jetons=IDLE_TITAN_IMAGES_JETONS_V1[String(id||"")];
   if(!jetons)return "";
+  /*
+   * sprite=menu (2026-11-13) : la petite image du titan affichée DANS un menu (wiki Walderp : « Walderp's sprite in menus », fichier WalderpFull.png ;
+   * dans R2 : idle/Titans/Titan_WalderpFull.png, ou <id>_menu.png). Jamais une image de combat à la place : sans fichier, 404 et l'interface se replie.
+   */
+  if(sprite==="menu"){
+    const noms=keys.map(k=>[k,normaliserNomR2_(String(k).split("/").pop().replace(/\.[^.]+$/,""))]);
+    const exact=noms.find(([,n])=>n===normaliserNomR2_(String(id)+"_menu"));
+    if(exact)return exact[0];
+    const plein=noms.find(([,n])=>n.endsWith("full")&&jetons.some(j=>n.includes(j)));
+    return plein?plein[0]:"";
+  }
   /* Nom canonique (renommage R2 du 2026-10-02) : idle/Titans/<id>.png, <id>_<palier>.png (easy|normal|hard|brutal) ou <id>_form<N>.png (Walderp). */
   const suffixe=form>=0?"form"+(form+1):String(tier||"");
   const attendus=suffixe?[String(id)+"_"+suffixe,String(id)]:[String(id)];
@@ -1517,9 +1528,10 @@ async function titanImage_(request,env,url){
   const tier=String(url.searchParams.get("tier")||"").trim().toLowerCase();
   const formBrut=String(url.searchParams.get("form")||"").trim();
   const form=/^\d{1,2}$/.test(formBrut)?Number(formBrut):-1;
+  const sprite=String(url.searchParams.get("sprite")||"").trim().toLowerCase()==="menu"?"menu":"";
   for(const prefixe of ["idle/Titans/","idle/titans/",IDLE_BOSSES_R2_PREFIX,"idle/aventure/"]){
     const keys=await objetsDossierMobR2_(env,prefixe);
-    const key=choisirCleTitanR2_(keys,id,tier,form);
+    const key=choisirCleTitanR2_(keys,id,tier,form,sprite);
     if(key)return reponseObjetR2_(request,env,{key});
   }
   return new Response("Image de titan introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
