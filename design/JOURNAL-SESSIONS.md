@@ -12,6 +12,12 @@ Modèle d'entrée :
 
 ---
 
+## 2026-11-13 20:30 — Fable
+- Fait : commit local « fix(perks) palier 377 » : MESURÉ DANS LE VRAI JEU (build 1260, copies A/B/C rechargées et sauvegardées par Norman) : Newbie 1 + Rich Perks I 40 = x10,00000 ; Fibonacci 377 seul = x3,77000 ; Newbie + Fibonacci 377 = x7,54000 (attaque et défense). Donc les atouts distincts se multiplient (b61d8fdf confirmé) et le palier 377 vaut x3,77, pas x4,77 : `statPct` 2,77 dans `fibonacciMilestones`. L'indice de `adventure.itopod.perkLevel` = l'id d'atout de SOREAL (4, 5, 94 confirmés). Référence `synchro-appels-avant.json` régénérée. Non poussé.
+- En cours / non commité : rien.
+- À vérifier par Norman : sa vraie sauvegarde `NGUSaveSteam.txt` a été réécrite par l'enregistrement automatique du jeu pendant l'essai B (elle contient Fibonacci 377) ; l'originale est recréée à l'identique dans `NGUSaveSteam-ORIGINAL-avant-essais.txt`, à lui de la remettre en place.
+- Attention pour l'autre session : méthode validée pour comparer au vrai jeu : modifier une COPIE de sauvegarde, la faire recalculer par le jeu, relire. Outils encore dans mon dossier temporaire (lecteur NRBF, modificateur signé MD5), pas dans le dépôt.
+
 ## 2026-11-13 19:50 — Fable
 - Fait : hors dépôt uniquement. Trois copies modifiées de la sauvegarde du vrai NGU Idle de Norman, écrites à côté de l'originale (inchangée) dans le dossier de sauvegardes du jeu (AppData, LocalLow, NGU Industries, NGU Idle) : `SOREAL-essai-A/B/C-*.txt` (atouts d'attaque/défense montés ; somme de contrôle = MD5 des données internes). Aucun fichier du dépôt modifié.
 - En cours / non commité : rien dans le dépôt. b61d8fdf (atouts multipliés) toujours non poussé.

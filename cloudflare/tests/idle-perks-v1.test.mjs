@@ -103,14 +103,14 @@ assert.equal(idlePerkByIdV1(94).cap, 1597, "Caps at 1597 (a Fibonacci number), p
   assert.ok(Math.abs(l989.apEarningsMultiplier - 1.02) < 1e-9, "Level 89 : +2% AP.");
   assert.ok(Math.abs(l989.lootLevelChance - 0.05) < 1e-9, "Level 144 : +5% chance de +1 niveau sur le loot.");
   assert.ok(Math.abs(l989.qpEarningsMultiplier - 1.10) < 1e-9, "Level 233 : +10% QP.");
-  assert.ok(Math.abs(l989.statMultiplier - 4.77) < 1e-9, "Level 377 : +377% Attack/Defense.");
+  assert.ok(Math.abs(l989.statMultiplier - 3.77) < 1e-9, "Level 377 : « 377% Attack/Defense multiplier » = x3,77 (mesuré dans le vrai jeu le 2026-11-13).");
 
   /*
    * 2026-11-13 : niveaux d'un même atout additionnés, atouts distincts multipliés (page « Evil difficulty » : 100 000 % x 500 % x Newbie = 1 M % ;
    * discussion Steam « weird rich perk stats », Fel et jshepler d'après le code du jeu).
    */
-  assert.ok(Math.abs(perkBonusesV1({ 4: 1, 5: 40 }).statMultiplier - 10) < 1e-9, "Newbie (x2) x Rich Perks I niveau 40 (500 % = x5) = x10, l'exemple du wiki.");
-  assert.ok(Math.abs(perkBonusesV1({ 4: 1, 94: 377 }).statMultiplier - 9.54) < 1e-9, "Newbie (x2) x palier 377 (x4,77) = x9,54, plus x5,77.");
+  assert.ok(Math.abs(perkBonusesV1({ 4: 1, 5: 40 }).statMultiplier - 10) < 1e-9, "Newbie (x2) x Rich Perks I niveau 40 (500 % = x5) = x10, l'exemple du wiki, mesuré dans le vrai jeu le 2026-11-13.");
+  assert.ok(Math.abs(perkBonusesV1({ 4: 1, 94: 377 }).statMultiplier - 7.54) < 1e-9, "Newbie (x2) x palier 377 (x3,77) = x7,54, mesuré dans le vrai jeu (plus x5,77).");
   assert.ok(Math.abs(perkBonusesV1({ 5: 10, 54: 100 }).statMultiplier - 4) < 1e-9, "Rich Perks I niveau 10 (x2) x Rich Perks II niveau 100 (x2) = x4.");
   assert.equal(perkBonusesV1({}).statMultiplier, 1, "aucun atout : x1.");
   assert.ok(Math.abs(l989.expEarningsMultiplier - 1.05) < 1e-9, "Level 987 : +5% EXP.");

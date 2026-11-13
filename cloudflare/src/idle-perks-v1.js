@@ -296,7 +296,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
       { level: 89, apEarningsPct: 0.02 },
       { level: 144, lootLevelChance: 0.05 },
       { level: 233, qpEarningsPct: 0.10 },
-      { level: 377, statPct: 3.77 },
+      /* « 377% Attack/Defense multiplier » = x3,77 exactement (mesuré dans le vrai jeu le 2026-11-13, voir perkBonusesV1) : statPct 2,77 car le facteur vaut 1 + statPct. */
+      { level: 377, statPct: 2.77 },
       /* Questing (2026-09-23) : "No more Quest Item Quantity RNG! (Quests now require a set 50 items ...)". */
       { level: 610, questFixedItems: 1 },
       { level: 987, expEarningsPct: 0.05 }
@@ -396,9 +397,11 @@ export function perkBonusesV1(levelsById) {
    * pour 1 M % : 1000 x 5 x 2 = 10 000 ; en additionnant, 1000 x 6 ne suffit pas) et discussion Steam « weird rich perk stats » (15 août 2024) :
    * Fel, « Rich perk are additive for the same entry [...] but multiplicative with each separate entry » ; jshepler, d'après le code du jeu,
    * « Attack Boost For Rich Jerks x The Newbie Stat Perk x Stat Boost For Rich Perks I x Stat Boost For Rich Perks II ».
-   * Avant : tous les statPct étaient additionnés (Newbie + palier 377 = x5,77 au lieu de 2 x 4,77 = x9,54).
-   * Le palier 377 de Fibonacci (« 377% Attack/Defense multiplier ») est un facteur à part, lu +377 % comme le « 100% multiplier » de la Newbie
-   * Stat Perk (x2) : aucune source ne le chiffre autrement.
+   * Avant : tous les statPct étaient additionnés (Newbie + palier 377 = x5,77).
+   * MESURÉ DANS LE VRAI JEU le 2026-11-13 (build 1260, sauvegarde de Norman au boss 15, atouts montés dans une copie puis recalculés par le jeu ;
+   * facteur = attaque / (entraînement x équipement x NUMBER), identique pour la défense) : Newbie 1 + Rich Perks I 40 = x10,00000 ;
+   * Fibonacci 377 seul = x3,77000 ; Newbie 1 + Fibonacci 377 = x7,54000. Les atouts distincts se multiplient donc bien, et le palier 377
+   * (« 377% Attack/Defense multiplier ») est un facteur à part de x3,77, pas x4,77.
    */
   let statProduct = 1;
   for (const perk of IDLE_PERKS_CATALOG_V1) {
