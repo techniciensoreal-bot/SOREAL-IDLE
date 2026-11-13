@@ -177,7 +177,10 @@ async function demarrerJeu() {
 
   liaisonModule = await import(pathToFileURL(path.join(__dirname, "src", "liaison.mjs")).href);
   liaison = liaisonModule.lireLiaison(app.getPath("userData"), chiffrement);
-  if (liaison.lie) env.definirSessionExterne({ token: liaison.jeton, expiresAt: liaison.expire });
+  /* Norman (2026-11-13 : « la connexion directe n'est pas encore ouverte, à chaque lancement ») : la session du compte relié dure ~11 jours ; échue, la page la retire (en ligne) et ne trouve plus aucune session. Une liaison échue ne sert donc plus de session : la session locale reste, le jeu se joue, et les Réglages demandent de relier de nouveau le compte. */
+  const liaisonPerimee = Boolean(liaison.lie && Number(liaison.expire) > 0 && Number(liaison.expire) <= Date.now());
+  if (liaison.lie && !liaisonPerimee) env.definirSessionExterne({ token: liaison.jeton, expiresAt: liaison.expire });
+  else if (liaisonPerimee) liaisonExpiree = true;
 
   protocol.handle("app", async (requete) => {
     const url = new URL(requete.url);
