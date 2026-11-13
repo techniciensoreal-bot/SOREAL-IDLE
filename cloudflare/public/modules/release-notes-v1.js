@@ -32,6 +32,12 @@
           {menu:'combat', titre:'Combat de boss', points:[
             'La mort propre à un boss se joue maintenant aussi quand tu le tues en un seul coup avec Fight.'
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Un adversaire qui se cache se cherche maintenant pour de vrai : plus aucun indice, sa petite image apparaît dans un de tes menus, presque invisible puis de plus en plus visible, et il change de cachette toutes les 3 minutes.',
+            'Il ne peut plus se cacher dans un endroit impossible à ouvrir.',
+            'Son Auto-kill demande désormais 3 victoires sur sa dernière forme, en plus des statistiques.',
+            'Le délai entre deux de ses formes profite maintenant des réductions de délai que tu as déjà gagnées.'
+          ]},
           {menu:'sang', titre:'Magie du sang', points:[
             'Sur téléphone, le cadre du haut ne coupe plus le titre ni la mini phrase.'
           ]}
