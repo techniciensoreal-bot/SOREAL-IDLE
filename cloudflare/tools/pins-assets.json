@@ -664,8 +664,8 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 310,
-  "sha": "0975dc7c4565df0acbebc1741293ac7d560415a9"
+  "pin": 311,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 950,
