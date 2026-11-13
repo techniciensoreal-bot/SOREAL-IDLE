@@ -384,6 +384,8 @@ function perkBonusPairesV1(perk) {
   if (!p) { p = Object.entries(perk.bonus || {}); PERK_BONUS_PAIRES_V1.set(perk, p); }
   return p;
 }
+/* Bonus en pourcentage dont les atouts DISTINCTS se multiplient (niveaux d'un même atout additionnés) : voir perkBonusesV1. */
+export const PERK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct"]);
 export function perkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
   const totals = {};
@@ -403,20 +405,27 @@ export function perkBonusesV1(levelsById) {
    * Fibonacci 377 seul = x3,77000 ; Newbie 1 + Fibonacci 377 = x7,54000. Les atouts distincts se multiplient donc bien, et le palier 377
    * (« 377% Attack/Defense multiplier ») est un facteur à part de x3,77, pas x4,77.
    */
-  let statProduct = 1;
+  /*
+   * MÊME RÈGLE, mesurée dans le vrai jeu le 2026-11-13 (banc cloudflare/tools/banc-vrai-jeu, résultats/serie3 à serie6), pour les autres bonus
+   * en pourcentage des atouts : puissance d'énergie (atout 6 niveau 50 + Fibonacci 1 = x1,650, pas x1,60), cap d'énergie (atout 8 niveau 50 +
+   * Fibonacci 2 = 5 892 pour une base de 3 571, soit x1,65), puissance de magie (atout 9 niveau 50 + Fibonacci 1 = x1,650), cap de magie
+   * (atout 11 niveau 50 + Fibonacci 3 = 165 000 pour 100 000), stats d'Aventure (atout 55 niveau 1000 + Fibonacci 34 = x2,26, pas x2,13).
+   * PERK_CLES_PRODUIT_V1 liste les clés ainsi traitées ; les autres clés restent additionnées tant qu'elles ne sont pas mesurées.
+   */
+  const produits = Object.fromEntries(PERK_CLES_PRODUIT_V1.map((k) => [k, 1]));
   for (const perk of IDLE_PERKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(perk.cap, Number(levels[perk.id]) || 0));
     if (!level) continue;
     if (perk.bonus && perk.bonus.boostPowerPct) boostPowerProduct *= 1 + perk.bonus.boostPowerPct * level;
     if (perk.bonus && perk.bonus.daycareTimePct) daycareTimeProduct *= Math.max(0, 1 - perk.bonus.daycareTimePct * level);
-    if (perk.bonus && perk.bonus.statPct) statProduct *= 1 + perk.bonus.statPct * level;
+    for (const cle of PERK_CLES_PRODUIT_V1) if (perk.bonus && perk.bonus[cle]) produits[cle] *= 1 + perk.bonus[cle] * level;
     for (const [key, perLevel] of perkBonusPairesV1(perk)) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
     if (Array.isArray(perk.fibonacciMilestones)) {
       for (const tier of perk.fibonacciMilestones) {
         if (level < tier.level) continue;
-        if (tier.statPct) statProduct *= 1 + tier.statPct;
+        for (const cle of PERK_CLES_PRODUIT_V1) if (tier[cle]) produits[cle] *= 1 + tier[cle];
         for (const [key, value] of Object.entries(tier)) {
           if (key === "level") continue;
           totals[key] = (totals[key] || 0) + value;
@@ -432,15 +441,15 @@ export function perkBonusesV1(levelsById) {
     magicCapFlat: totals.magicCapFlat || 0,
     adventurePowerFlat: totals.adventurePowerFlat || 0,
     adventureToughnessFlat: totals.adventureToughnessFlat || 0,
-    adventureStatsMultiplier: 1 + (totals.adventureStatsPct || 0),
+    adventureStatsMultiplier: produits.adventureStatsPct,
     dropChanceMultiplier: 1 + (totals.dropChancePct || 0),
-    statMultiplier: statProduct,
-    energyPowerMultiplier: 1 + (totals.energyPowerPct || 0),
-    energyBarsMultiplier: 1 + (totals.energyBarsPct || 0),
-    energyCapMultiplier: 1 + (totals.energyCapPct || 0),
-    magicPowerMultiplier: 1 + (totals.magicPowerPct || 0),
-    magicBarsMultiplier: 1 + (totals.magicBarsPct || 0),
-    magicCapMultiplier: 1 + (totals.magicCapPct || 0),
+    statMultiplier: produits.statPct,
+    energyPowerMultiplier: produits.energyPowerPct,
+    energyBarsMultiplier: produits.energyBarsPct,
+    energyCapMultiplier: produits.energyCapPct,
+    magicPowerMultiplier: produits.magicPowerPct,
+    magicBarsMultiplier: produits.magicBarsPct,
+    magicCapMultiplier: produits.magicCapPct,
     boostPowerMultiplier: boostPowerProduct,
     nguSpeedEnergyMultiplier: 1 + (totals.nguSpeedEnergyPct || 0),
     nguSpeedMagicMultiplier: 1 + (totals.nguSpeedMagicPct || 0),

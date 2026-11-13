@@ -1,0 +1,44 @@
+{
+ "magie-barres-base": {
+  "ok": true,
+  "secondes": 71.01596473448444,
+  "attaque": 0.9999904998866257,
+  "defense": 0.9999912580532295,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 3571,
+  "energieLibre": 5,
+  "energieParSeconde": 50.28446791297293,
+  "magieActuelle": 69000,
+  "nguMagieBarresParSeconde": 0,
+  "entrainementParSeconde": 24.994379878332946
+ },
+ "magie-barres-atout10x50": {
+  "ok": true,
+  "secondes": 71.01582107366994,
+  "attaque": 0.9999989014135133,
+  "defense": 0.9999988998888905,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 3571,
+  "energieLibre": 5,
+  "energieParSeconde": 50.2845696354836,
+  "magieActuelle": 103500,
+  "nguMagieBarresParSeconde": 0,
+  "entrainementParSeconde": 24.99443044048821
+ },
+ "magie-barres-atout10x50-fibo21": {
+  "ok": true,
+  "secondes": 71.01575291913468,
+  "attaque": 0.9999926802395852,
+  "defense": 0.9999934414279623,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 3713,
+  "energieLibre": 147,
+  "energieParSeconde": 52.28417424832454,
+  "magieActuelle": 113850,
+  "nguMagieBarresParSeconde": 0,
+  "entrainementParSeconde": 24.98037304511924
+ }
+}

@@ -1,0 +1,122 @@
+{
+ "puissance-atout6x50-fibo1": {
+  "ok": true,
+  "secondes": 71.01598578353878,
+  "attaque": 0.9999926802459188,
+  "defense": 0.9999934414334717,
+  "nguBarresParSeconde": 0.008247738137918275,
+  "pvAventure": 62,
+  "energieActuelle": 3713,
+  "energieLibre": 147,
+  "energieParSeconde": 52.28400280631827,
+  "entrainementParSeconde": 24.99437247002826
+ },
+ "cap-base": {
+  "ok": true,
+  "secondes": 71.01590607315302,
+  "attaque": 0.9999999915817985,
+  "defense": 0.9999999915681448,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 3571,
+  "energieLibre": 3571,
+  "energieParSeconde": 50.284509449496234,
+  "entrainementParSeconde": 5.632540963259169
+ },
+ "cap-atout8x50": {
+  "ok": true,
+  "secondes": 71.01594069227576,
+  "attaque": 0.9999999915817985,
+  "defense": 0.9999999915681448,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 5356,
+  "energieLibre": 5356,
+  "energieParSeconde": 75.41968673214463,
+  "entrainementParSeconde": 5.6325382174865295
+ },
+ "cap-atout8x50-fibo2": {
+  "ok": true,
+  "secondes": 71.01596816955134,
+  "attaque": 0.9999999915817985,
+  "defense": 0.9999999915681448,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 5892,
+  "energieLibre": 5892,
+  "energieParSeconde": 82.96725584213385,
+  "entrainementParSeconde": 5.632536038162515
+ },
+ "cap-quirks1-36x50": {
+  "ok": true,
+  "secondes": 71.01604903221596,
+  "attaque": 0.9999999915817985,
+  "defense": 0.9999999915681448,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 5892,
+  "energieLibre": 5892,
+  "energieParSeconde": 82.96716137118715,
+  "entrainementParSeconde": 5.632529624656289
+ },
+ "cap-atout8x50-quirk36x50": {
+  "ok": true,
+  "secondes": 71.01587591692805,
+  "attaque": 0.9999999915817985,
+  "defense": 0.9999999915681448,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 8035,
+  "energieLibre": 8035,
+  "energieParSeconde": 113.14371464486432,
+  "entrainementParSeconde": 5.632543355064808
+ },
+ "barres-base": {
+  "ok": true,
+  "secondes": 71.01596330665052,
+  "attaque": 0.9999894097073907,
+  "defense": 0.9999901663635209,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 142,
+  "energieLibre": 147,
+  "energieParSeconde": 1.9995504304692286,
+  "entrainementParSeconde": 24.99438038086536
+ },
+ "barres-atout7x50": {
+  "ok": true,
+  "secondes": 71.0159691220615,
+  "attaque": 0.9999904998866257,
+  "defense": 0.9999912580532295,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 142,
+  "energieLibre": 147,
+  "energieParSeconde": 1.999550266728486,
+  "entrainementParSeconde": 24.994378334106074
+ },
+ "barres-atout7x50-fibo21": {
+  "ok": true,
+  "secondes": 70.01594486506656,
+  "attaque": 0.9999905003487685,
+  "defense": 0.9999912578623005,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 140,
+  "energieLibre": 145,
+  "energieParSeconde": 1.9995445361739448,
+  "entrainementParSeconde": 24.980024241201637
+ },
+ "barres-quirks2-37x50": {
+  "ok": true,
+  "secondes": 71.01616504765116,
+  "attaque": 0.9999894097073907,
+  "defense": 0.9999901663635209,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 142,
+  "energieLibre": 147,
+  "energieParSeconde": 1.9995447501948236,
+  "entrainementParSeconde": 24.994309377435297
+ }
+}

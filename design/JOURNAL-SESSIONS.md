@@ -12,6 +12,12 @@ Modèle d'entrée :
 
 ---
 
+## 2026-11-13 (suite, vers 19 h réelles) — Fable
+- Fait : commit local « fix(perks, quirks) bonus distincts multipliés » : dans `perkBonusesV1` et `quirkBonusesV1`, les bonus en pourcentage d'entrées DISTINCTES se multiplient (niveaux d'une même entrée additionnés) pour : attaque/défense, stats d'Aventure, puissance, cap et barres d'énergie et de magie (`PERK_CLES_PRODUIT_V1`, `QUIRK_CLES_PRODUIT_V1`). Mesuré au banc, séries 3 à 7 (`cloudflare/tools/banc-vrai-jeu/resultats/`). Les autres clés (vitesse des NGU, PP, drop…) restent additionnées, non mesurées.
+- En cours / non commité : rien.
+- À vérifier par Norman : NON MESURÉ : le cumul entre deux paliers d'une même famille d'atouts (Energy Power I x II…, actifs en Evil / Sadistic). La multiplication y est appliquée par cohérence ; la série 8 (Evil) a été interrompue à la demande de Norman (seule la base est relevée : cap 3 571). Les souhaits d'énergie / magie / Aventure sont encore additionnés (non mesurés) ; quirks de magie : appliqués par analogie avec l'énergie.
+- Attention pour l'autre session : Norman trouve le banc trop long et gênant (le jeu prend le premier plan toutes les 75 s) : ne pas lancer de série sans son accord. Pistes : cliquer « Save Game » pour ne pas attendre l'enregistrement automatique, regrouper plusieurs mesures par essai, lancer les séries quand il n'est pas devant l'écran.
+
 ## 2026-11-13 (suite, vers 17 h 45 réelles) — Fable
 - Note : les heures de mes entrées précédentes du jour sont approximatives et trop tardives (écrites sans lire l'horloge) ; l'ordre, lui, est juste.
 - Fait : commit local « fix(quirks, wishes) » : quirks DISTINCTS et souhaits DISTINCTS d'attaque/défense multipliés entre eux (niveaux d'une même entrée additionnés), comme les atouts. Mesuré dans le vrai jeu en Evil : quirks 7x100 + 51x50 = x4 ; souhaits 0x1 + 5x3 = x8 ; 5x2 + 30x2 = x9 ; atout 4 x quirk 7 = x4. Nouveau test `idle-stat-multiplie-entre-entrees-v1`. Ligne de note 5.8 (ITOPOD) complétée + traduction.

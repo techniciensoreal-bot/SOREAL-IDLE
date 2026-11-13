@@ -1,0 +1,16 @@
+{
+ "commun": {"lastTime":"@maintenant","capEnergy":1000003571,"NGU.skills[0].energy":1000000000},
+ "essais": {
+  "base": {},
+  "base-bis": {},
+  "atout6x50": {"adventure.itopod.perkLevel[6]":50},
+  "atouts6x50-57x100": {"adventure.itopod.perkLevel[6]":50,"adventure.itopod.perkLevel[57]":100},
+  "quirks35x50-0x1": {"beastQuest.quirkLevel[35]":50,"beastQuest.quirkLevel[0]":1},
+  "atout6x50-quirk35x50": {"adventure.itopod.perkLevel[6]":50,"beastQuest.quirkLevel[35]":50},
+  "fibonacci5": {"adventure.itopod.perkLevel[94]":5},
+  "aventure-atout55x1000": {"adventure.itopod.perkLevel[55]":1000},
+  "aventure-atout55x1000-fibo34": {"adventure.itopod.perkLevel[55]":1000,"adventure.itopod.perkLevel[94]":34},
+  "aventure-quirks6-8x1000": {"beastQuest.quirkLevel[6]":1,"beastQuest.quirkLevel[8]":1000},
+  "aventure-atout55-quirk8": {"adventure.itopod.perkLevel[55]":1000,"beastQuest.quirkLevel[8]":1000}
+ }
+}

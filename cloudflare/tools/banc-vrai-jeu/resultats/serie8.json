@@ -1,0 +1,8 @@
+{
+ "commun": {"lastTime":"@maintenant","settings.rebirthDifficulty.value__":1,"curEnergy":10000000},
+ "essais": {
+  "evil-cap-base": {},
+  "evil-cap-atouts8x50-59x100": {"adventure.itopod.perkLevel[8]":50,"adventure.itopod.perkLevel[59]":100},
+  "evil-cap-atouts8x50-59x100-76x100": {"adventure.itopod.perkLevel[8]":50,"adventure.itopod.perkLevel[59]":100,"adventure.itopod.perkLevel[76]":100}
+ }
+}

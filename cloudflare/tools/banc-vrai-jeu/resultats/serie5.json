@@ -1,0 +1,14 @@
+{
+ "commun": {"lastTime":"@maintenant"},
+ "essais": {
+  "barres-base": {"curEnergy":0,"energyBars":1000},
+  "barres-atout7x50": {"curEnergy":0,"energyBars":1000,"adventure.itopod.perkLevel[7]":50},
+  "barres-atout7x50-fibo21": {"curEnergy":0,"energyBars":1000,"adventure.itopod.perkLevel[7]":50,"adventure.itopod.perkLevel[94]":21},
+  "barres-quirks2-37x50": {"curEnergy":0,"energyBars":1000,"beastQuest.quirkLevel[2]":1,"beastQuest.quirkLevel[37]":50},
+  "magie-puissance-base": {"magic.capMagic":1000100000,"NGU.magicSkills[0].magic":1000000000},
+  "magie-puissance-atout9x50-fibo1": {"magic.capMagic":1000100000,"NGU.magicSkills[0].magic":1000000000,"adventure.itopod.perkLevel[9]":50,"adventure.itopod.perkLevel[94]":1},
+  "magie-cap-base": {"magic.capMagic":100000,"magic.curMagic":10000000000},
+  "magie-cap-atout11x50": {"magic.capMagic":100000,"magic.curMagic":10000000000,"adventure.itopod.perkLevel[11]":50},
+  "magie-cap-atout11x50-fibo3": {"magic.capMagic":100000,"magic.curMagic":10000000000,"adventure.itopod.perkLevel[11]":50,"adventure.itopod.perkLevel[94]":3}
+ }
+}

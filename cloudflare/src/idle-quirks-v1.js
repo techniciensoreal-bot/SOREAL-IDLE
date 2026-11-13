@@ -217,6 +217,8 @@ export function idleQuirkNextCostV1(quirk, currentLevel) {
  * are — so idleNguBonuses() can fold this in with the same
  * "multiply into the existing total" pattern instead of a parallel one.
  */
+/* Bonus en pourcentage dont les quirks DISTINCTS se multiplient (niveaux d'un même quirk additionnés) : voir quirkBonusesV1. */
+export const QUIRK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct"]);
 export function quirkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
   const totals = {};
@@ -227,25 +229,31 @@ export function quirkBonusesV1(levelsById) {
    * de Norman modifiée puis recalculée par le jeu, difficulté Evil) : quirk 7 niveau 100 (x2) + quirk 51 niveau 50 (x2) = x4,000, pas x3.
    * En difficulté normale le quirk 51 (Evil) est sans effet (x2,000 avec le seul quirk 7) : même filtre que idleQuirkNiveauxV1.
    */
-  let statProduct = 1;
+  /*
+   * MÊME RÈGLE, mesurée dans le vrai jeu le 2026-11-13 (banc cloudflare/tools/banc-vrai-jeu, résultats/serie3 à serie6), pour les autres bonus
+   * en pourcentage des quirks : puissance d'énergie (quirk 35 niveau 50 + quirk 0 = x1,650, pas x1,60), cap d'énergie (quirk 36 niveau 50 +
+   * quirk 1 = 5 892 pour une base de 3 571, soit x1,65), stats d'Aventure (quirk 6 + quirk 8 niveau 1000 = x2,50, pas x2,25).
+   * La magie suit l'énergie (même mécanisme, mesuré pour les atouts). QUIRK_CLES_PRODUIT_V1 liste les clés ainsi traitées.
+   */
+  const produits = Object.fromEntries(QUIRK_CLES_PRODUIT_V1.map((k) => [k, 1]));
   for (const quirk of IDLE_QUIRKS_CATALOG_V1) {
     const level = Math.max(0, Math.min(quirk.cap, Number(levels[quirk.id]) || 0));
     if (!level) continue;
     if (quirk.bonus && quirk.bonus.boostPowerPct) boostPowerProduct *= 1 + quirk.bonus.boostPowerPct * level;
-    if (quirk.bonus && quirk.bonus.statPct) statProduct *= 1 + quirk.bonus.statPct * level;
+    for (const cle of QUIRK_CLES_PRODUIT_V1) if (quirk.bonus && quirk.bonus[cle]) produits[cle] *= 1 + quirk.bonus[cle] * level;
     for (const [key, perLevel] of Object.entries(quirk.bonus || {})) {
       totals[key] = (totals[key] || 0) + perLevel * level;
     }
   }
   return {
-    energyPowerMultiplier: 1 + (totals.energyPowerPct || 0),
-    energyCapMultiplier: 1 + (totals.energyCapPct || 0),
-    energyBarsMultiplier: 1 + (totals.energyBarsPct || 0),
-    magicPowerMultiplier: 1 + (totals.magicPowerPct || 0),
-    magicCapMultiplier: 1 + (totals.magicCapPct || 0),
-    magicBarsMultiplier: 1 + (totals.magicBarsPct || 0),
-    adventureStatsMultiplier: 1 + (totals.adventureStatsPct || 0),
-    statMultiplier: statProduct,
+    energyPowerMultiplier: produits.energyPowerPct,
+    energyCapMultiplier: produits.energyCapPct,
+    energyBarsMultiplier: produits.energyBarsPct,
+    magicPowerMultiplier: produits.magicPowerPct,
+    magicCapMultiplier: produits.magicCapPct,
+    magicBarsMultiplier: produits.magicBarsPct,
+    adventureStatsMultiplier: produits.adventureStatsPct,
+    statMultiplier: produits.statPct,
     adventureGoldMultiplier: 1 + (totals.adventureGoldPct || 0),
     seedYieldMultiplier: 1 + (totals.seedYieldPct || 0),
     /* Quirk_Ygg (rendement des fruits d'Yggdrasil). */

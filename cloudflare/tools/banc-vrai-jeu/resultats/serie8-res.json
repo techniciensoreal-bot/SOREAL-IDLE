@@ -1,0 +1,16 @@
+{
+ "evil-cap-base": {
+  "ok": true,
+  "secondes": 71.01582285924815,
+  "attaque": 9.999999915817984e-31,
+  "defense": 9.999999915681446e-31,
+  "nguBarresParSeconde": 0,
+  "pvAventure": 62,
+  "energieActuelle": 3571,
+  "energieLibre": 3571,
+  "energieParSeconde": 50.28456837115929,
+  "magieActuelle": 0,
+  "nguMagieBarresParSeconde": 0,
+  "entrainementParSeconde": 5.632547563277433
+ }
+}

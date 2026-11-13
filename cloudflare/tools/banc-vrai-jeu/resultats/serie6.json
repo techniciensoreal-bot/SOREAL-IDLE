@@ -1,0 +1,10 @@
+{
+ "commun": {"lastTime":"@maintenant","curEnergy":0,"energyBars":1000,"capEnergy":1000000000000},
+ "essais": {
+  "barres-base": {},
+  "barres-atout7x50": {"adventure.itopod.perkLevel[7]":50},
+  "barres-atout7x50-fibo21": {"adventure.itopod.perkLevel[7]":50,"adventure.itopod.perkLevel[94]":21},
+  "barres-quirks2-37x50": {"beastQuest.quirkLevel[2]":1,"beastQuest.quirkLevel[37]":50},
+  "barres-atout7x50-quirk37x50": {"adventure.itopod.perkLevel[7]":50,"beastQuest.quirkLevel[37]":50}
+ }
+}

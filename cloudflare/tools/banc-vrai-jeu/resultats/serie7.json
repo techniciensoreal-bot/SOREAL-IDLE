@@ -1,0 +1,8 @@
+{
+ "commun": {"lastTime":"@maintenant","magic.curMagic":0,"magic.magicPerBar":1000,"magic.magicBarSpeed":1,"magic.capMagic":1000000000000},
+ "essais": {
+  "magie-barres-base": {},
+  "magie-barres-atout10x50": {"adventure.itopod.perkLevel[10]":50},
+  "magie-barres-atout10x50-fibo21": {"adventure.itopod.perkLevel[10]":50,"adventure.itopod.perkLevel[94]":21}
+ }
+}

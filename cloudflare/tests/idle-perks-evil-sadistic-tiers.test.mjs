@@ -40,12 +40,16 @@ assert.equal(idlePerkByIdV1(129).bonus.magicPowerPct, 0.002, "Wiki : Power reste
   assert.deepEqual(error.bonus, {}, "Wiki : \"NGU.EXE HAS ENCOUNTERED AN ERROR\" -- une blague, jamais un effet réel à inventer.");
 }
 
-// --- Aggregation : les nouveaux paliers s'additionnent correctement dans perkBonusesV1 ---
+// --- Agrégation : chaque palier est un atout DISTINCT, donc un facteur à part (2026-11-13) ---
 {
   const bonuses = perkBonusesV1({ 6: 50, 57: 100, 74: 100, 116: 100, 126: 100, 135: 100, 220: 100 });
-  // energyPowerPct : palier I (50 niveaux x 1%) + II (100x1%) + III (100x0.3%) + IV (100x0.2%) + V (100x0.2%) + VI (100x0.2%) + Final (100x1%)
-  // = 0.5 + 1.0 + 0.3 + 0.2 + 0.2 + 0.2 + 1.0 = 3.4 -> multiplicateur 4.4
-  assert.ok(Math.abs(bonuses.energyPowerMultiplier - 4.4) < 1e-9, `Tous les paliers Energy Power doivent s'additionner (obtenu ${bonuses.energyPowerMultiplier}).`);
+  /*
+   * Mesuré dans le vrai jeu (cloudflare/tools/banc-vrai-jeu) : deux atouts distincts d'un même bonus se multiplient (atout 6 x Fibonacci 1 = x1,65 ;
+   * Newbie x Rich Perks I = x10). NON MESURÉ entre deux paliers d'une même famille (I x II...), actifs seulement en Evil et Sadistic : la même
+   * règle est appliquée (jshepler, d'après le code du jeu, écrit « Stat Boost For Rich Perks I x Stat Boost For Rich Perks II »). À confirmer au banc.
+   * 1,5 x 2 x 1,3 x 1,2 x 1,2 x 1,2 x 2 = 13,4784 (avant : somme, 4,4).
+   */
+  assert.ok(Math.abs(bonuses.energyPowerMultiplier - 13.4784) < 1e-9, `Les paliers Energy Power sont des facteurs distincts (obtenu ${bonuses.energyPowerMultiplier}).`);
 }
 
 console.log("idle-perks-evil-sadistic-tiers: OK");

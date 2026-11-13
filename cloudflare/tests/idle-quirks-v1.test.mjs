@@ -81,7 +81,7 @@ assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 50), Infinity, "At cap (50
 // --- quirkBonusesV1: sums level x per-level value across every purchased quirk ---
 {
   const bonuses = quirkBonusesV1({ 0: 1, 7: 3, 35: 10 });
-  assert.ok(Math.abs(bonuses.energyPowerMultiplier - 1.20) < 1e-9, "Quirk 0 (+10%) and quirk 35 at level 10 (+10%) stack to +20%.");
+  assert.ok(Math.abs(bonuses.energyPowerMultiplier - 1.21) < 1e-9, "Quirk 0 (+10%) x quirk 35 at level 10 (+10%) = x1.21 : deux quirks distincts se multiplient (mesuré dans le vrai jeu le 2026-11-13).");
   assert.ok(Math.abs(bonuses.statMultiplier - 1.03) < 1e-9, "Quirk 7 at level 3 = +3% (3 x 1%/level).");
 }
 {
