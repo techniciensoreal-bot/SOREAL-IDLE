@@ -12,6 +12,12 @@ Modèle d'entrée :
 
 ---
 
+## 2026-11-13 18:10 — Fable
+- Fait : recherche sur internet pour le palier 377 de Fibonacci (aucune source ne le chiffre directement). Aucun code modifié.
+- En cours / non commité : rien.
+- À vérifier par Norman : écart PROBABLE plus large que le palier 377 : le jeu ADDITIONNE tous les atouts d'attaque/défense (`statPct`, `perkBonusesV1`), alors que l'exemple de la page wiki « Evil difficulty » (100 000 % × 500 % × Newbie = 1 M %) et un message Steam de jshepler citant le code du jeu les MULTIPLIENT entre atouts distincts (additif seulement entre les niveaux d'un même atout). Correctif non fait : décision de Norman attendue.
+- Attention pour l'autre session : ne pas corriger `statPct` sans cette décision (touche l'accès à Evil, `idleNguItopodStatBonusPctV1`).
+
 ## 2026-11-13 17:40 — Fable
 - Fait : déploiement n° 1361 (39103382) réussi et vérifié : Walderp, la note 5.8 et le travail du matin sont en ligne. Puis audit en lecture seule de l'atout Fibonacci (perk 94) : les 16 paliers sont appliqués par le moteur (mesuré palier par palier avec le vrai moteur). Aucun code modifié.
 - En cours / non commité : rien.
