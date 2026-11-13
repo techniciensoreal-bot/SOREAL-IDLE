@@ -12,6 +12,12 @@ Modèle d'entrée :
 
 ---
 
+## 2026-11-13 19:50 — Fable
+- Fait : hors dépôt uniquement. Trois copies modifiées de la sauvegarde du vrai NGU Idle de Norman, écrites à côté de l'originale (inchangée) dans le dossier de sauvegardes du jeu (AppData, LocalLow, NGU Industries, NGU Idle) : `SOREAL-essai-A/B/C-*.txt` (atouts d'attaque/défense montés ; somme de contrôle = MD5 des données internes). Aucun fichier du dépôt modifié.
+- En cours / non commité : rien dans le dépôt. b61d8fdf (atouts multipliés) toujours non poussé.
+- À vérifier par Norman : charger chaque copie dans le vrai jeu, sauvegarder sous un autre nom, me donner les fichiers : on saura si les atouts se multiplient et si le palier 377 vaut x3,77 ou x4,77.
+- Attention pour l'autre session : hypothèse non prouvée : l'indice du tableau `adventure.itopod.perkLevel` de la sauvegarde = l'id d'atout de SOREAL (4, 5, 94).
+
 ## 2026-11-13 19:20 — Fable
 - Fait : commit local « fix(perks) » : les atouts d'attaque/défense DISTINCTS se multiplient (niveaux d'un même atout additionnés), `statMultiplier` de `perkBonusesV1` ; palier 377 de Fibonacci = facteur à part x4,77. Ligne ajoutée à la note 5.8 (groupe ITOPOD) + traduction. Parties de référence régénérées (changement de règle voulu : attaque x1,47 sur la partie 1). Non poussé.
 - En cours / non commité : rien. Hors dépôt : j'ai décodé une sauvegarde du VRAI NGU Idle de Norman (format .NET BinaryFormatter, deux couches base64) dans mon dossier temporaire ; lecteur et comparaisons à reprendre dans le dépôt si Norman valide le banc de comparaison.
