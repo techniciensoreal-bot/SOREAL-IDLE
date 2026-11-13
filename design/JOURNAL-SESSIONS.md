@@ -12,6 +12,12 @@ Modèle d'entrée :
 
 ---
 
+## 2026-11-13 17:40 — Fable
+- Fait : déploiement n° 1361 (39103382) réussi et vérifié : Walderp, la note 5.8 et le travail du matin sont en ligne. Puis audit en lecture seule de l'atout Fibonacci (perk 94) : les 16 paliers sont appliqués par le moteur (mesuré palier par palier avec le vrai moteur). Aucun code modifié.
+- En cours / non commité : rien.
+- À vérifier par Norman : palier 377 de Fibonacci. Le wiki écrit « 377% Attack/Defense multiplier » ; le jeu l'applique comme +377 % ajouté aux autres atouts d'attaque/défense (x4,77 seul), pas comme x3,77. Lecture à trancher, aucune autre page du miroir n'en parle.
+- Attention pour l'autre session : rien de sensible.
+
 ## 2026-11-13 17:00 — Fable
 - Fait : commit « fix(tests) » : `idle-morts-boss-nouvelles-v1` cherchait encore l'ancienne condition de la mort de boss, changée par 1b5cc7bb ; il échouait donc depuis ce matin et BLOQUAIT le déploiement (le push b947a2e5 n'a très probablement jamais été mis en ligne : Norman ne voyait aucune nouvelle version). Assertion alignée sur `((memeBoss&&debutCombatV1)||speciale)`. Puis push de main sur ordre de Norman (journal, Walderp 10daceb8, note 8303b577, ce correctif).
 - En cours / non commité : rien.
