@@ -29,6 +29,9 @@
         nom:'Le sang sans coupure',
         date:'2026-11-13',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Sur l’application Windows, quand la liaison du compte est échue, le jeu s’ouvre quand même (partie locale) au lieu d’afficher « La connexion directe n’est pas encore ouverte » ; il suffit de relier de nouveau le compte dans les Réglages.'
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'La mort propre à un boss se joue maintenant aussi quand tu le tues en un seul coup avec Fight.'
           ]},

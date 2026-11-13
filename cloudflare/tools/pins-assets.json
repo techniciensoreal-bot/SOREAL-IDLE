@@ -664,12 +664,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 309,
-  "sha": "89f40c167775f8164be6078d5267072c8fa2ce17"
+  "pin": 310,
+  "sha": "0975dc7c4565df0acbebc1741293ac7d560415a9"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 949,
-  "sha": "2d8dc57b4bea18a590830c720b3ade5548f99ebe"
+  "pin": 950,
+  "sha": "978dadaa0bc2e94f9961c03b2cd4f00ea66f769a"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -764,12 +764,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 988,
-  "sha": "40fbc34b384381a49c9f33d45832cd4e338626bf"
+  "pin": 989,
+  "sha": "d8e991d6ca3cd824c644369cff9f2bff53dc1207"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 809,
-  "sha": "f77aa186e3f7e6fde0deaa4e8568801c4a083226"
+  "pin": 810,
+  "sha": "2c2f50da84d071065128948ab7e279a5030f6fb5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
