@@ -43,4 +43,11 @@ assert.equal(r.error, "IDLE_LOCAL_LIGNE_INVALIDE");
 const nan = ligne.slice(); nan[15] = "pas une date"; nan[10] = 555;
 r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: nan });
 assert.equal(r.ok, true); assert.ok(Number.isFinite(Date.parse(lire()[15])), "la date enregistrée est une vraie date");
+// 4. Ligne énorme (plus de 1,5 Mo) ou trop de cellules : refusée.
+const enorme = ligne.slice(); enorme[15] = new Date(Date.now() + 5000).toISOString(); enorme[40] = "x".repeat(1600000);
+r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: enorme });
+assert.equal(r.error, "IDLE_LOCAL_LIGNE_INVALIDE", "ligne de plus de 1,5 Mo refusée");
+const large = ligne.slice(); while (large.length <= 200) large.push("");
+r = recevoirDuMoteurLocalV1(coord, { sessionToken: T, cells: large });
+assert.equal(r.error, "IDLE_LOCAL_LIGNE_INVALIDE", "plus de 200 cellules refusé");
 console.log("idle-local-ligne-invalide-v1: OK");

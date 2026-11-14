@@ -352,12 +352,14 @@ export function recevoirDuMoteurLocalV1(coord, p) {
     assurerAppareils(coord);
     const mail = emailsDe(effectif(s.user))[0] || "";
     const propre = coord.sqlAll("SELECT appareil,vu FROM idle_local_appareils WHERE email=?", mail)[0];
-    if (propre && propre.appareil !== appareil && Number(p.depuis) < Number(propre.vu)) return { ok: false, conflit: true, error: "IDLE_PARTIE_REPRISE_AILLEURS" };
+    if (propre && propre.appareil !== appareil && (Number.isFinite(Number(p.depuis)) ? Number(p.depuis) : 0) < Number(propre.vu)) return { ok: false, conflit: true, error: "IDLE_PARTIE_REPRISE_AILLEURS" };
     if (!propre || propre.appareil !== appareil) revendiquer(coord, mail, appareil, Date.now());
   }
   if (!cells || cells.length < 30) return { ok: false, error: "IDLE_LOCAL_LIGNE_INVALIDE" };
   /* Audit 2026-11-14 : une ligne dont le « Stats JSON » est tronqué ou illisible (copie IndexedDB coupée par un quota, fermeture brutale) était écrite telle quelle ; le moteur lit alors {} et remet la progression à zéro sans erreur. Refusée : le serveur garde sa bonne ligne. */
   if (!statsJsonLisibleV1(cells)) return { ok: false, error: "IDLE_LOCAL_LIGNE_INVALIDE" };
+  /* Audit 2026-11-14 : bornes de forme (une vraie ligne fait ~45 Ko ; le moteur relit TOUT le catalogue à chaque appel, une ligne énorme ralentirait tous les joueurs) : au plus 200 cellules et 1,5 Mo au total. */
+  if (cells.length > 200 || JSON.stringify(cells).length > 1500000) return { ok: false, error: "IDLE_LOCAL_LIGNE_INVALIDE" };
   const actuelle = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
   let serveur = [];
   try { serveur = JSON.parse(actuelle.row_json); } catch (_) {}
@@ -412,9 +414,10 @@ export function recevoirDuMoteurLocalV1(coord, p) {
   /* Nombre d'événements réellement pris (limites MAX_FLUX / MAX_GAINS) : la page n'acquitte que ceux-là, le reste repart à l'envoi suivant (audit anti-rollback, 2026-10-21). */
   const fluxPris = (Array.isArray(p.flux) ? p.flux : []).slice(0, MAX_FLUX);
   const gainsPris = (Array.isArray(p.gains) ? p.gains : []).slice(0, MAX_GAINS);
+  const maintenantFlux = Date.now();
   for (const e of fluxPris) {
     if (!e || typeof e.type !== "string") continue;
-    const at = Number(e.at) || Date.now(), type = e.type.slice(0, 40), donnees = sv(e.donnees).slice(0, 4000) || "{}";
+    const at = Math.min(Number(e.at) || maintenantFlux, maintenantFlux + TOLERANCE_HORLOGE_MS), type = e.type.slice(0, 40), donnees = sv(e.donnees).slice(0, 4000) || "{}";
     /* Renvoi après une réponse perdue : un événement déjà reçu n'est pas enregistré deux fois. */
     if (coord.sqlAll("SELECT 1 AS x FROM idle_flux WHERE at=? AND email=? AND type=? AND donnees=? LIMIT 1", at, cle, type, donnees).length) continue;
     coord.sql.exec("INSERT INTO idle_flux(at,email,nom,type,donnees) VALUES(?,?,?,?,?)", at, cle, nom, type, donnees);

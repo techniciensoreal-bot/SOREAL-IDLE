@@ -231,7 +231,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=26b6e11be5");
+    worker=new Worker("/moteur-local-worker-v1.js?v=b181ae9723");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -275,6 +275,16 @@
     d.innerHTML='<div style="max-width:420px;background:#12182b;border:1px solid #3b4670;border-radius:14px;padding:22px;color:#e8ecfa;text-align:center"><div style="font-size:20px;font-weight:700;margin-bottom:10px">Partie reprise sur un autre appareil</div><div style="font-size:15px;color:#aab3d1;margin-bottom:16px">Cette partie vient d’être ouverte ailleurs. Recharge la page pour la reprendre là où elle en est.</div><button type="button" style="font-size:16px;padding:10px 18px;border-radius:10px;border:0;background:#4f7cff;color:#fff;cursor:pointer" onclick="location.reload()">Recharger</button></div>';
     document.body.appendChild(d);
   }
+  /* Audit 2026-11-14 : un refus durable (client plus ancien que la sauvegarde du serveur, état jugé plus ancien) laissait le joueur jouer des heures sans que rien ne parte, sans un mot. Après 6 refus de suite (~1 min), un bandeau l'en prévient ; la copie de l'appareil reste son filet. Ajouté à <body> : hors de la page redessinée (règle n°4). */
+  function avertirRefusDurable(){
+    if(document.getElementById("sorealIdleRefusDurableV1"))return;
+    const d=document.createElement("div");
+    d.id="sorealIdleRefusDurableV1";d.setAttribute("role","alert");d.setAttribute("data-morph-garder","");
+    d.style.cssText="position:fixed;left:8px;right:8px;bottom:8px;z-index:2147482000;background:#3a1020;color:#ffe3e8;border:2px solid #ff5a76;border-radius:10px;padding:10px 12px;font-size:14px;text-align:center";
+    d.textContent="Ta partie n’est plus enregistrée sur le serveur. Recharge la page ; si ça continue, exporte ta partie dans les Réglages.";
+    document.body.appendChild(d);
+  }
+  function retirerRefusDurable(){const d=document.getElementById("sorealIdleRefusDurableV1");if(d&&d.parentNode)d.parentNode.removeChild(d);}
   async function envoyer(fin,forcer){
     /* Une synchro sans action (le joueur laisse tourner) fait avancer la ligne : envoyée au plus une fois par minute, pour les classements. */
     const passifDu=passif&&Date.now()-dernierEnvoi>60000;
@@ -305,13 +315,13 @@
         /* Le serveur a REÇU l'état mais l'a REFUSÉ (il en détient un plus récent) : ce n'est pas une sauvegarde. La copie de l'appareil reste, l'envoi sera retenté, le refus est signalé. */
         /* Réponses INVERSÉES : si une révision plus récente a déjà été écrite, le refus d'un envoi plus ancien (arrivé après) ne concerne plus la partie actuelle. */
         if(revEnvoyee>=revAcquittee){
-          sale=true;refus+=1;
+          sale=true;refus+=1;if(refus>=6)avertirRefusDurable();
           try{window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler("sauvegarde_refusee","révision "+revEnvoyee+" refusée par le serveur ("+refus+")");}catch(_){}
           programmerSauvegarde();
         }
       }
       else{
-        revAcquittee=Math.max(revAcquittee,revEnvoyee);
+        revAcquittee=Math.max(revAcquittee,revEnvoyee);refus=0;retirerRefusDurable();
         if(!sale&&rev===revEnvoyee&&!copieEnAttente)await kv("effacer",cleSauve);
       }   /* écriture confirmée ET aucune action depuis : la copie de l'appareil n'a plus d'utilité */
     }catch(_){sale=true;}

@@ -10,7 +10,7 @@ const entree = lire("../src/idle-worker-entry-v1.js"), sync = lire("../src/idle-
 assert.ok(entree.includes("(relais|pseudo|local\\/export|local\\/push|call|profil-badavatar)$/"),"CORS de l'application aussi sur l'envoi des sauvegardes");
 assert.ok(entree.includes('return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-push"))'), "la réponse du push porte les en-têtes CORS");
 assert.ok(sync.includes("if (!lectureSeule) revendiquer(") && sync.includes('p.importPartie === true ? "avant-import"'), "export sans lecture seule = revendication ; premier envoi = copie « avant-import »");
-assert.ok(sync.includes("Number(p.depuis) < Number(propre.vu)) return { ok: false, conflit: true"), "le serveur refuse un envoi parti avant la dernière revendication");
+assert.ok(sync.includes("(Number.isFinite(Number(p.depuis)) ? Number(p.depuis) : 0) < Number(propre.vu)) return { ok: false, conflit: true"), "le serveur refuse un envoi parti avant la dernière revendication");
 assert.ok(!/export\?lecture=1/.test(source) && /\/api\/v1\/local\/export\?appareil=/.test(source), "la revendication n'est PAS une lecture seule");
 assert.ok(html.indexOf("/modules/apk-connexion-v1.js") > 0 && html.indexOf("/modules/apk-connexion-v1.js") < html.indexOf("/modules/apk-synchro-v1.js"), "module chargé après la connexion");
 assert.ok(!/localStorage\.\w+Item\((["'])soreal_idle_/.test(source) && !/'soreal_idle_/.test(source.replace(/\/\*[\s\S]*?\*\//g, "")), "clés propres à l'appareil (jamais recopiées avec les préférences du compte)");
