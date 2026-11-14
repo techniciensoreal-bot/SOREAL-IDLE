@@ -61,6 +61,13 @@ function achievementMetricsLectureV1(state) {
     evilEntered: state.difficulty === "difficile" || state.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0,
     speedrun: num(state.records?.speedrunBonusClaimed, 0) > 0,
     cornerClicked: num(state.records?.cornerClicked, 0) > 0,
+    /* Succès secrets rendus obtenables (2026-11-14) : survivre à l'explosion d'un ennemi explosif ; vaincre un titan sans qu'il ait attaqué. */
+    exploderSurvived: Boolean(flags.exploderSurvived),
+    noHitGrb: Boolean(flags.noHit_t1),
+    noHitGct: Boolean(flags.noHit_t2),
+    noHitJake: Boolean(flags.noHit_t3),
+    noHitUug: Boolean(flags.noHit_t4),
+    noHitWalderp: Boolean(flags.noHit_t5),
     /* « Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69 » (wiki, Secret Achievements) : les cinq emplacements équipés, chacun au niveau 69 (le set d'origine n'est pas exigé : le texte ne le dit pas). */
     level69Set: (() => {
       const equipement = state.adventure?.equipment || {};

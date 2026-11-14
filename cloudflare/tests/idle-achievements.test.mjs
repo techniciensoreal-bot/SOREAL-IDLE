@@ -35,10 +35,11 @@ for (const [id, bp] of [
   ["rebirth_1", 5], ["rebirth_1000", 40], ["rebirth_10000", 60],
   ["secretNguMenu", 100], ["secretAtCorner", 60], ["secretSpeedrun", 20], ["secretBeastV4", 25], ["secretEvil", 25]
 ]) assert.equal(idleAchievementV1(id)?.bp, bp, id);
+/* Audit 2026-11-14 : plus aucun succès non suivi (explosif survécu et titans sans coup sont maintenant mesurés, voir idle-succes-secrets-obtenables-v1). */
 for (const id of ["secretExploder", "secretNoHitGrb", "secretNoHitWalderp"]) {
-  assert.equal(idleAchievementV1(id).tracked, false, `${id} : non mesurable, jamais débloqué`);
+  assert.equal(idleAchievementV1(id).tracked, true, `${id} : suivi, donc obtenable`);
 }
-assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, inconnu: 1, secretExploder: 2 } }), { unlocked: { boss_10: 5 } });
+assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, inconnu: 1, secretExploder: 2 } }), { unlocked: { boss_10: 5, secretExploder: 2 } });
 
 // ---- Déblocage à la synchro, permanence, facteur AP ----
 {
@@ -109,10 +110,10 @@ assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, incon
   s.currencies.gold = 1e9;
   s.systems.achievements.data.unlocked = tous;
   s = normalizeIdleNguState(s, ctx, 1_000_000);
-  assert.equal(idleAchievementsBpV1(s), 5285);
+  assert.equal(idleAchievementsBpV1(s), 5815);   // tous les succès sont suivis (audit 2026-11-14)
   const r = applyIdleNguAction(s, { action: "moneyPit" }, ctx, 1_000_000);
-  /* floor(log10(1e9)) = 9 ; x 1,5285 -> 13. */
-  assert.equal(r.result.reward.ap, 13);
+  /* floor(log10(1e9)) = 9 ; x 1,5815 -> 14. */
+  assert.equal(r.result.reward.ap, 14);
 }
 
 {

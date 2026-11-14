@@ -19,10 +19,14 @@
  * BPs" mais la somme de ses propres lignes vaut 5815 BP. Les valeurs retenues
  * sont celles de chaque ligne (seules données vérifiables individuellement).
  *
- * Succès NON suivis (tracked:false), condition non mesurable dans SOREAL ou
- * ambiguë -- jamais débloqués, jamais comptés :
- *  - "Survive an attack from an exploder enemy" : le type exploder n'a pas de
- *    mécanique de dégâts (retirée, voir AGENTS.md) ;
+ * AUDIT du 2026-11-14 (Norman : « il faut vraiment que tout y soit ») : les 153 succès sont maintenant SUIVIS, donc obtenables (test idle-succes-audit-complet-v1 : un état réel par succès).
+ * Les six qui ne l'étaient pas :
+ *  - "Survive an attack from an exploder enemy" : les ennemis explosifs de l'Aventure explosent enfin à leur mort (modules/mobs-types-v1.js, valeurs SOREAL) ; le client annonce la survie
+ *    (drapeau unlockFlags.exploderSurvived, validé contre le type de l'ennemi) ;
+ *  - "Defeat <titan> before they can attack even once" (x5) : le client annonce une victoire sans aucune attaque du titan (drapeaux noHit_t1 à noHit_t5 ; Walderp : forme finale seulement) ;
+ * Historique (avant l'audit), pour mémoire :
+ *  - ("Survive an attack from an exploder enemy" : le type exploder n'avait pas de
+ *    mécanique de dégâts (retirée, voir AGENTS.md)) ;
  *  - ("Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69" est
  *    désormais SUIVI, Norman, 2026-10-13 : un joueur avait équipé les cinq pièces au
  *    niveau 69 sans recevoir le trophée. Métrique level69Set : lecture littérale du
@@ -70,18 +74,18 @@ const REBIRTHS = Object.freeze([[1, 5], [3, 10], [10, 15], [30, 20], [100, 25], 
 
 /* Secret Achievements : [id, nom du wiki, BP, clé de mesure booléenne ou null si non suivi]. */
 const SECRETS = Object.freeze([
-  ["secretExploder", "Survive an attack from an exploder enemy !", 30, null],
+  ["secretExploder", "Survive an attack from an exploder enemy !", 30, "exploderSurvived"],
   ["secretLevel69", "Wear a set of Helmet, Chest, Legs, Boots, and Weapon, all at level 69.", 30, "level69Set"],
   ["secretNguMenu", "Unlock the NGU menu !", 100, "nguUnlocked"],
   ["secretYggdrasilMenu", "Unlock the Yggdrasil menu !", 100, "yggdrasilUnlocked"],
   ["secretBeardsMenu", "Unlock the Beards menu !", 100, "beardsUnlocked"],
-  ["secretNoHitGrb", "Defeat Gordon Ramsay Bolton before they can attack even once!", 100, null],
-  ["secretNoHitGct", "Defeat Grand Corrupted Tree before they can attack even once!", 100, null],
-  ["secretNoHitJake", "Defeat Jake From Accounting before they can attack even once!", 100, null],
-  ["secretNoHitUug", "Defeat UUG, The Unmentionable before they can attack even once!", 100, null],
+  ["secretNoHitGrb", "Defeat Gordon Ramsay Bolton before they can attack even once!", 100, "noHitGrb"],
+  ["secretNoHitGct", "Defeat Grand Corrupted Tree before they can attack even once!", 100, "noHitGct"],
+  ["secretNoHitJake", "Defeat Jake From Accounting before they can attack even once!", 100, "noHitJake"],
+  ["secretNoHitUug", "Defeat UUG, The Unmentionable before they can attack even once!", 100, "noHitUug"],
   ["secretAtCorner", "Clicked the bottom right corner of the Advanced Training menu.", 60, "cornerClicked"],
   ["secretWalderpFinal", "Defeat WALDERP 's final form!", 100, "walderpFinal"],
-  ["secretNoHitWalderp", "Defeat WALDERP's final form before they can attack even once!", 100, null],
+  ["secretNoHitWalderp", "Defeat WALDERP's final form before they can attack even once!", 100, "noHitWalderp"],
   ["secretSpeedrun", "Speedrun 3 times in a row with rebirths under 30 minutes each, with boss 37 defeated!", 20, "speedrun"],
   ["secretBeastV1", "Defeat THE BEAST V1!", 25, "beastV1"],
   ["secretBeastV2", "Defeat THE BEAST V2!", 25, "beastV2"],
