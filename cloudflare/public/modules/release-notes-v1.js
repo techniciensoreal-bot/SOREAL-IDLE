@@ -20,10 +20,23 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.8',
+    courante:'5.9',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'5.9',
+        nom:'Un jeu mieux gardé',
+        date:'2026-11-14',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Relier l’application Android à ton compte demande maintenant une confirmation, avec un court code à comparer à celui affiché dans l’application : un lien piégé ne peut plus le faire à ta place. Même confirmation pour relier l’application Windows.',
+            'Une partie envoyée avec des données abîmées (copie tronquée, date illisible) est refusée au lieu d’écraser ta bonne partie.',
+            'Le serveur n’envoie plus la liste des zones, des sets, des sorts ni des déblocages que tu n’as pas encore atteints.',
+            'Les animations d’indice du tutoriel et de la récompense de connexion s’arrêtent quand « réduire les animations » est activé.'
+          ]}
+        ]
+      },
       {
         version:'5.8',
         nom:'Le sang sans coupure',

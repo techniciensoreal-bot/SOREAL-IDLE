@@ -52,8 +52,8 @@
   "sha": "cb32d63e736dec8fe229928c2310aed66cbb7193"
  },
  "/modules/apk-connexion-v1.js": {
-  "pin": 5,
-  "sha": "90fcf4f241240e2f0cbdda253f46035327a07fee"
+  "pin": 6,
+  "sha": "758af048e86a92e7ab1fa936cca2e11154d9de18"
  },
  "/modules/apk-synchro-v1.js": {
   "pin": 7,
@@ -180,8 +180,8 @@
   "sha": "983dd94db4afe1c3f9c2f46a581b7ff74340b718"
  },
  "/modules/chat-v1.js": {
-  "pin": 19,
-  "sha": "3c4a5147173f12659ddec405bb85ef898eaa7214"
+  "pin": 20,
+  "sha": "7cfe93b8aca96ba5868f0bba6d426db6a04da613"
  },
  "/modules/chronique-notes-notice-v1.js": {
   "pin": 1,
@@ -212,8 +212,8 @@
   "sha": "6ff5cc7dacd3a4fee0497b7dac3d5864fd4870d5"
  },
  "/modules/connexion-recompense-v1.js": {
-  "pin": 5,
-  "sha": "1f83aaf8a1f3b39e458d351d0db5f68bc7af82d4"
+  "pin": 6,
+  "sha": "608e3071431b4707707be9692b8151701558c7bb"
  },
  "/modules/console-propre-v1.js": {
   "pin": 1,
@@ -548,8 +548,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 229,
-  "sha": "e2adad7109249de4a954e295d91f8ee911178d71"
+  "pin": 232,
+  "sha": "6f5106dc9ea45ce5eaefffc1e88f909f9347f2fc"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -664,12 +664,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 311,
-  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
+  "pin": 312,
+  "sha": "b28ba9945071e6f00eacf2f110daf25ea585c95f"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 950,
-  "sha": "978dadaa0bc2e94f9961c03b2cd4f00ea66f769a"
+  "pin": 951,
+  "sha": "f9b409254a9af985d43cb22b87605933708189d3"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -764,12 +764,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 989,
-  "sha": "d8e991d6ca3cd824c644369cff9f2bff53dc1207"
+  "pin": 990,
+  "sha": "e1b63f84bf4b58efa49ea8a133adaf0c06bc2055"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 810,
-  "sha": "2c2f50da84d071065128948ab7e279a5030f6fb5"
+  "pin": 811,
+  "sha": "fc8e013de2e4fc28b160fdf0a1960fc8ee6d6983"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -788,8 +788,8 @@
   "sha": "faaba7e0a9d0bb2cced1d9e9828d0aedcf641dc0"
  },
  "/modules/tutorial-hint-v1.js": {
-  "pin": 3,
-  "sha": "c3eec9f4b2549275ee353bc11dbd54617c34dd26"
+  "pin": 5,
+  "sha": "7fd2aaa641d011c657b204703be977762f6721ec"
  },
  "/modules/tutorial-tts-v202.js": {
   "pin": 276,
@@ -888,8 +888,8 @@
   "sha": "3fc0adff9ed844697fd82d2526272ede44323989"
  },
  "/modules/ui-tutoriel-v1.js": {
-  "pin": 7,
-  "sha": "0c2397c5e5cb0922837ac3fdb4328e776d1afe8d"
+  "pin": 8,
+  "sha": "7f839d97b2c99777fe9d13e33188709e6a77335a"
  },
  "/modules/ui.js": {
   "pin": 55,
@@ -1080,7 +1080,7 @@
   "sha": "6e8be24b23aec4e88b57f379a3f5ea7553158290"
  },
  "/standalone-bridge.js": {
-  "pin": 28,
-  "sha": "c243ed8f4cd7f2e874c2c2464de80070e2153df7"
+  "pin": 29,
+  "sha": "683494dd1b0db575a7ab897098ae936b69ec3b84"
  }
 }
