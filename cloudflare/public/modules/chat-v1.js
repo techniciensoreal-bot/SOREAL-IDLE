@@ -221,7 +221,7 @@
       '#sorealIdleChatV1 .sic-nom{font-size:14px;font-weight:900;margin-bottom:2px;color:#8ff7e6}'+
       '#sorealIdleChatV1 .sic-msg.moi .sic-nom{color:#ffc2e0}'+
       '#sorealIdleChatV1 .sic-heure{margin-left:6px;font-size:12px;font-weight:400;color:var(--th-dim,#8b93ab)}'+
-      '#sorealIdleChatV1 .sic-suppr{margin-left:8px;border:0;background:transparent;color:#fca5a5;font-size:14px;padding:0}'+
+      '#sorealIdleChatV1 .sic-suppr{margin-left:8px;border:0;background:transparent;color:#fca5a5;font-size:14px;padding:0;min-width:36px;min-height:36px}'+
       '#sorealIdleChatV1 .sic-txt{font-size:14px;line-height:1.4;white-space:pre-wrap}'+
       '#sorealIdleChatV1 .sic-vide{margin:auto;color:var(--th-dim,#8b93ab);font-size:15px;text-align:center}'+
       '#sorealIdleChatV1 .sic-saisie{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--th-line,rgba(255,255,255,.1))}'+

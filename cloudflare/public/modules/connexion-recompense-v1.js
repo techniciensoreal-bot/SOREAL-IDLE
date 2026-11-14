@@ -22,6 +22,7 @@ function styles(){
   s.textContent='.cx-recompense-v1{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,8,18,.72);backdrop-filter:blur(3px)}'+
     '.cx-carte-v1{width:min(420px,100%);padding:22px 20px 18px;border-radius:14px;text-align:center;color:#eef3ff;background:linear-gradient(180deg,#25214d,#12122b);border:2px solid #f2a900;box-shadow:0 0 0 3px #000,0 0 40px rgba(242,169,0,.45)}'+
     '.cx-icone-v1{font-size:46px;line-height:1;animation:cxSaut-v1 1.2s ease-in-out infinite}'+
+    '@media (prefers-reduced-motion:reduce){.cx-icone-v1{animation:none}}'+
     '.cx-titre-v1{margin:8px 0 4px;font-size:22px;font-weight:900;letter-spacing:1px;color:#ffd34e;text-transform:uppercase}'+
     '.cx-texte-v1{margin:6px 0;font-size:16px;color:#d6def5}'+
     '.cx-serie-v1{display:inline-block;margin:10px 0 4px;padding:6px 14px;border-radius:999px;font-size:17px;font-weight:800;background:#ff7a1a;color:#1a0d00}'+

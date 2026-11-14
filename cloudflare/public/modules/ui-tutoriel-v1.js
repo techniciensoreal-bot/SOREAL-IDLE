@@ -94,6 +94,7 @@
             0%,100%{opacity:.7}
             50%{opacity:1}
           }
+          @media (prefers-reduced-motion:reduce){.soreal-idle-tuto-flottant-v1.reduit::after{animation:none}}   /* règle n°3 (audit 2026-11-14) */
           .soreal-idle-tuto-flottant-drag-v1{
             display:flex;
             align-items:center;

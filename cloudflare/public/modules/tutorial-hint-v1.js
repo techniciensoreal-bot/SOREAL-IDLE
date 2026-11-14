@@ -43,7 +43,8 @@ function installerStyle(){
       '50%{box-shadow:0 0 0 4px rgba(255,214,90,.9),0 0 22px 6px rgba(255,214,90,.75);filter:brightness(1.35)}'+
     '}'+
     '.soreal-idle-summary-v28.'+CLASSE+'{animation-name:sorealIdleTutoIndiceCaseV1}'+
-    '.soreal-idle-energybar-wrap-v11.'+CLASSE+'{animation-name:sorealIdleTutoIndiceBarreV1;border-radius:14px}';
+    '.soreal-idle-energybar-wrap-v11.'+CLASSE+'{animation-name:sorealIdleTutoIndiceBarreV1;border-radius:14px}'+
+    '@media (prefers-reduced-motion:reduce){.'+CLASSE+'{animation:none}}';   /* règle n°3 : « réduire les animations » coupe la pulsation (audit 2026-11-14) */
   document.head.appendChild(s);
 }
 
