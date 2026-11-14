@@ -16,6 +16,14 @@
         "cloudflare/tools/essai-local-ngu.mjs"
       ],
       "port": 8831
+    },
+    {
+      "name": "apercu-morts",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "cloudflare/tools/apercu-morts/serveur.mjs"
+      ],
+      "port": 8795
     }
   ]
 }

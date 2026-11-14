@@ -29,7 +29,8 @@ var VARIANTES=[
 
 /* Mort SPÉCIALE d'un boss précis (jamais dans la file ci-dessus) : jouée à chaque mort de ce boss. Boss 106 : la perruque (Norman, 2026-11-12). */
 var SPECIALES=[
-  {id:'perruque',boss:106,nom:'Perruque',duree:4.6,aide:'Toute l’image du boss 106 s’écoule comme des mèches de cheveux ; le boss 107 apparaît derrière, dans le tas.'}
+  {id:'perruque',boss:106,nom:'Perruque',duree:4.6,aide:'Toute l’image du boss 106 s’écoule comme des mèches de cheveux ; le boss 107 apparaît derrière, dans le tas.'},
+  {id:'dechirure',boss:114,nom:'Déchirure',duree:3.9,aide:'Le boss 114 se déchire de haut en bas comme une feuille de papier ; les deux moitiés s’écartent puis tombent.'}
 ];
 function varianteDe(id){return VARIANTES.concat(SPECIALES).filter(function(x){return x.id===id;})[0];}
 function specialeDuBoss(idBoss){return SPECIALES.filter(function(x){return x.boss===idBoss;})[0]||null;}
@@ -95,6 +96,8 @@ function preparer(id,img,LW,LH){
     k.cells.forEach(function(c,i){c.t=(c.y/LH)*.9+rnd(i*.7)*.5;c.vx=(rnd(i*1.3)-.5)*80;c.vy=-10+rnd(i*1.9)*40;});
   }else if(id==='perruque'){
     preparerPerruque(img,LW,LH,k);
+  }else if(id==='dechirure'){
+    preparerDechirure(LW,LH,k);
   }else if(id==='enfoncement'){
     k.terre=[];for(var tx=0;tx<LW;tx+=4)k.terre.push(rnd(tx*.21)*6);
     k.poussieres=[];for(var p=0;p<70;p++)k.poussieres.push({x:(rnd(p*3)-.5)*LW*1.1+LW/2,v:20+rnd(p+1)*60,r:3+rnd(p+2)*9,t:rnd(p+5)*.9,d:(rnd(p+7)-.5)*50});
@@ -347,8 +350,86 @@ function dessinerPerruque(c,t,k,LW,LH){
   c.restore();
 }
 
+/*
+ * Mort SPÉCIALE du boss 114, la déchirure (Norman, 2026-11-14 : « une mort spécifique au boss 114 : je veux qu'il se déchire comme une feuille de papier »).
+ * L'image est une feuille : une déchirure en zigzag court du haut vers le bas ; de chaque côté de la fente, le papier laisse un bord blanc et fibreux ; les deux moitiés pivotent autour de la pointe de la déchirure comme un V qui s'ouvre, puis,
+ * quand la feuille est entièrement fendue, se détachent et tombent en tournoyant ; quelques petits bouts de papier se décrochent le long du bord. Aucun texte : que des pixels de l'image.
+ */
+function preparerDechirure(LW,LH,k){
+  var pas=3,n=Math.ceil(LH/pas)+1,chemin=[],x=LW*.5,v=0;
+  for(var i=0;i<n;i++){
+    v=cl(v*.6+(rnd(i*3.7+1)-.5)*pas*2.6,-pas*2.4,pas*2.4);x=cl(x+v+(LW*.5-x)*.02,LW*.34,LW*.66);   /* marche au hasard, rappelée vers le milieu */
+    chemin.push(x);
+  }
+  k.pas=pas;k.chemin=chemin;
+  k.dentG=[];k.dentD=[];   /* le bord de chaque moitié est légèrement différent : le papier se déchire en fibres */
+  for(var j=0;j<n;j++){k.dentG.push(rnd(j*5.3+2)*3.2);k.dentD.push(rnd(j*7.1+9)*3.2);}
+  k.bouts=[];
+  for(var b=0;b<46;b++)k.bouts.push({y:rnd(b*2.9+4)*LH,d:rnd(b*1.7+8)*.55,vx:(rnd(b*4.1)-.5)*70,vy:20+rnd(b*3.3+6)*60,r:rnd(b*6.1)*6.28,w:1.5+rnd(b*8.7)*3.2,h:1+rnd(b*9.3)*2.2,s:(rnd(b*2.3)-.5)*9});
+}
+/* contour d'une moitié (côté -1 gauche, +1 droit) sur la hauteur haut : le long de la déchirure puis le long des bords de l'image */
+function contourDechirure(c,k,cote,haut,LW){
+  var n=Math.min(k.chemin.length-1,Math.ceil(haut/k.pas)),dent=cote<0?k.dentG:k.dentD;
+  c.beginPath();
+  c.moveTo(cote<0?0:LW,0);
+  c.lineTo(k.chemin[0]+cote*dent[0],0);
+  for(var i=1;i<=n;i++)c.lineTo(k.chemin[i]+cote*dent[i],Math.min(haut,i*k.pas));
+  c.lineTo(cote<0?0:LW,Math.min(haut,n*k.pas));
+  c.closePath();
+}
+function bordFibreuxDechirure(c,k,cote,haut){
+  var n=Math.min(k.chemin.length-1,Math.ceil(haut/k.pas)),dent=cote<0?k.dentG:k.dentD;
+  c.save();c.lineJoin='round';c.lineCap='round';
+  c.strokeStyle="#efe7d4";c.lineWidth=2.6;
+  c.beginPath();c.moveTo(k.chemin[0]+cote*dent[0],0);
+  for(var i=1;i<=n;i++)c.lineTo(k.chemin[i]+cote*(dent[i]+(i%2?1.3:-.4)),Math.min(haut,i*k.pas));
+  c.stroke();
+  c.strokeStyle='rgba(196,184,160,.9)';c.lineWidth=1;c.stroke();   /* ombre de fibres au bord intérieur */
+  c.restore();
+}
+function dessinerDechirure(c,t,k,LW,LH){
+  var T0=.25,T_FENTE=1.5,T_CHUTE=1.95,T_FIN=3.9,G=LH*1.5;
+  vide(c,LW,LH);
+  var tremble=t<T0?0:(t<T_FENTE?(rnd(Math.floor(t*50))-.5)*1.1*(1-lisse((t-.9)/.6)):0);
+  var p=lisse((t-T0)/(T_FENTE-T0)),haut=p*LH;
+  if(t<T0){c.drawImage(k.img,0,0);return;}
+  var ouv=lisse((t-.45)/(T_FENTE+.25-.45))*.62;   /* ouverture du V (radians) */
+  var chute=Math.max(0,t-T_CHUTE),fondu=1-lisse((t-3.3)/(T_FIN-3.3));
+  var tipY=Math.min(haut,LH),tipX=k.chemin[Math.min(k.chemin.length-1,Math.round(tipY/k.pas))];
+  c.save();c.translate(tremble,0);
+  /* la partie encore intacte sous la pointe de la déchirure */
+  if(haut<LH-1){c.save();c.beginPath();c.rect(0,haut,LW,LH-haut);c.clip();c.drawImage(k.img,0,0);c.restore();}
+  /* les deux moitiés : pivot autour de la pointe (elles forment un V), puis chute et rotation */
+  for(var cote=-1;cote<=1;cote+=2){
+    c.save();
+    c.globalAlpha=fondu;
+    var px=tipX,py=tipY;
+    if(chute>0){px+=cote*LW*.28*chute;py+=.5*G*chute*chute;}
+    c.translate(px,py);c.rotate(cote*(ouv+chute*(.5+.4*cote*.5)*1.3));c.translate(-tipX,-tipY);
+    contourDechirure(c,k,cote,tipY,LW);c.save();c.clip();c.drawImage(k.img,0,0);
+    /* léger ombrage du pli : la feuille se courbe là où elle pivote */
+    var gr=c.createLinearGradient(0,Math.max(0,tipY-LH*.25),0,tipY+2);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,'+(.28*lisse((t-.45)/.9)).toFixed(2)+')');
+    c.fillStyle=gr;c.fillRect(0,Math.max(0,tipY-LH*.25),LW,LH*.26);
+    c.restore();
+    bordFibreuxDechirure(c,k,cote,tipY);
+    c.restore();
+  }
+  /* petits bouts de papier qui se décrochent au passage de la déchirure */
+  c.save();
+  for(var i=0;i<k.bouts.length;i++){
+    var b=k.bouts[i],ts=T0+(b.y/LH)*(T_FENTE-T0)+b.d*.0,age=t-ts;
+    if(age<0||age>1.7)continue;
+    var iy=Math.min(k.chemin.length-1,Math.round(b.y/k.pas)),bx=k.chemin[iy]+b.vx*age*.6,by=b.y+b.vy*age+260*age*age*.5;
+    c.globalAlpha=Math.min(1,(1.7-age)/.6);c.save();c.translate(bx,by);c.rotate(b.r+b.s*age);
+    c.fillStyle=i%3?'#efe7d4':'#d8cfb8';c.fillRect(-b.w/2,-b.h/2,b.w,b.h);c.restore();
+  }
+  c.restore();
+  c.restore();
+}
+
 function dessiner(id,c,t,k,LW,LH){
   if(id==='perruque')dessinerPerruque(c,t,k,LW,LH);
+  else if(id==='dechirure')dessinerDechirure(c,t,k,LW,LH);
   else if(id==='eboulement')dessinerEboulement(c,t,k,LW,LH);
   else if(id==='poussiere')dessinerPoussiere(c,t,k,LW,LH);
   else if(id==='fonte')dessinerFonte(c,t,k,LW,LH);
@@ -377,7 +458,7 @@ function ton(a,t0,type,f0,f1,dur,pic,att){
   var g=a.createGain();env(g,t0,att||.01,dur,pic);o.connect(g);g.connect(sortieCourante||maitre(a));o.start(t0);o.stop(t0+dur+.1);
   return o;
 }
-var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000,perruque:4800};
+var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000,perruque:4800,dechirure:4200};
 function construireSon(a,id){
   var t=a.currentTime+.03,i;
   if(id==='eboulement'){
@@ -406,6 +487,12 @@ function construireSon(a,id){
     for(i=0;i<22;i++){var d5=.9+Math.pow(Math.random(),.8)*1.9;souffle(a,t+d5,.09,'lowpass',500+Math.random()*350,180,.9,.16+Math.random()*.12,.006);}   /* mèches qui touchent le sol */
     for(i=0;i<5;i++)ton(a,t+1.5+i*.28+Math.random()*.1,'sine',95-i*8,58,.2,.16,.004);                                          /* petits chocs sourds du tas */
     souffle(a,t+2.9,1.3,'lowpass',420,110,.7,.2,.15);ton(a,t+3.0,'sine',130,60,.7,.1,.02);                                       /* le tas s'affaisse */
+  }else if(id==='dechirure'){
+    for(i=0;i<5;i++)souffle(a,t+Math.random()*.2,.05,'bandpass',900+Math.random()*700,1500,5,.12,.003);                       /* le papier craque, tendu */
+    souffle(a,t+.25,1.3,'bandpass',2200,5200,1.2,.34,.04);souffle(a,t+.25,1.3,'highpass',3000,7000,.6,.14,.05);            /* « rrrriiip » : la déchirure qui monte */
+    for(i=0;i<46;i++)souffle(a,t+.28+Math.random()*1.2,.018,'bandpass',3500+Math.random()*3500,2500,8,.16+Math.random()*.16,.001);   /* fibres qui lâchent */
+    souffle(a,t+1.4,1.6,'bandpass',900,600,.8,.1,.5);souffle(a,t+1.9,1.5,'highpass',2800,2000,.6,.07,.5);                  /* les moitiés flottent, froissement */
+    for(i=0;i<3;i++)ton(a,t+2.9+i*.22,'sine',150-i*20,70,.16,.12,.004);souffle(a,t+2.9,.7,'lowpass',500,140,.8,.16,.04);    /* elles tombent au sol */
   }else if(id==='enfoncement'){
     souffle(a,t,2.6,'lowpass',200,60,.9,.5,.4);ton(a,t,'sine',48,34,2.6,.5,.3);                                    /* séisme */
     try{var lfo=a.createOscillator(),lg=a.createGain(),osc=ton(a,t+.1,'sine',55,38,2.4,.3,.3);lfo.frequency.value=9;lg.gain.value=4;lfo.connect(lg);lg.connect(osc.frequency);lfo.start(t);lfo.stop(t+3);}catch(_e){}

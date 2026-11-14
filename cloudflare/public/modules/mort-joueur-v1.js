@@ -167,7 +167,8 @@ function jouer(hote,variante){
     var REAPP=window.__SOREAL_IDLE_REAPPARITIONS_V1__;
     /* Norman (2026-11-04) : « le retour d'une mort à cheval ne doit se jouer que quand on est coupé en 2 par le sabre. C'est une spéciale » : le galop n'est PAS dans la file des retours ; seule la mort « Tranché » l'appelle (ci-dessous). */
     var RETOURS=REAPP&&REAPP.joueur?Array.prototype.filter.call(REAPP.joueur,function(v){return v.id!=='galop';}).map(function(v){return v.id;}):[];
-    var CHOIX=['rewind','clignote'].concat(RETOURS).concat(NOUVEAUX);
+    /* Norman (2026-11-14) : « il n'y avait plus jamais la réapparition après une mort avec les voix d'anges » : le fondu (explosion, puis retour en fondu d'ouverture avec le chœur d'anges) était sorti de la file le 2026-10-29 (« c'est souvent un fondu ») et personne ne l'appelait plus : il revient EN FIN de file (une fois par cycle, jamais souvent), comme toute mort ajoutée. */
+    var CHOIX=['rewind','clignote'].concat(RETOURS).concat(NOUVEAUX).concat(['fondu']);
     if(variante!=='fondu'&&CHOIX.indexOf(variante)<0)variante=suivante_(CHOIX);   /* en suivant la liste, pas au hasard (Norman, 2026-10-29) ; les morts ajoutées arrivent à la fin */
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches)return false;
     var img=hote.querySelector&&hote.querySelector('img');

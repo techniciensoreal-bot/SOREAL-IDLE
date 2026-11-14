@@ -37,6 +37,10 @@
             'Si le serveur refuse ta sauvegarde plusieurs fois de suite, un bandeau te prévient au lieu de te laisser jouer sans que rien ne soit enregistré.',
             'Sur Windows, la base de ta partie a une copie de secours par jour (les 5 dernières sont gardées) et se restaure toute seule si elle est abîmée.'
           ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Un boss a désormais une mort qui lui est propre : il se déchire comme une feuille de papier.',
+            'Après une défaite, le retour en fondu d’ouverture avec le chœur de voix revient de temps en temps (il n’était plus jamais joué).'
+          ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Les compétences d’Aventure que tu n’as pas encore débloquées ne sont plus dessinées.'
           ]},

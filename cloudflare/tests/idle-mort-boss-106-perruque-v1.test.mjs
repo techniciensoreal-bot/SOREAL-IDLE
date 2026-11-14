@@ -32,7 +32,7 @@ assert.ok(!M.variantes.some((v) => v.id === "perruque"), "la perruque n'entre ja
 // 2. Déclenchement : à chaque mort du 106 seulement, sans toucher à la file ; l'apparition du 107 reste lancée par la mort (une seule fois).
 assert.ok(src.includes("var spe=specialeDuBoss(idMort);") && src.includes("var choix=spe?spe.id:suivante_("), "choix forcé pour le boss 106, file intacte");
 assert.ok(/function specialeDuBoss\(idBoss\)\{return SPECIALES\.filter\(function\(x\)\{return x\.boss===idBoss;\}\)\[0\]\|\|null;\}/.test(src), "seul le boss déclaré a une spéciale");
-assert.ok(src.includes("var DUREES_SON={") && /perruque:\d+\}/.test(src), "durée du son déclarée");
+assert.ok(src.includes("var DUREES_SON={") && /perruque:\d+/.test(src), "durée du son déclarée");
 assert.ok(src.includes("else if(id==='perruque'){") || src.includes("}else if(id==='perruque'){"), "son synthétisé de la perruque");
 assert.ok(src.includes("if(window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__)c.clearRect(0,0,LW,LH);else{c.fillStyle=FOND"), "fin d'aperçu : fond transparent quand la photo du 107 est derrière");
 

@@ -536,12 +536,12 @@
   "sha": "ea78d5be1f392056bead6346e26b5aba7f6cc651"
  },
  "/modules/mort-joueur-v1.js": {
-  "pin": 17,
-  "sha": "4f560279c2fa43e46a4befc7c6dce2f12c2297d0"
+  "pin": 18,
+  "sha": "26a35d1b0480bd9f2b2d58f2d219979949390528"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
-  "pin": 7,
-  "sha": "85075b97488cb21479f292dfa89e3a89e9311732"
+  "pin": 8,
+  "sha": "d85d96f932502f54ede713c18706da0c6a55d8cb"
  },
  "/modules/morts-joueur-nouvelles-v1.js": {
   "pin": 8,
@@ -664,12 +664,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 315,
-  "sha": "6343b59b4f60efde6428df42fbea9f363298c8aa"
+  "pin": 316,
+  "sha": "343a83fc8bb4dc4fe090ad234bf815b7a8a79a4a"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 953,
-  "sha": "e35655bc56221880ef84199492f6fafc974372dc"
+  "pin": 954,
+  "sha": "d28fc3814cd94413a984d40030d7e109dcbca929"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -764,12 +764,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 992,
-  "sha": "6a85b3e0d25bddef3a98eb316ebf72fc5624693f"
+  "pin": 993,
+  "sha": "18206f5857207bf5ebaeb524349ae911d8524ff8"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 813,
-  "sha": "756e65fc08346153a18202904c89867502b12d7a"
+  "pin": 814,
+  "sha": "df2006413f4b131d9acfd40b9a2010025b31bac4"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

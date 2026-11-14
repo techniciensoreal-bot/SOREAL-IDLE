@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aperçu : mort du boss 114 (la déchirure)</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;padding:14px;background:#0f1520;color:#e8eefb;font:15px/1.4 system-ui,sans-serif}
+  h1{font-size:18px;margin:0 0 6px}
+  p{margin:0 0 10px;color:#aeb9cc;max-width:60ch}
+  .scene{position:relative;width:min(440px,100%);aspect-ratio:1;border:2px solid #c79a3d;border-radius:12px;overflow:hidden;background:#0b0e17}
+  .scene img,.scene canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .scene img{object-fit:cover}
+  .outils{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+  button{font:inherit;color:#e8eefb;background:#22344d;border:1px solid #3c5578;border-radius:8px;padding:8px 12px;cursor:pointer}
+  button.principal{background:#c78a1d;color:#1a1204;border-color:#6a4a0a;font-weight:700}
+  input[type=range]{width:min(440px,100%)}
+  .decoupe{display:none;gap:8px;margin-top:10px}.decoupe.ouvert{display:flex;flex-wrap:wrap}
+  .decoupe canvas{width:min(210px,45vw);height:auto;aspect-ratio:1;background:repeating-conic-gradient(#333 0 25%,#444 0 50%) 0 0/16px 16px;border:1px solid #556}
+  small{color:#8b97ad}
+</style>
+</head>
+<body>
+<h1>Mort du boss 114 : la déchirure</h1>
+<p>Le boss 114 se déchire de haut en bas comme une feuille de papier ; les deux moitiés s’écartent puis tombent. Ici, rien n’est modifié dans le jeu. Le curseur permet de regarder un instant précis.</p>
+<div class="scene"><canvas id="cv" width="220" height="220"></canvas></div>
+<div class="outils">
+  <button class="principal" id="rejouer">▶ Jouer</button>
+  <button id="repos">↺ Remettre le 114</button>
+  <label><input type="checkbox" id="son" checked> son</label>
+</div>
+<input type="range" id="temps" min="0" max="3.9" step="0.02" value="0" aria-label="Instant de l’animation"><br><small id="lib">t = 0,00 s</small>
+<script src="/cloudflare/public/modules/morts-boss-nouvelles-v1.js"></script>
+<script>
+(function(){
+  var M=window.__SOREAL_IDLE_MORTS_BOSS_NOUVELLES_V1__,cv=document.getElementById('cv'),c=cv.getContext('2d'),img=new Image(),k=null,LW=220,LH=220,enCours=false;
+  function prets(){return img.complete&&img.naturalWidth>0;}
+  function repos(){
+    if(!prets())return;
+    k=M.preparer('dechirure',img,LW,LH);
+    window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=false;
+    c.clearRect(0,0,LW,LH);c.drawImage(k.img,0,0);
+    document.getElementById('temps').value=0;document.getElementById('lib').textContent='t = 0,00 s';
+  }
+  img.onload=repos;img.src='/cloudflare/public/magic/boss/114.webp';
+  document.getElementById('rejouer').addEventListener('click',function(){
+    if(!prets()||enCours)return;enCours=true;window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=false;
+    var avec=document.getElementById('son').checked,t0=performance.now();k=M.preparer('dechirure',img,LW,LH);
+    if(avec)M.son('dechirure');
+    (function image(now){var t=(now-t0)/1000;if(t>=3.9){c.clearRect(0,0,LW,LH);document.getElementById('temps').value=3.9;enCours=false;return;}
+      M.dessiner('dechirure',c,t,k,LW,LH);document.getElementById('temps').value=t.toFixed(2);document.getElementById('lib').textContent='t = '+t.toFixed(2).replace('.',',')+' s';requestAnimationFrame(image);})(t0);
+  });
+  document.getElementById('repos').addEventListener('click',function(){enCours=false;repos();});
+  document.getElementById('temps').addEventListener('input',function(){
+    if(!prets()||enCours)return;if(!k)k=M.preparer('dechirure',img,LW,LH);
+    var t=parseFloat(this.value);window.__SOREAL_IDLE_MORT_DERRIERE_ACTIF__=false;
+    if(t<=0){c.clearRect(0,0,LW,LH);c.drawImage(k.img,0,0);}else M.dessiner('dechirure',c,t,k,LW,LH);
+    document.getElementById('lib').textContent='t = '+t.toFixed(2).replace('.',',')+' s';
+  });
+})();
+</script>
+</body>
+</html>
