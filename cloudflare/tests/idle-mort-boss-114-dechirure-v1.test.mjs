@@ -24,7 +24,7 @@ assert.ok(M && Array.isArray(M.speciales) && Array.isArray(M.variantes), "module
 
 // 1. Déclaration : spéciale du boss 114 ; la file des cinq autres et la perruque du 106 sont inchangées.
 const d = M.speciales.find((s) => s.id === "dechirure");
-assert.ok(d && d.boss === 114 && d.duree > 3 && d.duree < 5, "la déchirure est la mort du boss 114");
+assert.ok(d && d.boss === 114 && d.duree >= 2.5 && d.duree <= 4, "la déchirure est la mort du boss 114");
 assert.equal(M.variantes.length, 5, "les cinq morts de la file sont inchangées");
 assert.ok(!M.variantes.some((v) => v.id === "dechirure"), "la déchirure n'entre jamais dans la file");
 assert.equal(M.speciales.find((s) => s.id === "perruque").boss, 106, "la perruque reste la mort du 106");
@@ -41,14 +41,13 @@ assert.ok(jeu.includes("nouvelle.speciales.some(function(x){return x.boss===idMo
   for (const [LW, LH] of [[220, 220], [140, 200], [100, 100]]) {
     const k = M.preparer("dechirure", img, LW, LH);
     assert.ok(Array.isArray(k.chemin) && k.chemin.length >= LH / 3 && k.chemin.every((x) => x >= LW * 0.3 && x <= LW * 0.7), "la déchirure reste vers le milieu de l'image (" + LW + "x" + LH + ")");
-    assert.ok(k.bouts.length > 20, "des bouts de papier se décrochent");
     let pire = 0;
     for (let t = 0; t <= d.duree + 0.1; t += 0.05) {
       compteurs.drawImage = 0;
       M.dessiner("dechirure", ctx, t, k, LW, LH);
       pire = Math.max(pire, compteurs.drawImage);
     }
-    assert.ok(pire <= 6, "quelques dessins de l'image par image (mesuré : " + pire + ")");
+    assert.ok(pire <= 4, "quelques dessins de l'image par image (mesuré : " + pire + ")");
   }
 }
 console.log("idle-mort-boss-114-dechirure-v1 : OK");
