@@ -78,7 +78,9 @@ try {
   console.log("");
   medias.sort((a, b) => (a[0] < b[0] ? -1 : 1));
   /* Règle STRICTE des voix (src/voix-utiles.mjs) : une voix obsolète n'est pas listée au manifeste des mises à jour (rien n'est supprimé sur R2). */
-  const { clesVoixObsoletes } = await import("./src/voix-utiles.mjs");
+  const { clesVoixObsoletes, chargerPlanVoix } = await import("./src/voix-utiles.mjs");
+  /* « Ni plus ni moins » (Norman, 2026-11-14) : sans graine de production complète (textes et histoires), la règle des voix ne filtre RIEN : les voix en double et les anciennes versions repartaient dans toutes les applications (c'était le cas avant la graine du 2026-11-14). Publication refusée tant que la graine n'est pas fiable (--sans-regle-voix : à ne jamais utiliser sans raison). */
+  { const plan = chargerPlanVoix(DEPOT); if (!plan.ok && !args.includes("--sans-regle-voix")) { console.error("Publication refusée : la règle des voix ne peut pas s'appliquer (" + plan.raison + "). Régénère desktop/graine/catalogue.json (voir desktop/recolter.mjs --catalogue)."); process.exit(1); } }
   const voixEcartees = await clesVoixObsoletes(medias.map((m) => ({ cle: m[0], taille: m[1], date: m[3] || "" })), { sansDate: "ecarter" });
   for (let i = medias.length - 1; i >= 0; i -= 1) if (voixEcartees.has(medias[i][0])) medias.splice(i, 1);
   medias = medias.map((m) => m.slice(0, 3));   /* le manifeste signé garde sa forme [clé, taille, etag] */

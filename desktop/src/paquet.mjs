@@ -7,7 +7,13 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { ecrireZip } from "./zip.mjs";
 
-const DOSSIERS = [["cloudflare", "src"], ["cloudflare", "public"], ["cloudflare", "contracts"], ["design"]];
+const DOSSIERS = [["cloudflare", "src"], ["cloudflare", "public"], ["cloudflare", "contracts"]];
+/*
+ * Fichiers de design/ que le jeu IMPORTE à l'exécution (noms et histoires de boss, traductions françaises, catalogue des boss) : eux seuls voyagent (Norman, 2026-11-14 : « ni plus ni moins » ; avant, tout design/ partait : maquettes, notes, images de travail).
+ * Une importation manquante empêcherait le jeu de démarrer : le test idle-paquet-imports-v1 vérifie que chaque importation de cloudflare/src et desktop/src se résout dans le paquet, et publier-maj.mjs refuse de publier sinon.
+ */
+export const FICHIERS_DESIGN = ["design/catalogue/boss.json", "design/intro-original-en.json", "design/ngu-boss-fight-real-names-v1.json", "design/ngu-boss-stories-complement-fr.json", "design/ngu-boss-stories-en.json", "design/ngu-boss-stories-fr.json", "design/ngu-wiki-enemies-v1.json",
+  "design/traductions/fr/achievements.json", "design/traductions/fr/misc.json", "design/traductions/fr/mobs.json", "design/traductions/fr/perks.json", "design/traductions/fr/quirks.json", "design/traductions/fr/sellout.json", "design/traductions/fr/wishes.json"];
 /* Le cœur de l'application Windows voyage lui aussi dans la mise à jour (main.js le charge, voir desktop/main.js) : jamais le lanceur main.js, ni maj.mjs et zip.mjs (la vérification des signatures reste celle de l'installateur). */
 export const FICHIERS_COEUR = ["desktop/coeur.js", "desktop/preload.js", "desktop/icone.ico", "desktop/src/env-local.mjs", "desktop/graine/catalogue.json", "desktop/src/coffre-medias.mjs", "desktop/src/liaison.mjs", "desktop/src/steam.mjs", "desktop/art/steam/affiche-600x900.png", "desktop/art/steam/grille-920x430.png", "desktop/art/steam/hero-1920x620.png", "desktop/art/steam/logo-1280x720.png", "desktop/art/steam/icone.ico"];
 /* Les aperçus de travail (design/apercu-*, notes de progression) ne font pas partie du jeu : ils alourdissaient chaque mise à jour de plus de 100 Mo (2026-11-04). */
@@ -25,6 +31,7 @@ export function fichiersDuCode(depot) {
     }
   };
   for (const d of DOSSIERS) parcourir(path.join(depot, ...d), d.join("/") + "/");
+  for (const f of FICHIERS_DESIGN) { const chemin = path.join(depot, ...f.split("/")); if (fs.existsSync(chemin)) sortie.push({ nom: f, chemin }); }
   for (const f of FICHIERS_COEUR) { const chemin = path.join(depot, ...f.split("/")); if (fs.existsSync(chemin)) sortie.push({ nom: f, chemin }); }
   return sortie.sort((a, b) => (a.nom < b.nom ? -1 : a.nom > b.nom ? 1 : 0));
 }
