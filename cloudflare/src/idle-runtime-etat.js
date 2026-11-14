@@ -789,8 +789,19 @@ bossConseil: '',
         collectionEtat
       ),
 
+    /* Audit 2026-11-14 (règle n°2) : la liste des sets partait en entier à un joueur neuf (6 sets, « total:6 », description « Découvrir les 6 pièces », 36 noms de pièces). Seules les zones où une pièce est déjà découverte sont envoyées, sans total ni description, avec leurs pièces découvertes seulement (aucun lecteur côté client ; le moteur garde sa liste complète). */
     collections:
-      progressionCollectionsEtat,
+      (function(cl){
+        const zones = Array.isArray(cl && cl.zones) ? cl.zones : [];
+        return Object.assign({}, cl, {
+          zones: zones.filter(function(z){ return z && (z.complete || Number(z.obtenus) > 0); }).map(function(z){
+            const copie = Object.assign({}, z);
+            delete copie.total; delete copie.description;
+            copie.objets = (Array.isArray(z.objets) ? z.objets : []).filter(function(o){ return o && o.decouvert; });
+            return copie;
+          })
+        });
+      })(progressionCollectionsEtat),
 
     inventaireCapacite:
       capaciteInventaire,
@@ -1110,12 +1121,13 @@ inventaireMeta: {
         inventaireCapaciteMaxSorealIdle_()
     },
 
+    /* Audit 2026-11-14 (règle n°2) : les zones « legacy » encore fermées (nom, ennemi, boss, boss requis, puissances, description) partaient toutes dans la réponse d'un joueur neuf. Seules les zones ouvertes sont envoyées ; le client ne lit une zone que par son id (une zone absente vaut « fermée »). Le moteur, lui, garde la liste complète (construireAventureSorealIdle_ sert aussi à l'Aventure automatique). */
     aventure:
-      construireAventureSorealIdle_(
+      (function(av){ if (av && Array.isArray(av.zones)) av.zones = av.zones.filter(function(z){ return z && z.debloquee === true; }); return av; })(construireAventureSorealIdle_(
         row,
         metaNguEtat.records &&
           metaNguEtat.records.highestBoss || 0
-      ),
+      )),
 
     bestiaire:
       construireBestiaireSorealIdle_(
@@ -1155,8 +1167,17 @@ inventaireMeta: {
 
     prochainPalier: null,
 
+    /* Audit 2026-11-14 (règle n°2) : seuls les déblocages déjà atteints (nom et niveau) sont envoyés, pas ceux des menus encore fermés. */
     deblocages:
-      deblocagesEtatSorealIdleV405_(),
+      (function(tous){
+        const niveauJoueur = Math.max(1, Math.floor(nombreSorealIdle_(niveauEtat, 1)));
+        const sortie = {};
+        Object.keys(tous || {}).forEach(function(cle){
+          const e = tous[cle];
+          if (e && Math.floor(nombreSorealIdle_(e.niveau, 0)) <= niveauJoueur) sortie[cle] = e;
+        });
+        return sortie;
+      })(deblocagesEtatSorealIdleV405_()),
 
     patchRuntime:
       'GAME-V47-NGU-EARLY',
@@ -1329,7 +1350,8 @@ banniereDriveFileId:
             bossVulnerablePct: statsMagie.bossVulnerablePct,
             sceauBriseBossNumero: statsMagie.sceauBriseBossNumero
           },
-          sorts: sortsSorealIdle_().map(function(sort){
+          /* Audit 2026-11-14 (règle n°2) : tant que la magie est fermée, aucun sort (nom, description, niveau requis, coûts) n'est envoyé. */
+          sorts: (!debloquee ? [] : sortsSorealIdle_()).map(function(sort){
             const achete = statsMagie.sortsAchetes.indexOf(sort.id) !== -1;
             const cooldownJusqua = Math.max(
               0,
