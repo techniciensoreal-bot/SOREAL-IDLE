@@ -188,6 +188,12 @@ export function preparerPartieTestSorealIdle(sessionToken, options) {
     if (ap !== null) { meta.currencies.ap = ap; applique.ap = ap; }
     if (pp !== null) { meta.currencies.pp = pp; applique.pp = pp; }
     if (graines !== null) { meta.currencies.seeds = graines; applique.graines = graines; }
+    /* Points de vie de départ du joueur (banc d'essai) : le combat de boss ne démarre pas avec des PV presque à zéro. */
+    const pvDepart = borne(o.pv, 0, 1e18);
+    if (pvDepart !== null) { feuille.getRange(ligne, c.PV_JOUEUR).setValue(pvDepart); applique.pv = pvDepart; }
+    /* Niveau d'Attaque passive de l'entraînement (banc d'essai) : donne une vraie attaque (le 100 naturel n'est jamais multiplié) pour tester la vie max et les multiplicateurs. */
+    const attaquePassive = borne(o.attaquePassive, 0, 1e6);
+    if (attaquePassive !== null && stats.entrainementBase && stats.entrainementBase.skills && stats.entrainementBase.skills.attaque_passive) { stats.entrainementBase.skills.attaque_passive.level = Math.floor(attaquePassive); applique.attaquePassive = Math.floor(attaquePassive); }
     /* Machine temporelle d'essai (banc d'essai uniquement) : de l'or par seconde pour tester les Labos (machineOrParBarre = meilleur or d'un run, machineBoss = plus haut boss, machineVitesse = niveau de vitesse). */
     const tm = meta.systems && meta.systems.timeMachine && meta.systems.timeMachine.data;
     const machineOr = borne(o.machineOrParBarre, 0, 1e30), machineBoss = borne(o.machineBoss, 0, 301), machineVitesse = borne(o.machineVitesse, 0, 1e6);
