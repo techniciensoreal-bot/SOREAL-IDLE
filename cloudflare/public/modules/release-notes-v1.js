@@ -42,6 +42,7 @@
             'Après une défaite, le retour en fondu d’ouverture avec le chœur de voix revient de temps en temps (il n’était plus jamais joué).'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Quand tu changes de configuration d’équipement, les pièces venues du coffre y retournent au lieu de finir dans le sac ; celles venues du sac y restent.',
             'Quand la zone des cases d’automatisation du sac est repliée, les compteurs de temps avant la prochaine exécution restent visibles sur la ligne fine.',
             'Les compétences d’Aventure que tu n’as pas encore débloquées ne sont plus dessinées.'
           ]},

@@ -97,7 +97,7 @@ import {
   IDLE_ADVENTURE_ZONES
 } from "./idle-adventure-v47.js";
 import { macguffinMergeLevelV1 } from "./idle-macguffins-v1.js";
-import { coffreRetirer } from "./idle-adventure-inventaire.js";
+import { coffreRetirer, coffreDeposer } from "./idle-adventure-inventaire.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 
 import { nombreV1, entierV1 } from "./idle-outils-v1.js";   /* outils communs (identiques aux anciennes définitions locales) */
@@ -208,9 +208,12 @@ export function normalizeIdleInventoryAutoV1(raw) {
     lootFilter: { types, items },
     lootFilters,
     lootItems,
-    loadouts
+    loadouts,
+    /* Norman (2026-11-14) : pièces équipées par une configuration qui venaient du COFFRE ; au changement de configuration elles y retournent (jamais dans le sac). Absent quand vide : une sauvegarde sans coffre garde exactement le même état qu'avant. */
+    ...(coffreEquipesV1(src.coffreEquipes).length ? { coffreEquipes: coffreEquipesV1(src.coffreEquipes) } : {})
   };
 }
+function coffreEquipesV1(v) { return (Array.isArray(v) ? v : []).map((x) => String(x)).filter(Boolean).slice(0, 40); }
 
 function cfgV1(s) {
   s.inventoryAuto = normalizeIdleInventoryAutoV1(s.inventoryAuto);
@@ -755,6 +758,7 @@ function loadoutMoveV1(s, index, direction, env) {
   return { index: j, moved: true };
 }
 
+let dernierRetourCoffreV1 = 0;   /* nombre de pièces RENVOYÉES au coffre par le dernier équipement (même usage) */
 let dernierRetraitCoffreV1 = 0;   /* nombre de pièces reprises au coffre par le DERNIER équipement (lu juste après l'appel, même exécution synchrone) */
 
 /* Applique un loadout sur une copie de l'état Aventure ; renvoie la copie (le sac ne doit pas déborder). */
@@ -767,11 +771,15 @@ function loadoutApplyV1(s, index, env) {
   const w = X(s);
   /* Norman (2026-11-04) : « quand on clique sur un set pour l'équiper, il doit automatiquement prendre les pièces nécessaires dans le coffre si elles y sont rangées » : chaque pièce voulue qui n'est plus dans le sac mais dans le Coffre est reprise (si le sac a de la place ; sinon elle reste au coffre et le slot reste inchangé). */
   dernierRetraitCoffreV1 = 0;
+  dernierRetourCoffreV1 = 0;
+  const cfgW = cfgV1(w);
+  const anciensCoffre = coffreEquipesV1(cfgW.coffreEquipes);   /* pièces du set précédent qui venaient du coffre */
+  const retires = [];
   const voulues = [...CORE_SLOTS.map((slot) => lo[slot]), ...(lo.accessories || [])].filter(Boolean).map(String);
   for (const id of voulues) {
     if (w.inventory.some((o) => String(o.id) === id)) continue;
     if (w.coffre && Object.values(w.coffre).some((it) => it && String(it.id) === id)) {
-      try { coffreRetirer(w, id); dernierRetraitCoffreV1 += 1; } catch (_) { /* sac plein : la pièce reste au coffre */ }
+      try { coffreRetirer(w, id); dernierRetraitCoffreV1 += 1; retires.push(id); } catch (_) { /* sac plein : la pièce reste au coffre */ }
     }
   }
   const has = (id) => w.inventory.some((o) => String(o.id) === String(id));
@@ -792,6 +800,15 @@ function loadoutApplyV1(s, index, env) {
     if (CORE_SLOTS.some((slot) => w.equipment[slot] === id)) continue;
     try { idleAdventureEquipItemV1(w, id, "accessory"); } catch (_) { /* plus de slot libre : ignoré */ }
   }
+  /* Les pièces du set précédent qui venaient du coffre y retournent (si le nouveau set ne les garde pas) ; sinon elles restent équipées et gardent leur marque. Une pièce qui ne peut pas rentrer (case prise, plus éligible) reste dans le sac. */
+  const gardees = [];
+  for (const id of anciensCoffre) {
+    if (voulues.includes(id)) { if (!gardees.includes(id)) gardees.push(id); continue; }
+    if (!w.inventory.some((o) => String(o.id) === id)) continue;
+    try { coffreDeposer(w, id); dernierRetourCoffreV1 += 1; } catch (_) { /* reste dans le sac */ }
+  }
+  const marques = [...gardees, ...retires.filter((id) => !gardees.includes(id))].slice(0, 40);
+  if (marques.length) cfgV1(w).coffreEquipes = marques; else delete cfgV1(w).coffreEquipes;   /* cfgV1 recopie la configuration : on l'écrit sur la version courante */
   if (idleAdventureInventoryUsedV1(w) > idleAdventureInventoryCapacityV1(w)) throw new Error("SAC_PLEIN");
   idleAdventureSyncInventorySlotsV1(w);
   bumpRevisionV1(w);
@@ -886,7 +903,7 @@ export function applyIdleInventoryAutoActionV1(state, payload, env, rng = Math.r
   if (mode === "loadoutApply") {
     /* Pendant le No Equipment Challenge on peut changer de tenue (Norman, 2026-10-17) : les pièces ne comptent pas, voir idleEquipementEffectifV1. */
     state.adventure = loadoutApplyV1(s, payload.index, env);
-    return { index: I(payload.index, -1), equipment: X(state.adventure.equipment), fromCoffre: dernierRetraitCoffreV1 };
+    return { index: I(payload.index, -1), equipment: X(state.adventure.equipment), fromCoffre: dernierRetraitCoffreV1, toCoffre: dernierRetourCoffreV1 };
   }
   if (mode === "lootFilterType") {
     if (!env?.lootFilterBasic) throw new Error("FILTRE_BASIQUE_VERROUILLE");
