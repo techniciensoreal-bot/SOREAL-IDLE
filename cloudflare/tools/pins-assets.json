@@ -128,8 +128,8 @@
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
  },
  "/modules/boutique-exp-page-v1.js": {
-  "pin": 12,
-  "sha": "0fee17c84eae531f87cbbb1525105ebe63423cf3"
+  "pin": 13,
+  "sha": "e076822061e3cf01e1d60cb04b62aa763e8379ef"
  },
  "/modules/boutique-info-i-v1.js": {
   "pin": 3,
@@ -548,8 +548,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 232,
-  "sha": "6f5106dc9ea45ce5eaefffc1e88f909f9347f2fc"
+  "pin": 234,
+  "sha": "9a6888e33544444359b08605a2e20e49cbd2fb33"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -608,8 +608,8 @@
   "sha": "636e0ab40966aa8c015021481a0f91474dea7501"
  },
  "/modules/prefs-compte-v1.js": {
-  "pin": 4,
-  "sha": "3b09c8b5c29466374350f30632820a17b622259f"
+  "pin": 5,
+  "sha": "475931ce6a423585ced203601ebb4978b534d16d"
  },
  "/modules/profil-badavatar-editeur-v1.js": {
   "pin": 6,
@@ -664,12 +664,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 312,
-  "sha": "b28ba9945071e6f00eacf2f110daf25ea585c95f"
+  "pin": 313,
+  "sha": "32d02a4b96b8d9c2140379453d3ac184dd6025b2"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 951,
-  "sha": "f9b409254a9af985d43cb22b87605933708189d3"
+  "pin": 952,
+  "sha": "413443ee75e9252b70f82e71c9c68d8a43a5ece2"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -764,12 +764,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 990,
-  "sha": "e1b63f84bf4b58efa49ea8a133adaf0c06bc2055"
+  "pin": 991,
+  "sha": "f1ede425c0c0065f09601f80aa8aa85aac3686a3"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 811,
-  "sha": "fc8e013de2e4fc28b160fdf0a1960fc8ee6d6983"
+  "pin": 812,
+  "sha": "77c5b1b195beb58ecca8e3bb9354b54d73e8fe5f"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -812,8 +812,8 @@
   "sha": "5f6174be53226d53df136b8cbd128094cac6432e"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 35,
-  "sha": "feb9e8f2d2801c20e28847d0bdb2d4922f1eb792"
+  "pin": 36,
+  "sha": "b4d00e60516a458b086f59f725fc5f4eef51193c"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 63,

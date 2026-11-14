@@ -4,9 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Relier l’application Android à ton compte demande maintenant une confirmation, avec un court code à comparer à celui affiché dans l’application : un lien piégé ne peut plus le faire à ta place. Même confirmation pour relier l’application Windows.",
-    "Une partie envoyée avec des données abîmées (copie tronquée, date illisible) est refusée au lieu d’écraser ta bonne partie.",
-    "Le serveur n’envoie plus la liste des zones, des sets, des sorts ni des déblocages que tu n’as pas encore atteints.",
-    "Les animations d’indice du tutoriel et de la récompense de connexion s’arrêtent quand « réduire les animations » est activé."
+    "Si le serveur refuse ta sauvegarde plusieurs fois de suite, un bandeau te prévient au lieu de te laisser jouer sans que rien ne soit enregistré.",
+    "Sur Windows, la base de ta partie a une copie de secours par jour (les 5 dernières sont gardées) et se restaure toute seule si elle est abîmée.",
+    "Les compétences d’Aventure que tu n’as pas encore débloquées ne sont plus dessinées."
   ] };
 })();
