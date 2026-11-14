@@ -24,11 +24,17 @@ for (const e of registre.entrees) {
 }
 
 const trouves = [];
-for (const f of readdirSync(DOSSIER).filter((x) => x.endsWith(".js")).sort()) {
-  const t = normaliser(readFileSync(DOSSIER + f, "utf8"));
+/* Audit 2026-11-14 : le test ne lisait que cloudflare/src/ ; les constantes de combat des Titans (titans-comportements-v1.js) et la cachette de Walderp vivent dans cloudflare/public/modules/ et échappaient au registre. */
+const DOSSIER_MODULES = "cloudflare/public/modules/";
+const MARQUEURS_MODULES = ["choix soreal", "choix de soreal", "choisie par soreal"];
+const sources = readdirSync(DOSSIER).filter((x) => x.endsWith(".js")).sort().map((f) => ({ nom: f, chemin: DOSSIER + f, marqueurs: MARQUEURS }))
+  .concat(readdirSync(DOSSIER_MODULES).filter((x) => x.endsWith(".js") && !/worker/.test(x)).sort().map((f) => ({ nom: "modules/" + f, chemin: DOSSIER_MODULES + f, marqueurs: MARQUEURS_MODULES })));
+for (const src of sources) {
+  const f = src.nom;
+  const t = normaliser(readFileSync(src.chemin, "utf8"));
   const bas = t.toLowerCase();
   const vus = new Set();
-  for (const m of MARQUEURS) {
+  for (const m of src.marqueurs) {
     let i = -1;
     while ((i = bas.indexOf(m, i + 1)) >= 0) {
       const repere = t.slice(i, i + 60).trim();
