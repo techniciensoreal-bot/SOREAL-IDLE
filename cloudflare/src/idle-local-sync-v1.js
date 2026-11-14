@@ -172,7 +172,8 @@ export function restaurerSauvegardeLocaleV1(coord, email, id) {
   if (!index) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
   const actuelle = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
   const maintenant = Date.now();
-  if (actuelle) copier(coord, mail, actuelle.row_json, "avant-restauration", maintenant);
+  if (!actuelle) return { ok: false, error: "IDLE_LIGNE_JOUEUR_INTROUVABLE" };
+  copier(coord, mail, actuelle.row_json, "avant-restauration", maintenant);
   let serveur = [];
   try { serveur = JSON.parse(actuelle.row_json); } catch (_) {}
   const cells = JSON.parse(copie.row_json);
@@ -321,6 +322,13 @@ export function appliquerRecordsRetiresV1(coord, email, cells) {
   return true;
 }
 
+/* Le « Stats JSON » (colonne 38) de la ligne reçue doit être une chaîne qui s'analyse en objet. */
+function statsJsonLisibleV1(cells) {
+  const v = cells[COL_STATS_JSON];
+  if (typeof v !== "string" || v === "") return true;   /* absent : une ligne de service ou de test, pas une copie tronquée */
+  try { const o = JSON.parse(v); return Boolean(o) && typeof o === "object" && !Array.isArray(o); } catch (_e) { return false; }
+}
+
 export function recevoirDuMoteurLocalV1(coord, p) {
   invaliderTrajectoireV1(); /* la ligne du joueur est écrite de l'extérieur : la trajectoire des multiplicateurs mise de côté n'est plus fiable */
   const s = coord.standaloneSessionV1(p && p.sessionToken);
@@ -348,6 +356,8 @@ export function recevoirDuMoteurLocalV1(coord, p) {
     if (!propre || propre.appareil !== appareil) revendiquer(coord, mail, appareil, Date.now());
   }
   if (!cells || cells.length < 30) return { ok: false, error: "IDLE_LOCAL_LIGNE_INVALIDE" };
+  /* Audit 2026-11-14 : une ligne dont le « Stats JSON » est tronqué ou illisible (copie IndexedDB coupée par un quota, fermeture brutale) était écrite telle quelle ; le moteur lit alors {} et remet la progression à zéro sans erreur. Refusée : le serveur garde sa bonne ligne. */
+  if (!statsJsonLisibleV1(cells)) return { ok: false, error: "IDLE_LOCAL_LIGNE_INVALIDE" };
   const actuelle = coord.sqlAll("SELECT row_json FROM idle_catalog WHERE sheet_name='JOUEURS' AND row_index=?", index)[0];
   let serveur = [];
   try { serveur = JSON.parse(actuelle.row_json); } catch (_) {}
@@ -360,6 +370,8 @@ export function recevoirDuMoteurLocalV1(coord, p) {
    * Date future (audit anti-rollback, Norman, 2026-10-21) : la « dernière synchro » sert de version. Une date annoncée dans le futur était enregistrée telle quelle ; tout envoi honnête suivant paraissait « plus ancien » et était refusé pour toujours (la partie ne se sauvegardait plus, et au
    * rechargement la copie de l'appareil, plus ancienne que cette date, était écartée : retour en arrière). L'anomalie reste NOTÉE (observation), mais la date enregistrée est ramenée à l'heure du serveur, et une ligne déjà marquée dans le futur n'en bloque plus l'écriture.
    */
+  /* Audit 2026-11-14 : une date illisible rendait la comparaison de dates sautée (NaN) et l'écriture acceptée ; la date enregistrée devient celle du serveur, comme pour une date future. */
+  if (!Number.isFinite(recu)) { recu = maintenantSrv; cells[COL_DERNIERE_SYNCHRO] = new Date(maintenantSrv).toISOString(); }
   if (Number.isFinite(recu) && recu > maintenantSrv + TOLERANCE_HORLOGE_MS) { recu = maintenantSrv; cells[COL_DERNIERE_SYNCHRO] = new Date(maintenantSrv).toISOString(); }
   if (Number.isFinite(connu) && connu > maintenantSrv + TOLERANCE_HORLOGE_MS) connu = maintenantSrv - TOLERANCE_HORLOGE_MS;
   /*

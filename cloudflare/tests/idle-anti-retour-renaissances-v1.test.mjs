@@ -53,6 +53,6 @@ assert.equal(r.ok, true); assert.equal(r.ecrit, true); assert.equal(Number(lireL
 
 // 4. Au démarrage, la page n'adopte jamais une copie qui a moins de renaissances que le serveur.
 const page = fs.readFileSync(new URL("../public/modules/moteur-local-v1.js", import.meta.url), "utf8");
-assert.ok(/const copieEnRetard=Number\(rec\.cells\[24\]\)<Number\(srv\[24\]\);\s*if\(!copieEnRetard&&enMs\(rec\.cells\[15\]\)>refServeurMs\)\{/.test(page), "la reprise écarte une copie en retard sur les renaissances");
+assert.ok(/const copieEnRetard=statsIllisible\|\|Number\(rec\.cells\[24\]\)<Number\(srv\[24\]\);\s*if\(!copieEnRetard&&enMs\(rec\.cells\[15\]\)>refServeurMs\)\{/.test(page), "la reprise écarte une copie en retard sur les renaissances");
 
 console.log("idle-anti-retour-renaissances-v1 : OK");
