@@ -1178,7 +1178,7 @@
       function explosionEnnemiAdventureIdleV1_(fight,degatsCoup){
         const mt=window.SorealMobTypesV1;
         if(!mt||!fight||fight.titanId)return '';
-        const degats=mt.explosion(fight,Math.max(1,idleNombre_(degatsCoup)));
+        const degats=mt.explosion(fight);
         if(!(degats>0))return '';
         const avant=idleNombre_(fight.playerHp);
         const subis=Math.min(avant,degats);
@@ -1419,6 +1419,14 @@
             const issueExplosion=explosionEnnemiAdventureIdleV1_(fight,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,1));
             if(issueExplosion==='mort'){terminerCombatAdventureLocalV2_(fight,false);return;}
             if(issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;terminerCombatAdventureLocalV2_(fight,true);return;}
+          }
+          /* Types d'ennemis (mobs-types-v1.js) : chargeur (gros coup toutes les 4 attaques) et grandisseur (de plus en plus fort). */
+          if(window.SorealMobTypesV1&&!fight.titanId){
+            const coup=window.SorealMobTypesV1.coupEnnemi(fight);
+            if(coup.mult!==1)degats=Math.min(avant,Math.round(degats*coup.mult));
+            if(coup.prepare){fxIdleV1_('mob','charge');ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' se charge : sa prochaine attaque sera terrible !');}
+            if(coup.charge){fxTypeAttaque='puissante';ajouterLogAventureIdleV1_('enemy','💥 Attaque chargée !');}
+            else if(coup.croit&&fight.mobType==='grower')ajouterLogAventureIdleV1_('enemy','📈 '+libelleEnnemiAdventureIdleV1_(fight)+' devient plus fort.');
           }
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
           let fxTypeAttaque='degats';

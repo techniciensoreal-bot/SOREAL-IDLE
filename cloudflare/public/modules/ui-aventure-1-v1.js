@@ -2091,12 +2091,13 @@
       }
 
       function intervalleAttaqueEnnemiAdventureIdleV2_(fight){
-        return Math.max(
+        const base=Math.max(
           100,
           Math.round(
             Math.max(.1,idleNombre_(fight&&fight.mobAttackRate)||1)*1000
           )
         );
+        return window.SorealMobTypesV1&&fight&&!fight.titanId?window.SorealMobTypesV1.intervalleEnnemiMs(fight,base):base;   /* ennemi rapide : ×0,8 (mobs-types-v1.js) */
       }
 
       function identiteFightAdventureIdleV2_(fight){

@@ -200,8 +200,8 @@
   "sha": "e54a8d211416e73d171577b86e46afab7b08463a"
  },
  "/modules/combat-effets-v1.js": {
-  "pin": 6,
-  "sha": "97d2f06f3937af773f453b372b7a16c2e4fa9917"
+  "pin": 7,
+  "sha": "a4665548b3a4c0a22c995c63acb45ae572c28625"
  },
  "/modules/combat-vie-modele-v1.js": {
   "pin": 3,
@@ -524,8 +524,8 @@
   "sha": "779bf584bbef6a83ac7da05f6b12b7358b39f5d7"
  },
  "/modules/mobs-types-v1.js": {
-  "pin": 3,
-  "sha": "0044c0e0172b026e55b62bfbaf73a4eaabc08190"
+  "pin": 4,
+  "sha": "eff8a089927e5cca0059cbb93c7c17fe3c7ca6f0"
  },
  "/modules/money-pit-page-v1.js": {
   "pin": 31,
@@ -668,12 +668,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 320,
-  "sha": "21fafa33981e23e4e921d1b8c8e2a278c6ea221d"
+  "pin": 321,
+  "sha": "abe2d953c8f5496018a1ce5eef4da4794e3db6fd"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 958,
-  "sha": "b347513521a96710eb35b3a4da112c02946e02a7"
+  "pin": 959,
+  "sha": "0e4f6575e1f1818187f44112e557ab4fa2cab2ef"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -768,12 +768,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 998,
-  "sha": "1ab7e5ea014f1c123eb2eff276b710b91660fb85"
+  "pin": 999,
+  "sha": "eed34256d3e17ec94afb13760e47654a1ef078e1"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 819,
-  "sha": "9fc336c7419a3ab23e1ec67347c0cbdeb8e7e88d"
+  "pin": 820,
+  "sha": "08b70f37699fc779734344cedbe8b9fc561f8c08"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -816,8 +816,8 @@
   "sha": "5f6174be53226d53df136b8cbd128094cac6432e"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 39,
-  "sha": "bb40c6df7a14ae430f6048266ac0e3df127f0322"
+  "pin": 40,
+  "sha": "774d6964231e6da42333a59ef52bdc75efb92ed4"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 63,
@@ -840,8 +840,8 @@
   "sha": "df71495e5381548e29eb2bb8b7a9569f2db7e4ce"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 48,
-  "sha": "b688c876a008a5c9718336cf977ee0e64122009f"
+  "pin": 49,
+  "sha": "64688748e630554c6352392cbdd0a07d9301281d"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,

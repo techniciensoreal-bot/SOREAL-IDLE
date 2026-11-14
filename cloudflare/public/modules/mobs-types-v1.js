@@ -8,6 +8,11 @@
  *   - paralysie : un coup sur 4 (valeur SOREAL, non publiée) paralyse le joueur 2 s (plus de compétences ni d'Idle, comme la paralysie des titans) ; puis 4 s d'immunité (valeur SOREAL) pour ne jamais enchaîner ;
  *   - explosif : son « Attack Rate » PUBLIÉ par le wiki vaut 5 à 14 s (contre 0,8 à 1,5 s pour tous les autres types) : c'est son compte à rebours (Fairy 5, Icarus 9, Kitten in a Mech Woman 12…). Au bout de ce délai il explose : son coup, DOUBLÉ (valeur SOREAL, non publiée),
  *     te frappe, puis il disparaît (victoire) ; le joueur peut en mourir. Le tuer AVANT ne déclenche rien (wiki, page Adventure Mode : « enough Power to kill any exploder »). Avant cette correction (2026-11-14) il « attaquait » seulement toutes les 12 s, d'où « il n'attaque presque pas ».
+ *   - EXPLOSION, correction du 2026-11-14 : le wiki (page « Secrets and Spoilers », secret « Survive an attack from an exploder ») publie UN chiffre : le plus faible explosif, Fairy (Power 33), « deals around 2500 damage » ; on en tire le facteur 2500 / 33 sur la puissance de
+ *     l'ennemi (extrapolation SOREAL à tous les explosifs : le wiki ne donne pas de formule générale) ; l'explosion ignore la Robustesse. Ce n'est donc plus le « double d'un coup » ;
+ *   - rapide (rapid) : le wiki ne donne que le TYPE (et l'Attack Rate listé n'est plus rapide que celui des ennemis normaux de la même zone que dans 8 zones sur 23) ; sur demande de Norman (2026-11-14 : « rapid attaque plus rapidement ») : intervalle ×0,8 (valeur SOREAL) ;
+ *   - chargeur (charger) : type seul au wiki ; sur demande de Norman (« charger doit sûrement mettre un gros coup ») : il se charge pendant 3 attaques (signe visible à la 3e) puis la 4e frappe ×2,5 (valeurs SOREAL), et ainsi de suite ;
+ *   - grandisseur (grower) : type seul au wiki ; sur demande de Norman (« grower tape de plus en plus fort ») : +10 % de dégâts cumulés à chaque attaque, plafonnés à ×3 (valeurs SOREAL).
  * Un ennemi « poison/paralyze » cumule les deux. Jamais pour un titan (leurs capacités sont dans titans-comportements-v1.js). Aucune image : des émojis et des dégradés (combat-effets-v1.js), des sons synthétisés (audio-effects-v199.js).
  * API : window.SorealMobTypesV1 = { types, reinit, apresCoupEnnemi, tickPoison, explosion, paralyse, poisonActif, constantes }.
  */
@@ -16,16 +21,16 @@
 if(typeof window==='undefined'||window.SorealMobTypesV1)return;
 
 /* Toutes ces valeurs sont des choix SOREAL (non publiés : wiki, Steam, guides, mods ; accord de Norman 2026-10-04, décision du 2026-11-14), « à valider par Norman » dans le registre des constantes. */
-var C={poisonMs:5000,poisonTickMs:1000,poisonFraction:.2,paralysieChance:.25,paralysieMs:2000,paralysieImmuniteMs:4000,explosionMult:2};
-var etat={poisonJusqua:0,poisonCoup:0,dernierTickPoison:0,paralyseJusqua:0,immuniteJusqua:0};
+var C={poisonMs:5000,poisonTickMs:1000,poisonFraction:.2,paralysieChance:.25,paralysieMs:2000,paralysieImmuniteMs:4000,explosionParPuissance:2500/33,rapideIntervalle:.8,chargeurTous:4,chargeurMult:2.5,croissanceParCoup:.1,croissancePlafond:3};
+var etat={poisonJusqua:0,poisonCoup:0,dernierTickPoison:0,paralyseJusqua:0,immuniteJusqua:0,attaques:0};
 
-function reinit(){etat={poisonJusqua:0,poisonCoup:0,dernierTickPoison:0,paralyseJusqua:0,immuniteJusqua:0};}
+function reinit(){etat={poisonJusqua:0,poisonCoup:0,dernierTickPoison:0,paralyseJusqua:0,immuniteJusqua:0,attaques:0};}
 
 /* Types de l'ennemi : « poison », « paralyze », « exploder » (jamais pour un titan). « poison/paralyze » donne les deux. */
 function types(fight){
-  var sortie={poison:false,paralyze:false,exploder:false};
+  var sortie={poison:false,paralyze:false,exploder:false,rapid:false,charger:false,grower:false};
   if(!fight||!fight.active||fight.titanId)return sortie;
-  String(fight.mobType||'').toLowerCase().split('/').forEach(function(t){t=t.trim();if(t==='poison'||t==='paralyze'||t==='exploder')sortie[t]=true;});
+  String(fight.mobType||'').toLowerCase().split('/').forEach(function(t){t=t.trim();if(t==='poison'||t==='paralyze'||t==='exploder'||t==='rapid'||t==='charger'||t==='grower')sortie[t]=true;});
   return sortie;
 }
 
@@ -63,11 +68,32 @@ function tickPoison(maintenant){
   return total;
 }
 
-/* Dégâts de l'explosion de l'ennemi qui meurt : le double d'un coup ordinaire (`degatsCoup`) ; 0 s'il n'est pas explosif. */
-function explosion(fight,degatsCoup){
+/* Dégâts de l'explosion : 2500 / 33 fois la puissance de l'ennemi (Fairy, Power 33 : « around 2500 damage », wiki) ; 0 s'il n'est pas explosif. */
+function explosion(fight){
   if(!types(fight).exploder)return 0;
-  return Math.max(1,Math.round(Math.max(0,Number(degatsCoup)||0)*C.explosionMult));
+  return Math.max(1,Math.round(Math.max(0,Number(fight&&fight.mobPower)||0)*C.explosionParPuissance));
 }
 
-window.SorealMobTypesV1={types:types,reinit:reinit,apresCoupEnnemi:apresCoupEnnemi,tickPoison:tickPoison,explosion:explosion,paralyse:paralyse,poisonActif:poisonActif,constantes:C};
+/* Intervalle entre deux attaques de l'ennemi : un ennemi rapide attaque plus vite (×0,8). */
+function intervalleEnnemiMs(fight,baseMs){
+  return types(fight).rapid?Math.max(100,Math.round(baseMs*C.rapideIntervalle)):baseMs;
+}
+
+/*
+ * À appeler à CHAQUE attaque de l'ennemi : renvoie { mult, charge, prepare, croit } ; `mult` multiplie ses dégâts ordinaires (chargeur : ×2,5 toutes les 4 attaques ; grandisseur : +10 % cumulés, plafond ×3) ;
+ * `charge` : cette attaque est le gros coup ; `prepare` : la prochaine sera le gros coup (signe visible) ; `croit` : le grandisseur vient de gagner en force.
+ */
+function coupEnnemi(fight){
+  var t=types(fight),r={mult:1,charge:false,prepare:false,croit:false};
+  if(!t.charger&&!t.grower)return r;
+  etat.attaques+=1;
+  if(t.grower){r.mult*=Math.min(C.croissancePlafond,1+C.croissanceParCoup*(etat.attaques-1));r.croit=etat.attaques>1&&r.mult<C.croissancePlafond+1e-9;}
+  if(t.charger){
+    if(etat.attaques%C.chargeurTous===0){r.mult*=C.chargeurMult;r.charge=true;}
+    else if(etat.attaques%C.chargeurTous===C.chargeurTous-1)r.prepare=true;
+  }
+  return r;
+}
+
+window.SorealMobTypesV1={types:types,reinit:reinit,apresCoupEnnemi:apresCoupEnnemi,tickPoison:tickPoison,explosion:explosion,intervalleEnnemiMs:intervalleEnnemiMs,coupEnnemi:coupEnnemi,paralyse:paralyse,poisonActif:poisonActif,constantes:C};
 })();
