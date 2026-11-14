@@ -6,6 +6,7 @@
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
     "Un boss a désormais une mort qui lui est propre : il se déchire comme une feuille de papier.",
     "Après une défaite, le retour en fondu d’ouverture avec le chœur de voix revient de temps en temps (il n’était plus jamais joué).",
+    "Entraînement avancé : le texte sous chaque barre (bonus, puis temps avant le prochain niveau) est maintenant toujours sur deux lignes, au lieu de passer parfois sur une ligne et parfois sur deux selon le nombre ou la durée affichés.",
     "Tous les succès sont maintenant obtenables : les succès secrets qui ne se débloquaient jamais (survivre à un ennemi explosif, vaincre certains ennemis avant qu’ils n’attaquent) fonctionnent enfin.",
     "Les ennemis qui empoisonnent, paralysent ou explosent font maintenant ce qu’ils annoncent, avec leurs effets et leurs sons : le poison te ronge pendant 5 s, la paralysie coupe tes compétences 2 s, un ennemi explosif explose au bout de son compte à rebours si tu ne l’as pas vaincu avant (environ 2 500 dégâts pour le plus faible), un chargeur frappe un très gros coup toutes les 4 attaques, et quand un combat dure trop longtemps (plus de 20 s) un ennemi rapide s’accélère et un ennemi qui grandit tape de plus en plus fort.",
     "Quand tu changes de configuration d’équipement, les pièces venues du coffre y retournent au lieu de finir dans le sac ; celles venues du sac y restent.",
