@@ -15,7 +15,7 @@
 if(window.__SOREAL_IDLE_PREFS_V1__)return;
 
 var DELAI_MS=1500, RELANCE_MS=8000, LOT_MAX=80, VALEUR_MAX=8000;
-var EXCLUES=/^(soreal_idle_session_v1|soreal_idle_google_session_v1|soreal_idle_diag_v1|soreal_idle_perf_v1|soreal_idle_admin_prononciations_v1|soreal_idle_lecteur_chroniques_pos_v1|soreal_idle_prefs_|soreal_idle_volume_|soreal_idle_son_actif_|soreal_idle_tutorial_tts_auto_|soreal_idle_effet_)/;
+var EXCLUES=/^(soreal_idle_session_v1|soreal_idle_google_session_v1|soreal_idle_diag_v1|soreal_idle_perf_v1|soreal_idle_admin_prononciations_v1|soreal_idle_lecteur_chroniques_pos_v1|soreal_idle_prefs_|soreal_idle_volume_|soreal_idle_son_actif_|soreal_idle_tutorial_tts_auto_|soreal_idle_effet_|soreal_idle_boss_gong_index_|soreal_idle_victoire_boss_index_|soreal_idle_album_zoom_)/;   /* audit 2026-11-14 : rotation des sons de victoire (écrite à chaque boss tué) et zoom de l'album (dépend de la taille d'écran) : propres à l'appareil */
 /* Propres à CHAQUE appareil (Norman, 2026-11-05 : « les réglages de son, voix, etc. doivent être propres à chaque appareil ») : volumes (voix, ambiance, musique, interface), cases de son, lecture automatique de la voix, effets visuels. */
 var stock=null;try{stock=window.localStorage;}catch(_e){}
 if(!stock||typeof Storage==='undefined'){window.__SOREAL_IDLE_PREFS_V1__={appliquer:function(){},suivie:function(){return false;}};return;}
