@@ -4,14 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Un boss a désormais une mort qui lui est propre : il se déchire comme une feuille de papier.",
-    "Après une défaite, le retour en fondu d’ouverture avec le chœur de voix revient de temps en temps (il n’était plus jamais joué).",
-    "Entraînement avancé : le texte sous chaque barre (bonus, puis temps avant le prochain niveau) reste maintenant toujours sur une seule ligne sur ordinateur (au lieu de passer parfois sur deux selon le nombre ou la durée affichés) ; sur téléphone, il se met sur deux lignes si la place manque, toujours de la même façon.",
-    "Tous les succès sont maintenant obtenables : les succès secrets qui ne se débloquaient jamais (survivre à un ennemi explosif, vaincre certains ennemis avant qu’ils n’attaquent) fonctionnent enfin.",
-    "Les ennemis qui empoisonnent, paralysent ou explosent font maintenant ce qu’ils annoncent, avec leurs effets et leurs sons : le poison te ronge pendant 5 s, la paralysie coupe tes compétences 2 s, un ennemi explosif explose au bout de son compte à rebours si tu ne l’as pas vaincu avant (environ 2 500 dégâts pour le plus faible), un chargeur frappe un très gros coup toutes les 4 attaques, et quand un combat dure trop longtemps (plus de 20 s) un ennemi rapide s’accélère et un ennemi qui grandit tape de plus en plus fort.",
-    "Quand tu changes de configuration d’équipement, les pièces venues du coffre y retournent au lieu de finir dans le sac ; celles venues du sac y restent.",
-    "Quand la zone des cases d’automatisation du sac est repliée, les compteurs de temps avant la prochaine exécution restent visibles sur la ligne fine.",
-    "Les atouts et les manies qui concernent un système que tu n’as pas encore débloqué ne sont plus affichés : ils apparaissent quand tu découvres le système.",
-    "Même règle ici : une entrée liée à un système encore fermé n’apparaît pas."
+    "Labos : quand le moteur refuse de faire travailler un labo (pas assez d’or par seconde à ce niveau, plus de place libre, aucun niveau choisi), un message le dit maintenant au lieu de ne rien afficher."
   ] };
 })();

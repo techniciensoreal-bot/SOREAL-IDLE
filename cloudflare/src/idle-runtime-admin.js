@@ -188,6 +188,14 @@ export function preparerPartieTestSorealIdle(sessionToken, options) {
     if (ap !== null) { meta.currencies.ap = ap; applique.ap = ap; }
     if (pp !== null) { meta.currencies.pp = pp; applique.pp = pp; }
     if (graines !== null) { meta.currencies.seeds = graines; applique.graines = graines; }
+    /* Machine temporelle d'essai (banc d'essai uniquement) : de l'or par seconde pour tester les Labos (machineOrParBarre = meilleur or d'un run, machineBoss = plus haut boss, machineVitesse = niveau de vitesse). */
+    const tm = meta.systems && meta.systems.timeMachine && meta.systems.timeMachine.data;
+    const machineOr = borne(o.machineOrParBarre, 0, 1e30), machineBoss = borne(o.machineBoss, 0, 301), machineVitesse = borne(o.machineVitesse, 0, 1e6);
+    if (tm && (machineOr !== null || machineBoss !== null || machineVitesse !== null)) {
+      if (machineOr !== null) { tm.bestGoldThisRun = machineOr; applique.machineOrParBarre = machineOr; }
+      if (machineBoss !== null) { tm.highestBossEver = Math.floor(machineBoss); applique.machineBoss = Math.floor(machineBoss); }
+      if (machineVitesse !== null) { tm.speedLevel = Math.floor(machineVitesse); applique.machineVitesse = Math.floor(machineVitesse); }
+    }
     const e = meta.resources.energy;
     if (cap !== null) { e.cap = cap; e.capNaturel = cap; applique.energieCap = cap; }
     if (puissance !== null) { e.power = puissance; applique.energiePuissance = puissance; }

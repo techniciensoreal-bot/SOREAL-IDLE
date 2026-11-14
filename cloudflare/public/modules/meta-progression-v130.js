@@ -139,6 +139,16 @@
         return t;
       }
 
+      function messageRefusLaboV1_(payload,brut){
+        if(!payload||!/^(toggleDigger|setDiggerLevel|upgradeDigger)$/.test(String(payload.action||'')))return '';
+        const t=String(brut==null?'':brut);
+        if(/GPS_INSUFFISANT/.test(t))return '⚗️ Pas assez d’or par seconde pour faire travailler ce labo à ce niveau : baisse son niveau ou mets un autre labo au repos.';
+        if(/AUCUN_SLOT_DIGGER/.test(t))return '⚗️ Toutes tes places de labo sont prises : mets un labo au repos avant d’en faire travailler un autre.';
+        if(/DIGGER_NON_ACHETE/.test(t))return '⚗️ Choisis d’abord un niveau pour ce labo (au moins 1).';
+        if(/OR_INSUFFISANT|MONNAIE_INSUFFISANTE/.test(t))return '⚗️ Pas assez d’or pour ce labo.';
+        return '';
+      }
+
       /* Refus d'une copie de Wandoos : un message clair à la place du code d'erreur du serveur. */
       function messageCopieWandoosV1_(code){
         const m=String(code||'').match(/^NIVEAU_COPIE_INSUFFISANT(?::(d+))?/);
@@ -576,6 +586,8 @@
             try{if(payload&&payload.action==='consumeWandoosCopy'&&window.__SOREAL_IDLE_AUDIO_V199__&&typeof window.__SOREAL_IDLE_AUDIO_V199__.wandoosErreur==='function')window.__SOREAL_IDLE_AUDIO_V199__.wandoosErreur();}catch(_e){}
             /* Activation auto d'Yggdrasil : cap requis non atteint -> un popup dit le prérequis (Norman, 2026-11-05). */
             try{if(payload&&payload.action==='buyExpShop'&&res&&/CAP_RESSOURCE_INSUFFISANT/.test(String(res.message||''))&&window.__SOREAL_IDLE_POPUP_EFFET_V1__&&window.__SOREAL_IDLE_POPUP_EFFET_V1__.refusCap(window.__SOREAL_IDLE_CAP_AUTO_YGG__))return;}catch(_e){}
+            /* Labos (Norman, 2026-11-14 : « j'active un labo et rien ne se passe ») : un refus du moteur (pas assez d'or par seconde, plus de place, labo non ouvert) n'affichait RIEN, la page de toast n'existant pas : maintenant un message visible dit pourquoi. */
+            try{const mL=messageRefusLaboV1_(payload,res&&res.message);if(mL){window.__SOREAL_IDLE_META_HOST_V130__.messageFlottantIdleV32_(mL);return;}}catch(_e){}
             window.__SOREAL_IDLE_META_HOST_V130__.toastIdleV5_(
               payload&&payload.action==='consumeWandoosCopy'&&res&&res.message
                 ?messageCopieWandoosV1_(res.message)
