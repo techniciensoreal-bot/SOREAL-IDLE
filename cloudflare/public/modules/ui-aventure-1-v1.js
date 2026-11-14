@@ -1361,6 +1361,8 @@
 
       function titanJoueurParalyseIdleV1_(maintenant){
         const api=window.SorealTitanComportementsV1;
+        /* paralysie d'un titan OU d'un ennemi paralysant de la zone (mobs-types-v1.js) : mêmes conséquences (compétences et Idle coupés) */
+        if(window.SorealMobTypesV1&&window.SorealMobTypesV1.paralyse(maintenant))return true;
         return Boolean(api&&REG.idleTitanEtatV1&&api.joueurParalyse(REG.idleTitanEtatV1,maintenant));
       }
 
@@ -2130,7 +2132,7 @@
         const action=REG.idleAdventureResolutionPendingV2;
         actionMetaIdleV130_({
           action:'adventure',
-          adventure:{action:action,titanId:idleAdventureResolutionIdentiteV2.titanId,titanStartedAt:idleAdventureResolutionIdentiteV2.titanStartedAt}
+          adventure:{action:action,titanId:idleAdventureResolutionIdentiteV2.titanId,titanStartedAt:idleAdventureResolutionIdentiteV2.titanStartedAt,titanSansCoup:idleAdventureResolutionIdentiteV2.sansCoup===true,exploderSurvived:idleAdventureResolutionIdentiteV2.exploderSurvived===true}
         });
         if(metaOccupeIdleV130_()){
           REG.idleAdventureResolutionPendingV2='';
@@ -2203,6 +2205,7 @@
 
       function terminerCombatAdventureLocalV2_(fight,victoire){
         if(!fight||!fight.active)return;
+        /* (l'explosion d'un ennemi explosif a lieu à son compte à rebours, pendant le combat : voir le tick ; tuer l'ennemi avant ne déclenche rien) */
         const nom=libelleEnnemiAdventureIdleV1_(fight);
         const finCombatMsV166=
           reinitialiserHorlogeRegenReposAdventureIdleV166_(Date.now());
@@ -2215,7 +2218,9 @@
             'system',
             'Vous avez vaincu '+nom+' !'
           );
-          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt)};
+          /* Succès (2026-11-14) : « vaincre un titan avant qu'il attaque » (aucune attaque du titan pendant ce combat) et « survivre à un ennemi explosif » (explosion survécue) : annoncés au serveur avec la victoire. */
+          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt),sansCoup:Boolean(fight.titanId)&&!(REG.idleTitanAttaquesV1>0),exploderSurvived:Boolean(REG.idleExploderSurvivedV1)};
+          REG.idleExploderSurvivedV1=false;
           REG.idleAdventureResolutionPendingV2='resolveZoneFight';
           /* Titan vaincu : l'écran de combat joue son départ (il rapetisse en tournant) puis annonce son retour (modules/titans-combat-ecran-v1.js). */
           if(fight.titanId){try{window.dispatchEvent(new CustomEvent('soreal-titan-vaincu',{detail:{id:String(fight.titanId),nom:String(nom||'')}}));}catch(_e){}}

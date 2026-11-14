@@ -1170,6 +1170,24 @@
         return api&&fight&&fight.titanId&&api.possede(fight.titanId)?api:null;
       }
 
+      /*
+       * Ennemi explosif (mobs-types-v1.js, Norman 2026-11-14) : son « Attack Rate » publié par le wiki (5 à 14 s, contre ~1,1 s pour tous les autres) est le compte à rebours de son explosion ; à cet instant (le moment de sa première attaque) il explose :
+       * son coup, doublé (valeur SOREAL), te frappe, puis il disparaît (victoire). Le tuer AVANT n'inflige rien (wiki : « enough Power to kill any exploder »). `degatsCoup` : ses dégâts ordinaires à cet instant.
+       * Renvoie 'mort' (le joueur est tombé), 'survie' (explosion survécue : succès « Survive an attack from an exploder enemy ») ou '' (pas d'explosion).
+       */
+      function explosionEnnemiAdventureIdleV1_(fight,degatsCoup){
+        const mt=window.SorealMobTypesV1;
+        if(!mt||!fight||fight.titanId)return '';
+        const degats=mt.explosion(fight,Math.max(1,idleNombre_(degatsCoup)));
+        if(!(degats>0))return '';
+        const avant=idleNombre_(fight.playerHp);
+        const subis=Math.min(avant,degats);
+        fight.playerHp=Math.max(0,avant-subis);
+        fxIdleV1_('mob','explosion');fxIdleV1_('joueur','degats','-'+idleEntier_(subis));jouerEffetAudioIdleV199_('skill_mobExplosion');
+        ajouterLogAventureIdleV1_('enemy','💥 '+libelleEnnemiAdventureIdleV1_(fight)+' explose : '+idleEntier_(subis)+' dégâts !');
+        return fight.playerHp<=0?'mort':'survie';
+      }
+
       function fxEtatsIdleV1_(fight,maintenant){
         const fx=window.SorealCombatFxV1;
         if(!fx)return;
@@ -1179,7 +1197,8 @@
           fx.etats(fight&&fight.active?{
             soin:Math.max(REG.idleFxSoinJusqua,REG.idleAdventureManualStateV3.hyperRegenUntil),
             saigne:tit?tit.saignements:0,
-            paralyse:Boolean(tit&&api.joueurParalyse(tit,maintenant)),
+            paralyse:Boolean(tit&&api.joueurParalyse(tit,maintenant))||Boolean(window.SorealMobTypesV1&&window.SorealMobTypesV1.paralyse(maintenant)),
+            poison:Boolean(window.SorealMobTypesV1&&window.SorealMobTypesV1.poisonActif(maintenant)),
             spores:Boolean(tit&&api.multDegatsJoueur(fight.titanId,tit,maintenant)>0&&api.multDegatsJoueur(fight.titanId,tit,maintenant)<1),
             mobInvincible:Boolean(tit&&api.multDegatsJoueur(fight.titanId,tit,maintenant)===0),
             mobParalyse:REG.idleAdventureManualStateV3.enemyParalyzedUntil>maintenant
@@ -1276,6 +1295,8 @@
           REG.idleAdventureFightNextEnemyHitV2=
             maintenantTick+intervalleAttaqueEnnemiAdventureIdleV2_(fight);
           REG.idleAdventureFightLastRegenAtV2=maintenantTick;
+          REG.idleTitanAttaquesV1=0;REG.idleExploderSurvivedV1=false;   /* succès « sans coup » et « explosif survécu » : compteurs de CE combat */
+          try{if(window.SorealMobTypesV1)window.SorealMobTypesV1.reinit();}catch(_e){}   /* types d'ennemis (mobs-types-v1.js) : poison et paralysie repartent de zéro */
           REG.idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf():null;
           if(REG.idleTitanEtatV1)REG.idleTitanEtatV1.id=fight.titanId;
           /*
@@ -1370,7 +1391,7 @@
 
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-206 */
             if(fight.monsterHp<=0){
-              terminerCombatAdventureLocalV2_(fight,true);
+              terminerCombatAdventureLocalV2_(fight,true);   /* l'explosion d'un ennemi explosif est gérée à la fin du combat (explosionEnnemiAdventureIdleV1_) : tous les chemins de victoire */
               return;
             }
             continue;
@@ -1378,6 +1399,7 @@
 
           REG.idleAdventureFightNextEnemyHitV2+=
             intervalleAttaqueEnnemiAdventureIdleV2_(fight);
+          if(fight.titanId)REG.idleTitanAttaquesV1=(REG.idleTitanAttaquesV1||0)+1;   /* une attaque du titan a eu lieu : plus de succès « avant qu'il attaque » pour ce combat */
 
           const avant=idleNombre_(fight.playerHp);
           const toughnessEffectif=
@@ -1392,6 +1414,12 @@
               facteurAleaDegats
             )
           );
+          /* Ennemi explosif : au moment de son attaque (son « Attack Rate » est son compte à rebours) il EXPLOSE : coup doublé, puis il disparaît (mobs-types-v1.js). */
+          if(window.SorealMobTypesV1&&!fight.titanId&&window.SorealMobTypesV1.types(fight).exploder){
+            const issueExplosion=explosionEnnemiAdventureIdleV1_(fight,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,1));
+            if(issueExplosion==='mort'){terminerCombatAdventureLocalV2_(fight,false);return;}
+            if(issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;terminerCombatAdventureLocalV2_(fight,true);return;}
+          }
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
           let fxTypeAttaque='degats';
           let attTitan=null;
@@ -1464,6 +1492,14 @@
             libelleEnnemiAdventureIdleV1_(fight)+
             ' vous a attaqué pour '+idleEntier_(degats)+' dégâts !'
           );
+          /* Types d'ennemis (mobs-types-v1.js, Norman 2026-11-14) : poison et paralysie déclenchés par ce coup. */
+          const mobTypes=window.SorealMobTypesV1;
+          if(mobTypes&&!fight.titanId&&fight.playerHp>0){
+            const etaitEmpoisonne=mobTypes.poisonActif(momentEvenement);
+            const decl=mobTypes.apresCoupEnnemi(fight,degats,momentEvenement,Math.random());
+            if(decl.poison&&!etaitEmpoisonne){fxIdleV1_('joueur','poison');jouerEffetAudioIdleV199_('skill_mobPoison');ajouterLogAventureIdleV1_('enemy','☠️ Tu es empoisonné : le poison te ronge pendant 5 s !');}
+            if(decl.paralyse){fxIdleV1_('joueur','eclair');jouerEffetAudioIdleV199_('skill_paralyze');ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 2 s !');}
+          }
           modifie=true;
           evenements+=1;
 
@@ -1490,6 +1526,18 @@
           fight,
           maintenantTick
         );
+        /* Poison d'un ennemi (mobs-types-v1.js) : un tick de dégâts par seconde pleine, pendant la durée du poison. */
+        if(window.SorealMobTypesV1&&!fight.titanId){
+          const degatsPoison=window.SorealMobTypesV1.tickPoison(maintenantTick);
+          if(degatsPoison>0){
+            const subisPoison=Math.min(idleNombre_(fight.playerHp),degatsPoison);
+            fight.playerHp=Math.max(0,idleNombre_(fight.playerHp)-subisPoison);
+            fxIdleV1_('joueur','poison','-'+idleEntier_(subisPoison));
+            ajouterLogAventureIdleV1_('enemy','☠️ Le poison te ronge : '+idleEntier_(subisPoison)+' dégâts.');
+            modifie=true;
+            if(fight.playerHp<=0){terminerCombatAdventureLocalV2_(fight,false);return;}
+          }
+        }
         fxEtatsIdleV1_(fight,maintenantTick);
 
         if(modifie){

@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 439,
+  "keyframes": 440,
   "fichiersAvecWebAnimations": 21,
   "fichiersCanvas": 13,
   "pointsEntreeRejouables": 272,
@@ -1109,6 +1109,15 @@
   },
   {
    "nom": "cfxPerce",
+   "definiePar": [
+    "modules/combat-effets-v1.js"
+   ],
+   "utilisePar": [
+    "modules/combat-effets-v1.js"
+   ]
+  },
+  {
+   "nom": "cfxPoison",
    "definiePar": [
     "modules/combat-effets-v1.js"
    ],

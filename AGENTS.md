@@ -61,7 +61,7 @@ registre `cloudflare/tests/references/constantes-soreal-v1.json` (fichier, repè
 confirmée, date) ; (4) elle est signalée à Norman dans le compte rendu. Le test `idle-constantes-soreal-registre-v1` scanne `cloudflare/src/*.js`
 (« choix SOREAL », « approximation documentée », « sciemment divergente ») et échoue si un tel commentaire n'a pas d'entrée au registre (ou si une
 entrée n'a plus de commentaire). Les cas existants (Questing, Hearts, Macguffins, Wandoos, repli des boss au-delà du 160, butin et combat d'Aventure)
-y sont inscrits « à valider par Norman » au 2026-11-09 : le registre rend visible ce qui reste à confirmer, il ne valide rien.
+y sont inscrits « à valider par Norman » au 2026-11-09 ; s'y ajoutent les capacités de combat des titans, la cachette de Walderp et les types d'ennemis de l'Aventure (poison, paralysie, explosion : `modules/mobs-types-v1.js`, décision du 2026-11-14, le wiki ne donnant que le type) : le registre rend visible ce qui reste à confirmer, il ne valide rien.
 
 ## Règle n°2 (non négociable) : aucun spoil
 

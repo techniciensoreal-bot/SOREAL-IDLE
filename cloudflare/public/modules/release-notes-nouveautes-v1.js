@@ -6,6 +6,8 @@
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
     "Un boss a désormais une mort qui lui est propre : il se déchire comme une feuille de papier.",
     "Après une défaite, le retour en fondu d’ouverture avec le chœur de voix revient de temps en temps (il n’était plus jamais joué).",
+    "Tous les succès sont maintenant obtenables : les succès secrets qui ne se débloquaient jamais (survivre à un ennemi explosif, vaincre certains ennemis avant qu’ils n’attaquent) fonctionnent enfin.",
+    "Les ennemis qui empoisonnent, paralysent ou explosent font maintenant ce qu’ils annoncent, avec leurs effets et leurs sons : le poison te ronge pendant 5 s, la paralysie coupe tes compétences 2 s, et un ennemi explosif explose au bout de son compte à rebours (son délai d’attaque) si tu ne l’as pas vaincu avant.",
     "Quand tu changes de configuration d’équipement, les pièces venues du coffre y retournent au lieu de finir dans le sac ; celles venues du sac y restent.",
     "Quand la zone des cases d’automatisation du sac est repliée, les compteurs de temps avant la prochaine exécution restent visibles sur la ligne fine.",
     "Les atouts et les manies qui concernent un système que tu n’as pas encore débloqué ne sont plus affichés : ils apparaissent quand tu découvres le système.",
