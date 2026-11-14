@@ -68,11 +68,11 @@ assert.equal(M.explosion(mob("exploder", { mobPower: 0 })), 1, "au moins 1 dég�
 assert.equal(M.explosion(mob("poison", { mobPower: 33 })), 0);
 assert.equal(M.explosion(mob("exploder", { titanId: "t1", mobPower: 33 })), 0);
 
-// Rapide : AUCUN changement pendant les 30 premières secondes (l'avancée actuelle des joueurs ne change pas), puis -3 % de l'intervalle par seconde, plancher 30 %.
+// Rapide : AUCUN changement pendant les 20 premières secondes (l'avancée actuelle des joueurs ne change pas), puis -3 % de l'intervalle par seconde, plancher 30 %.
 M.reinit(100000);
-for (const t of [100000, 105000, 120000, 129999, 130000]) assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, t), 1000, "combat court : intervalle d'origine à " + (t - 100000) + " ms");
-assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, 140000), 700, "10 s au-delà de 30 s : -30 %");
-assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, 150000), 400, "20 s au-delà : -60 %");
+for (const t of [100000, 105000, 110000, 119999, 120000]) assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, t), 1000, "combat court : intervalle d'origine à " + (t - 100000) + " ms");
+assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, 130000), 700, "10 s au-delà de 20 s : -30 %");
+assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, 140000), 400, "20 s au-delà : -60 %");
 assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, 500000), 300, "plancher à 30 % de l'intervalle");
 assert.equal(M.intervalleEnnemiMs(mob("rapid"), 200, 500000), 100, "jamais sous 100 ms");
 assert.equal(M.intervalleEnnemiMs(mob("normal"), 1000, 500000), 1000, "un autre type n'accélère jamais");
@@ -87,15 +87,15 @@ assert.deepEqual(charge.map((c) => c.prepare), [false, false, true, false, false
 M.reinit(0);
 assert.equal(M.coupEnnemi(mob("charger"), 1000).mult, 1, "compteur remis à zéro par reinit");
 
-// Grandisseur : AUCUN changement pendant 30 s, puis +10 % par seconde (×4 à 60 s), plafond ×10 ; annoncé toutes les 5 s.
+// Grandisseur : AUCUN changement pendant 20 s, puis +10 % par seconde (×4 à 50 s), plafond ×10 ; annoncé toutes les 5 s.
 M.reinit(0);
-for (const t of [1000, 10000, 29000, 30000]) assert.equal(M.coupEnnemi(mob("grower"), t).mult, 1, "combat court : dégâts d'origine à " + t + " ms");
-assert.ok(Math.abs(M.coupEnnemi(mob("grower"), 35000).mult - 1.5) < 1e-9, "5 s au-delà de 30 s : x1,5");
-assert.ok(Math.abs(M.coupEnnemi(mob("grower"), 60000).mult - 4) < 1e-9, "60 s : x4");
+for (const t of [1000, 10000, 19000, 20000]) assert.equal(M.coupEnnemi(mob("grower"), t).mult, 1, "combat court : dégâts d'origine à " + t + " ms");
+assert.ok(Math.abs(M.coupEnnemi(mob("grower"), 25000).mult - 1.5) < 1e-9, "5 s au-delà de 20 s : x1,5");
+assert.ok(Math.abs(M.coupEnnemi(mob("grower"), 50000).mult - 4) < 1e-9, "50 s : x4");
 assert.equal(M.coupEnnemi(mob("grower"), 400000).mult, 10, "plafonné à x10");
 M.reinit(0);
-const annonces = [31000, 32000, 36000, 37000, 41000].map((t) => M.coupEnnemi(mob("grower"), t).croit);
-assert.deepEqual(annonces, [false, false, true, false, true], "annonce « le combat s'éternise » tous les 5 s au-delà de 30 s");
+const annonces = [21000, 22000, 26000, 27000, 31000].map((t) => M.coupEnnemi(mob("grower"), t).croit);
+assert.deepEqual(annonces, [false, false, true, false, true], "annonce « le combat s'éternise » tous les 5 s au-delà de 20 s");
 // Un ennemi normal ou un titan n'a aucun modificateur.
 M.reinit(0);
 assert.equal(M.coupEnnemi(mob("normal"), 90000).mult, 1); assert.equal(M.coupEnnemi(mob("grower", { titanId: "t1" }), 90000).mult, 1);

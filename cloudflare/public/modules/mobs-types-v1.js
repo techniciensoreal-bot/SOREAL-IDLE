@@ -11,10 +11,10 @@
  *   - EXPLOSION, correction du 2026-11-14 : le wiki (page « Secrets and Spoilers », secret « Survive an attack from an exploder ») publie UN chiffre : le plus faible explosif, Fairy (Power 33), « deals around 2500 damage » ; on en tire le facteur 2500 / 33 sur la puissance de
  *     l'ennemi (extrapolation SOREAL à tous les explosifs : le wiki ne donne pas de formule générale) ; l'explosion ignore la Robustesse. Ce n'est donc plus le « double d'un coup » ;
  *   - rapide (rapid) : le wiki ne donne que le TYPE (et l'Attack Rate listé n'est plus rapide que celui des ennemis normaux de la même zone que dans 8 zones sur 23) ; sur demande de Norman (2026-11-14 : « rapid doit augmenter sa rapidité au fur et à mesure du combat »,
- *     « ça ne doit pas changer l'avancée actuelle des joueurs ») : rien pendant les 30 premières secondes du combat (un combat normal est fini bien avant), puis son intervalle diminue de 3 % de l'intervalle de base par seconde, jusqu'à 30 % de l'intervalle (valeurs SOREAL) ;
+ *     « ça ne doit pas changer l'avancée actuelle des joueurs ») : rien pendant les 20 premières secondes du combat (un combat normal est fini bien avant), puis son intervalle diminue de 3 % de l'intervalle de base par seconde, jusqu'à 30 % de l'intervalle (valeurs SOREAL) ;
  *   - chargeur (charger) : type seul au wiki ; sur demande de Norman (« charger doit sûrement mettre un gros coup ») : il se charge pendant 3 attaques (signe visible à la 3e) puis la 4e frappe ×2,5 (valeurs SOREAL), et ainsi de suite ;
- *   - grandisseur (grower) : type seul au wiki ; sur demande de Norman (« grower doit devenir handicapant si le combat dure trop longtemps », « ça ne doit pas changer l'avancée actuelle ») : rien pendant les 30 premières secondes, puis ses dégâts augmentent de 10 % par seconde
- *     (×4 à 60 s, plafonnés à ×10) (valeurs SOREAL).
+ *   - grandisseur (grower) : type seul au wiki ; sur demande de Norman (« grower doit devenir handicapant si le combat dure trop longtemps », « ça ne doit pas changer l'avancée actuelle ») : rien pendant les 20 premières secondes, puis ses dégâts augmentent de 10 % par seconde
+ *     (×4 à 50 s, plafonnés à ×10) (valeurs SOREAL).
  * Un ennemi « poison/paralyze » cumule les deux. Jamais pour un titan (leurs capacités sont dans titans-comportements-v1.js). Aucune image : des émojis et des dégradés (combat-effets-v1.js), des sons synthétisés (audio-effects-v199.js).
  * API : window.SorealMobTypesV1 = { types, reinit, apresCoupEnnemi, tickPoison, explosion, paralyse, poisonActif, constantes }.
  */
@@ -23,13 +23,13 @@
 if(typeof window==='undefined'||window.SorealMobTypesV1)return;
 
 /* Toutes ces valeurs sont des choix SOREAL (non publiés : wiki, Steam, guides, mods ; accord de Norman 2026-10-04, décision du 2026-11-14), « à valider par Norman » dans le registre des constantes. */
-var C={poisonMs:5000,poisonTickMs:1000,poisonFraction:.2,paralysieChance:.25,paralysieMs:2000,paralysieImmuniteMs:4000,explosionParPuissance:2500/33,longCombatMs:30000,rapideParSeconde:.03,rapideMin:.3,chargeurTous:4,chargeurMult:2.5,croissanceParSeconde:.1,croissancePlafond:10};
+var C={poisonMs:5000,poisonTickMs:1000,poisonFraction:.2,paralysieChance:.25,paralysieMs:2000,paralysieImmuniteMs:4000,explosionParPuissance:2500/33,longCombatMs:20000,rapideParSeconde:.03,rapideMin:.3,chargeurTous:4,chargeurMult:2.5,croissanceParSeconde:.1,croissancePlafond:10};
 var etat={poisonJusqua:0,poisonCoup:0,dernierTickPoison:0,paralyseJusqua:0,immuniteJusqua:0,attaques:0,debut:0,palierCroissance:0};
 
 /* `maintenant` : l'instant de DÉBUT du combat (les effets de longue durée du rapide et du grandisseur comptent depuis cet instant). */
 function reinit(maintenant){etat={poisonJusqua:0,poisonCoup:0,dernierTickPoison:0,paralyseJusqua:0,immuniteJusqua:0,attaques:0,debut:maintenant===undefined?Date.now():Number(maintenant)||0,palierCroissance:0};}
 
-/* Secondes de combat au-delà des 30 premières (0 tant que le combat est court). */
+/* Secondes de combat au-delà des 20 premières (0 tant que le combat est court). */
 function secondesDeTrop(maintenant){return Math.max(0,((Number(maintenant)||0)-etat.debut-C.longCombatMs)/1000);}
 
 /* Types de l'ennemi : « poison », « paralyze », « exploder » (jamais pour un titan). « poison/paralyze » donne les deux. */
@@ -80,7 +80,7 @@ function explosion(fight){
   return Math.max(1,Math.round(Math.max(0,Number(fight&&fight.mobPower)||0)*C.explosionParPuissance));
 }
 
-/* Intervalle entre deux attaques de l'ennemi à l'instant `maintenant` : un ennemi rapide s'accélère quand le combat dure (rien avant 30 s, puis -3 % de l'intervalle par seconde, plancher 30 %). */
+/* Intervalle entre deux attaques de l'ennemi à l'instant `maintenant` : un ennemi rapide s'accélère quand le combat dure (rien avant 20 s, puis -3 % de l'intervalle par seconde, plancher 30 %). */
 function intervalleEnnemiMs(fight,baseMs,maintenant){
   if(!types(fight).rapid)return baseMs;
   var facteur=Math.max(C.rapideMin,1-C.rapideParSeconde*secondesDeTrop(maintenant));
@@ -88,7 +88,7 @@ function intervalleEnnemiMs(fight,baseMs,maintenant){
 }
 
 /*
- * À appeler à CHAQUE attaque de l'ennemi, à l'instant `maintenant` : renvoie { mult, charge, prepare, croit } ; `mult` multiplie ses dégâts ordinaires (chargeur : ×2,5 toutes les 4 attaques ; grandisseur : rien avant 30 s de combat, puis +10 % par seconde, plafond ×10) ;
+ * À appeler à CHAQUE attaque de l'ennemi, à l'instant `maintenant` : renvoie { mult, charge, prepare, croit } ; `mult` multiplie ses dégâts ordinaires (chargeur : ×2,5 toutes les 4 attaques ; grandisseur : rien avant 20 s de combat, puis +10 % par seconde, plafond ×10) ;
  * `charge` : cette attaque est le gros coup ; `prepare` : la prochaine sera le gros coup (signe visible) ; `croit` : le grandisseur vient de gagner en force (annoncé toutes les 5 s).
  */
 function coupEnnemi(fight,maintenant){

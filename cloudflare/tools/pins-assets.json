@@ -524,8 +524,8 @@
   "sha": "779bf584bbef6a83ac7da05f6b12b7358b39f5d7"
  },
  "/modules/mobs-types-v1.js": {
-  "pin": 5,
-  "sha": "f9b6dc58fc7db00a6528fe305c417daff6d80f5c"
+  "pin": 6,
+  "sha": "e22d10e4e3f4a1bcffd1829eb8e1344775c724a3"
  },
  "/modules/money-pit-page-v1.js": {
   "pin": 31,
@@ -668,12 +668,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 322,
-  "sha": "74ab344ac50e93b01b9f820e2a18195a81fb3a08"
+  "pin": 323,
+  "sha": "0884019520b19369b439f2c4e3e51ad4bef433d5"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 960,
-  "sha": "4d25c921378ca46da59301e4435fad705f65c8e5"
+  "pin": 961,
+  "sha": "cea99a4782a815a2af6a256994794a16c7cdfd8f"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -768,12 +768,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1000,
-  "sha": "7d61e79f9db79814323f40fb78395eae52b84394"
+  "pin": 1001,
+  "sha": "cb4d25b1b03f7b015ae4e1682b40a0262aed7e46"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 821,
-  "sha": "531ae6f7fac51986b7ed0261a44c844f318a6d52"
+  "pin": 822,
+  "sha": "fe791c6e95ee34f416a764105f7dcf1f643bd1f7"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
