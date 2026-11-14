@@ -169,7 +169,8 @@ function construireSnapshotNguV1(state, context, now) {
         };
       })
     },
-    bonuses: idleNguBonuses(state),
+    /* Audit 2026-11-14 (règle n°2) : « facteursStats » (libellés de tous les systèmes, verrouillés compris) n'est lu que par le moteur (panneau Détail, idle-runtime-boss.js) : il ne part plus dans la réponse. */
+    bonuses: (function(b){ const c = Object.assign({}, b); delete c.facteursStats; return c; })(idleNguBonuses(state)),
     adventure: (() => {
       /*
        * Norman (2026-09-11) : "le mode aventure est déjà débloqué [après un
@@ -346,7 +347,14 @@ function construireSnapshotNguV1(state, context, now) {
      */
     /* Anti-spoil (règle n°2) : seuls les types de ressources DÉJÀ DÉCOUVERTS (permanent : ressourceDecouverteV1) sont envoyés ; jamais la magie ni la ressource 3 avant. */
     ressourcesDecouvertes: Object.fromEntries(RESOURCE_KEYS.filter(resource => ressourceDecouverteV1(state, resource)).map(resource => [resource, true])),
-    resourcePurchases: clone(Object.fromEntries(Object.entries(IDLE_NGU_RESOURCE_PURCHASES).filter(([resource]) => ressourceDecouverteV1(state, resource)))),
+    /* Audit 2026-11-14 (règle n°2) : l'achat encore fermé d'une ressource découverte (Power, Cap) envoyait son « unlockBoss » (le « bats le boss N ») ; retiré tant qu'il n'est pas ouvert (le client ne le lit pas). */
+    resourcePurchases: Object.fromEntries(Object.entries(IDLE_NGU_RESOURCE_PURCHASES).filter(([resource]) => ressourceDecouverteV1(state, resource)).map(([resource, stats]) => [
+      resource,
+      Object.fromEntries(Object.entries(clone(stats)).map(([stat, achat]) => {
+        if (!resourcePurchaseUnlocked(IDLE_NGU_RESOURCE_PURCHASES[resource][stat], context)) delete achat.unlockBoss;
+        return [stat, achat];
+      }))
+    ])),
     expShop: expShopSnapshotV1(state),
     /* Resource 3 Name Randomizer : disponible dès l'achat ; le nom n'est envoyé que si le réglage est coché. */
     r3NomDisponible: Boolean(state.selloutShop?.purchases?.resource3NameRandomizer),
@@ -383,8 +391,7 @@ function construireSnapshotNguV1(state, context, now) {
       Object.fromEntries(Object.keys(IDLE_NGU_RESOURCE_PURCHASES[resource]).map(stat => {
         const purchase = IDLE_NGU_RESOURCE_PURCHASES[resource][stat];
         return [stat, {
-          unlocked: resourcePurchaseUnlocked(purchase, context),
-          neededBosses: num(purchase.unlockBoss, 0)
+          unlocked: resourcePurchaseUnlocked(purchase, context)   /* neededBosses retiré (audit 2026-11-14, règle n°2) : jamais lu par le client */
         }];
       }))
     ])),

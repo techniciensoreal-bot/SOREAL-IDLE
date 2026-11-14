@@ -1961,12 +1961,13 @@
           '</div>'+
           '<div class="soreal-idle-adventure-manual-grid-v3">'+
             '<div class="soreal-idle-adventure-skill-row-v3 attack">'+
-              REG.IDLE_ADVENTURE_MANUAL_ATTACKS_V3.map(function(def){
+              /* Audit 2026-11-14 (règle n°2) : une compétence encore verrouillée n'est pas dessinée (ni icône, ni nom, ni case grisée), comme les compétences avancées. */
+              REG.IDLE_ADVENTURE_MANUAL_ATTACKS_V3.filter(function(def){return competenceAdventureDisponibleIdleV4_(def,'attack',a);}).map(function(def){
                 return rendreBoutonCompetenceAdventureIdleV3_(def,'attack');
               }).join('')+
             '</div>'+
             '<div class="soreal-idle-adventure-skill-row-v3 defense">'+
-              REG.IDLE_ADVENTURE_MANUAL_DEFENSE_V3.map(function(def){
+              REG.IDLE_ADVENTURE_MANUAL_DEFENSE_V3.filter(function(def){return competenceAdventureDisponibleIdleV4_(def,'defense',a);}).map(function(def){
                 return rendreBoutonCompetenceAdventureIdleV3_(def,'defense');
               }).join('')+
             '</div>'+

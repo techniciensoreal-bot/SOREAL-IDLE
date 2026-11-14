@@ -785,7 +785,7 @@ export function macguffinSnapshotV1(state, now = Date.now()) {
   return {
     unlocked: macguffinUnlockedV1(state),
     slots: macguffinSlotCountV1(state),
-    slotBreakdown: macguffinSlotBreakdownV1(state),
+    slotBreakdown: macguffinUnlockedV1(state) ? macguffinSlotBreakdownV1(state) : {},   /* audit 2026-11-14 (règle n°2) : noms de sets et minimums des sorts de sang tant que les MacGuffins sont fermés */
     equipped: data.equipped.map(withGain),
     inventory: data.inventory.map(withGain),
     /* Anti-spoil : ni types, ni réserve de tirage, ni compteurs par type tant que les MacGuffins ne sont pas découverts. */

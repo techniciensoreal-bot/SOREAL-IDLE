@@ -29,4 +29,14 @@ assert.equal(j.collections.zones.length, 0, "collections : aucun set pour un jou
 if (!j.magie.debloquee) assert.deepEqual(j.magie.sorts, [], "magie fermée : aucun sort envoyé");
 assert.ok(Object.values(j.deblocages).every((d) => d.niveau <= Math.max(1, j.niveau)), "déblocages : seulement ceux déjà atteints");
 for (const fermé of ["augmentations", "avance", "machine", "sang", "ngu"]) assert.equal(j.deblocages[fermé], undefined, "déblocage fermé non envoyé : " + fermé);
+// Systèmes verrouillés : ni libellés de facteurs, ni « bats le boss N » des achats fermés, ni noms de sets des MacGuffins, ni réglages des cartes.
+const sy = j.systemes;
+assert.equal(sy.bonuses.facteursStats, undefined, "bonuses : pas de libellés de systèmes verrouillés");
+for (const [res, stats] of Object.entries(sy.resourcePurchases)) for (const [stat, achat] of Object.entries(stats)) if (!(sy.resourcePurchaseUnlock[res] && sy.resourcePurchaseUnlock[res][stat] && sy.resourcePurchaseUnlock[res][stat].unlocked)) assert.equal(achat.unlockBoss, undefined, "achat fermé sans boss à battre : " + res + "." + stat);
+for (const u of Object.values(sy.resourcePurchaseUnlock || {})) for (const v of Object.values(u)) assert.equal(v.neededBosses, undefined, "pas de neededBosses");
+if (!sy.macguffins.unlocked) assert.deepEqual(sy.macguffins.slotBreakdown, {}, "MacGuffins fermés : aucun nom de set");
+if (!sy.cards.unlocked) { assert.deepEqual(sy.cards.mayoCostRange, [0, 0]); assert.equal(sy.cards.chonkers, false); }
+// Les compétences manuelles d'Aventure verrouillées ne sont pas dessinées (règle n°2).
+const ui = fs.readFileSync(path.join(DEPOT, "cloudflare", "public", "modules", "ui-aventure-1-v1.js"), "utf8");
+assert.ok(ui.includes("IDLE_ADVENTURE_MANUAL_ATTACKS_V3.filter(function(def){return competenceAdventureDisponibleIdleV4_(def,'attack',a);})") && ui.includes("IDLE_ADVENTURE_MANUAL_DEFENSE_V3.filter(function(def){return competenceAdventureDisponibleIdleV4_(def,'defense',a);})"), "compétences verrouillées non dessinées");
 console.log("idle-anti-spoil-etat-joueur-neuf-v1 : OK");
