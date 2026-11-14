@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aperçu : types d'ennemis de l'Aventure (poison, paralysie, explosion)</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;padding:14px;background:#0f1520;color:#e8eefb;font:15px/1.4 system-ui,sans-serif}
+  h1{font-size:18px;margin:0 0 6px} p{margin:0 0 10px;color:#aeb9cc;max-width:60ch}
+  .scene{display:flex;flex-direction:column;gap:10px;width:min(360px,100%)}
+  #sorealIdleAdventureSceneMobV1{height:240px;border:2px solid #c79a3d;border-radius:12px;background:#000 center/cover no-repeat;position:relative}
+  #sorealIdleAdventureJoueurBarV1{height:30px;border:2px solid #3c5578;border-radius:8px;background:#7b1f1f;position:relative}
+  #sorealIdleAdventureJoueurBarV1 b{position:absolute;inset:0;display:grid;place-items:center;font-size:13px}
+  .outils{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+  button{font:inherit;color:#e8eefb;background:#22344d;border:1px solid #3c5578;border-radius:8px;padding:8px 12px;cursor:pointer}
+  button.pois{background:#2d5a1a} button.para{background:#6b5a0a} button.expl{background:#7a2a0a}
+</style>
+</head>
+<body>
+<h1>Types d’ennemis de l’Aventure</h1>
+<p>Les effets réels du jeu (images, états et sons), déclenchables à la main : <b>poison</b> (crâne vert et barre verte pendant 5 s), <b>paralysie</b> (éclairs et barre jaune pendant 2 s), <b>explosion</b> (déflagration sur l’ennemi). Rien n’est modifié dans le jeu.</p>
+<div class="scene"><div id="sorealIdleAdventureSceneMobV1" style="background-image:url(/cloudflare/public/magic/boss/20.webp)"></div><div id="sorealIdleAdventureJoueurBarV1"><b>Barre de vie du joueur</b></div></div>
+<div class="outils">
+  <button class="pois" id="pois">☠️ Poison</button>
+  <button class="para" id="para">⚡ Paralysie</button>
+  <button class="expl" id="expl">💥 Explosion</button>
+  <label><input type="checkbox" id="son" checked> son</label>
+</div>
+<script src="/cloudflare/public/modules/audio-effects-v199.js"></script>
+<script src="/cloudflare/public/modules/combat-effets-v1.js"></script>
+<script>
+(function(){
+  var FX=window.SorealCombatFxV1,A=window.__SOREAL_IDLE_AUDIO_V199__;
+  function son(nom){
+    if(!document.getElementById('son').checked||!A||!A.builders)return;
+    var x=A.builders.skills.filter(function(s){return s.nom===nom;})[0];
+    if(x)A.synth(x.duree,function(c){x.construire(c);});
+  }
+  document.getElementById('pois').addEventListener('click',function(){
+    FX.jouer('joueur','poison');son('mobPoison');FX.etats({poison:true});
+    [1,2,3,4,5].forEach(function(i){setTimeout(function(){FX.jouer('joueur','poison','-'+(10+i));},i*1000);});
+    setTimeout(function(){FX.etats({});},5200);
+  });
+  document.getElementById('para').addEventListener('click',function(){
+    FX.jouer('joueur','eclair');son('paralyze');FX.etats({paralyse:true});
+    setTimeout(function(){FX.etats({});},2000);
+  });
+  document.getElementById('expl').addEventListener('click',function(){
+    FX.jouer('mob','explosion');FX.jouer('joueur','degats','-240');son('mobExplosion');
+  });
+})();
+</script>
+</body>
+</html>

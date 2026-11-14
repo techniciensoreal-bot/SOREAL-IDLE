@@ -2267,6 +2267,18 @@
       });
       tonal_(c,{type:"sine",from:90,to:60,duration:.5,volume:.06,delay:.05});
     }},
+    /* Types d'ennemis (mobs-types-v1.js, Norman 2026-11-14) : poison = glou-glou gluant qui descend ; explosion = grosse déflagration sourde avec crépitement et débris. */
+    {id:"mobPoison",duree:900,construire:function(c){
+      [[520,0],[430,.12],[620,.24],[360,.36],[480,.5]].forEach(function(p){tonal_(c,{type:"sine",from:p[0],to:p[0]*1.6,duration:.09,volume:.045,delay:p[1]});});
+      bruit_(c,{duration:.7,volume:.03,filterType:"bandpass",frequency:900,frequencyEnd:300,q:2,decay:1.4});
+      nappe_(c,{type:"sawtooth",from:190,to:95,duration:.6,volume:.025,attack:.08,vibRate:14,vibDepth:8});
+    }},
+    {id:"mobExplosion",duree:1300,construire:function(c){
+      bruit_(c,{duration:.12,volume:.16,filterType:"highpass",frequency:2500,frequencyEnd:6000,decay:2.4});
+      tonal_(c,{type:"sine",from:140,to:32,duration:.7,volume:.22,delay:.02});
+      bruit_(c,{duration:.9,volume:.12,filterType:"lowpass",frequency:900,frequencyEnd:80,q:.7,decay:1.6,delay:.03});
+      for(var i=0;i<9;i+=1)bruit_(c,{duration:.03,volume:.05,delay:.2+i*.07+Math.random()*.03,filterType:"bandpass",frequency:1800+Math.random()*2500,q:5,decay:2.4});
+    }},
     /* Move 69 : un sifflet à coulisse malicieux qui monte puis retombe, avec un « boing » */
     {id:"move69",duree:900,construire:function(c){
       nappe_(c,{type:"sine",from:300,to:1300,duration:.32,volume:.05,attack:.04,vibRate:7,vibDepth:20});

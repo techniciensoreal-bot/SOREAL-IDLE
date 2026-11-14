@@ -4,7 +4,7 @@
  *
  * Deux API (le combat de soreal-idle-ui.js les appelle, sans jamais en dépendre : tout est gardé par « if(window.SorealCombatFxV1) ») :
  *  - jouer(cible, type, texte) : effet ponctuel posé par-dessus l'image du mob ('mob') ou la barre de vie du joueur ('joueur') ; il se retire seul.
- *  - etats({soin, saigne, paralyse, spores, mobParalyse}) : effets qui durent (soin : jusqu'à une date, saigne : nombre de cumuls, les autres : booléens). Appelé à chaque tick du combat ; {} les éteint.
+ *  - etats({soin, saigne, paralyse, poison, spores, mobParalyse}) : effets qui durent (soin : jusqu'à une date, saigne : nombre de cumuls, les autres : booléens). Appelé à chaque tick du combat ; {} les éteint.
  * Aucune image : dégradés CSS et émojis. Les animations sont réduites si l'appareil demande moins de mouvement.
  */
 (function(){
@@ -15,7 +15,7 @@
   var racine=null;
   var courant={};
   var minuteur=0;
-  var dernierSang=0,dernierSoin=0,dernierEclair=0,dernierSpore=0;
+  var dernierSang=0,dernierSoin=0,dernierEclair=0,dernierSpore=0,dernierPoison=0;
   var vivants=0;
 
   function reduit(){try{return window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){return false;}}
@@ -44,6 +44,10 @@
       '.cfx-aura::before{content:"";width:100%;height:100%;border-radius:8px;box-shadow:0 0 22px 6px var(--cfx-c,#fc3),inset 0 0 14px var(--cfx-c,#fc3);animation:cfxFlash .9s ease-out forwards}',
       '.cfx-eclair::before{content:"⚡";font-size:30px;color:#ff0;text-shadow:0 0 10px #ff0,0 0 22px #fa0;animation:cfxEclair .5s ease-out forwards}',
       '.cfx-spore::before{content:"☁️";font-size:30px;filter:hue-rotate(60deg) saturate(3) brightness(.8);animation:cfxSpore 1.1s ease-out forwards}',
+      /* Types d'ennemis (mobs-types-v1.js) : crâne vert qui monte quand le poison frappe ; explosion sur l'ennemi qui meurt, avec une vague de feu. */
+      '.cfx-poison::before{content:"☠️";font-size:30px;filter:hue-rotate(85deg) saturate(2.6) brightness(.9);animation:cfxSpore 1.1s ease-out forwards}',
+      '.cfx-explosion::before{content:"";width:135%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#fff 0,#ffe37a 24%,#ff7a1a 50%,rgba(190,30,0,.7) 66%,transparent 75%);animation:cfxBoum .8s ease-out forwards}',
+      '.cfx-explosion::after{content:"💥";font-size:72px;animation:cfxBoum .8s ease-out forwards}',
       '.cfx-sauterelle::before{content:"🦗";font-size:30px;animation:cfxSaute .5s ease-out forwards}',
       '.cfx-invincible::before{content:"";width:80%;aspect-ratio:1;border-radius:50%;border:4px solid #ffd23a;box-shadow:0 0 22px #ffd23a,inset 0 0 18px #ffd23a;animation:cfxBoum .5s ease-out forwards}',
       '.cfx-invincible::after{content:"🛡️";font-size:40px;animation:cfxBoum .5s ease-out forwards}',
@@ -60,6 +64,8 @@
       '.cfx-saigne{filter:hue-rotate(-150deg) saturate(1.8) brightness(.8);box-shadow:0 0 0 2px rgba(150,0,0,.85),0 0 14px rgba(200,0,0,.7)!important;animation:cfxPouls 1.1s ease-in-out infinite}',
       '.cfx-paralyse{box-shadow:0 0 0 2px #ee0,0 0 16px #fd0!important;animation:cfxVibre .12s linear infinite}',
       '.cfx-spores{box-shadow:0 0 0 2px #6b3,0 0 14px rgba(120,220,60,.7)!important}',
+      '.cfx-empoisonne{animation:cfxPoison 1s ease-in-out infinite}',
+      '@keyframes cfxPoison{0%,100%{filter:hue-rotate(60deg) saturate(1.3) brightness(.95);box-shadow:0 0 0 2px #7d2,0 0 10px rgba(110,255,50,.55)}50%{filter:hue-rotate(70deg) saturate(2) brightness(1.1);box-shadow:0 0 0 2px #9f3,0 0 20px rgba(130,255,60,.95)}}',
       '.cfx-mob-para{filter:drop-shadow(0 0 10px #ee0) saturate(1.5)!important;animation:cfxVibre .14s linear infinite}',
       '@keyframes cfxTrait{0%{transform:rotate(-32deg) scaleX(0);opacity:1}60%{transform:rotate(-32deg) scaleX(1);opacity:1}100%{transform:rotate(-32deg) scaleX(1.1);opacity:0}}',
       '@keyframes cfxBoum{0%{transform:scale(.2);opacity:0}30%{opacity:1}100%{transform:scale(1.35);opacity:0}}',
@@ -74,7 +80,7 @@
       '@keyframes cfxGoutte{0%{transform:translateY(0) scaleY(.4);opacity:0}12%{opacity:1;transform:translateY(2px) scaleY(1)}100%{transform:translateY(54px) scaleY(1.5);opacity:0}}',
       '@keyframes cfxPouls{0%,100%{box-shadow:0 0 0 2px rgba(150,0,0,.85),0 0 8px rgba(200,0,0,.5)}50%{box-shadow:0 0 0 2px rgba(220,0,0,1),0 0 20px rgba(255,0,0,.9)}}',
       '@keyframes cfxVibre{0%{transform:translateX(-1.5px)}50%{transform:translateX(1.5px)}100%{transform:translateX(-1.5px)}}',
-      '@media (prefers-reduced-motion:reduce){.cfx-croix,.cfx-goutte,.cfx-saigne,.cfx-paralyse,.cfx-mob-para{animation:none!important}}'
+      '@media (prefers-reduced-motion:reduce){.cfx-croix,.cfx-goutte,.cfx-saigne,.cfx-paralyse,.cfx-mob-para,.cfx-empoisonne{animation:none!important}}'
     ].join('\n');
     document.head.appendChild(s);
   }
@@ -140,6 +146,7 @@
       bar.classList.toggle('cfx-saigne',!!courant.saigne);
       bar.classList.toggle('cfx-paralyse',!!courant.paralyse);
       bar.classList.toggle('cfx-spores',!!courant.spores);
+      bar.classList.toggle('cfx-empoisonne',!!courant.poison);
     }
     if(mob){
       mob.el.classList.toggle('cfx-mob-para',!!courant.mobParalyse);
@@ -162,6 +169,10 @@
         dernierEclair=maintenant;
         poser('cfx cfx-eclair',r.left+Math.random()*(r.width-30),r.top-6,30,r.height,520);
       }
+      if(courant.poison&&maintenant-dernierPoison>520){
+        dernierPoison=maintenant;
+        poser('cfx cfx-poison',r.left+Math.random()*(r.width-30),r.top-8,30,r.height,1150);
+      }
       if(courant.spores&&maintenant-dernierSpore>420){
         dernierSpore=maintenant;
         poser('cfx cfx-spore',r.left+Math.random()*(r.width-30),r.top-8,30,r.height,1150);
@@ -174,7 +185,7 @@
   }
 
   function actif(){
-    return courant.soin>Date.now()||courant.saigne>0||!!courant.paralyse||!!courant.spores||!!courant.mobParalyse||!!courant.mobInvincible;
+    return courant.soin>Date.now()||courant.saigne>0||!!courant.paralyse||!!courant.poison||!!courant.spores||!!courant.mobParalyse||!!courant.mobInvincible;
   }
 
   /* États qui durent, à rappeler à chaque tick du combat. */
