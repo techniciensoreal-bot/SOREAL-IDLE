@@ -42,7 +42,7 @@
             'Après une défaite, le retour en fondu d’ouverture avec le chœur de voix revient de temps en temps (il n’était plus jamais joué).'
           ]},
           {menu:'avance', titre:'Entraînement avancé', points:[
-            'Entraînement avancé : le texte sous chaque barre (bonus, puis temps avant le prochain niveau) est maintenant toujours sur deux lignes, au lieu de passer parfois sur une ligne et parfois sur deux selon le nombre ou la durée affichés.'
+            'Entraînement avancé : le texte sous chaque barre (bonus, puis temps avant le prochain niveau) reste maintenant toujours sur une seule ligne sur ordinateur (au lieu de passer parfois sur deux selon le nombre ou la durée affichés) ; sur téléphone, il se met sur deux lignes si la place manque, toujours de la même façon.'
           ]},
           {menu:'chroniques', titre:'Chroniques', points:[
             'Tous les succès sont maintenant obtenables : les succès secrets qui ne se débloquaient jamais (survivre à un ennemi explosif, vaincre certains ennemis avant qu’ils n’attaquent) fonctionnent enfin.'

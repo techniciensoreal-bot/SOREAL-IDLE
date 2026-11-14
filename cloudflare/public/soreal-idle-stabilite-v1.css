@@ -1,2 +1,5 @@
 /* Hauteurs réservées pour que la page ne bouge jamais au clic ; valeurs posées par modules/at-hauteur-stable-v1.js */
 html body .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-detail-v1{min-height:var(--at-detail-h,0px)}
+/* Entraînement avancé (Norman, 2026-11-14) : le détail sous chaque barre tient sur UNE ligne sur ordinateur ; sur téléphone, deux lignes (bonus puis durée) si la place manque. */
+html body .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-detail-v1{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:8px;white-space:nowrap}
+@media (max-width:700px){html body .soreal-idle-page-root-v28[data-menu="avance"] .soreal-idle-at-detail-v1{flex-direction:column;align-items:center;gap:2px;white-space:normal;text-align:center}}
