@@ -92,6 +92,8 @@ function bouton(){return document.getElementById('sorealIdleApkBoutonV1');}
 /* ---------- connexion : le navigateur ouvre le site, l'application attend le jeton ---------- */
 var promesse=null,resoudre=null,enCours=false,minuterie=null,codeEnCours='';
 
+/* Audit 2026-11-14 : les 4 derniers caractères du code du relais, à comparer avec la page du navigateur avant de relier (un lien piégé ne peut pas connaître ce code). */
+function codeCourt(code){return String(code||'').slice(-4).toUpperCase();}
 function demarrer(){
   if(promesse)return promesse;
   promesse=new Promise(function(ok){resoudre=ok;});
@@ -108,7 +110,7 @@ function connecter(){
   enCours=true;
   codeEnCours=codeAleatoire();
   var b=bouton();if(b)b.disabled=true;
-  message('Le navigateur s’ouvre : choisis ton compte Google, puis reviens dans l’application.',false);
+  message('Le navigateur s’ouvre : choisis ton compte Google, vérifie que le code affiché est bien '+codeCourt(codeEnCours)+', puis reviens dans l’application.',false);
   var adresse=PROD+'/?relais='+codeEnCours;
   try{window.location.href=adresse;}catch(_e){/* l'application ouvre le navigateur à la place */}
   attendreJeton(codeEnCours,Date.now()+10*60*1000);
@@ -348,7 +350,7 @@ function reconnecter(){
   if(!estApk()||reconnexionEnCours)return false;
   reconnexionEnCours=true;codeReco=codeAleatoire();limiteReco=Date.now()+10*60*1000;
   var oui=document.getElementById('sorealIdleApkReconOuiV1');if(oui)oui.disabled=true;
-  etatReconnexion('Le navigateur s’ouvre : choisis ton compte Google, puis reviens dans l’application.',false);
+  etatReconnexion('Le navigateur s’ouvre : choisis ton compte Google, vérifie que le code affiché est bien '+codeCourt(codeReco)+', puis reviens dans l’application.',false);
   try{window.location.href=PROD+'/?relais='+codeReco;}catch(_e){/* l'application ouvre le navigateur à la place */}
   attendreReconnexion(codeReco);
   return true;

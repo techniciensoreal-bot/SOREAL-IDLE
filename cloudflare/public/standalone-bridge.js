@@ -606,8 +606,11 @@
     if(jeton){
       let expire=0;
       try{expire=Number(JSON.parse(String(localStorage.getItem(GOOGLE_SESSION_KEY)||"null")).expiresAt)||0;}catch(_){}
-      statusV1("Retour vers SOREAL NGU IDLE sur ton ordinateur…",false);
-      location.replace("http://127.0.0.1:"+l.port+"/liaison?etat="+encodeURIComponent(l.etat)+"&jeton="+encodeURIComponent(jeton)+"&expire="+expire);
+      /* Audit 2026-11-14 : un lien piégé ne doit jamais envoyer le jeton de session sans que le joueur le décide : confirmation obligatoire (le jeton voyage dans l'adresse locale, vers le port demandé par le lien). */
+      confirmerEnvoiJetonV1("Relier SOREAL NGU IDLE sur ton ordinateur à ce compte ? Ne confirme que si tu viens de cliquer sur « Relier mon compte » dans l’application.",function(){
+        statusV1("Retour vers SOREAL NGU IDLE sur ton ordinateur…",false);
+        location.replace("http://127.0.0.1:"+l.port+"/liaison?etat="+encodeURIComponent(l.etat)+"&jeton="+encodeURIComponent(jeton)+"&expire="+expire);
+      });
       return;
     }
     const clientId=await clientIdGoogleV1();
@@ -629,6 +632,16 @@
   async function modeRelaisV1(code){
     const jeton=googleSessionStockeeV1();
     if(jeton){
+      /* Audit 2026-11-14 (faille critique) : le code vient du LIEN : un lien piégé pouvait déposer sans clic le jeton de la victime sous un code connu de l'attaquant, qui le relisait. Confirmation obligatoire, avec les 4 derniers caractères du code, affichés aussi dans l'application : ils doivent être les mêmes. */
+      confirmerEnvoiJetonV1("Relier l’application SOREAL NGU IDLE de ton téléphone à ce compte ? Le code ci-dessous doit être EXACTEMENT celui affiché dans l’application, sinon refuse. Code : "+code.slice(-4).toUpperCase(),function(){transmettreRelaisV1(code,jeton);});
+      return;
+    }
+    const clientId=await clientIdGoogleV1();
+    if(clientId)await afficherConnexionGoogleV1(clientId,"Connecte-toi avec Google : ton compte sera relié à l’application SOREAL NGU IDLE de ton téléphone.");
+    else{masquerProgressionV1();statusV1("La connexion Google n’est pas disponible pour le moment.",true);}
+  }
+  async function transmettreRelaisV1(code,jeton){
+    {
       statusV1("Connexion de l’application…",false);
       try{
         const reponse=await fetch("/api/v1/relais",{method:"POST",headers:{"content-type":"application/json",authorization:"Bearer "+jeton},body:JSON.stringify({code:code})});
@@ -643,11 +656,22 @@
       }catch(_){
         statusV1("La connexion n’a pas pu être transmise à l’application. Reviens dans l’application et réessaie.",true);
       }
-      return;
     }
-    const clientId=await clientIdGoogleV1();
-    if(clientId)await afficherConnexionGoogleV1(clientId,"Connecte-toi avec Google : ton compte sera relié à l’application SOREAL NGU IDLE de ton téléphone.");
-    else{masquerProgressionV1();statusV1("La connexion Google n’est pas disponible pour le moment.",true);}
+  }
+  /* Confirmation avant tout envoi du jeton de session hors de cette page (relais de l'application Android, liaison de l'exe). */
+  function confirmerEnvoiJetonV1(texte,suite){
+    masquerProgressionV1();
+    statusV1(texte,false);
+    const zone=zoneConnexionV1();
+    zone.innerHTML="";
+    const oui=document.createElement("button"),non=document.createElement("button");
+    oui.type=non.type="button";
+    oui.textContent="Relier";non.textContent="Refuser";
+    oui.style.cssText="margin:0 6px;padding:9px 18px;border-radius:999px;border:1px solid rgba(129,176,255,.5);background:#12213f;color:#dbe8ff;font-weight:800;cursor:pointer";
+    non.style.cssText=oui.style.cssText;
+    oui.addEventListener("click",function(){zone.innerHTML="";suite();});
+    non.addEventListener("click",function(){zone.innerHTML="";statusV1("Liaison refusée. Tu peux fermer cette page.",true);});
+    zone.appendChild(oui);zone.appendChild(non);
   }
 
   async function startV1(){
