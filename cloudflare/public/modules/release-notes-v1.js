@@ -42,7 +42,8 @@
             'Après une défaite, le retour en fondu d’ouverture avec le chœur de voix revient de temps en temps (il n’était plus jamais joué).'
           ]},
           {menu:'diggers', titre:'Labos', points:[
-            'Labos : quand le moteur refuse de faire travailler un labo (pas assez d’or par seconde à ce niveau, plus de place libre, aucun niveau choisi), un message le dit maintenant au lieu de ne rien afficher.'
+            'Labos : quand le moteur refuse de faire travailler un labo (pas assez d’or par seconde à ce niveau, plus de place libre, aucun niveau choisi), un message le dit maintenant au lieu de ne rien afficher.',
+            'Labos : le bouton + est maintenant bien grisé quand tu n’as pas acheté le niveau suivant, pour montrer que tu es au maximum de ce que tu as acheté.'
           ]},
           {menu:'avance', titre:'Entraînement avancé', points:[
             'Entraînement avancé : le texte sous chaque barre (bonus, puis temps avant le prochain niveau) reste maintenant toujours sur une seule ligne sur ordinateur (au lieu de passer parfois sur deux selon le nombre ou la durée affichés) ; sur téléphone, il se met sur deux lignes si la place manque, toujours de la même façon.'

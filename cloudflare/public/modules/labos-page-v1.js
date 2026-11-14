@@ -94,6 +94,8 @@
       /* Bouton grisé LISIBLE (Norman, 2026-11-08) : fond sombre neutre mais texte clair (contraste d'au moins 7 : 1) et bord net ; seul l'aspect plat dit « indisponible » */
       '.lp-btn:disabled,.lp-btn.lp-manque{cursor:default;color:#f1ead2;background:linear-gradient(180deg,#26242c,#16151a);text-shadow:0 1px 0 #000;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),2px 2px 0 #000}',
       '.lp-btn:disabled small,.lp-btn.lp-manque small{opacity:1;color:#ffd978}',
+      /* Norman, 2026-11-14 : le + (ou le −) doit etre GRISE quand on n'a pas achete le niveau suivant (ou qu'on est a zero), pour montrer qu'on est au maximum de ce qu'on a achete : symbole attenue et bouton terne, bien different d'un bouton actif. */
+      '.lp-btn.carre.lp-manque{color:#6f7686;opacity:.55;background:#1c1b21;text-shadow:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08)}',
       /* Texte toujours lisible sur un bouton grisé (Norman, 2026-11-09 : « les écritures sont toujours difficiles à lire, surtout le Qi en rouge ») : fond presque noir, contour noir net autour des lettres et des chiffres du coût, lettres d'unité de la même couleur claire que le coût (les couleurs propres aux unités, parfois sombres, se perdaient sur le gris ; essai d'un filtre d'éclaircissement : illisible quand même). */
       P+'.lp-btn.lp-manque small,'+P+'.lp-btn:disabled small{text-shadow:0 1px 0 #000;--lp-fs:13px;font-weight:400;letter-spacing:.02em;opacity:1}',
       P+'.lp-btn.lp-manque small .nb-suf,'+P+'.lp-btn:disabled small .nb-suf{color:#ffd978;filter:none;font-weight:400}',
