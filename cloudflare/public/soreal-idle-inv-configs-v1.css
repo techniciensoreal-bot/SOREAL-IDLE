@@ -64,6 +64,7 @@
 .ic-fin{display:flex;align-items:center;gap:6px 14px;flex-wrap:nowrap;min-width:0}
 .ic-fin .ic-ligne{flex:none}
 .ic-fin .ic-coche{font-size:13px;gap:6px}
+.ic-fin .ic-chrono{font-size:12px;white-space:nowrap;margin-left:6px}
 .ic-fin .ic-boite{width:20px;height:20px;border-width:2px;border-radius:5px}
 .ic-fin .ic-boite svg{width:13px;height:13px}
 .ic-mini{display:flex;align-items:center;gap:6px;min-width:0;flex:1 1 auto}
@@ -85,7 +86,7 @@
   .ic-mini{overflow-x:auto;scrollbar-width:none}
   .ic-mini::-webkit-scrollbar{display:none}
 }
-@media (max-width:520px){.ic-fin{gap:6px 10px}.ic-fin .ic-pref{display:none}}
+@media (max-width:520px){.ic-fin{gap:6px 10px}.ic-fin .ic-pref{display:none}.ic-fin .ic-chrono{font-size:11px;margin-left:3px}}
 /* Téléphone (mode volet : grille à deux colonnes, la poignée du tiroir occupe la colonne 2) : la barre est COLLÉE au bas de l'équipement et au haut du sac (Norman, 2026-11-12 : « trop grand espace »).
    1) la poignée s'étirait sur les 2 premières rangées : avec la barre en 2e rangée, celle-ci était étirée à 184 px au lieu de 46 ; elle couvre maintenant les 3 rangées ;
    2) l'écart entre rangées (14 px) est annulé autour de la barre. */

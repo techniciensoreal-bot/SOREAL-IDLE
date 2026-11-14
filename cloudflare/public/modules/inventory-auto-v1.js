@@ -86,12 +86,13 @@
       if(!debloque)return '';
       var coche=Boolean(voulu_('r:'+cle,r[cle]));
       var chrono='';
-      if(!compact&&coche&&reste!=null){chrono='<span class="ic-chrono">prochain dans <b data-idle-auto-v1="1" data-fmt="min" data-rest="'+Number(reste)+'" data-at="'+ancre+'" data-cycle="'+cycle+'">'+dureeMin(reste)+'</b></span>';minuterie=true;}
+      /* Norman (2026-11-14) : « quand le menu est replié, on doit quand même voir les compteurs de temps pour la prochaine exécution » : la ligne fine garde le compteur (⏱ + durée), le bloc ouvert le détaille (« prochain dans »). */
+      if(coche&&reste!=null){chrono='<span class="ic-chrono">'+(compact?'⏱ ':'prochain dans ')+'<b data-idle-auto-v1="1" data-fmt="min" data-rest="'+Number(reste)+'" data-at="'+ancre+'" data-cycle="'+cycle+'">'+dureeMin(reste)+'</b></span>';minuterie=true;}
       return '<span class="ic-ligne"><label class="ic-coche"><input type="checkbox" '+(coche?'checked ':'')+'onchange="window.__inventaireAutoReglageV1__(\''+cle+'\',this.checked)"><span class="ic-boite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4 12.500 5 5L20 6" fill="none" stroke="#0b2a15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>'+(compact?nom.replace('Auto ','<span class="ic-pref">Auto </span>'):nom)+'</span></label>'+chrono+'</span>';
     }
     var contenu=ligne('autoMerge','Auto Merge',u.autoMerge,s.mergeRemainingSeconds)+ligne('autoBoost','Auto Boost',u.autoBoost,s.boostRemainingSeconds);
-    if(compact)return contenu;
     if(minuterie)minuteurAuto();
+    if(compact)return contenu;
     var aide=u.autoBoost?'<span class="ic-aide">Auto Boost : les boosts vont d’abord aux objets équipés, puis aux accessoires et aux cases d’automerge ; le reste ne va dans le Cube que lorsque tout est au maximum. Les objets protégés ne sont jamais utilisés.</span>':'';
     return '<div class="ic-barre">'+contenu+(bascule||'')+aide+'</div>';
   }
