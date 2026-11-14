@@ -43,7 +43,10 @@ if (args.includes("--catalogue")) {
   const adresses = feuilles.filter((f) => /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+[.][A-Za-z]{2,}/.test(f[2]));
   if (adresses.length) { console.error("Refusé : le catalogue contient encore " + adresses.length + " ligne(s) avec des adresses e-mail (feuille " + [...new Set(adresses.map((f) => f[0]))].join(", ") + ")."); process.exit(1); }
   fs.mkdirSync(path.join(ICI, "graine"), { recursive: true });
-  fs.writeFileSync(path.join(ICI, "graine", "catalogue.json"), JSON.stringify({ feuilles, exporteLe: j.exporteLe || null }));
+  /* Textes modifiés par l'administrateur (empreintes de voix comprises) et histoires : rangés aussi quand le fichier les porte (graine { feuilles, textes, histoires, exporteLe }, voir cloudflare/src/idle-graine-contenu-v1.js) ; jamais d'adresse e-mail. */
+  const textes = Array.isArray(j.textes) ? j.textes : undefined, histoires = Array.isArray(j.histoires) ? j.histoires : undefined;
+  for (const [nom, valeur] of [["textes", textes], ["histoires", histoires]]) if (valeur && /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+[.][A-Za-z]{2,}/.test(JSON.stringify(valeur))) { console.error("Refusé : « " + nom + " » contient une adresse e-mail."); process.exit(1); }
+  fs.writeFileSync(path.join(ICI, "graine", "catalogue.json"), JSON.stringify(Object.assign({ feuilles }, textes ? { textes } : {}, histoires ? { histoires } : {}, { exporteLe: j.exporteLe || null })));
   const noms = new Set(feuilles.map((f) => f[0]));
   console.log("Catalogue rangé : " + feuilles.length + " lignes, " + noms.size + " feuilles (" + [...noms].slice(0, 8).join(", ") + (noms.size > 8 ? "…" : "") + ").");
   process.exit(0);
