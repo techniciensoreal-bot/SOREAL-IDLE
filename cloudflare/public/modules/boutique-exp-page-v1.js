@@ -270,7 +270,7 @@
           const onglet=IDLE_EXP_ONGLETS_V1.find(function(o){return o.id===r;});
           return IDLE_SPEND_EXP_STATS_V1.filter(function(stat){
             const achat=couts[stat.id],verrou=verrous[stat.id];
-            return achat&&!(achat.unlockBoss&&verrou&&verrou.unlocked===false);
+            return achat&&!(verrou&&verrou.unlocked===false);
           }).map(function(stat){
             return idleExpShopNewbieOffersIdleV1_(r,stat.id,catalogue[stat.id]||null,utilisees,stat,onglet?onglet.nom:'');
           }).join('');
@@ -281,7 +281,7 @@
 
       function idleExpShopStatBlocIdleV1_(res,stat,x,achat,verrou,newbieCatalogue,newbieUtilisees){
         const auMax=achat&&window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(x[stat.id])>=achat.hardCap-1e-9;
-        const verrouille=achat&&achat.unlockBoss&&verrou&&verrou.unlocked===false;
+        const verrouille=achat&&verrou&&verrou.unlocked===false;
         /* ANTI-SPOIL (2026-09-24) : un achat encore verrouillé (ex. Puissance / Plafond avant le boss requis) n'est pas montré du tout. */
         if(verrouille)return '';
         return '<div class="soreal-idle-exp-stat-v210">'+
@@ -441,7 +441,7 @@
           const verrous=(m.resourcePurchaseUnlock||{})[res]||{};
           sortie[res]=IDLE_SPEND_EXP_STATS_V1.filter(function(stat){
             const achat=couts[stat.id],verrou=verrous[stat.id];
-            return !(achat&&achat.unlockBoss&&verrou&&verrou.unlocked===false);
+            return !(achat&&verrou&&verrou.unlocked===false);
           }).map(function(stat){return 'res:'+res+':'+stat.id;});
         });
         /* Seuls les rayons que le joueur peut ouvrir comptent. */

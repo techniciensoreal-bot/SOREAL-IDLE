@@ -39,4 +39,8 @@ if (!sy.cards.unlocked) { assert.deepEqual(sy.cards.mayoCostRange, [0, 0]); asse
 // Les compétences manuelles d'Aventure verrouillées ne sont pas dessinées (règle n°2).
 const ui = fs.readFileSync(path.join(DEPOT, "cloudflare", "public", "modules", "ui-aventure-1-v1.js"), "utf8");
 assert.ok(ui.includes("IDLE_ADVENTURE_MANUAL_ATTACKS_V3.filter(function(def){return competenceAdventureDisponibleIdleV4_(def,'attack',a);})") && ui.includes("IDLE_ADVENTURE_MANUAL_DEFENSE_V3.filter(function(def){return competenceAdventureDisponibleIdleV4_(def,'defense',a);})"), "compétences verrouillées non dessinées");
+// La Boutique EXP masque un achat fermé avec « unlocked: false » SEUL (le serveur n'envoie plus « unlockBoss ») : sinon l'achat fermé serait dessiné.
+const boutique = fs.readFileSync(path.join(DEPOT, "cloudflare", "public", "modules", "boutique-exp-page-v1.js"), "utf8");
+assert.ok(!boutique.includes("achat.unlockBoss"), "la boutique ne lit plus unlockBoss");
+assert.equal((boutique.match(/verrou&&verrou\.unlocked===false/g) || []).length >= 3, true, "trois masquages par « unlocked === false »");
 console.log("idle-anti-spoil-etat-joueur-neuf-v1 : OK");

@@ -261,7 +261,9 @@ function roundTrip(state) {
   const snap = idleNguSnapshot(roundTrip(state), context, Date.now());
 
   assert.equal(snap.resourcePurchaseUnlock.energy.power.unlocked, false, "boss 5 < 17 : Power doit être annoncé verrouillé au client.");
-  assert.equal(snap.resourcePurchaseUnlock.energy.power.neededBosses, IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1);
+  /* Audit 2026-11-14 (règle n°2) : le « bats le boss N » ne part plus dans la réponse (le client masque l'achat fermé avec « unlocked: false » seul). */
+  assert.equal(snap.resourcePurchaseUnlock.energy.power.neededBosses, undefined);
+  assert.equal(snap.resourcePurchases.energy.power.unlockBoss, undefined, "achat fermé : pas de boss à battre dans le catalogue envoyé");
   assert.equal(snap.resourcePurchaseUnlock.energy.cap.unlocked, false);
   assert.equal(snap.resourcePurchaseUnlock.energy.speed.unlocked, true, "Speed n'est jamais verrouillé par le boss.");
   assert.equal(snap.resourcePurchaseUnlock.energy.bars.unlocked, true, "Bars n'est jamais verrouillé par le boss.");

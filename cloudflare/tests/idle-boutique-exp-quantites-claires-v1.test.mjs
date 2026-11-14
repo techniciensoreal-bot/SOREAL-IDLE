@@ -42,7 +42,7 @@ assert.ok(meta.includes("[1,10,100].forEach(function(q){if(tiers.indexOf(q)===-1
 // Offres débutant : tickets, dans le rayon Débuts, seulement pour les ressources et achats déjà débloqués.
 assert.ok(meta.includes("soreal-idle-exp-ticket-v1") && meta.includes("idleExpShopTicketsDebutantIdleV1_(j,m)+cartes"), "tickets dans le rayon Débuts");
 assert.ok(!meta.includes("idleExpShopNewbieOffersIdleV1_(res.id,stat.id"), "plus d'offres dans chaque statistique");
-assert.ok(meta.includes("visibles.some(function(o){return o.id===r;})") && meta.includes("achat.unlockBoss&&verrou&&verrou.unlocked===false"), "anti-spoil : ressource et achat connus");
+assert.ok(meta.includes("visibles.some(function(o){return o.id===r;})") && meta.includes("achat&&!(verrou&&verrou.unlocked===false)"), "anti-spoil : ressource et achat connus");
 assert.equal(meta.split("idleExpTuileAchatIdleV1_(").length - 1, 3, "définition + lots de statistiques + articles");
 assert.ok(!meta.includes('class="fond" src="/shop/') && !meta.includes(".soreal-idle-exp-tuile-v1 .emo{"), "pas d'image ni de pictogramme géant dans les carrés d'achat");
 // Quantité personnalisée détaillée : −, +, Max, récapitulatif (gain, avant · après, coût, reste), flèche dessinée en CSS.
