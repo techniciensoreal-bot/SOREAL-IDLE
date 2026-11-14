@@ -106,7 +106,8 @@ const IDLE_LIMITES_V1 = new Map();
 function idleLimiteDepasseeV1(cle, capacite, parSeconde, maintenant = Date.now()) {
   if (IDLE_LIMITES_V1.size > 5000) {
     for (const [k, v] of IDLE_LIMITES_V1) if (maintenant - v.t > 60000) IDLE_LIMITES_V1.delete(k);
-    if (IDLE_LIMITES_V1.size > 5000) IDLE_LIMITES_V1.clear();
+    /* Audit 2026-11-14 : un clear() total remettait à zéro TOUS les limiteurs (Google, ticket, jeton) dès que 5 000 clés aléatoires (« relais:<code> ») étaient envoyées ; on retire seulement les plus anciennes (ordre d'insertion). */
+    if (IDLE_LIMITES_V1.size > 5000) { for (const k of IDLE_LIMITES_V1.keys()) { if (IDLE_LIMITES_V1.size <= 2500) break; IDLE_LIMITES_V1.delete(k); } }
   }
   const e = IDLE_LIMITES_V1.get(cle) || { jetons: capacite, t: maintenant };
   e.jetons = Math.min(capacite, e.jetons + ((maintenant - e.t) / 1000) * parSeconde);
@@ -440,7 +441,7 @@ async function idleMajV1(request, env, url) {
   if (interdit) return idleJsonV1({ ok: false, error: "CLE_INVALIDE" }, 400);
   const objet = await env.SOREAL_R2.get(cle);
   if (!objet) return idleJsonV1({ ok: false, error: "ABSENT" }, 404);
-  const entetes = new Headers({ "cache-control": "public, max-age=300", "content-length": String(objet.size) });
+  const entetes = new Headers({ "cache-control": "public, max-age=300", "content-length": String(objet.size), "x-content-type-options": "nosniff", "content-security-policy": "sandbox" });   /* audit 2026-11-14 : contenu R2 servi tel quel, jamais interprété par le navigateur */
   entetes.set("content-type", (objet.httpMetadata && objet.httpMetadata.contentType) || "application/octet-stream");
   return new Response(objet.body, { headers: entetes });
 }
@@ -483,12 +484,15 @@ export default {
     const url = new URL(request.url);
     if (request.method === "GET" && (url.pathname === "/api/v1/maj/manifeste" || url.pathname === "/api/v1/maj/fichier")) return idleMajV1(request, env, url);
     /* Profils de badavatar (idle-profil-badavatar-v1.js) : lecture publique (liste réduite, jamais d'adresse e-mail) et image du visage personnalisé ; écriture : POST /api/v1/profil-badavatar plus bas. */
+    /* Audit 2026-11-14 : routes publiques sans compte : limite PAR ADRESSE (cf-connecting-ip) en plus du seau global, pour qu'un seul client ne vide pas le seau de tous (visages indisponibles) ni ne sature l'objet unique. */
+    const adresseClient = String(request.headers.get("cf-connecting-ip") || "inconnue").slice(0, 64);
     if (request.method === "GET" && url.pathname === "/api/idle/media/profils-badavatar") {
+      if (idleLimiteDepasseeV1("profils-badavatar:" + adresseClient, 20, 0.5)) return idleTropDeRequetesV1();
       const r = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-publics", { method: "POST", body: "{}" });
       return new Response(r.body, { status: r.status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
     }
     if (request.method === "GET" && url.pathname === "/api/idle/media/badavatar-photo") {
-      if (idleLimiteDepasseeV1("badavatar-photo", 60, 20)) return idleTropDeRequetesV1();
+      if (idleLimiteDepasseeV1("badavatar-photo:" + adresseClient, 60, 20) || idleLimiteDepasseeV1("badavatar-photo", 600, 100)) return idleTropDeRequetesV1();
       const r = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-photo", { method: "POST", body: JSON.stringify({ nom: url.searchParams.get("nom") || "" }) });
       /* L'adresse change avec ?v= (date d'enregistrement) : la réponse peut être gardée longtemps. nosniff + sandbox : une image, rien d'autre. */
       return new Response(r.ok ? r.body : "Introuvable", { status: r.ok ? 200 : 404, headers: { "content-type": r.ok ? (r.headers.get("content-type") || "image/webp") : "text/plain", "cache-control": r.ok ? "public, max-age=31536000, immutable" : "no-store", "x-content-type-options": "nosniff", "content-security-policy": "sandbox", "access-control-allow-origin": "*" } });
