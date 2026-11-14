@@ -45,7 +45,7 @@
             'Tous les succès sont maintenant obtenables : les succès secrets qui ne se débloquaient jamais (survivre à un ennemi explosif, vaincre certains ennemis avant qu’ils n’attaquent) fonctionnent enfin.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Les ennemis qui empoisonnent, paralysent ou explosent font maintenant ce qu’ils annoncent, avec leurs effets et leurs sons : le poison te ronge pendant 5 s, la paralysie coupe tes compétences 2 s, un ennemi explosif explose au bout de son compte à rebours si tu ne l’as pas vaincu avant (environ 2 500 dégâts pour le plus faible), un ennemi rapide attaque plus vite, un chargeur frappe un très gros coup toutes les 4 attaques et un ennemi qui grandit tape de plus en plus fort.',
+            'Les ennemis qui empoisonnent, paralysent ou explosent font maintenant ce qu’ils annoncent, avec leurs effets et leurs sons : le poison te ronge pendant 5 s, la paralysie coupe tes compétences 2 s, un ennemi explosif explose au bout de son compte à rebours si tu ne l’as pas vaincu avant (environ 2 500 dégâts pour le plus faible), un chargeur frappe un très gros coup toutes les 4 attaques, et quand un combat dure trop longtemps (plus de 30 s) un ennemi rapide s’accélère et un ennemi qui grandit tape de plus en plus fort.',
             'Quand tu changes de configuration d’équipement, les pièces venues du coffre y retournent au lieu de finir dans le sac ; celles venues du sac y restent.',
             'Quand la zone des cases d’automatisation du sac est repliée, les compteurs de temps avant la prochaine exécution restent visibles sur la ligne fine.',
             'Les compétences d’Aventure que tu n’as pas encore débloquées ne sont plus dessinées.'

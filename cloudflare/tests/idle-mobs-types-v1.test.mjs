@@ -68,38 +68,46 @@ assert.equal(M.explosion(mob("exploder", { mobPower: 0 })), 1, "au moins 1 dég�
 assert.equal(M.explosion(mob("poison", { mobPower: 33 })), 0);
 assert.equal(M.explosion(mob("exploder", { titanId: "t1", mobPower: 33 })), 0);
 
-// Rapide : intervalle ×0,8 (jamais pour un autre type ni un titan).
-assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000), 800);
-assert.equal(M.intervalleEnnemiMs(mob("rapid"), 50), 100, "jamais sous 100 ms");
-assert.equal(M.intervalleEnnemiMs(mob("normal"), 1000), 1000);
-assert.equal(M.intervalleEnnemiMs(mob("rapid", { titanId: "t1" }), 1000), 1000);
+// Rapide : AUCUN changement pendant les 30 premières secondes (l'avancée actuelle des joueurs ne change pas), puis -3 % de l'intervalle par seconde, plancher 30 %.
+M.reinit(100000);
+for (const t of [100000, 105000, 120000, 129999, 130000]) assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, t), 1000, "combat court : intervalle d'origine à " + (t - 100000) + " ms");
+assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, 140000), 700, "10 s au-delà de 30 s : -30 %");
+assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, 150000), 400, "20 s au-delà : -60 %");
+assert.equal(M.intervalleEnnemiMs(mob("rapid"), 1000, 500000), 300, "plancher à 30 % de l'intervalle");
+assert.equal(M.intervalleEnnemiMs(mob("rapid"), 200, 500000), 100, "jamais sous 100 ms");
+assert.equal(M.intervalleEnnemiMs(mob("normal"), 1000, 500000), 1000, "un autre type n'accélère jamais");
+assert.equal(M.intervalleEnnemiMs(mob("rapid", { titanId: "t1" }), 1000, 500000), 1000, "pas pour un titan");
 
 // Chargeur : 3 attaques ordinaires (la 3e annonce la charge), la 4e ×2,5, et ainsi de suite ; sa remise à zéro à chaque combat.
-M.reinit();
-const charge = [1, 2, 3, 4, 5, 6, 7, 8].map(() => JSON.parse(JSON.stringify(M.coupEnnemi(mob("charger")))));
+M.reinit(0);
+const charge = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => JSON.parse(JSON.stringify(M.coupEnnemi(mob("charger"), i * 1000))));
 assert.deepEqual(charge.map((c) => c.mult), [1, 1, 1, 2.5, 1, 1, 1, 2.5], "gros coup toutes les 4 attaques");
 assert.deepEqual(charge.map((c) => c.charge), [false, false, false, true, false, false, false, true]);
 assert.deepEqual(charge.map((c) => c.prepare), [false, false, true, false, false, false, true, false], "signe visible à la 3e attaque");
-M.reinit();
-assert.equal(M.coupEnnemi(mob("charger")).mult, 1, "compteur remis à zéro par reinit");
+M.reinit(0);
+assert.equal(M.coupEnnemi(mob("charger"), 1000).mult, 1, "compteur remis à zéro par reinit");
 
-// Grandisseur : +10 % cumulés à chaque attaque, plafond ×3.
-M.reinit();
-const grow = Array.from({ length: 25 }, () => M.coupEnnemi(mob("grower")).mult);
-assert.equal(grow[0], 1); assert.ok(Math.abs(grow[1] - 1.1) < 1e-9 && Math.abs(grow[4] - 1.4) < 1e-9, "1,1 puis 1,2, 1,3, 1,4…");
-assert.equal(grow[24], 3, "plafonné à ×3"); assert.ok(grow.every((v, i) => i === 0 || v >= grow[i - 1]), "ne redescend jamais");
+// Grandisseur : AUCUN changement pendant 30 s, puis +10 % par seconde (×4 à 60 s), plafond ×10 ; annoncé toutes les 5 s.
+M.reinit(0);
+for (const t of [1000, 10000, 29000, 30000]) assert.equal(M.coupEnnemi(mob("grower"), t).mult, 1, "combat court : dégâts d'origine à " + t + " ms");
+assert.ok(Math.abs(M.coupEnnemi(mob("grower"), 35000).mult - 1.5) < 1e-9, "5 s au-delà de 30 s : x1,5");
+assert.ok(Math.abs(M.coupEnnemi(mob("grower"), 60000).mult - 4) < 1e-9, "60 s : x4");
+assert.equal(M.coupEnnemi(mob("grower"), 400000).mult, 10, "plafonné à x10");
+M.reinit(0);
+const annonces = [31000, 32000, 36000, 37000, 41000].map((t) => M.coupEnnemi(mob("grower"), t).croit);
+assert.deepEqual(annonces, [false, false, true, false, true], "annonce « le combat s'éternise » tous les 5 s au-delà de 30 s");
 // Un ennemi normal ou un titan n'a aucun modificateur.
-M.reinit();
-assert.equal(M.coupEnnemi(mob("normal")).mult, 1); assert.equal(M.coupEnnemi(mob("grower", { titanId: "t1" })).mult, 1);
+M.reinit(0);
+assert.equal(M.coupEnnemi(mob("normal"), 90000).mult, 1); assert.equal(M.coupEnnemi(mob("grower", { titanId: "t1" }), 90000).mult, 1);
 // Double type : poison + chargeur n'existe pas dans le bestiaire, mais « poison/paralyze » reste reconnu.
 assert.deepEqual(T(mob("charger")), { poison: false, paralyze: false, exploder: false, rapid: false, charger: true, grower: false });
 
 // Branchement dans le combat (sources) : coup de l'ennemi, tick du poison, mort explosive, paralysie centrale, remise à zéro, effets et sons.
 const combat = readFileSync(new URL("../public/modules/ui-combat-2-v1.js", import.meta.url), "utf8");
-assert.ok(combat.includes("window.SorealMobTypesV1.reinit()") && combat.includes("mobTypes.apresCoupEnnemi(fight,degats,momentEvenement,Math.random())") && combat.includes("window.SorealMobTypesV1.tickPoison(maintenantTick)"), "combat branché");
+assert.ok(combat.includes("window.SorealMobTypesV1.reinit(maintenantTick)") && combat.includes("mobTypes.apresCoupEnnemi(fight,degats,momentEvenement,Math.random())") && combat.includes("window.SorealMobTypesV1.tickPoison(maintenantTick)"), "combat branché");
 const aventure = readFileSync(new URL("../public/modules/ui-aventure-1-v1.js", import.meta.url), "utf8");
 assert.ok(combat.includes("mt.explosion(fight);") && combat.includes("function explosionEnnemiAdventureIdleV1_(fight,degatsCoup)") && !aventure.includes("const explosion=explosionEnnemiAdventureIdleV1_(fight);"), "explosion au compte à rebours (jamais à la mort : tuer l'explosif avant ne déclenche rien)");
-assert.ok(combat.includes("window.SorealMobTypesV1.coupEnnemi(fight)") && aventure.includes("intervalleEnnemiMs(fight,base)") && combat.includes("window.SorealMobTypesV1.types(fight).exploder") && combat.includes("issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;"), "au moment de son attaque l'explosif explose, puis disparaît (survie notée pour le succès)");
+assert.ok(combat.includes("window.SorealMobTypesV1.coupEnnemi(fight,momentEvenement)") && aventure.includes("intervalleEnnemiMs(fight,base,Date.now())") && combat.includes("window.SorealMobTypesV1.types(fight).exploder") && combat.includes("issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;"), "au moment de son attaque l'explosif explose, puis disparaît (survie notée pour le succès)");
 assert.ok(aventure.includes("window.SorealMobTypesV1.paralyse(maintenant))return true;"), "la paralysie d'un ennemi coupe compétences et Idle comme celle d'un titan");
 const fx = readFileSync(new URL("../public/modules/combat-effets-v1.js", import.meta.url), "utf8");
 assert.ok(fx.includes("cfx-explosion") && fx.includes("cfx-poison") && fx.includes("cfx-empoisonne") && fx.includes("courant.poison"), "effets visuels : explosion, crâne de poison, barre empoisonnée");

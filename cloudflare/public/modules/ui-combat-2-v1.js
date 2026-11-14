@@ -1296,7 +1296,7 @@
             maintenantTick+intervalleAttaqueEnnemiAdventureIdleV2_(fight);
           REG.idleAdventureFightLastRegenAtV2=maintenantTick;
           REG.idleTitanAttaquesV1=0;REG.idleExploderSurvivedV1=false;   /* succès « sans coup » et « explosif survécu » : compteurs de CE combat */
-          try{if(window.SorealMobTypesV1)window.SorealMobTypesV1.reinit();}catch(_e){}   /* types d'ennemis (mobs-types-v1.js) : poison et paralysie repartent de zéro */
+          try{if(window.SorealMobTypesV1)window.SorealMobTypesV1.reinit(maintenantTick);}catch(_e){}   /* types d'ennemis (mobs-types-v1.js) : poison et paralysie repartent de zéro */
           REG.idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf():null;
           if(REG.idleTitanEtatV1)REG.idleTitanEtatV1.id=fight.titanId;
           /*
@@ -1422,11 +1422,11 @@
           }
           /* Types d'ennemis (mobs-types-v1.js) : chargeur (gros coup toutes les 4 attaques) et grandisseur (de plus en plus fort). */
           if(window.SorealMobTypesV1&&!fight.titanId){
-            const coup=window.SorealMobTypesV1.coupEnnemi(fight);
+            const coup=window.SorealMobTypesV1.coupEnnemi(fight,momentEvenement);
             if(coup.mult!==1)degats=Math.min(avant,Math.round(degats*coup.mult));
             if(coup.prepare){fxIdleV1_('mob','charge');ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' se charge : sa prochaine attaque sera terrible !');}
             if(coup.charge){fxTypeAttaque='puissante';ajouterLogAventureIdleV1_('enemy','💥 Attaque chargée !');}
-            else if(coup.croit&&fight.mobType==='grower')ajouterLogAventureIdleV1_('enemy','📈 '+libelleEnnemiAdventureIdleV1_(fight)+' devient plus fort.');
+            else if(coup.croit)ajouterLogAventureIdleV1_('enemy','📈 Le combat s’éternise : '+libelleEnnemiAdventureIdleV1_(fight)+' devient de plus en plus fort !');
           }
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
           let fxTypeAttaque='degats';
