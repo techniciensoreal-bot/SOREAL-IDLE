@@ -3,5 +3,8 @@
  * FICHIER GÉNÉRÉ par `node cloudflare/tools/marquer-nouveautes-push.mjs` (à lancer avant le commit d'un push ; la liste est remplacée, jamais cumulée). Ne pas l'éditer à la main.
  */
 (function(){
-  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [] };
+  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Les atouts et les manies qui concernent un système que tu n’as pas encore débloqué ne sont plus affichés : ils apparaissent quand tu découvres le système.",
+    "Même règle ici : une entrée liée à un système encore fermé n’apparaît pas."
+  ] };
 })();

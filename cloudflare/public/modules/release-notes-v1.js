@@ -39,6 +39,12 @@
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Les compétences d’Aventure que tu n’as pas encore débloquées ne sont plus dessinées.'
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'Les atouts et les manies qui concernent un système que tu n’as pas encore débloqué ne sont plus affichés : ils apparaissent quand tu découvres le système.'
+          ]},
+          {menu:'wishes', titre:'Wishes', points:[
+            'Même règle ici : une entrée liée à un système encore fermé n’apparaît pas.'
           ]}
         ]
       },

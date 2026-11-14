@@ -55,7 +55,9 @@ assert.doesNotThrow(() => applyIdleNguAction(etat("extreme"), { action: "buyQuir
 
 // Catalogues exposés : ni Evil ni Sadistic visibles en Normal (pas de spoil), sauf ce qui est déjà possédé
 {
-  const ids = (s) => new Set(idleNguSnapshot(s, ctx, 0).perkDefinitions.map((p) => p.id));
+  /* Audit 2026-11-14 (règle n°2) : un atout lié à un système fermé n'est pas envoyé ; ici on isole la règle de DIFFICULTÉ, tous les systèmes sont donc ouverts. */
+  const toutOuvert = (s) => { for (const id of Object.keys(s.systems)) if (s.systems[id] && typeof s.systems[id] === "object") s.systems[id].unlocked = true; s.records.highestBoss = 400; return s; };
+  const ids = (s) => new Set(idleNguSnapshot(toutOuvert(s), ctx, 0).perkDefinitions.map((p) => p.id));
   assert.equal(ids(etat("normal")).has(125), false);
   assert.equal(ids(etat("difficile")).has(125), true);
   assert.equal(ids(etat("difficile")).has(144), false);
@@ -90,7 +92,9 @@ assert.doesNotThrow(() => applyIdleNguAction(etat("extreme"), { action: "buyQuir
   t.difficulty = "difficile";
   assert.equal(idleWishTracksActifsV1(t)["1"].level, 3);
   // catalogue exposé : rien en Normal (pas de spoil), les souhaits Evil en Evil, tout en Sadistic
-  const nb = (d) => idleNguSnapshot(s(d), ctx, 0).systems.find((x) => x.id === "wishes").tracks.length;
+  /* Audit 2026-11-14 : tous les systèmes ouverts (règle n°2 : un souhait lié à un système fermé n'est pas listé) pour isoler la règle de difficulté. */
+  const ouvrir = (e) => { for (const id of Object.keys(e.systems)) if (e.systems[id] && typeof e.systems[id] === "object") e.systems[id].unlocked = true; e.records.highestBoss = 400; return e; };
+  const nb = (d) => idleNguSnapshot(ouvrir(s(d)), ctx, 0).systems.find((x) => x.id === "wishes").tracks.length;
   assert.equal(nb("normal"), 0);
   assert.equal(nb("difficile"), 93, "95 souhaits Evil moins Dual Wielding I et II (Troll Challenges Evil 4 et 6)");
   assert.equal(nb("extreme"), 229);

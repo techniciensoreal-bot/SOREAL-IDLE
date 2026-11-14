@@ -13,6 +13,8 @@ import { macguffinSnapshotV1, macguffinPermanentPctV1 } from "./idle-macguffins-
 import { IDLE_PERKS_CATALOG_V1, perkBonusesV1, idlePerkByIdV1, idlePerkNextCostV1 } from "./idle-perks-v1.js";
 import { idleDifficulteSuffisanteV1, IDLE_PERK_DIFFICULTE_V1, IDLE_QUIRK_DIFFICULTE_V1, idleWishAccessibleV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { IDLE_QUIRKS_CATALOG_V1, idleQuirkByIdV1, idleQuirkNextCostV1 } from "./idle-quirks-v1.js";
+import { systemesPerkOuvertsV1 } from "./idle-perks-systemes-v1.js";
+import { idleWishByIdV1 } from "./idle-wishes-v1.js";
 import { idleDaycareSnapshotV1 } from "./idle-daycare-v1.js";
 import { idleInventoryAutoSnapshotV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1 } from "./idle-inventory-auto-v1.js";
 import { idleQuestingSnapshotV1 } from "./idle-questing-v1.js";
@@ -98,6 +100,12 @@ function consommablesSnapshotV1(state) {
     if (n > 0) potions[k] = n;
   }
   return { restant, beta, reserve, potions };
+}
+
+/* Un système est « ouvert » quand il est découvert ; la ressource 3 par ressourceDecouverteV1. */
+function systemeOuvertPerkV1(state) {
+  /* La magie (Blood Magic) et la ressource 3 se découvrent « une fois pour toutes » (ressourceDecouverteV1) : leurs atouts ne disparaissent pas après un Rebirth qui remet le drapeau du système à zéro. */
+  return (id) => (id === "r3" ? ressourceDecouverteV1(state, "r3") : id === "bloodMagic" ? ressourceDecouverteV1(state, "magic") : Boolean(state.systems && state.systems[id] && state.systems[id].unlocked));
 }
 
 export function idleNguSnapshot(raw, context = {}, now = Date.now()) {
@@ -330,8 +338,9 @@ function construireSnapshotNguV1(state, context, now) {
      * Mêmes gabarit et clé que diggerDefinitions ci-dessus.
      */
     /* Wiki : les Perks et Quirks « Evil only » / « Sadistic only » n'existent qu'à partir de cette difficulté (déjà possédés : gardés, inactifs). */
-    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => (state.systems.perks?.unlocked || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0)),
-    quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => (state.systems.quirks?.unlocked || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
+    /* Audit 2026-11-14 (règle n°2) : un atout lié à un système encore verrouillé (barbes, mineurs, cartes…) n'est envoyé qu'une fois ce système découvert, sauf s'il est déjà possédé (idle-perks-systemes-v1.js). */
+    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => (state.systems.perks?.unlocked || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) && systemesPerkOuvertsV1(p, systemeOuvertPerkV1(state)) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0)),
+    quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => (state.systems.quirks?.unlocked || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) && systemesPerkOuvertsV1(q, systemeOuvertPerkV1(state)) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
     daycare: Object.assign(idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)), { skins: skinsSnapshotV1(state, daycareSkinsEnvV1(state)) }),
     /* Automatisation de l'inventaire : déblocages, réglages, minuteurs, slots d'automerge, loadouts, filtre. */
@@ -409,7 +418,7 @@ function construireSnapshotNguV1(state, context, now) {
       resources: def.resources.slice(),
       unlock: ferme ? { unlocked: false } : unlockInfo(def, state, context),
       ...(def.id === "hacks" ? { finalHack: idleTheEndFinalHackSnapshotV1(state) } : {}),
-      tracks: ferme ? [] : (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || idleWishAccessibleV1(state, track.id) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0).map(track => ({
+      tracks: ferme ? [] : (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || (idleWishAccessibleV1(state, track.id) && systemesPerkOuvertsV1(idleWishByIdV1(Number(track.id)) || track, systemeOuvertPerkV1(state))) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0)   /* audit 2026-11-14 (règle n°2) : un souhait lié à un système fermé (cartes, barbes…) n'est listé qu'une fois ce système découvert */.map(track => ({
         ...track,
         unlocked: def.id !== "beards" || beardTrackUnlocked(state, track),
         state: clone(state.systems[def.id].data.tracks?.[track.id] || { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 }),

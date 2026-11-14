@@ -170,6 +170,12 @@ assert.equal(idleQuirkNextCostV1(idleQuirkByIdV1(35), 50), Infinity, "At cap (50
   assert.deepEqual(verrouille.quirkDefinitions, [], "quirks non découverts : aucune définition envoyée");
   state.systems.perks.unlocked = true;
   state.systems.quirks.unlocked = true;
+  /* Audit 2026-11-14 (règle n°2) : un atout / une manie lié à un système fermé (barbes, cartes…) n'est envoyé qu'une fois ce système découvert : avec seulement les Perks ouverts la liste est un sous-ensemble ; le catalogue COMPLET n'est exposé que quand tous les systèmes sont découverts. */
+  const partiel = idleNguSnapshot(state, {}, 1_000_000);
+  assert.ok(partiel.perkDefinitions.length > 0 && partiel.perkDefinitions.length < IDLE_PERKS_CATALOG_V1.length, "perks : seulement ceux des systèmes découverts");
+  assert.ok(partiel.quirkDefinitions.length > 0 && partiel.quirkDefinitions.length < IDLE_QUIRKS_CATALOG_V1.length, "quirks : seulement ceux des systèmes découverts");
+  for (const id of Object.keys(state.systems)) if (state.systems[id] && typeof state.systems[id] === "object") state.systems[id].unlocked = true;
+  state.records.highestBoss = 400;
   const snapshot = idleNguSnapshot(state, {}, 1_000_000);
   assert.ok(
     Array.isArray(snapshot.perkDefinitions) && snapshot.perkDefinitions.length === IDLE_PERKS_CATALOG_V1.length,

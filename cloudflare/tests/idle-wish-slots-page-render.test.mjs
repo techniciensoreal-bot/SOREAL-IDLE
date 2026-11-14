@@ -55,6 +55,9 @@ let s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, 1_000_000);
 s.systems.wishes.unlocked = true;
 s.systems.hacks.unlocked = true;
 s.systems.bloodMagic.unlocked = true;
+/* Audit 2026-11-14 (règle n°2) : un souhait lié à un système fermé n'est pas listé ; la page est testée avec tous les systèmes ouverts. */
+for (const id of Object.keys(s.systems)) if (s.systems[id] && typeof s.systems[id] === "object") s.systems[id].unlocked = true;
+s.records.highestBoss = 400;
 s.systems.quirks.data.levels = { 56: 1 };
 for (const k of ["energy", "magic", "r3"]) { s.resources[k].cap = 1000; s.resources[k].current = 1000; }
 s = act(s, { action: "setWishSlot", slot: 0, wish: "1" });
