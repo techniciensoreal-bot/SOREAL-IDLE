@@ -2097,7 +2097,7 @@
             Math.max(.1,idleNombre_(fight&&fight.mobAttackRate)||1)*1000
           )
         );
-        return window.SorealMobTypesV1&&fight&&!fight.titanId?window.SorealMobTypesV1.intervalleEnnemiMs(fight,base,Date.now()):base;   /* ennemi rapide : s'accélère quand le combat dure (mobs-types-v1.js) */
+        return typeof window!=="undefined"&&window.SorealMobTypesV1&&fight&&!fight.titanId?window.SorealMobTypesV1.intervalleEnnemiMs(fight,base,Date.now()):base;   /* ennemi rapide : s'accélère quand le combat dure (mobs-types-v1.js) */
       }
 
       function identiteFightAdventureIdleV2_(fight){
