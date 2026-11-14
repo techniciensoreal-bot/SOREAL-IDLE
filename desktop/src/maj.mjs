@@ -108,8 +108,8 @@ export function calculerDelta(manifeste, etat) {
 }
 
 function manifesteSain(m) {
-  return m && m.v === 1 && typeof m.version === "string" && m.version.length <= 40 && Array.isArray(m.medias)
-    && m.medias.every((x) => Array.isArray(x) && typeof x[0] === "string" && x[0].startsWith("idle/") && !x[0].split("/").some((seg) => seg === ".." || seg === "") && Number.isInteger(x[1]) && x[1] >= 0 && typeof x[2] === "string")
+  return m && m.v === 1 && typeof m.version === "string" && m.version.length <= 40 && typeof m.date === "string" && Number.isFinite(Date.parse(m.date)) && Array.isArray(m.medias)
+    && m.medias.every((x) => Array.isArray(x) && typeof x[0] === "string" && x[0].startsWith("idle/") && !x[0].split("/").some((seg) => seg === ".." || seg === "") && !/[\:]/.test(x[0]) && Number.isInteger(x[1]) && x[1] >= 0 && typeof x[2] === "string")
     && (!m.code || (typeof m.code.cle === "string" && m.code.cle.startsWith("idle/_maj/") && /^[0-9a-f]{64}$/.test(m.code.sha256) && Number.isInteger(m.code.taille)));
 }
 
@@ -142,7 +142,7 @@ const sha256 = (b) => crypto.createHash("sha256").update(b).digest("hex");
  * Télécharge et installe : tout dans v<id>.partiel/, vérifié (taille, md5 quand l'etag en est un, sha256 du paquet), puis renommé en v<id>/ et inscrit dans etat.json.
  * progression({ fait, total, octets, octetsTotal }) est appelée à chaque fichier.
  */
-export async function installerMaj({ urlBase = URL_PRODUCTION, manifeste, delta, dossierMaj, etat, progression = () => {}, fetchFn = fetch, simultanes = 4 }) {
+export async function installerMaj({ urlBase = URL_PRODUCTION, manifeste, delta, dossierMaj, etat, progression = () => {}, fetchFn = fetch, simultanes = 4, ecartes = [] }) {
   const id = "v" + manifeste.version.replace(/[^0-9A-Za-z]/g, "");
   const final = path.join(dossierMaj, id), partiel = final + ".partiel";
   fs.rmSync(partiel, { recursive: true, force: true });
@@ -197,7 +197,8 @@ export async function installerMaj({ urlBase = URL_PRODUCTION, manifeste, delta,
   /* inscription : l'index devient celui du manifeste (ce que l'appareil possède maintenant) */
   const index = Object.assign({}, etat.index);
   for (const m of manifeste.medias) index[m[0]] = [m[1], m[2]];
-  const retirees = calculerRetirees(manifeste, etat);
+  /* Audit 2026-11-14 : un média écarté (modifié sur R2 après la publication) est absent du manifeste filtré ; il ne doit PAS être compté parmi les fichiers « retirés » (sa voix disparaissait du disque et de l'index jusqu'à la mise à jour suivante). */
+  const retirees = calculerRetirees(manifeste, etat).filter((k) => !ecartes.includes(k));
   for (const k of retirees) delete index[k];
   const nouveau = Object.assign({}, etat, {
     retirees,

@@ -26,10 +26,44 @@ const typeDe = (f) => TYPES[path.extname(f).toLowerCase()] || "application/octet
 function ouvrirBase(chemin) {
   fs.mkdirSync(path.dirname(chemin), { recursive: true });
   const db = new DatabaseSync(chemin);
-  db.exec("PRAGMA journal_mode=WAL");
-  db.exec("PRAGMA synchronous=NORMAL");
+  try { db.exec("PRAGMA journal_mode=WAL"); db.exec("PRAGMA synchronous=NORMAL"); } catch (e) { try { db.close(); } catch (_e) { /* déjà fermée */ } throw e; }   /* fichier illisible : la poignée est fermée (sinon Windows refuse de le renommer pour le restaurer) */
   const sql = { exec(q, ...b) { const st = db.prepare(q); if (/^\s*(select|pragma|with)/i.test(q)) return st.all(...b); st.run(...b); return []; } };
-  return { db, sql };
+  /* Audit 2026-11-14 : sans transaction, une coupure entre l'écriture d'idle_catalog et celle d'idle_players laissait les deux tables divergentes ; le coordinateur utilise transactionSync (comme un Durable Object) quand le stockage le fournit. */
+  const transactionSync = (f) => { db.exec("BEGIN"); try { const r = f(); db.exec("COMMIT"); return r; } catch (e) { try { db.exec("ROLLBACK"); } catch (_e) { /* rien à défaire */ } throw e; } };
+  return { db, sql, transactionSync };
+}
+
+/*
+ * Copie de secours de la base (audit 2026-11-14 : les copies de sécurité vivaient dans le MÊME fichier ; une base corrompue emportait tout). Une copie par jour (VACUUM INTO, cohérente même en WAL), les 5 dernières gardées,
+ * dans « sauvegardes-base » à côté de la base. Si la base ne s'ouvre pas, la plus récente copie la remplace (la base abîmée est gardée sous « .abimee »).
+ */
+function dossierCopiesBase(chemin) { return path.join(path.dirname(chemin), "sauvegardes-base"); }
+function copierBaseDuJour(db, chemin) {
+  try {
+    const dossier = dossierCopiesBase(chemin);
+    fs.mkdirSync(dossier, { recursive: true });
+    const jour = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const cible = path.join(dossier, "soreal-idle-" + jour + ".sqlite");
+    if (!fs.existsSync(cible)) db.exec("VACUUM INTO '" + cible.replace(/'/g, "''") + "'");
+    const anciennes = fs.readdirSync(dossier).filter((f) => /^soreal-idle-\d{8}\.sqlite$/.test(f)).sort();
+    while (anciennes.length > 5) { try { fs.rmSync(path.join(dossier, anciennes.shift()), { force: true }); } catch (_e) { /* tant pis */ } }
+  } catch (_e) { /* la copie du jour est facultative : jamais de blocage du jeu */ }
+}
+function ouvrirBaseOuRestaurer(chemin) {
+  try { return ouvrirBase(chemin); } catch (erreur) {
+    const dossier = dossierCopiesBase(chemin);
+    let copies = [];
+    try { copies = fs.readdirSync(dossier).filter((f) => /^soreal-idle-\d{8}\.sqlite$/.test(f)).sort().reverse(); } catch (_e) { /* aucune copie */ }
+    for (const copie of copies) {
+      try {
+        if (fs.existsSync(chemin)) fs.renameSync(chemin, chemin + ".abimee");
+        for (const ext of ["-wal", "-shm"]) { try { fs.rmSync(chemin + ext, { force: true }); } catch (_e) { /* tant pis */ } }
+        fs.copyFileSync(path.join(dossier, copie), chemin);
+        return ouvrirBase(chemin);
+      } catch (_e) { /* copie suivante */ }
+    }
+    throw erreur;
+  }
 }
 
 const EN_TETE_JOUEURS = ["ID","Nom","Niveau","XP","Énergie","Énergie max","Prod/s","Force","Endurance","Organisation","Puissance","Boss actuel","PV boss","PV boss max","Boss vaincus","Dernière synchro","Public","Rang","Email principal","Email connexion","Pièces","Inventaire JSON","Équipement JSON","Améliorations JSON","Renaissances","Essence renaissance","PV joueur","PV joueur max","KO jusqu'à","Zone aventure","Progression aventure JSON","Points aventure","Dernière action aventure","Matériaux","Collection JSON","Date début","Capacité inventaire","Stats JSON"];
@@ -237,9 +271,10 @@ export async function creerEnvLocal(opt) {
   const { SorealIdleCoordinatorV1 } = await import(src("index-idle-coordinator-v1.js"));
   const entree = (await import(src("idle-worker-entry-v1.js"))).default;
   const { appliquerGraineContenuV1 } = await import(src("idle-graine-contenu-v1.js"));
-  const { db, sql } = ouvrirBase(opt.fichierBase);
+  const { db, sql, transactionSync } = ouvrirBaseOuRestaurer(opt.fichierBase);
+  copierBaseDuJour(db, opt.fichierBase);
   db.exec("CREATE TABLE IF NOT EXISTS legacy_rows(source_key TEXT,row_index INTEGER,values_json TEXT,imported_at INTEGER)");
-  const coord = new SorealIdleCoordinatorV1({ storage: { sql } }, {});
+  const coord = new SorealIdleCoordinatorV1({ storage: { sql, transactionSync } }, {});
   const migrations = sql.exec("SELECT COUNT(*) AS n FROM migration_sources WHERE source_key LIKE 'idle:%' AND status='DONE'")[0];
   if (!migrations || Number(migrations.n) < 15) {
     for (let i = 0; i < 15; i += 1) sql.exec("INSERT OR REPLACE INTO migration_sources(source_key,status) VALUES(?,?)", "idle:s" + i, "DONE");

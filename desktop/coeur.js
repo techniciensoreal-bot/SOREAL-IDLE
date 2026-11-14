@@ -20,7 +20,7 @@ const LIEN_STUDIO = /^soreal-studio:\/\/demarrer(?:[/?#]|$)/;   /* ancré : rien
   const handleOrigine = ipcMain.handle.bind(ipcMain);
   ipcMain.handle = (canal, fn) => handleOrigine(canal, (ev, ...args) => {
     const u = ev && ev.senderFrame && ev.senderFrame.url;
-    if (u && !String(u).startsWith("app://soreal/")) return { ok: false, code: "ORIGINE_REFUSEE" };
+    if (!u || !String(u).startsWith("app://soreal/")) return { ok: false, code: "ORIGINE_REFUSEE" };   /* audit 2026-11-14 : un cadre sans adresse n'est plus accepté */
     return fn(ev, ...args);
   });
 }
@@ -339,7 +339,7 @@ function installerPontMaj() {
         try {
           etatMaj = await majModule.installerMaj({
             urlBase: URL_MAJ || majModule.URL_PRODUCTION, manifeste, delta, dossierMaj, etat: etatMaj,
-            progression: (p) => envoyerPage("maj:progression", p)
+            progression: (p) => envoyerPage("maj:progression", p), ecartes
           });
           break;
         } catch (e) {
