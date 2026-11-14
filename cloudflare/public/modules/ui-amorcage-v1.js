@@ -1785,6 +1785,16 @@ window.__SOREAL_IDLE_ACTIVITE_V1__=function(){
         /* Rituels de sang déjà débloqués chez ce lecteur (le serveur n'envoie que ceux-là) : le fil « En direct » ne nomme jamais un rituel qu'il ne connaît pas. */
         connus.rituels={};
         try{((j.systemes&&j.systemes.bloodRituals)||[]).forEach(function(r){if(r&&r.id)connus.rituels[String(r.id)]=true;});}catch(e){}
+        /* Fil « En direct » (Norman, 2026-11-14) : labos déjà ouverts et fruits d'Yggdrasil déjà connus de CE lecteur (seuls ceux-là peuvent être nommés dans le fil). */
+        connus.labos={};connus.fruits={};
+        try{
+          const sv=window.__SOREAL_IDLE_LABOS_SAVANTS_V1__;
+          const sysL=((j.systemes&&j.systemes.systems)||[]).find(function(x){return x&&x.id==='diggers';});
+          const dg=(sysL&&sysL.state&&sysL.state.data&&sysL.state.data.diggers)||{};
+          Object.keys(dg).forEach(function(id){if(idleEntier_(dg[id]&&dg[id].maxLevel)>0&&sv&&sv.labos&&sv.labos[id])connus.labos[id]=String(sv.labos[id].nom||'');});
+          const trad=window.__SOREAL_IDLE_TRADUCTION_TEXTE_V1__;
+          ((j.systemes&&Array.isArray(j.systemes.yggFruits))?j.systemes.yggFruits:[]).forEach(function(def){if(def&&def.id&&def.name)connus.fruits[String(def.id)]=String(typeof trad==='function'?(trad(String(def.name))||def.name):def.name);});
+        }catch(e){}
         return {farm:farm,boss:j.combatBossActif?idleEntier_(j.bossSelection):0,menu:String(REG.idleMenuActifV28||''),zones:zones,bossMax:idleEntier_(records&&records.highestBoss),connus:connus,achatsNoms:achatsNoms};
       };
 }

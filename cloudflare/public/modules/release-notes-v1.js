@@ -30,6 +30,7 @@
         date:'2026-11-14',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Dans « En direct », de nouveaux messages apparaissent pour d’autres menus.',
             'Relier l’application Android à ton compte demande maintenant une confirmation, avec un court code à comparer à celui affiché dans l’application : un lien piégé ne peut plus le faire à ta place. Même confirmation pour relier l’application Windows.',
             'Une partie envoyée avec des données abîmées (copie tronquée, date illisible) est refusée au lieu d’écraser ta bonne partie.',
             'Le serveur n’envoie plus la liste des zones, des sets, des sorts ni des déblocages que tu n’as pas encore atteints.',
@@ -41,7 +42,11 @@
             'Un boss a désormais une mort qui lui est propre : il se déchire comme une feuille de papier.',
             'Après une défaite, le retour en fondu d’ouverture avec le chœur de voix revient de temps en temps (il n’était plus jamais joué).'
           ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Dans « En direct », manger ou récolter un fruit annonce le fruit s’il est seul, ou un message de groupe si plusieurs fruits sont consommés d’un coup.'
+          ]},
           {menu:'diggers', titre:'Labos', points:[
+            'Dans « En direct », quand un joueur met un labo au travail, la phrase dit lequel (seulement un labo que tu as déjà ouvert).',
             'Labos : quand le moteur refuse de faire travailler un labo (pas assez d’or par seconde à ce niveau, plus de place libre, aucun niveau choisi), un message le dit maintenant au lieu de ne rien afficher.',
             'Labos : le bouton + est maintenant bien grisé quand tu n’as pas acheté le niveau suivant, pour montrer que tu es au maximum de ce que tu as acheté.'
           ]},

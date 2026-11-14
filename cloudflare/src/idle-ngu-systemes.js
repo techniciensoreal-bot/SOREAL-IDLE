@@ -396,6 +396,8 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
   state.currencies.seeds+=seedGain;
   const factor=Math.ceil(Math.pow(grownTier,1.5));
   const result={fruit:fruitId,mode:harvest?"harvest":"eat",tier:grownTier,seeds:seedGain};
+  /* Fil « En direct » (Norman, 2026-11-14) : un compteur par fruit et par mode (manger / récolter), lu par idle-flux-v1.js ; jamais le détail du gain. */
+  {const rec=state.records||(state.records={});const ff=rec.fruitFlux&&typeof rec.fruitFlux==="object"?rec.fruitFlux:(rec.fruitFlux={eat:{},harvest:{}});const cible=harvest?(ff.harvest&&typeof ff.harvest==="object"?ff.harvest:(ff.harvest={})):(ff.eat&&typeof ff.eat==="object"?ff.eat:(ff.eat={}));cible[fruitId]=Math.max(0,num(cible[fruitId],0))+1;}
   if(poop)result.poop={consumed:poop.consumed,free:poop.free,remaining:poop.remaining,factor:poop.factor};
   /*
    * 2026-09-23 (audit) : wiki Yggdrasil > Fruit Yields. Chaque fruit a sa formule :

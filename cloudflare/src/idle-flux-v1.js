@@ -152,6 +152,24 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const tmAlloc = entier(tmSysteme.allocation && tmSysteme.allocation.energy) + entier(tmSysteme.allocation && tmSysteme.allocation.magic);
   let tmGps = 0;
   try { tmGps = tmSysteme.unlocked ? Math.max(0, Math.floor(N(idleNguTimeMachineGrossGoldPerSecond(m), 0))) : 0; } catch (_e) { tmGps = 0; }
+  /*
+   * Fruits d'Yggdrasil mangés / récoltés (Norman, 2026-11-14) : un compteur par fruit (records.fruitFlux, tenu par le moteur) ; un fruit seul est nommé, plusieurs fruits d'un coup font un message de groupe.
+   * Autres menus (Norman, 2026-11-14 : « une raison de faire un message dans chaque menu, sans flooder ») : des totaux de niveaux ou de compteurs, comparés plus bas par PALIERS (trois par dizaine), jamais le détail.
+   */
+  const compteFruits = (o) => Object.fromEntries(Object.entries(o && typeof o === "object" ? o : {}).filter(([id]) => /^[A-Za-z0-9_]{1,30}$/.test(id)).map(([id, v]) => [id, entier(v)]).filter(([, v]) => v > 0));
+  const ff = (m.records && m.records.fruitFlux) || {};
+  const fruitsMange = compteFruits(ff.eat), fruitsRecolte = compteFruits(ff.harvest);
+  const sommeNiveaux = (o) => Object.values(o && typeof o === "object" ? o : {}).reduce((t, x) => t + entier(x && x.level), 0);
+  const jalons = {
+    augmentations: Object.values(sys("augmentations").pairs || {}).reduce((t, x) => t + entier(x && x.level) + entier(x && x.upgradeLevel), 0),
+    beards: sommeNiveaux(sys("beards").tracks),
+    hacks: sommeNiveaux(sys("hacks").tracks),
+    wishes: sommeNiveaux(sys("wishes").tracks),
+    cartes: entier(sys("cards").stats && sys("cards").stats.spawned),
+    repas: entier(sys("cooking").mealsEaten),
+    garderie: Array.isArray(sys("daycare").slots) ? sys("daycare").slots.length : 0,
+    macguffins: Array.isArray(sys("macguffins").inventory) ? sys("macguffins").inventory.length : 0
+  };
   const wd = sys("wandoos");
   const wandoosOs = String(wd.os || "").replace(/[^A-Za-z0-9_-]/g, "").slice(0, 12);
   const wandoosNiveau = entier(wd.dumpEnergyLevel) + entier(wd.dumpMagicLevel);
@@ -161,6 +179,9 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const nguMax = nguListe.reduce((t, x) => Math.max(t, entier(x && x.level)), 0);
   const diggersListe = Object.values(sys("diggers").diggers || {});
   const diggersActifs = diggersListe.filter((x) => x && x.active).length;
+  /* Labos au travail : identifiant -> niveau de travail (pour dire QUEL labo vient de se mettre au travail). */
+  const laboActifsListe = {};
+  for (const [id, x] of Object.entries(sys("diggers").diggers || {})) if (x && x.active && /^[A-Za-z0-9_]{1,30}$/.test(id)) laboActifsListe[id] = entier(x.runLevel);
   const diggersNiveaux = diggersListe.reduce((t, x) => t + Math.max(entier(x && x.maxLevel), entier(x && x.runLevel)), 0);
   const tourEtage = entier(sys("tower").highestFloor);
   const avanceNiveaux = Object.values(sys("advancedTraining").tracks || {}).reduce((t, x) => t + Math.max(entier(x && x.level), entier(x && x.tempLevel)), 0);
@@ -178,6 +199,10 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
     nguTotal,
     nguMax,
     diggersActifs,
+    laboActifsListe,
+    fruitsMange,
+    fruitsRecolte,
+    jalons,
     diggersNiveaux,
     tourEtage,
     avanceNiveaux,
@@ -308,8 +333,37 @@ export function evenementsV1(avant, apres, noms = {}) {
   else if (monte("wandoosNiveau")) ev.push({ type: "wandoos", donnees: { n: apres.wandoosNiveau } });
   if (Number.isFinite(avant.nguTotal) && avant.nguTotal === 0 && apres.nguTotal > 0) ev.push({ type: "ngu", donnees: { debut: true, n: apres.nguMax } });
   else if (monte("nguTotal")) ev.push({ type: "ngu", donnees: { n: apres.nguMax, total: apres.nguTotal } });
-  if (Number.isFinite(avant.diggersActifs) && apres.diggersActifs > avant.diggersActifs) ev.push({ type: "diggers", donnees: { actifs: apres.diggersActifs } });
+  if (Number.isFinite(avant.diggersActifs) && apres.diggersActifs > avant.diggersActifs) {
+    /* QUEL labo vient de se mettre au travail (un seul : il est nommé ; plusieurs : message de groupe). */
+    const nouveaux = avant.laboActifsListe && apres.laboActifsListe ? Object.keys(apres.laboActifsListe).filter((id) => !(id in avant.laboActifsListe)) : [];
+    ev.push({ type: "diggers", donnees: Object.assign({ actifs: apres.diggersActifs }, nouveaux.length === 1 ? { id: nouveaux[0], niveau: apres.laboActifsListe[nouveaux[0]] } : {}) });
+  }
   else if (monte("diggersNiveaux")) ev.push({ type: "diggersNiveau", donnees: { n: apres.diggersNiveaux } });
+  /*
+   * Fruits d'Yggdrasil (Norman, 2026-11-14) : un seul fruit consommé depuis le battement précédent = message nominatif ; plusieurs (même fruit plusieurs fois ou fruits différents) = un message de GROUPE.
+   * Jamais depuis un instantané d'avant ce jalon (champ absent) ; au plus un message par battement.
+   */
+  if (avant.fruitsMange && avant.fruitsRecolte && apres.fruitsMange && apres.fruitsRecolte) {
+    const diff = (x, y) => Object.keys(y).map((id) => [id, N(y[id], 0) - N(x[id], 0)]).filter(([, d]) => d > 0);
+    const mange = diff(avant.fruitsMange, apres.fruitsMange).map(([id, d]) => [id, d, "eat"]);
+    const recolte = diff(avant.fruitsRecolte, apres.fruitsRecolte).map(([id, d]) => [id, d, "harvest"]);
+    const tous = mange.concat(recolte);
+    const total = tous.reduce((t, x) => t + x[1], 0);
+    if (total === 1) ev.push({ type: "fruit", donnees: { id: tous[0][0], mode: tous[0][2] } });
+    else if (total > 1) ev.push({ type: "fruits", donnees: { n: total, k: new Set(tous.map((x) => x[0])).size } });
+  }
+  /*
+   * Un jalon par menu (Norman, 2026-11-14) : totaux de niveaux franchissant un PALIER (trois par dizaine), jamais à chaque niveau ; garderie et MacGuffins : à chaque nouvel objet (rares).
+   * Un seul message de jalon par battement (le plus avancé du battement), pour ne rien inonder.
+   */
+  if (avant.jalons && apres.jalons) {
+    for (const quoi of ["augmentations", "beards", "hacks", "wishes", "cartes", "repas"]) {
+      if (Number.isFinite(avant.jalons[quoi]) && palier(apres.jalons[quoi]) > palier(avant.jalons[quoi])) { ev.push({ type: "jalon", donnees: { quoi, n: apres.jalons[quoi] } }); break; }
+    }
+    for (const quoi of ["garderie", "macguffins"]) {
+      if (Number.isFinite(avant.jalons[quoi]) && apres.jalons[quoi] > avant.jalons[quoi]) ev.push({ type: "jalon", donnees: { quoi, n: apres.jalons[quoi] } });
+    }
+  }
   if (Number.isFinite(avant.tourEtage) && apres.tourEtage > avant.tourEtage && Math.floor(apres.tourEtage / 10) > Math.floor(avant.tourEtage / 10)) ev.push({ type: "tour", donnees: { etage: apres.tourEtage } });
   if (Number.isFinite(avant.cinematiques) && apres.cinematiques > avant.cinematiques && apres.cinematiqueDerniere > 0) ev.push({ type: "cinematique", donnees: { id: apres.cinematiqueDerniere } });
   if (monte("avanceNiveaux")) ev.push({ type: "avance", donnees: { n: apres.avanceNiveaux } });

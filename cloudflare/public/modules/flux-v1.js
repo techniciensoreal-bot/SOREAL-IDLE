@@ -431,6 +431,11 @@
       }
       case 'diggers':{
         if(!k.menus.diggers)return null;
+        /* Un seul labo mis au travail (Norman, 2026-11-14) : nommé, mais SEULEMENT si le lecteur a déjà ouvert ce labo (sinon la phrase générale). */
+        {const nl=d.id&&k.labos&&k.labos[String(d.id)];
+        if(nl){const nv=Math.max(1,Math.floor(Number(d.niveau)||1)),vv=Math.abs(Number(it.id)||0);
+          const ll=it.moi?['Tu mets le '+nl+' au travail (niveau '+nv+')','Ton '+nl+' se met à brasser, niveau '+nv]:[nom+' met le '+nl+' au travail (niveau '+nv+')','Ça bouillonne au '+nl+' de '+nom+', niveau '+nv,nom+' lance son '+nl+', niveau '+nv];
+          return {icone:'🧑‍🔬',texte:ll[vv%ll.length]};}}
         const n=Math.max(1,Math.floor(Number(d.actifs)||1)),v=Math.abs(Number(it.id)||0);
         const l=it.moi?['Tu mets un labo de plus au travail ('+n+' en tout)','Tes savants fous sont '+n+' à brasser']:[nom+' met un labo de plus au travail ('+n+' en tout)','Ça bouillonne chez '+nom+' : '+n+' labos en action',nom+' ouvre un labo de plus, ils sont '+n];
         return {icone:'🧑‍🔬',texte:l[v%l.length]};
@@ -452,6 +457,48 @@
         const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
         const l=it.moi?['Ton Entraînement avancé monte : '+n+' niveaux en tout','Tu sues à l’Entraînement avancé : '+n+' niveaux']:[nom+' pousse l’Entraînement avancé : '+n+' niveaux en tout',nom+' sue à l’Entraînement avancé : '+n+' niveaux','L’Entraînement avancé de '+nom+' atteint '+n+' niveaux'];
         return {icone:'🏋️',texte:l[v%l.length]};
+      }
+      /*
+       * Fruits d'Yggdrasil (Norman, 2026-11-14) : un fruit seul est NOMMÉ (seulement si le lecteur le connaît : liste de ses fruits), plusieurs fruits d'un coup font un message de groupe. Anti-spoil : sans Yggdrasil, rien.
+       */
+      case 'fruit':{
+        if(!k.menus.yggdrasil)return null;
+        const fr=k.fruits&&k.fruits[String(d.id)];
+        const v=Math.abs(Number(it.id)||0),recolte=d.mode==='harvest';
+        const objet=fr?('le '+fr):'un fruit';
+        const l=recolte
+          ?(it.moi?['Tu récoltes '+objet,'Tu cueilles '+objet+' sur ton arbre']:[nom+' récolte '+objet,nom+' cueille '+objet+' sur son arbre',nom+' vide son arbre : '+objet])
+          :(it.moi?['Tu croques dans '+objet,'Tu manges '+objet+', miam']:[nom+' croque dans '+objet,nom+' mange '+objet+', miam',nom+' se régale avec '+objet]);
+        return {icone:'🍎',texte:l[v%l.length]};
+      }
+      case 'fruits':{
+        if(!k.menus.yggdrasil)return null;
+        const n=Math.max(2,Math.floor(Number(d.n)||2)),kk=Math.max(1,Math.floor(Number(d.k)||1)),v=Math.abs(Number(it.id)||0);
+        const sortes=kk>1?' ('+kk+' sortes différentes)':'';
+        const l=it.moi?['Tu te goinfres : '+n+' fruits d’un coup'+sortes,'Festin d’Yggdrasil : '+n+' fruits consommés'+sortes]:[nom+' se goinfre : '+n+' fruits d’un coup'+sortes,'Festin d’Yggdrasil chez '+nom+' : '+n+' fruits consommés'+sortes,nom+' vide son arbre : '+n+' fruits d’un coup'+sortes];
+        return {icone:'🍎',texte:l[v%l.length]};
+      }
+      /*
+       * Un jalon par menu (Norman, 2026-11-14) : ce que les autres joueurs font, sans inonder (paliers). Anti-spoil : la phrase n'existe que pour un lecteur qui possède le menu concerné.
+       */
+      case 'jalon':{
+        const MENU={augmentations:'augmentations',beards:'beards',hacks:'hacks',wishes:'wishes',cartes:'cards',repas:'cooking',garderie:'daycare',macguffins:'macguffins'};
+        const quoi=String(d.quoi||'');
+        if(!MENU[quoi]||!k.menus[MENU[quoi]])return null;
+        const n=nombreCourt(Number(d.n)||0),v=Math.abs(Number(it.id)||0);
+        const T={
+          augmentations:[['Tes Augmentations montent : '+n+' niveaux en tout','Tu renforces tes Augmentations : '+n+' niveaux'],['Les Augmentations de '+nom+' montent : '+n+' niveaux en tout',nom+' renforce ses Augmentations : '+n+' niveaux',nom+' bichonne ses Augmentations, '+n+' niveaux']],
+          beards:[['Ta barbe pousse : '+n+' niveaux de Barbes en tout','Tu cultives tes Barbes : '+n+' niveaux'],['La barbe de '+nom+' pousse : '+n+' niveaux de Barbes en tout',nom+' cultive ses Barbes : '+n+' niveaux',nom+' se laisse pousser la barbe : '+n+' niveaux']],
+          hacks:[['Tes Piratages avancent : '+n+' niveaux en tout','Tu pirates le système : '+n+' niveaux'],[nom+' pirate le système : '+n+' niveaux de Piratages','Les Piratages de '+nom+' avancent : '+n+' niveaux en tout',nom+' s’active sur ses Piratages : '+n+' niveaux']],
+          wishes:[['Tes Souhaits progressent : '+n+' niveaux en tout','Tu avances sur tes Souhaits : '+n+' niveaux'],[nom+' fait avancer ses Souhaits : '+n+' niveaux en tout','Les Souhaits de '+nom+' progressent : '+n+' niveaux',nom+' caresse la lampe : '+n+' niveaux de Souhaits']],
+          cartes:[['Tu as fait apparaître '+n+' cartes en tout','Ta collection de cartes grossit : '+n+' cartes apparues'],[nom+' a fait apparaître '+n+' cartes en tout','La collection de '+nom+' grossit : '+n+' cartes apparues',nom+' bat les cartes : '+n+' apparues']],
+          repas:[['Tu as avalé '+n+' repas en tout','Ta Cuisine tourne : '+n+' repas mangés'],[nom+' a avalé '+n+' repas en tout','La Cuisine de '+nom+' tourne : '+n+' repas mangés',nom+' passe à table : '+n+' repas au total']],
+          garderie:[['Tu confies un objet à la garderie ('+n+' en tout)','Un objet de plus à la garderie : '+n],[nom+' confie un objet à la garderie ('+n+' en tout)','La garderie de '+nom+' accueille un objet de plus : '+n,nom+' dépose un objet à la garderie, '+n+' en tout']],
+          macguffins:[['Tu trouves un nouveau MacGuffin ('+n+' en tout)','Ta collection de MacGuffins grossit : '+n],[nom+' trouve un nouveau MacGuffin ('+n+' en tout)','La collection de MacGuffins de '+nom+' grossit : '+n,nom+' met la main sur un MacGuffin : '+n+' en tout']]
+        };
+        const ICONES={augmentations:'🔧',beards:'🧔',hacks:'💻',wishes:'🧞',cartes:'🃏',repas:'🍳',garderie:'🧸',macguffins:'🧩'};
+        const l=T[quoi][it.moi?0:1];
+        return {icone:ICONES[quoi],texte:l[v%l.length]};
       }
       default:return null;
     }
