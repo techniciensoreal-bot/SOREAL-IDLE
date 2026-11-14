@@ -301,6 +301,14 @@ export class SorealIdleCoordinatorV1 {
     return { ok: true, user, expiresAt: Number(row.expires_at || 0) };
   }
 
+  /* Droit de jouer de la session (même décision que l'opération obtenirAccesSorealIdle) : false si refusé ou en cas d'erreur. */
+  accesJeuV1(session, sessionToken) {
+    try {
+      const r = runSorealIdleOperation(this.sqlMoteur, "obtenirAccesSorealIdle", [sv(sessionToken)], session && session.user);
+      return Boolean(r && r.autorise === true);
+    } catch (_e) { return false; }
+  }
+
   runStandaloneSessionOperationV1(payload) {
     const session = this.standaloneSessionV1(payload?.sessionToken);
     if (!session.ok) {
@@ -587,6 +595,8 @@ export class SorealIdleCoordinatorV1 {
       const p = await request.json().catch(() => ({}));
       const s = this.standaloneSessionV1(sv(p?.sessionToken));
       if (!s.ok) return Response.json({ ok: false, error: s.error, message: "Connexion perdue : reconnecte-toi." }, { headers: { "cache-control": "no-store" } });
+      /* Audit 2026-11-14 : tout compte Google obtenait une session, même sans droit de jouer ; il pouvait alors écrire un profil de badavatar (jusqu'à 100 Ko) dans la table. Le droit de jouer est exigé. */
+      if (!this.accesJeuV1(s, sv(p?.sessionToken))) return Response.json({ ok: false, error: "SOREAL_IDLE_ACCES_REFUSE" }, { headers: { "cache-control": "no-store" } });
       const email = sv(s.user?.email || s.user?.emailConnexion || (Array.isArray(s.user?.emails) ? s.user.emails[0] : "")).toLowerCase();
       if (!email) return Response.json({ ok: false, code: "BADAVATAR_COMPTE", message: "Compte introuvable." }, { headers: { "cache-control": "no-store" } });
       const action = sv(p?.action);
@@ -609,6 +619,8 @@ export class SorealIdleCoordinatorV1 {
     if (path === "/__soreal-idle-v1/local-textes") {
       const p = await request.json().catch(() => ({}));
       const s = this.standaloneSessionV1(sv(p?.sessionToken));
+      /* Audit 2026-11-14 : les textes d'administrateur non publiés (chroniques, popups) ne sont lus que par un compte qui a le droit de jouer. */
+      if (s.ok && !this.accesJeuV1(s, sv(p?.sessionToken))) return Response.json({ ok: false, error: "SOREAL_IDLE_ACCES_REFUSE" }, { headers: { "cache-control": "no-store" } });
       return Response.json(s.ok ? { ok: true, textes: textesPourMoteurLocalV1(this, p?.langue === "en" ? "en" : "fr") } : { ok: false, error: s.error }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/local-push") {

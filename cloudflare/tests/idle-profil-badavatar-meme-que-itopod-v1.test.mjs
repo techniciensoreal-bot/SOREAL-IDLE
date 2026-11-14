@@ -56,6 +56,8 @@ async function coordinateur(env) {
   const sql = { exec(q, ...b) { const st = db.prepare(q); if (/^\s*(select|pragma|with)/i.test(q)) return st.all(...b); st.run(...b); return []; } };
   db.exec("CREATE TABLE IF NOT EXISTS legacy_rows(source_key TEXT,row_index INTEGER,values_json TEXT,imported_at INTEGER)");
   const coord = new SorealIdleCoordinatorV1({ storage: { sql } }, env);
+  /* Audit 2026-11-14 : le profil exige le droit de jouer ; ici l'accès des ouvriers est ouvert (et les sessions de test portent le trophée) comme en production. */
+  sql.exec("CREATE TABLE IF NOT EXISTS idle_meta(meta_key TEXT PRIMARY KEY, meta_value TEXT)"); sql.exec("INSERT OR REPLACE INTO idle_meta(meta_key,meta_value) VALUES('acces_ouvert','1')");
   const appel = async (corps) => (await coord.internal(new Request("https://soreal-idle.invalid/__soreal-idle-v1/badavatar-moi", { method: "POST", body: JSON.stringify(corps) }), new URL("https://soreal-idle.invalid/__soreal-idle-v1/badavatar-moi"))).json();
   const session = (user) => {
     const jeton = "ils_test_" + Math.random().toString(16).slice(2);
@@ -67,16 +69,16 @@ async function coordinateur(env) {
 const tvAvec = { SOREAL_TV_API: { fetch: async () => Response.json(cosmetiques) } };
 {
   const { appel, session } = await coordinateur(tvAvec);
-  const t = session({ email: "dylan@soreal.test", emails: ["dylan@soreal.test"], prenom: "Dylan", role: "ouvrier" });
+  const t = session({ email: "dylan@soreal.test", emails: ["dylan@soreal.test"], prenom: "Dylan", role: "ouvrier", idleTrophee: true });
   const moi = await appel({ sessionToken: t, action: "lire" });
   assert.equal(moi.nomCle, "dylan j.", "le nom d'équipe du roster l'emporte sur le prénom de session");
-  const t2 = session({ email: "inconnu@soreal.test", emails: ["inconnu@soreal.test"], prenom: "Sébastien", role: "ouvrier" });
+  const t2 = session({ email: "inconnu@soreal.test", emails: ["inconnu@soreal.test"], prenom: "Sébastien", role: "ouvrier", idleTrophee: true });
   assert.equal((await appel({ sessionToken: t2, action: "lire" })).nomCle, "sebastien", "adresse absente de TV : prénom de session");
 }
 /* TV injoignable (cache expiré ou non) : repli sur le prénom, jamais d'erreur */
 {
   const { appel, session } = await coordinateur({});
-  const t = session({ email: "z@soreal.test", emails: ["z@soreal.test"], prenom: "Zoé", role: "ouvrier" });
+  const t = session({ email: "z@soreal.test", emails: ["z@soreal.test"], prenom: "Zoé", role: "ouvrier", idleTrophee: true });
   assert.equal((await appel({ sessionToken: t, action: "lire" })).nomCle, "zoe");
 }
 

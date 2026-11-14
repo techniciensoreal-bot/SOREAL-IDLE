@@ -1013,7 +1013,7 @@ async function avatarProxy_(request,url,env){
    */
   const internalKey=String(env.SOREAL_IDLE_INTERNAL_KEY||"");
   const suppliedKey=String(request.headers.get("x-soreal-idle-internal-key")||"");
-  if(!internalKey||suppliedKey!==internalKey){
+  if(!internalKey||!cleInterneEgaleV1_(suppliedKey,internalKey)){
     return new Response("Non autorisé",{status:401,headers:{"cache-control":"no-store"}});
   }
   const id=String(url.searchParams.get("id")||"").trim();
@@ -1722,7 +1722,7 @@ async function debugListeR2_(request,env,url){
    */
   const internalKey=String(env.SOREAL_IDLE_INTERNAL_KEY||"");
   const suppliedKey=String(request.headers.get("x-soreal-idle-internal-key")||"");
-  if(!internalKey||suppliedKey!==internalKey){
+  if(!internalKey||!cleInterneEgaleV1_(suppliedKey,internalKey)){
     return new Response("Non autorisé",{status:401,headers:{"cache-control":"no-store"}});
   }
   const prefix=String(url.searchParams.get("prefix")||"").trim();
@@ -1841,3 +1841,6 @@ export async function traiterRequeteIdleMedia(request,env){
   if(url.pathname==="/api/idle/media/shared")return idleItopodImagePartageeV1(request,env,url);
   return adventureZone_(request,env,url);
 }
+
+/* Audit 2026-11-14 : comparaison de la cle interne en temps constant (pas de fuite de la longueur du prefixe commun). */
+function cleInterneEgaleV1_(a,b){const x=String(a||""),y=String(b||"");let d=x.length^y.length;const n=Math.max(x.length,y.length);for(let i=0;i<n;i++)d|=(x.charCodeAt(i)||0)^(y.charCodeAt(i)||0);return d===0;}

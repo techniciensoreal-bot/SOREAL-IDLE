@@ -80,10 +80,17 @@ const dbc = new DatabaseSync(":memory:");
 const sqlc = { exec(q, ...b) { const st = dbc.prepare(q); if (/^\s*(select|pragma|with)/i.test(q)) return st.all(...b); st.run(...b); return []; } };
 dbc.exec("CREATE TABLE IF NOT EXISTS legacy_rows(source_key TEXT,row_index INTEGER,values_json TEXT,imported_at INTEGER)");
 const coord = new SorealIdleCoordinatorV1({ storage: { sql: sqlc } }, {});
+/* Audit 2026-11-14 : l'écriture d'un profil exige le droit de jouer (accès public ouvert pour ces comptes Google de test). */
+sqlc.exec("CREATE TABLE IF NOT EXISTS idle_meta(meta_key TEXT PRIMARY KEY, meta_value TEXT)");
+sqlc.exec("INSERT OR REPLACE INTO idle_meta(meta_key,meta_value) VALUES('acces_public','1')");
 const appel = async (chemin, corps) => { const rep = await coord.internal(new Request("https://soreal-idle.invalid" + chemin, { method: "POST", body: JSON.stringify(corps) }), new URL("https://soreal-idle.invalid" + chemin)); return rep.headers.get("content-type").includes("json") ? rep.json() : rep; };
 const tA = coord.createGoogleSessionV1({ email: "alice@soreal.test", nom: "Alice Martin" }).sessionToken, tB = coord.createGoogleSessionV1({ email: "bob@soreal.test", nom: "Bob Durand" }).sessionToken;
 assert.equal((await appel("/__soreal-idle-v1/badavatar-moi", { sessionToken: "faux", action: "enregistrer", pieces: { Nez: bonne } })).ok, false, "sans session valide : refusé");
 assert.equal((await appel("/__soreal-idle-v1/badavatar-moi", { sessionToken: "", action: "enregistrer", pieces: { Nez: bonne } })).ok, false);
+sqlc.exec("UPDATE idle_meta SET meta_value='0' WHERE meta_key='acces_public'");
+assert.equal((await appel("/__soreal-idle-v1/badavatar-moi", { sessionToken: tA, action: "enregistrer", pieces: { Nez: bonne } })).error, "SOREAL_IDLE_ACCES_REFUSE", "sans droit de jouer : aucun profil écrit");
+assert.equal((await appel("/__soreal-idle-v1/local-textes", { sessionToken: tA })).error, "SOREAL_IDLE_ACCES_REFUSE", "sans droit de jouer : pas de textes d'administrateur");
+sqlc.exec("UPDATE idle_meta SET meta_value='1' WHERE meta_key='acces_public'");
 let moi = await appel("/__soreal-idle-v1/badavatar-moi", { sessionToken: tA, action: "lire" });
 assert.equal(moi.ok, true); assert.equal(moi.nomCle, "alice"); assert.equal(moi.profil, null);
 assert.equal((await appel("/__soreal-idle-v1/badavatar-moi", { sessionToken: tA, action: "enregistrer", pieces: { Nez: bonne }, cat: "1" })).ok, true);
