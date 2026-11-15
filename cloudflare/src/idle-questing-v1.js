@@ -29,6 +29,10 @@
  *  - Fruit of Quirks (Yggdrasil), montée de niveau des objets de quête en
  *    Daycare (48 h) : systèmes absents ou tenus par d'autres.
  * (Cartes QP : branchées le 2026-09-24, env.qpCardMultiplier.)
+ *
+ * MESURÉ DANS LE VRAI JEU (NGU Idle build 1260, banc d'essai, 2026-11-15, Major idle de base 50 QP) : Beast Butter x2 (100) ; Orange Heart x1,2 (120 avec le beurre) ;
+ * Better QP Rewards 50 (+10 %) et Fibonacci 233 (+10 %) se MULTIPLIENT : 50 x 2 x 1,10 x 1,10 x 1,2 = 145 ; Improved Quest Looting niveau 30 = x1,15 de vitesse d'idle et le Heroic Sigil
+ * est un facteur SÉPARÉ x1,1 (1,15 x 1,1 = 1,265, mesuré 1,265). Non mesurés (objets ou systèmes inaccessibles au banc) : souhait 47, Mobster, objets de quête, Hack, cartes.
  */
 import { IDLE_PERKS_CATALOG_V1 } from "./idle-perks-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
