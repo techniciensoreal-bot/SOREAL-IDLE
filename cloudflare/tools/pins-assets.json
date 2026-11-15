@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 254,
-  "sha": "e6642cfee442a2dd3a386f2ab6c0630a43bd381a"
+  "pin": 255,
+  "sha": "39903291ad777ac1fe3e8ea33b96b6627db6a77c"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -564,8 +564,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 106,
-  "sha": "7d0f058477df42cc3fec19a00fb42df575745b52"
+  "pin": 107,
+  "sha": "e2f605685242fa170a030ce0582bb2a78713f0b9"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 7,

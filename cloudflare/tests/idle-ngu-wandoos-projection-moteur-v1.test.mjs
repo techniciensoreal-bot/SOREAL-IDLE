@@ -42,15 +42,15 @@ const srcW = fs.readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "u
 
 /* --- écran NGU : recopie de tick_ (ngu-labo-v1.js) --- */
 /* CORRIGÉ le 2026-11-05 : l'écran utilise maintenant le coût triangulaire du moteur (niveauxDepuisTravail_, copie exacte de nguLevelsFromWorkV1) au lieu d'une durée de niveau constante : D1 devient un ÉCHEC. La fonction de l'écran est EXTRAITE du fichier (plus de recopie). */
-const aN = src.indexOf("function niveauxDepuisTravail_(niveau,travail){"), bN = src.indexOf("function tick_(){", aN);
-assert.ok(aN > 0 && bN > aN, "niveauxDepuisTravail_ trouvée");
-const niveauxDepuisTravail = new Function(src.slice(aN, bN) + "\nreturn niveauxDepuisTravail_;")();
-assert.ok(src.includes("var travail=(Number(d.nlP)+ecoule/spl)*(n0+1);") && src.includes("var frac=Math.min(.999999999,rj.work/(n0+gagnes+1));") && src.includes("if((1/spl)>=49.99){frac=1;gagnes=Math.floor(ecoule*Math.min(50,1/spl));splMaintenant=spl;}"),
+const aN = src.indexOf("function niveauxEnTicksNgu_(niveau,P,budget,a){"), bN = src.indexOf("function tick_(){", aN);
+assert.ok(aN > 0 && bN > aN, "niveauxEnTicksNgu_ trouvée");
+const niveauxEnTicksNgu = new Function(src.slice(aN, bN) + "\nreturn niveauxEnTicksNgu_;")();
+assert.ok(src.includes("var aTick=(n0+1)/(spl*50);") && src.includes("var rj=niveauxEnTicksNgu_(n0,Number(d.nlP)*spl*50,ecoule*50,aTick);") && src.includes("var frac=Math.min(.999999999,rj.P*aTick/(n0+gagnes+1));") && src.includes("if((1/spl)>=49.99){frac=1;gagnes=Math.floor(ecoule*Math.min(50,1/spl));splMaintenant=spl;}"),
   "le calcul de tick_ (ngu-labo-v1.js) est toujours celui que ce test recopie");
 function ecranNgu(n0, p0, spl, ecoule) {
-  const travail = (Number(p0) + ecoule / spl) * (n0 + 1);
-  const rj = niveauxDepuisTravail(n0, travail);
-  let gagnes = rj.gained, frac = Math.min(0.999999999, rj.work / (n0 + gagnes + 1));
+  const aTick = (n0 + 1) / (spl * 50);
+  const rj = niveauxEnTicksNgu(n0, Number(p0) * spl * 50, ecoule * 50, aTick);
+  let gagnes = rj.gained, frac = Math.min(0.999999999, rj.P * aTick / (n0 + gagnes + 1));
   if ((1 / spl) >= 49.99) { frac = 1; gagnes = Math.floor(ecoule * Math.min(50, 1 / spl)); }
   return { niveau: n0 + gagnes, frac };
 }

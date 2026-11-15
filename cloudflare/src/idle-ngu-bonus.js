@@ -13,6 +13,7 @@ import { avecEquipementFigeV1, idleAdventureCleEquipementV1, idleAdventureEquipm
 import { idleHeartsApMultiplierV1, idleHeartsExpMultiplierV1, idleHeartsHackSpeedMultiplierV1 } from "./idle-hearts-v1.js";
 import { idleCardsMultiplierV1, idleCardsApplyToBonusesV1 } from "./idle-cards-v1.js";
 import { macguffinEffectMultiplierV1, macguffinApplyToBonusesV1 } from "./idle-macguffins-v1.js";
+import { niveauxEnTicksV1 } from "./idle-tick-v1.js";
 import { wishBonusesV1 } from "./idle-wishes-v1.js";
 import { idleYggPowerDeltaMultiplierV1 } from "./idle-yggdrasil-extra-v1.js";
 import { idleSelloutPotionFactorV1 } from "./idle-sellout-shop-v1.js";
@@ -387,18 +388,21 @@ export function advanceNgusV1(state, seconds) {
     if (def.resource === "magic" && !state.systems.bloodMagic?.unlocked) continue;
     const power = Math.max(1, idleNguEffectiveResourceStatV1(state, def.resource, "power"));
     const base = nguParamsV1(tier, def.id).baseCost;
-    const work = n.work + (alloc * power * speeds[def.resource] * seconds) / base;
-    let { gained, work: rest } = nguLevelsFromWorkV1(n.level, work);
     /*
-     * Page NGU : « at max speed, meaning they gain 50 levels/s » ; page Energy : « the most a progress bar can gain is
-     * exactly 1 filling per tick, since there are 50 ticks per second, or 50 fills (or levels) per second ». Seconde
-     * passe 2026-09-24 : le plafond existait pour les barbes et Wandoos, pas pour les NGU. Le travail en trop est perdu.
+     * Lu dans le jeu (build 1260, 2026-11-15 : NGUController::updateNGU) : la barre gagne `p` par tick, au plus un niveau par tick, et repart de 0 sans report. Le niveau n coûte n unités de travail, la barre
+     * fournit a = travail par tick : un niveau dure donc ceil(n / a) ticks (niveauxEnTicksV1, idle-tick-v1.js). `n.work` garde le travail déjà fait sur le niveau en cours (en unités de travail : une
+     * nouvelle allocation conserve la FRACTION, comme le jeu). Plafond « 50 niveaux par seconde » et cible : contenus dans le calcul (un niveau par tick au plus ; maxGain).
      */
-    const maxGain = Math.max(1, Math.ceil(50 * seconds));
-    if (gained > maxGain) { gained = maxGain; rest = 0; }
-    /* CIBLE ABSOLUE (Norman, 2026-11-03) : jamais un niveau au-delà de la cible (0 = aucune), même au plafond de 50 niveaux par seconde. */
+    const a = (alloc * power * speeds[def.resource]) / base / 50;
+    if (!(a > 0)) continue;
     const cibleNgu = Math.max(0, Math.floor(num(n.target, 0)));
-    if (cibleNgu > 0) { const reste = Math.max(0, cibleNgu - Math.floor(num(n.level, 0))); if (gained > reste) { gained = reste; rest = 0; } }
+    const placeNiveaux = Math.max(0, IDLE_NGU_MAX_LEVEL_V1 - n.level);
+    const placeCible = cibleNgu > 0 ? Math.max(0, cibleNgu - Math.floor(num(n.level, 0))) : Infinity;
+    const maxGain = Math.min(placeNiveaux, placeCible);
+    if (!(maxGain > 0)) continue;
+    const res = niveauxEnTicksV1(n.level, Math.max(0, num(n.work, 0)) / a, seconds * 50, a, maxGain);
+    const gained = res.gained;
+    const rest = res.gained >= maxGain ? 0 : res.P * a;
     n.work = rest;
     if (gained > 0) grantNguLevelsV1(state, tier, def.id, gained);
   }

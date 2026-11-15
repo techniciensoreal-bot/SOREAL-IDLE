@@ -427,7 +427,8 @@ function wishSecondsForLevelV1(state, trackDef, level, allocation, params) {
   const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
   const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / params.speedMultiplier;
-  return Number.isFinite(rawSeconds) ? Math.max(params.wishMinSeconds, rawSeconds) : Infinity;
+  /* Durée quantifiée sur les ticks (lu dans le jeu : une barre repart de 0 à chaque niveau, au plus un niveau par tick). */
+  return Number.isFinite(rawSeconds) ? dureeNiveauEnTicksV1(Math.max(params.wishMinSeconds, rawSeconds)) : Infinity;
 }
 
 function advanceWishTrack(state, system, trackDef, track, seconds, allocation = system.allocation, params = wishSpeedParamsV1(state, system)) {

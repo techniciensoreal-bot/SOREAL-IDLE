@@ -9,7 +9,7 @@ const aug = lire("idle-ngu-ressources.js"), ngu = lire("idle-ngu-bonus.js"), pis
 assert.ok(aug.includes("const cibleN=Math.max(0,int(upgrade?pair.upgradeTarget:pair.target,0));") && aug.includes("if(cibleN>0&&int(upgrade?pair.upgradeLevel:pair.level,0)>=cibleN)return;"), "Augmentations : une piste déjà à sa cible n'achète plus rien");
 assert.ok(aug.includes("cibleN>0?Math.max(0,cibleN-l0):Infinity") , "Augmentations : la formule fermée (grosses vitesses) s'arrête à la cible");
 assert.ok(aug.includes("if(cibleN>0&&int(level,0)>=cibleN)break;"), "Augmentations : la boucle s'arrête à la cible");
-assert.ok(ngu.includes("if (gained > reste) { gained = reste; rest = 0; }"), "NGU : jamais au-delà de la cible, même à 50 niveaux par seconde");
+assert.ok(ngu.includes("const placeCible = cibleNgu > 0 ? Math.max(0, cibleNgu - Math.floor(num(n.level, 0))) : Infinity;") && ngu.includes("niveauxEnTicksV1(n.level, Math.max(0, num(n.work, 0)) / a, seconds * 50, a, maxGain)"), "NGU : jamais au-delà de la cible, même à 50 niveaux par seconde (maxGain)");
 assert.ok(pistes.includes("t.progress = gain;") && pistes.includes("cibleAt - courant"), "Entraînement avancé : jamais au-delà de la cible");
 assert.ok(pistes.includes("!tmTargetReached(d.speedTarget, d.speedLevel)") && pistes.includes("!tmTargetReached(d.goldTarget, d.goldLevel)"), "Machine temporelle : la boucle s'arrête déjà à la cible");
 /* le vrai moteur : énergie énorme (CAP), cible 50, un pas de temps de 1 s puis de 10 minutes : le niveau s'arrête à 50 pile, l'énergie est rendue */

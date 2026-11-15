@@ -816,21 +816,26 @@ function majNuages_(f,spl,frac,maintenant){
   if(tube&&tube.__nlD!==e.d){tube.__nlD=e.d;tube.style.setProperty('--nl-d',String(e.d));}
 }
 /*
- * Niveaux gagnés avec un TRAVAIL donné (Norman, 2026-11-05 : « exactement comme NGU Idle », barre sans recul) : COPIE EXACTE de nguLevelsFromWorkV1 (idle-ngu-catalog-v1.js, vérifiée contre le moteur par idle-ngu-wandoos-projection-moteur-v1 et
- * idle-ngu-niveaux-travail-v1) : le niveau L+i coûte L+i unités de travail, donc chaque niveau dure plus longtemps que le précédent. L'ancien calcul de l'écran (durée de niveau CONSTANTE) gagnait trop de niveaux (mesuré : 276 contre 202 pour
- * 30 s) puis se recalait sur le moteur : recul de la barre.
+ * Niveaux gagnés par une barre NGU (Norman, 2026-11-15 : « aucun écart avec le jeu ») : COPIE EXACTE de niveauxEnTicksV1 (idle-tick-v1.js, vérifiée contre le moteur par idle-ngu-wandoos-projection-moteur-v1). Lu dans le jeu :
+ * la barre gagne un niveau tous les ceil(n / a) ticks (a = travail par tick, le niveau n coûte n), au plus un par tick, et repart de 0 sans report. P = ticks déjà faits sur le niveau en cours, budget = ticks écoulés.
  */
-function niveauxDepuisTravail_(niveau,travail){
-  var L=Math.max(0,Math.floor(Number(niveau)||0)),W=Math.max(0,Number(travail)||0);
-  var salle=Math.max(0,1e9-L);   /* IDLE_NGU_MAX_LEVEL_V1 */
-  if(salle<=0)return {gained:0,work:0};
-  var a=2*L+1;
-  var k=Math.floor((2*W)/(a+Math.sqrt(a*a+8*W)));
-  var total=function(n){return (n*(2*L+n+1))/2;};
-  while(k>0&&total(k)>W)k-=1;
-  while(k<salle&&total(k+1)<=W)k+=1;
-  k=Math.min(k,salle);
-  return {gained:k,work:k>=salle?0:Math.max(0,W-total(k))};
+function niveauxEnTicksNgu_(niveau,P,budget,a){
+  var L=Math.max(0,Math.floor(Number(niveau)||0)),ticks=Math.max(0,Number(budget)||0),prog=Math.max(0,Number(P)||0),rate=Number(a);
+  var maxGain=Math.max(0,1e9-L);   /* IDLE_NGU_MAX_LEVEL_V1 */
+  if(!(rate>0)||!isFinite(rate)||!(maxGain>0))return {gained:0,P:prog};
+  var mDe=function(n){return Math.max(1,Math.ceil(n/rate-1e-9));};
+  var n=L+1,gained=0,besoin=Math.max(0,mDe(n)-prog);
+  if(ticks+1e-9<besoin)return {gained:0,P:prog+ticks};
+  ticks=Math.max(0,ticks-besoin);gained=1;n+=1;
+  var garde=0;
+  while(gained<maxGain&&garde++<5000000){
+    var m=mDe(n),dernier=Math.floor(rate*(m+1e-9)),c=Math.max(1,dernier-n+1);
+    var k=Math.min(c,Math.floor((ticks+1e-9)/m),maxGain-gained);
+    if(k>=c){ticks=Math.max(0,ticks-c*m);gained+=c;n+=c;continue;}
+    ticks=Math.max(0,ticks-k*m);gained+=k;
+    return {gained:gained,P:gained>=maxGain?0:ticks};
+  }
+  return {gained:gained,P:gained>=maxGain?0:ticks};
 }
 /*
  * Mesure du banc du haut SEULEMENT quand c'est utile (profil d'échantillonnage du téléphone émulé, 2026-11-06 : getBoundingClientRect = 43 % du temps actif de la page NGU, soit ~15 % de tout le fil principal). Avant : la condition testait
@@ -871,10 +876,10 @@ function tick_(){
     var n0=Number(d.nlN),cible=Number(d.nlCible);
     if(cible>0&&n0>=cible)return;
     var ecoule=Math.max(0,(maintenant-Number(d.nlT0))/1000);
-    var travail=(Number(d.nlP)+ecoule/spl)*(n0+1);   /* unités de travail : fraction du niveau en cours x son coût (n0 + 1), plus ce que fournit l'énergie (le niveau en cours dure spl) */
-    var rj=niveauxDepuisTravail_(n0,travail);
+    var aTick=(n0+1)/(spl*50);   /* travail fourni par tick (le niveau n0 + 1 dure spl, soit spl x 50 ticks) */
+    var rj=niveauxEnTicksNgu_(n0,Number(d.nlP)*spl*50,ecoule*50,aTick);   /* ticks déjà faits sur le niveau en cours = fraction x durée en ticks */
     var gagnes=rj.gained;
-    var frac=Math.min(.999999999,rj.work/(n0+gagnes+1));
+    var frac=Math.min(.999999999,rj.P*aTick/(n0+gagnes+1));
     var splMaintenant=spl*(n0+gagnes+1)/(n0+1);   /* durée du niveau EN COURS : plus longue à chaque niveau gagné */
       if((1/spl)>=49.99){frac=1;gagnes=Math.floor(ecoule*Math.min(50,1/spl));splMaintenant=spl;}
     var niveau=n0+gagnes;
