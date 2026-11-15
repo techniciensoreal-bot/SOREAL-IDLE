@@ -1693,30 +1693,30 @@
        *  - bonus Power/Toughness = niveau^0,4 × 10 % ; Block = (niveau + 50) / (niveau + 100) ; Wandoos = +1 % de vitesse du dump par niveau.
        * Le Target (niveau voulu) arrête la barre, comme le serveur retire l'énergie à ce moment.
        */
-      function atNiveauxDepuisTravailIdleV1_(niveau,travail){
-        const L=Math.max(0,Math.floor(niveau)),W=Math.max(0,travail);
-        const a=2*L+1;
-        let k=Math.floor((2*W)/(a+Math.sqrt(a*a+8*W)));
-        const total=function(n){return n*(2*L+n+1)/2;};
-        while(k>0&&total(k)>W)k-=1;
-        while(total(k+1)<=W)k+=1;
-        return {gagnes:k,reste:Math.max(0,W-total(k))};
+      function atNiveauxDepuisTravailIdleV1_(niveau,P,budget,rate){
+        /* COPIE EXACTE de niveauxEnTicksV1 (idle-tick-v1.js) : un niveau dure ceil(n / a) ticks (a = travail par tick), au plus un par tick, la barre repart de 0 sans report. P = ticks déjà faits, budget = ticks écoulés. */
+        const L=Math.max(0,Math.floor(niveau));let ticks=Math.max(0,budget),prog=Math.max(0,P);
+        if(!(rate>0)||!isFinite(rate))return {gagnes:0,P:prog};
+        const mDe=function(n){return Math.max(1,Math.ceil(n/rate-1e-9));};
+        let n=L+1,gagnes=0;const besoin=Math.max(0,mDe(n)-prog);
+        if(ticks+1e-9<besoin)return {gagnes:0,P:prog+ticks};
+        ticks=Math.max(0,ticks-besoin);gagnes=1;n+=1;
+        let garde=0;
+        while(garde++<5000000){
+          const m=mDe(n),dernier=Math.floor(rate*(m+1e-9)),c=Math.max(1,dernier-n+1),k=Math.min(c,Math.floor((ticks+1e-9)/m));
+          if(k>=c){ticks=Math.max(0,ticks-c*m);gagnes+=c;n+=c;continue;}
+          ticks=Math.max(0,ticks-k*m);gagnes+=k;return {gagnes:gagnes,P:ticks};
+        }
+        return {gagnes:gagnes,P:ticks};
       }
 
-      /* Miroir EXACT de atAvancerTempsV1 (idle-ngu-pistes.js) : plateau à 50 niveaux/s (un par tick), puis coût linéaire ; indépendant du découpage du temps. */
+      /* Miroir EXACT de atAvancerTempsV1 (idle-ngu-pistes.js) : un niveau dure ceil((L + 1) / a) ticks, a = taux / 50 ; indépendant du découpage du temps. */
       function atAvancerIdleV1_(L0,p0,dt,rate){
-        let L=Math.max(0,Math.floor(L0)),frac=Math.max(0,Math.min(.999999999,p0)),reste=Math.max(0,dt),gagnes=0;
-        const tick=1/50,dernier=Math.floor(tick*rate+1e-9)-1;
-        if(L<=dernier){
-          const m=dernier+1-L,temps=(m-frac)*tick;
-          if(reste<temps-1e-12){
-            const total=frac+reste/tick,g=Math.floor(total+1e-9);
-            return {gagnes:g,p:Math.max(0,Math.min(.999999999,total-g))};
-          }
-          reste-=temps;gagnes+=m;L+=m;frac=0;
-        }
-        const pas=atNiveauxDepuisTravailIdleV1_(L,frac*(L+1)+rate*reste);
-        return {gagnes:gagnes+pas.gagnes,p:Math.max(0,Math.min(.999999999,pas.reste/(L+pas.gagnes+1)))};
+        const L=Math.max(0,Math.floor(L0)),frac=Math.max(0,Math.min(.999999999,p0)),aTick=Math.max(0,rate)/50;
+        if(!(aTick>0))return {gagnes:0,p:frac};
+        const ticksDe=function(n){return Math.max(1,Math.ceil((n+1)/aTick-1e-9));};
+        const pas=atNiveauxDepuisTravailIdleV1_(L,frac*ticksDe(L),Math.max(0,dt)*50,aTick);
+        return {gagnes:pas.gagnes,p:Math.max(0,Math.min(.999999999,pas.P/ticksDe(L+pas.gagnes)))};
       }
 
       function atSimulerIdleV1_(n0,p0,dt,alloc,taux,gratuit,cible){

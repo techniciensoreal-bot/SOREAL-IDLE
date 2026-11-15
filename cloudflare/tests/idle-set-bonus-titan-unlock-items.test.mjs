@@ -102,7 +102,7 @@ const ajouter = (s, definitionId, level = 100) =>
   const avec = barbe(true);
   assert.equal(avec.complete, true, "UUG's Armpit Hair niveau 100 -> Armpit (set) complété");
   assert.ok(sans.total > 0);
-  assert.ok(Math.abs(avec.total / sans.total - 1.1) < 1e-6, `Beard x1,10 (mesuré ${avec.total / sans.total})`);
+  assert.ok(Math.abs(avec.total / sans.total - 1.1) < 1e-4, `Beard x1,10 (mesuré ${avec.total / sans.total})`);   // tolérance 1e-4 : quantification sur les ticks (lu dans le jeu)
 }
 
 // ---------- Incriminating Evidence (set) : +2 / +80K / +2 de base Resource 3 ----------

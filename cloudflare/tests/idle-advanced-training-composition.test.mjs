@@ -50,7 +50,7 @@ function base(mutate) {
   const sans = at(advanceIdleNguState(mk(false), 5000, ctx, T0 + 5000e3), "power").progress;
   const avec = at(advanceIdleNguState(mk(true), 5000, ctx, T0 + 5000e3), "power").progress;
   assert.ok(sans > 0 && avec > 0);
-  assert.ok(Math.abs(avec / sans - 1.5) < 1e-9, `vitesse x1,5 mesuree : ${avec / sans}`);
+  assert.ok(Math.abs(avec / sans - 1.5) < 1e-4, `vitesse x1,5 mesuree : ${avec / sans}`);   // tolérance 1e-4 : la durée d un niveau est quantifiée sur les ticks (lu dans le jeu)
 }
 
 /* Souhait 190 : les 3 capacites de base montent a 50 niveaux/s sans energie allouee. */

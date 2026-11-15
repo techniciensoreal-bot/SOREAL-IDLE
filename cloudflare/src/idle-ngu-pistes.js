@@ -4,7 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { idleHeartsPinkCompleteV1 } from "./idle-hearts-v1.js";
-import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
+import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1, niveauxEnTicksV1 } from "./idle-tick-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idleWishAccessibleV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 import { idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
@@ -232,61 +232,17 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
 
   if (baseRate <= 0) return;
 
+  /*
+   * Lu dans le jeu (build 1260, 2026-11-15 : AllBeardsController, barbes) : la barre gagne `p` par tick, au plus un niveau par tick (50 par seconde), et repart de 0 sans report. Le niveau n coûte n unités de travail,
+   * la barre fournit a = baseRate / 50 par tick : un niveau dure ceil(n / a) ticks (niveauxEnTicksV1, idle-tick-v1.js, même calcul que NGU). `track.progress` est la FRACTION du niveau en cours (conservée si la vitesse change).
+   */
   let level = Math.max(0, int(track.tempLevel, 0));
-  let progress = clamp(track.progress, 0, 0.999999999);
-  let remaining = Math.max(0, num(seconds, 0));
-
-  // Finish the current level first. NGU caps Beard growth at 50 levels/s.
-  const currentDuration = Math.max(1 / 50, (level + 1) / baseRate);
-  const currentRemaining = (1 - progress) * currentDuration;
-  if (remaining + 1e-12 < currentRemaining) {
-    track.progress = progress + remaining / currentDuration;
-    return;
-  }
-
-  remaining = Math.max(0, remaining - currentRemaining);
-  level += 1;
-  progress = 0;
-
-  // Levels with (level + 1) <= baseRate / 50 are hard-capped at 50/s.
-  const lastCappedLevel = Math.max(level - 1, Math.floor(baseRate / 50) - 1);
-  if (lastCappedLevel >= level && remaining > 0) {
-    const cappedCount = Math.min(
-      lastCappedLevel - level + 1,
-      Math.floor((remaining + 1e-12) * 50)
-    );
-    level += cappedCount;
-    remaining = Math.max(0, remaining - cappedCount / 50);
-  }
-
-  /* Encore dans la zone plafonnée (un niveau par tick) : le temps restant (moins d'un tick) devient la fraction du niveau en cours, jamais de niveau en plus (Norman, 2026-11-05 : résultat indépendant du découpage du temps). */
-  if (remaining > 0 && level <= lastCappedLevel) {
-    progress = clamp(remaining * 50, 0, 0.999999999);
-    remaining = 0;
-  }
-
-  // Past the hard cap, durations form an arithmetic series:
-  // (level+1)/baseRate, (level+2)/baseRate, ...
-  if (remaining > 0) {
-    const firstCost = level + 1;
-    const budget = remaining * baseRate;
-    const discriminant = Math.max(
-      0,
-      (2 * firstCost - 1) ** 2 + 8 * budget
-    );
-    let full = Math.max(
-      0,
-      Math.floor((-(2 * firstCost - 1) + Math.sqrt(discriminant)) / 2)
-    );
-    const spent = full * (2 * firstCost + full - 1) / 2;
-    if (full > 0) {
-      level += full;
-      remaining = Math.max(0, remaining - spent / baseRate);
-    }
-
-    const nextDuration = Math.max(1 / 50, (level + 1) / baseRate);
-    progress = clamp(remaining / nextDuration, 0, 0.999999999);
-  }
+  const progress0 = clamp(track.progress, 0, 0.999999999);
+  const aTick = baseRate / 50;
+  const ticksDe = (n) => Math.max(1, Math.ceil((n + 1) / aTick - 1e-9));   /* durée du niveau n en ticks */
+  const res = niveauxEnTicksV1(level, progress0 * ticksDe(level), Math.max(0, num(seconds, 0)) * 50, aTick);
+  level += res.gained;
+  let progress = clamp(res.P / ticksDe(level), 0, 0.999999999);   /* fraction du niveau en cours (en ticks) */
 
   const startingLevel = Math.max(0, int(track.tempLevel, 0));
   if (level > startingLevel) {
@@ -485,23 +441,14 @@ function atEnergyTotalV1(s) {
  * Même fonction miroir côté écran (atAvancerIdleV1_, augmentations-page-v1.js) ; test : idle-entrainement-avance-projection-moteur-v1.
  */
 export function atAvancerTempsV1(level, p, seconds, rate) {
-  let L = Math.max(0, Math.floor(level)), frac = Math.max(0, Math.min(0.999999999, p)), dt = Math.max(0, seconds);
-  let gained = 0;
-  const tick = IDLE_TICK_SECONDS_V1;
-  const dernierPlateau = Math.floor(tick * rate + 1e-9) - 1;   /* plus haut niveau L dont la durée (L + 1) / taux tient dans un tick */
-  if (L <= dernierPlateau) {
-    const m = dernierPlateau + 1 - L;   /* niveaux à franchir pour sortir du plateau */
-    const tempsPlateau = (m - frac) * tick;
-    if (dt < tempsPlateau - 1e-12) {
-      const total = frac + dt / tick;
-      const g = Math.floor(total + 1e-9);
-      return { gained: g, p: Math.max(0, Math.min(0.999999999, total - g)) };
-    }
-    dt -= tempsPlateau; gained += m; L += m; frac = 0;
-  }
-  const step = nguLevelsFromWorkV1(L, frac * (L + 1) + rate * dt);
-  gained += step.gained;
-  return { gained, p: clamp(step.work / (L + step.gained + 1), 0, 0.999999999) };
+  /* Lu dans le jeu (build 1260, 2026-11-15 : OffenseTraining::updateOffenseTraining, Training) : un niveau dure ceil((L + 1) / a) ticks, a = travail par tick = taux / 50 ; au plus un niveau par tick ; la barre repart de 0 sans report. */
+  const L = Math.max(0, Math.floor(level));
+  const aTick = Math.max(0, Number(rate)) / 50;
+  const frac = Math.max(0, Math.min(0.999999999, p));
+  if (!(aTick > 0)) return { gained: 0, p: frac };
+  const ticksDe = (n) => Math.max(1, Math.ceil((n + 1) / aTick - 1e-9));
+  const res = niveauxEnTicksV1(L, frac * ticksDe(L), Math.max(0, seconds) * 50, aTick);
+  return { gained: res.gained, p: Math.max(0, Math.min(0.999999999, res.P / ticksDe(L + res.gained))) };
 }
 
 function advanceAdvancedTrainingV1(state, s, tracks, seconds) {
