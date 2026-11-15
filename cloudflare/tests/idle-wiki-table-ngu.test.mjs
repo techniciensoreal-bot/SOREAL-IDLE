@@ -6,6 +6,7 @@ import { nguParamsV1, nguEffectPctV1, IDLE_NGU_CATALOG_V1 } from "../src/idle-ng
  * soft cap, coût de base (secondes du niveau 0 -> 1) et valeur maximale au niveau 1e9. Valeurs recopiées du wiki (fixtures),
  * générées par design/wiki-ngu-table-check.mjs ; le moteur est lu via nguParamsV1 / nguEffectPctV1.
  * Ligne : [palier, id, pct par niveau, soft cap (null = aucun), coût de base, valeur max en % au niveau 1e9].
+ * EXCEPTION (2026-11-15) : les coûts de base SADISTIC ne sont plus ceux du wiki mais ceux MESURÉS dans le vrai jeu (build 1260, banc d'essai) : 50 fois moins (2e38 au lieu de 1e40 pour Augments, etc.).
  * Le wiki arrondit les valeurs maximales (jusqu'à 4 chiffres significatifs, ex. 1.002e6 % pour NGU Number) : tolérance 5e-4 en relatif.
  */
 const WIKI_ROWS = [
@@ -41,22 +42,22 @@ const WIKI_ROWS = [
   ["evil","timeMachine",0.1,1000,2e+24,6310000],
   ["evil","energyNgu",0.05,1000,2e+25,792.48],
   ["evil","adventureBeta",0.015,1000,2e+26,474.35],
-  ["sadistic","augments",0.4,null,1e+40,400000000],
-  ["sadistic","wandoos",0.06,1000,1e+40,476.59],
-  ["sadistic","respawn",0.0005,10000,1e+40,10],
-  ["sadistic","gold",0.5,1000,1e+40,500114.21],
-  ["sadistic","adventureAlpha",0.04,1000,1e+41,633.96],
-  ["sadistic","powerAlpha",1.6,null,1e+42,1600000000],
-  ["sadistic","dropChance",0.04,1000,1e+43,633.99],
-  ["sadistic","magicNgu",0.04,1000,1e+44,159.24],
-  ["sadistic","pp",0.016,1000,1e+45,63.7],
-  ["sadistic","yggdrasil",0.04,400,1e+40,52],
-  ["sadistic","exp",0.005,2000,1e+40,71.59],
-  ["sadistic","powerBeta",0.5,null,1e+41,500000000],
-  ["sadistic","number",0.5,1000,1e+42,7924.82],
-  ["sadistic","timeMachine",0.1,1000,1e+43,6309000],
-  ["sadistic","energyNgu",0.05,1000,1e+44,397.17],
-  ["sadistic","adventureBeta",0.015,1000,1e+45,78.72]
+  ["sadistic","augments",0.4,null,2e+38,400000000],
+  ["sadistic","wandoos",0.06,1000,2e+38,476.59],
+  ["sadistic","respawn",0.0005,10000,2e+38,10],
+  ["sadistic","gold",0.5,1000,2e+38,500114.21],
+  ["sadistic","adventureAlpha",0.04,1000,2e+39,633.96],
+  ["sadistic","powerAlpha",1.6,null,2e+40,1600000000],
+  ["sadistic","dropChance",0.04,1000,2e+41,633.99],
+  ["sadistic","magicNgu",0.04,1000,2e+42,159.24],
+  ["sadistic","pp",0.016,1000,2e+43,63.7],
+  ["sadistic","yggdrasil",0.04,400,2e+38,52],
+  ["sadistic","exp",0.005,2000,2e+38,71.59],
+  ["sadistic","powerBeta",0.5,null,2e+39,500000000],
+  ["sadistic","number",0.5,1000,2e+40,7924.82],
+  ["sadistic","timeMachine",0.1,1000,2e+41,6309000],
+  ["sadistic","energyNgu",0.05,1000,2e+42,397.17],
+  ["sadistic","adventureBeta",0.015,1000,2e+43,78.72]
 ];
 
 assert.equal(WIKI_ROWS.length, 48, "48 lignes : 3 paliers x (9 NGU Energy + 7 NGU Magic)");

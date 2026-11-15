@@ -29,6 +29,9 @@
         nom:'Des cartes qui comptent',
         date:'2026-11-15',
         groupes:[
+          {menu:'ngu', titre:'NGU', points:[
+            'Les NGU de la difficulté la plus haute avancent 50 fois plus vite : le coût de base a été mesuré dans le vrai jeu et était 50 fois trop élevé.'
+          ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Une copie consommée alors que le niveau de son système est déjà au maximum est maintenant détruite sans effet, comme dans le jeu, au lieu d’être refusée.'
           ]},

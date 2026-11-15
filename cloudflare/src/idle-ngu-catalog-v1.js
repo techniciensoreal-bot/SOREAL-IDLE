@@ -80,23 +80,28 @@ const PARAMS = {
     energyNgu: {pct:0.05, softCap:1000, baseCost:2e25, exponent:0.2, coefficient:12.56},
     adventureBeta: {pct:0.015, softCap:1000, baseCost:2e26, exponent:0.25, coefficient:2.6675}
   },
+  /*
+   * Coûts de base SADISTIC MESURÉS dans le vrai jeu (NGU Idle build 1260, banc d'essai, 2026-11-15) : à énergie égale, Sadistic Augments avance 1,0000e18 fois moins vite qu'Evil Augments
+   * (progression par seconde, mêmes réglages, 71 s), et les rapports entre lignes sont ceux du tableau (x10 par ligne). Le coût de base d'Augments Sadistic vaut donc 2e20 x 1e18 = 2e38 s,
+   * soit 50 fois MOINS que les 1e40 du tableau du wiki (« 50 quintillion (5e19) times slower » : écart de x50) ; le gear-optimizer (gmiclotte) donne le même 2e38. Toutes les lignes sont divisées par 50.
+   */
   sadistic: {
-    augments: {pct:0.4, softCap:null, baseCost:1e40},
-    wandoos: {pct:0.06, softCap:1000, baseCost:1e40, exponent:0.15, coefficient:21.2886},
-    respawn: {pct:0.0005, softCap:10000, baseCost:1e40, respawnBase:0.05, respawnDivisor:20},
-    gold: {pct:0.5, softCap:1000, baseCost:1e40, exponent:0.5, coefficient:15.815},
-    adventureAlpha: {pct:0.04, softCap:1000, baseCost:1e41, exponent:0.2, coefficient:10.0476},
-    powerAlpha: {pct:1.6, softCap:null, baseCost:1e42},
-    dropChance: {pct:0.04, softCap:1000, baseCost:1e43, exponent:0.2, coefficient:10.048},
-    magicNgu: {pct:0.04, softCap:1000, baseCost:1e44, exponent:0.1, coefficient:20.0476},
-    pp: {pct:0.016, softCap:1000, baseCost:1e45, exponent:0.1, coefficient:8.01936},
-    yggdrasil: {pct:0.04, softCap:400, baseCost:1e40, exponent:0.08, coefficient:9.9076},
-    exp: {pct:0.005, softCap:2000, baseCost:1e40, exponent:0.15, coefficient:3.1978},
-    powerBeta: {pct:0.5, softCap:null, baseCost:1e41},
-    number: {pct:0.5, softCap:1000, baseCost:1e42, exponent:0.2, coefficient:125.6},
-    timeMachine: {pct:0.1, softCap:1000, baseCost:1e43, exponent:0.8, coefficient:0.3981},
-    energyNgu: {pct:0.05, softCap:1000, baseCost:1e44, exponent:0.15, coefficient:17.741},
-    adventureBeta: {pct:0.015, softCap:1000, baseCost:1e45, exponent:0.12, coefficient:6.54795}
+    augments: {pct:0.4, softCap:null, baseCost:2e38},
+    wandoos: {pct:0.06, softCap:1000, baseCost:2e38, exponent:0.15, coefficient:21.2886},
+    respawn: {pct:0.0005, softCap:10000, baseCost:2e38, respawnBase:0.05, respawnDivisor:20},
+    gold: {pct:0.5, softCap:1000, baseCost:2e38, exponent:0.5, coefficient:15.815},
+    adventureAlpha: {pct:0.04, softCap:1000, baseCost:2e39, exponent:0.2, coefficient:10.0476},
+    powerAlpha: {pct:1.6, softCap:null, baseCost:2e40},
+    dropChance: {pct:0.04, softCap:1000, baseCost:2e41, exponent:0.2, coefficient:10.048},
+    magicNgu: {pct:0.04, softCap:1000, baseCost:2e42, exponent:0.1, coefficient:20.0476},
+    pp: {pct:0.016, softCap:1000, baseCost:2e43, exponent:0.1, coefficient:8.01936},
+    yggdrasil: {pct:0.04, softCap:400, baseCost:2e38, exponent:0.08, coefficient:9.9076},
+    exp: {pct:0.005, softCap:2000, baseCost:2e38, exponent:0.15, coefficient:3.1978},
+    powerBeta: {pct:0.5, softCap:null, baseCost:2e39},
+    number: {pct:0.5, softCap:1000, baseCost:2e40, exponent:0.2, coefficient:125.6},
+    timeMachine: {pct:0.1, softCap:1000, baseCost:2e41, exponent:0.8, coefficient:0.3981},
+    energyNgu: {pct:0.05, softCap:1000, baseCost:2e42, exponent:0.15, coefficient:17.741},
+    adventureBeta: {pct:0.015, softCap:1000, baseCost:2e43, exponent:0.12, coefficient:6.54795}
   }
 };
 

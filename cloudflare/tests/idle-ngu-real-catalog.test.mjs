@@ -97,7 +97,7 @@ for (const tier of IDLE_NGU_TIERS_V1) {
 assert.equal(nguSecondsForNextLevelV1("normal", "augments", 0), 2e11);
 assert.equal(nguSecondsForNextLevelV1("normal", "augments", 9), 2e12);
 assert.equal(nguSecondsForNextLevelV1("evil", "gold", 0), 2e21);
-assert.equal(nguSecondsForNextLevelV1("sadistic", "pp", 0), 1e45);
+assert.equal(nguSecondsForNextLevelV1("sadistic", "pp", 0), 2e43);   /* mesuré dans le vrai jeu (2026-11-15) : 50 fois moins que les 1e45 du wiki */
 
 // Niveaux gagnés à partir d'un travail cumulé (formule fermée)
 assert.deepEqual(nguLevelsFromWorkV1(0, 10), { gained: 4, work: 0 }, "1+2+3+4 = 10");
