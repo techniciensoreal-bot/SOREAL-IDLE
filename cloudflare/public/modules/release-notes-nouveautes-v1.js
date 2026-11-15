@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les bonus de récompense de quête venant d’atouts différents se multiplient entre eux (mesuré dans le vrai jeu) au lieu de s’additionner."
+    "Les bonus « Major plus rapides » raccourcissent maintenant l’intervalle de 20 % et de 10 % (et non plus de 17 % et 9 %), et se multiplient entre eux (mesuré dans le vrai jeu)."
   ] };
 })();

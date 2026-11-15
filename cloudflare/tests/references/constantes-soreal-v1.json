@@ -60,14 +60,6 @@
     {
       "fichier": "idle-questing-v1.js",
       "marqueur": "choix soreal",
-      "repere": "CHOIX SOREAL : \"20% faster\" et \"10% faster\" = vitesse x1,2 e",
-      "description": "n + speed)) / (IDLE_QUEST_BASE_DROP_CHANCE_V1 * drop); } /* Intervalle d'une Major Quest. CHOIX SOREAL : \"20% faster\" et \"10% faster\" = vitesse x1,2 et x1,1, cumulées multiplicativement (convention des autres bonus de ce moteur ; le wiki ne précise pas). / exp",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
-      "fichier": "idle-questing-v1.js",
-      "marqueur": "choix soreal",
       "repere": "CHOIX SOREAL : appliqués au QP seulement ; page Arbitrary Po",
       "description": "62 (\"2% / 1% better active questing rewards per level\") majorent cette récompense active (CHOIX SOREAL : appliqués au QP seulement ; page Arbitrary Points : 120 AP pour une Major active = (50 + 10) x 2, sans eux). - QP : x Perks (Fibonacci 233 +10 %, Better QP",
       "statut": "à valider par Norman",

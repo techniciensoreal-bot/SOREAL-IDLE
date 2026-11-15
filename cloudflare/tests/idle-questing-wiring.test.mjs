@@ -203,7 +203,7 @@ let enQuete;
   s.currencies.ap = 250000;
   s.selloutShop.unlockedEver = true;
   s = act(s, { action: "sellShopBuy", itemId: "fasterQuesting" }).state;
-  assert.equal(idleNguSnapshot(s, ctx, T0).questing.majorIntervalSeconds, 23500, "28 200 / 1,2");
+  assert.equal(idleNguSnapshot(s, ctx, T0).questing.majorIntervalSeconds, 22560, "28 200 x 0,8 (mesuré dans le vrai jeu)");
 }
 
 // --- Client : module chargé, branché dans pageSystemeMetaIdleV130_, rendu de la page ---

@@ -161,8 +161,8 @@ assert.equal(idleQuestIdleSecondsPerItemV1(3, { respawnSeconds: 2, idleAttackSec
 assert.equal(idleQuestDropMultiplierV1(idleQuestBonusTotalsV1(etat({ 90: 30 })), { gearQuestDropsPct: 10 }), 1.25, "10 % d'équipement + 30 x 0,5 %");
 
 assert.equal(idleQuestMajorIntervalSecondsV1(etat()), 28200);
-assert.ok(Math.abs(idleQuestMajorIntervalSecondsV1(etat({}, {}, {}, { purchases: { fasterQuesting: 1 } })) - 28200 / 1.2) < 1e-9);
-assert.ok(Math.abs(idleQuestMajorIntervalSecondsV1(etat({}, {}, {}, { purchases: { fasterQuesting: 1 }, sets: { fad: true } })) - 28200 / 1.32) < 1e-9);
+assert.ok(Math.abs(idleQuestMajorIntervalSecondsV1(etat({}, {}, {}, { purchases: { fasterQuesting: 1 } })) - 28200 * 0.8) < 1e-9, "Faster Questing : intervalle x0,8 (mesuré dans le vrai jeu)");
+assert.ok(Math.abs(idleQuestMajorIntervalSecondsV1(etat({}, {}, {}, { purchases: { fasterQuesting: 1 }, sets: { fad: true } })) - 28200 * 0.72) < 1e-9, "Faster Questing + Fad : x0,8 x x0,9 = x0,72 (mesuré dans le vrai jeu : 20 303 s)");
 assert.equal(idleQuestBankCapV1(etat()), 10);
 assert.equal(idleQuestBankCapV1(etat({}, {}, {}, { purchases: { extendedQuestBank: 1 } })), 50);
 

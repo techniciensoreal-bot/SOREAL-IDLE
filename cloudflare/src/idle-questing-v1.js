@@ -218,14 +218,15 @@ export function idleQuestIdleSecondsPerItemV1(divider, env, dropMultiplier) {
 }
 
 /*
- * Intervalle d'une Major Quest. CHOIX SOREAL : "20% faster" et "10% faster" = vitesse x1,2 et x1,1,
- * cumulées multiplicativement (convention des autres bonus de ce moteur ; le wiki ne précise pas).
+ * Intervalle d'une Major Quest. MESURÉ DANS LE VRAI JEU (NGU Idle build 1260, banc d'essai, 2026-11-15, minuteur de Major posé juste avant l'échéance) :
+ * intervalle de base 28 200 s (7 h 50) ; « 20 % plus vite » (Faster Questing) RACCOURCIT l'intervalle de 20 % (x0,8 = 22 560 s, et non 28 200 / 1,2) ; Fad
+ * « 10 % plus vite » le raccourcit de 10 % (x0,9 = 25 380 s) ; les deux ensemble donnent x0,72 (20 304 s, mesuré 20 303), multiplicatifs et non additifs (x0,70).
  */
 export function idleQuestMajorIntervalSecondsV1(state) {
-  let speed = 1;
-  if (I(state?.selloutShop?.purchases?.fasterQuesting) > 0) speed *= 1 + IDLE_QUEST_FASTER_QUESTING_PCT_V1;
-  if (state?.adventure?.completedSets?.fad) speed *= 1 + IDLE_QUEST_FAD_SET_FASTER_PCT_V1;
-  return IDLE_QUEST_MAJOR_INTERVAL_SECONDS_V1 / speed;
+  let facteur = 1;
+  if (I(state?.selloutShop?.purchases?.fasterQuesting) > 0) facteur *= 1 - IDLE_QUEST_FASTER_QUESTING_PCT_V1;
+  if (state?.adventure?.completedSets?.fad) facteur *= 1 - IDLE_QUEST_FAD_SET_FASTER_PCT_V1;
+  return IDLE_QUEST_MAJOR_INTERVAL_SECONDS_V1 * facteur;
 }
 
 export function idleQuestBankCapV1(state) {

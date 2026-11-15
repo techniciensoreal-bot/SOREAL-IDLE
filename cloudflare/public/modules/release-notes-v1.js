@@ -30,6 +30,7 @@
         date:'2026-11-15',
         groupes:[
           {menu:'questing', titre:'Quêtes', points:[
+            'Les bonus « Major plus rapides » raccourcissent maintenant l’intervalle de 20 % et de 10 % (et non plus de 17 % et 9 %), et se multiplient entre eux (mesuré dans le vrai jeu).',
             'Les bonus de récompense de quête venant d’atouts différents se multiplient entre eux (mesuré dans le vrai jeu) au lieu de s’additionner.'
           ]},
           {menu:'wishes', titre:'Wishes', points:[
