@@ -4,7 +4,8 @@
  *
  * RÈGLE n°1 (AGENTS.md) : le wiki (pages Adventure Mode et de chaque ennemi, relues le 2026-11-14) ne publie que le TYPE et les statistiques ; ni la durée, ni les dégâts, ni la chance de ces effets, et aucune autre source (Steam, guides, mods) non plus.
  * Exception décidée par Norman (2026-10-04, « calcule toi-même ») : constantes SOREAL MODÉRÉES, toutes signalées ci-dessous, inscrites au registre cloudflare/tests/references/constantes-soreal-v1.json (« à valider par Norman ») :
- *   - poison : chaque coup qui blesse le joueur l'empoisonne (valeur SOREAL, non publiée) 5 s ; chaque seconde il perd 20 % des dégâts de ce coup (valeur SOREAL) ; un nouveau coup relance la durée, sans cumul ;
+ *   - poison : MESURÉ DANS LE VRAI JEU (NGU Idle build 1260, banc d'essai, 2026-11-15, journal de combat relevé par OCR, boss « GEO.c.G » du Ciel, Puissance 365, et « BROWN SLIME » des Égouts, Puissance 13) : un coup empoisonne (« You've also been poisoned! »)
+ *     environ une fois sur six (5 empoisonnements sur 30 coups : valeur approchée) ; chaque tick (« N poison damage! », ~1,3 s, 3 ticks, « Your poison has worn off. » environ 5,2 s après) retire 20 % de la PUISSANCE de l'ennemi (75,8 en moyenne pour 73 attendus), sans lien avec les dégâts du coup ; pas de nouvel empoisonnement tant que le poison est actif ;
  *   - paralysie : un coup sur 4 (valeur SOREAL, non publiée) paralyse le joueur 2 s (plus de compétences ni d'Idle, comme la paralysie des titans) ; puis 4 s d'immunité (valeur SOREAL) pour ne jamais enchaîner ;
  *   - explosif : son « Attack Rate » PUBLIÉ par le wiki vaut 5 à 14 s (contre 0,8 à 1,5 s pour tous les autres types) : c'est son compte à rebours (Fairy 5, Icarus 9, Kitten in a Mech Woman 12…). Au bout de ce délai il explose : son coup, DOUBLÉ (valeur SOREAL, non publiée),
  *     te frappe, puis il disparaît (victoire) ; le joueur peut en mourir. Le tuer AVANT ne déclenche rien (wiki, page Adventure Mode : « enough Power to kill any exploder »). Avant cette correction (2026-11-14) il « attaquait » seulement toutes les 12 s, d'où « il n'attaque presque pas ».
@@ -22,8 +23,8 @@
 'use strict';
 if(typeof window==='undefined'||window.SorealMobTypesV1)return;
 
-/* Toutes ces valeurs sont des choix SOREAL (non publiés : wiki, Steam, guides, mods ; accord de Norman 2026-10-04, décision du 2026-11-14), « à valider par Norman » dans le registre des constantes. */
-var C={poisonMs:5000,poisonTickMs:1000,poisonFraction:.2,paralysieChance:.25,paralysieMs:2000,paralysieImmuniteMs:4000,explosionParPuissance:2500/33,longCombatMs:20000,rapideParSeconde:.03,rapideMin:.3,chargeurTous:4,chargeurMult:2.5,croissanceParSeconde:.1,croissancePlafond:10};
+/* Le poison est mesuré dans le vrai jeu (voir l'en-tête) ; les autres valeurs ci-dessous restent des choix SOREAL (non publiés : wiki, Steam, guides, mods ; accord de Norman 2026-10-04, décision du 2026-11-14), « à valider par Norman » dans le registre des constantes. */
+var C={poisonMs:4900,poisonTickMs:1300,poisonFraction:.2,poisonChance:1/6,paralysieChance:.25,paralysieMs:2000,paralysieImmuniteMs:4000,explosionParPuissance:2500/33,longCombatMs:20000,rapideParSeconde:.03,rapideMin:.3,chargeurTous:4,chargeurMult:2.5,croissanceParSeconde:.1,croissancePlafond:10};
 var etat={poisonJusqua:0,poisonCoup:0,dernierTickPoison:0,paralyseJusqua:0,immuniteJusqua:0,attaques:0,debut:0,palierCroissance:0};
 
 /* `maintenant` : l'instant de DÉBUT du combat (les effets de longue durée du rapide et du grandisseur comptent depuis cet instant). */
@@ -48,10 +49,10 @@ function poisonActif(maintenant){return etat.poisonJusqua>maintenant&&etat.poiso
  */
 function apresCoupEnnemi(fight,degats,maintenant,hasard){
   var t=types(fight),r={poison:false,paralyse:false};
-  if(t.poison&&degats>0){
-    if(!poisonActif(maintenant))etat.dernierTickPoison=maintenant;   /* nouveau poison : les ticks comptent depuis CE coup (un poison déjà actif garde son rythme) */
+  if(t.poison&&degats>0&&!poisonActif(maintenant)&&hasard<C.poisonChance){
+    etat.dernierTickPoison=maintenant;   /* nouveau poison : les ticks comptent depuis CE coup */
     etat.poisonJusqua=maintenant+C.poisonMs;
-    etat.poisonCoup=degats;
+    etat.poisonCoup=Math.max(1,Number(fight&&fight.mobPower)||degats);   /* mesuré : le tick vaut 20 % de la Puissance de l'ennemi, pas des dégâts du coup */
     r.poison=true;
   }
   if(t.paralyze&&degats>=0&&!paralyse(maintenant)&&maintenant>=etat.immuniteJusqua&&hasard<C.paralysieChance){

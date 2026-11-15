@@ -26,20 +26,22 @@ assert.equal(M.types({ active: false, mobType: "poison" }).poison, false, "pas h
 M.reinit();
 let r = M.apresCoupEnnemi(mob("poison"), 0, 1000, 0.99);
 assert.equal(r.poison, false, "coup sans dégât : pas de poison");
-r = M.apresCoupEnnemi(mob("poison"), 100, 1000, 0.99);
+r = M.apresCoupEnnemi(mob("poison", { mobPower: 365 }), 100, 1000, 0.99);
+assert.equal(r.poison, false, "hasard 0,99 : pas d'empoisonnement (environ 1 coup sur 6, mesuré dans le vrai jeu)");
+r = M.apresCoupEnnemi(mob("poison", { mobPower: 365 }), 100, 1000, 0.1);
 assert.equal(r.poison, true); assert.ok(M.poisonActif(1001));
-assert.equal(M.tickPoison(1500), 0, "pas encore une seconde pleine");
-assert.equal(M.tickPoison(2000), 20, "premier tick : 20 % de 100");
-assert.equal(M.tickPoison(4500), 40, "deux ticks de plus (3 s et 4 s)");
-assert.equal(M.tickPoison(7000), 40, "derniers ticks à 5 s et 6 s : 5 ticks en tout pour 5 s de poison, puis il s'arrête");
-assert.equal(M.poisonActif(7001), false, "poison fini après 5 s");
+assert.equal(M.tickPoison(2000), 0, "pas encore un tick plein (1,3 s)");
+assert.equal(M.tickPoison(2400), 73, "premier tick : 20 % de la PUISSANCE de l'ennemi (365), pas du coup (mesuré dans le vrai jeu : 75,8 en moyenne)");
+assert.equal(M.tickPoison(7000), 146, "deux ticks de plus (3,9 s) puis il s'arrête : 3 ticks en tout");
+assert.equal(M.poisonActif(7001), false, "poison fini après environ 5 s");
 assert.equal(M.tickPoison(9000), 0, "plus rien après la fin");
-M.apresCoupEnnemi(mob("poison"), 3, 10000, 0.99);
-assert.equal(M.tickPoison(11000), 1, "tick minimal de 1 dégât");
+M.apresCoupEnnemi(mob("poison", { mobPower: 3 }), 3, 10000, 0.1);
+assert.equal(M.tickPoison(11400), 1, "tick minimal de 1 dégât");
 M.reinit();
-M.apresCoupEnnemi(mob("poison"), 100, 1000, 0.99);
-M.apresCoupEnnemi(mob("poison"), 100, 2500, 0.99);   // un second coup relance la durée sans cumuler
-assert.equal(M.tickPoison(3500), 40, "pas de cumul : un seul poison à la fois (ticks à 2 s et 3 s)");
+M.apresCoupEnnemi(mob("poison", { mobPower: 100 }), 100, 1000, 0.1);
+r = M.apresCoupEnnemi(mob("poison", { mobPower: 100 }), 100, 2500, 0.1);   // pas de nouvel empoisonnement tant que le poison est actif
+assert.equal(r.poison, false, "pas de cumul ni de relance : un seul poison à la fois");
+assert.equal(M.tickPoison(3000), 20, "un seul tick à 2,3 s (20 % de 100)");
 
 // Paralysie : un coup sur 4 (hasard < 0,25), 2 s, puis 4 s d'immunité ; jamais pendant la paralysie.
 M.reinit();
@@ -58,7 +60,7 @@ M.reinit();
 assert.equal(M.apresCoupEnnemi(mob("normal"), 50, 1000, 0.0).paralyse, false);
 assert.equal(M.apresCoupEnnemi(mob("exploder"), 50, 1000, 0.0).poison, false);
 // Double type : les deux.
-r = M.apresCoupEnnemi(mob("poison/paralyze"), 50, 1000, 0.0);
+r = M.apresCoupEnnemi(mob("poison/paralyze", { mobPower: 50 }), 50, 1000, 0.0);
 assert.ok(r.poison && r.paralyse, "poison/paralyze cumule les deux");
 
 // Explosion : donnée du wiki (Secrets and Spoilers) : Fairy, Power 33, « deals around 2500 damage » ; même facteur sur la puissance des autres explosifs ; seulement pour un explosif.
