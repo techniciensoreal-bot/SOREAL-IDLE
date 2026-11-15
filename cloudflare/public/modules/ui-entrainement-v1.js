@@ -111,22 +111,16 @@
             skill
           );
 
+        /* Même règle que le moteur (levelsPerSecondForBasicTrainingSkillV411, lu dans le jeu) : un remplissage tous les ceil(cap / énergie) ticks, levelsPerFill niveaux par remplissage. */
+        const allocationBt=idleEntier_(skill.allocation);
+        const lpfBt=Math.max(1,idleNombre_(bt.levelsPerFill)||1);
+        if(allocationBt<=0)return 0;
         return Math.max(
           0,
           idleNombre_(
             bt.maxLevelsPerSecond
           )||50
-        )*
-        Math.min(
-          1,
-          idleEntier_(
-            skill.allocation
-          )/
-          Math.max(
-            1,
-            cap
-          )
-        );
+        )*lpfBt/(allocationBt>=cap?1:Math.max(1,Math.ceil(cap/allocationBt-1e-9)));
       }
 
       function animerBarreBasicTrainingIdleV220_(bar,skill,vitesse){
@@ -1132,20 +1126,17 @@
               skill.level
             );
 
-          const valeur=
-            niveauAvant+
-            idleNombre_(
-              skill.progress
-            )+
-            vitesse*
-            dt;
+          /* Même règle que le moteur (advanceBasicTrainingSkillV411) : `progress` est la fraction du remplissage en cours ; un remplissage donne levelsPerFill niveaux d'un coup. */
+          const lpfLocal=Math.max(1,idleNombre_(bt.levelsPerFill)||1);
+          const totalRempl=
+            Math.max(0,Math.min(.999999999,idleNombre_(skill.progress)))+
+            (vitesse/lpfLocal)*dt;
+          const remplissages=Math.floor(totalRempl+1e-9);
 
           skill.level=
             Math.max(
               0,
-              Math.floor(
-                valeur
-              )
+              niveauAvant+remplissages*lpfLocal
             );
 
           skill.progress=
@@ -1153,8 +1144,7 @@
               0,
               Math.min(
                 .999999999,
-                valeur-
-                skill.level
+                totalRempl-remplissages
               )
             );
 

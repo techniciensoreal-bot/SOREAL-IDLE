@@ -255,12 +255,15 @@ export function levelsPerSecondForBasicTrainingSkillV411(
   const a=Math.max(0,num(allocation,0));
   const c=Math.max(1,num(cap,1));
 
+  /*
+   * Lu dans le code du jeu (OffenseTraining::updateOffenseTraining, build 1260, 2026-11-15) : à chaque tick la barre gagne énergie / cap ; à 1 elle donne UN remplissage (levelsPerFill niveaux) et repart de 0 ; avec
+   * une énergie >= cap : un remplissage par tick. Un remplissage tous les ceil(cap / énergie) ticks : 50 / ceil(cap / énergie) remplissages par seconde.
+   */
+  if(a<=0)return 0;
+  const ticksParRemplissage=a>=c?1:Math.max(1,Math.ceil(c/a-1e-9));
   return Math.max(1,num(levelsPerFill,1))*
-    BASIC_TRAINING_V411.maxLevelsPerSecond*
-    Math.min(
-      1,
-      a/c
-    );
+    BASIC_TRAINING_V411.maxLevelsPerSecond/
+    ticksParRemplissage;
 }
 
 /*
@@ -306,35 +309,31 @@ export function advanceBasicTrainingSkillV411(
       ?skill
       :{};
 
-  let x=
-    int(source.level,0)+
+  const allocation=int(source.allocation,0);
+  const cap=Math.max(1,int(source.cap,1));
+  const secondsSafe=Math.max(0,num(seconds,0));
+  const lpf=Math.max(1,num(levelsPerFill,1));
+
+  /* `progress` = fraction du REMPLISSAGE en cours ; un remplissage donne `levelsPerFill` niveaux d'un coup (lu dans le jeu). */
+  const remplissagesParSeconde=levelsPerSecondForBasicTrainingSkillV411(allocation,cap,lpf)/lpf;
+  const total=
     Math.max(
       0,
       Math.min(
         0.999999999,
         num(source.progress,0)
       )
-    );
-
-  const allocation=int(source.allocation,0);
-  const cap=Math.max(1,int(source.cap,1));
-  const secondsSafe=Math.max(0,num(seconds,0));
-
-  x+=
-    levelsPerSecondForBasicTrainingSkillV411(
-      allocation,
-      cap,
-      levelsPerFill
-    )*
-    secondsSafe;
+    )+
+    remplissagesParSeconde*secondsSafe;
+  const remplissages=Math.floor(total+1e-9);
 
   return {
-    level:Math.max(0,Math.floor(x)),
+    level:Math.max(0,int(source.level,0)+remplissages*lpf),
     progress:Math.max(
       0,
       Math.min(
         0.999999999,
-        x-Math.floor(x)
+        total-remplissages
       )
     ),
     allocation,

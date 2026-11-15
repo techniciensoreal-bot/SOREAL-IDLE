@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 263,
-  "sha": "ddf5a99fd12c2bd0bc38fea02f824ef8371f55f4"
+  "pin": 264,
+  "sha": "4f0ae4503ca85da6baafce5784e7b8f9414b0748"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -848,8 +848,8 @@
   "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 18,
-  "sha": "9cdfc3e6d1e70696b611ed0b0fbfd24f848b04c8"
+  "pin": 19,
+  "sha": "eda5759c6ceecc72e56841932bcc798c7a9d417b"
  },
  "/modules/ui-inventaire-v1.js": {
   "pin": 19,
