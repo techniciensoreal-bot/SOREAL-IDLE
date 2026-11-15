@@ -29,6 +29,9 @@
         nom:'Des cartes qui comptent',
         date:'2026-11-15',
         groupes:[
+          {menu:'wishes', titre:'Wishes', points:[
+            'Un souhait de bonus d’Attaque et de Défense de la série la plus haute demande plus de temps (valeur corrigée d’après les données du jeu).'
+          ]},
           {menu:'ngu', titre:'NGU', points:[
             'Les NGU de la difficulté la plus haute avancent 50 fois plus vite : le coût de base a été mesuré dans le vrai jeu et était 50 fois trop élevé.'
           ]},
