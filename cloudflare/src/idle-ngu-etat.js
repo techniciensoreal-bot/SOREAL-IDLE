@@ -60,6 +60,8 @@ export function defaultResource(resource = "energy") {
     capNaturel: cap,
     fillProgress: 0,
     generatedThisRun: 0,
+    /* Énergie obtenue depuis le début de la partie, plafonnée à 3 000 000 (Energy::addEnergy : energyGained, jamais remis à 0 au Rebirth) : le cap naturel au Rebirth en dépend. */
+    generatedTotal: 0,
     spentExp: 0
   };
 }
@@ -791,6 +793,8 @@ export function normalizeResource(raw, resource = "energy") {
     current: clamp(num(src.current, fallback.current), 0, 9e18),
     fillProgress: clamp(num(src.fillProgress, 0), 0, 0.999999999999),
     generatedThisRun: Math.max(0, num(src.generatedThisRun, 0)),
+    /* Ancienne sauvegarde : le total est reconstitué depuis le cap naturel déjà acquis (500 + total / 20). */
+    generatedTotal: src.generatedTotal === undefined ? Math.max(0, (Math.max(0, num(src.capNaturel, num(src.cap, 0))) - 500) * 20) : Math.max(0, Math.min(3e6 + 1e9, num(src.generatedTotal, 0))),
     spentExp: Math.max(0, num(src.spentExp, fallback.spentExp))
   };
 }

@@ -16,6 +16,7 @@ const T0 = 1_000_000;
   assert.equal(s.resources.energy.cap, 500 + 100000, "10 achats de +10 000");
   assert.equal(s.resources.energy.capNaturel, 500, "les achats ne comptent pas dans la croissance naturelle");
   s.resources.energy.generatedThisRun = 2000;
+  s.resources.energy.generatedTotal = 2000;   // énergie obtenue au total : le cap naturel au Rebirth en dépend (lu dans le jeu, Rebirth::resetEnergy)
   const r = rebirthIdleNguState(s, context, T0 + 3_600_000);
   const gain = r.rebirth.resourceGrowth.energyCapGain;
   assert.ok(gain >= 100, "la croissance naturelle n'est plus bloquée par les achats");
@@ -31,6 +32,7 @@ const T0 = 1_000_000;
   s.resources.energy.capNaturel = 99_995;
   s.resources.energy.cap += 99_995 - 500;
   s.resources.energy.generatedThisRun = 1e6;
+  s.resources.energy.generatedTotal = 3e6;   // énergie obtenue au total : le cap naturel au Rebirth en dépend (lu dans le jeu, Rebirth::resetEnergy)
   const r = rebirthIdleNguState(s, context, T0 + 3_600_000);
   assert.equal(r.resources.energy.capNaturel, 100_000);
   assert.equal(r.resources.energy.cap, 500 + 50000 + (99_995 - 500) + 5, "seuls les 5 derniers points naturels sont ajoutés");

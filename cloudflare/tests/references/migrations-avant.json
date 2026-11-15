@@ -9,7 +9,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "a9ff931fe135bff76e49370b",
-   "resources": "a37b7a46b128b186335779f4",
+   "resources": "79def304f8c17653a12681a1",
    "currencies": "a5acc29eb32d04e2e2491c83",
    "records": "8e5a126d8cc5a8e9edf8fefc",
    "rebirth": "c4dfc391ac646d3b235dcc2e",
@@ -23,7 +23,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "94c67376b9170fb9e0010f96"
+  "tout": "9f6ce465eb26650ef71f27c7"
  },
  "reference-2": {
   "cles": {
@@ -35,7 +35,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "e3ca5906f9828a983336195b",
-   "resources": "ee58f3750e73a51aff254b13",
+   "resources": "2fe9b00a1233d941dfb1b1c5",
    "currencies": "d574663eaeb1a139bc6227f3",
    "records": "5b4ad299b429b73ec80e9576",
    "rebirth": "77ba49611766395bc2aa0801",
@@ -49,7 +49,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "44e23d4d67825a314e13807f"
   },
-  "tout": "7db5801cdd8a8006949fb842"
+  "tout": "7c9a242791558caf0adc8467"
  },
  "sans-etatVersion": {
   "cles": {
@@ -61,7 +61,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "a9ff931fe135bff76e49370b",
-   "resources": "a37b7a46b128b186335779f4",
+   "resources": "79def304f8c17653a12681a1",
    "currencies": "a5acc29eb32d04e2e2491c83",
    "records": "c048d2e646ee4b717a16040f",
    "rebirth": "dc4cdcbbf7acddd1ab4238e3",
@@ -75,7 +75,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "ca30e2e388e969ba3872f607"
+  "tout": "548c04ea94abadc6f030275f"
  },
  "resourceModel-50": {
   "cles": {
@@ -87,7 +87,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "e3ca5906f9828a983336195b",
-   "resources": "39feecde65385905cfd6227e",
+   "resources": "9be73b1e10b89a4a03e1daef",
    "currencies": "d574663eaeb1a139bc6227f3",
    "records": "5b4ad299b429b73ec80e9576",
    "rebirth": "77ba49611766395bc2aa0801",
@@ -101,7 +101,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "44e23d4d67825a314e13807f"
   },
-  "tout": "7b756e1cface55caa9ffaab9"
+  "tout": "281a71b406aa359283a5b7ac"
  },
  "resourceModel-51": {
   "cles": {
@@ -113,7 +113,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "a9ff931fe135bff76e49370b",
-   "resources": "d84476a950a2717ca65a4192",
+   "resources": "b5b155f851d13bca4b746576",
    "currencies": "a5acc29eb32d04e2e2491c83",
    "records": "8e5a126d8cc5a8e9edf8fefc",
    "rebirth": "c4dfc391ac646d3b235dcc2e",
@@ -127,7 +127,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "57c0d0d2daf423de7ea0e6a3"
+  "tout": "b383eb6692dae60657522b0c"
  },
  "resourceModel-absent": {
   "cles": {
@@ -139,7 +139,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "a9ff931fe135bff76e49370b",
-   "resources": "f0e1600a228f64076e02370f",
+   "resources": "81b88baf3c78fc54533b275d",
    "currencies": "a5acc29eb32d04e2e2491c83",
    "records": "8e5a126d8cc5a8e9edf8fefc",
    "rebirth": "c4dfc391ac646d3b235dcc2e",
@@ -153,7 +153,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "7885512efe93ff599ea47cf2"
+  "tout": "fe5f96d5dc3c1ecb1acf10fb"
  },
  "legacy-sans-saveSchema": {
   "cles": {
@@ -165,7 +165,7 @@
    "difficulty": "b56ae60e3e8064c6d6154dce",
    "difficultyPeaks": "265f56872639197a34cb8327",
    "adventure": "5a872bedb98579d5d9316e87",
-   "resources": "74c5a25a62654661bae550ba",
+   "resources": "ce1c221ce1a09b598a49b586",
    "currencies": "3832b2007521ad7190de2d9b",
    "records": "82ff150c0e347ec44d47cbf5",
    "rebirth": "4b396cac390e494587ca3119",
@@ -180,7 +180,7 @@
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "6ec9a0d662f02fbdc521c3da"
+  "tout": "2c4439779190d139c5caa6a4"
  },
  "legacy-schema-46": {
   "cles": {
@@ -192,7 +192,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "a9ff931fe135bff76e49370b",
-   "resources": "a37b7a46b128b186335779f4",
+   "resources": "79def304f8c17653a12681a1",
    "currencies": "a5acc29eb32d04e2e2491c83",
    "records": "101d942a2f8338967bd900b8",
    "rebirth": "c4dfc391ac646d3b235dcc2e",
@@ -207,7 +207,7 @@
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "ae07b58c9cafa82f7df8a679"
+  "tout": "dbbcbbebc3401db54b3e8a9a"
  },
  "vide": {
   "cles": {
@@ -219,7 +219,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "edb592467b956363c04308d7",
    "adventure": "4bc2e920253c7ccf489bbd13",
-   "resources": "d830e890c658fddd2bf0134b",
+   "resources": "e9a5085f2432058cb8490086",
    "currencies": "45c9a3b1ad90b648ba8ceb8b",
    "records": "1b410e8d3cae269284d39f84",
    "rebirth": "c63532633b6f107293d8df0e",
@@ -233,7 +233,7 @@
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "51377071a549832d5d3201d0"
+  "tout": "fa3c1b2524a8fc2364f62044"
  },
  "null": {
   "cles": {
@@ -245,7 +245,7 @@
    "difficulty": "82fbb169e798324839513347",
    "difficultyPeaks": "edb592467b956363c04308d7",
    "adventure": "4bc2e920253c7ccf489bbd13",
-   "resources": "d830e890c658fddd2bf0134b",
+   "resources": "e9a5085f2432058cb8490086",
    "currencies": "45c9a3b1ad90b648ba8ceb8b",
    "records": "1b410e8d3cae269284d39f84",
    "rebirth": "c63532633b6f107293d8df0e",
@@ -259,6 +259,6 @@
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "51377071a549832d5d3201d0"
+  "tout": "fa3c1b2524a8fc2364f62044"
  }
 }

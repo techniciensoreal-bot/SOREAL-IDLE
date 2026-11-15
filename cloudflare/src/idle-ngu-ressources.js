@@ -338,9 +338,12 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
   if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)return 0;
   const r=state.resources[resource]||defaultResource(resource);
   return avecPorteeBonusV1(state,()=>{
-  const speed=clamp(idleNguEffectiveResourceStatV1(state,resource,"speed"),0.1,50);
-  /* Continu (Norman, 2026-10-03 : « chaque achat réduit un petit peu le temps nécessaire pour générer la ressource ») : la vitesse est le nombre de remplissages par seconde (50 = 1 par tick), plus de paliers par tick entier. */
-  const fillsPerSecond=speed;
+  /*
+   * Lu dans le code du jeu (Energy::updateBar, Character::totalEnergySpeed, build 1260, 2026-11-15) : la vitesse vaut au moins 1 et au plus 50 ; la barre gagne speed / 50 par tick et se remplit (UN remplissage, `bars`
+   * points) quand elle atteint 1, puis repart de 0 : un remplissage tous les ceil(50 / vitesse) ticks, soit 50 / ceil(50 / vitesse) remplissages par seconde (et non « vitesse » en continu).
+   */
+  const speed=clamp(idleNguEffectiveResourceStatV1(state,resource,"speed"),1,50);
+  const fillsPerSecond=50/Math.max(1,Math.ceil(50/speed-1e-9));
   const bars=idleNguEffectiveResourceStatV1(state,resource,"bars");
   return fillsPerSecond*Math.max(1,bars);
   });
@@ -375,6 +378,7 @@ export function advanceGeneratedResources(state,seconds,context={}){
     const gain=pleine?0:Math.min(possibleGain,Math.max(0,capacity-r.current));
     r.current+=gain;
     r.generatedThisRun+=possibleGain;
+    if(resource==="energy"&&num(r.generatedTotal,0)<3000000)r.generatedTotal=num(r.generatedTotal,0)+possibleGain;   /* Energy::addEnergy : energyGained cesse de compter à 3 000 000 */
     if(!pleine&&gain+1e-12<possibleGain)r.fillProgress=0;
   }
 }

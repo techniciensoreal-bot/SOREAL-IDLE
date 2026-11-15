@@ -67,6 +67,7 @@ function jouer(secondes) {
   s.resources.energy.cap = 99_995;
   s.resources.energy.capNaturel = 99_995;
   s.resources.energy.generatedThisRun = 1_000_000;
+  s.resources.energy.generatedTotal = 3_000_000;   // énergie obtenue au total : le cap naturel au Rebirth en dépend (lu dans le jeu, Rebirth::resetEnergy)
   const renaitre = rebirthIdleNguState(s, context, T0 + 3_600_000);
   assert.equal(renaitre.resources.energy.cap, 100_000);
 }

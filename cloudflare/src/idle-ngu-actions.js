@@ -558,12 +558,12 @@ function resetRunSystem(def, s) {
 export function resourceInfoV1(state, resource, context = {}) {
   const r = state.resources[resource];
   if (!r) return null;
-  const speed = clamp(idleNguEffectiveResourceStatV1(state, resource, "speed"), 0.1, 50);
-  const ticksPerFill = Math.max(1, Math.round((50 / speed) * 100) / 100);
+  const speed = clamp(idleNguEffectiveResourceStatV1(state, resource, "speed"), 1, 50);   /* Character::totalEnergySpeed : de 1 à 50 */
+  const ticksPerFill = Math.max(1, Math.ceil(50 / speed - 1e-9));   /* un remplissage tous les ceil(50 / vitesse) ticks (Energy::updateBar) */
   const capRun = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
-  const generated = Math.max(0, num(r.generatedThisRun, 0));
-  const room = Math.max(0, 100000 - Math.min(100000, num(r.capNaturel, num(r.cap, 0))));
-  const capGain = resource === "energy" ? Math.min(Math.floor(generated / 20), room) : 0;
+  const naturelRun = Math.max(0, num(r.capNaturel, num(r.cap, 0)));
+  /* Lu dans le jeu (Rebirth::resetEnergy) : tant que le cap vaut 100 000 au plus, il devient floor(énergie obtenue au total / 20 + 500), plafonné à 100 000. */
+  const capGain = resource === "energy" && naturelRun <= 100000 ? Math.max(0, Math.min(100000, Math.floor(num(r.generatedTotal, 0) / 20 + 500)) - naturelRun) : 0;
   return {
     capRun,
     capAfterRebirth: capRun + capGain,
@@ -571,18 +571,16 @@ export function resourceInfoV1(state, resource, context = {}) {
     perSecond: idleNguResourceGenerationPerSecond(state, resource),
     speed,
     ticksPerFill,
-    nextSpeed: speed < 50 - 1e-9 ? Math.min(50, Math.round((speed + 0.1) * 10) / 10) : null
+    nextSpeed: ticksPerFill > 1 ? 50 / (ticksPerFill - 1) : null   /* vitesse à laquelle le remplissage gagne un tick (« Next Speed Increase ») */
   };
 }
 
 function applyNaturalEnergyCapGrowthOnRebirth(state){
   const r=state.resources.energy;
   if(!r)return 0;
-  const generated=Math.max(0,num(r.generatedThisRun,0));
-  const rawGain=Math.floor(generated/20);
   const naturel=Math.max(0,num(r.capNaturel,num(r.cap,0)));
-  const room=Math.max(0,100000-Math.min(100000,naturel));
-  const gain=Math.min(rawGain,room);
+  /* Lu dans le jeu (Rebirth::resetEnergy) : cap <= 100 000 : floor(énergie obtenue au total / 20 + 500), plafonné à 100 000 ; au-delà (cap acheté) rien ne change. */
+  const gain=naturel<=100000?Math.max(0,Math.min(100000,Math.floor(num(r.generatedTotal,0)/20+500))-naturel):0;
   if(gain>0){r.cap+=gain;r.capNaturel=naturel+gain;}
   return gain;
 }

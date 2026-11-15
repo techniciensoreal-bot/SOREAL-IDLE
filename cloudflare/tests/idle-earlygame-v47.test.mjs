@@ -696,6 +696,7 @@ const fresh=(context={}, now=1_000_000)=>
   let state=fresh(context,0);
   state.resources.energy.current=0;
   state.resources.energy.generatedThisRun=400;
+  state.resources.energy.generatedTotal = 400;   // énergie obtenue au total : le cap naturel au Rebirth en dépend (lu dans le jeu, Rebirth::resetEnergy)
   state.updatedAt=3_600_000;
   const reborn=rebirthIdleNguState(state,context,3_600_000);
   assert.equal(reborn.resources.energy.cap,520);
@@ -705,6 +706,7 @@ const fresh=(context={}, now=1_000_000)=>
   capped.resources.energy.cap=99_995;capped.resources.energy.capNaturel=99_995;
   capped.resources.energy.current=0;
   capped.resources.energy.generatedThisRun=1000;
+  capped.resources.energy.generatedTotal = 3e6;   // énergie obtenue au total : le cap naturel au Rebirth en dépend (lu dans le jeu, Rebirth::resetEnergy)
   capped.updatedAt=3_600_000;
   const cappedReborn=rebirthIdleNguState(capped,context,3_600_000);
   assert.equal(cappedReborn.resources.energy.cap,100_000);

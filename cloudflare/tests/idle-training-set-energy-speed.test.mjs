@@ -26,6 +26,7 @@ assert.equal(state.adventure.permanent.energySpeedFlat,2);
 state.resources.energy.speed=1;
 state.resources.energy.bars=1;
 const rate=idleNguResourceGenerationPerSecond(state,"energy");
-assert.ok(Math.abs(rate-3)<1e-9, "Training Set +2 Energy Speed must affect actual Energy generation.");
+// Lu dans le jeu (Energy::updateBar) : vitesse 3 = 3/50 par tick = un remplissage tous les ceil(50 / 3) = 17 ticks, soit 50 / 17 par seconde.
+assert.ok(Math.abs(rate-50/17)<1e-9, "Training Set +2 Energy Speed must affect actual Energy generation.");
 
 console.log("idle-training-set-energy-speed: OK");

@@ -193,6 +193,8 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
   if (!system.active || !beardTrackUnlocked(state, trackDef) || seconds <= 0) return;
 
   const resource = trackDef.resource || "energy";
+  /* Lu dans le jeu (AllBeardsController::beardProgressPerTick, build 1260, 2026-11-15) : une barbe n'avance que si la ressource est PLEINE (curEnergy / curMagic >= cap total). */
+  if (num(state.resources?.[resource]?.current, 0) + 1e-9 < idleNguEffectiveResourceStatV1(state, resource, "cap")) return;
   const diggers = diggerBonuses(state);
   const diggerSpeed = resource === "magic"
     ? Math.max(1, num(diggers.magicBeard, 1))

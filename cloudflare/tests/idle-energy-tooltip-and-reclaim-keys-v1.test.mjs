@@ -24,13 +24,14 @@ const context = { bosses: 4 };
   s.resources.energy.cap = 916;
   s.resources.energy.speed = 2;
   s.resources.energy.generatedThisRun = 3974;
+  s.resources.energy.generatedTotal = 3974;   // énergie obtenue au total : le cap naturel au Rebirth en dépend (lu dans le jeu, Rebirth::resetEnergy)
   const info = idleNguSnapshot(s, context, 1_000_000).resourceInfo.energy;
   assert.equal(info.capRun, 916);
   assert.equal(info.capAfterRebirth, 1114);
   assert.equal(info.perSecond, 2);
   assert.equal(info.speed, 2);
   assert.equal(info.ticksPerFill, 25, "la barre se remplit tous les 25 ticks");
-  assert.equal(info.nextSpeed, 2.1, "prochain palier de vitesse");
+  assert.ok(Math.abs(info.nextSpeed - 50 / 24) < 1e-12, "prochain palier de vitesse : 50 / 24 (un tick de moins par remplissage)");
 }
 // Vitesse maximale : plus de palier suivant ; plafond mou de 100 000 respecté
 {
@@ -39,6 +40,7 @@ const context = { bosses: 4 };
   s.resources.energy.cap = 99_990;
   s.resources.energy.capNaturel = 99_990;
   s.resources.energy.generatedThisRun = 1_000_000;
+  s.resources.energy.generatedTotal = 3_000_000;   // énergie obtenue au total : le cap naturel au Rebirth en dépend (lu dans le jeu, Rebirth::resetEnergy)
   const info = idleNguSnapshot(s, context, 1_000_000).resourceInfo.energy;
   assert.equal(info.ticksPerFill, 1);
   assert.equal(info.nextSpeed, null);
