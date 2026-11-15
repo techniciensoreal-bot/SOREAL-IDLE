@@ -43,9 +43,9 @@ export async function passer(changements,{base=ORIGINE,maxMs=120000}={}){
   const s=ouvrir(base);for(const [c,v] of Object.entries(changements))poser(s,c,v);
   enregistrer(s,SAUVE);const avant=fs.statSync(SAUVE).mtimeMs;
   const p=spawn(EXE,ARGS,{detached:true,stdio:"ignore",cwd:"C:/Program Files (x86)/Steam/steamapps/common/NGU IDLE"});p.unref();
-  await dort(15000);
+  await dort(6000);
   /* « Load Autosave », puis « On To The Game! » de l'écran des gains hors ligne. Un clic est annulé si NGU Idle n'est pas la fenêtre active. */
-  const c1=clic(258,712,2500);const c2=clic(410,778,1200);
+  const c1=clic(258,712,1500);const c2=clic(410,778,800);
   if(!c1||!c2){fermerJeu();return {ecrit:false,duree:0,resultat:null,raison:"clic annulé (fenêtre pas au premier plan)"}}
   const t0=Date.now();let ecrit=false;
   while(Date.now()-t0<maxMs){await dort(1000);if(fs.statSync(SAUVE).mtimeMs!==avant){ecrit=true;break}}
