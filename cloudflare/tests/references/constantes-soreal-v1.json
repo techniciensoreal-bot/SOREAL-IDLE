@@ -34,30 +34,6 @@
       "date": "2026-11-09"
     },
     {
-      "fichier": "idle-ngu-boss-reference-v1.js",
-      "marqueur": "approximation documentée",
-      "repere": "approximation documentée au-delà du boss 160, sciemment dive",
-      "description": "une correction non sourcée — l'extrapolation ×10/boss ci-dessous reste donc la meilleure approximation documentée au-delà du boss 160, sciemment divergente du wiki sur la plage 161-183 identifiée ci-dessus comme anormale, et sans aucune donnée wiki disponible",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
-      "fichier": "idle-ngu-boss-reference-v1.js",
-      "marqueur": "approximation documentée",
-      "repere": "approximation documentée pour boss191+, où plus aucune fiche",
-      "description": "es wiki individuelles (Round 2, 2026-09-18, voir commentaire de tête). Reste la meilleure approximation documentée pour boss191+, où plus aucune fiche (individuelle ou agrégée) ne publie de stats. / const NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE = 10; /* XP confir",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
-      "fichier": "idle-ngu-boss-reference-v1.js",
-      "marqueur": "sciemment divergente",
-      "repere": "sciemment divergente du wiki sur la plage 161-183 identifiée",
-      "description": "×10/boss ci-dessous reste donc la meilleure approximation documentée au-delà du boss 160, sciemment divergente du wiki sur la plage 161-183 identifiée ci-dessus comme anormale, et sans aucune donnée wiki disponible au-delà du boss 183. * Ce module ne fournit Q",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
       "fichier": "idle-questing-v1.js",
       "marqueur": "choix soreal",
       "repere": "CHOIX SOREAL\" : ce sont des conventions de code, jamais des",

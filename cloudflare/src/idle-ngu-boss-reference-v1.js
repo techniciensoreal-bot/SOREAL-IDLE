@@ -32,10 +32,13 @@
  * Conclusion : la toute première ligne après le boss 160 étant déjà
  * corrompue sur le wiki, il n'existe aucune ligne propre à partir de
  * laquelle étendre honnêtement NGU_BOSS_REFERENCE_V1 sans deviner une
- * correction non sourcée — l'extrapolation ×10/boss ci-dessous reste donc
- * la meilleure approximation documentée au-delà du boss 160, sciemment
- * divergente du wiki sur la plage 161-183 identifiée ci-dessus comme
- * anormale, et sans aucune donnée wiki disponible au-delà du boss 183.
+ * correction non sourcée — la règle ×10/boss est donc prolongée ci-dessous.
+ * VÉRIFIÉ DANS LE VRAI JEU (NGU Idle build 1260, banc d'essai, 2026-11-15) : les stats de boss
+ * affichées par le jeu valent exactement cette règle pour les boss 100, 150, 160, 161, 165, 166,
+ * 177, 178, 183, 184, 200, 250, 300 et 301 (Attaque 1,98364e(n-3), Défense 1,06812e(n-3), PV =
+ * 10 x Attaque, en difficulté Normal ; Evil et Sadistic affichent les MÊMES stats de boss, c'est
+ * le joueur qui est divisé par 1e30, ce que SOREAL fait en divisant le boss). Les anomalies du
+ * tableau du wiki (161-183) ne se retrouvent pas dans le jeu.
  *
  * Ce module ne fournit QUE les stats numériques (pv/attaque/defense/xp).
  * Le nom, les pièces, la chance de loot, l'histoire et les capacités d'un
@@ -371,8 +374,8 @@ const NGU_BOSS_REFERENCE_V1 = [
  * toute la plage 21-190 dans NGU_BOSS_REFERENCE_V1 ci-dessus -- 21-160 via
  * la table agrégée "Boss listing" (2026-09-16), 161-190 via 28 fiches
  * wiki individuelles (Round 2, 2026-09-18, voir commentaire de tête).
- * Reste la meilleure approximation documentée pour boss191+, où plus
- * aucune fiche (individuelle ou agrégée) ne publie de stats.
+ * Au-delà du boss 190, plus aucune fiche ne publie de stats, mais la règle a été relue dans le
+ * vrai jeu jusqu'au boss 301 (2026-11-15, voir commentaire de tête) : elle est exacte.
  */
 const NGU_BOSS_MULTIPLIER_BEYOND_REFERENCE = 10;
 
