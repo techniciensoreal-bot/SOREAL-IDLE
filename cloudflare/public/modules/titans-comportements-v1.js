@@ -7,8 +7,9 @@
  * Gordon Ramsay Bolton (https://ngu-idle.fandom.com/wiki/Gordon_Ramsay_Bolton, « Titan Skills ») :
  *  - Paralyze (1/7) : désactive les moves et l'Idle Mode, met en pause les cooldowns ; dure 4 s OU deux attaques de Ramsay. Si moins de 10 attaques depuis la dernière Paralyze, une attaque de base est faite à la place.
  *  - Power Attack (2/7) : dégâts doublés.
- *  - Bleed (2/7) : « réduit ta régénération de PV pour le reste du combat », cumul infini, peut la rendre négative. Le wiki, Steam, les guides et les mods ne publient AUCUNE ampleur par cumul : valeur CHOISIE PAR SOREAL
- *    (accord de Norman, 2026-10-04 : « calcule toi-même, pour que ça reste faisable mais que l'effet ait lieu ») = -10 % de la régénération de départ par cumul (au 10e cumul elle est nulle, ensuite elle fait perdre des PV).
+ *  - Bleed (2/7) : « réduit ta régénération de PV pour le reste du combat », cumul infini, peut la rendre négative. Le wiki, Steam, les guides et les mods ne publient aucune ampleur par cumul : MESURÉE DANS LE VRAI JEU
+ *    (NGU Idle build 1260, banc d'essai, 2026-11-15 : pente de remontée des PV entre deux coups, relevée par OCR, selon le nombre de saignements subis : 38,0 / 35,0 / 30,3 / 27,8 PV/s à 0 / 1 / 3 / 4 cumuls, soit environ -7 % de la régénération de départ par cumul,
+ *    quatre combats concordants) = -7 % par cumul, linéaire (au 15e cumul elle devient négative et fait perdre des PV, comme le dit le wiki ; une baisse multiplicative de 7,5 % par cumul s'ajuste aussi aux quatre points : non départagé).
  *  Le wiki ne dit pas si le compteur « 10 attaques » est déjà plein au début du combat : on part de 0 (la première Paralyze ne peut venir qu'à la 11e attaque).
  *
  * TOUS LES TITANS (https://ngu-idle.fandom.com/wiki/Titans : « All titans grow in strength by 1% per attack ») : à chaque attaque la force du titan augmente de 1 % ; le wiki ne dit pas si c'est cumulé ou ajouté : on cumule
@@ -21,8 +22,8 @@
  *  - Cloud of spores « arms feel heavy » (1/7, si le malus n'est pas déjà appliqué) : tes dégâts tombent à 2/3 pendant 15 s.
  *  - Power Attack (2/7) : dégâts x1,5.
  *  - Cloud of spores « energy draining » (1/7, si le malus n'est pas déjà appliqué) : « Increases damage taken to 1.5?/4x? for 15 seconds » et, dans le texte de la page, « the much more dangerous one that reduces your toughness by a
- *    considerable amount ». Le wiki lui-même n'est pas sûr de l'ampleur (points d'interrogation : entre 1,5 et 4) : valeur CHOISIE PAR SOREAL (accord de Norman : « calcule toi-même ») = x2,5 (milieu géométrique de 1,5 et 4) pendant 15 s,
- *    signalée dans l'interface. Norman, 2026-10-12 : « j'ai réussi à le tuer alors que je n'ai pas les statistiques : quelque chose dans ses Capacités n'est pas comme sur le wiki » (ce nuage n'était pas simulé).
+ *    considerable amount ». Le wiki lui-même n'est pas sûr de l'ampleur (points d'interrogation : entre 1,5 et 4) : MESURÉE DANS LE VRAI JEU (banc d'essai, 2026-11-15, 83 attaques du Grand Corrupted Tree dont 36 sous le nuage, régression du logarithme des dégâts
+ *    sur le rang de l'attaque et la présence du nuage : croissance x1,009 par attaque, nuage x1,58, écart-type 0,025 sur le logarithme) = x1,58 pendant 15 s. Norman, 2026-10-12 : « j'ai réussi à le tuer alors que je n'ai pas les statistiques : quelque chose dans ses Capacités n'est pas comme sur le wiki » (ce nuage n'était pas simulé).
  *
  * Jake From Accounting (https://ngu-idle.fandom.com/wiki/Jake_From_Accounting, « Titan skills ») :
  *  - Locusts (1/5, au moins 10 attaques d'écart) : 10 attaques rapides à demi-dégâts, 0,15 s d'écart.
@@ -34,7 +35,8 @@
  *  - Invincibility : devient invincible après sa première attaque ; l'Anneau d'Apathie équipé (n'importe quel niveau) l'en empêche.
  *  - Power Growth : à chaque tour sa puissance est multipliée par (2 - niveau de l'anneau / 100) (2x, 4x, 8x… sans anneau ou niveau 0 ; 1,5x niveau 50 ; 1x niveau 100 = aucune croissance) : puissance après n tours = (2 - niveau/100)^n,
  *    n = 1 à sa première attaque (« 2x, 4x, 8x… »).
- *  - Power attack : x1,5. Le wiki ne publie PAS sa chance : valeur CHOISIE PAR SOREAL (accord de Norman, 2026-10-04) = 2/7, comme Gordon Ramsay Bolton et le Grand Corrupted Tree.
+ *  - Power attack : x1,5 (mesuré 1,51). Le wiki ne publie pas sa chance : MESURÉE DANS LE VRAI JEU (banc d'essai, 2026-11-15, Anneau d'Apathie équipé, 75 attaques) : 42 puissantes (56 %, intervalle à 95 % de 45 à 67 %) ; 2/7, 1/3 et 3/7 sont écartés (de 2,3 à 5,3 écarts-types), 1/2 et 4/7 concordent : valeur retenue 1/2.
+ *    (Contrôle de la méthode sur Gordon Ramsay Bolton : puissante, saignement et base à 33 % chacun, soit 2/7 sur les 6/7 sans paralysie, comme le wiki ; Grand Corrupted Tree : puissante 31 % pour 2/7.)
  *  Le niveau de l'anneau équipé est donné par le combat (etat.anneau : null = pas d'anneau équipé).
  */
 (function(racine){
@@ -42,7 +44,7 @@
 
   var TITANS={
     t1:{
-      note:'Simulées dans le combat : Paralysie, Saignement et Attaque puissante. L’ampleur du Saignement est estimée : chaque cumul retire 10 % de ta régénération de départ.',
+      note:'Simulées dans le combat : Paralysie, Saignement et Attaque puissante. Chaque cumul de Saignement retire 7 % de ta régénération de départ.',
       /* Tirage sur 7 : [0,1) Paralyze, [1,3) Bleed, [3,5) Power Attack, le reste attaque de base. */
       tirer:function(e,tirage){
         var t=tirage*7;
@@ -53,7 +55,7 @@
       },
       multPuissante:2,
       /* NON PUBLIÉ : constante SOREAL (voir l'en-tête). */
-      saignementParCumul:0.1,
+      saignementParCumul:0.07,
       paralysieMs:4000,
       paralysieAttaques:2,
       minAttaquesEntreParalysies:10
@@ -61,7 +63,7 @@
   };
 
   TITANS.t2={
-    note:'Simulées dans le combat : les deux nuages de spores (tes dégâts à 2/3 pendant 15 s ; tes dégâts subis x2,5 pendant 15 s, valeur estimée), l’Attaque puissante (x1,5) et la croissance de 1 % de force par attaque (commune à tous les titans).',
+    note:'Simulées dans le combat : les deux nuages de spores (tes dégâts à 2/3 pendant 15 s ; tes dégâts subis x1,6 pendant 15 s), l’Attaque puissante (x1,5) et la croissance de 1 % de force par attaque (commune à tous les titans).',
     /* Tirage sur 7 : [0,1) spores des bras, [1,2) spores d'énergie, [2,4) puissante, le reste base. */
     tirer:function(e,tirage,maintenant){
       var t=tirage*7;
@@ -74,7 +76,7 @@
     sporesBrasMs:15000,
     multDegatsJoueurSpores:2/3,
     sporesEnergieMs:15000,
-    multSporesEnergie:2.5   /* dégâts subis, pendant 15 s : choix de SOREAL entre 1,5 et 4 (wiki) */
+    multSporesEnergie:1.58   /* dégâts subis, pendant 15 s : mesuré dans le vrai jeu (2026-11-15), le wiki hésite entre 1,5 et 4 */
   };
 
   TITANS.t3={
@@ -93,9 +95,9 @@
   };
 
   TITANS.t4={
-    note:'Simulées dans le combat : Invincibilité, Croissance de puissance et Attaque puissante (sa chance n’est pas publiée : 2 sur 7, choisie par SOREAL).',
-    /* Tirage sur 7 : [0,2) puissante (chance non publiée), le reste base. */
-    tirer:function(e,tirage){return tirage*7<2?'puissante':'base';},
+    note:'Simulées dans le combat : Invincibilité, Croissance de puissance et Attaque puissante (sa chance, mesurée dans le jeu : 1 sur 2).',
+    /* Tirage : [0 ; 0,5) puissante (chance mesurée dans le vrai jeu : 42 sur 75), le reste base. */
+    tirer:function(e,tirage){return tirage<0.5?'puissante':'base';},
     multPuissante:1.5,
     invincible:true,
     croissance:function(e){

@@ -29,6 +29,9 @@
         nom:'Des cartes qui comptent',
         date:'2026-11-15',
         groupes:[
+          {menu:'titans', titre:'Titans', points:[
+            'Combats de titans, valeurs mesurées dans le vrai jeu : le Saignement retire 7 % de régénération par cumul (et non 10 %), le nuage d’énergie multiplie les dégâts subis par 1,6 (et non 2,5), et l’attaque puissante d’UUG arrive une fois sur deux (et non 2 sur 7).'
+          ]},
           {menu:'questing', titre:'Quêtes', points:[
             'Les bonus « Major plus rapides » raccourcissent maintenant l’intervalle de 20 % et de 10 % (et non plus de 17 % et 9 %), et se multiplient entre eux (mesuré dans le vrai jeu).',
             'Les bonus de récompense de quête venant d’atouts différents se multiplient entre eux (mesuré dans le vrai jeu) au lieu de s’additionner.'

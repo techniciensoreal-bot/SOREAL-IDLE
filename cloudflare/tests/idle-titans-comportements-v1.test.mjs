@@ -38,8 +38,9 @@ assert.equal(api.attaqueTitan("t1", e, 2, 1.5 / 7).multDegats, 1);
 assert.equal(e.saignements, 1);
 assert.ok(api.attaqueTitan("t1", e, 3, 2.5 / 7).saigne);
 assert.equal(api.multRegenJoueur("t1", api.neuf()), 1, "sans saignement : régénération intacte");
-assert.ok(Math.abs(api.multRegenJoueur("t1", e) - 0.8) < 1e-9, "2 cumuls : -20 %");
-e.saignements = 10; assert.ok(Math.abs(api.multRegenJoueur("t1", e)) < 1e-9, "10 cumuls : régénération nulle");
+assert.ok(Math.abs(api.multRegenJoueur("t1", e) - 0.86) < 1e-9, "2 cumuls : -14 %");
+e.saignements = 4; assert.ok(Math.abs(api.multRegenJoueur("t1", e) - 0.72) < 1e-9, "4 cumuls : 72 % (mesuré dans le vrai jeu : 27,8 / 38,0 = 73 %)");
+e.saignements = 14; assert.ok(api.multRegenJoueur("t1", e) > 0, "14 cumuls : encore positive");
 e.saignements = 15; assert.ok(api.multRegenJoueur("t1", e) < 0, "au-delà : négative (perte de PV)");
 assert.equal(api.multRegenJoueur("t2", api.neuf()), 1, "pas de saignement pour les autres titans");
 assert.ok(ui.includes("multRegenJoueur(fight.titanId,idleTitanEtatV1)") && ui.includes("}else if(regenJoueur<0){"));
@@ -52,8 +53,8 @@ assert.equal(api.multDegatsJoueur("t2", e, 15999), 2 / 3); assert.equal(api.mult
 assert.equal(api.attaqueTitan("t2", e, 2000, 0.5 / 7).type, "base", "déjà appliqué : pas de nouveau nuage");
 const e3 = api.neuf(); // nuage d'énergie (1/7, si pas déjà appliqué) : dégâts subis x2,5 pendant 15 s (valeur choisie par SOREAL, le wiki hésite entre 1,5 et 4)
 r = api.attaqueTitan("t2", e3, 2000, 1.5 / 7); assert.equal(r.type, "sporesEnergie"); assert.ok(r.draine);
-assert.equal(api.attaqueTitan("t2", e3, 3000, 5.5 / 7).multDegats, 2.5, "pendant 15 s : dégâts subis x2,5");
-assert.equal(api.attaqueTitan("t2", e3, 16999, 5.5 / 7).multDegats, 2.5, "encore actif juste avant la fin");
+assert.equal(api.attaqueTitan("t2", e3, 3000, 5.5 / 7).multDegats, 1.58, "pendant 15 s : dégâts subis x1,58 (mesuré dans le vrai jeu)");
+assert.equal(api.attaqueTitan("t2", e3, 16999, 5.5 / 7).multDegats, 1.58, "encore actif juste avant la fin");
 assert.equal(api.attaqueTitan("t2", e3, 17000, 5.5 / 7).multDegats, 1, "fini au bout de 15 s");
 assert.equal(api.attaqueTitan("t2", e3, 17500, 1.5 / 7).type, "sporesEnergie", "nouveau nuage possible une fois le premier fini");
 assert.equal(api.attaqueTitan("t2", e3, 18000, 1.5 / 7).type, "base", "déjà appliqué : pas de nouveau nuage");
@@ -109,7 +110,7 @@ assert.ok(ui.includes("niveauAnneauApathieIdleV1_(a)") && ui.includes("item.defi
 assert.ok(ui.includes("window.SorealTitanComportementsV1.attaqueTitan(fight.titanId"));
 assert.ok(ui.includes("!titanJoueurParalyseIdleV1_(maintenantTick)"), "Idle Mode coupé");
 assert.ok(ui.includes("if(titanJoueurParalyseIdleV1_(Date.now()))return;"), "capacités coupées");
-assert.ok(/Saignement/.test(api.note("t1")) && /Paralysie/.test(api.note("t1")) && /estimée/.test(api.note("t1")) && !/wiki/i.test(api.note("t1")));
+assert.ok(/Saignement/.test(api.note("t1")) && /Paralysie/.test(api.note("t1")) && /7 %/.test(api.note("t1")) && !/wiki/i.test(api.note("t1")));
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/modules/titans-comportements-v1.js"));
 console.log("idle-titans-comportements-v1: OK");
 

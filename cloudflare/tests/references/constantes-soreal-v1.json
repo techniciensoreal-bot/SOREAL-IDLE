@@ -106,46 +106,6 @@
       "date": "2026-11-09"
     },
     {
-      "fichier": "modules/titans-comportements-v1.js",
-      "marqueur": "choisie par soreal",
-      "repere": "CHOISIE PAR SOREAL (accord de Norman, 2026-10-04 : « calcule",
-      "description": "Bleed (titans) : −10 % de régénération de PV par cumul (aucune source ne publie l'ampleur par cumul) ; valeur choisie par SOREAL, accord de Norman (2026-10-04 : « calcule toi-même »).",
-      "statut": "à valider par Norman",
-      "date": "2026-11-14"
-    },
-    {
-      "fichier": "modules/titans-comportements-v1.js",
-      "marqueur": "choisie par soreal",
-      "repere": "CHOISIE PAR SOREAL (accord de Norman : « calcule toi-même »)",
-      "description": "Spores d'énergie du Grand Corrupted Tree : dégâts subis x2,5 pendant 15 s (le wiki donne « entre 1,5 et 4 » sans ampleur exacte ; milieu géométrique), signalée dans l'interface ; valeur choisie par SOREAL, accord de Norman.",
-      "statut": "à valider par Norman",
-      "date": "2026-11-14"
-    },
-    {
-      "fichier": "modules/titans-comportements-v1.js",
-      "marqueur": "choisie par soreal",
-      "repere": "CHOISIE PAR SOREAL (accord de Norman, 2026-10-04) = 2/7, com",
-      "description": "Attaque puissante : chance 2/7 (comme Gordon Ramsay Bolton et le Grand Corrupted Tree), le wiki ne la publie pas ; valeur choisie par SOREAL, accord de Norman (2026-10-04).",
-      "statut": "à valider par Norman",
-      "date": "2026-11-14"
-    },
-    {
-      "fichier": "modules/titans-comportements-v1.js",
-      "marqueur": "choix de soreal",
-      "repere": "choix de SOREAL entre 1,5 et 4 (wiki) */ }; TITANS.t3={ note",
-      "description": "Constante multSporesEnergie = 2,5 (dégâts subis pendant 15 s), voir l'entrée précédente ; choix de SOREAL.",
-      "statut": "à valider par Norman",
-      "date": "2026-11-14"
-    },
-    {
-      "fichier": "modules/titans-comportements-v1.js",
-      "marqueur": "choisie par soreal",
-      "repere": "choisie par SOREAL).', /* Tirage sur 7 : [0,2) puissante (ch",
-      "description": "Attaque puissante du 4e titan : chance 2 sur 7, non publiée ; choisie par SOREAL.",
-      "statut": "à valider par Norman",
-      "date": "2026-11-14"
-    },
-    {
       "fichier": "modules/walderp-cachette-v1.js",
       "marqueur": "choix soreal",
       "repere": "choix SOREAL à valider par Norman (2026-11-13) : l'opacité d",

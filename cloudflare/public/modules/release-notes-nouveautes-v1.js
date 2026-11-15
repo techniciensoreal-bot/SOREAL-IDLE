@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les bonus « Major plus rapides » raccourcissent maintenant l’intervalle de 20 % et de 10 % (et non plus de 17 % et 9 %), et se multiplient entre eux (mesuré dans le vrai jeu)."
+    "Combats de titans, valeurs mesurées dans le vrai jeu : le Saignement retire 7 % de régénération par cumul (et non 10 %), le nuage d’énergie multiplie les dégâts subis par 1,6 (et non 2,5), et l’attaque puissante d’UUG arrive une fois sur deux (et non 2 sur 7)."
   ] };
 })();
