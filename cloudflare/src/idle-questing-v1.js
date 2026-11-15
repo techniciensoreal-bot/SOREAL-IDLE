@@ -159,8 +159,9 @@ export function idleQuestBonusTotalsV1(state) {
     if (level) addKeys(wish.bonus, level);
   }
   return {
-    majorBaseBonus: totals.questMajorBaseQp || 0,
-    minorBaseBonus: totals.questMinorBaseQp || 0,
+    /* Lu dans le jeu (BeastQuestController, build 1260, 2026-11-15) : les bonus de base (souhaits 101/102, atouts 147/148) ne s'ajoutent qu'à partir de la difficulté Sadistic. */
+    majorBaseBonus: state?.difficulty === "extreme" ? totals.questMajorBaseQp || 0 : 0,
+    minorBaseBonus: state?.difficulty === "extreme" ? totals.questMinorBaseQp || 0 : 0,
     handInBonusLevel: totals.questHandinReduction || 0,
     idleDividerReduction: totals.questIdleDividerReduction || 0,
     questDropsPct: totals.questDropsPct || 0,
