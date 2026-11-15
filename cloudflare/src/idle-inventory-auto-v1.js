@@ -210,8 +210,20 @@ export function normalizeIdleInventoryAutoV1(raw) {
     lootItems,
     loadouts,
     /* Norman (2026-11-14) : pièces équipées par une configuration qui venaient du COFFRE ; au changement de configuration elles y retournent (jamais dans le sac). Absent quand vide : une sauvegarde sans coffre garde exactement le même état qu'avant. */
-    ...(coffreEquipesV1(src.coffreEquipes).length ? { coffreEquipes: coffreEquipesV1(src.coffreEquipes) } : {})
+    ...(coffreEquipesV1(src.coffreEquipes).length ? { coffreEquipes: coffreEquipesV1(src.coffreEquipes) } : {}),
+    /* Set actif (Norman, 2026-11-15) : { index, avant (équipement d'avant l'activation), coffre (pièces tirées du coffre) } ; absent quand aucun set n'est actif (états d'avant inchangés). */
+    ...(normalizeLoadoutActifV1(src.loadoutActif) ? { loadoutActif: normalizeLoadoutActifV1(src.loadoutActif) } : {})
   };
+}
+function normalizeLoadoutActifV1(v) {
+  if (!v || typeof v !== "object") return null;
+  const index = I(v.index, -1);
+  if (index < 0 || index >= IDLE_INVENTORY_LOADOUTS_MAX_V1) return null;
+  const av = v.avant && typeof v.avant === "object" ? v.avant : {};
+  const avant = {};
+  for (const slot of CORE_SLOTS) avant[slot] = String(av[slot] || "");
+  avant.accessories = (Array.isArray(av.accessories) ? av.accessories : []).map(String).filter(Boolean).slice(0, 12);
+  return { index, avant, coffre: coffreEquipesV1(v.coffre) };
 }
 function coffreEquipesV1(v) { return (Array.isArray(v) ? v : []).map((x) => String(x)).filter(Boolean).slice(0, 40); }
 
@@ -761,54 +773,101 @@ function loadoutMoveV1(s, index, direction, env) {
 let dernierRetourCoffreV1 = 0;   /* nombre de pièces RENVOYÉES au coffre par le dernier équipement (même usage) */
 let dernierRetraitCoffreV1 = 0;   /* nombre de pièces reprises au coffre par le DERNIER équipement (lu juste après l'appel, même exécution synchrone) */
 
-/* Applique un loadout sur une copie de l'état Aventure ; renvoie la copie (le sac ne doit pas déborder). */
+/*
+ * Sets ACTIVABLES (Norman, 2026-11-15) : un set ne remplace plus tout l'équipement.
+ *  - ACTIVER un set : chaque pièce du set remplace la pièce équipée dans sa case ; une case VIDE du set ne change rien (ce qui était équipé avant reste équipé).
+ *    L'équipement d'avant l'activation est mémorisé (cfg.loadoutActif.avant), ainsi que les pièces tirées du coffre (cfg.loadoutActif.coffre).
+ *  - DÉSACTIVER le set actif (même bouton) : l'équipement d'avant est rééquipé et les pièces du set retournent d'où elles venaient (le coffre ou le sac).
+ *  - Activer un autre set pendant qu'un set est actif : le premier est d'abord désactivé, puis le second activé à partir de l'équipement d'avant.
+ */
+function equipementAvantV1(w) {
+  const eq = w.equipment || {};
+  const out = {};
+  for (const slot of CORE_SLOTS) out[slot] = String(eq[slot] || "");
+  out.accessories = (Array.isArray(eq.accessories) ? eq.accessories : []).map(String);
+  return out;
+}
+function dansSacV1(w, id) { return w.inventory.some((o) => String(o.id) === String(id)); }
+function ecrireActifV1(w, actif) {
+  const c = cfgV1(w);   /* cfgV1 recopie la configuration : on l'écrit sur la version courante */
+  delete c.coffreEquipes;
+  if (actif) c.loadoutActif = actif; else delete c.loadoutActif;
+}
+function loadoutDesactiverV1(w) {
+  const actif = cfgV1(w).loadoutActif;
+  if (!actif) return false;
+  const av = actif.avant;
+  for (const slot of CORE_SLOTS) {
+    const id = av[slot];
+    if (id) {
+      if (dansSacV1(w, id) && w.equipment[slot] !== id) { try { idleAdventureEquipItemV1(w, id, slot); } catch (_) { /* objet devenu inéquipable : case inchangée */ } }
+    } else if (w.equipment[slot]) {
+      idleAdventureUnequipItemV1(w, w.equipment[slot]);
+    }
+  }
+  const voulus = av.accessories.filter((id) => dansSacV1(w, id));
+  for (const id of (Array.isArray(w.equipment.accessories) ? w.equipment.accessories.slice() : [])) {
+    if (!voulus.includes(String(id))) idleAdventureUnequipItemV1(w, id);
+  }
+  for (const id of voulus) {
+    if (w.equipment.accessories.includes(id) || CORE_SLOTS.some((slot) => w.equipment[slot] === id)) continue;
+    try { idleAdventureEquipItemV1(w, id, "accessory"); } catch (_) { /* plus de case libre : ignoré */ }
+  }
+  /* Les pièces tirées du coffre y retournent ; les autres restent dans le sac (elles n'en sont jamais sorties). Une pièce qui ne peut pas rentrer reste dans le sac. */
+  for (const id of actif.coffre) {
+    if (!dansSacV1(w, id)) continue;
+    try { coffreDeposer(w, id); dernierRetourCoffreV1 += 1; } catch (_) { /* reste dans le sac */ }
+  }
+  ecrireActifV1(w, null);
+  return true;
+}
+
+/* Active (ou désactive, si c'est le set actif) un set sur une copie de l'état Aventure ; renvoie la copie (le sac ne doit pas déborder). */
 function loadoutApplyV1(s, index, env) {
   const cfg = cfgV1(s);
   const i = I(index, -1);
   if (i < 0 || i >= Math.max(0, I(env?.loadoutSlots, 0))) throw new Error("LOADOUT_VERROUILLE");
   const lo = cfg.loadouts[i];
-  if (loadoutVideV1(lo)) throw new Error("LOADOUT_VIDE");
   const w = X(s);
-  /* Norman (2026-11-04) : « quand on clique sur un set pour l'équiper, il doit automatiquement prendre les pièces nécessaires dans le coffre si elles y sont rangées » : chaque pièce voulue qui n'est plus dans le sac mais dans le Coffre est reprise (si le sac a de la place ; sinon elle reste au coffre et le slot reste inchangé). */
   dernierRetraitCoffreV1 = 0;
   dernierRetourCoffreV1 = 0;
-  const cfgW = cfgV1(w);
-  const anciensCoffre = coffreEquipesV1(cfgW.coffreEquipes);   /* pièces du set précédent qui venaient du coffre */
-  const retires = [];
-  const voulues = [...CORE_SLOTS.map((slot) => lo[slot]), ...(lo.accessories || [])].filter(Boolean).map(String);
-  for (const id of voulues) {
-    if (w.inventory.some((o) => String(o.id) === id)) continue;
-    if (w.coffre && Object.values(w.coffre).some((it) => it && String(it.id) === id)) {
-      try { coffreRetirer(w, id); dernierRetraitCoffreV1 += 1; retires.push(id); } catch (_) { /* sac plein : la pièce reste au coffre */ }
+  const actifAvant = cfgV1(w).loadoutActif;
+  if (actifAvant && actifAvant.index === i) {   /* même set : on le DÉSACTIVE */
+    loadoutDesactiverV1(w);
+  } else {
+    if (loadoutVideV1(lo)) throw new Error("LOADOUT_VIDE");
+    if (actifAvant) loadoutDesactiverV1(w);
+    const avant = equipementAvantV1(w);
+    /* Norman (2026-11-04) : « quand on clique sur un set pour l'équiper, il doit automatiquement prendre les pièces nécessaires dans le coffre si elles y sont rangées » : chaque pièce voulue qui n'est plus dans le sac mais dans le Coffre est reprise (si le sac a de la place ; sinon elle reste au coffre et la case reste inchangée). */
+    const retires = [];
+    const voulues = [...CORE_SLOTS.map((slot) => lo[slot]), ...(lo.accessories || [])].filter(Boolean).map(String);
+    for (const id of voulues) {
+      if (dansSacV1(w, id)) continue;
+      if (w.coffre && Object.values(w.coffre).some((it) => it && String(it.id) === id)) {
+        try { coffreRetirer(w, id); dernierRetraitCoffreV1 += 1; retires.push(id); } catch (_) { /* sac plein : la pièce reste au coffre */ }
+      }
     }
-  }
-  const has = (id) => w.inventory.some((o) => String(o.id) === String(id));
-  for (const slot of CORE_SLOTS) {
-    const id = lo[slot];
-    if (!id) {
-      if (w.equipment[slot]) idleAdventureUnequipItemV1(w, w.equipment[slot]);
-    } else if (has(id) && w.equipment[slot] !== id) {
-      try { idleAdventureEquipItemV1(w, id, slot); } catch (_) { /* objet devenu inéquipable : slot inchangé */ }
+    for (const slot of CORE_SLOTS) {   /* case vide du set : rien à changer */
+      const id = lo[slot];
+      if (id && dansSacV1(w, id) && w.equipment[slot] !== id) {
+        try { idleAdventureEquipItemV1(w, id, slot); } catch (_) { /* objet devenu inéquipable : case inchangée */ }
+      }
     }
+    const accVoulus = (lo.accessories || []).map(String).filter((id) => dansSacV1(w, id));
+    for (const id of accVoulus) {
+      if (w.equipment.accessories.includes(id) || CORE_SLOTS.some((slot) => w.equipment[slot] === id)) continue;
+      for (let t = 0; t < 12; t++) {
+        try { idleAdventureEquipItemV1(w, id, "accessory"); break; } catch (e) {
+          if (!/EMPLACEMENT_ACCESSOIRE_PLEIN/.test(String(e && e.message))) break;
+          /* plus de case : on libère un accessoire équipé qui n'est pas dans le set (le dernier) */
+          const victime = w.equipment.accessories.slice().reverse().find((x) => !accVoulus.includes(String(x)));
+          if (!victime) break;
+          idleAdventureUnequipItemV1(w, victime);
+        }
+      }
+    }
+    ecrireActifV1(w, { index: i, avant, coffre: retires.slice(0, 40) });
   }
-  const voulus = lo.accessories.filter(has);
-  for (const id of (Array.isArray(w.equipment.accessories) ? w.equipment.accessories.slice() : [])) {
-    if (!voulus.includes(String(id))) idleAdventureUnequipItemV1(w, id);
-  }
-  for (const id of voulus) {
-    if (w.equipment.accessories.includes(id)) continue;
-    if (CORE_SLOTS.some((slot) => w.equipment[slot] === id)) continue;
-    try { idleAdventureEquipItemV1(w, id, "accessory"); } catch (_) { /* plus de slot libre : ignoré */ }
-  }
-  /* Les pièces du set précédent qui venaient du coffre y retournent (si le nouveau set ne les garde pas) ; sinon elles restent équipées et gardent leur marque. Une pièce qui ne peut pas rentrer (case prise, plus éligible) reste dans le sac. */
-  const gardees = [];
-  for (const id of anciensCoffre) {
-    if (voulues.includes(id)) { if (!gardees.includes(id)) gardees.push(id); continue; }
-    if (!w.inventory.some((o) => String(o.id) === id)) continue;
-    try { coffreDeposer(w, id); dernierRetourCoffreV1 += 1; } catch (_) { /* reste dans le sac */ }
-  }
-  const marques = [...gardees, ...retires.filter((id) => !gardees.includes(id))].slice(0, 40);
-  if (marques.length) cfgV1(w).coffreEquipes = marques; else delete cfgV1(w).coffreEquipes;   /* cfgV1 recopie la configuration : on l'écrit sur la version courante */
   if (idleAdventureInventoryUsedV1(w) > idleAdventureInventoryCapacityV1(w)) throw new Error("SAC_PLEIN");
   idleAdventureSyncInventorySlotsV1(w);
   bumpRevisionV1(w);
@@ -1002,6 +1061,7 @@ export function idleInventoryAutoSnapshotV1(s, env) {
     mergeSlotsMax: IDLE_INVENTORY_MERGE_SLOTS_MAX_V1,
     loadoutSlots: slots,
     loadoutsMax: IDLE_INVENTORY_LOADOUTS_MAX_V1,
+    ...(cfg.loadoutActif && cfg.loadoutActif.index < slots ? { loadoutActif: cfg.loadoutActif.index } : {}),   /* set actuellement activé (absent sinon) */
     loadouts: cfg.loadouts.slice(0, slots).map((lo) => (lo ? {
       name: lo.name || "",
       ...(lo.icon ? { icon: lo.icon } : {}),   /* additif : absent sans dessin (réponses des parties de référence identiques) */

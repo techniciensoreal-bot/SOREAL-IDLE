@@ -163,7 +163,6 @@
     var nb=Math.max(0,entier(s.loadoutSlots));
     if(nb<1)return '';
     var los=Array.isArray(s.loadouts)?s.loadouts:[];
-    var portes=identifiantsPortes(a);
     var cases=[],libreVue=false;
     for(var i=0;i<nb;i++){
       var lo=los[i]||null;
@@ -175,9 +174,9 @@
         cases.push('<span class="ic-cfg ic-vide"><button type="button" class="ic-mini-bt" aria-label="Enregistrer mon équipement actuel dans la configuration '+(i+1)+'" onclick="window.__inventaireAutoConfigV1__(\'sauver\','+i+')">+</button></span>');
         continue;
       }
-      var actif=!vide&&identifiantsConfig(lo)===portes;
+      var actif=!vide&&entier(s.loadoutActif)===i&&s.loadoutActif!==undefined&&s.loadoutActif!==null;   /* set ACTIVÉ (2026-11-15) : le moteur le dit, plus de comparaison avec l'équipement porté */
       var libelle=nom||('Configuration '+(i+1));
-      cases.push('<span class="ic-cfg'+(actif?' ic-actif':'')+'"><button type="button" class="ic-mini-bt" '+(vide?'disabled ':'')+'aria-label="Équiper : '+html(libelle)+'" onclick="window.__inventaireAutoConfigV1__(\'equiper\','+i+')">'+svg(lo&&lo.icon||'')+'</button>'+bulle(i,lo,vide,libelle)+'</span>');
+      cases.push('<span class="ic-cfg'+(actif?' ic-actif':'')+'"><button type="button" class="ic-mini-bt" '+(vide?'disabled ':'')+'aria-label="'+(actif?'Désactiver : ':'Équiper : ')+html(libelle)+'" onclick="window.__inventaireAutoConfigV1__(\'equiper\','+i+')">'+svg(lo&&lo.icon||'')+'</button>'+bulle(i,lo,vide,libelle)+'</span>');
     }
     return '<span class="ic-mini">'+cases.join('')+'</span>';
   }
@@ -188,7 +187,6 @@
     var nb=Math.max(0,entier(s.loadoutSlots));
     if(nb<1)return '';
     var los=Array.isArray(s.loadouts)?s.loadouts:[];
-    var portes=identifiantsPortes(a);
     var cases=[];
     for(var i=0;i<nb;i++){
       var lo=los[i]||null;
@@ -198,17 +196,17 @@
         cases.push('<div class="ic-cfg ic-vide"><button type="button" class="ic-bouton" aria-label="Enregistrer mon équipement actuel dans la configuration '+(i+1)+'" onclick="window.__inventaireAutoConfigV1__(\'sauver\','+i+')">+</button><span class="ic-nom">'+(i+1)+'</span></div>');
         continue;
       }
-      var actif=!vide&&identifiantsConfig(lo)===portes;
+      var actif=!vide&&entier(s.loadoutActif)===i&&s.loadoutActif!==undefined&&s.loadoutActif!==null;   /* set ACTIVÉ (2026-11-15) : le moteur le dit, plus de comparaison avec l'équipement porté */
       var libelle=nom||('Configuration '+(i+1));
       cases.push('<div class="ic-cfg'+(vide?' ic-vide-nommee':'')+(actif?' ic-actif':'')+'">'+
-        '<button type="button" class="ic-bouton" '+(vide?'disabled ':'')+'aria-label="Équiper : '+html(libelle)+'" onclick="window.__inventaireAutoConfigV1__(\'equiper\','+i+')">'+svg(lo&&lo.icon||'')+'</button>'+
+        '<button type="button" class="ic-bouton" '+(vide?'disabled ':'')+'aria-label="'+(actif?'Désactiver : ':'Équiper : ')+html(libelle)+'" onclick="window.__inventaireAutoConfigV1__(\'equiper\','+i+')">'+svg(lo&&lo.icon||'')+'</button>'+
         '<span class="ic-num" aria-hidden="true">'+(i+1)+'</span>'+
         '<button type="button" class="ic-crayon" aria-label="Modifier la configuration '+(i+1)+'" onclick="window.__inventaireAutoConfigV1__(\'editer\','+i+')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l1-5L16 4l4 4L9 19z" fill="currentColor"/></svg></button>'+
         '<span class="ic-nom">'+html(nom||('Config. '+(i+1)))+'</span>'+
         bulle(i,lo,vide,libelle)+
       '</div>');
     }
-    return '<div class="ic-configs"><div class="ic-configs-tete"><b>Configurations</b><span>Touche : équipe · crayon : modifie</span>'+(bascule||'')+'</div><div class="ic-bande">'+cases.join('')+'</div></div>';
+    return '<div class="ic-configs"><div class="ic-configs-tete"><b>Configurations</b><span>Touche : active ou désactive · crayon : modifie</span>'+(bascule||'')+'</div><div class="ic-bande">'+cases.join('')+'</div></div>';
   }
 
   /* ---------- éditeur ---------- */
