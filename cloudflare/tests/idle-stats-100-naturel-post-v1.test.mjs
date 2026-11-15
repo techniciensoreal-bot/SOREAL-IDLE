@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import "../src/idle-sqlite-runtime.js";   // charge le moteur dans l ordre normal (import circulaire sinon)
 import { multiplicateursCombatSorealIdle_ } from "../src/idle-runtime-boss.js";
 
 /* Character::totalAttack (code du jeu, build 1260) : le « 100 » naturel reçoit tous les bonus APRÈS la division de difficulté, mais ni le NUMBER, ni ITOPOD, ni l'équipement, ni Rich Jerks. */
