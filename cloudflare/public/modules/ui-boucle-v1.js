@@ -428,7 +428,8 @@
               const expo=x[0]==='upgrade'?2:1;
               const cout0=idleNombre_(x[4]);
               const rapport=function(k){return (niv0+1+k)/(niv0+1);};
-              const dureeK=function(k){return secondes0*rapport(k);};
+              const brut0=idleNombre_(x[6])>0?idleNombre_(x[6]):secondes0;
+              const dureeK=function(k){return typeof window.__dureeNiveauTicksIdleV1__==='function'?window.__dureeNiveauTicksIdleV1__(brut0*rapport(k)):secondes0*rapport(k);};
               const coutK=function(k){return cout0*Math.pow(rapport(k),expo);};
               const cle='cycles_'+x[0];
               let debites=d[cle]||0;
@@ -440,7 +441,7 @@
               if(secondes0>0.0201){
                 /* Rejeu en formule (rejouerCyclesAugmentIdleV1_, meta-progression) : aucun plafond de 200 niveaux, même pour une barre qui en gagne des dizaines par seconde. */
                 const orAvant=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
-                const rj=window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvant:0,plafondK:plafondDefi});
+                const rj=window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,brut:brut0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvant:0,plafondK:plafondDefi});
                 if(Boolean(monnaiesLocales)&&rj.debit>0){monnaiesLocales.gold=Math.max(0,orAvant-rj.debit);debiteCeTick=true;}
                 k=rj.k;reste=rj.reste;bloque=rj.bloque;debites=rj.debites;
                 d[cle]=debites;

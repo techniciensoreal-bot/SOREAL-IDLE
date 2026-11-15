@@ -5,10 +5,10 @@ import { readFileSync } from "node:fs";
 
 /* Norman (2026-10-10) : « quand les Ciseaux de sécurité sont cap, les niveaux ne se mettent pas à jour en temps réel ». Une barre CAP (50 niveaux par seconde au plus) rejoue elle aussi ses niveaux, son coût et l'Or en direct. */
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-const debut = meta.indexOf("function rejouerCyclesAugmentPlafonneIdleV1_(p){");
-const fin = meta.indexOf("window.__rejouerCyclesAugmentPlafonneIdleV1__=");
+const debut = meta.indexOf("function rejouerCyclesAugmentIdleV1_(p){");   /* une seule règle depuis le 2026-11-15 : la variante CAP est la même fonction */
+const fin = meta.indexOf("window.__rejouerCyclesAugmentIdleV1__=");
 assert.ok(debut > 0 && fin > debut, "fonction présente");
-const rejouer = new Function(meta.slice(debut, fin) + "\nreturn rejouerCyclesAugmentPlafonneIdleV1_;")();
+const rejouer = new Function(meta.slice(debut, fin) + "\nreturn rejouerCyclesAugmentIdleV1_;")();
 
 // 1 s de barre CAP : 50 niveaux (un par tick de 0,02 s), même si la durée « brute » est bien plus courte.
 let r = rejouer({ niv0: 1000, sec0: 0.005, cout0: 100, expo: 1, reste0: 1, debites: 0, gold: 1e12 });

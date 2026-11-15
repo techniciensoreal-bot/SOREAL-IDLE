@@ -102,10 +102,8 @@ function charger(piece) {
   const src = readFileSync(new URL("../public/modules/augmentations-page-v1.js", import.meta.url), "utf8");
   const a = src.indexOf("function rejouerCyclesAugmentIdleV1_(p){");
   const b = src.indexOf("window.__rejouerCyclesAugmentIdleV1__=");
-  const c = src.indexOf("function rejouerCyclesAugmentPlafonneIdleV1_(p){");
-  const d = src.indexOf("window.__rejouerCyclesAugmentPlafonneIdleV1__=");
-  assert.ok(a > 0 && b > a && c > b && d > c);
-  const R = new Function(src.slice(a, b) + "\n" + src.slice(c, d) + "\nreturn {f:rejouerCyclesAugmentIdleV1_,p:rejouerCyclesAugmentPlafonneIdleV1_};")();
+  assert.ok(a > 0 && b > a);   /* une seule fonction de rejeu depuis le 2026-11-15 (la variante CAP en est un alias) */
+  const R = new Function(src.slice(a, b) + "\nreturn {f:rejouerCyclesAugmentIdleV1_,p:rejouerCyclesAugmentIdleV1_};")();
   const base = { niv0: 0, sec0: 1, cout0: 1, expo: 1, reste0: 60, debites: 0, gold: 1e30 };
   const libre = R.f(base);
   assert.ok(libre.k > 5, "hors défi : plusieurs niveaux rejoués");

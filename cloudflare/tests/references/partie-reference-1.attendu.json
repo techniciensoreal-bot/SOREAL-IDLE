@@ -200,9 +200,9 @@
   },
   "augments": {
    "scissors": [
-    191,
+    173,
     0,
-    0.0579847555308,
+    0,
     0
    ],
    "milk": [
@@ -243,7 +243,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 44172155670700,
+  "or": 44172188520700,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 3809983.2,
@@ -265,7 +265,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "69108af3747e33f6",
+   "augmentations": "c216e050eb4d9837",
    "timeMachine": "a702b9645d07cab5",
    "bloodMagic": "4721fa8d72fbb8e2",
    "wandoos": "668afb7f1c4850ce",
@@ -294,9 +294,9 @@
   },
   "augments": {
    "scissors": [
-    218,
+    198,
     0,
-    0.0668824467586,
+    0,
     0
    ],
    "milk": [
@@ -337,7 +337,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 44455886842300,
+  "or": 44455928542300,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 3819739.8,
@@ -359,7 +359,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "aae991448ad0985a",
+   "augmentations": "90313f04d7fb137f",
    "timeMachine": "c2cbdc55925323ee",
    "bloodMagic": "56c850190f6809c0",
    "wandoos": "668afb7f1c4850ce",
@@ -388,9 +388,9 @@
   },
   "augments": {
    "scissors": [
-    321,
+    298,
     0,
-    0.0628074319521,
+    0.06,
     0
    ],
    "milk": [
@@ -431,7 +431,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 45875066672100,
+  "or": 45875137972100,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 3868522.8,
@@ -453,7 +453,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "e45e43509f2b592f",
+   "augmentations": "ee191314a844f550",
    "timeMachine": "a93b91ed72702383",
    "bloodMagic": "1435e6237d2aa51c",
    "wandoos": "668afb7f1c4850ce",
@@ -482,9 +482,9 @@
   },
   "augments": {
    "scissors": [
-    660,
+    635,
     0,
-    0.186206132437,
+    0.0600000000003,
     0
    ],
    "milk": [
@@ -525,7 +525,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 54973817258800,
+  "or": 54973979258800,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 4161220.8,
@@ -547,7 +547,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "a1ef9ce219d82f8a",
+   "augmentations": "bf3e5e49548df336",
    "timeMachine": "c3496ee2aef5e0a5",
    "bloodMagic": "1085435905273ac6",
    "wandoos": "668afb7f1c4850ce",
@@ -576,9 +576,9 @@
   },
   "augments": {
    "scissors": [
-    1941,
+    1914,
     0,
-    0.667998931747,
+    0.64,
     0
    ],
    "milk": [
@@ -640,7 +640,7 @@
     0
    ]
   },
-  "or": 176328038329000,
+  "or": 176328558889000,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 4275150,
@@ -662,7 +662,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "c0174e72442cc06b",
+   "augmentations": "4ec7e7fc1bb30859",
    "advancedTraining": "35a4001ed556af66",
    "timeMachine": "3db16f294b368974",
    "bloodMagic": "837adabbbc88d43a",

@@ -44,7 +44,7 @@ const agir = (run, p) => run("agirProgressionSorealIdle", p);
 const ecran = readFileSync("cloudflare/public/modules/augmentations-page-v1.js", "utf8");
 const extraire = (nom, fin) => { const a = ecran.indexOf("function " + nom + "(p){"); const b = ecran.indexOf(fin, a); assert.ok(a > 0 && b > a, nom + " trouvée"); return ecran.slice(a, b); };
 const rejouer = new Function(extraire("rejouerCyclesAugmentIdleV1_", "window.__rejouerCyclesAugmentIdleV1__=") + "\nreturn rejouerCyclesAugmentIdleV1_;")();
-const rejouerCap = new Function(extraire("rejouerCyclesAugmentPlafonneIdleV1_", "window.__rejouerCyclesAugmentPlafonneIdleV1__=") + "\nreturn rejouerCyclesAugmentPlafonneIdleV1_;")();
+const rejouerCap = rejouer;   /* une seule règle (quantification sur les ticks) : la variante CAP n existe plus */
 const lire = (r) => {
   const j = r.joueur, d = j.systemes.augmentations.find((x) => x.id === "scissors");
   const pair = j.systemes.systems.find((x) => x.id === "augmentations").state.data.pairs.scissors;

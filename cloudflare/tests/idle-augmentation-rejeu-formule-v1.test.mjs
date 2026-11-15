@@ -13,10 +13,10 @@ const b = meta.indexOf("      window.__rejouerCyclesAugmentIdleV1__=");
 assert.ok(a > 0 && b > a);
 const rejouer = vm.runInNewContext("(function(){" + meta.slice(a, b) + "\nreturn rejouerCyclesAugmentIdleV1_;})()", { Math });
 
-// Ancienne boucle de référence (soreal-idle-ui.js avant le correctif).
+// Boucle de référence niveau par niveau (durée quantifiée sur les ticks, 2026-11-15).
 function reference(p, limite = 1e9) {
   const rapport = (k) => (p.niv0 + 1 + k) / (p.niv0 + 1);
-  const dureeK = (k) => p.sec0 * rapport(k);
+  const dureeK = (k) => { const b = p.sec0 * rapport(k); return Math.max(1, Math.ceil(b / 0.02 - 1e-9)) * 0.02; };   /* durée quantifiée sur les ticks (lu dans le jeu) */
   const coutK = (k) => p.cout0 * Math.pow(rapport(k), p.expo);
   let debites = p.debites, k = 0, reste = p.reste0, or = p.gold, bloque = false, debit = 0;
   while (k < limite && reste >= dureeK(k) - 1e-9) {

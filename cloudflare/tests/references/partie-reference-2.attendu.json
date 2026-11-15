@@ -12,9 +12,9 @@
   },
   "augments": {
    "scissors": [
-    12219,
+    12198,
     0,
-    0.0921748407049,
+    0.165807856307,
     0
    ],
    "milk": [
@@ -76,29 +76,29 @@
     0.593259366925
    ]
   },
-  "or": 28647912550000000,
+  "or": 28647915113900000,
   "energie": 0.999999996275,
   "energieMax": 25619760,
   "magie": 0,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "8b19a19a4bc4e009"
+   "empreinte": "30e3411390d4153d"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.17709729062e+73,
+   "pv": 1.17647964223e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.49525466817e+60,
-   "defense": 7.88923822198e+59,
-   "pvMax": 2.29852428606e+73
+   "attaque": 1.49268508158e+60,
+   "defense": 7.87568061129e+59,
+   "pvMax": 2.29457428524e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "955e7a042bc26540",
+   "augmentations": "5d0c55a91cfd4850",
    "advancedTraining": "5a42d37a1163f69a",
    "timeMachine": "24e50df24be752dd",
    "bloodMagic": "ce764f6c705531f6",
@@ -128,9 +128,9 @@
   },
   "augments": {
    "scissors": [
-    12219,
+    12198,
     0,
-    0.0921748407049,
+    0.165807856307,
     0
    ],
    "milk": [
@@ -192,29 +192,29 @@
     0.593259366925
    ]
   },
-  "or": 28647912550000000,
+  "or": 28647915113900000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "8b19a19a4bc4e009"
+   "empreinte": "30e3411390d4153d"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.17709729062e+73,
+   "pv": 1.17647964223e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.49525466817e+60,
-   "defense": 7.88923822198e+59,
-   "pvMax": 2.29852428606e+73
+   "attaque": 1.49268508158e+60,
+   "defense": 7.87568061129e+59,
+   "pvMax": 2.29457428524e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "6f9a2278a0f6ea63",
+   "augmentations": "0a1c467ee45af510",
    "advancedTraining": "22838a233f974ba7",
    "timeMachine": "24e50df24be752dd",
    "bloodMagic": "ce764f6c705531f6",
@@ -244,9 +244,9 @@
   },
   "augments": {
    "scissors": [
-    12221,
+    12200,
     0,
-    0.36556606941,
+    1.71615712614,
     0
    ],
    "milk": [
@@ -308,29 +308,29 @@
     0.593259366925
    ]
   },
-  "or": 28254475346200000,
+  "or": 28254477910500000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "d1f22f80b230c104"
+   "empreinte": "f47955223e1aad5c"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.17709729062e+73,
+   "pv": 1.17647964223e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.51035412419e+60,
-   "defense": 7.96890572485e+59,
-   "pvMax": 2.32850747886e+73
+   "attaque": 1.50775901401e+60,
+   "defense": 7.95521344697e+59,
+   "pvMax": 2.32450660691e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "9bbb05a485de2a9b",
+   "augmentations": "cfe2d5ceb328df22",
    "advancedTraining": "adac16a29399ffc9",
    "timeMachine": "03edffd969decc28",
    "bloodMagic": "263d040292ec702e",
@@ -360,9 +360,9 @@
   },
   "augments": {
    "scissors": [
-    12221,
+    12200,
     0,
-    2.36556606941,
+    3.71615712614,
     0
    ],
    "milk": [
@@ -424,29 +424,29 @@
     0.593259366925
    ]
   },
-  "or": 28256298412600000,
+  "or": 28256300977000000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "9a0ffa74990d0064"
+   "empreinte": "794f3aa3893531bb"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.18942159071e+73,
+   "pv": 1.18878276656e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.514490204e+60,
-   "defense": 7.99072844152e+59,
-   "pvMax": 2.33677116899e+73
+   "attaque": 1.51188798716e+60,
+   "defense": 7.97699866757e+59,
+   "pvMax": 2.33275609825e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "b3d10d945e401ae4",
+   "augmentations": "041b752415ab4bce",
    "advancedTraining": "406f6885076ef8cb",
    "timeMachine": "1c6dc87e92a704ec",
    "bloodMagic": "3997fd71cfffc414",
@@ -476,9 +476,9 @@
   },
   "augments": {
    "scissors": [
-    12223,
+    12203,
     0,
-    3.5719805341,
+    0.516157126145,
     0
    ],
    "milk": [
@@ -540,29 +540,29 @@
     0.593259366925
    ]
   },
-  "or": 28265413500200000,
+  "or": 28265415942900000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "2e4fd33c52d46d12"
+   "empreinte": "48728194d541f063"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.25204881537e+73,
+   "pv": 1.2513075252e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.53548537321e+60,
-   "defense": 8.10150280988e+59,
-   "pvMax": 2.37873724673e+73
+   "attaque": 1.5329731262e+60,
+   "defense": 8.08824773329e+59,
+   "pvMax": 2.37484533369e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "ada5cd2593a7bd02",
+   "augmentations": "ec0404833c5e5598",
    "advancedTraining": "38d5bb4d4007ae2c",
    "timeMachine": "bed20eb5537d490f",
    "bloodMagic": "49d0c1f8ec75f9fe",
@@ -592,9 +592,9 @@
   },
   "augments": {
    "scissors": [
-    12237,
+    12216,
     0,
-    1.97659209252,
+    3.31615712614,
     0
    ],
    "milk": [
@@ -656,29 +656,29 @@
     0.593259366925
    ]
   },
-  "or": 27520103780100000,
+  "or": 27520106347800000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "ea8339c0dfe87814"
+   "empreinte": "3e39e11fc9588373"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.6651248469e+73,
+   "pv": 1.66367473204e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.66424008424e+60,
-   "defense": 8.78179018588e+59,
-   "pvMax": 2.64065023459e+73
+   "attaque": 1.66138430374e+60,
+   "defense": 8.76672092669e+59,
+   "pvMax": 2.63611896682e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "c0d2c4e91120a10f",
+   "augmentations": "4546bad55934d65a",
    "advancedTraining": "3153d5ab91c5e0d8",
    "timeMachine": "976f206319d74e27",
    "bloodMagic": "3522040a5353877d",
@@ -708,9 +708,9 @@
   },
   "augments": {
    "scissors": [
-    12372,
+    12352,
     0,
-    4.40308210615,
+    0.996157126145,
     0
    ],
    "milk": [
@@ -772,29 +772,29 @@
     0.593259366925
    ]
   },
-  "or": 18867007090000000,
+  "or": 18867009562500000,
   "energie": 18239122,
   "energieMax": 25619760,
   "magie": 0,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "7f4c5067ebbb404c"
+   "empreinte": "81e5cbd9f9466e8b"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 6.23907512174e+73,
+   "pv": 6.22899013811e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 3.16233665047e+60,
-   "defense": 1.66868814329e+60,
-   "pvMax": 6.23907512174e+73
+   "attaque": 3.15722497723e+60,
+   "defense": 1.66599083764e+60,
+   "pvMax": 6.22899013811e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "e7d48c817a9fd9ca",
+   "augmentations": "109f15f7f77a7ced",
    "advancedTraining": "759da4afd71b0bb6",
    "timeMachine": "59877f555925b21c",
    "bloodMagic": "2f2ce7d952180535",

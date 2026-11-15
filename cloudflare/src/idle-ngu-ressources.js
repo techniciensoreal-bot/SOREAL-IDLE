@@ -4,7 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { macguffinEffectMultiplierV1 } from "./idle-macguffins-v1.js";
-import { IDLE_TICK_SECONDS_V1 } from "./idle-tick-v1.js";
+import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
@@ -518,7 +518,7 @@ function augmentationSecondsModelV1(state, def, upgrade = false, allocOverride =
   const brut = (targetLevel) => targetLevel * base * 1000 * difficultyDivider / denominateur;
   /* Un niveau dure au moins un tick (50 niveaux par seconde au plus, comme le vrai jeu) ; K (allocation forcée, utilisée par le client) reste brut : le client divise puis applique le même plancher. */
   if (allocOverride != null) return brut;
-  const plancher = (targetLevel) => Math.max(IDLE_TICK_SECONDS_V1, brut(targetLevel));
+  const plancher = (targetLevel) => dureeNiveauEnTicksV1(brut(targetLevel));   /* ceil(durée / tick) ticks (lu dans le jeu) */
   plancher.brut = brut;
   return plancher;
 }
@@ -561,36 +561,33 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
    * niveaux (mesuré : 1 h = 134 163 niveaux en ligne, 10 000 seulement en une synchro hors ligne). Le temps d'un niveau est LINÉAIRE (n x c) et son coût en Or aussi (n x base, ou n² x base pour l'Upgrade) : on achète donc d'un coup, en formules fermées, tous
    * les niveaux que le temps ET l'Or permettent (en laissant les deux derniers à la boucle, qui règle les cas limites : Or insuffisant, progression partielle, défi des 100 niveaux). Même résultat que la boucle, sans son plafond.
    */
+  /*
+   * Passe EXACTE sur les niveaux entiers (remplace la formule fermée d'avant, devenue fausse avec la durée quantifiée sur les ticks) : on avance niveau par niveau, le temps ET l'Or étant retirés
+   * exactement comme la boucle ci-dessous, mais sans le plafond de 10 000 tours et sans la réécriture de l'état à chaque niveau. Une barre rapide gagne au plus 50 niveaux par seconde (un par tick),
+   * donc la passe reste courte même pour des heures d'absence ; garde-fou : 3 000 000 niveaux par appel, la boucle ci-dessous termine le reste.
+   */
   try{
-    const brutM=modele.brut||modele;   /* durée SANS plancher : linéaire en niveau ; le plancher d'un tick est appliqué par morceaux ci-dessous */
-    const c=brutM(1);
-    const lineaire=Number.isFinite(c)&&c>0&&Math.abs(brutM(7)-7*c)<=1e-9*brutM(7);
     const l0=Math.max(0,int(upgrade?pair.upgradeLevel:pair.level,0));
-    if(lineaire&&remaining>0){
+    if(remaining>0){
       rebaserProgressionSecondesV1(pair,progressKey,modele(l0+1));
-      const p0=Math.max(0,num(pair[progressKey],0));
-      const need1=modele(l0+1)-p0;
       const baseOr=(upgrade?def.upgrade.baseGold:def.baseGold)*multCout;
-      const S1=x=>x*(x+1)/2,S2=x=>x*(x+1)*(2*x+1)/6;
-      const Or=k=>baseOr*(upgrade?S2(l0+k)-S2(l0):S1(l0+k)-S1(l0));
-      /* Durée cumulée des niveaux a à b : un tick chacun tant que c x niveau < un tick, puis c x niveau (comme le plancher du modèle). */
-      const Lc=Math.ceil(IDLE_TICK_SECONDS_V1/c);
-      const dureeNiveaux=(a,b)=>{ if(b<a)return 0; const nbPlancher=Math.max(0,Math.min(b,Lc-1)-a+1); const a2=Math.max(a,Lc); return nbPlancher*IDLE_TICK_SECONDS_V1+(b>=a2?c*(S1(b)-S1(a2-1)):0); };
-      const Temps=k=>need1+dureeNiveaux(l0+2,l0+k);
       const plafondDefi=Math.min(limiteDefi?Math.max(0,challengeHundredLevelsRemaining(state)):Infinity,cibleN>0?Math.max(0,cibleN-l0):Infinity);
-      const ok=k=>k<=plafondDefi&&Temps(k)<=remaining&&Or(k)<=state.currencies.gold&&Number.isFinite(Or(k));
-      if(remaining>=need1&&ok(1)){
-        let bas=1,haut=2;
-        while(ok(haut)&&haut<1e9)haut*=2;
-        while(haut-bas>1){const m=Math.floor((bas+haut)/2);if(ok(m))bas=m;else haut=m;}
-        const k=bas-2;                                   /* les deux derniers niveaux restent à la boucle */
-        if(k>=200){
-          remaining-=Temps(k);
-          state.currencies.gold-=Or(k);
-          pair[progressKey]=0;
-          if(upgrade)pair.upgradeLevel=l0+k;else pair.level=l0+k;
-          challengeHundredLevelsConsume(state,k);
-        }
+      let t=remaining,or=state.currencies.gold,p=Math.max(0,num(pair[progressKey],0)),k=0;
+      while(k<plafondDefi&&k<3000000){
+        const n=l0+k+1;
+        const duree=modele(n);
+        if(!Number.isFinite(duree))break;
+        const manque=Math.max(0,duree-p);
+        const cout=baseOr*(upgrade?n*n:n);
+        if(t+1e-9<manque||or+1e-9<cout||!Number.isFinite(cout))break;
+        t-=manque;or-=cout;p=0;k+=1;
+      }
+      if(k>=1){
+        remaining=t;
+        state.currencies.gold=or;
+        pair[progressKey]=0;
+        if(upgrade)pair.upgradeLevel=l0+k;else pair.level=l0+k;
+        challengeHundredLevelsConsume(state,k);
       }
     }
   }catch(_e){}

@@ -505,13 +505,13 @@
         const a=Math.max(0,Number(alloc)||0);
         const frac=Math.max(0,Math.min(.999999,Number(fraction)||0));
         if(!(k>0)||!(a>0))return {seconds:0,brut:0,progress:frac};
-        return {seconds:Math.max(1/50,k/a),brut:k/a,progress:frac};
+        return {seconds:(function(b){return (b>0&&isFinite(b))?Math.max(1,Math.ceil(b/0.02-1e-9))*0.02:0.02;})(k/a),brut:k/a,progress:frac};   /* durée quantifiée sur les ticks (même règle que le moteur) */
       }
 
       function recalculerPisteAllocIdleV1_(k,progressSecondes,alloc){
         const a=Math.max(0,Number(alloc)||0);
         if(!(k>0)||!(a>0))return {seconds:0,progress:0};
-        const seconds=Math.max(1/50,k/a);
+        const seconds=(function(b){return (b>0&&isFinite(b))?Math.max(1,Math.ceil(b/0.02-1e-9))*0.02:0.02;})(k/a);
         return {seconds:seconds,brut:k/a,progress:Math.max(0,Math.min(.999999,(Math.max(0,progressSecondes)||0)/seconds))};
       }
 
@@ -591,56 +591,23 @@
       }
       window.__formatMultiplicateurIdleV1__=formatMultiplicateurIdleV1_;
 
-      function rejouerCyclesAugmentIdleV1_(p){
-        const n0=Math.max(1,p.niv0+1),sec0=p.sec0,expo=p.expo;
-        const temps=function(k){return sec0/n0*(k*n0+k*(k-1)/2);};
-        const somme1=function(a,b){return (b*(b-1)-a*(a-1))/2;};
-        const somme2=function(a,b){const f=function(m){return (m-1)*m*(2*m-1)/6;};return f(b)-f(a);};
-        const cout=function(a,b){
-          const m=b-a;
-          if(m<=0)return 0;
-          if(expo===1)return p.cout0/n0*(m*n0+somme1(a,b));
-          return p.cout0/(n0*n0)*(m*n0*n0+2*n0*somme1(a,b)+somme2(a,b));
-        };
-        const total=p.reste0;
-        let kMax=Math.floor(-(n0-0.5)+Math.sqrt((n0-0.5)*(n0-0.5)+2*total*n0/sec0));
-        if(!(kMax>=0)||!isFinite(kMax))kMax=0;
-        while(kMax>0&&temps(kMax)>total*(1+1e-12))kMax-=1;
-        while(temps(kMax+1)<=total*(1+1e-12)&&kMax<1e9)kMax+=1;
-        /* Défi des 100 niveaux : budget partagé restant (p.plafondK, Infinity hors défi) ; jamais un niveau de plus que ce que le moteur permet. */
-        const plafK=p.plafondK>=0?p.plafondK:Infinity;
-        let borneDefi=false;
-        if(kMax>plafK){kMax=plafK;borneDefi=true;}
-        const d=Math.min(p.debites,kMax);
-        let k=kMax,debit=0,debites=Math.max(p.debites,0),bloque=false;
-        if(kMax>d){
-          if(cout(d,kMax)<=p.gold+1e-9){
-            debit=cout(d,kMax);debites=kMax;
-          }else{
-            let lo=d,hi=kMax;
-            while(hi-lo>1){const mid=Math.floor((lo+hi)/2);if(cout(d,mid)<=p.gold+1e-9)lo=mid;else hi=mid;}
-            k=lo;bloque=true;debit=cout(d,k);debites=Math.max(debites,k);
-          }
-        }
-        return {k:k,reste:total-temps(k),debites:debites,debit:debit,bloque:bloque,borneDefi:borneDefi,coutProchain:p.cout0*Math.pow((n0+k)/n0,expo),dureeProchaine:sec0*(n0+k)/n0};
-      }
-      window.__rejouerCyclesAugmentIdleV1__=rejouerCyclesAugmentIdleV1_;
-
       /*
-       * Barre « CAP » (Norman, 2026-10-10 : « quand les Ciseaux de sécurité sont cap, les niveaux ne se mettent pas à jour en temps réel ; ils ne bougent qu'une fois la barre repartie ») : quand le temps d'un niveau
-       * tombe sous un tick (0,02 s, au plus 50 niveaux par seconde), le niveau, le coût et l'Or n'étaient plus rejoués en local entre deux synchros. On les rejoue ici, niveau par niveau (une barre CAP n'en gagne
-       * que 50 par seconde, donc la boucle reste courte) : le niveau n dure max(0,02 s ; durée de base × n / niveau de départ) et coûte coût de base × (n / niveau de départ)^exposant, comme le moteur.
-       * Même résultat que rejouerCyclesAugmentIdleV1_ : {k, reste, debites, debit, bloque}.
+       * Rejeu des niveaux d'une barre d'Augment (UNE seule règle, la même que le moteur : idle-ngu-ressources.js, advanceAugmentationTrackV214_). Lu dans le code du jeu (build 1260, 2026-11-15) :
+       * un niveau dure ceil(durée continue / tick) ticks (au moins un tick, au plus un niveau par tick), la barre repart de 0 sans report. Le niveau n (n = niveau + 1 + i) a une durée continue
+       * brut x n / n0 et coûte cout0 x (n / n0)^expo (expo 1 pour un Augment, 2 pour son Upgrade). Le rejeu avance niveau par niveau : une barre gagne au plus 50 niveaux par seconde, donc la boucle reste
+       * courte entre deux synchros. `debites` niveaux ont déjà été débités. Rend {k, reste, debites, debit, bloque, borneDefi, coutProchain, dureeProchaine}.
        */
-      function rejouerCyclesAugmentPlafonneIdleV1_(p){
-        const n0=Math.max(1,p.niv0+1),expo=p.expo,sec0=p.sec0;
+      function rejouerCyclesAugmentIdleV1_(p){
+        const n0=Math.max(1,p.niv0+1),expo=p.expo;
+        const brut=p.brut>0?p.brut:p.sec0;
         const coutNiveau=function(i){return p.cout0*Math.pow((n0+i)/n0,expo);};
-        const dureeNiveau=function(i){return Math.max(0.02,sec0*(n0+i)/n0);};
+        /* autonome (sans dépendance) : la fonction est extraite telle quelle par les tests de projection */
+        const dureeNiveau=function(i){const b=brut*(n0+i)/n0;return (b>0&&isFinite(b))?Math.max(1,Math.ceil(b/0.02-1e-9))*0.02:0.02;};
         const total=Math.max(0,p.reste0);
         let kMax=0,temps=0;
         const plafK=p.plafondK>=0?p.plafondK:Infinity;
         let borneDefi=false;
-        while(kMax<20000){
+        while(kMax<200000){
           if(kMax>=plafK){borneDefi=true;break;}
           const dn=dureeNiveau(kMax);
           if(temps+dn>total*(1+1e-12))break;
@@ -661,6 +628,10 @@
         for(let i=0;i<k;i+=1)tempsK+=dureeNiveau(i);
         return {k:k,reste:total-tempsK,debites:debites,debit:debit,bloque:bloque,borneDefi:borneDefi,coutProchain:coutNiveau(k),dureeProchaine:dureeNiveau(k)};
       }
+      window.__rejouerCyclesAugmentIdleV1__=rejouerCyclesAugmentIdleV1_;
+      window.__dureeNiveauTicksIdleV1__=(function(b){return (b>0&&isFinite(b))?Math.max(1,Math.ceil(b/0.02-1e-9))*0.02:0.02;});
+      /* Ancien nom de la variante « CAP » : même règle, même fonction (la quantification sur les ticks couvre les deux cas). */
+      const rejouerCyclesAugmentPlafonneIdleV1_=rejouerCyclesAugmentIdleV1_;
       window.__rejouerCyclesAugmentPlafonneIdleV1__=rejouerCyclesAugmentPlafonneIdleV1_;
 
       /*
@@ -685,7 +656,7 @@
             const cle='cycles_'+c[5];
             const D100=typeof window!=='undefined'?window.__SOREAL_IDLE_DEFI100_V1__:null;
             const cleD100=id+':'+c[5];
-            const rj=rejouerCyclesAugmentIdleV1_({niv0:niv0,sec0:sec0,cout0:cout0,expo:c[6],reste0:(Number(d[c[0]])||0)*sec0+ecoule,debites:d[cle]||0,gold:monnaies?H.idleNombre_(monnaies.gold):0,plafondK:D100?D100.plafond(d,cleD100):Infinity});
+            const rj=rejouerCyclesAugmentIdleV1_({niv0:niv0,sec0:sec0,brut:Number(d[c[5]==='main'?'secondsBrut':'upgradeSecondsBrut'])||0,cout0:cout0,expo:c[6],reste0:(Number(d[c[0]])||0)*sec0+ecoule,debites:d[cle]||0,gold:monnaies?H.idleNombre_(monnaies.gold):0,plafondK:D100?D100.plafond(d,cleD100):Infinity});
             /* Défi des 100 niveaux : les niveaux rejoués ici sont puisés dans le budget partagé, puis absorbés dans le niveau de base (compteur remis à 0). */
             if(D100){D100.noter(d,cleD100,rj.k);D100.nouveauRepere(d,cleD100);}
             if(monnaies&&rj.debit>0)monnaies.gold=Math.max(0,H.idleNombre_(monnaies.gold)-rj.debit);
