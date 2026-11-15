@@ -879,7 +879,8 @@ function advanceTowerV1(state, seconds, context) {
 
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   const quirks = quirkBonusesV1(idleQuirkNiveauxV1(state));
-  const ppBase = (state.difficulty === "extreme" ? 2000 : state.difficulty === "difficile" ? 700 : 200) + quirks.itopodPppFlat + 50 * wishLevelV1(state, 79);
+  /* Lu dans le jeu (ItopodPerkController::progressGained, build 1260, 2026-11-15) : le bonus de base (quirks + souhaits) ne s'ajoute QU'EN Sadistic (2000 + étage + bonus de base) ; Normal (200 + étage), Evil (700 + étage). */
+  const ppBase = state.difficulty === "extreme" ? 2000 + quirks.itopodPppFlat + 50 * wishLevelV1(state, 79) : state.difficulty === "difficile" ? 700 : 200;
   /* Même PPBonus que le Fruit of Rage (sets multiplicatifs, NGU PP, Hacks PP, Diggers PP, Perks, Cards PP). */
   const ppMultiplier = Math.max(0, num(bonuses.ppMultiplier, 1));
   const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));

@@ -37,6 +37,18 @@ const normaliser = (raw, ctx) => { figerLeHasard(); reglerHorloge(MAINTENANT_FOR
 // (b) Enchaînement complet = état d'avant le registre, forme par forme ; le seul champ qui change est `etatVersion`
 const avant = JSON.parse(fs.readFileSync(racine + "/cloudflare/tests/references/migrations-avant.json", "utf8"));
 const apres = await sorties();
+if (process.env.SOREAL_ECRIRE_REFERENCE === "1") {   // régénération voulue (changement de règle) : le fichier d'avant reprend l'état d'aujourd'hui, sans etatVersion
+  const nouveau = {};
+  for (const f of construireFormes()) {
+    const e = apres[f.nom], sans = cp(e); delete sans.etatVersion;
+    const cles = {};
+    for (const k of Object.keys(e)) if (k !== "etatVersion") cles[k] = empreinte(e[k]);
+    cles.etatVersion = avant[f.nom].cles.etatVersion;
+    nouveau[f.nom] = { cles, tout: empreinte(sans) };
+  }
+  fs.writeFileSync(racine + "/cloudflare/tests/references/migrations-avant.json", JSON.stringify(nouveau, null, 1) + String.fromCharCode(10));
+  console.log("référence écrite");
+}
 const jouees = {};
 for (const f of construireFormes()) {
   const e = apres[f.nom];

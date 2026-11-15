@@ -776,7 +776,7 @@ const fresh=(context={}, now=1_000_000)=>
    * donc 2^10 x facteur de temps(4 min) x facteur d'entraînement 2, < 1
    * (page Rebirths : le NUMBER peut baisser, facteur < 1 sous une heure).
    */
-  const attendu=Math.pow(2,10)*idleNguRebirthTimeFactor(240)*2;
+  const attendu=1+Math.pow(2,10)*idleNguRebirthTimeFactor(240)*2;   // NUMBER = 1 + produit (lu dans le jeu : Rebirth::calculateNextMultis)
   assert.ok(Math.abs(reborn.rebirth.number/attendu-1)<1e-9,`NUMBER ${reborn.rebirth.number} != ${attendu}`);
 }
 

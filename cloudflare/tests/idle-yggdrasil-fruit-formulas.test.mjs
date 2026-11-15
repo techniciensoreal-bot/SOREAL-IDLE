@@ -40,7 +40,8 @@ assert.equal(manger("powerAlpha", 4).state.systems.yggdrasil.data.runPowerAlphaV
    * comportement (fruit appliqué à l'Attaque/Défense du run courant).
    */
   assert.ok(Math.abs(a - (1 + 100 * 5e-4)) < 1e-9, "seul Power β touche l'Attaque/Défense");
-  const n = normalizeIdleNguState(s, ctx, 0).rebirth.nextNumber / base.rebirth.nextNumber;
+  // NUMBER = 1 + produit (lu dans le jeu) : le facteur du fruit se lit dans le détail du calcul (rebirth.preview), pas dans nextNumber (1 + produit minuscule en début de run)
+  const n = normalizeIdleNguState(s, ctx, 0).rebirth.preview.yggNumberBonus / normalizeIdleNguState(base, ctx, 0).rebirth.preview.yggNumberBonus;
   assert.ok(Math.abs(n - (1 + Math.pow(10, 1.3) * 5e-4)) < 1e-9, "Fruit of Numbers : facteur du prochain NUMBER");
 }
 

@@ -271,34 +271,28 @@ export function levelsPerSecondForBasicTrainingSkillV411(
  * Le -1 lorsque la compétence a réellement progressé permet aux caps très
  * bas d'atteindre 1 proprement sans asymptote d'arrondi.
  */
+/* Rang de la compétence dans son groupe (attaque ou défense) : 0 à 5, comme l'indice du jeu. */
+function rangDansGroupeV411(def){
+  return BASIC_TRAINING_V411.skills.filter(x=>x.group===def.group).findIndex(x=>x.id===def.id);
+}
+
 export function nextBasicTrainingCapV411(
   currentCap,
-  levelsThisRun
+  levelsThisRun,
+  skillIndex=0
 ){
+  /*
+   * Lu dans le code du jeu (Rebirth::resetTraining, build 1260, 2026-11-15) : pour la compétence de rang i (0 à 5, attaque comme défense) et son niveau ENTIER n :
+   * r = (long)(1 + (n - 500 x i)^1,2 / 500 x (cap / 1000)) ; r >= 1 ; r <= cap / 10 + 1 (division entière) ; nouveau cap = cap - r s'il reste plus de 1, sinon 1. (n < 500 x i : la puissance
+   * est NaN, donc r = 1.)
+   */
   const cap=Math.max(1,int(currentCap,1));
-  const levels=Math.max(0,num(levelsThisRun,0));
-
-  if(cap<=1||levels<=0){
-    return cap;
-  }
-
-  const reductionPct=
-    Math.min(
-      10,
-      levels/1000
-    );
-
-  return Math.max(
-    1,
-    Math.ceil(
-      cap*
-      (
-        1-
-        reductionPct/100
-      )
-    )-
-    1
-  );
+  const n=Math.max(0,Math.floor(num(levelsThisRun,0)));
+  const i=Math.max(0,int(skillIndex,0));
+  let r=n>500*i?Math.trunc(1+Math.pow(n-500*i,1.2)/500*(cap/1000)):1;
+  if(!(r>=1))r=1;
+  r=Math.min(r,Math.trunc(cap/10)+1);
+  return cap-r>1?cap-r:1;
 }
 
 export function advanceBasicTrainingSkillV411(
@@ -528,8 +522,8 @@ export function rebirthBasicTrainingStateV411(
     after.skills[def.id].cap=
       nextBasicTrainingCapV411(
         oldSkill.cap,
-        oldSkill.level+
-          oldSkill.progress
+        oldSkill.level,
+        rangDansGroupeV411(def)
       );
   }
 
@@ -755,22 +749,16 @@ export function basicTrainingSnapshotV411(
           nextCap:
             nextBasicTrainingCapV411(
               skill.cap,
-              skill.level+
-                skill.progress
+              skill.level,
+              rangDansGroupeV411(def)
             ),
           maxReductionReached:
             nextBasicTrainingCapV411(
               skill.cap,
-              skill.level+
-                skill.progress
+              skill.level,
+              rangDansGroupeV411(def)
             )<=
-            Math.max(
-              1,
-              Math.ceil(
-                skill.cap*.9
-              )-
-              1
-            ),
+            skill.cap-(Math.trunc(skill.cap/10)+1),
           levelsPerSecond:
             unlocked
               ?levelsPerSecondForBasicTrainingSkillV411(

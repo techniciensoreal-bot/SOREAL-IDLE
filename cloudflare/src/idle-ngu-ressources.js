@@ -69,7 +69,8 @@ export function calculateIdleNguNextNumber(input = {}) {
   const hacksNumberBonus = Math.max(1, num(input.hacksNumberBonus, 1));
 
   return {
-    nextNumber: safeProduct([
+    /* Lu dans le jeu (Rebirth::calculateNextMultis, build 1260, 2026-11-15) : NUMBER = 1 + produit de tous les facteurs. */
+    nextNumber: 1 + safeProduct([
       currentBossFactor,
       priorBossFactor,
       currentTimeFactor,
