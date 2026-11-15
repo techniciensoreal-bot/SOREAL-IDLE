@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Un souhait de bonus d’Attaque et de Défense de la série la plus haute demande plus de temps (valeur corrigée d’après les données du jeu)."
+    "Les bonus de récompense de quête venant d’atouts différents se multiplient entre eux (mesuré dans le vrai jeu) au lieu de s’additionner."
   ] };
 })();

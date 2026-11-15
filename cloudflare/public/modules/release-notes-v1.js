@@ -29,6 +29,9 @@
         nom:'Des cartes qui comptent',
         date:'2026-11-15',
         groupes:[
+          {menu:'questing', titre:'Quêtes', points:[
+            'Les bonus de récompense de quête venant d’atouts différents se multiplient entre eux (mesuré dans le vrai jeu) au lieu de s’additionner.'
+          ]},
           {menu:'wishes', titre:'Wishes', points:[
             'Un souhait de bonus d’Attaque et de Défense de la série la plus haute demande plus de temps (valeur corrigée d’après les données du jeu).'
           ]},

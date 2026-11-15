@@ -385,7 +385,7 @@ function perkBonusPairesV1(perk) {
   return p;
 }
 /* Bonus en pourcentage dont les atouts DISTINCTS se multiplient (niveaux d'un même atout additionnés) : voir perkBonusesV1. */
-export const PERK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct"]);
+export const PERK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct","qpEarningsPct"]);
 export function perkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
   const totals = {};
@@ -479,7 +479,8 @@ export function perkBonusesV1(levelsById) {
     doubleBasicTraining: Boolean(totals.doubleBasicTraining),
     ppEarningsMultiplier: 1 + (totals.ppEarningsPct || 0),
     apEarningsMultiplier: 1 + (totals.apEarningsPct || 0),
-    qpEarningsMultiplier: 1 + (totals.qpEarningsPct || 0),
+    /* QP des quêtes (2026-11-15) : MESURÉ DANS LE VRAI JEU (build 1260, banc d'essai, Major idle de base 50, Beast Butter x2) : Better QP Rewards niveau 50 (+10 %) et Fibonacci 233 (+10 %) donnent 121, soit x1,10 x x1,10 et non x1,20 : les atouts distincts se multiplient, comme pour les autres bonus en pourcentage. */
+    qpEarningsMultiplier: produits.qpEarningsPct,
     expEarningsMultiplier: 1 + (totals.expEarningsPct || 0),
     lootLevelChance: Math.min(1, totals.lootLevelChance || 0),
     beardTrimSpeedLevel: totals.beardTrimSpeedLevel || 0,
