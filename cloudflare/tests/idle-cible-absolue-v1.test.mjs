@@ -7,8 +7,7 @@ import { normalizeIdleNguState, applyIdleNguAction, advanceIdleNguState } from "
 const lire = (f) => fs.readFileSync("cloudflare/src/" + f, "utf8").replace(/\r\n/g, "\n");
 const aug = lire("idle-ngu-ressources.js"), ngu = lire("idle-ngu-bonus.js"), pistes = lire("idle-ngu-pistes.js");
 assert.ok(aug.includes("const cibleN=Math.max(0,int(upgrade?pair.upgradeTarget:pair.target,0));") && aug.includes("if(cibleN>0&&int(upgrade?pair.upgradeLevel:pair.level,0)>=cibleN)return;"), "Augmentations : une piste déjà à sa cible n'achète plus rien");
-assert.ok(aug.includes("cibleN>0?Math.max(0,cibleN-l0):Infinity") , "Augmentations : la formule fermée (grosses vitesses) s'arrête à la cible");
-assert.ok(aug.includes("if(cibleN>0&&int(level,0)>=cibleN)break;"), "Augmentations : la boucle s'arrête à la cible");
+assert.ok(aug.includes("cibleN>0?Math.max(0,cibleN-l0):Infinity") , "Augmentations : la passe exacte s'arrête à la cible (plafond)");
 assert.ok(ngu.includes("const placeCible = cibleNgu > 0 ? Math.max(0, cibleNgu - Math.floor(num(n.level, 0))) : Infinity;") && ngu.includes("niveauxEnTicksV1(n.level, Math.max(0, num(n.work, 0)) / a, seconds * 50, a, maxGain)"), "NGU : jamais au-delà de la cible, même à 50 niveaux par seconde (maxGain)");
 assert.ok(pistes.includes("t.progress = gain;") && pistes.includes("cibleAt - courant"), "Entraînement avancé : jamais au-delà de la cible");
 assert.ok(pistes.includes("!tmTargetReached(d.speedTarget, d.speedLevel)") && pistes.includes("!tmTargetReached(d.goldTarget, d.goldLevel)"), "Machine temporelle : la boucle s'arrête déjà à la cible");

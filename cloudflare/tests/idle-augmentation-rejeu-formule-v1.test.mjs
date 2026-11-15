@@ -13,18 +13,25 @@ const b = meta.indexOf("      window.__rejouerCyclesAugmentIdleV1__=");
 assert.ok(a > 0 && b > a);
 const rejouer = vm.runInNewContext("(function(){" + meta.slice(a, b) + "\nreturn rejouerCyclesAugmentIdleV1_;})()", { Math });
 
-// Boucle de référence niveau par niveau (durée quantifiée sur les ticks, 2026-11-15).
+// Boucle de référence niveau par niveau (2026-11-15) : durée quantifiée sur les ticks ET Or payé au DÉBUT du niveau (lu dans le jeu : AugmentController::advanceAug).
 function reference(p, limite = 1e9) {
-  const rapport = (k) => (p.niv0 + 1 + k) / (p.niv0 + 1);
-  const dureeK = (k) => { const b = p.sec0 * rapport(k); return Math.max(1, Math.ceil(b / 0.02 - 1e-9)) * 0.02; };   /* durée quantifiée sur les ticks (lu dans le jeu) */
-  const coutK = (k) => p.cout0 * Math.pow(rapport(k), p.expo);
-  let debites = p.debites, k = 0, reste = p.reste0, or = p.gold, bloque = false, debit = 0;
-  while (k < limite && reste >= dureeK(k) - 1e-9) {
-    if (k < debites) { reste -= dureeK(k); k += 1; continue; }
-    const c = coutK(k);
-    if (or + 1e-9 >= c) { or -= c; debit += c; debites += 1; reste -= dureeK(k); k += 1; } else { bloque = true; break; }
+  const D = (i) => { const b = p.sec0 * (p.niv0 + 1 + i) / (p.niv0 + 1); return Math.max(1, Math.ceil(b / 0.02 - 1e-9)) * 0.02; };
+  const C = (i) => p.cout0 * Math.pow((p.niv0 + 1 + i) / (p.niv0 + 1), p.expo);
+  let t = p.ecoule, or = p.gold, prog = p.p0, k = 0, paies = Math.max(p.debites, prog > 0 ? 1 : 0), debit = 0, bloque = false;
+  if (prog >= D(0) - 1e-9) prog = 0;
+  while (k < limite) {
+    const d = D(k);
+    if (!(k < paies)) {
+      const c = C(k);
+      if (or + 1e-9 < c) { bloque = true; break; }
+      if (t <= 1e-9) break;
+      or -= c; debit += c; paies = k + 1; prog = Math.min(t, 0.02, d); t -= prog;
+    }
+    const manque = Math.max(0, d - prog);
+    if (t + 1e-9 < manque) { prog += t; t = 0; break; }
+    t = Math.max(0, t - manque); prog = 0; k += 1;
   }
-  return { k, reste, debites, debit, bloque };
+  return { k, reste: prog, debites: paies, debit, bloque };
 }
 
 let graine = 12345;
@@ -37,10 +44,12 @@ for (let i = 0; i < 4000; i += 1) {
     sec0,
     cout0: 1 + alea() * 1e6,
     expo: alea() < 0.5 ? 1 : 2,
-    reste0: alea() * sec0 * (alea() < 0.5 ? 3 : 60),
+    p0: alea() < 0.5 ? 0 : alea() * sec0 * 0.99,
+    ecoule: alea() * sec0 * (alea() < 0.5 ? 3 : 60),
     debites: Math.floor(alea() * 4),
     gold: alea() < 0.3 ? alea() * 1e9 : 1e30
   };
+  p.reste0 = p.p0 + p.ecoule;
   const ref = reference(p);
   if (ref.k > 3000) continue;
   const got = rejouer(p);
@@ -55,7 +64,7 @@ assert.ok(comparaisons > 2500, "assez de cas comparés : " + comparaisons);
 
 // Sans plafond : 10 000 niveaux d'un coup (l'ancienne boucle s'arrêtait à 200).
 {
-  const r = rejouer({ niv0: 5000, sec0: 0.2, cout0: 100, expo: 1, reste0: 5000, debites: 0, gold: 1e30 });
+  const r = rejouer({ niv0: 5000, sec0: 0.2, cout0: 100, expo: 1, p0: 0, ecoule: 5000, reste0: 5000, debites: 0, gold: 1e30 });
   assert.ok(r.k > 1000, "beaucoup plus de 200 niveaux rejoués : " + r.k);
 }
 console.log("idle-augmentation-rejeu-formule-v1: OK (" + comparaisons + " cas)");

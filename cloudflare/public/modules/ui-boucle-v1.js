@@ -441,7 +441,7 @@
               if(secondes0>0.0201){
                 /* Rejeu en formule (rejouerCyclesAugmentIdleV1_, meta-progression) : aucun plafond de 200 niveaux, même pour une barre qui en gagne des dizaines par seconde. */
                 const orAvant=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
-                const rj=window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,brut:brut0,cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvant:0,plafondK:plafondDefi});
+                const rj=window.__rejouerCyclesAugmentIdleV1__({niv0:niv0,sec0:secondes0,brut:brut0,cout0:cout0,expo:expo,p0:idleNombre_(x[1])*secondes0,ecoule:ecouleAug,reste0:reste,debites:debites,gold:monnaiesLocales?orAvant:0,plafondK:plafondDefi});
                 if(Boolean(monnaiesLocales)&&rj.debit>0){monnaiesLocales.gold=Math.max(0,orAvant-rj.debit);debiteCeTick=true;}
                 k=rj.k;reste=rj.reste;bloque=rj.bloque;debites=rj.debites;
                 d[cle]=debites;
@@ -449,7 +449,7 @@
               }else if(secondes0>0&&typeof window.__rejouerCyclesAugmentPlafonneIdleV1__==='function'){
                 /* Barre CAP (50 niveaux par seconde au plus) : les niveaux, le coût et l'Or sont eux aussi rejoués en direct (Norman, 2026-10-10). */
                 const orAvantCap=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
-                const rjCap=window.__rejouerCyclesAugmentPlafonneIdleV1__({niv0:niv0,sec0:(idleNombre_(x[6])>0?idleNombre_(x[6]):secondes0),cout0:cout0,expo:expo,reste0:reste,debites:debites,gold:monnaiesLocales?orAvantCap:0,plafondK:plafondDefi});
+                const rjCap=window.__rejouerCyclesAugmentPlafonneIdleV1__({niv0:niv0,sec0:(idleNombre_(x[6])>0?idleNombre_(x[6]):secondes0),cout0:cout0,expo:expo,p0:idleNombre_(x[1])*secondes0,ecoule:ecouleAug,reste0:reste,debites:debites,gold:monnaiesLocales?orAvantCap:0,plafondK:plafondDefi});
                 if(Boolean(monnaiesLocales)&&rjCap.debit>0){monnaiesLocales.gold=Math.max(0,orAvantCap-rjCap.debit);debiteCeTick=true;}
                 k=rjCap.k;reste=rjCap.reste;bloque=rjCap.bloque;debites=rjCap.debites;
                 d[cle]=debites;
@@ -458,7 +458,7 @@
               /* Défi : le niveau rejoué sort du budget partagé ; budget épuisé = aucun niveau de plus, barre PLEINE. */
               if(D100)D100.noter(d,cleD100,k);
               const bloqueDefi=Boolean(D100&&D100.actif()&&secondes0>0&&D100.reste()<=0);
-              if(bloqueDefi)reste=Math.max(reste,secondes0>0.0201?dureeK(k):secondes0);
+              /* Défi atteint ou Or manquant : lu dans le jeu, la barre ne démarre pas (elle reste à 0), l'Or étant payé au début du niveau. */
               const secondes=secondes0>0.0201?dureeK(k):secondes0;
               const orLive=idleNombre_(monnaiesLocales&&monnaiesLocales.gold);
               const manqueOrServeur=Boolean(x[3])&&k===0&&orLive+1e-9<coutK(0);
@@ -497,11 +497,11 @@
               if(etaEl&&typeof window.__texteEtaAugmentIdleV1__==='function'){
                 ecrireSiChangeIdleV1_(etaEl,window.__texteEtaAugmentIdleV1__({seconds:secondes,progress:secondes>0?Math.max(0,Math.min(1,reste/secondes)):0,waiting:attenteOr,goldCost:k>0?coutK(k):cout0,gold:orLive},0));
               }
-              /* Barre pleine faute d'Or : elle reste pleine (comme NGU) au lieu de tourner à vide. Sinon elle continue sans s'arrêter. */
+              /* Faute d'Or la barre ne démarre pas : elle reste à 0 (lu dans le jeu : l'Or se paie au premier tick du niveau). */
               if(attenteOr||bloqueDefi){
                 if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
                 el.style.width='100%';
-                el.style.transform='scaleX(1)';
+                el.style.transform='scaleX(0)';
                 return;
               }
               /* Le moteur dit « en attente » alors que l'Or suffit (défi « 100 niveaux » atteint, par exemple) : aucun niveau ne viendra à la fin du tour. La barre reste PLEINE au lieu de tourner à vide
@@ -509,7 +509,7 @@
               if(Boolean(x[3])&&k===0&&secondes0>0&&!debiteCeTick){
                 if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
                 el.style.width='100%';
-                el.style.transform='scaleX(1)';
+                el.style.transform='scaleX(0)';
                 return;
               }
               animerBarreCycliqueIdleV217_(el,secondes,secondes>0?Math.max(0,Math.min(.999999,reste/secondes)):idleNombre_(x[1]),true);

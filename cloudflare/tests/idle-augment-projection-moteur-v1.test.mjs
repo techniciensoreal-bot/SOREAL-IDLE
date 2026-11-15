@@ -64,14 +64,14 @@ function comparer(titre, id, haut, energie, dts) {
   for (const dt of dts) {
     const r0 = run("synchroniserSorealIdle"); const a = lire(r0, id, haut);
     if (!(a.secondes > 0)) { ECARTS.push([titre, dt, "pas de barre"]); continue; }
-    const rj = rejouer({ niv0: a.niveau, sec0: a.secondes, cout0: a.cout, expo: haut ? 2 : 1, brut: a.brut, reste0: a.fraction * a.secondes + dt, debites: 0, gold: a.or, plafondK: Infinity });
+    const rj = rejouer({ niv0: a.niveau, sec0: a.secondes, cout0: a.cout, expo: haut ? 2 : 1, brut: a.brut, p0: a.fraction * a.secondes, ecoule: dt, reste0: a.fraction * a.secondes + dt, debites: 0, gold: a.or, plafondK: Infinity });
     let restant = dt, r1;
     while (restant > 1e-9) { const pas = Math.min(30, restant); decalage += pas * 1000; restant -= pas; r1 = run("synchroniserSorealIdle"); }
     const b = lire(r1, id, haut);
-    const fracEcran = rj.bloque ? 1 : rj.reste / rj.dureeProchaine;   /* Or insuffisant : barre pleine, en attente */
+    const fracEcran = rj.reste / rj.dureeProchaine;   /* Or insuffisant : barre à 0, en attente (l'Or se paie au début du niveau, lu dans le jeu) */
     ECARTS.push([titre, dt, a.niveau, b.niveau, a.niveau + rj.k, +b.fraction.toFixed(4), +fracEcran.toFixed(4)]);
     assert.equal(a.niveau + rj.k, b.niveau, titre + " : niveau après " + dt + " s (énergie " + energie + ") moteur " + b.niveau + " / écran " + (a.niveau + rj.k));
-    assert.ok(Math.abs((a.or - rj.debit) - b.or) <= Math.max(1, Math.abs(b.or) * 1e-9), titre + " : Or après " + dt + " s : moteur " + b.or + " / écran " + (a.or - rj.debit));
+    assert.ok(Math.abs((a.or - rj.debit) - b.or) <= Math.max(1, Math.abs(b.or) * 1e-9), titre + " : Or après " + dt + " s : moteur " + b.or + " / écran " + (a.or - rj.debit) + " DBG " + JSON.stringify({ a, b, rj }));
     assert.ok(Math.abs(fracEcran - b.fraction) < 2e-3, titre + " : fraction après " + dt + " s : moteur " + b.fraction + " / écran " + fracEcran);
   }
 }

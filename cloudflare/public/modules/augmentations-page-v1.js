@@ -598,35 +598,35 @@
        * courte entre deux synchros. `debites` niveaux ont déjà été débités. Rend {k, reste, debites, debit, bloque, borneDefi, coutProchain, dureeProchaine}.
        */
       function rejouerCyclesAugmentIdleV1_(p){
+        /* Copie de la passe du moteur (advanceAugmentationTrackV214_) : Or payé au début du niveau, durée en ticks entiers (lu dans le jeu). p0 = secondes faites (> 0 : déjà payé), ecoule = secondes écoulées, debites = niveaux déjà payés. */
         const n0=Math.max(1,p.niv0+1),expo=p.expo;
         const brut=p.brut>0?p.brut:p.sec0;
         const coutNiveau=function(i){return p.cout0*Math.pow((n0+i)/n0,expo);};
-        /* autonome (sans dépendance) : la fonction est extraite telle quelle par les tests de projection */
         const dureeNiveau=function(i){const b=brut*(n0+i)/n0;return (b>0&&isFinite(b))?Math.max(1,Math.ceil(b/0.02-1e-9))*0.02:0.02;};
-        const total=Math.max(0,p.reste0);
-        let kMax=0,temps=0;
+        const p0=p.p0!==undefined?Math.max(0,p.p0):0;
+        let t=p.ecoule!==undefined?Math.max(0,p.ecoule):Math.max(0,p.reste0-p0);
+        let or=p.gold;
+        let prog=p0;
+        if(prog>=dureeNiveau(0)-1e-9)prog=0;   /* ancienne forme « barre pleine en attente d'Or » : repart à 0, payée au début */
         const plafK=p.plafondK>=0?p.plafondK:Infinity;
-        let borneDefi=false;
-        while(kMax<200000){
-          if(kMax>=plafK){borneDefi=true;break;}
-          const dn=dureeNiveau(kMax);
-          if(temps+dn>total*(1+1e-12))break;
-          temps+=dn;kMax+=1;
-        }
-        const d=Math.min(Math.max(0,p.debites),kMax);
-        let k=kMax,debit=0,debites=Math.max(p.debites,0),bloque=false;
-        if(kMax>d){
-          let cumul=0,j=d;
-          while(j<kMax){
-            const c=coutNiveau(j);
-            if(cumul+c>p.gold+1e-9){bloque=true;break;}
-            cumul+=c;j+=1;
+        let paies=Math.max(0,Math.floor(p.debites||0));
+        if(prog>0&&paies<1)paies=1;
+        let k=0,debit=0,bloque=false,borneDefi=false;
+        while(k<200000){
+          if(k>=plafK){borneDefi=true;break;}
+          const duree=dureeNiveau(k);
+          if(!(k<paies)){
+            const cout=coutNiveau(k);
+            if(or+1e-9<cout){bloque=true;break;}
+            if(t<=1e-9)break;
+            or-=cout;debit+=cout;paies=k+1;
+            prog=Math.min(t,0.02,duree);t-=prog;
           }
-          k=j;debit=cumul;debites=Math.max(debites,j);
+          const manque=Math.max(0,duree-prog);
+          if(t+1e-9<manque){prog+=t;t=0;break;}
+          t=Math.max(0,t-manque);prog=0;k+=1;
         }
-        let tempsK=0;
-        for(let i=0;i<k;i+=1)tempsK+=dureeNiveau(i);
-        return {k:k,reste:total-tempsK,debites:debites,debit:debit,bloque:bloque,borneDefi:borneDefi,coutProchain:coutNiveau(k),dureeProchaine:dureeNiveau(k)};
+        return {k:k,reste:prog,debites:paies,debit:debit,bloque:bloque,borneDefi:borneDefi,coutProchain:coutNiveau(k),dureeProchaine:dureeNiveau(k)};
       }
       window.__rejouerCyclesAugmentIdleV1__=rejouerCyclesAugmentIdleV1_;
       window.__dureeNiveauTicksIdleV1__=(function(b){return (b>0&&isFinite(b))?Math.max(1,Math.ceil(b/0.02-1e-9))*0.02:0.02;});
@@ -656,7 +656,7 @@
             const cle='cycles_'+c[5];
             const D100=typeof window!=='undefined'?window.__SOREAL_IDLE_DEFI100_V1__:null;
             const cleD100=id+':'+c[5];
-            const rj=rejouerCyclesAugmentIdleV1_({niv0:niv0,sec0:sec0,brut:Number(d[c[5]==='main'?'secondsBrut':'upgradeSecondsBrut'])||0,cout0:cout0,expo:c[6],reste0:(Number(d[c[0]])||0)*sec0+ecoule,debites:d[cle]||0,gold:monnaies?H.idleNombre_(monnaies.gold):0,plafondK:D100?D100.plafond(d,cleD100):Infinity});
+            const rj=rejouerCyclesAugmentIdleV1_({niv0:niv0,sec0:sec0,brut:Number(d[c[5]==='main'?'secondsBrut':'upgradeSecondsBrut'])||0,cout0:cout0,expo:c[6],p0:(Number(d[c[0]])||0)*sec0,ecoule:ecoule,reste0:(Number(d[c[0]])||0)*sec0+ecoule,debites:d[cle]||0,gold:monnaies?H.idleNombre_(monnaies.gold):0,plafondK:D100?D100.plafond(d,cleD100):Infinity});
             /* Défi des 100 niveaux : les niveaux rejoués ici sont puisés dans le budget partagé, puis absorbés dans le niveau de base (compteur remis à 0). */
             if(D100){D100.noter(d,cleD100,rj.k);D100.nouveauRepere(d,cleD100);}
             if(monnaies&&rj.debit>0)monnaies.gold=Math.max(0,H.idleNombre_(monnaies.gold)-rj.debit);

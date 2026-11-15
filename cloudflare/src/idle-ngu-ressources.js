@@ -557,58 +557,42 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
   const cibleN=Math.max(0,int(upgrade?pair.upgradeTarget:pair.target,0));
   if(cibleN>0&&int(upgrade?pair.upgradeLevel:pair.level,0)>=cibleN)return;
   /*
-   * Hors ligne (Norman, 2026-10-24 : « les barres d'Augmentations ne fonctionnent pas hors ligne ») : la boucle ci-dessous achète UN niveau par tour et s'arrête à 10 000 tours. Une longue absence (ou une grosse vitesse) vaut bien plus de
-   * niveaux (mesuré : 1 h = 134 163 niveaux en ligne, 10 000 seulement en une synchro hors ligne). Le temps d'un niveau est LINÉAIRE (n x c) et son coût en Or aussi (n x base, ou n² x base pour l'Upgrade) : on achète donc d'un coup, en formules fermées, tous
-   * les niveaux que le temps ET l'Or permettent (en laissant les deux derniers à la boucle, qui règle les cas limites : Or insuffisant, progression partielle, défi des 100 niveaux). Même résultat que la boucle, sans son plafond.
+   * Lu dans le code du jeu (build 1260, 2026-11-15 : AugmentController::advanceAug) : l'OR EST PAYÉ AU DÉBUT du niveau, au premier tick (barre à 0) ; sans assez d'Or la barre ne bouge pas (elle reste à 0). Le niveau
+   * suivant se paie de la même façon à son premier tick. Un niveau dure ceil(durée / tick) ticks (quantification : idle-tick-v1.js), le premier tick compris. « Niveau payé » = barre > 0.
+   * Passe exacte niveau par niveau (une barre rapide gagne au plus 50 niveaux par seconde, donc elle reste courte même pour des heures d'absence ; garde-fou : 3 000 000 niveaux par appel).
    */
-  /*
-   * Passe EXACTE sur les niveaux entiers (remplace la formule fermée d'avant, devenue fausse avec la durée quantifiée sur les ticks) : on avance niveau par niveau, le temps ET l'Or étant retirés
-   * exactement comme la boucle ci-dessous, mais sans le plafond de 10 000 tours et sans la réécriture de l'état à chaque niveau. Une barre rapide gagne au plus 50 niveaux par seconde (un par tick),
-   * donc la passe reste courte même pour des heures d'absence ; garde-fou : 3 000 000 niveaux par appel, la boucle ci-dessous termine le reste.
-   */
-  try{
+  {
     const l0=Math.max(0,int(upgrade?pair.upgradeLevel:pair.level,0));
-    if(remaining>0){
-      rebaserProgressionSecondesV1(pair,progressKey,modele(l0+1));
-      const baseOr=(upgrade?def.upgrade.baseGold:def.baseGold)*multCout;
-      const plafondDefi=Math.min(limiteDefi?Math.max(0,challengeHundredLevelsRemaining(state)):Infinity,cibleN>0?Math.max(0,cibleN-l0):Infinity);
-      let t=remaining,or=state.currencies.gold,p=Math.max(0,num(pair[progressKey],0)),k=0;
-      while(k<plafondDefi&&k<3000000){
-        const n=l0+k+1;
-        const duree=modele(n);
-        if(!Number.isFinite(duree))break;
-        const manque=Math.max(0,duree-p);
+    rebaserProgressionSecondesV1(pair,progressKey,modele(l0+1));
+    const baseOr=(upgrade?def.upgrade.baseGold:def.baseGold)*multCout;
+    const plafondDefi=Math.min(limiteDefi?Math.max(0,challengeHundredLevelsRemaining(state)):Infinity,cibleN>0?Math.max(0,cibleN-l0):Infinity);
+    let t=Math.max(0,remaining),or=state.currencies.gold,p=Math.max(0,num(pair[progressKey],0)),k=0;
+    /* Ancienne sauvegarde : barre pleine « en attente d'Or » (l'Or se payait à la fin) : elle repart à 0 et sera payée au début. */
+    if(p>=modele(l0+1)-1e-9)p=0;
+    const premierTick=IDLE_TICK_SECONDS_V1;
+    while(k<plafondDefi&&k<3000000){
+      const n=l0+k+1;
+      const duree=modele(n);
+      if(!Number.isFinite(duree))break;
+      if(p<=0){
         const cout=baseOr*(upgrade?n*n:n);
-        if(t+1e-9<manque||or+1e-9<cout||!Number.isFinite(cout))break;
-        t-=manque;or-=cout;p=0;k+=1;
+        if(!Number.isFinite(cout)||or+1e-9<cout||t<=1e-9)break;   /* sans Or (ou sans temps) la barre ne démarre pas */
+        or-=cout;
+        p=Math.min(t,premierTick,duree);t-=p;
       }
-      if(k>=1){
-        remaining=t;
-        state.currencies.gold=or;
-        pair[progressKey]=0;
-        if(upgrade)pair.upgradeLevel=l0+k;else pair.level=l0+k;
-        challengeHundredLevelsConsume(state,k);
-      }
+      const manque=Math.max(0,duree-p);
+      if(t+1e-9<manque){p+=t;t=0;break;}
+      t=Math.max(0,t-manque);p=0;k+=1;
     }
-  }catch(_e){}
-  while(remaining>0&&guard++<10000){
-    const level=upgrade?pair.upgradeLevel:pair.level;
-    if(cibleN>0&&int(level,0)>=cibleN)break;   /* cible atteinte : plus un seul niveau */
-    const needed=modele(Math.max(1,int(level,0)+1));
-    if(!Number.isFinite(needed))break;
-    rebaserProgressionSecondesV1(pair,progressKey,needed);
-    const missing=Math.max(0,needed-num(pair[progressKey],0));
-    if(remaining+1e-9<missing){pair[progressKey]+=remaining;break;}
-    const n=Math.max(1,int(level,0)+1);
-    const cost=(upgrade?def.upgrade.baseGold*n*n:def.baseGold*n)*multCout;
-    if(state.currencies.gold+1e-9<cost||(limiteDefi&&challengeHundredLevelsRemaining(state)<=0)){
-      pair[progressKey]=needed;break;
+    state.currencies.gold=or;
+    pair[progressKey]=p;
+    if(k>=1){
+      if(upgrade)pair.upgradeLevel=l0+k;else pair.level=l0+k;
+      challengeHundredLevelsConsume(state,k);
     }
-    remaining-=missing;
-    pair[progressKey]=0;
-    state.currencies.gold-=cost;
-    if(upgrade)pair.upgradeLevel+=1;else pair.level+=1;
-    challengeHundredLevelsConsume(state,1);
+    /* La progression est exprimée dans la durée du niveau EN COURS : repère mis à jour sans remise à l'échelle (le niveau a changé, pas la vitesse). */
+    const dureeFinale=modele(l0+k+1);
+    if(Number.isFinite(dureeFinale)&&dureeFinale>0)pair[progressKey+"Ref"]=dureeFinale;
   }
 }
 

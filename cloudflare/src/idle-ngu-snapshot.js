@@ -274,7 +274,8 @@ function construireSnapshotNguV1(state, context, now) {
       const defiBloque = challengeHundredLevelsRemaining(state) <= 0;
       const fractionMain = fractionProgressionSecondesV1(pair, "progress", neededMain);
       const fractionUpgrade = fractionProgressionSecondesV1(pair, "upgradeProgress", neededUpgrade);
-      const attenteOr = (needed, fraction, cost) => Number.isFinite(needed) && needed > 0 && fraction >= 1 - 1e-9 && (gold + 1e-9 < cost || defiBloque);
+      /* Lu dans le jeu : l'Or se paie au DÉBUT du niveau ; sans assez d'Or la barre reste à 0 (en attente). Une barre déjà entamée a déjà été payée. */
+      const attenteOr = (needed, fraction, cost) => Number.isFinite(needed) && needed > 0 && fraction <= 1e-12 && (gold + 1e-9 < cost || defiBloque);
       return Object.assign({}, def, {
         goldCost,
         upgradeGoldCost,

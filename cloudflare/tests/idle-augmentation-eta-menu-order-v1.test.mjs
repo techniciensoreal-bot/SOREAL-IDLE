@@ -42,10 +42,10 @@ const def = (s) => idleNguSnapshot(s, ctx, T0).augmentations.find((d) => d.id ==
   const d0 = def(s);
   assert.ok(d0.secondsPerLevel > 0 && Number.isFinite(d0.secondsPerLevel), "durée d'un niveau exposée");
   assert.equal(d0.goldCost, 10000, "niveau 1 des Safety Scissors = 10 000 Or (wiki)");
-  assert.equal(d0.waitingGold, false, "barre pas encore pleine");
+  assert.equal(d0.waitingGold, true, "sans Or la barre ne démarre pas (l'Or se paie au début du niveau, lu dans le jeu) : attente signalée dès le départ");
   s = advanceIdleNguState(s, d0.secondsPerLevel * 3, ctx, T0 + 1).state ?? advanceIdleNguState(s, d0.secondsPerLevel * 3, ctx, T0 + 1);
   const d1 = def(s);
-  assert.equal(d1.progressPct, 1, "sans Or la barre reste pleine");
+  assert.equal(d1.progressPct, 0, "sans Or la barre reste à 0 (lu dans le jeu)");
   assert.equal(d1.waitingGold, true, "et le snapshot signale l'attente d'Or");
   assert.equal(s.systems.augmentations.data.pairs.scissors.level, 0, "aucun niveau sans Or");
 }

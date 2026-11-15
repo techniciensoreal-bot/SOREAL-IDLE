@@ -38,14 +38,14 @@ maintenant = t0 + 5000 + 6000 * 1000 / 1000; // +11 s : 5 s finissent le niveau 
 rebaser(visual);
 const d = visual.defs.scissors;
 assert.equal(d.level, 5, "le niveau terminé est compté (il n'était pas effacé par un modulo)");
-assert.equal(etat.systemes.currencies.gold, 900, "son coût est débité de l'Or local");
+assert.equal(etat.systemes.currencies.gold, 880, "l'Or se paie au DÉBUT du niveau (lu dans le jeu) : le niveau terminé avait déjà été payé, le niveau suivant (120 Or) est payé à son premier tick");
 assert.equal(d.goldCost, 120, "coût du niveau suivant (niveau 6 : 100 x 6/5)");
 assert.ok(Math.abs(d.seconds - 12) < 1e-9, "durée du niveau suivant");
 assert.ok(Math.abs(d.progress - 6 / 12) < 1e-9, "la barre est à sa vraie place");
 assert.equal(visual.at, maintenant);
 // un second rebasage immédiat ne débite rien de plus
 rebaser(visual);
-assert.equal(etat.systemes.currencies.gold, 900);
+assert.equal(etat.systemes.currencies.gold, 880);
 assert.equal(visual.defs.scissors.level, 5);
 
 // Pas assez d'Or : la barre reste pleine (>= 100 %), aucun niveau, aucun débit.
@@ -53,9 +53,9 @@ etat.systemes.currencies.gold = 10;
 const v2 = { at: maintenant, defs: { milk: { progress: 0.9, seconds: 10, waiting: false, level: 0, goldCost: 50, upgradeProgress: 0, upgradeSeconds: 0, upgradeWaiting: false, upgradeLevel: 0, upgradeGoldCost: 0 } } };
 maintenant += 5000;
 rebaser(v2);
-assert.equal(v2.defs.milk.level, 0);
-assert.equal(etat.systemes.currencies.gold, 10);
-assert.ok(v2.defs.milk.progress >= 1, "barre pleine faute d'Or");
+assert.equal(v2.defs.milk.level, 1, "le niveau en cours était déjà payé : il se termine (1 s restante)");
+assert.equal(etat.systemes.currencies.gold, 10, "aucun débit : le niveau suivant ne démarre pas faute d'Or");
+assert.equal(v2.defs.milk.progress, 0, "barre à 0 faute d'Or (lu dans le jeu)");
 console.log("idle-augmentation-repere-sans-redessin-v1: OK");
 
 // Recalage de phase : la barre (animation du navigateur) se cale sur le repère dès que l'écart dépasse 80 ms ou 5 % du cycle.

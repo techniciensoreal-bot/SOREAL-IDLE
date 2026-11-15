@@ -59,7 +59,7 @@ for (const alloc of [1e4, 1e5, 1e6, 4e6, 2e7]) {
   for (const dt of [0.5, 3, 25, 200]) {
     const a = lire(run("synchroniserSorealIdle"));
     if (!(a.sec > 0.0201)) { ecarts.push([alloc, dt, "barre CAP : hors de ce test"]); continue; }
-    const p = { niv0: a.niveau, sec0: a.sec, cout0: a.cout, expo: 1, reste0: a.fraction * a.sec + dt, debites: 0, gold: a.or, plafondK: Infinity };
+    const p = { niv0: a.niveau, sec0: a.sec, cout0: a.cout, expo: 1, p0: a.fraction * a.sec, ecoule: dt, reste0: a.fraction * a.sec + dt, debites: 0, gold: a.or, plafondK: Infinity };
     const rj = rejouer(p);
     decalage += dt * 1000;
     const b = lire(run("synchroniserSorealIdle"));
@@ -82,7 +82,7 @@ for (const alloc of [1e8, 5e8, 4e9, 4e11]) {
     const a = lire(run("synchroniserSorealIdle"));
     if (!(a.brut > 0 && a.brut < 0.0201)) continue;
     capVu += 1;
-    const rj = rejouerCap({ niv0: a.niveau, sec0: a.brut, cout0: a.cout, expo: 1, reste0: a.fraction * a.sec + dt, debites: 0, gold: a.or, plafondK: Infinity });
+    const rj = rejouerCap({ niv0: a.niveau, sec0: a.brut, cout0: a.cout, expo: 1, p0: a.fraction * a.sec, ecoule: dt, reste0: a.fraction * a.sec + dt, debites: 0, gold: a.or, plafondK: Infinity });
     decalage += dt * 1000;
     const b = lire(run("synchroniserSorealIdle"));
     assert.ok(b.niveau - a.niveau <= Math.ceil(50 * dt) + 1, "jamais plus de 50 niveaux par seconde : " + (b.niveau - a.niveau) + " niveaux en " + dt + " s (alloc " + alloc + ")");

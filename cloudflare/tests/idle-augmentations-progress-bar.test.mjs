@@ -71,6 +71,7 @@ function freshSnapshot(bosses) {
       }
     },
     resources: { energy: { power: 1, speed: 50, cap: 500, bars: 1, current: 500 } },
+    currencies: { gold: 1e12 },   /* l'Or se paie au début du niveau (lu dans le jeu) */
     updatedAt: Date.now() - 5000
   };
   const snap = idleNguSnapshot(raw, { adventurePower: 100, adventureToughness: 100, bosses: 17 }, Date.now());
@@ -102,8 +103,8 @@ function freshSnapshot(bosses) {
   };
   const after = advanceIdleNguState(raw, 500, { adventurePower: 100, adventureToughness: 100, bosses: 17 }, Date.now());
   assert.ok(
-    after.systems.augmentations.data.pairs.scissors.progress > 0,
-    "Sans Or, la progression doit quand même s'accumuler avec le temps investi — jamais rester bloquée à 0 comme avant ce correctif."
+    after.systems.augmentations.data.pairs.scissors.progress === 0,
+    "Sans Or la barre ne démarre pas : lu dans le jeu (AugmentController::advanceAug), l'Or se paie au premier tick du niveau, la barre reste à 0."
   );
   assert.equal(
     after.systems.augmentations.data.pairs.scissors.level, 0,
