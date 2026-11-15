@@ -204,7 +204,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     {
       const dropGold = Math.max(0, num(result?.gold, 0));
       const tmData = state.systems.timeMachine?.data;
-      if (dropGold > 0 && tmData) {
+      if (dropGold > 0 && tmData && Math.max(0, int(context.bosses, 0)) >= 30) {   /* setbaseGold (lu dans le jeu) : rien avant le boss 30 */
         const ancien = Math.max(0, num(tmData.bestGoldThisRun, 0));
         /* Une partie commencée avant l'écran de la machine a un record SANS mob (impossible à retrouver : le record vient d'un tirage et de bonus d'Or d'alors). Le mob du premier kill suivant est montré en attendant (l'écran resterait vide jusqu'à la renaissance : les kills du moment rapportent bien moins que l'ancien record, journal de Norman 2026-10-20) ; le premier vrai record le remplace. */
         const recordSansMob = !tmData.bestGoldMob && ancien > 0;

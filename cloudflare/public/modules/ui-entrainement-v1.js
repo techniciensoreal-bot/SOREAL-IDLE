@@ -1229,6 +1229,10 @@
             combatPrincipal.multiplicateurDefenseTotal
           );
         const multiplicateurPermanent=1;
+        /* Le « 100 » naturel est multiplié par la part « post » du produit (lu dans le jeu), qui suit la trajectoire du produit total entre deux synchros : post x (total maintenant / total au repère). */
+        const baseTrajCombat=combatPrincipal.__baseTrajV1||null;
+        const postAttaque=multiplicateurCombatPositifIdleV1_(combatPrincipal.multiplicateurAttaquePost)*(baseTrajCombat&&baseTrajCombat.a>0?multiplicateurStuffAttaque/baseTrajCombat.a:1);
+        const postDefense=multiplicateurCombatPositifIdleV1_(combatPrincipal.multiplicateurDefensePost)*(baseTrajCombat&&baseTrajCombat.d>0?multiplicateurStuffDefense/baseTrajCombat.d:1);
 
         const bonusBoutique=
           Math.max(
@@ -1239,11 +1243,11 @@
             )
           );
 
-        /* 2026-09-25 : le 100 naturel n'est jamais multiplié (wiki NUMBER : « from Basic Training »), comme côté serveur. */
+        /* Comme côté serveur : le 100 naturel reçoit la part « post » du produit (jamais le NUMBER). */
         const attaqueArrondieBruteV1=
           Math.max(
             100,
-            100+Math.round(
+            100*postAttaque+Math.round(
               (
                 (attaque-100)+
                 bonusBoutique
@@ -1256,7 +1260,7 @@
         const defenseArrondieBruteV1=
           Math.max(
             100,
-            100+Math.round(
+            100*postDefense+Math.round(
               (defense-100)*
               multiplicateurStuffDefense*
               multiplicateurPermanent

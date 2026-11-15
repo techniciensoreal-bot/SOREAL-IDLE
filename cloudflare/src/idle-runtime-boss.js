@@ -1330,9 +1330,13 @@ export function multiplicateursCombatSorealIdle_(bonusMetaNgu, bossesRun) {
     aventureDebloquee
       ? 1
       : Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.equipmentDefenseMultiplier, 1));
+  /* Lu dans le jeu (Character::totalAttack / totalDefense, build 1260, 2026-11-15) : le « 100 » naturel reçoit tous les bonus APRÈS la division de difficulté (Augments, Wandoos, Yggdrasil, NGU, Barbes, Mineurs, Quirks, Hacks, Souhaits, Cartes, MacGuffin), mais ni le NUMBER, ni ITOPOD, ni l'équipement, ni Rich Jerks. */
+  const post = (total, pre) => Math.max(1e-300, nombreSorealIdle_(total, 1)) / Math.max(1e-300, nombreSorealIdle_(pre, 1));
   return {
     attaque: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.attackMultiplier, 1)) / facteurEquipementAttaque,
-    defense: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.defenseMultiplier, 1)) / facteurEquipementDefense
+    defense: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.defenseMultiplier, 1)) / facteurEquipementDefense,
+    attaquePost: post(bonusMetaNgu.attackMultiplier, bonusMetaNgu.attackPreMultiplier),
+    defensePost: post(bonusMetaNgu.defenseMultiplier, bonusMetaNgu.defensePreMultiplier)
   };
 }
 
@@ -1437,13 +1441,13 @@ export function statsCombatPrincipalSorealIdleV413_(
     !Number.isFinite(Number(bossesRun)) ||
     Number(bossesRun) >= REBIRTH_UNLOCK_BOSS_V1;
 
-  const { attaque: multiplicateurAttaqueEffectif, defense: multiplicateurDefenseEffectif } =
+  const { attaque: multiplicateurAttaqueEffectif, defense: multiplicateurDefenseEffectif, attaquePost, defensePost } =
     multiplicateursCombatSorealIdle_(bonusMetaNgu, bossesRun);
 
   const attaque =
     Math.max(
       100,
-      100 + Math.round(
+      100 * attaquePost + Math.round(
         (
           (attaqueEntrainement - 100) +
           Math.max(
@@ -1471,7 +1475,7 @@ export function statsCombatPrincipalSorealIdleV413_(
   const defense =
     Math.max(
       100,
-      100 + Math.round(
+      100 * defensePost + Math.round(
         (defenseEntrainement - 100) *
         // Audit 2026-09-16 : équipement retiré du combat Fight Boss (voir
         // multiplicateurPermanent ci-dessus) — plus de fidélité NGU.
@@ -1530,6 +1534,10 @@ export function statsCombatPrincipalSorealIdleV413_(
 
     multiplicateurDefenseTotal:
       multiplicateurDefenseEffectif,
+
+    /* Part du produit qui multiplie aussi le « 100 » naturel (lu dans le jeu : tout sauf NUMBER, ITOPOD, équipement, Rich Jerks) ; le client la fait suivre la trajectoire du produit total. */
+    multiplicateurAttaquePost: attaquePost,
+    multiplicateurDefensePost: defensePost,
 
     /* Panneau de detail (clic sur Attack / Defense) : facteurs un par un, voir detailStatsCombatSorealIdle_. */
     detailStats: {

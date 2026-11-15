@@ -370,6 +370,14 @@ id:
         combatPrincipalEtat
           .multiplicateurDefenseTotal,
 
+      multiplicateurAttaquePost:
+        combatPrincipalEtat
+          .multiplicateurAttaquePost,
+
+      multiplicateurDefensePost:
+        combatPrincipalEtat
+          .multiplicateurDefensePost,
+
       /* Valeurs futures des deux multiplicateurs (voir trajectoireMultiplicateursCombatSorealIdle_) : le client les applique à l'heure dite. */
       trajectoire:
         combatPrincipalEtat
