@@ -8,7 +8,7 @@ import { IDLE_ADVENTURE_MOB_BESTIARY_V1, IDLE_ADVENTURE_ZONES, idleAdventureBest
 import { SETS, SPECIALS, defById } from "./idle-adventure-sets.js";
 import { base, boost, item, rollFreshEquipmentStatsV1, special } from "./idle-adventure-objets.js";
 import { add } from "./idle-adventure-inventaire.js";
-import { idleAdventureCubeTierV1 } from "./idle-adventure-combat.js";
+import { idleAdventureCubeTierV1, idleAdventureSetRewardProductV1 } from "./idle-adventure-combat.js";
 
 /*
  * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
@@ -813,7 +813,7 @@ export function rollKill(s,ctx){
   const dropMult=Math.max(
     .1,
     N(ctx.dropMultiplier,1)*
-    (ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100)
+    (ctx.dropMultiplierIncludesGear?1:(1+idleAdventureCubeTierV1(s.cube).dropChancePct/100)*idleAdventureSetRewardProductV1(s,"drop"))
   );
 
   const exact=rollProfileLootAdventureV2(s,z,boss,dropMult,ctx.forceMobName);

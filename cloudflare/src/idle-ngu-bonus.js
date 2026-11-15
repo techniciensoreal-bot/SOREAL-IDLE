@@ -935,6 +935,7 @@ function idleNguBonusesSansMacguffinCoeurV1(state) {
       nguFx.dropChance *
       hackFx.dropChance *
       (1 + num(adventureGear.specials?.dropChancePct, 0) / 100) *
+      idleAdventureSetRewardProductV1(state.adventure, "drop") *   /* sets 2D et Normal Bonus Accs : facteurs séparés (lu dans le jeu) */
       (1 + num(yggPermanent.luckDropPct,0)/100) *
       /*
        * Blood Spaghetti (wiki NGU, page Blood Magic) — bonus de Drop

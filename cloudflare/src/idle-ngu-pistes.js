@@ -384,7 +384,8 @@ function wishSecondsForLevelV1(state, trackDef, level, allocation, params) {
   const r3Power = Math.max(1, idleNguEffectiveResourceStatV1(state, "r3", "power"));
   const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
-  const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / params.speedMultiplier;
+  /* Lu dans le jeu (WishesController::rawProgressPerTick / timeToLevel, build 1260, 2026-11-15) : la progression est PAR TICK ; le temps d'un niveau en secondes est 1 / progression / 50 (le diviseur du catalogue est celui du jeu, en ticks). */
+  const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / params.speedMultiplier / 50;
   /* Durée quantifiée sur les ticks (lu dans le jeu : une barre repart de 0 à chaque niveau, au plus un niveau par tick). */
   return Number.isFinite(rawSeconds) ? dureeNiveauEnTicksV1(Math.max(params.wishMinSeconds, rawSeconds)) : Infinity;
 }

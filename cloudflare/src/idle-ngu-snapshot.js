@@ -788,7 +788,10 @@ export function tossMoneyPit(state, now) {
     s.data.tossesThisRun = jets + 1;
     s.data.lastTossAt = now;
     s.data.nextAt = now + (2 + jets) * 3600000;
-    return { rien: true, orPerdu: cost };
+    /* Lu dans le jeu (PitController::oneTossReward, build 1260, 2026-11-15) : les AP (partie entière du logarithme de l'Or jeté, avec les bonus d'AP) sont versés pour TOUT jet, avant le test du minimum de 100 000 : sous ce minimum seul le lot manque (« nothing happened »). */
+    const ap = cost >= 10 ? apWithBonusV1(state, Math.floor(Math.log10(cost))) : 0;
+    if (ap > 0) state.currencies.ap = Math.max(0, num(state.currencies.ap, 0)) + ap;
+    return { rien: true, orPerdu: cost, ap };
   }
   const tier = moneyPitTierV48_(cost);
   const tosses = Math.max(0, int(s.data.tossesThisRun, 0));

@@ -255,7 +255,8 @@ function idleAdventureEquipmentStatsCalculV47(raw){
     specials:{
       /* 2026-09-23 : tous les types agrégés (Resource 3, Wish/Hack/Wandoos/Augment Speed, Move Cooldowns...) sont exposés, pas seulement la liste historique ci-dessous. */
       ...specialsByType,
-      dropChancePct:N(s.setRewards.drop)*100+idleAdventureCubeTierV1(s.cube).dropChancePct+N(specialsByType.dropChancePct),
+      /* Lu dans le jeu (Character::lootFactor, build 1260, 2026-11-15) : équipement et cube s'ADDITIONNENT ; les sets 2D (x1,0743) et Normal Bonus Accs (x1,25) sont des facteurs SÉPARÉS (idleAdventureSetRewardProductV1). */
+      dropChancePct:idleAdventureCubeTierV1(s.cube).dropChancePct+N(specialsByType.dropChancePct),
       respawnReductionPct:N(s.setRewards.respawn)*100+N(specialsByType.respawnReductionPct),
       chargeMultiplier:Math.max(1,N(s.setRewards.chargeMultiplier,1)),
       idleAttack:Boolean(s.setRewards.idleAttack),

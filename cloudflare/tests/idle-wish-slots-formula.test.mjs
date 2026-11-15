@@ -39,7 +39,7 @@ function allouer(s, slot, e, m, r) {
 }
 const def = (id) => IDLE_WISHES_CATALOG_V1.find(w => w.id === id);
 function secondesAttendues(id, level, e, m, r, power, params) {
-  const brut = def(id).speedDivider * (level + 1) / Math.pow(power ** 3 * e * m * r, 0.17) / params.speedMultiplier;
+  const brut = def(id).speedDivider * (level + 1) / Math.pow(power ** 3 * e * m * r, 0.17) / params.speedMultiplier / 50;   // le temps d un niveau = 1 / progression par tick / 50 (lu dans le jeu : WishesController::timeToLevel)
   return Math.max(params.minSecondsPerLevel, brut);
 }
 

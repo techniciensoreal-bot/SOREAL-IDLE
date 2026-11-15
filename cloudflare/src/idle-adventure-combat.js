@@ -404,7 +404,7 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
       if(ctx.enLigne&&(!d.forms||st.kills>=d.forms.length)){
         if(d.drop&&st.kills===1&&!s.unlockItems[d.drop])s.unlockItems[d.drop]=true;
         const butin=[];
-        const multButin=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
+        const multButin=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:(1+idleAdventureCubeTierV1(s.cube).dropChancePct/100)*idleAdventureSetRewardProductV1(s,"drop")));
         rollTitanLootV1(s,d.id,tierKey,Math.max(0,I(ctx.titanLootLevelBonus,0)),multButin,butin);
         s.dernierButinAutoKill={id:d.id,at:t,objets:butin.filter(Boolean).map(o=>({id:o.id,definitionId:o.definitionId,name:o.name}))};
       }
@@ -831,7 +831,7 @@ export function titan(s,id,ctx,t,difficulty,opts={}){const aliases={titan1:"t1",
 if(id==="t1"&&!s.unlockItems.wandoos98)s.unlockItems.wandoos98=true;
 if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;const [canne,niveauCanne]=canneWalderpV1();drops.push(add(s,special(canne,niveauCanne)))}
 const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;/* Succès « Defeat <titan> before they can attack even once » (2026-11-14) : t1 GRB, t2 Grand Corrupted Tree, t3 Jake, t4 UUG, t5 Walderp (forme finale). */if(opts.sansCoup===true&&titanFinalisee&&["t1","t2","t3","t4","t5"].includes(id))s.unlockFlags["noHit_"+id]=true;
-const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:1+N(s.setRewards.drop)+idleAdventureCubeTierV1(s.cube).dropChancePct/100));
+const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:(1+idleAdventureCubeTierV1(s.cube).dropChancePct/100)*idleAdventureSetRewardProductV1(s,"drop")));
 if(titanFinalisee)rollTitanLootV1(s,id,tierKey,challengeTitanLootLevel,titanDropMult,drops);
 const recompenses=titanFinalisee?creditTitanRewardsV1(s,id,ctx,tierKey,st.rebirthKills):{gold:0,experience:0,ap:0,ppProgress:0,qp:0};
 /*
