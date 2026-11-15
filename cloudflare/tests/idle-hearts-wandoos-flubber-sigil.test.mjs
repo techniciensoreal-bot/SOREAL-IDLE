@@ -160,8 +160,8 @@ function titan(id, aleatoire, difficulty = "easy") {
   // Plein régime = 2 niveaux/s (50 x 0,04 : facteur d OS (niveau + 1) / 25 lu dans le jeu) ; 27 min : 27/60 du boot sans le set, 27/54 avec.
   // 2026-09-24 : la vitesse est la MOYENNE de la rampe linéaire sur la fenêtre simulée (1 s se terminant 1 ms
   // après 27 min de run), donc (27 min + 0,001 s - 0,5 s) / durée du boot, et non plus la vitesse de la fin de fenêtre.
-  near(sans.dumpEnergyLevel + sans.dumpEnergyProgress, 2 * (27 * 60 + 0.001 - 0.5) / 3600, "boot sans set (60 min)", 1e-6);
-  near(avec.dumpEnergyLevel + avec.dumpEnergyProgress, 2 * (27 * 60 + 0.001 - 0.5) / 3240, "boot avec set (54 min)", 1e-6);
+  near(sans.dumpEnergyLevel + sans.dumpEnergyProgress, 2 * (27 * 60 + 0.001 - 0.5) / 3600, "boot sans set (60 min)", 1e-4);   // tolérance : le moteur avance tick par tick (lu dans le jeu), la rampe est échantillonnée au début de chaque tick
+  near(avec.dumpEnergyLevel + avec.dumpEnergyProgress, 2 * (27 * 60 + 0.001 - 0.5) / 3240, "boot avec set (54 min)", 1e-4);   // tolérance : le moteur avance tick par tick (lu dans le jeu), la rampe est échantillonnée au début de chaque tick
 }
 
 console.log("idle-hearts-wandoos-flubber-sigil: OK");

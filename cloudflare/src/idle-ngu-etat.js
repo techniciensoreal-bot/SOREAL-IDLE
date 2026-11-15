@@ -1,3 +1,4 @@
+import { wandoosAvancerTicksV1 } from "./idle-tick-v1.js";
 /*
  * NGU : création, normalisation et migration de l'état (audit d'architecture, 2026-10-16 : découpage de idle-ngu-progression.js).
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
@@ -429,12 +430,13 @@ export function wandoosCalculVitessesV1(state, seconds, now) {
   const wandoosSetMultiplier = 1 + Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0)) * boot.afterBootShare;
 
   /* Plafond de 50 niveaux/s (1 niveau par tick) appliqué APRÈS tous les multiplicateurs. */
-  const energySpeed = Math.min(50, (50 * energyAlloc / requirement)
+  const vitesseEffective = (v) => { const pt = v / 50; return !(pt > 0) ? 0 : pt >= 1 ? 50 : 50 / Math.max(1, Math.ceil(1 / pt - 1e-9)); };   /* niveaux par seconde réellement gagnés : un niveau tous les ceil(1 / p) ticks (lu dans le jeu) */
+  const energySpeed = vitesseEffective((50 * energyAlloc / requirement)
     * idleCardsMultiplierV1(state, "wandoos") /* Cards WANDOOS */
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
     * atEnergyDumpMultiplier * quirkEnergyMultiplier * nguWandoosMultiplier * wandoosSetMultiplier
     * macguffinEffectMultiplierV1(state, "energyWandoos"));
-  const magicSpeed = Math.min(50, (50 * magicAlloc / requirement)
+  const magicSpeed = vitesseEffective((50 * magicAlloc / requirement)
     * idleCardsMultiplierV1(state, "wandoos") /* Cards WANDOOS */
     * osLevelMultiplier * bootFraction * beardWandoos * diggerWandoos * challengeWandoos
     * atMagicDumpMultiplier * quirkMagicMultiplier * nguWandoosMultiplier * wandoosSetMultiplier
@@ -463,17 +465,27 @@ export function wandoosCalculVitessesV1(state, seconds, now) {
   const energyCap = capDe(atEnergyDumpMultiplier * quirkEnergyMultiplier * macguffinEffectMultiplierV1(state, "energyWandoos"));
   const magicCap = capDe(atMagicDumpMultiplier * quirkMagicMultiplier * macguffinEffectMultiplierV1(state, "magicWandoos"));
 
-  return { s, osId, os, requirement, totalOsLevel, osLevelMultiplier, boot, energySpeed, magicSpeed, energyAlloc, magicAlloc, energyCap, magicCap };
+  /* Vitesses BRUTES (niveaux par seconde, sans boot, sans set, sans plafond de 50) : ce que advanceWandoos rejoue tick par tick (wandoosAvancerTicksV1, idle-tick-v1.js). */
+  const baseRaw = (alloc, atMult, quirkMult, espece) => (50 * alloc / requirement) * idleCardsMultiplierV1(state, "wandoos") * osLevelMultiplier * beardWandoos * diggerWandoos * challengeWandoos * atMult * quirkMult * nguWandoosMultiplier * espece;
+  const energyRaw = baseRaw(energyAlloc, atEnergyDumpMultiplier, quirkEnergyMultiplier, macguffinEffectMultiplierV1(state, "energyWandoos"));
+  const magicRaw = baseRaw(magicAlloc, atMagicDumpMultiplier, quirkMagicMultiplier, macguffinEffectMultiplierV1(state, "magicWandoos"));
+  const setPct = Math.max(0, num(state.adventure?.setRewards?.wandoosBootedSpeedPct, 0));
+  return { s, osId, os, requirement, totalOsLevel, osLevelMultiplier, boot, energySpeed, magicSpeed, energyAlloc, magicAlloc, energyCap, magicCap, energyRaw, magicRaw, setPct };
 }
 
 export function advanceWandoos(state, seconds, context, now) {
   const s = state.systems.wandoos;
   if (!s?.unlocked || seconds <= 0) return;
-  const { energySpeed, magicSpeed } = wandoosCalculVitessesV1(state, seconds, now);
-  s.data.dumpEnergyProgress = Math.max(0, num(s.data.dumpEnergyProgress, 0)) + energySpeed * seconds;
-  s.data.dumpMagicProgress = Math.max(0, num(s.data.dumpMagicProgress, 0)) + magicSpeed * seconds;
-  let energyGain = Math.floor(s.data.dumpEnergyProgress);
-  let magicGain = Math.floor(s.data.dumpMagicProgress);
+  const calc = wandoosCalculVitessesV1(state, seconds, now);
+  /* Tick par tick (lu dans le jeu, build 1260, 2026-11-15) : voir wandoosAvancerTicksV1 (idle-tick-v1.js). */
+  const debutBoot = Math.max(0, calc.boot.elapsed - seconds);   /* secondes de boot écoulées au début de la fenêtre */
+  const duree = seconds;
+  const e = wandoosAvancerTicksV1(num(s.data.dumpEnergyProgress, 0), calc.energyRaw, calc.boot.bootSeconds, debutBoot, calc.setPct, duree);
+  const m = wandoosAvancerTicksV1(num(s.data.dumpMagicProgress, 0), calc.magicRaw, calc.boot.bootSeconds, debutBoot, calc.setPct, duree);
+  s.data.dumpEnergyProgress = e.acc;
+  s.data.dumpMagicProgress = m.acc;
+  let energyGain = e.gained;
+  let magicGain = m.gained;
   /*
    * Défi "100 Levels" (wiki, page Challenges) : pool combiné de 100
    * niveaux partagé entre Augments/Blood Magic/Time Machine/Wandoos —
@@ -489,11 +501,9 @@ export function advanceWandoos(state, seconds, context, now) {
       magicGain = Math.floor(magicGain * remaining / total);
     }
     if (energyGain > 0) {
-      s.data.dumpEnergyProgress -= energyGain;
       s.data.dumpEnergyLevel = Math.max(0, num(s.data.dumpEnergyLevel, 0)) + energyGain;
     }
     if (magicGain > 0) {
-      s.data.dumpMagicProgress -= magicGain;
       s.data.dumpMagicLevel = Math.max(0, num(s.data.dumpMagicLevel, 0)) + magicGain;
     }
     if (energyGain + magicGain > 0) challengeHundredLevelsConsume(state, energyGain + magicGain);

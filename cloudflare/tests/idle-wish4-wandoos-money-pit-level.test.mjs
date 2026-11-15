@@ -15,6 +15,6 @@ const sans = total(advanceIdleNguState(w, 100, ctx, NOW));
 w.systems.wishes.data.tracks["4"].level = 1;
 const avec = total(advanceIdleNguState(w, 100, ctx, NOW));
 assert.ok(Math.abs(sans - 0.2) < 1e-6, `niveau d'OS 0 : ${sans}`);
-assert.ok(Math.abs(avec - 20.2) < 1e-6, `niveau d OS 100 -> vitesse x101/25 ; avant x101 : ${avec}`);
+assert.ok(Math.abs(avec - 20.1616) < 1e-6, `niveau d OS 100 -> vitesse x101/25 ; avant x101 : ${avec}`);
 void applyIdleNguAction;
 console.log("idle-wish4-wandoos-money-pit-level: OK");

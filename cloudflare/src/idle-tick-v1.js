@@ -49,3 +49,50 @@ export function niveauxEnTicksV1(level, P, budget, a, maxGain = Infinity) {
   }
   return { gained, P: gained >= maxGain ? 0 : ticks };
 }
+
+/*
+ * Wandoos (lu dans le jeu, build 1260, 2026-11-15 : Wandoos98Controller::advanceEnergyProgress / advanceBootup) : à chaque tick la barre gagne p = base x vitesse de boot, un niveau quand elle atteint 1 (au plus un
+ * par tick, le reste est perdu), puis le boot avance d'un tick ; le facteur de boot du tick k vaut donc min(1, (début + k tick) / durée du boot). Pendant la montée on avance tick par tick (au plus 180 000 ticks pour
+ * un boot d'une heure), ensuite la vitesse est constante : calcul par groupes (ceil(1 / p) ticks par niveau). `raw` = niveaux par seconde SANS le boot ni le set (valeur brute, non plafonnée), `setPct` = bonus du set
+ * Wandoos une fois le boot fini (0,10 ou 0), `acc` = fraction de la barre, `start` = secondes de boot écoulées au début de la fenêtre. Retourne { gained, acc }.
+ */
+export function wandoosAvancerTicksV1(acc, raw, bootSeconds, start, setPct, seconds) {
+  let a = Math.max(0, Math.min(0.999999999, Number(acc) || 0));
+  let ticks = Math.max(0, Number(seconds) || 0) * 50;
+  const rate = Math.max(0, Number(raw) || 0) / 50;
+  const boot = Math.max(1e-9, Number(bootSeconds) || 0);
+  let t = Math.max(0, Number(start) || 0);
+  let gained = 0;
+  if (!(rate > 0) || ticks <= 0) return { gained, acc: a };
+  if (t < boot) {
+    const nRamp = Math.min(Math.floor(ticks + 1e-9), Math.ceil((boot - t) / IDLE_TICK_SECONDS_V1 - 1e-9));
+    for (let k = 0; k < nRamp; k += 1) {
+      a += rate * Math.min(1, (t + k * IDLE_TICK_SECONDS_V1) / boot);
+      if (a >= 1) { a = 0; gained += 1; }
+    }
+    ticks -= nRamp;
+    t += nRamp * IDLE_TICK_SECONDS_V1;
+    if (t < boot - 1e-9) {
+      if (ticks > 1e-9) {
+        a += ticks * rate * Math.min(1, t / boot);
+        if (a >= 1) { a = 0; gained += 1; }
+      }
+      return { gained, acc: Math.max(0, Math.min(0.999999999, a)) };
+    }
+  }
+  const p2 = rate * (1 + Math.max(0, Number(setPct) || 0));
+  if (ticks <= 1e-9) return { gained, acc: a };
+  if (p2 >= 1) {
+    const k = Math.floor(ticks + 1e-9);
+    return { gained: gained + k, acc: 0 };
+  }
+  const premier = Math.max(1, Math.ceil((1 - a) / p2 - 1e-9));
+  if (ticks + 1e-9 < premier) return { gained, acc: Math.min(0.999999999, a + ticks * p2) };
+  ticks = Math.max(0, ticks - premier);
+  gained += 1;
+  const m = Math.max(1, Math.ceil(1 / p2 - 1e-9));
+  const k = Math.floor((ticks + 1e-9) / m);
+  gained += k;
+  ticks = Math.max(0, ticks - k * m);
+  return { gained, acc: Math.min(0.999999999, ticks * p2) };
+}

@@ -67,7 +67,7 @@ for (const [id, set] of Object.entries(IDLE_ADVENTURE_ITEM_SETS_V1)) {
   const avecSet = wandoos(true, true);
   assert.equal(sansSet.dumpEnergyLevel, 1, "Sanity : moitié du seuil -> 1 niveau/s (facteur d OS 1/25, lu dans le jeu)");
   assert.equal(avecSet.dumpEnergyLevel, 1, "boot terminé : 1 x 1,10 = 1,1 -> 1 niveau");
-  assert.ok(Math.abs(avecSet.dumpEnergyProgress - 0.1) < 1e-9, "reste 0,1 de progression (1,1)");
+  assert.ok(Math.abs(avecSet.dumpEnergyProgress - 4 * 0.022) < 1e-9, "tick par tick (lu dans le jeu) : p = 0,022 par tick, niveau au 46e tick, 4 ticks restants = 0,088");
   // Pendant le boot (30 min sur 60), le bonus du set ne s'applique pas encore.
   const bootSansSet = wandoos(false, false);
   const bootAvecSet = wandoos(true, false);

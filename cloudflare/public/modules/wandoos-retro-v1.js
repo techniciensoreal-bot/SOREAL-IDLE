@@ -442,7 +442,7 @@
     return '<div class="wd-bloc">'+
       '<div class="wd-ligne"><span>'+titre+'</span><span>NIVEAU <b data-wd-niveau>'+html_(grand_(niveau))+'</b></span></div>'+
       '<div class="wd-ligne"><span class="wd-lib">PLACÉE</span><b>'+html_(grand_(placee))+'</b></div>'+   /* « Libre » retiré (Norman, 2026-10-22 : déjà dans la barre du haut) */
-      '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'" data-boot-e0="'+nb_(e.vue.bootEcoule)+'" data-boot-total="'+nb_(e.vue.bootSecondes)+'" data-niv0="'+nb_(niveau)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
+      '<div class="wd-rang" data-wd-barre="'+res+'" data-p0="'+prog+'" data-v="'+vit+'" data-at="'+nb_(e.at)+'" data-boot-e0="'+nb_(e.vue.bootEcoule)+'" data-boot-total="'+nb_(e.vue.bootSecondes)+'" data-raw="'+nb_(e.vue[res==='energy'?'brutEnergie':'brutMagie'])+'" data-set="'+nb_(e.vue.bonusSetBoot)+'" data-niv0="'+nb_(niveau)+'"><span class="wd-lib">NIVEAU+1</span><div class="wd-barre"><i data-wd-remplissage style="width:'+(prog*100).toFixed(1)+'%"></i></div><span class="wd-pct" data-wd-pct>'+Math.floor(prog*100)+'%</span></div>'+
       '<div class="wd-ligne wd-petit"><span data-wd-reste>'+html_(texteReste_(vit,prog))+'</span></div>'+
     '</div>';
   }
@@ -660,27 +660,48 @@
    * pour être suivie : elle reste pleine. Le temps restant écrit sous la barre suit la même horloge.
    */
   var vivant=0,gardeBarres_={};
-  function fractionBarre_(p0,v,at,e0,B){
+  /*
+   * COPIE EXACTE de wandoosAvancerTicksV1 (idle-tick-v1.js, vérifiée contre le moteur par idle-ngu-wandoos-projection-moteur-v1). Lu dans le jeu (build 1260, 2026-11-15, Wandoos98Controller::advanceEnergyProgress) :
+   * à chaque tick la barre gagne p = base x vitesse de boot ; à 1 elle donne UN niveau et repart de 0 sans report ; le boot avance ensuite d'un tick. Retourne {gained, acc}.
+   */
+  function wdAvancerTicks_(acc,raw,boot,start,setPct,secondes){
+    var T=0.02,a=Math.max(0,Math.min(0.999999999,Number(acc)||0)),ticks=Math.max(0,Number(secondes)||0)*50,rate=Math.max(0,Number(raw)||0)/50,bt=Math.max(1e-9,Number(boot)||0),t=Math.max(0,Number(start)||0),gained=0;
+    if(!(rate>0)||ticks<=0)return {gained:gained,acc:a};
+    if(t<bt){
+      var nRamp=Math.min(Math.floor(ticks+1e-9),Math.ceil((bt-t)/T-1e-9));
+      for(var k=0;k<nRamp;k+=1){a+=rate*Math.min(1,(t+k*T)/bt);if(a>=1){a=0;gained+=1;}}
+      ticks-=nRamp;t+=nRamp*T;
+      if(t<bt-1e-9){
+        if(ticks>1e-9){a+=ticks*rate*Math.min(1,t/bt);if(a>=1){a=0;gained+=1;}}
+        return {gained:gained,acc:Math.max(0,Math.min(0.999999999,a))};
+      }
+    }
+    var p2=rate*(1+Math.max(0,Number(setPct)||0));
+    if(ticks<=1e-9)return {gained:gained,acc:a};
+    if(p2>=1)return {gained:gained+Math.floor(ticks+1e-9),acc:0};
+    var premier=Math.max(1,Math.ceil((1-a)/p2-1e-9));
+    if(ticks+1e-9<premier)return {gained:gained,acc:Math.min(0.999999999,a+ticks*p2)};
+    ticks=Math.max(0,ticks-premier);gained+=1;
+    var m=Math.max(1,Math.ceil(1/p2-1e-9)),kk=Math.floor((ticks+1e-9)/m);
+    gained+=kk;ticks=Math.max(0,ticks-kk*m);
+    return {gained:gained,acc:Math.min(0.999999999,ticks*p2)};
+  }
+  function fractionBarre_(p0,v,at,e0,B,raw,setPct){
     var dt=Math.max(0,(maintenant_()-at)/1000);
     if(!(v>0))return {f:Math.max(0,Math.min(1,p0)),reste:null,gain:0};
-    /* Démarrage de l'OS (Norman, 2026-11-05 : « exactement comme le moteur ») : la vitesse monte linéairement de 0 à 100 % pendant le boot (B secondes, e0 déjà écoulées à l'instant du repère) ; le moteur intègre cette rampe, l'écran aussi (plafond de 50 niveaux/s). v0 = vitesse au repère. */
-    var rampe=B>0&&e0>0&&e0<B?(function(){
-      var tBoot=B-e0,k=v/e0,tc=(50-v)/k;
-      var seg=function(a,b){if(b<=a)return 0;var c=Math.min(Math.max(tc,a),b);return v*(c-a)+k*(c*c-a*a)/2+50*(b-c);};
-      return seg(0,Math.min(dt,tBoot))+(dt>tBoot?Math.min(50,v*B/e0)*(dt-tBoot):0);
-    })():null;
-    var avance=rampe===null?v*dt:rampe;
-    /* Au-delà de 20 niveaux/s la barre ne peut plus se lire (elle clignoterait) : pleine. En dessous, elle avance (Norman, 2026-10-20 : « avec mes 8M la barre ne bouge plus »). */
-    /* Norman (2026-11-04) : « j'ai mis 25M et il faut 37M pour le cap. Pourtant la barre ne clignote plus. Elle ne doit rester fixe qu'une fois le cap atteint » : la barre n'est PLEINE ET FIXE qu'au cap de Wandoos (50 niveaux par seconde) ; à partir de 4 niveaux/s (même seuil que la Machine temporelle, niveaux de 0,25 s) et jusqu au cap elle continue de se remplir et de repartir, à 3 cycles par seconde au plus (limite de scintillement : plus vite elle ne pourrait pas se lire), le niveau, lui, avance à la vraie vitesse. */
-    if(v>=49.99)return {f:1,reste:null,gain:Math.floor(p0+avance)};
-    /* Norman (2026-11-04) : « Wandoos me dit 13 niv/s alors la barre ne montre pas du tout ça » : la barre tourne désormais à la VRAIE vitesse (v tours par seconde, jusqu'au cap de 50), calée sur l'horloge du jeu, plus à 3 tours par seconde au plus. */
-    if(v>=4){var ph=((maintenant_()/1000)*v)%1;   /* Norman (2026-11-04) : « la barre fait quelque chose d'étrange » (mesuré dans l'exe : retours en arrière de 66 % à 44 % à chaque synchro, car le tour était calé sur l'instant de la dernière synchro, qui change tant que l'OS charge) : le tour est calé sur l'HORLOGE du jeu, donc continu quoi que fasse la synchro */
-    return {f:Math.min(1,ph/0.9),reste:null,gain:Math.floor(p0+avance)};}
-    var brut=p0+avance;
-    var f=brut-Math.floor(brut);
+    /* Même règle que le moteur (tick par tick : wdAvancerTicks_) : niveaux gagnés et fraction de la barre. Le boot (B secondes, e0 déjà écoulées au repère) fait monter la vitesse de 0 à 100 %. */
+    var sim=raw>0?wdAvancerTicks_(p0,raw,B,e0,setPct,dt):null;
+    var gain=sim?sim.gained:Math.floor(p0+v*dt);
+    /* Au cap de Wandoos (50 niveaux/s) la barre est PLEINE ET FIXE (Norman, 2026-11-04) ; au-delà de 4 niveaux/s elle tourne à la vraie vitesse, calée sur l'horloge du jeu (les retours en arrière de 66 % à 44 % venaient d'un tour calé sur la synchro). */
+    if(v>=49.99)return {f:1,reste:null,gain:gain};
+    if(v>=4){var ph=((maintenant_()/1000)*v)%1;return {f:Math.min(1,ph/0.9),reste:null,gain:gain};}
+    var f=sim?sim.acc:(p0+v*dt)-Math.floor(p0+v*dt);
+    /* Temps restant avant le prochain niveau : ceil((1 - fraction) / p) ticks à la vitesse du moment. */
+    var tFin=(e0||0)+dt,pFin=sim?(raw/50)*(B>0&&tFin<B?Math.min(1,tFin/B):1)*(B>0&&tFin<B?1:1+Math.max(0,setPct||0)):v/50;
+    var reste=pFin>0?Math.max(1,Math.ceil((1-f)/pFin-1e-9))*0.02:(1-f)/v;
     /* La barre touche le bout avant de repartir (Norman, 2026-11-01) : les derniers ~40 ms du cycle restent pleins, sinon la dernière image avant le retour à 0 montrait 90 % sur un cycle court. */
     var affichee=Math.min(1,f/(1-Math.min(.15,Math.max(.004,.04*v))));
-    return {f:affichee,reste:(1-f)/v,gain:Math.floor(brut)};
+    return {f:affichee,reste:reste,gain:gain};
   }
   function vivre_(){
     vivant=0;
@@ -688,7 +709,7 @@
     if(!barres.length)return;
     for(var i=0;i<barres.length;i++){
       var b=barres[i];
-      var r=fractionBarre_(nb_(b.getAttribute('data-p0')),nb_(b.getAttribute('data-v')),nb_(b.getAttribute('data-at')),nb_(b.getAttribute('data-boot-e0')),nb_(b.getAttribute('data-boot-total')));
+      var r=fractionBarre_(nb_(b.getAttribute('data-p0')),nb_(b.getAttribute('data-v')),nb_(b.getAttribute('data-at')),nb_(b.getAttribute('data-boot-e0')),nb_(b.getAttribute('data-boot-total')),nb_(b.getAttribute('data-raw')),nb_(b.getAttribute('data-set')));
       /* Défi des 100 niveaux (Norman, 2026-11-03 : « 101 puis retour à 100 ») : les niveaux gagnés depuis le repère puisent dans le budget partagé du défi (modules/defi-niveaux-100-v1.js) ; budget épuisé = barre PLEINE, niveau figé. Hors défi : inchangé. */
       var D100=window.__SOREAL_IDLE_DEFI100_V1__;
       if(D100&&D100.actif()){

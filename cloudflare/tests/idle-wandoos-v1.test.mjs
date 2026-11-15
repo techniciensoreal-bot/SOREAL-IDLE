@@ -77,7 +77,7 @@ assert.deepEqual(IDLE_WANDOOS_OS_V1.xl.requirement, { normal: 1e15, difficile: 1
   state.systems.wandoos.data.osLevels = { moneyPit: 9, consumed98: 0, consumedXl: 0 };
   state = applyIdleNguAction(state, { action: "allocate", system: "wandoos", resource: "energy", value: 1e9 }, context, 100_000_000).state;
   const after = advanceIdleNguState(state, 1, context, 100_000_001);
-  assert.equal(after.systems.wandoos.data.dumpEnergyLevel, 20, "niveau d'OS 9 : 50 x 0,4 = 20 niveaux/s (facteur (niveau + 1) / 25, lu dans le jeu)");
+  assert.equal(after.systems.wandoos.data.dumpEnergyLevel, 16, "niveau d OS 9 : p = 0,4 par tick : un niveau tous les 3 ticks (0,4, 0,8, 1,2 puis remise à 0 sans report, lu dans le jeu) = 16 niveaux en 50 ticks, et non 20");
   let s100 = unlockedWandoos();
   s100.resources.energy.cap = 1e9; s100.resources.energy.current = 1e9;
   s100.systems.wandoos.data.osLevels = { moneyPit: 100, consumed98: 0, consumedXl: 0 };

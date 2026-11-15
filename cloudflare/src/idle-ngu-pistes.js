@@ -763,6 +763,10 @@ export function wandoosViewV1(state, now) {
     multiplicateurOs: c.osLevelMultiplier,
     vitesseEnergie: c.energySpeed,
     vitesseMagie: c.magicSpeed,
+    /* Vitesses brutes (niveaux par seconde, sans boot ni set ni plafond) et bonus du set : l'écran rejoue la barre tick par tick avec la même règle que le moteur (wandoosAvancerTicksV1). */
+    brutEnergie: c.energyRaw,
+    brutMagie: c.magicRaw,
+    bonusSetBoot: c.setPct,
     /* Cap de Wandoos : allocation à partir de laquelle le Dump atteint 50 niveaux/s (voir wandoosCalculVitessesV1) ; null si indéfini. */
     capEnergie: c.energyCap,
     capMagie: c.magicCap,

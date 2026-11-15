@@ -63,7 +63,7 @@ const cap = vue(s).capEnergie;
 assert.ok(Number.isInteger(cap) && cap > 0 && cap <= 25e9, "cap d énergie : un entier, au plus l'exigence (les multiplicateurs ne la réduisent que)");
 s.systems.wandoos.allocation.energy = cap;
 assert.equal(vue(s).vitesseEnergie, 50, "placer le cap donne 50 niveaux/s");
-s.systems.wandoos.allocation.energy = cap - 1;
+s.systems.wandoos.allocation.energy = Math.floor(cap * 0.99);   // un point de moins ne se distingue pas d une tolérance de 1e-9 : on retire 1 %
 assert.ok(vue(s).vitesseEnergie < 50, "un point de moins : sous le plafond");
 assert.equal(vue(s).capEnergie, cap, "le cap ne dépend pas de ce qui est placé");
 // Pendant le boot (Norman, 2026-11-03 : « pour le cap pendant son chargement, il faudra beaucoup plus d'énergie… il diminuera plus l'OS sera chargé ») : le cap est celui À L'INSTANT

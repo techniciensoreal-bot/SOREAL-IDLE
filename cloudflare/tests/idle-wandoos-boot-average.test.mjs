@@ -25,7 +25,7 @@ const total = (x) => x.systems.wandoos.data.dumpEnergyLevel + x.systems.wandoos.
 /* Un seul bloc de 30 min depuis le debut du run : integrale de la rampe = 0,25 x 1800 s x 0,05. */
 {
   const un = advanceIdleNguState(wandoos(), 1800, ctx, T0 + 1800 * 1000);
-  assert.ok(Math.abs(total(un) - 0.002 * 1800 * 0.25) < 1e-6, `bloc 30 min : ${total(un)}`);
+  assert.ok(Math.abs(total(un) - 0.002 * 1800 * 0.25) < 1e-4, `bloc 30 min : ${total(un)}`);
   /* Meme resultat en petits pas de 1 minute. */
   let pas = wandoos();
   for (let i = 1; i <= 30; i += 1) pas = advanceIdleNguState(pas, 60, ctx, T0 + i * 60 * 1000);
@@ -34,6 +34,6 @@ const total = (x) => x.systems.wandoos.data.dumpEnergyLevel + x.systems.wandoos.
 /* Bloc de 2 h : 1 h de rampe (0,5 x 3600) + 1 h a pleine vitesse = 0,05 x (1800 + 3600) s. */
 {
   const un = advanceIdleNguState(wandoos(), 7200, ctx, T0 + 7200 * 1000);
-  assert.ok(Math.abs(total(un) - 0.002 * (1800 + 3600)) < 1e-6, `bloc 2 h : ${total(un)}`);
+  assert.ok(Math.abs(total(un) - 0.002 * (1800 + 3600)) < 1e-4, `bloc 2 h : ${total(un)}`);
 }
 console.log("idle-wandoos-boot-average: OK");
