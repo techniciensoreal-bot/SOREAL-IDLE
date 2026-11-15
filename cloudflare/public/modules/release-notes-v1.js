@@ -29,6 +29,12 @@
         nom:'Des cartes qui comptent',
         date:'2026-11-15',
         groupes:[
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Une copie consommée alors que le niveau de son système est déjà au maximum est maintenant détruite sans effet, comme dans le jeu, au lieu d’être refusée.'
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Aventure : la vitesse NGU d’un accessoire de set est corrigée (600 au lieu de 500 au niveau 0).'
+          ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Les cartes « Vitesse du Daycare » accélèrent maintenant vraiment les objets en garderie (elles ne comptaient que dans l’affichage).'
           ]}

@@ -95,6 +95,9 @@ function construire(payload,res){
   }else if(a==='consumeWandoosCopy'){
     if(r.unlocked==='xl'){
       spec={cle:'wandoos',icone:'💾',img:'',titre:'Wandoos XL débloqué !',nom:'',phrase:[['Wandoos XL est installé.','t']],rows:[]};
+    }else if(r.detruite){
+      spec={cle:'wandoos',icone:'💾',img:'',titre:'Copie détruite',nom:r.source==='consumedXl'?'Copie de Wandoos XL':'Copie de Wandoos 98',
+        phrase:[['Niveau d’OS de Wandoos','t'],['déjà au maximum','v']],rows:[['Cette copie est détruite, sans effet','Oui']]};
     }else if(r.osLevel!=null){
       var xl=r.source==='consumedXl';
       spec={cle:'wandoos',icone:'💾',img:'',titre:'Wandoos mis à jour !',nom:xl?'Copie de Wandoos XL':'Copie de Wandoos 98',

@@ -4,6 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Une copie consommée alors que le niveau de son système est déjà au maximum est maintenant détruite sans effet, comme dans le jeu, au lieu d’être refusée.",
+    "Aventure : la vitesse NGU d’un accessoire de set est corrigée (600 au lieu de 500 au niveau 0).",
     "Les cartes « Vitesse du Daycare » accélèrent maintenant vraiment les objets en garderie (elles ne comptaient que dans l’affichage)."
   ] };
 })();

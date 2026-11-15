@@ -183,7 +183,8 @@ export const SET_ITEM_SPECIALS_V1 = Object.freeze({
   "western:chest":[["energyBarsPct",207000,207000,414000],["magicBarsPct",207000,207000,414000],["r3CapPct",21,21,42],["r3PowerPct",212,212,424]],
   "western:legs":[["energyCapPct",21200,21200,42400],["magicCapPct",21200,21200,42400],["r3BarsPct",209,209,418],["r3PowerPct",211,211,422]],
   "western:boots":[["energyBarsPct",210000,210000,420000],["energyPowerPct",213000,213000,426000],["magicBarsPct",210000,210000,420000],["magicPowerPct",213000,213000,426000],["r3CapPct",21.2,21.2,42.4]],
-  "western:corgi":[["dropChancePct",1200,1200,2400],["nguSpeedPct",500,500,1200],["wishSpeedPct",21,21,42]],
+  /* A Battle Corgi, vitesse NGU (2026-11-15) : la fiche wiki écrit 500 au niveau 0 mais 1 200 au niveau 100 et 6 000 000 / 12 000 000 en points (rapport de 1,2e4 comme la chance de drop : 1 200 -> 12 000 000), soit 600 / 1 200 ; le gear-optimizer (données du jeu) donne 600. */
+  "western:corgi":[["dropChancePct",1200,1200,2400],["nguSpeedPct",600,600,1200],["wishSpeedPct",21,21,42]],
   "western:bandana":[["energyPowerPct",360000,360000,720000],["magicCapPct",36000,36000,72000],["r3CapPct",31,31,62]],
   "bread:weapon":[["energyCapPct",41000,41000,82000],["energyPowerPct",362000,362000,724000],["magicCapPct",41000,41000,82000],["magicPowerPct",362000,362000,724000],["r3PowerPct",365,365,730]],
   "bread:head":[["energyCapPct",40700,40700,81400],["magicCapPct",40700,40700,81400],["r3CapPct",36.3,36.3,72.6],["r3PowerPct",360,360,720]],

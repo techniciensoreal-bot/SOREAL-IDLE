@@ -138,14 +138,6 @@
       "date": "2026-11-09"
     },
     {
-      "fichier": "idle-wandoos-os-v1.js",
-      "marqueur": "choix soreal",
-      "repere": "CHOIX SOREAL : une copie consommée au-delà du niveau d'OS 10",
-      "description": "ms existant (consumeUnlock, idle-adventure-v47.js) : ici on ne fait que les niveaux d'OS. CHOIX SOREAL : une copie consommée au-delà du niveau d'OS 100 est refusée (le jeu la fait \"exploser\" sans effet) plutôt que détruite. / const N = (v, d = 0) => (Number.is",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
       "fichier": "modules/titans-comportements-v1.js",
       "marqueur": "choisie par soreal",
       "repere": "CHOISIE PAR SOREAL (accord de Norman, 2026-10-04 : « calcule",

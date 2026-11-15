@@ -24,8 +24,9 @@
  *
  * Le déblocage de Wandoos 98 lui-même reste le drapeau unlockItems existant
  * (consumeUnlock, idle-adventure-v47.js) : ici on ne fait que les niveaux d'OS.
- * CHOIX SOREAL : une copie consommée au-delà du niveau d'OS 100 est refusée
- * (le jeu la fait "exploser" sans effet) plutôt que détruite.
+ * Copie consommée alors que l'OS de sa source est déjà au niveau 100 (2026-11-15, fiche "A busted copy of Wandoos 98",
+ * "If used after maxing 98 OS levels" : "You're at the max wandoos level you can get with this item, so you grind the disk
+ * into a coarse powder and snort it") : la copie est DÉTRUITE sans aucun effet (elle n'est pas refusée).
  */
 
 import { nombreV1, entierV1 } from "./idle-outils-v1.js";   /* outils communs (identiques aux anciennes définitions locales) */
@@ -81,7 +82,11 @@ export function idleWandoosConsumeCopyV1(state, itemId) {
     ? wandoos.data.osLevels
     : (wandoos.data.osLevels = { moneyPit: 0, consumed98: 0, consumedXl: 0 });
   const actuel = Math.max(0, I(niveaux[cle], 0));
-  if (actuel >= MAX_NIVEAU_OS_PAR_SOURCE_V1) throw new Error("OS_NIVEAU_MAX");
+  if (actuel >= MAX_NIVEAU_OS_PAR_SOURCE_V1) {
+    retirerObjet(adventure, objet.id);
+    adventure.revision = Math.max(0, I(adventure.revision, 0)) + 1;
+    return { definitionId: objet.definitionId, osLevel: actuel, osAvant: actuel, source: cle, detruite: true };
+  }
   const nouveau = actuel + 1;
   const niveauObjet = Math.max(0, I(objet.level, 0));
   if (niveauObjet < nouveau) throw new Error("NIVEAU_COPIE_INSUFFISANT:" + nouveau); /* le client affiche le niveau requis */
