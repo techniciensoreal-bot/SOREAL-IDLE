@@ -338,11 +338,10 @@ export function createWandoosData() {
 function wandoosOsLevelSpeedMultiplierV1(totalOsLevel) {
   const level = Math.max(0, Math.min(400, num(totalOsLevel, 0)));
   /*
-   * 2026-09-23 (audit, page Wandoos) : « +4 % au niveau 0, +8 % au niveau 1 ... est trompeur : cela
-   * équivaut à 100 % au niveau 0, 200 % au niveau 1 (le temps de remplissage est divisé par deux),
-   * jusqu'à 401 fois plus rapide au niveau 400 » -> multiplicateur = niveau + 1.
+   * Lu dans le code du jeu (Wandoos98Controller::OSFactor, build 1260, 2026-11-15) : (niveau + 1) / 25, soit +4 % au niveau 0, +8 % au niveau 1 ... 16,04 au niveau 400 : la LETTRE du wiki (la lecture « 100 % au niveau 0 »
+   * de l'audit du 2026-09-23 était fausse : le jeu divise par 25).
    */
-  return level + 1;
+  return (level + 1) / 25;
 }
 
 /*

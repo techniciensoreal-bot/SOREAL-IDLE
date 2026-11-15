@@ -60,7 +60,7 @@ assert.equal(vue(s).vitesseEnergie, 50, "plafond de 50 niveaux par seconde");
 // CAP de Wandoos (Norman, 2026-10-18) : l'allocation à partir de laquelle le Dump atteint 50 niveaux/s ; le placer donne exactement le plafond, un point de moins reste dessous.
 s = etat(7200);
 const cap = vue(s).capEnergie;
-assert.ok(Number.isInteger(cap) && cap > 0 && cap <= 1e9, "cap d'énergie : un entier, au plus l'exigence (les multiplicateurs ne la réduisent que)");
+assert.ok(Number.isInteger(cap) && cap > 0 && cap <= 25e9, "cap d énergie : un entier, au plus l'exigence (les multiplicateurs ne la réduisent que)");
 s.systems.wandoos.allocation.energy = cap;
 assert.equal(vue(s).vitesseEnergie, 50, "placer le cap donne 50 niveaux/s");
 s.systems.wandoos.allocation.energy = cap - 1;
