@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'5.9',
+    courante:'6.0',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.0',
+        nom:'Des cartes qui comptent',
+        date:'2026-11-15',
+        groupes:[
+          {menu:'daycare', titre:'Garderie', points:[
+            'Les cartes « Vitesse du Daycare » accélèrent maintenant vraiment les objets en garderie (elles ne comptaient que dans l’affichage).'
+          ]}
+        ]
+      },
       {
         version:'5.9',
         nom:'Un jeu mieux gardé',

@@ -21,7 +21,7 @@ import { idlePortraitSelectV1, marquerPortraitVuV1, IDLE_SPECIAL_PRIZE_AP_V1 } f
 import { acquerirSkinsV1, choisirSkinV1, marquerSkinVuV1 } from "./idle-daycare-skins-v1.js";
 import { idleDaycarePlaceV1, idleDaycareRemoveV1, idleDaycareFactorsV1 } from "./idle-daycare-v1.js";
 import { idleAdventureObjetPleinementMaxeV1 } from "./idle-adventure-objets.js";
-import { idleCardsActionV1 } from "./idle-cards-v1.js";
+import { idleCardsActionV1, idleCardsMultiplierV1 } from "./idle-cards-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { FENETRE_INSTANT_CLIC_MS_V1 } from "./idle-instant-clic-v1.js";
@@ -1215,7 +1215,9 @@ export function daycareFactorsV1(state) {
     wishLevel: wishLevelV1(state, 27),
     gearDaycareSpeedPct: num(gearSpecialsV1(state).daycareSpeedPct, 0),
     diggerMultiplier: diggerBonuses(state).daycare,
-    hackMultiplier: hackFxV1(state).daycare
+    hackMultiplier: hackFxV1(state).daycare,
+    /* Cartes « Vitesse du Daycare » : appliquées ici (vitesse réelle) ; idleCardsApplyToBonusesV1 ne les remultiplie plus pour l'affichage. */
+    cardMultiplier: idleCardsMultiplierV1(state, "daycare")
   }));
 }
 

@@ -27,8 +27,7 @@
  *    « Gold Diggers » (Daycare Digger, calculé par diggerBonuses), « Hacks » (Daycare Hack, calculé
  *    par hackFxV1), « 4G's Sellout Shop » (Daycare Speed Boost!).
  *
- * Non modélisé (système absent de SOREAL ou magnitude non publiée) : cartes Daycare (le système de
- * cartes n'existe pas), perk « Macguffin Daycare! » (MacGuffins hors de ce module), récompense
+ * Non modélisé (système absent de SOREAL ou magnitude non publiée) : perk « Macguffin Daycare! » (MacGuffins hors de ce module), récompense
  * « All Equip OR Daycare » du Money Pit (répartition entre les deux cibles non documentée), objets
  * de quête (« Quest items take 48 hours », système Questing absent de l'inventaire).
  *
@@ -428,7 +427,9 @@ export function idleDaycareFactorsV1(input = {}) {
     blindEvil: 1 + 0.02 * blindEvil,
     blindSadistic: 1 + 0.01 * blindSadistic,
     digger: Math.max(1, num(x.diggerMultiplier, 1)),
-    hack: Math.max(1, num(x.hackMultiplier, 1))
+    hack: Math.max(1, num(x.hackMultiplier, 1)),
+    /* Cartes « Vitesse du Daycare » (page Cards) : multiplicateur venu du moteur de cartes (2026-11-15 : il n'était calculé que pour l'affichage, jamais dans la vitesse réelle de la garderie). */
+    cards: Math.max(1, num(x.cardMultiplier, 1))
   };
   const speedMultiplier = Object.values(speedParts).reduce((a, b) => a * b, 1);
 

@@ -668,7 +668,7 @@ export function idleCardsApplyToBonusesV1(state, bonuses) {
   mul("dropMultiplier", m.drop);
   mul("adventureGoldMultiplier", m.gold);
   mul("ppMultiplier", m.pp);
-  mul("daycareSpeedMultiplier", m.daycare);
+  /* Daycare : pas remultiplié ici, le facteur de cartes est déjà dans daycareFactorsV1 (idle-ngu-actions.js) d'où vient daycareSpeedMultiplier. */
   mul("hackSpeedMultiplier", m.hacks);
   mul("wishSpeedMultiplier", m.wishes);
   bonuses.cardsQpGainMultiplier = m.qp;
