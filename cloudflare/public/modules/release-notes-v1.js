@@ -42,6 +42,9 @@
             'Les bonus de vitesse venant de souhait différent se multiplient entre eux (et non plus additionnés), et l’équipement et le cube s’additionnent pour la vitesse de chaque souhait et des Hacks, comme dans le jeu.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
+            'L’Or d’un niveau de barre est payé au début du niveau, comme dans le vrai jeu : sans Or la barre ne démarre pas et reste à zéro.',
+            'La génération d’énergie et de magie se fait par remplissages entiers de la barre (vitesse de 1 à 50), le cap d’énergie au Rebirth se calcule depuis l’énergie obtenue au total, et NUMBER vaut 1 + le produit de ses facteurs.',
+            'Le taux de drop (équipement et cube additifs, sets séparés), le temps de plusieurs systèmes de vitesse et le « 100 » naturel d’Attaque et de Défense suivent maintenant les formules lues dans le code du jeu.',
             'Les barres de progression suivent le vrai jeu : un niveau dure un nombre entier de ticks (au plus un niveau par tick) et la barre repart de zéro sans report ; l’écran rejoue les niveaux avec exactement la même règle que le moteur.',
             'Les NGU de la difficulté la plus haute avancent 50 fois plus vite : le coût de base a été mesuré dans le vrai jeu et était 50 fois trop élevé.',
             'Formules alignées sur le code du jeu : les bonus de vitesse des sets se multiplient entre eux, les NGU et les Augmentations suivent l’ordre exact de calcul du jeu (bonus total, défis), et le coût de deux NGU de la difficulté intermédiaire est corrigé de 1 %.'
