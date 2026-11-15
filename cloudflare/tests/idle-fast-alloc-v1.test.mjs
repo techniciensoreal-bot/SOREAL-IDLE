@@ -25,6 +25,7 @@ function etat() {
 }
 const agir = (s, p) => applyIdleNguAction(s, p, ctx, NOW).state;
 const proche = (a, b, msg) => assert.ok(Math.abs(a - b) <= Math.max(1e-9, Math.abs(b) * 1e-9), msg + " (" + a + " vs " + b + ")");
+const q = (x) => Math.max(1, Math.ceil(x / 0.02 - 1e-9)) * 0.02;   /* durée quantifiée sur les ticks (lu dans le jeu) */
 
 // --- 1. K : la durée serveur à l'allocation A vaut exactement K / A (le client peut donc la recalculer seul) ---
 {
@@ -57,12 +58,12 @@ const proche = (a, b, msg) => assert.ok(Math.abs(a - b) <= Math.max(1e-9, Math.a
   s = agir(s, { action: "allocate", system: "timeMachine", resource: "energy", value: 300 });
   s = agir(s, { action: "allocate", system: "timeMachine", resource: "magic", value: 700 });
   const v = idleNguSnapshot(s, ctx, 0).timeMachineView;
-  proche(v.speedEtaSeconds + v.speedProgressSeconds, v.speedK / 300, "Time Machine vitesse : durée = K / Energy");
-  proche(v.goldEtaSeconds + v.goldProgressSeconds, v.goldK / 700, "Time Machine or : durée = K / Magic");
+  proche(v.speedEtaSeconds + v.speedProgressSeconds, q(v.speedK / 300), "Time Machine vitesse : durée = K / Energy");
+  proche(v.goldEtaSeconds + v.goldProgressSeconds, q(v.goldK / 700), "Time Machine or : durée = K / Magic");
   s = agir(s, { action: "allocate", system: "timeMachine", resource: "energy", value: 900 });
   const v2 = idleNguSnapshot(s, ctx, 0).timeMachineView;
   proche(v2.speedK, v.speedK, "K de la vitesse indépendant de l'allocation");
-  proche(v2.speedEtaSeconds + v2.speedProgressSeconds, v.speedK / 900, "durée à 900 = K / 900");
+  proche(v2.speedEtaSeconds + v2.speedProgressSeconds, q(v.speedK / 900), "durée à 900 = K / 900");
 }
 {
   let s = etat();

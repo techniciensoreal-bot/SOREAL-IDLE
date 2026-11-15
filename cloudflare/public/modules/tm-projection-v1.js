@@ -41,7 +41,7 @@ function projeter(p){
     }
     franchis+=1;
     brut=brut*(niveau0+1+franchis)/(niveau0+franchis);
-    var pas=Math.max(TICK,brut);                             /* durée du niveau suivant, au moins un tick */
+    var pas=Math.max(1,Math.ceil(brut/TICK-1e-9))*TICK;      /* durée du niveau suivant : ceil(durée / tick) ticks (lu dans le jeu, comme le moteur : idle-tick-v1.js) */
     prog=Math.max(0,prog-step);                              /* le reste du temps continue sur le niveau suivant, en SECONDES : le moteur découpe maintenant le temps aux événements (Or progressif, avancerTmProgressifV1) */
     step=pas;
   }

@@ -101,7 +101,7 @@
    "augmentations": "5d0c55a91cfd4850",
    "advancedTraining": "5a42d37a1163f69a",
    "timeMachine": "24e50df24be752dd",
-   "bloodMagic": "ce764f6c705531f6",
+   "bloodMagic": "da377b7959da394e",
    "wandoos": "9a27fbdb91a42925",
    "ngu": "a66f32c3db4eb498",
    "yggdrasil": "f0200b339c43db57",
@@ -217,7 +217,7 @@
    "augmentations": "0a1c467ee45af510",
    "advancedTraining": "22838a233f974ba7",
    "timeMachine": "24e50df24be752dd",
-   "bloodMagic": "ce764f6c705531f6",
+   "bloodMagic": "da377b7959da394e",
    "wandoos": "9a27fbdb91a42925",
    "ngu": "d0ced1c3f094bca4",
    "yggdrasil": "f0200b339c43db57",
@@ -235,7 +235,7 @@
   "tm": {
    "vitesse": [
     274,
-    231345695.073
+    231345695.088
    ],
    "or": [
     36,
@@ -332,8 +332,8 @@
    "dailySpin": "e40377802becc72f",
    "augmentations": "cfe2d5ceb328df22",
    "advancedTraining": "adac16a29399ffc9",
-   "timeMachine": "03edffd969decc28",
-   "bloodMagic": "263d040292ec702e",
+   "timeMachine": "89a866c1388819e5",
+   "bloodMagic": "96f96f2dc450c2a7",
    "wandoos": "f89cbc98db9cdefe",
    "ngu": "bd048b3789d96929",
    "yggdrasil": "d8f3e6d8004adba4",
@@ -351,7 +351,7 @@
   "tm": {
    "vitesse": [
     274,
-    231345697.073
+    231345697.088
    ],
    "or": [
     36,
@@ -448,8 +448,8 @@
    "dailySpin": "e40377802becc72f",
    "augmentations": "041b752415ab4bce",
    "advancedTraining": "406f6885076ef8cb",
-   "timeMachine": "1c6dc87e92a704ec",
-   "bloodMagic": "3997fd71cfffc414",
+   "timeMachine": "955d2dcdc3ee3f41",
+   "bloodMagic": "db2740dfa6f53ad4",
    "wandoos": "d516e8e81719105b",
    "ngu": "d1556ccd14f862e4",
    "yggdrasil": "3d67ad6da31f344c",
@@ -467,7 +467,7 @@
   "tm": {
    "vitesse": [
     274,
-    231345707.073
+    231345707.088
    ],
    "or": [
     36,
@@ -564,8 +564,8 @@
    "dailySpin": "e40377802becc72f",
    "augmentations": "ec0404833c5e5598",
    "advancedTraining": "38d5bb4d4007ae2c",
-   "timeMachine": "bed20eb5537d490f",
-   "bloodMagic": "49d0c1f8ec75f9fe",
+   "timeMachine": "693ec8ce582afed0",
+   "bloodMagic": "142c640b865a30fc",
    "wandoos": "80dc55e11dd2401a",
    "ngu": "9c1d524bb61f4507",
    "yggdrasil": "5a97a3d8b732a598",
@@ -583,7 +583,7 @@
   "tm": {
    "vitesse": [
     274,
-    231345767.073
+    231345767.088
    ],
    "or": [
     36,
@@ -680,8 +680,8 @@
    "dailySpin": "e40377802becc72f",
    "augmentations": "4546bad55934d65a",
    "advancedTraining": "3153d5ab91c5e0d8",
-   "timeMachine": "976f206319d74e27",
-   "bloodMagic": "3522040a5353877d",
+   "timeMachine": "4db962b9aaa5ac44",
+   "bloodMagic": "0f2886161f835aff",
    "wandoos": "7bbfe6aa2d7b635c",
    "ngu": "ead89baf23b3a405",
    "yggdrasil": "270630a5a9aa9bbc",
@@ -699,7 +699,7 @@
   "tm": {
    "vitesse": [
     274,
-    231346367.073
+    231346367.088
    ],
    "or": [
     36,
@@ -796,8 +796,8 @@
    "dailySpin": "e40377802becc72f",
    "augmentations": "109f15f7f77a7ced",
    "advancedTraining": "759da4afd71b0bb6",
-   "timeMachine": "59877f555925b21c",
-   "bloodMagic": "2f2ce7d952180535",
+   "timeMachine": "34843885137a291e",
+   "bloodMagic": "59a91490812cd543",
    "wandoos": "8e2ff217176a2149",
    "ngu": "0104f552f877bbb8",
    "yggdrasil": "20e7c00a8456165d",

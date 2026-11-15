@@ -11,6 +11,7 @@ export const IDLE_TICK_SECONDS_V1 = 1 / 50;
  */
 export function dureeNiveauEnTicksV1(brut) {
   const b = Number(brut);
+  if (b === Infinity) return Infinity;   /* aucune ressource allouée : la barre n'avance pas (comme Math.max(tick, Infinity)) */
   if (!(b > 0) || !Number.isFinite(b)) return IDLE_TICK_SECONDS_V1;
   return Math.max(1, Math.ceil(b / IDLE_TICK_SECONDS_V1 - 1e-9)) * IDLE_TICK_SECONDS_V1;
 }

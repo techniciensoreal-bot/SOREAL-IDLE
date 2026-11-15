@@ -42,7 +42,7 @@
             'Les bonus de vitesse venant de souhait différent se multiplient entre eux (et non plus additionnés), et l’équipement et le cube s’additionnent pour la vitesse de chaque souhait et des Hacks, comme dans le jeu.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
-            'Les barres des Augmentations suivent le vrai jeu : un niveau dure un nombre entier de ticks (au plus un niveau par tick) et la barre repart de zéro sans report ; l’écran rejoue les niveaux avec exactement la même règle que le moteur.',
+            'Les barres de progression suivent le vrai jeu : un niveau dure un nombre entier de ticks (au plus un niveau par tick) et la barre repart de zéro sans report ; l’écran rejoue les niveaux avec exactement la même règle que le moteur.',
             'Les NGU de la difficulté la plus haute avancent 50 fois plus vite : le coût de base a été mesuré dans le vrai jeu et était 50 fois trop élevé.',
             'Formules alignées sur le code du jeu : les bonus de vitesse des sets se multiplient entre eux, les NGU et les Augmentations suivent l’ordre exact de calcul du jeu (bonus total, défis), et le coût de deux NGU de la difficulté intermédiaire est corrigé de 1 %.'
           ]},

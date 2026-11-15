@@ -4,7 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { idleHeartsPinkCompleteV1 } from "./idle-hearts-v1.js";
-import { IDLE_TICK_SECONDS_V1 } from "./idle-tick-v1.js";
+import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idleWishAccessibleV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 import { idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
@@ -346,7 +346,7 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
   while (remaining > 1e-9 && iterations < 100000 && level < hardCap) {
     iterations++;
     const ticksNeeded = divider * Math.pow(1.0078, level) * (level + 1);
-    const secondsNeeded = Math.max(IDLE_TICK_SECONDS_V1, ticksNeeded / 50 / throughput);   /* règle « Ticks » du wiki : un niveau par tick au plus (50 par seconde) */
+    const secondsNeeded = dureeNiveauEnTicksV1(ticksNeeded / 50 / throughput);   /* règle « Ticks » du wiki : un niveau par tick au plus (50 par seconde) */
     if (!Number.isFinite(secondsNeeded) || secondsNeeded <= 0) break;
     const remainingForLevel = (1 - progress) * secondsNeeded;
     if (remaining + 1e-12 < remainingForLevel) {
@@ -745,7 +745,7 @@ export function advanceTrackSystem(state, def, seconds) {
 function tmLevelSeconds(state, resource, targetLevel, allocOverride = null) {
   const brut = tmSecondsFactorV1(state, resource, allocOverride) * Math.max(1, targetLevel);
   /* Au moins un tick par niveau (50 niveaux par seconde au plus, comme le vrai jeu, voir idle-tick-v1.js) ; K (allocation forcée) reste brut, le client applique le même plancher. */
-  return allocOverride != null ? brut : Math.max(IDLE_TICK_SECONDS_V1, brut);
+  return allocOverride != null ? brut : dureeNiveauEnTicksV1(brut);
 }
 
 /*
@@ -903,7 +903,7 @@ export function bloodMagicViewV1(state) {
     const rs = (s.data.rituals || {})[ritual.id] || { progress: 0 };
     const magic = Math.max(0, num(rs.magic, 0));
     const secondsPerCompletion = magic > 0
-      ? Math.max(IDLE_TICK_SECONDS_V1, ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier)
+      ? dureeNiveauEnTicksV1(ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier)
       : null;
     return {
       id: ritual.id,
@@ -950,7 +950,7 @@ function avancerTmProgressifV1(state, seconds) {
   const gps = () => Math.max(0, C * tmBarresParSecondeV1(Math.max(0, num(d.speedLevel, 0))) * (1 + Math.max(0, num(d.goldLevel, 0))) - drain);
   const pistes = [{ prog: "speedProgress", niv: "speedLevel", cible: "speedTarget", facteur: tmSecondsFactorV1(state, "energy") }];
   if (magieActive) pistes.push({ prog: "goldProgress", niv: "goldLevel", cible: "goldTarget", facteur: tmSecondsFactorV1(state, "magic") });
-  const pas = (p) => Math.max(IDLE_TICK_SECONDS_V1, p.facteur * Math.max(1, d[p.niv] + 1));
+  const pas = (p) => dureeNiveauEnTicksV1(p.facteur * Math.max(1, d[p.niv] + 1));
   for (const p of pistes) { p.step = pas(p); if (Number.isFinite(p.step)) rebaserProgressionSecondesV1(d, p.prog, p.step); }
   const bloqueDefi = () => limiteDefi && challengeHundredLevelsRemaining(state) <= 0;
   let reste = seconds, evenements = 0, tours = 0;
@@ -1025,7 +1025,7 @@ function avancerTmGrossierV1(state, seconds) {
   const facteurEnergie = tmSecondsFactorV1(state, "energy");
   const facteurMagie = tmSecondsFactorV1(state, "magic");
   const limiteDefi = state.challenge?.active === "hundredLevels";
-  let energyStep = Math.max(IDLE_TICK_SECONDS_V1, facteurEnergie * Math.max(1, d.speedLevel + 1));
+  let energyStep = dureeNiveauEnTicksV1(facteurEnergie * Math.max(1, d.speedLevel + 1));
   if (Number.isFinite(energyStep)) {
     rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
     d.speedProgress += seconds;
@@ -1037,7 +1037,7 @@ function avancerTmGrossierV1(state, seconds) {
       d.speedProgress -= energyStep;
       d.speedLevel += 1;
       challengeHundredLevelsConsume(state, 1);
-      energyStep = Math.max(IDLE_TICK_SECONDS_V1, facteurEnergie * Math.max(1, d.speedLevel + 1));
+      energyStep = dureeNiveauEnTicksV1(facteurEnergie * Math.max(1, d.speedLevel + 1));
       if (!Number.isFinite(energyStep)) break;
       rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
     }
@@ -1045,7 +1045,7 @@ function avancerTmGrossierV1(state, seconds) {
 
   if (state.systems.bloodMagic.unlocked) {
     guard = 0;
-    let magicStep = Math.max(IDLE_TICK_SECONDS_V1, facteurMagie * Math.max(1, d.goldLevel + 1));
+    let magicStep = dureeNiveauEnTicksV1(facteurMagie * Math.max(1, d.goldLevel + 1));
     if (Number.isFinite(magicStep)) {
       rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
       d.goldProgress += seconds;
@@ -1057,7 +1057,7 @@ function avancerTmGrossierV1(state, seconds) {
         d.goldProgress -= magicStep;
         d.goldLevel += 1;
         challengeHundredLevelsConsume(state, 1);
-        magicStep = Math.max(IDLE_TICK_SECONDS_V1, facteurMagie * Math.max(1, d.goldLevel + 1));
+        magicStep = dureeNiveauEnTicksV1(facteurMagie * Math.max(1, d.goldLevel + 1));
         if (!Number.isFinite(magicStep)) break;
         rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
       }
