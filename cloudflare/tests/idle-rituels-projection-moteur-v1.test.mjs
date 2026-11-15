@@ -55,29 +55,31 @@ const agir = (run, p) => run("agirProgressionSorealIdle", p);
  */
 const src = readFileSync("cloudflare/public/modules/ui-boucle-v1.js", "utf8");
 for (const morceau of [
-  "if(ecoule0>=eta0-1e-9){",
-  "const dus=Math.floor((ecoule0-eta0)/seconds+1e-9)+1;",
-  "Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000)",
-  "const reste=(ecoule0-eta0)%seconds;",
-  "bloodVisual.etaSeconds=Math.max(1e-6,seconds-reste);",
-  "if(faits<=0){bloodVisual.at=maintB;bloodVisual.etaSeconds=0;}",
+  "const impayeB=eta0>=seconds-1e-9;",
+  "if(ecoule0>=eta0-1e-9||impayeB){",
+  "const plein=Math.floor((tB+1e-9)/seconds);",
+  "Math.min(plein,Math.floor((orR+1e-9)/coutOrB),1000000)",
+  "if(nB>=plein&&tB>1e-9&&orR+1e-9>=coutOrB&&",
+  "etaNouveau=seconds-Math.min(tB,seconds);",
+  "bloodVisual.etaSeconds=Math.max(1e-6,etaNouveau);",
   "REG.idleEtat.systemes.currencies.gold=orLiveB;"
 ]) assert.ok(src.includes(morceau), "ligne de l'écran toujours présente (mettre la copie du test à jour sinon) : " + morceau);
 
 /* Copie de la logique pure de l'écran. Renvoie les rituels faits, l'Or restant et le nouveau repère (etaSeconds restant au repère à l'instant ecoule). */
 function rejeuEcran({ seconds, eta0, ecoule0, or, cout }) {
-  let faits = 0, etaSeconds = eta0, orLive = or;
-  if (seconds > 0 && cout > 0 && ecoule0 >= eta0 - 1e-9) {
-    const dus = Math.floor((ecoule0 - eta0) / seconds + 1e-9) + 1;   /* tolérance de frontière : même que le moteur (2026-11-05) */
-    faits = Math.min(dus, Math.floor((orLive + 1e-9) / cout), 1000000);
-    if (faits <= 0) etaSeconds = 0;
-    else {
-      orLive = Math.max(0, orLive - faits * cout);
-      if (faits === dus) etaSeconds = Math.max(1e-6, seconds - ((ecoule0 - eta0) % seconds));
-      else etaSeconds = 0;
-    }
+  const impaye = eta0 >= seconds - 1e-9;   /* barre à 0 : rituel pas encore payé (lu dans le jeu : l'Or se paie au début) */
+  let faits = 0, orLive = or, etaSeconds = eta0, debit = 0;
+  if (seconds > 0 && cout > 0 && (ecoule0 >= eta0 - 1e-9 || impaye)) {
+    let t = ecoule0, dus = 0, etaN = seconds;
+    if (!impaye) { t = Math.max(0, t - eta0); dus = 1; }
+    const plein = Math.floor((t + 1e-9) / seconds);
+    const n = t > 1e-9 ? Math.max(0, Math.min(plein, Math.floor((orLive + 1e-9) / cout), 1000000)) : 0;
+    orLive -= n * cout; debit = n * cout; t = Math.max(0, t - n * seconds);
+    if (n >= plein && t > 1e-9 && orLive + 1e-9 >= cout) { orLive -= cout; debit += cout; etaN = seconds - Math.min(t, seconds); }
+    faits = dus + n;
+    etaSeconds = faits <= 0 && debit <= 0 ? (impaye ? seconds : 0) : Math.max(1e-6, etaN);
   } else etaSeconds = eta0 - ecoule0;
-  return { faits, or: orLive, etaSeconds };
+  return { faits, or: orLive, etaSeconds, debit };
 }
 
 const lire = (r, ritual) => {
@@ -113,7 +115,7 @@ for (const alloc of [1e3, 1e5, 1e7, 1e9, 1e11]) {
     const q = (dt - a.eta) / a.spc;
     if (e.faits !== faitsMoteur && Math.abs(q - Math.round(q)) < 1e-9 && Math.abs(e.faits - faitsMoteur) === 1) { divergencesFrontiere.push([alloc, dt, a.spc, faitsMoteur, e.faits]); continue; }
     assert.equal(e.faits, faitsMoteur, "rituels complétés après " + dt + " s (Magie " + alloc + ", durée " + a.spc + " s) : moteur " + faitsMoteur + " / écran " + e.faits);
-    assert.ok(Math.abs(orMoteur - e.faits * a.cout) <= 1e-6 * Math.max(1, orMoteur), "Or débité (Magie " + alloc + ", " + dt + " s) : moteur " + orMoteur + " / écran " + e.faits * a.cout);
+    assert.ok(Math.abs(orMoteur - e.debit) <= 1e-6 * Math.max(1, orMoteur), "Or débité (Magie " + alloc + ", " + dt + " s) : moteur " + orMoteur + " / écran " + e.debit);
     assert.ok(Math.abs(sangEcran - sangMoteur) <= 1e-6 * Math.max(1, sangMoteur), "sang gagné (Magie " + alloc + ", " + dt + " s)");
     /* Reste de barre : fraction du moteur = reste d'écran / durée (reprise du rejeu : (ecoule0 - eta0) % seconds). */
     if (e.faits > 0 && e.etaSeconds > 0 && e.faits < 1e6) {

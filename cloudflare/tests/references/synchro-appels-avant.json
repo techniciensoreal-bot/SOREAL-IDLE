@@ -24,23 +24,23 @@
  "partie-reference-2": {
   "obtenirEtat": {
    "synchros": 3,
-   "reponse": "a6f5aaea65b398666d1a95eb",
-   "ligne": "fe16d5f4f73ef574121f108e"
+   "reponse": "cb5fb788f086baaf700d1bab",
+   "ligne": "91886100c2c7b0d7f78d8205"
   },
   "agirProgression": {
    "synchros": 4,
-   "reponse": "7566037823e9d176afa0c3f7",
-   "ligne": "18ee21056acf323ceeceed93"
+   "reponse": "893cede5e978e995ecf05f55",
+   "ligne": "1e13c58cf8f7ee970d64f898"
   },
   "synchroniser": {
    "synchros": 3,
-   "reponse": "89f8fc38ca9cbdefbceb2f1e",
-   "ligne": "e9938f5e0aaa6ece13d65ad8"
+   "reponse": "fd152921104d95d8b4ecd474",
+   "ligne": "9d84d41d5a1ca8ebe716e827"
   },
   "battement": {
    "synchros": 0,
    "reponse": "a1cf4ad0296f8a8a7d2d10bc",
-   "ligne": "e9938f5e0aaa6ece13d65ad8"
+   "ligne": "9d84d41d5a1ca8ebe716e827"
   }
  }
 }

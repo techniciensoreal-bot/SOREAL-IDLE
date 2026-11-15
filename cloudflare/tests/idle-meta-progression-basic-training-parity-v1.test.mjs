@@ -173,6 +173,7 @@ const allocPop = readFileSync("cloudflare/public/modules/alloc-pop-v1.js", "utf8
   s.resources.magic.cap = 100000;
   s.resources.magic.current = 50000;
   s = applyIdleNguAction(s, { action: "allocate", system: "bloodMagic", resource: "magic", value: 1000 }, ctx, 2000).state;
+  s.currencies.gold = 1e12;   // l Or du rituel se paie au début (lu dans le jeu)
   s = advanceIdleNguState(s, 500, ctx, 2500); // 500 s écoulées sur 2000 s -> 25 % de progression
   const snap = idleNguSnapshot(s, ctx, 2500);
   assert.equal(snap.bloodMagicView.secondsPerCompletion, 2000);

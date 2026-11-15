@@ -92,23 +92,42 @@ function advanceBloodMagic(state, seconds, context) {
     /* Un rituel dure au moins un tick (50 par seconde au plus, comme le vrai jeu : idle-tick-v1.js, Norman 2026-11-05) */
     const secondsPerCompletion = dureeNiveauEnTicksV1(ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier);
     rebaserProgressionSecondesV1(rs, "progress", secondsPerCompletion);
-    rs.progress += seconds;
-    let completions = Math.floor(rs.progress / secondsPerCompletion + 1e-9);   /* 1e-9 : même tolérance que l'écran (une complétion exactement à la frontière est comptée) */
-    if (completions <= 0) continue;
-
-    const affordable = Math.floor(state.currencies.gold / ritual.gold);
-    completions = Math.min(completions, affordable, 1000000, challengeHundredLevelsRemaining(state));
     /*
-     * Norman (2026-10-23) : « juste en plaçant de la magie dans les rituels, il valide le rituel ». Faute d'Or (ou de niveaux de défi), la progression continuait de s'empiler sans limite : plusieurs rituels d'arriéré, tous
-     * validés d'un coup dès que l'Or revenait ou que la durée changeait. La barre attend maintenant PLEINE (une seule complétion en réserve, comme le client l'affiche) : le rituel se termine dès que l'Or est là, jamais plus.
+     * Lu dans le code du jeu (build 1260, 2026-11-15 : BloodMagicController::updateBloodMagic) : l'Or du rituel est payé AU DÉBUT (barre à 0, premier tick) ; sans assez d'Or la barre ne bouge pas ; à la fin la barre
+     * repart de 0 sans report et le rituel suivant se paie à son tour. La durée est celle d'un nombre ENTIER de ticks (secondsPerCompletion). « Payé » = barre > 0. Une passe en formule : au plus 1 000 000 rituels.
      */
-    if (completions <= 0) { rs.progress = Math.min(rs.progress, secondsPerCompletion); continue; }
+    let t = seconds, p = Math.max(0, num(rs.progress, 0)), completions = 0;
+    if (p >= secondsPerCompletion - 1e-9) p = 0;   /* ancienne forme « barre pleine en attente d'Or » */
+    let or = state.currencies.gold;
+    const limiteDefi = challengeHundredLevelsRemaining(state);
+    if (p > 0) {
+      const manque = Math.max(0, secondsPerCompletion - p);
+      if (t + 1e-9 < manque) { p += t; t = 0; }
+      else if (limiteDefi >= 1) { t = Math.max(0, t - manque); p = 0; completions = 1; }
+      else { p = Math.min(p + t, secondsPerCompletion); t = 0; }
+    }
+    if (t > 1e-9 && p <= 0) {
+      const dejaFaits = completions;
+      const pleins = Math.floor((t + 1e-9) / secondsPerCompletion);
+      const payables = Math.floor((or + 1e-9) / ritual.gold);
+      const n = Math.max(0, Math.min(pleins, payables, 1000000, limiteDefi - dejaFaits));
+      t = Math.max(0, t - n * secondsPerCompletion);
+      or -= n * ritual.gold;
+      completions += n;
+      p = 0;
+      if (n >= pleins && t > 1e-9 && or + 1e-9 >= ritual.gold && limiteDefi - completions >= 1) {
+        or -= ritual.gold;
+        p = Math.min(t, secondsPerCompletion);   /* le niveau suivant démarre : payé, avec le temps restant */
+        t = 0;
+      }
+    }
+    rs.progress = p;
+    rs.progressRef = secondsPerCompletion;
+    if (completions <= 0) { state.currencies.gold = or; continue; }
 
-    rs.progress -= completions * secondsPerCompletion;
-    rs.progress = Math.min(rs.progress, secondsPerCompletion);
     rs.completions += completions;
     rs.level += completions;
-    state.currencies.gold -= completions * ritual.gold;
+    state.currencies.gold = or;
     const gainParCompletion = ritual.blood * quirkBonusesV1(idleQuirkNiveauxV1(state)).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
     state.currencies.blood += completions * gainParCompletion;
     rs.bloodCollected = Math.max(0, num(rs.bloodCollected, 0)) + completions * gainParCompletion;

@@ -124,7 +124,7 @@ function charger(piece) {
   const aug = lire("modules/augmentations-page-v1.js");
   assert.ok(aug.includes("if(franchis>=plafD100)") && aug.includes("plafondK:D100?D100.plafond(d,cleD100):Infinity"), "rebase des Augmentations et de la Machine temporelle : budget partagé");
   const bl = lire("modules/ui-boucle-v1.js");
-  assert.ok(bl.includes("plafondK:plafondDefi") && bl.includes("__SOREAL_IDLE_DEFI100_V1__.accorder("), "tick des Augmentations et Blood Magic : budget partagé");
+  assert.ok(bl.includes("plafondK:plafondDefi") && bl.includes("D100B.accorder("), "tick des Augmentations et Blood Magic : budget partagé");
   const html = lire("index.html");
   assert.ok(html.includes("/modules/defi-niveaux-100-v1.js"), "module chargé");
 }

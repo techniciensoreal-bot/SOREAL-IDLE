@@ -18,5 +18,5 @@ assert.ok(r().completions <= 1, "placer de la Magie ne valide jamais plusieurs r
 
 /* client : faute d'Or, le repère de la barre est remis à maintenant (pas d'arriéré rejoué d'un coup) */
 const ui = readFileSync("cloudflare/public/modules/ui-boucle-v1.js", "utf8");
-assert.ok(ui.includes("if(faits<=0){bloodVisual.at=maintB;bloodVisual.etaSeconds=0;}"));
+assert.ok(ui.includes("if(faits<=0&&debitB<=0){bloodVisual.at=maintB;bloodVisual.etaSeconds=impayeB?seconds:0;}"));
 console.log("idle-blood-arriere-or-v1 OK");

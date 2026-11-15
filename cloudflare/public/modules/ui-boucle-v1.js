@@ -528,7 +528,8 @@
           if(el){
             const seconds=idleNombre_(bloodVisual.secondsPerCompletion);
             /* Progression à l'instant PRÉSENT (repère + temps écoulé), jamais celle du dernier chiffre serveur : un redessin ne ramène plus la barre en arrière. */
-            const progress=seconds>0?Math.max(0,Math.min(.999999,((1-idleNombre_(bloodVisual.etaSeconds)/seconds)+Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000)/seconds)%1)):0;
+            const impayeAvantB=seconds>0&&idleNombre_(bloodVisual.etaSeconds)>=seconds-1e-9;   /* lu dans le jeu : le rituel se paie au DÉBUT ; barre à 0 = pas encore payé, elle n'avance pas */
+            const progress=seconds>0&&!impayeAvantB?Math.max(0,Math.min(.999999,((1-idleNombre_(bloodVisual.etaSeconds)/seconds)+Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000)/seconds)%1)):0;
             /*
              * Or EN DIRECT (Norman, 2026-10-03 : « le souci avec l'Or apparaît aussi dans Blood Magic »). Un rituel qui se termine dépense de l'Or ; sans Or, la barre bouclait
              * à vide. Comme pour les Augmentations : barre arrivée au bout = pleine ; s'il manque de l'Or (Or actuel) on le dit ; sinon on resynchronise et on redessine.
@@ -545,14 +546,23 @@
               const maintB=performance.now();
               const ecoule0=Math.max(0,(maintB-(bloodVisual.at||maintB))/1000);
               const eta0=idleNombre_(bloodVisual.etaSeconds);
-              if(ecoule0>=eta0-1e-9){
-                const dus=Math.floor((ecoule0-eta0)/seconds+1e-9)+1;   /* même tolérance que le moteur : une complétion exactement à la frontière est comptée (écart d'un rituel mesuré le 2026-11-05) */
-                /* Défi des 100 niveaux (2026-11-03) : chaque rituel rejoué sort du budget partagé ; à 0, aucun rituel de plus (barre pleine, comme faute d'Or). */
-                const faits=window.__SOREAL_IDLE_DEFI100_V1__?window.__SOREAL_IDLE_DEFI100_V1__.accorder(Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000)):Math.min(dus,Math.floor((orLiveB+1e-9)/coutOrB),1000000);
-                /* Faute d'Or, la barre attend PLEINE (repère remis à maintenant) : sinon le temps d'attente s'empile et tous ces rituels sont rejoués d'un coup quand l'Or revient (Norman, 2026-10-23) */
-                if(faits<=0){bloodVisual.at=maintB;bloodVisual.etaSeconds=0;}
-                if(faits>0&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies){
-                  orLiveB=Math.max(0,orLiveB-faits*coutOrB);
+              const impayeB=eta0>=seconds-1e-9;   /* barre à 0 : rituel pas encore payé */
+              if(ecoule0>=eta0-1e-9||impayeB){
+                /* COPIE de la passe du moteur (advanceBloodMagic, idle-ngu-systemes.js). Lu dans le jeu (build 1260, 2026-11-15) : l'Or du rituel est payé AU DÉBUT (barre à 0) ; sans Or la barre ne bouge pas ; à la fin elle repart de 0 sans report. */
+                let tB=ecoule0,orR=orLiveB,dus=0,etaNouveau=seconds,debitB=0;
+                if(!impayeB){tB=Math.max(0,tB-eta0);dus=1;}
+                const plein=Math.floor((tB+1e-9)/seconds);
+                let nB=tB>1e-9?Math.max(0,Math.min(plein,Math.floor((orR+1e-9)/coutOrB),1000000)):0;
+                /* Défi des 100 niveaux (2026-11-03) : chaque rituel rejoué sort du budget partagé ; à 0, aucun rituel de plus. */
+                const D100B=window.__SOREAL_IDLE_DEFI100_V1__;
+                const faits=D100B?D100B.accorder(dus+nB):dus+nB;
+                if(faits<dus+nB)nB=Math.max(0,faits-dus);
+                orR-=nB*coutOrB;debitB=nB*coutOrB;
+                tB=Math.max(0,tB-nB*seconds);
+                if(nB>=plein&&tB>1e-9&&orR+1e-9>=coutOrB&&(!D100B||!D100B.actif()||D100B.reste()>=1)){orR-=coutOrB;debitB+=coutOrB;etaNouveau=seconds-Math.min(tB,seconds);}   /* le rituel suivant démarre : payé, avec le temps restant */
+                if(faits<=0&&debitB<=0){bloodVisual.at=maintB;bloodVisual.etaSeconds=impayeB?seconds:0;}
+                if((faits>0||debitB>0)&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies){
+                  orLiveB=Math.max(0,orLiveB-debitB);
                   REG.idleEtat.systemes.currencies.gold=orLiveB;
                   bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits;
                   /* Diagnostic (Norman, 2026-10-24 : du sang gagné en plaçant 2 s de Magie) : un rejeu local de plusieurs rituels, ou après un long écoulé, est noté avec ses chiffres dans le journal de fluidité (🐞). */
@@ -561,21 +571,15 @@
                   try{window.dispatchEvent(new CustomEvent('soreal-rituel-termine',{detail:{id:String(bloodVisual.ritual),faits:faits}}));}catch(_e){}
                   const compte=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
                   if(compte&&typeof window.__bloodCompteTickV1__==='function')compte.textContent=idleEntier_(window.__bloodCompteTickV1__(bloodVisual.ritual,faits));
-                  if(faits===dus){
-                    const reste=(ecoule0-eta0)%seconds;
-                    bloodVisual.at=maintB;
-                    bloodVisual.etaSeconds=Math.max(1e-6,seconds-reste);
-                  }else{
-                    /* Or épuisé : les rituels payés sont rejoués, le suivant attend l'Or (barre pleine). */
-                    bloodVisual.at=maintB;
-                    bloodVisual.etaSeconds=0;
-                  }
+                  bloodVisual.at=maintB;
+                  bloodVisual.etaSeconds=Math.max(1e-6,etaNouveau);
                   if(Date.now()-idleAugSyncV1>(typeof window!=='undefined'&&window.__SOREAL_IDLE_DELAI_SYNC_V1__?window.__SOREAL_IDLE_DELAI_SYNC_V1__(3000):3000)){idleAugSyncV1=Date.now();synchroniserJeuIdleV7_(true);}
                 }
               }
             }
             const ecouleB=Math.max(0,(performance.now()-(bloodVisual.at||performance.now()))/1000);
-            const pleineB=seconds>0.0201&&ecouleB>=idleNombre_(bloodVisual.etaSeconds)-1e-9;
+            const impayeApresB=seconds>0.0201&&idleNombre_(bloodVisual.etaSeconds)>=seconds-1e-9;
+            const pleineB=seconds>0.0201&&!impayeApresB&&ecouleB>=idleNombre_(bloodVisual.etaSeconds)-1e-9;
             const manqueOrB=coutOrB>0&&orLiveB+1e-9<coutOrB;
             const ligneBloodFixe=document.getElementById('sorealIdleBloodEtaLineV1_'+bloodVisual.ritual);
             /* Compteur relu à chaque tick dans l'état à jour du serveur (voir __bloodCompteTickV1__ dans blood-magic-v1.js) : il ne reste plus bloqué entre deux redessins de la page. */
@@ -583,10 +587,10 @@
               const compte2=document.getElementById('sorealIdleBloodCountV1_'+bloodVisual.ritual);
               if(compte2){const texte2=idleEntier_(window.__bloodCompteTickV1__(bloodVisual.ritual,0));if(compte2.textContent!==texte2)compte2.textContent=texte2;}
             }
-            if(pleineB){
+            if(pleineB||impayeApresB){
               if(el.__idleAugAnimationV217){el.__idleAugAnimationV217.cancel();el.__idleAugAnimationV217=null;delete el.dataset.idleAugDurationV217;}
               el.style.width='100%';
-              el.style.transform='scaleX(1)';
+              el.style.transform=impayeApresB?'scaleX(0)':'scaleX(1)';   /* faute d'Or la barre ne démarre pas : elle reste à 0 */
               if(manqueOrB){
                 if(ligneBloodFixe)ecrireSiChangeIdleV1_(ligneBloodFixe,'🪙 Il manque <b class="or-somme-v1">'+formatGrandNombreIdleV70_(coutOrB-orLiveB)+' Or</b> pour le prochain rituel.');
               }else{
