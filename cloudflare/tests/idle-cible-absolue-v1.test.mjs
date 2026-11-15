@@ -10,7 +10,7 @@ assert.ok(aug.includes("const cibleN=Math.max(0,int(upgrade?pair.upgradeTarget:p
 assert.ok(aug.includes("cibleN>0?Math.max(0,cibleN-l0):Infinity") , "Augmentations : la passe exacte s'arrête à la cible (plafond)");
 assert.ok(ngu.includes("const placeCible = cibleNgu > 0 ? Math.max(0, cibleNgu - Math.floor(num(n.level, 0))) : Infinity;") && ngu.includes("niveauxEnTicksV1(n.level, Math.max(0, num(n.work, 0)) / a, seconds * 50, a, maxGain)"), "NGU : jamais au-delà de la cible, même à 50 niveaux par seconde (maxGain)");
 assert.ok(pistes.includes("t.progress = gain;") && pistes.includes("cibleAt - courant"), "Entraînement avancé : jamais au-delà de la cible");
-assert.ok(pistes.includes("!tmTargetReached(d.speedTarget, d.speedLevel)") && pistes.includes("!tmTargetReached(d.goldTarget, d.goldLevel)"), "Machine temporelle : la boucle s'arrête déjà à la cible");
+assert.ok(pistes.includes("!tmTargetReached(d[cible], d[niv])"), "Machine temporelle : la boucle s'arrête déjà à la cible");
 /* le vrai moteur : énergie énorme (CAP), cible 50, un pas de temps de 1 s puis de 10 minutes : le niveau s'arrête à 50 pile, l'énergie est rendue */
 {
   const ctx = { bosses: 120, bestGold: 1e12, adventurePower: 1e9 }, T = 1_000_000;

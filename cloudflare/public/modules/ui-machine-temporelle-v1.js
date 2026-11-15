@@ -121,7 +121,7 @@
           const supportD100=vueD100||el;
           const cleD100='tm:'+(piste==='or'||piste==='gold'?'gold':'speed');
           const plafD100=D100?D100.plafond(supportD100,cleD100):Infinity;
-          if(restant<=0&&niveau0!==null&&palier>0){
+          if(niveau0!==null&&palier>0&&(restant<=0||fill0<=0)){   /* barre finie, ou pas encore payée (fill0 = 0 : l'Or se paie au début du niveau, lu dans le jeu) */
             /*
              * Niveaux de la machine : ils COÛTENT de l'Or (5 000 000 × niveau visé, comme le moteur) et s'enchaînent sans pause (Norman, 2026-10-09 : « toutes les barres qui consomment de l'Or doivent enchaîner et l'Or diminuer très vite ») :
              * chaque niveau franchi débite l'Or local tout de suite ; faute d'Or, la barre reste pleine et le dit. La synchro confirme. Norman (2026-11-05) : UNE SEULE formule, celle du moteur (modules/tm-projection-v1.js, comparée au vrai moteur par
@@ -133,7 +133,7 @@
             const orConnuTm=!!(monnaiesTm&&monnaiesTm.gold!==undefined&&monnaiesTm.gold!==null);   /* Or absent de l'état (démarrage) : pas de contrôle d'Or plutôt qu'un Or de 0 qui figerait la barre pleine puis la ferait chuter */
             const orTm0=idleNombre_(monnaiesTm&&monnaiesTm.gold);
             const PROJ_TM=window.__SOREAL_IDLE_TM_PROJECTION_V1__;
-            const proj=PROJ_TM.projeter({palier:palier,brut:vueD100?idleNombre_(vueD100[(piste==='or'||piste==='gold')?'goldStepBrut':'speedStepBrut']):undefined,fill0:fill0,ecoule:(maintenant-at)/1000,niveau0:niveau0,or:orConnuTm?orTm0:null,deja:deja0,plafond:plafD100});
+            const proj=PROJ_TM.projeter({palier:palier,brut:vueD100?idleNombre_(vueD100[(piste==='or'||piste==='gold')?'goldStepBrut':'speedStepBrut']):undefined,fill0:fill0,ecoule:(maintenant-at)/1000,niveau0:niveau0,or:orConnuTm?orTm0:null,gps:vueD100?idleNombre_(vueD100.netGps):0,deja:deja0,plafond:plafD100});
             franchis=proj.franchis;faussesOr=proj.faussesOr;manqueOr=proj.manqueOr;bloqueDefi=proj.bloqueDefi;restant=proj.restant;palier=proj.palier;
             if(faussesOr&&!bloqueDefi)orPresent=proj.or===null?0:proj.or;
             if(D100)D100.noter(supportD100,cleD100,franchis);
@@ -173,7 +173,7 @@
           if(barreEl&&barreEl.dataset.tmFill0!==undefined&&base>0){
             let fill;
             /* Norman (2026-10-13) : « quand on est à 50 niveaux par seconde pour la Machine temporelle, la barre doit rester pleine » : un niveau de 0,25 s ou moins (4 par seconde et plus) ne se voit plus avancer, elle reste pleine au lieu de clignoter */
-            if(faussesOr)fill=1;
+            if(faussesOr)fill=0;   /* faute d'Or la barre ne démarre pas : elle reste à 0 (lu dans le jeu) */
             else if(palier>0&&palier<=SEUIL_NIVEAU_RAPIDE_TM_V1)fill=1;
             else if(palier>0&&palier<=SEUIL_NIVEAU_CYCLE_TM_V1)fill=0;   /* dessinée en tours par la boucle d'animation */
             else if(franchis>0)fill=Math.max(0,Math.min(1,1-restant/palier));

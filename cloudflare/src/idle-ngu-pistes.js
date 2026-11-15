@@ -905,45 +905,53 @@ function avancerTmProgressifV1(state, seconds) {
   const pas = (p) => dureeNiveauEnTicksV1(p.facteur * Math.max(1, d[p.niv] + 1));
   for (const p of pistes) { p.step = pas(p); if (Number.isFinite(p.step)) rebaserProgressionSecondesV1(d, p.prog, p.step); }
   const bloqueDefi = () => limiteDefi && challengeHundredLevelsRemaining(state) <= 0;
+  /*
+   * Lu dans le code du jeu (build 1260, 2026-11-15 : TimeMachineController::advanceSpeedProgress / advanceGoldMultiProgress) : l'Or du niveau est payé AU DÉBUT (barre à 0, premier tick) ; sans assez d'Or la barre ne
+   * bouge pas ; à la fin du niveau la barre repart de 0 sans report et le niveau suivant se paie à son tour. « Niveau payé » = barre > 0 (PAYE_V1 : une valeur infime, le premier tick est compté dans la durée).
+   */
+  const PAYE_V1 = 1e-9;
   let reste = seconds, evenements = 0, tours = 0;
   while (reste > 1e-12 && evenements < TM_PROGRESSIF_MAX_EVENEMENTS_V1 && tours++ < 60000) {
     const gpsMaintenant = gps();
     let dt = reste;
     for (const p of pistes) {
       if (!Number.isFinite(p.step) || tmTargetReached(d[p.cible], d[p.niv])) continue;
-      const rempli = d[p.prog] >= p.step - 1e-12;
-      if (!rempli) dt = Math.min(dt, p.step - d[p.prog]);
-      else if (!bloqueDefi()) {
+      if (d[p.prog] <= 0) {
+        if (bloqueDefi()) continue;
         const cout = tmLevelGoldCost(d[p.niv] + 1);
-        if (state.currencies.gold + 1e-9 < cout) { if (gpsMaintenant > 0) dt = Math.min(dt, Math.max(0, (cout - state.currencies.gold) / gpsMaintenant)); }
-        else dt = 0;
-      }
+        if (state.currencies.gold + 1e-9 >= cout) dt = 0;
+        else if (gpsMaintenant > 0) dt = Math.min(dt, Math.max(0, (cout - state.currencies.gold) / gpsMaintenant));
+      } else if (d[p.prog] < p.step - 1e-12) dt = Math.min(dt, p.step - d[p.prog]);
+      else dt = 0;
     }
     if (dt > 0) {
       for (const p of pistes) {
-        if (!Number.isFinite(p.step)) continue;
-        if (tmTargetReached(d[p.cible], d[p.niv])) { d[p.prog] += dt; continue; }   /* cible atteinte : plus un seul niveau, la progression continue de s'accumuler comme avant */
-        if (d[p.prog] < p.step - 1e-12) d[p.prog] = Math.min(p.step, d[p.prog] + dt);
+        if (!Number.isFinite(p.step) || tmTargetReached(d[p.cible], d[p.niv])) continue;
+        if (d[p.prog] > 0 && d[p.prog] < p.step - 1e-12) d[p.prog] = Math.min(p.step, d[p.prog] + dt);
       }
       const gain = gpsMaintenant * dt;
       state.currencies.gold += gain;
       d.producedThisRun += gain;
       reste -= dt;
     }
+    let evenementCeTour = false;
     for (const p of pistes) {
-      while (Number.isFinite(p.step) && d[p.prog] >= p.step - 1e-12 && !tmTargetReached(d[p.cible], d[p.niv]) && evenements < TM_PROGRESSIF_MAX_EVENEMENTS_V1) {
-        const cout = tmLevelGoldCost(d[p.niv] + 1);
-        if (state.currencies.gold + 1e-9 < cout || bloqueDefi()) { d[p.prog] = p.step; break; }   /* barre pleine en attente d'Or : jamais une perte de progression */
-        state.currencies.gold -= cout;
-        d[p.prog] = Math.max(0, d[p.prog] - p.step);
+      if (!Number.isFinite(p.step) || tmTargetReached(d[p.cible], d[p.niv])) continue;
+      if (d[p.prog] > 0 && d[p.prog] >= p.step - 1e-12) {
+        d[p.prog] = 0;
         d[p.niv] += 1;
         challengeHundredLevelsConsume(state, 1);
         p.step = pas(p);
-        evenements += 1;
-        if (!Number.isFinite(p.step)) break;
+        evenements += 1; evenementCeTour = true;
+        if (!Number.isFinite(p.step)) continue;
         rebaserProgressionSecondesV1(d, p.prog, p.step);
       }
+      if (d[p.prog] <= 0 && Number.isFinite(p.step) && !bloqueDefi() && !tmTargetReached(d[p.cible], d[p.niv])) {
+        const cout = tmLevelGoldCost(d[p.niv] + 1);
+        if (state.currencies.gold + 1e-9 >= cout) { state.currencies.gold -= cout; d[p.prog] = PAYE_V1; evenementCeTour = true; }
+      }
     }
+    if (!(dt > 0) && !evenementCeTour) break;   /* rien ne peut avancer (aucun Or, aucune barre) : le temps restant ne change rien */
   }
   if (reste > 1e-12) { avancerTmGrossierV1(state, reste); return; }
   tmApplyTargets(state);
@@ -973,48 +981,36 @@ function avancerTmGrossierV1(state, seconds) {
    * coût croît linéairement, donc le temps cumulé croît en N²) ; une
    * limite défensive évite malgré tout toute boucle non bornée.
    */
-  let guard = 0;
+  /* Même règle que le pas progressif (lu dans le jeu) : l'Or du niveau est payé au DÉBUT ; sans Or la barre ne démarre pas ; fin de niveau = retour à 0 sans report. L'Or produit pendant la fenêtre est ajouté à la fin (hors ligne). */
   const facteurEnergie = tmSecondsFactorV1(state, "energy");
   const facteurMagie = tmSecondsFactorV1(state, "magic");
   const limiteDefi = state.challenge?.active === "hundredLevels";
-  let energyStep = dureeNiveauEnTicksV1(facteurEnergie * Math.max(1, d.speedLevel + 1));
-  if (Number.isFinite(energyStep)) {
-    rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
-    d.speedProgress += seconds;
-    while (d.speedProgress >= energyStep && guard < 100000 && !tmTargetReached(d.speedTarget, d.speedLevel)) {
-      guard++;
-      const cost = tmLevelGoldCost(d.speedLevel + 1);
-      if (state.currencies.gold + 1e-9 < cost || (limiteDefi && challengeHundredLevelsRemaining(state) <= 0)) { d.speedProgress = energyStep; break; }
-      state.currencies.gold -= cost;
-      d.speedProgress -= energyStep;
-      d.speedLevel += 1;
-      challengeHundredLevelsConsume(state, 1);
-      energyStep = dureeNiveauEnTicksV1(facteurEnergie * Math.max(1, d.speedLevel + 1));
-      if (!Number.isFinite(energyStep)) break;
-      rebaserProgressionSecondesV1(d, "speedProgress", energyStep);
-    }
-  }
-
-  if (state.systems.bloodMagic.unlocked) {
-    guard = 0;
-    let magicStep = dureeNiveauEnTicksV1(facteurMagie * Math.max(1, d.goldLevel + 1));
-    if (Number.isFinite(magicStep)) {
-      rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
-      d.goldProgress += seconds;
-      while (d.goldProgress >= magicStep && guard < 100000 && !tmTargetReached(d.goldTarget, d.goldLevel)) {
-        guard++;
-        const cost = tmLevelGoldCost(d.goldLevel + 1);
-        if (state.currencies.gold + 1e-9 < cost || (limiteDefi && challengeHundredLevelsRemaining(state) <= 0)) { d.goldProgress = magicStep; break; }
-        state.currencies.gold -= cost;
-        d.goldProgress -= magicStep;
-        d.goldLevel += 1;
-        challengeHundredLevelsConsume(state, 1);
-        magicStep = dureeNiveauEnTicksV1(facteurMagie * Math.max(1, d.goldLevel + 1));
-        if (!Number.isFinite(magicStep)) break;
-        rebaserProgressionSecondesV1(d, "goldProgress", magicStep);
+  const PAYE_V1 = 1e-9;
+  const piste = (prog, niv, cible, facteur) => {
+    let t = seconds, garde = 0;
+    let step = dureeNiveauEnTicksV1(facteur * Math.max(1, d[niv] + 1));
+    if (!Number.isFinite(step)) return;
+    rebaserProgressionSecondesV1(d, prog, step);
+    while (t > 1e-12 && garde++ < 100000 && !tmTargetReached(d[cible], d[niv])) {
+      if (d[prog] <= 0) {
+        const cout = tmLevelGoldCost(d[niv] + 1);
+        if (state.currencies.gold + 1e-9 < cout || (limiteDefi && challengeHundredLevelsRemaining(state) <= 0)) break;
+        state.currencies.gold -= cout;
+        d[prog] = PAYE_V1;
       }
+      const manque = Math.max(0, step - d[prog]);
+      if (t + 1e-9 < manque) { d[prog] += t; t = 0; break; }
+      t = Math.max(0, t - manque);
+      d[prog] = 0;
+      d[niv] += 1;
+      challengeHundredLevelsConsume(state, 1);
+      step = dureeNiveauEnTicksV1(facteur * Math.max(1, d[niv] + 1));
+      if (!Number.isFinite(step)) break;
+      rebaserProgressionSecondesV1(d, prog, step);
     }
-  }
+  };
+  piste("speedProgress", "speedLevel", "speedTarget", facteurEnergie);
+  if (state.systems.bloodMagic.unlocked) piste("goldProgress", "goldLevel", "goldTarget", facteurMagie);
 
   tmApplyTargets(state);
 

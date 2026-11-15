@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 259,
-  "sha": "99a60db4b82ce0473aa6366a69627e5fbcf6a0dd"
+  "pin": 260,
+  "sha": "7635bad0e487c7fee74615b3ea61aa35884e66fb"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -764,8 +764,8 @@
   "sha": "e03746cda982cd97d697b20824a1d03ad23ea258"
  },
  "/modules/tm-projection-v1.js": {
-  "pin": 4,
-  "sha": "e4e0c200a98fd8270c5cf5091413727c10fbb4ed"
+  "pin": 5,
+  "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
   "pin": 1026,
@@ -856,8 +856,8 @@
   "sha": "7cc31b087c6da20936b20668e72c00e349af88fa"
  },
  "/modules/ui-machine-temporelle-v1.js": {
-  "pin": 26,
-  "sha": "73676cea9be5ef4d2e66fd76770cac77c5e2b21c"
+  "pin": 27,
+  "sha": "586934099167a970b4623bed9a965c3508f63fa7"
  },
  "/modules/ui-magie-energie-v1.js": {
   "pin": 7,

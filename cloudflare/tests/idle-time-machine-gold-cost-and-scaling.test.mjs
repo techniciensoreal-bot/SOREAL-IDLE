@@ -55,8 +55,8 @@ function baseState(overrides = {}) {
   // 500 000s = la moitié du chemin : la barre doit progresser sans jamais valider le niveau, quel que soit l'Or.
   const after = advanceIdleNguState(raw, 500000, { adventurePower: 100, adventureToughness: 100, bosses: 30 }, Date.now());
   assert.ok(
-    after.systems.timeMachine.data.speedProgress > 0,
-    "Sans Or, le temps investi doit quand même faire progresser la barre."
+    after.systems.timeMachine.data.speedProgress === 0,
+    "Sans Or la barre ne démarre pas : lu dans le jeu (TimeMachineController::advanceSpeedProgress), l'Or se paie au début du niveau."
   );
   assert.equal(
     after.systems.timeMachine.data.speedLevel, 0,

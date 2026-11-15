@@ -3,7 +3,7 @@
   "tm": {
    "vitesse": [
     150,
-    6.45381284883
+    6.45381285583
    ],
    "or": [
     5,
@@ -55,7 +55,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 43150211918700,
+  "or": 43150176918700,
   "energie": 6981191,
   "energieMax": 25619760,
   "magie": 1371243.44,
@@ -78,7 +78,7 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "47b8b1d2788cde16",
-   "timeMachine": "94a3ce0f6d16c8f2",
+   "timeMachine": "d4b4307aac0e9b74",
    "bloodMagic": "10574f9d84d94a7f",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "cab68f7b01e1182f",
@@ -97,7 +97,7 @@
   "tm": {
    "vitesse": [
     150,
-    6.45381284883
+    6.45381285583
    ],
    "or": [
     5,
@@ -149,7 +149,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 43150211918700,
+  "or": 43150176918700,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 3774859.44,
@@ -172,7 +172,7 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "fb137388047351da",
-   "timeMachine": "94a3ce0f6d16c8f2",
+   "timeMachine": "d4b4307aac0e9b74",
    "bloodMagic": "025d24901abd725d",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "fb3be078019a50c7",
@@ -191,7 +191,7 @@
   "tm": {
    "vitesse": [
     150,
-    87.3495959781
+    87.349596065
    ],
    "or": [
     5,
@@ -243,7 +243,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 44171969000100,
+  "or": 44171934000100,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 3809983.2,
@@ -266,7 +266,7 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "42e9959dc0f41ea8",
-   "timeMachine": "0f82b0f0415e2b5e",
+   "timeMachine": "c8e5f006b5679429",
    "bloodMagic": "e0bd038b4f580e14",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "4ef693e4c6cdcae3",
@@ -285,7 +285,7 @@
   "tm": {
    "vitesse": [
     150,
-    89.3495959781
+    89.349596065
    ],
    "or": [
     5,
@@ -337,7 +337,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 44455799021700,
+  "or": 44455764021700,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 3819739.8,
@@ -360,7 +360,7 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "90313f04d7fb137f",
-   "timeMachine": "bb1003542a24600a",
+   "timeMachine": "77fa317a75d5b6a0",
    "bloodMagic": "302e29189812fe74",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "e45fa7eca051d7e8",
@@ -379,7 +379,7 @@
   "tm": {
    "vitesse": [
     150,
-    99.3495959781
+    99.349596065
    ],
    "or": [
     5,
@@ -431,7 +431,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 45874900139700,
+  "or": 45874865139700,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 3868522.8,
@@ -454,7 +454,7 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "ee191314a844f550",
-   "timeMachine": "44ce576723347a1d",
+   "timeMachine": "1bc70b7bc99d224a",
    "bloodMagic": "f4a8502366dc60bd",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "bdd0e199935efa4d",
@@ -473,11 +473,11 @@
   "tm": {
    "vitesse": [
     151,
-    59.7495959781
+    59.749596066
    ],
    "or": [
     6,
-    21.0084852849
+    21.0084852859
    ]
   },
   "augments": {
@@ -525,7 +525,7 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 54974430834200,
+  "or": 54974385834400,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 4161220.8,
@@ -548,7 +548,7 @@
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "f9da95bd1a7f6b7d",
-   "timeMachine": "03cd460c1b665196",
+   "timeMachine": "12979ebffe37c37b",
    "bloodMagic": "6c33c5d8a0070c60",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "ecab918dd76b3234",
@@ -567,11 +567,11 @@
   "tm": {
    "vitesse": [
     157,
-    60.4879283147
+    48.289596072
    ],
    "or": [
     7,
-    220.754953242
+    193.168485287
    ]
   },
   "augments": {
@@ -640,7 +640,7 @@
     0
    ]
   },
-  "or": 176347687674000,
+  "or": 176347607674000,
   "energie": 22119748,
   "energieMax": 25619760,
   "magie": 4275150,
@@ -664,7 +664,7 @@
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "ee6be2962df35775",
    "advancedTraining": "35a4001ed556af66",
-   "timeMachine": "20b09e01283936b4",
+   "timeMachine": "5c38103dce103736",
    "bloodMagic": "ba0fedbcb25f10ed",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "378e86c1ac914466",
