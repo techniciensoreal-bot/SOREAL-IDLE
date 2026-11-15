@@ -524,8 +524,8 @@
   "sha": "6e4cbf91707f4afc61ca635a8b7b15c2f0f3ae34"
  },
  "/modules/mobs-types-v1.js": {
-  "pin": 7,
-  "sha": "12c6968a30d12c94a7963d705a2f56374cbd2030"
+  "pin": 8,
+  "sha": "8606a9083d1edd548c179d7e0a8ea365f37a5e05"
  },
  "/modules/money-pit-page-v1.js": {
   "pin": 31,
@@ -668,12 +668,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 339,
-  "sha": "90924bfe45fdc241fed5343945f7e1ff16333452"
+  "pin": 340,
+  "sha": "f4ab442e25921095517c91e93b28ef5c6374fc96"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 978,
-  "sha": "0b684c83195c7e00c8e74b024c95e6338f7bf68d"
+  "pin": 979,
+  "sha": "b176fcbb53c95fa2dc4a6effcfafef9227910c9c"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -748,12 +748,12 @@
   "sha": "8b1943a4002d3e5db7912a15b1d60c3375a48225"
  },
  "/modules/titans-combat-ecran-v1.js": {
-  "pin": 16,
-  "sha": "2c83b2c4a0e5cd6b0b2da34d4390414b2c8cc370"
+  "pin": 17,
+  "sha": "f87ad5e0cceac093330b5250256e527aa2d9d495"
  },
  "/modules/titans-comportements-v1.js": {
-  "pin": 10,
-  "sha": "8492661b2a3fe16d77ef0302658975c88c2a6dcc"
+  "pin": 11,
+  "sha": "889565c1d326c2f47710e5442692fab2e77eca10"
  },
  "/modules/titans-v1.js": {
   "pin": 24,
@@ -768,12 +768,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1018,
-  "sha": "e45a8e87ed39b9ad0eb67e86d0e6fc4d53df0da4"
+  "pin": 1019,
+  "sha": "43ac4fea0ce46be4433e31ed2037c9bf19a7c602"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 839,
-  "sha": "463e109efc07bdd8cb6e6ada1c7de98bb28650f0"
+  "pin": 840,
+  "sha": "94698feefbcb7a42b731d85084b4ffe36fd99ac7"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -816,8 +816,8 @@
   "sha": "214432df5a603f4e9ceacc9628bf8ce5258c5fd9"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 42,
-  "sha": "27080089ea600b76a05ca0ea164e104004c8bf3f"
+  "pin": 43,
+  "sha": "8752e701c5659d2dc67a8d6c01168d366c55a4ab"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 63,
@@ -840,8 +840,8 @@
   "sha": "df71495e5381548e29eb2bb8b7a9569f2db7e4ce"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 50,
-  "sha": "e6fda601946c0f6968278a064086d018a905af0b"
+  "pin": 51,
+  "sha": "88cac215dd8d0d690fe90937ee327364be2a3582"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,

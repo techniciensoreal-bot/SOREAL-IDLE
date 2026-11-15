@@ -2625,7 +2625,6 @@
     "modules/inventory-auto-v1.js",
     "modules/journal-attaques-v1.js",
     "modules/meta-progression-v130.js",
-    "modules/mobs-types-v1.js",
     "modules/moqueurs-fuite-v1.js",
     "modules/morts-joueur-nouvelles-v1.js",
     "modules/moteur-local-v1.js",

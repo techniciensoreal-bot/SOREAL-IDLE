@@ -30,7 +30,7 @@
         date:'2026-11-15',
         groupes:[
           {menu:'titans', titre:'Titans', points:[
-            'Combats de titans, valeurs mesurées dans le vrai jeu : le Saignement retire 7 % de régénération par cumul (et non 10 %), le nuage d’énergie multiplie les dégâts subis par 1,6 (et non 2,5), et l’attaque puissante d’UUG arrive une fois sur deux (et non 2 sur 7).'
+            'Combats de titans, valeurs lues dans le jeu : le Saignement retire 2 PV/s de régénération par cumul, le nuage d’énergie multiplie les dégâts subis par 1,5, l’attaque puissante d’UUG arrive une fois sur deux, et la croissance de force d’un titan est additive (+1 % de sa puissance de base par attaque) et s’applique après ta Robustesse.'
           ]},
           {menu:'questing', titre:'Quêtes', points:[
             'Les bonus « Major plus rapides » raccourcissent maintenant l’intervalle de 20 % et de 10 % (et non plus de 17 % et 9 %), et se multiplient entre eux (mesuré dans le vrai jeu).',
@@ -46,7 +46,7 @@
             'Une copie consommée alors que le niveau de son système est déjà au maximum est maintenant détruite sans effet, comme dans le jeu, au lieu d’être refusée.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Le poison des ennemis suit le vrai jeu : il se déclenche environ un coup sur six, et chaque tick (3 en 5 s) retire 20 % de la Puissance de l’ennemi.',
+            'Les ennemis spéciaux suivent maintenant le cycle réel du jeu : le poison revient tous les 7 coups (3 ticks de 20 % de la Puissance de l’ennemi), le chargeur frappe x4 au 5e tour après deux tours sans attaque, la paralysie revient tous les 12 tours (2 s), le rapide fonce pendant 6 coups, le grandisseur gagne 20 % tous les 2 coups, et l’explosion vaut 1000 fois un coup ordinaire.',
             'Les configurations d’équipement s’activent et se désactivent : activer un set remplace seulement les pièces qu’il contient (une case vide ne change rien), et le désactiver rééquipe ce que tu portais avant et renvoie les pièces d’où elles venaient (sac ou coffre).',
             'Aventure : la vitesse NGU d’un accessoire de set est corrigée (600 au lieu de 500 au niveau 0).'
           ]},

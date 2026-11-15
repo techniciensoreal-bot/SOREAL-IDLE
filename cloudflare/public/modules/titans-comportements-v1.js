@@ -1,6 +1,13 @@
 /*
  * Comportements des titans en combat (Norman, 2026-10-04 : « Pourquoi les comportements des titans ne sont pas encore simulés ? … go en commençant du premier au dernier »).
  *
+ * FAITS LUS DANS LE JEU (NGU Idle build 1260, 2026-11-15, avec l'accord de Norman ; recoupés par 400 attaques de titans relevées par OCR) : à chaque attaque le titan tire un entier de 1 à 7 (Gordon Ramsay Bolton, Grand Corrupted Tree), de 1 à 5 (Jake) ou de 1 à 4 (UUG) ;
+ * Gordon Ramsay Bolton : 1-2 base, 3-4 attaque puissante x2, 5 paralysie (4 s, seulement si au moins 10 attaques depuis la dernière, sinon base), 6-7 saignement (coup de base, et la régénération du joueur baisse de 2 PV/s PAR cumul, valeur absolue, jusqu'à la fin du combat) ;
+ * Grand Corrupted Tree : 1-2 et 7 base, 3-4 puissante x1,5, 5 nuage des bras (tes dégâts divisés par 1,5 pendant 15 s, seulement s'il n'est pas déjà actif, sinon base), 6 nuage d'énergie (tes dégâts SUBIS multipliés par 1,5 pendant 15 s, idem) ;
+ * Jake : 1-2 base, 3-4 puissante x1,5, 5 sauterelles (si au moins 10 attaques depuis les dernières, sinon base) ; UUG : 1-2 base, 3-4 puissante x1,5 (donc UNE CHANCE SUR DEUX). Les coups sont aléa(0,8 à 1,2) x max(10 % de la Puissance, Puissance - Robustesse/2) x multiplicateur,
+ * où le multiplicateur vaut (type de coup) x (1 + n/100), n = nombre d'attaques du titan depuis le début du combat : la croissance est ADDITIVE (+1 % de la puissance de base par attaque) et s'applique APRÈS la réduction par la Robustesse. UUG : sans Anneau d'Apathie il devient invincible dès sa 1re attaque
+ * et n est multiplié par 2 après chaque attaque (+400) ; avec l'anneau de niveau L < 100, n = ceil((n + 100 - L) x (2 - L/100)) ; à 100 il n'y a que le +1 par attaque.
+ *
  * Règle n°1 (AGENTS.md) : seules les capacités dont le wiki publie les nombres sont simulées ; ce qui n'est pas chiffré reste décrit mais sans effet (jamais de valeur inventée).
  * Module pur (aucun accès au DOM ni à l'état du jeu) : le combat (soreal-idle-ui.js) lui donne l'état du combat du titan et reçoit ce que l'attaque fait.
  *
@@ -44,7 +51,7 @@
 
   var TITANS={
     t1:{
-      note:'Simulées dans le combat : Paralysie, Saignement et Attaque puissante. Chaque cumul de Saignement retire 7 % de ta régénération de départ.',
+      note:'Simulées dans le combat : Paralysie, Saignement et Attaque puissante. Chaque cumul de Saignement retire 2 PV par seconde de ta régénération.',
       /* Tirage sur 7 : [0,1) Paralyze, [1,3) Bleed, [3,5) Power Attack, le reste attaque de base. */
       tirer:function(e,tirage){
         var t=tirage*7;
@@ -55,7 +62,7 @@
       },
       multPuissante:2,
       /* NON PUBLIÉ : constante SOREAL (voir l'en-tête). */
-      saignementParCumul:0.07,
+      saignementPVParSeconde:2,
       paralysieMs:4000,
       paralysieAttaques:2,
       minAttaquesEntreParalysies:10
@@ -63,7 +70,7 @@
   };
 
   TITANS.t2={
-    note:'Simulées dans le combat : les deux nuages de spores (tes dégâts à 2/3 pendant 15 s ; tes dégâts subis x1,6 pendant 15 s), l’Attaque puissante (x1,5) et la croissance de 1 % de force par attaque (commune à tous les titans).',
+    note:'Simulées dans le combat : les deux nuages de spores (tes dégâts à 2/3 pendant 15 s ; tes dégâts subis x1,5 pendant 15 s), l’Attaque puissante (x1,5) et la croissance de 1 % de force par attaque (commune à tous les titans).',
     /* Tirage sur 7 : [0,1) spores des bras, [1,2) spores d'énergie, [2,4) puissante, le reste base. */
     tirer:function(e,tirage,maintenant){
       var t=tirage*7;
@@ -76,7 +83,7 @@
     sporesBrasMs:15000,
     multDegatsJoueurSpores:2/3,
     sporesEnergieMs:15000,
-    multSporesEnergie:1.58   /* dégâts subis, pendant 15 s : mesuré dans le vrai jeu (2026-11-15), le wiki hésite entre 1,5 et 4 */
+    multSporesEnergie:1.5   /* dégâts subis, pendant 15 s : lu dans le jeu (facteur 1,5) ; mesuré en combat réel : x1,58 avec la croissance, le wiki hésite entre 1,5 et 4 */
   };
 
   TITANS.t3={
@@ -101,8 +108,12 @@
     multPuissante:1.5,
     invincible:true,
     croissance:function(e){
-      var niveau=e.anneau==null?0:Math.min(100,Math.max(0,e.anneau));
-      return Math.pow(2-niveau/100,e.attaques);
+      /* lu dans le jeu : n monte de 1 à chaque attaque ; le coup utilise 1 + n/100 AVANT les effets de l'anneau, qui agissent sur les attaques suivantes. */
+      e.gc=(e.gc||0)+1;
+      var mult=1+e.gc/100,niveau=e.anneau;
+      if(niveau==null){e.gc=e.gc+400;if(e.gc<=536870911)e.gc=e.gc*2;}
+      else if(niveau<100&&e.gc<536870911){var n=Math.max(0,Math.min(99,niveau));e.gc=Math.ceil((e.gc+100-n)*(2-n/100));}
+      return mult;
     }
   };
 
@@ -113,10 +124,10 @@
   /* Décrit ce que fait l'attaque du titan. Renvoie {type, multDegats, paralyse:boolean}. L'état est modifié sur place. */
   function attaqueTitan(id,etat,maintenantMs,tirage){
     var def=TITANS[String(id||'')];
-    if(!def){etat.attaques=(etat.attaques||0)+1;return {type:'base',multDegats:1,paralyse:false,croissanceTitan:Math.pow(1.01,Math.max(0,etat.attaques-1))};}   /* titans sans capacité simulée : la croissance de 1 % par attaque s'applique aussi */
+    if(!def){etat.attaques=(etat.attaques||0)+1;return {type:'base',multDegats:1+etat.attaques/100,paralyse:false,croissanceTitan:1};}   /* titans sans capacité simulée : la croissance de 1 % par attaque s'applique aussi */
     if(etat.rafaleRestante>0){
       etat.rafaleRestante-=1;
-      return {type:'sauterelle',multDegats:def.multRafale,paralyse:false,rafale:true,suite:etat.rafaleRestante>0,intervalleMs:def.rafaleMs};
+      return {type:'sauterelle',multDegats:def.multRafale*(1+etat.attaques/100),paralyse:false,rafale:true,suite:etat.rafaleRestante>0,intervalleMs:def.rafaleMs};
     }
     if(def.chemiseCadence&&etat.attaques%def.chemiseCadence===0){
       etat.attaques+=1;
@@ -134,7 +145,8 @@
       if(etat.paralysieAttaquesRestantes<=0)etat.paralyseJusqua=maintenantMs;
     }
     var rep={type:type,multDegats:type==='puissante'?def.multPuissante:1,paralyse:false};
-    rep.croissanceTitan=Math.pow(1.01,Math.max(0,etat.attaques-1));   /* wiki Titans : +1 % de force par attaque (cumulé : choix) */
+    rep.croissanceTitan=1;   /* la croissance n'est plus appliquée à la puissance avant la réduction : lue dans le jeu, elle multiplie le coup APRÈS la Robustesse (additive : 1 + n/100) */
+    if(!def.croissance)rep.multDegats*=1+etat.attaques/100;
     if(def.multSporesEnergie&&etat.draineJusqua>maintenantMs)rep.multDegats*=def.multSporesEnergie;   /* nuage d'énergie en cours : tu subis davantage de dégâts */
     if(def.croissance){
       rep.croissance=def.croissance(etat);
@@ -152,7 +164,7 @@
       if(type==='sauterelles'){
         etat.depuisSauterelles=0;
         etat.rafaleRestante=def.rafaleCoups-1;
-        rep.multDegats=def.multRafale;
+        rep.multDegats=def.multRafale*(1+etat.attaques/100);
         rep.rafale=true;
         rep.suite=etat.rafaleRestante>0;
         rep.intervalleMs=def.rafaleMs;
@@ -174,9 +186,9 @@
   }
 
   /* Facteur appliqué à la régénération de PV du joueur en combat (1 = intacte ; peut devenir négatif : le joueur perd alors des PV). */
-  function multRegenJoueur(id,etat){
+  function regenRetireeSaignement(id,etat){
     var def=TITANS[String(id||'')];
-    return def&&def.saignementParCumul&&etat?1-def.saignementParCumul*etat.saignements:1;
+    return def&&def.saignementPVParSeconde&&etat?def.saignementPVParSeconde*etat.saignements:0;
   }
 
   /* Multiplicateur appliqué aux dégâts du joueur (spores des bras du Grand Corrupted Tree). */
@@ -205,6 +217,6 @@
   racine.SorealTitanComportementsV1={
     possede:function(id){return !!TITANS[String(id||'')];},
     note:function(id){var d=TITANS[String(id||'')];return d?d.note:'';},
-    neuf:neuf,attaqueTitan:attaqueTitan,multDegatsJoueur:multDegatsJoueur,multRegenJoueur:multRegenJoueur,competenceDesactivee:competenceDesactivee,joueurParalyse:joueurParalyse,finParalysie:finParalysie
+    neuf:neuf,attaqueTitan:attaqueTitan,multDegatsJoueur:multDegatsJoueur,regenRetireeSaignement:regenRetireeSaignement,competenceDesactivee:competenceDesactivee,joueurParalyse:joueurParalyse,finParalysie:finParalysie
   };
 })(typeof window!=='undefined'?window:globalThis);

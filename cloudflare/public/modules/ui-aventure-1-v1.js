@@ -2163,11 +2163,12 @@
           0,
           (Math.min(jusqua,REG.idleAdventureManualStateV3.hyperRegenUntil)-debutRegen)/1000
         );
-        /* Saignement du titan : facteur sur la régénération, négatif au-delà de 10 cumuls (le joueur perd alors des PV). */
+        /* Saignement du titan (lu dans le jeu) : 2 PV/s de moins PAR cumul sur la régénération par seconde ; elle peut devenir négative (le joueur perd alors des PV). */
         const apiTitanRegen=window.SorealTitanComportementsV1;
-        const multSaignement=REG.idleTitanEtatV1&&apiTitanRegen&&fight.titanId?apiTitanRegen.multRegenJoueur(fight.titanId,REG.idleTitanEtatV1):1;
+        const retraitSaignement=REG.idleTitanEtatV1&&apiTitanRegen&&fight.titanId?apiTitanRegen.regenRetireeSaignement(fight.titanId,REG.idleTitanEtatV1):0;
+        const regenNette=regenBaseJoueur-retraitSaignement;
         const regenJoueur=
-          regenBaseJoueur*multSaignement*(secondes+(multSaignement>0?hyperSecondes*4:0));
+          regenNette*(secondes+(regenNette>0?hyperSecondes*4:0));
         const regenEnnemi=
           Math.max(0,idleNombre_(fight.mobHpRegen));
 

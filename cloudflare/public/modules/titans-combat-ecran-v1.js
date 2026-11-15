@@ -284,8 +284,8 @@ function etats(f){
   if(!e)return '';
   var maintenant=Date.now(),api=window.SorealTitanComportementsV1,out=[];
   if(typeof window.__titanJoueurParalyseIdleV1__==='function'&&window.__titanJoueurParalyseIdleV1__(maintenant))out.push('<span class="tcv-etat mal">⚡ Paralysé</span>');
-  if(e.saignements>0&&api&&api.multRegenJoueur)out.push('<span class="tcv-etat mal">🩸 Saignement ×'+e.saignements+' · régénération '+Math.round(api.multRegenJoueur(f.titanId,e)*100)+' %</span>');
-  if(e.attaques>1)out.push('<span class="tcv-etat">📈 Force du titan +'+Math.round((Math.pow(1.01,e.attaques-1)-1)*100)+' %</span>');
+  if(e.saignements>0&&api&&api.regenRetireeSaignement)out.push('<span class="tcv-etat mal">🩸 Saignement ×'+e.saignements+' · régénération −'+Math.round(api.regenRetireeSaignement(f.titanId,e))+' PV/s</span>');
+  if(e.attaques>1)out.push('<span class="tcv-etat">📈 Force du titan +'+Math.round((e.attaques-1))+' %</span>');
   if(e.affaibliJusqua>maintenant)out.push('<span class="tcv-etat mal">☁️ Tes dégâts sont réduits</span>');
   if(e.draineJusqua>maintenant)out.push('<span class="tcv-etat mal">☁️ Tu subis plus de dégâts</span>');
   return out.join('');

@@ -1178,7 +1178,7 @@
       function explosionEnnemiAdventureIdleV1_(fight,degatsCoup){
         const mt=window.SorealMobTypesV1;
         if(!mt||!fight||fight.titanId)return '';
-        const degats=mt.explosion(fight);
+        const degats=mt.explosion(fight,degatsCoup);
         if(!(degats>0))return '';
         const avant=idleNombre_(fight.playerHp);
         const subis=Math.min(avant,degats);
@@ -1414,19 +1414,25 @@
               facteurAleaDegats
             )
           );
-          /* Ennemi explosif : au moment de son attaque (son « Attack Rate » est son compte à rebours) il EXPLOSE : coup doublé, puis il disparaît (mobs-types-v1.js). */
+          /* Ennemi explosif : au moment de son attaque (son « Attack Rate » est son compte à rebours) il EXPLOSE : son coup ordinaire x1000 (lu dans le jeu), puis il disparaît (mobs-types-v1.js). */
           if(window.SorealMobTypesV1&&!fight.titanId&&window.SorealMobTypesV1.types(fight).exploder){
-            const issueExplosion=explosionEnnemiAdventureIdleV1_(fight,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,1));
+            const issueExplosion=explosionEnnemiAdventureIdleV1_(fight,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,facteurAleaDegats));
             if(issueExplosion==='mort'){terminerCombatAdventureLocalV2_(fight,false);return;}
             if(issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;terminerCombatAdventureLocalV2_(fight,true);return;}
           }
-          /* Types d'ennemis (mobs-types-v1.js) : chargeur (gros coup toutes les 4 attaques) et grandisseur (de plus en plus fort). */
+          /* Types d'ennemis (mobs-types-v1.js) : cycles lus dans le jeu (poison, chargeur, paralysie, rapide, grandisseur) ; certains tours l'ennemi n'attaque pas. */
+          let tourMob=null;
           if(window.SorealMobTypesV1&&!fight.titanId){
-            const coup=window.SorealMobTypesV1.coupEnnemi(fight,momentEvenement);
-            if(coup.mult!==1)degats=Math.min(avant,Math.round(degats*coup.mult));
-            if(coup.prepare){fxIdleV1_('mob','charge');ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' se charge : sa prochaine attaque sera terrible !');}
-            if(coup.charge){fxTypeAttaque='puissante';ajouterLogAventureIdleV1_('enemy','💥 Attaque chargée !');}
-            else if(coup.croit)ajouterLogAventureIdleV1_('enemy','📈 Le combat s’éternise : '+libelleEnnemiAdventureIdleV1_(fight)+' devient de plus en plus fort !');
+            tourMob=window.SorealMobTypesV1.tourEnnemi(fight,Math.random(),momentEvenement);
+            if(tourMob.prepare){fxIdleV1_('mob','charge');ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' rougeoie… une attaque énorme arrive !');}
+            else if(tourMob.avertit&&!tourMob.paralyse&&fight.mobType!=='rapid')ajouterLogAventureIdleV1_('enemy','⚡ Tu sens tes mouvements ralentir…');
+            else if(tourMob.avertit&&fight.mobType==='rapid')ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' se met à trembler violemment…');
+            if(tourMob.rapideDebut)ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' fonce et attaque à toute vitesse !');
+            if(tourMob.rapideFin)ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' semble s’être calmé.');
+            if(tourMob.saute){modifie=true;evenements+=1;continue;}
+            if(tourMob.mult!==1)degats=Math.min(avant,Math.round(degats*tourMob.mult));
+            if(tourMob.charge){fxTypeAttaque='puissante';ajouterLogAventureIdleV1_('enemy','💥 Attaque massive !');}
+            else if(tourMob.croit)ajouterLogAventureIdleV1_('enemy','📈 '+libelleEnnemiAdventureIdleV1_(fight)+' gonfle à vue d’œil !');
           }
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
           let fxTypeAttaque='degats';
@@ -1456,12 +1462,12 @@
             }
             if(att.saigne){
               const apiT=window.SorealTitanComportementsV1;
-              ajouterLogAventureIdleV1_('enemy','🩸 Tu saignes ! Ta régénération tombe à '+Math.round(apiT.multRegenJoueur(fight.titanId,REG.idleTitanEtatV1)*100)+' %.');
+              ajouterLogAventureIdleV1_('enemy','🩸 Tu saignes ! Ta régénération baisse de '+idleEntier_(apiT.regenRetireeSaignement(fight.titanId,REG.idleTitanEtatV1))+' PV/s.');
             }
             if(att.paralyse)fxIdleV1_('joueur','eclair');
             if(att.spores)fxIdleV1_('joueur','spore');
             if(att.spores)ajouterLogAventureIdleV1_('enemy','🍄 « Tes bras deviennent soudain lourds » : tes dégâts tombent aux 2/3 pendant 15 s.');
-            if(att.draine){fxIdleV1_('joueur','spore');ajouterLogAventureIdleV1_('enemy','🍄 « Tu sens l’énergie se vider de ton corps » : tu subis ×2,5 de dégâts pendant 15 s.');}
+            if(att.draine){fxIdleV1_('joueur','spore');ajouterLogAventureIdleV1_('enemy','🍄 « Tu sens l’énergie se vider de ton corps » : tu subis ×1,5 de dégâts pendant 15 s.');}
             if(att.paralyse)ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 4 s !');
           }
           if(REG.idleAdventureManualStateV3.blockUntil>momentEvenement){
@@ -1502,11 +1508,17 @@
           );
           /* Types d'ennemis (mobs-types-v1.js, Norman 2026-11-14) : poison et paralysie déclenchés par ce coup. */
           const mobTypes=window.SorealMobTypesV1;
-          if(mobTypes&&!fight.titanId&&fight.playerHp>0){
-            const etaitEmpoisonne=mobTypes.poisonActif(momentEvenement);
-            const decl=mobTypes.apresCoupEnnemi(fight,degats,momentEvenement,Math.random());
-            if(decl.poison&&!etaitEmpoisonne){fxIdleV1_('joueur','poison');jouerEffetAudioIdleV199_('skill_mobPoison');ajouterLogAventureIdleV1_('enemy','☠️ Tu es empoisonné : le poison te ronge pendant 5 s !');}
-            if(decl.paralyse){fxIdleV1_('joueur','eclair');jouerEffetAudioIdleV199_('skill_paralyze');ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 2 s !');}
+          if(mobTypes&&!fight.titanId&&fight.playerHp>0&&tourMob){
+            if(tourMob.poison){fxIdleV1_('joueur','poison');jouerEffetAudioIdleV199_('skill_mobPoison');ajouterLogAventureIdleV1_('enemy','☠️ Tu es empoisonné !');}
+            if(tourMob.poisonDegats>0){
+              const subisPoison=Math.min(idleNombre_(fight.playerHp),tourMob.poisonDegats);
+              fight.playerHp=Math.max(0,idleNombre_(fight.playerHp)-subisPoison);
+              fxIdleV1_('joueur','poison','-'+idleEntier_(subisPoison));
+              ajouterLogAventureIdleV1_('enemy','☠️ Tu subis aussi '+idleEntier_(subisPoison)+' dégâts de poison !');
+              if(fight.playerHp<=0){modifie=true;evenements+=1;terminerCombatAdventureLocalV2_(fight,false);return;}
+            }
+            if(tourMob.poisonFin)ajouterLogAventureIdleV1_('enemy','☠️ Ton poison se dissipe.');
+            if(tourMob.paralyse){fxIdleV1_('joueur','eclair');jouerEffetAudioIdleV199_('skill_paralyze');ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 2 s !');}
           }
           modifie=true;
           evenements+=1;
@@ -1534,18 +1546,6 @@
           fight,
           maintenantTick
         );
-        /* Poison d'un ennemi (mobs-types-v1.js) : un tick de dégâts par seconde pleine, pendant la durée du poison. */
-        if(window.SorealMobTypesV1&&!fight.titanId){
-          const degatsPoison=window.SorealMobTypesV1.tickPoison(maintenantTick);
-          if(degatsPoison>0){
-            const subisPoison=Math.min(idleNombre_(fight.playerHp),degatsPoison);
-            fight.playerHp=Math.max(0,idleNombre_(fight.playerHp)-subisPoison);
-            fxIdleV1_('joueur','poison','-'+idleEntier_(subisPoison));
-            ajouterLogAventureIdleV1_('enemy','☠️ Le poison te ronge : '+idleEntier_(subisPoison)+' dégâts.');
-            modifie=true;
-            if(fight.playerHp<=0){terminerCombatAdventureLocalV2_(fight,false);return;}
-          }
-        }
         fxEtatsIdleV1_(fight,maintenantTick);
 
         if(modifie){
