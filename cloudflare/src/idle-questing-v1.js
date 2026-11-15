@@ -189,17 +189,16 @@ export function idleQuestHandInValueV1(level, handInBonusLevel) {
 /*
  * Multiplicateur "Quest Drops" : spéciaux d'équipement "Quest Drops" (Build Quest Drops, en %) +
  * Perk 90 "Improved Quest Looting" ("improve the drop chance for Quest Items by 0.5%" par niveau).
- * CHOIX SOREAL : les deux sont additionnés comme une même stat "Quest Drops %" (le wiki ne dit pas
- * comment ils se cumulent). La Drop Chance normale ne compte pas : "It is increased by the Quest
+ * LU DANS LE CODE DU JEU (build 1260, 2026-11-15) : l'équipement et le Perk se MULTIPLIENT : (1 + équipement) x (1 + perk), puis le Sigil. La Drop Chance normale ne compte pas : "It is increased by the Quest
  * Drops special rather than regular Drop Chance specials".
  */
 export function idleQuestDropMultiplierV1(bonus, env) {
   /*
    * Heroic Sigil (set) : "Quest items drop 10% more often!" (env.questDropsSetPct = 0,10 une fois le
-   * Sigil au niveau 100). CHOIX SOREAL : facteur séparé x1,1 ("drop 10% more often").
+   * Sigil au niveau 100). facteur séparé x1,1 (lu dans le jeu).
    */
   const sigil = 1 + Math.max(0, N(env?.questDropsSetPct));
-  return Math.max(0, 1 + (Math.max(0, N(env?.gearQuestDropsPct)) + Math.max(0, N(bonus?.questDropsPct))) / 100) * sigil;
+  return Math.max(0, 1 + Math.max(0, N(env?.gearQuestDropsPct)) / 100) * Math.max(0, 1 + Math.max(0, N(bonus?.questDropsPct)) / 100) * sigil;
 }
 
 /*
@@ -237,12 +236,12 @@ export function idleQuestBankCapV1(state) {
  * Récompense d'une quête terminée.
  *  - base : 50 (Major) + Perk 147 + Souhait 101 ; 10 (Minor) + 2 (Perk 87) + Perk 148 + Souhait 102.
  *  - active (barre d'idle jamais remplie) : x2, et les souhaits 19/62 ("2% / 1% better active
- *    questing rewards per level") majorent cette récompense active (CHOIX SOREAL : appliqués au QP
- *    seulement ; page Arbitrary Points : 120 AP pour une Major active = (50 + 10) x 2, sans eux).
+ *    questing rewards per level") majorent cette récompense active (lu dans le jeu : ils
+ *    s'appliquent au QP ET aux AP ; sans eux, page Arbitrary Points : 120 AP pour une Major active = (50 + 10) x 2).
  *  - QP : x Perks (Fibonacci 233 +10 %, Better QP Rewards +0,2 %/niv., via env.qpEarningsMultiplier)
  *    x Souhait 47 (+2 %/niv.) x Mobster (+15 %) x objets de quête niveau 100 (+2 % chacun)
- *    x QP Hack (env.qpHackMultiplier) x cartes QP (env.qpCardMultiplier) x Beast Butter (x2). CHOIX SOREAL : chaque source multiplie
- *    les autres (le wiki ne donne pas l'ordre de cumul) ; arrondi à l'entier inférieur.
+ *    x QP Hack (env.qpHackMultiplier) x cartes QP (env.qpCardMultiplier) x Beast Butter (x2). chaque source multiplie les autres
+ *    (lu dans le jeu ; les objets de quête niveau 100 se composent : 1,02 puissance n) ; arrondi à l'entier inférieur.
  *  - AP : base x2 si active, x bonus AP généraux (env.apEarningsMultiplier), arrondi inférieur
  *    ("the final AP value is rounded down", page Arbitrary Points ; 10 AP pour une Minor idle).
  */
@@ -260,18 +259,18 @@ export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
     (1 + bonus.questQpPct) *
     (state?.adventure?.completedSets?.mobster ? 1 + IDLE_QUEST_MOBSTER_SET_QP_PCT_V1 : 1) *
     idleHeartsQpMultiplierV1(state) /* Orange Heart (set) : "Quests give 20% more QP!" */ *
-    (1 + IDLE_QUEST_ITEM_COMPLETION_QP_PCT_V1 * maxedCount) *
+    Math.pow(1 + IDLE_QUEST_ITEM_COMPLETION_QP_PCT_V1, maxedCount) *
     Math.max(0, N(env?.qpHackMultiplier, 1)) *
     /*
      * Cartes QP (2026-09-24) : page Cards, type « QP Gain (QP) » ; page Questing, « Other features :
-     * QP Hacks, QP Cards ». Même traitement que le QP Hack (facteur multiplicatif, CHOIX SOREAL
-     * d'empilement ci-dessus), calculé par idle-cards-v1.js (cardsQpGainMultiplier).
+     * QP Hacks, QP Cards ». Même traitement que le QP Hack (facteur multiplicatif, facteur
+     * multiplicatif, lu dans le jeu), calculé par idle-cards-v1.js (cardsQpGainMultiplier).
      */
     Math.max(0, N(env?.qpCardMultiplier, 1));
   /* Beast Butter : x2, x2,2 avec le Blue Heart (set) ("All consumable give 10% better effects"). */
   const butterFactor = butter ? IDLE_QUEST_BUTTER_FACTOR_V1 * idleHeartsConsumableFactorV1(state) : 1;
   const qp = Math.floor(base * activeFactor * activeWish * qpMultiplier * butterFactor);
-  const ap = Math.floor(base * activeFactor * Math.max(0, N(env?.apEarningsMultiplier, 1)));
+  const ap = Math.floor(base * activeFactor * activeWish * Math.max(0, N(env?.apEarningsMultiplier, 1)));
   return { qp, ap, base, activeFactor, activeWish, qpMultiplier, butter: Boolean(butter) };
 }
 
@@ -358,7 +357,7 @@ function startQuestV1(state, d, major, now, rng) {
   if (!zones.length) throw new Error("QUETE_AUCUNE_ZONE");
   if (major && d.majorsBanked < 1) throw new Error("QUETE_MAJEURE_INDISPONIBLE");
   const bonus = idleQuestBonusTotalsV1(state);
-  /* CHOIX SOREAL : zone et quantité tirées uniformément ("quest zones are random", "50-59"). */
+  /* Zone tirée uniformément parmi celles dont le set est terminé, quantité de 50 à 59 : lu dans le jeu (2026-11-15). */
   const zone = zones[Math.min(zones.length - 1, Math.floor(rng() * zones.length))];
   const required = bonus.fixedItems
     ? IDLE_QUEST_ITEMS_MIN_V1

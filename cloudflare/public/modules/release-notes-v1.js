@@ -34,7 +34,8 @@
           ]},
           {menu:'questing', titre:'Quêtes', points:[
             'Les bonus « Major plus rapides » raccourcissent maintenant l’intervalle de 20 % et de 10 % (et non plus de 17 % et 9 %), et se multiplient entre eux (mesuré dans le vrai jeu).',
-            'Les bonus de récompense de quête venant d’atouts différents se multiplient entre eux (mesuré dans le vrai jeu) au lieu de s’additionner.'
+            'Les bonus de récompense de quête venant d’atouts différents se multiplient entre eux (mesuré dans le vrai jeu) au lieu de s’additionner.',
+            'Quêtes, valeurs lues dans le jeu : le butin d’objets de quête multiplie l’équipement et l’atout au lieu de les additionner, chaque objet de quête niveau 100 donne +2 % de QP composé, et les bonus de récompense active s’appliquent aussi aux AP.'
           ]},
           {menu:'wishes', titre:'Wishes', points:[
             'Un souhait de bonus d’Attaque et de Défense de la série la plus haute demande plus de temps (valeur corrigée d’après les données du jeu).'

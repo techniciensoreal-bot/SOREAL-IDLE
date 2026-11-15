@@ -158,7 +158,7 @@ const env = { respawnSeconds: 4, idleAttackSeconds: 1 };
 assert.equal(idleQuestIdleSecondsPerItemV1(8, env, 1), 800, "8 x (4 + 1) / (3 x 1) minutes = 800 s par objet");
 assert.equal(idleQuestIdleSecondsPerItemV1(1, env, 1), 100, "quête active : 20 x (respawn + speed) / drop secondes");
 assert.equal(idleQuestIdleSecondsPerItemV1(3, { respawnSeconds: 2, idleAttackSeconds: 0.8 }, 2), 3 * 2.8 * 20 / 2);
-assert.equal(idleQuestDropMultiplierV1(idleQuestBonusTotalsV1(etat({ 90: 30 })), { gearQuestDropsPct: 10 }), 1.25, "10 % d'équipement + 30 x 0,5 %");
+assert.equal(idleQuestDropMultiplierV1(idleQuestBonusTotalsV1(etat({ 90: 30 })), { gearQuestDropsPct: 10 }), 1.265, "équipement 10 % x perk 30 x 0,5 % (multiplicatifs, lu dans le jeu)");
 
 assert.equal(idleQuestMajorIntervalSecondsV1(etat()), 28200);
 assert.ok(Math.abs(idleQuestMajorIntervalSecondsV1(etat({}, {}, {}, { purchases: { fasterQuesting: 1 } })) - 28200 * 0.8) < 1e-9, "Faster Questing : intervalle x0,8 (mesuré dans le vrai jeu)");

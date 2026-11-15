@@ -44,7 +44,7 @@ for (const src of sources) {
     }
   }
 }
-assert.ok(trouves.length >= 15, "le scan voit les constantes SOREAL connues (" + trouves.length + ")");
+assert.ok(trouves.length >= 8, "le scan voit les constantes SOREAL connues (" + trouves.length + ")");
 
 const nonRegistrees = trouves.filter((c) => !registre.entrees.some((e) => e.fichier === c.fichier && e.repere === c.repere));
 assert.deepEqual(
