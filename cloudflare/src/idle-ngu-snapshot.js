@@ -630,11 +630,10 @@ function moneyPitTierV48_(gold) {
  *  - 1E11 : Looty McLootFace (page Money Pit, FAQ « ~100b? lootymclootyface ») ; niveau non
  *           publié -> niveau de drop du catalogue (0). Non marqué versé tant que le sac est plein ;
  *  - 1E12 : +100 EXP (page Money Pit).
- * Non versé : le « +10 Power, +10 Toughness » du palier 1E8 (page Money Pit) que la FAQ donne
- * à « +1 Adventure attack and defense » : sources contradictoires, laissé en suspens.
+ * Le « +10 Power, +10 Toughness » du palier 1E8 (page Money Pit) est CONFIRMÉ par le code du jeu (build 1260, 2026-11-15) : versé avec le reste du palier.
  */
 const MONEY_PIT_ONE_TIME_BONUSES_V1 = Object.freeze([
-  Object.freeze({ bit: 1, gold: 1e8, adventureHp: 100, adventureRegen: 1 }),
+  Object.freeze({ bit: 1, gold: 1e8, adventureHp: 100, adventureRegen: 1, adventurePower: 10, adventureToughness: 10 }),
   Object.freeze({ bit: 2, gold: 1e10, energyBars: 1, magicBars: 1 }),
   Object.freeze({ bit: 4, gold: 1e11, item: "lootyMcLootFace" }),
   Object.freeze({ bit: 8, gold: 1e12, experience: 100 })
@@ -657,6 +656,8 @@ function applyMoneyPitOneTimeBonusesV1(state) {
       continue;
     }
     if (b.adventureHp) permanent.adventureHp = Math.max(0, num(permanent.adventureHp, 0)) + b.adventureHp;
+    if (b.adventurePower) permanent.adventurePower = Math.max(0, num(permanent.adventurePower, 0)) + b.adventurePower;
+    if (b.adventureToughness) permanent.adventureToughness = Math.max(0, num(permanent.adventureToughness, 0)) + b.adventureToughness;
     if (b.adventureRegen) permanent.adventureRegen = Math.max(0, num(permanent.adventureRegen, 0)) + b.adventureRegen;
     if (b.energyBars) permanent.energyBarsFlat = Math.max(0, num(permanent.energyBarsFlat, 0)) + b.energyBars;
     if (b.magicBars) permanent.magicBarsFlat = Math.max(0, num(permanent.magicBarsFlat, 0)) + b.magicBars;

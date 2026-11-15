@@ -44,6 +44,6 @@ function toss(gold, random) {
   // palier 11 (1e30) : Adv Stat +300 (indice 0)
   const r = toss(1e30, 0);
   assert.equal(r.result.tier, 11);
-  assert.equal(r.state.adventure.permanent.adventurePower, 300);
+  assert.equal(r.state.adventure.permanent.adventurePower, 310, "300 du lot + 10 du palier 1E8 (code du jeu)");
 }
 console.log("idle-money-pit-upper-tiers ok");

@@ -55,8 +55,8 @@ assert.equal(
       }
 
       if(c.type==='adventureStats'){
-        assert.equal(res.state.adventure.permanent.adventurePower,5);
-        assert.equal(res.state.adventure.permanent.adventureToughness,5);
+        assert.equal(res.state.adventure.permanent.adventurePower,15,'5 du lot + 10 du palier 1E8 (confirmé par le code du jeu)');
+        assert.equal(res.state.adventure.permanent.adventureToughness,15);
       }
       // 2026-09-24 : 1e9 d'or jeté franchit aussi le seuil 1E8 des One-Time Bonuses (+100 Max HP, +1 Regen).
       if(c.type==='adventureHp')assert.equal(res.state.adventure.permanent.adventureHp,150);
