@@ -329,7 +329,8 @@ export function createChallengeTiersV1(raw){
 function laserSwordStepV1(done){
   const n=Math.max(0,Math.min(20,int(done,0)));
   if(n<=0)return 0;
-  return 0.05+Math.max(0,Math.min(n,19)-1)*0.01+(n>=20?0.05:0);
+  /* Lu dans le jeu (AugmentController::augTierBonus, build 1260, 2026-11-15) : 0,05 des la 1re + 0,01 par completion + 0,05 a la derniere. */
+  return 0.05+n*0.01+(n>=20?0.05:0);
 }
 
 export function challengePermanentBonuses(state){
@@ -355,13 +356,14 @@ export function challengePermanentBonuses(state){
     boostRecycleChance:clamp(basic*0.10,0,1),
     augmentationPowerMultiplier:1+noAugs*0.25,
     /* No Augs : +10 % (1re, Normal), Evil +5 % par complétion et +25 % supplémentaires à la dernière. */
-    augmentationSpeedMultiplier:1+(noAugs>0?0.10:0)+noAugsEvil*0.05+(noAugsEvil>=5?0.25:0),
+    /* Lu dans le jeu (getAugProgressPerTick) : les trois facteurs se MULTIPLIENT. */
+    augmentationSpeedMultiplier:(1+noAugsEvil*0.05)*(noAugs>0?1.1:1)*(noAugsEvil>=5?1.25:1),
     augmentationCostMultiplier:noAugs>=5?0.5:1,
     /*
      * Laser Sword (Normal), page Challenges : « Each completion will raise the bonus by 0.01 for milk, 0.02 for cannon, and so
      * on » ; « First Completion Reward: Same bonus, but increases by 0.05! » et « Final Completion Reward: Same bonus, but
-     * increases by 0.05! ». Lecture retenue : la 1re et la 20e complétion ajoutent 0,05 (au lieu de 0,01) x rang de l'augment
-     * (Milk = 1) à l'exposant ; les 18 autres 0,01. Total à 20 complétions : 0,28 x rang.
+     * increases by 0.05! ». Corrigé d après le code du jeu (2026-11-15) : exposant = 0,05 dès la 1re + 0,01 par complétion + 0,05 à la 20e, x rang de l augment
+     * (Milk = 1). Total à 20 complétions : 0,30 x rang.
      */
     laserSwordExponentStep:laserSwordStepV1(k(c,"laserSword")),
     /* No Equipment : +8 slots par complétion (+10 à la dernière, 50 au total) en Normal ; Evil : +3 par complétion et +9 à la dernière (24 au total, page Inventory). */

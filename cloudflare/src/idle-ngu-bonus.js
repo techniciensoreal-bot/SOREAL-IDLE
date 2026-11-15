@@ -281,10 +281,11 @@ export function nguSpeedMultiplierV1(state, resource) {
   return Math.max(0,
     challengePermanentBonuses(state).nguSpeedMultiplier *
     (resource === "magic" ? challengePermanentBonuses(state).nguSpeedMagicChallengeMultiplier : challengePermanentBonuses(state).nguSpeedEnergyChallengeMultiplier) *
-    (1 + 0.02 * (resource === "magic" ? wishLevelV1(state, 113) + wishLevelV1(state, 114) : wishLevelV1(state, 111) + wishLevelV1(state, 112))) *
+    /* souhaits 111-112 / 113-114 : produit de deux effets (WishesController::totalEnergyNGUSpeed, lu dans le jeu) */
+    (resource === "magic" ? (1 + 0.02 * wishLevelV1(state, 113)) * (1 + 0.02 * wishLevelV1(state, 114)) : (1 + 0.02 * wishLevelV1(state, 111)) * (1 + 0.02 * wishLevelV1(state, 112))) *
     beardBonusMultiplier(state, "ngu") *
     idleCardsMultiplierV1(state, resource === "magic" ? "magicNgu" : "energyNgu") * /* Cards E-NGU / M-NGU */
-    (1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0))) *
+    idleAdventureSetRewardProductV1(state.adventure, "nguSpeedPct") * /* sets multiplicatifs (lu dans le jeu) */
     (1 + num(gear?.specials?.nguSpeedPct, 0) / 100) *
     /* Energy/Magic NGU MacGuffin Fragment (idle-macguffins-v1.js). */
     macguffinEffectMultiplierV1(state, resource === "magic" ? "magicNgu" : "energyNgu") *
@@ -1091,8 +1092,8 @@ function idleNguBonusesSansMacguffinCoeurV1(state) {
      * contribution du cube y est donc dupliquée par petit calcul local
      * plutôt que lue depuis ce champ, cf. son propre commentaire).
      */
-    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100) * gearPctV1(adventureGear.specials, "hackSpeedPct") * hackFx.hackHack * challengeBonuses.hackSpeedChallengeMultiplier * idleHeartsHackSpeedMultiplierV1(state) /* Grey Heart (set) : "25% Faster Hacks!" */,
-    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100) * (1 + Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0))) * gearPctV1(adventureGear.specials, "wishSpeedPct") * hackFx.wish,
+    hackSpeedMultiplier: wishBonuses.hackSpeedMultiplier * /* equipement et cube ADDITIFS (lu dans le jeu : 1 + bonuses[50] + cube) */ (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).hackSpeedPct, 0)) / 100 + Math.max(0, num(adventureGear.specials?.hackSpeedPct, 0)) / 100) * hackFx.hackHack * challengeBonuses.hackSpeedChallengeMultiplier * idleHeartsHackSpeedMultiplierV1(state) /* Grey Heart (set) : "25% Faster Hacks!" */,
+    wishSpeedMultiplier: wishBonuses.wishSpeedMultiplier * /* equipement et cube ADDITIFS (lu dans le jeu : 1 + bonuses[51] + cube) */ (1 + Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0)) / 100 + Math.max(0, num(adventureGear.specials?.wishSpeedPct, 0)) / 100) * idleAdventureSetRewardProductV1(state.adventure, "wishSpeedPct") * hackFx.wish,
     challengeBonuses:clone(challengeBonuses),
     perkBonuses:clone(perkBonuses),
     quirkBonuses:clone(quirkBonuses),
@@ -1261,4 +1262,9 @@ export function idleAdventureCombatStatsV1(gear, context, bonuses) {
         Math.max(0, num(flat.regen, 0))) * multToughness,
     blockReduction: bo && Number.isFinite(Number(bo.blockReduction)) ? Number(bo.blockReduction) : 0.5
   });
+}
+
+/* Facteur d'une récompense de set (sets multiplicatifs entre eux, lu dans le jeu) ; point d'entrée pour idle-ngu-pistes.js. */
+export function setFacteurNguV1(state, key) {
+  return idleAdventureSetRewardProductV1(state.adventure, key);
 }

@@ -19,7 +19,10 @@ import { clearWishSlotAllocationsV1 } from "./idle-ngu-pistes.js";
 
 export function idleNguRebirthTimeFactor(seconds) {
   const minutes = Math.max(0, num(seconds, 0)) / 60;
-  if (minutes < 2) return Math.max(1e-300, minutes / 1989672960);
+  /* Rebirth::calculateTimeMulti (lu dans le jeu, t en secondes) : moins de 60 s : t / 2^35 / 3600 ; de 60 a 120 s : t / 2^25 / 3600. */
+  const t = minutes * 60;
+  if (t < 60) return Math.max(1e-300, t / 34359738368 / 3600);
+  if (t < 120) return t / 33554432 / 3600;
   if (minutes < 3) return minutes / 31088640;
   if (minutes < 4) return minutes / 971520;
   if (minutes < 5) return minutes / 122880;
@@ -740,5 +743,6 @@ export function idleNguAugmentationMultiplier(raw) {
    * (force du bonus), pas la vitesse pour l'obtenir.
    */
   const sadisticStrengthDivider = state.difficulty === "extreme" ? 1e12 : 1;
-  return Math.max(1,1+(additive*nguFxV1(state).augments*challengePower)/sadisticStrengthDivider);
+  /* Lu dans le jeu (AllAugsController::totalBonus) : (1 + somme) x defi x NGU, PUIS divise en Sadistic, plancher 1. */
+  return Math.max(1,((1+additive)*challengePower*nguFxV1(state).augments)/sadisticStrengthDivider);
 }

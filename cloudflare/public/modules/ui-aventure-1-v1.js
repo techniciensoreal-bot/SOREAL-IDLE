@@ -2055,9 +2055,10 @@
           0,
           idleNombre_(power)-idleNombre_(toughness)/2
         );
+        /* Arrondi VERS LE BAS : EnemyAI::takeDamage / PlayerController::takeDamage font Floor (lu dans le jeu, build 1260). */
         return Math.max(
           0,
-          Math.round(
+          Math.floor(
             base*
             Math.max(0,idleNombre_(idleBonus)||1)*
             Math.max(.8,Math.min(1.2,idleNombre_(facteur)||1))
@@ -2072,9 +2073,10 @@
           p*.1,
           p-idleNombre_(toughness)/2
         );
+        /* Arrondi VERS LE BAS : EnemyAI::takeDamage / PlayerController::takeDamage font Floor (lu dans le jeu, build 1260). */
         return Math.max(
           0,
-          Math.round(
+          Math.floor(
             base*
             Math.max(.8,Math.min(1.2,idleNombre_(facteur)||1))
           )

@@ -38,10 +38,12 @@
             'Quêtes, valeurs lues dans le jeu : le butin d’objets de quête multiplie l’équipement et l’atout au lieu de les additionner, chaque objet de quête niveau 100 donne +2 % de QP composé, et les bonus de récompense active s’appliquent aussi aux AP.'
           ]},
           {menu:'wishes', titre:'Wishes', points:[
-            'Un souhait de bonus d’Attaque et de Défense de la série la plus haute demande plus de temps (valeur corrigée d’après les données du jeu).'
+            'Un souhait de bonus d’Attaque et de Défense de la série la plus haute demande plus de temps (valeur corrigée d’après les données du jeu).',
+            'Les bonus de vitesse venant de souhait différent se multiplient entre eux (et non plus additionnés), et l’équipement et le cube s’additionnent pour la vitesse de chaque souhait et des Hacks, comme dans le jeu.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
-            'Les NGU de la difficulté la plus haute avancent 50 fois plus vite : le coût de base a été mesuré dans le vrai jeu et était 50 fois trop élevé.'
+            'Les NGU de la difficulté la plus haute avancent 50 fois plus vite : le coût de base a été mesuré dans le vrai jeu et était 50 fois trop élevé.',
+            'Formules alignées sur le code du jeu : les bonus de vitesse des sets se multiplient entre eux, les NGU et les Augmentations suivent l’ordre exact de calcul du jeu (bonus total, défis), et le coût de deux NGU de la difficulté intermédiaire est corrigé de 1 %.'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Une copie consommée alors que le niveau de son système est déjà au maximum est maintenant détruite sans effet, comme dans le jeu, au lieu d’être refusée.'
@@ -49,7 +51,8 @@
           {menu:'aventure', titre:'Aventure', points:[
             'Les ennemis spéciaux suivent maintenant le cycle réel du jeu : le poison revient tous les 7 coups (3 ticks de 20 % de la Puissance de l’ennemi), le chargeur frappe x4 au 5e tour après deux tours sans attaque, la paralysie revient tous les 12 tours (2 s), le rapide fonce pendant 6 coups, le grandisseur gagne 20 % tous les 2 coups, et l’explosion vaut 1000 fois un coup ordinaire.',
             'Les configurations d’équipement s’activent et se désactivent : activer un set remplace seulement les pièces qu’il contient (une case vide ne change rien), et le désactiver rééquipe ce que tu portais avant et renvoie les pièces d’où elles venaient (sac ou coffre).',
-            'Aventure : la vitesse NGU d’un accessoire de set est corrigée (600 au lieu de 500 au niveau 0).'
+            'Aventure : la vitesse NGU d’un accessoire de set est corrigée (600 au lieu de 500 au niveau 0).',
+            'Les dégâts de combat sont arrondis vers le bas, comme dans le jeu, et le facteur de temps des deux premières minutes d’un Rebirth est corrigé.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Les cartes « Vitesse du Daycare » accélèrent maintenant vraiment les objets en garderie (elles ne comptaient que dans l’affichage).'

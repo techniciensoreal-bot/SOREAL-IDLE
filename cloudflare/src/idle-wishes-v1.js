@@ -298,6 +298,16 @@ export function idleWishByIdV1(id) {
 export function wishBonusesV1(tracksById) {
   const tracks = tracksById && typeof tracksById === "object" ? tracksById : {};
   const totals = {};
+  function produitParSouhaitV1(trs, cle) {
+    let f = 1;
+    for (const w of IDLE_WISHES_CATALOG_V1) {
+      const pct = w.bonus && w.bonus[cle];
+      if (!pct) continue;
+      const lv = Math.max(0, Math.min(w.levels, Number(trs[w.id]?.level) || 0));
+      f *= Math.max(1, 1 + pct * lv);
+    }
+    return f;
+  }
   /*
    * Attack/Defense : niveaux d'un même souhait additionnés, souhaits DISTINCTS multipliés. MESURÉ DANS LE VRAI JEU le 2026-11-13 (build 1260,
    * sauvegarde de Norman modifiée puis recalculée par le jeu, difficulté Evil) : souhait 0 niveau 1 (x2) + souhait 5 niveau 3 (x4) = x8,000, pas x5 ;
@@ -324,8 +334,9 @@ export function wishBonusesV1(tracksById) {
     r3BarsMultiplier: 1 + (totals.r3BarsPct || 0),
     adventureStatsMultiplier: 1 + (totals.adventureStatsPct || 0),
     statMultiplier: statProduct,
-    wishSpeedMultiplier: 1 + (totals.wishSpeedPct || 0),
-    hackSpeedMultiplier: 1 + (totals.hackSpeedPct || 0),
+    /* Lu dans le jeu (WishesController::totalWishBonus, HacksController::totalHackSpeedBonus) : un facteur PAR souhait, multipliés entre eux. */
+    wishSpeedMultiplier: produitParSouhaitV1(tracks, "wishSpeedPct"),
+    hackSpeedMultiplier: produitParSouhaitV1(tracks, "hackSpeedPct"),
     /* Souhaits "I wish I had more Inventory space" : 1 emplacement par niveau (leur effet le dit). */
     inventorySlots: IDLE_WISHES_CATALOG_V1.reduce((sum, w) => (
       /extra inventory slot/i.test(String(w.effect || ""))

@@ -64,8 +64,8 @@ assert.equal(intervalleIdle({ unlockFlags: { redLiquidMaxed: true } }), 800, "Id
 /* --- Dégâts du joueur : ITOPOD « One hit power required » --- */
 const degatsJoueur = fonction("degatsJoueurAdventureIdleV2_", { idleNombre_ });
 assert.equal(degatsJoueur(100, 40, 1.2, 1), 96, "(power - defense/2) x idle bonus");
-assert.equal(degatsJoueur(100, 40, 1.2, 0.8), Math.round(80 * 1.2 * 0.8), "facteur aléatoire bas 0,8");
-assert.equal(degatsJoueur(100, 40, 1.2, 1.2), Math.round(80 * 1.2 * 1.2), "facteur aléatoire haut 1,2");
+assert.equal(degatsJoueur(100, 40, 1.2, 0.8), Math.floor(80 * 1.2 * 0.8), "facteur aléatoire bas 0,8 (arrondi vers le bas, lu dans le jeu)");
+assert.equal(degatsJoueur(100, 40, 1.2, 1.2), Math.floor(80 * 1.2 * 1.2), "facteur aléatoire haut 1,2");
 assert.equal(degatsJoueur(10, 400, 1.2, 1), 0, "jamais de dégâts négatifs");
 const facteur = block(ui, "function facteurAleatoireDegatsAdventureIdleV2_(", "}");
 assert.ok(facteur.includes(".8+Math.random()*.4"), "facteur aléatoire uniforme 0,8-1,2");

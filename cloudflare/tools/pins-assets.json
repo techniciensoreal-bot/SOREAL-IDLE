@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 249,
-  "sha": "4579839af1d05d80f9000cc82e0f6cb5bcc1ad33"
+  "pin": 250,
+  "sha": "0bc23b7d49e0c6e4256cdb77158bd25b8359017d"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -644,8 +644,8 @@
   "sha": "54a255e14267565bae830a4cf3fb315e104c61c6"
  },
  "/modules/rebirth-live-v1.js": {
-  "pin": 6,
-  "sha": "682abab2e0463f59540abab70013f36cc11c1e88"
+  "pin": 7,
+  "sha": "a3f095acea0f05a2a05410413265ead2f77dbe4f"
  },
  "/modules/records-perso-v1.js": {
   "pin": 2,
@@ -672,8 +672,8 @@
   "sha": "f4ab442e25921095517c91e93b28ef5c6374fc96"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 980,
-  "sha": "a65c1e7ef6a93b91a958fefbe393b862c06521c0"
+  "pin": 984,
+  "sha": "0f8d19ea2a08b0792871a16e1ed1577328f48a5e"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -768,12 +768,12 @@
   "sha": "3473b8d47f6cd9b933080497d6601d6cec1e4a96"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1020,
-  "sha": "12b02c075c60913dc9fab37d68ca1139522031c1"
+  "pin": 1024,
+  "sha": "56f805b8b9bfed8da691506bb7d900543cb407c1"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 841,
-  "sha": "735afe2adb947e25025b6d2ac28acdb39344aae2"
+  "pin": 845,
+  "sha": "8407bfe4fc199f85c37a2d0ce31b85476576c116"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -816,8 +816,8 @@
   "sha": "214432df5a603f4e9ceacc9628bf8ce5258c5fd9"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 43,
-  "sha": "8752e701c5659d2dc67a8d6c01168d366c55a4ab"
+  "pin": 44,
+  "sha": "09632a267b6fccca308f71d75b6e754337cf2b1f"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 63,

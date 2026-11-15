@@ -71,14 +71,14 @@ const PARAMS = {
     powerAlpha: {pct:2, softCap:null, baseCost:2e23},
     dropChance: {pct:0.05, softCap:1000, baseCost:2e24, exponent:0.3, coefficient:6.295},
     magicNgu: {pct:0.05, softCap:1000, baseCost:2e25, exponent:0.3, coefficient:6.295},
-    pp: {pct:0.02, softCap:1000, baseCost:2e26, exponent:0.2, coefficient:5.024},
+    pp: {pct:0.02, softCap:1000, baseCost:2.02e26, /* 1,01e28 / 50 : diviseur lu dans le jeu (level0) */ exponent:0.2, coefficient:5.024},
     yggdrasil: {pct:0.05, softCap:400, baseCost:2e20, exponent:0.1, coefficient:10.9854},
     exp: {pct:0.005, softCap:2000, baseCost:2e21, exponent:0.2, coefficient:2.1867},
     powerBeta: {pct:0.5, softCap:null, baseCost:2e22},
     number: {pct:0.5, softCap:1000, baseCost:2e23, exponent:0.3, coefficient:62.95},
     timeMachine: {pct:0.1, softCap:1000, baseCost:2e24, exponent:0.8, coefficient:0.3981},
     energyNgu: {pct:0.05, softCap:1000, baseCost:2e25, exponent:0.2, coefficient:12.56},
-    adventureBeta: {pct:0.015, softCap:1000, baseCost:2e26, exponent:0.25, coefficient:2.6675}
+    adventureBeta: {pct:0.015, softCap:1000, baseCost:2.02e26, /* idem, lu dans le jeu */ exponent:0.25, coefficient:2.6675}
   },
   /*
    * Coûts de base SADISTIC MESURÉS dans le vrai jeu (NGU Idle build 1260, banc d'essai, 2026-11-15) : à énergie égale, Sadistic Augments avance 1,0000e18 fois moins vite qu'Evil Augments

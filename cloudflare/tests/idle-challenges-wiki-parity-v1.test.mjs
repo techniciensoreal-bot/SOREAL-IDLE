@@ -84,14 +84,14 @@ const start = (s, id, now = 1_000_000, bosses = 100) => applyIdleNguAction(s, { 
   assert.ok(apres.challenge.startedAt > debut);
 }
 
-// --- Laser Sword : +0,05 à la 1re et à la 20e complétion, +0,01 entre les deux (x rang de l'augment) ---
+// --- Laser Sword (lu dans le jeu, 2026-11-15) : 0,05 + 0,01 par complétion, +0,05 à la 20e (x rang de l'augment) ---
 {
   const pas = (n) => { const s = fresh(); s.challenge.completions.laserSword = n; return idleNguChallengeBonuses(s).laserSwordExponentStep; };
   assert.equal(pas(0), 0);
-  assert.ok(Math.abs(pas(1) - 0.05) < 1e-12);
-  assert.ok(Math.abs(pas(2) - 0.06) < 1e-12);
-  assert.ok(Math.abs(pas(19) - 0.23) < 1e-12);
-  assert.ok(Math.abs(pas(20) - 0.28) < 1e-12);
+  assert.ok(Math.abs(pas(1) - 0.06) < 1e-12);
+  assert.ok(Math.abs(pas(2) - 0.07) < 1e-12);
+  assert.ok(Math.abs(pas(19) - 0.24) < 1e-12);
+  assert.ok(Math.abs(pas(20) - 0.30) < 1e-12);
 }
 
 // --- Troll Challenge : intervalles, petits et gros trolls ---

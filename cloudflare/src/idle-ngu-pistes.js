@@ -18,7 +18,7 @@ import { expShopPurchasedV1 } from "./idle-ngu-actions.js";
 import { advanceTheEndFinalHackV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, syncWishAllocationTotalsV1, wandoosCalculVitessesV1, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
 import { externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, setAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { bloodMigrerAllocationV1, bloodRitualMagicV1, diggerBonuses, diggerDrainTotal } from "./idle-ngu-systemes.js";
-import { beardBonusMultiplier, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
+import { setFacteurNguV1, beardBonusMultiplier, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
 import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, wishLevelV1 } from "./idle-ngu-snapshot.js";
 
 /*
@@ -398,10 +398,9 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
  */
 function wishSpeedParamsV1(state, system) {
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
-  const wishSpeedSetPct = Math.max(0, num(state.adventure?.setRewards?.wishSpeedPct, 0));
-  const perkWish = perkBonusesV1(idlePerkNiveauxV1(state));
+    const perkWish = perkBonusesV1(idlePerkNiveauxV1(state));
   const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(idleQuirkNiveauxV1(state)).wishMinTimeReductionSeconds);
-  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100) * (1 + wishSpeedSetPct) * gearPctV1(gearSpecialsV1(state), "wishSpeedPct") * hackFxV1(state).wish
+  const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100 + Math.max(0, num(gearSpecialsV1(state)?.wishSpeedPct, 0)) / 100) /* equipement + cube additifs (lu dans le jeu) */ * setFacteurNguV1(state, "wishSpeedPct") * hackFxV1(state).wish
     * idleCardsMultiplierV1(state, "wishes") /* Cards WISHES */);
   return { wishMinSeconds, speedMultiplier };
 }
@@ -711,7 +710,7 @@ export function advanceTrackSystem(state, def, seconds) {
    * PP/Quest/Daycare via NGU), jamais Beards/Hacks/Wishes/Wandoos/Advanced
    * Training qui ont chacun leur propre vitesse déjà câblée ailleurs.
    */
-  const nguSpeedSetMultiplier = def.id === "ngu" ? 1 + Math.max(0, num(state.adventure?.setRewards?.nguSpeedPct, 0)) : 1;
+  const nguSpeedSetMultiplier = def.id === "ngu" ? setFacteurNguV1(state, "nguSpeedPct") : 1;
   const nguSpeedBonusMultiplier = def.id === "ngu" ? Math.max(0, num(idleNguBonusesLectureV1(state).nguSpeedMultiplier, 1)) : 1;
   t.progress += (throughput / divisor) * seconds * nguSpeedSetMultiplier * nguSpeedBonusMultiplier;
   let gain = Math.floor(t.progress);

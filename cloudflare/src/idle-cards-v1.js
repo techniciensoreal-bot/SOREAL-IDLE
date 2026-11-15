@@ -513,7 +513,8 @@ export function idleCardsModifiersV1(state) {
       + (setOn("amalgamate") ? IDLE_CARDS_SETS_V1.amalgamate.deckSize : 0),
     tagSlots: B.tagSlots + N(acc.sums.cardTagSlots, 0) + bought("extraTagSlot"),
     /* Still-Beating Heart (set) : "+1% Tag Effect!" (setRewards.cardTagEffect = 0,01). */
-    tagEffect: B.tagEffect + N(acc.sums.cardTagEffectPct, 0) + Math.max(0, N(state?.adventure?.setRewards?.cardTagEffect, 0)),
+    /* borné entre 0,10 et 0,25 (lu dans le jeu, build 1260) */
+    tagEffect: Math.min(0.25, Math.max(0.10, B.tagEffect + N(acc.sums.cardTagEffectPct, 0) + Math.max(0, N(state?.adventure?.setRewards?.cardTagEffect, 0)))),
     generators: B.generators + extraGenerators,
     cardSpeed,
     mayoSpeed,

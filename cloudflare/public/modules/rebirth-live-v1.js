@@ -12,7 +12,9 @@ function nb(v){var n=Number(v);return Number.isFinite(n)?n:0;}
 
 function facteurTemps(secondes){
   var m=Math.max(0,nb(secondes))/60;
-  if(m<2)return Math.max(1e-300,m/1989672960);
+  var t=m*60;
+  if(t<60)return Math.max(1e-300,t/34359738368/3600);   /* lu dans le jeu (Rebirth::calculateTimeMulti), comme le moteur */
+  if(t<120)return t/33554432/3600;
   if(m<3)return m/31088640;
   if(m<4)return m/971520;
   if(m<5)return m/122880;

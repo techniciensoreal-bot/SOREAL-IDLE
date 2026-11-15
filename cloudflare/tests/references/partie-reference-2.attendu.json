@@ -83,17 +83,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "8a313a1b7d0c70ee"
+   "empreinte": "8b19a19a4bc4e009"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.17707921283e+73,
+   "pv": 1.17709729062e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.4951794596e+60,
-   "defense": 7.8888414078e+59,
-   "pvMax": 2.29840867451e+73
+   "attaque": 1.49525466817e+60,
+   "defense": 7.88923822198e+59,
+   "pvMax": 2.29852428606e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -199,17 +199,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "8a313a1b7d0c70ee"
+   "empreinte": "8b19a19a4bc4e009"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.17707921283e+73,
+   "pv": 1.17709729062e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.4951794596e+60,
-   "defense": 7.8888414078e+59,
-   "pvMax": 2.29840867451e+73
+   "attaque": 1.49525466817e+60,
+   "defense": 7.88923822198e+59,
+   "pvMax": 2.29852428606e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -315,17 +315,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "a56b3e43c50f2977"
+   "empreinte": "d1f22f80b230c104"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.17707921283e+73,
+   "pv": 1.17709729062e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.51027816858e+60,
-   "defense": 7.96850496913e+59,
-   "pvMax": 2.32839037838e+73
+   "attaque": 1.51035412419e+60,
+   "defense": 7.96890572485e+59,
+   "pvMax": 2.32850747886e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -431,17 +431,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "67b76c9f1016c5b1"
+   "empreinte": "9a0ffa74990d0064"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.18940289314e+73,
+   "pv": 1.18942159071e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.51441404039e+60,
-   "defense": 7.99032658834e+59,
-   "pvMax": 2.33665365292e+73
+   "attaque": 1.514490204e+60,
+   "defense": 7.99072844152e+59,
+   "pvMax": 2.33677116899e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -547,17 +547,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "3dc837114417ff37"
+   "empreinte": "2e4fd33c52d46d12"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.25202696878e+73,
+   "pv": 1.25204881537e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.53540816639e+60,
-   "defense": 8.10109545252e+59,
-   "pvMax": 2.37861763977e+73
+   "attaque": 1.53548537321e+60,
+   "defense": 8.10150280988e+59,
+   "pvMax": 2.37873724673e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -663,17 +663,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "3405c93acd8c62de"
+   "empreinte": "ea8339c0dfe87814"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.66508225392e+73,
+   "pv": 1.6651248469e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.66415649914e+60,
-   "defense": 8.78134912764e+59,
-   "pvMax": 2.64051761009e+73
+   "attaque": 1.66424008424e+60,
+   "defense": 8.78179018588e+59,
+   "pvMax": 2.64065023459e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -779,17 +779,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "5a1bad16bda13013"
+   "empreinte": "7f4c5067ebbb404c"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 6.23876518824e+73,
+   "pv": 6.23907512174e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 3.16217955762e+60,
-   "defense": 1.66860524922e+60,
-   "pvMax": 6.23876518824e+73
+   "attaque": 3.16233665047e+60,
+   "defense": 1.66868814329e+60,
+   "pvMax": 6.23907512174e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
