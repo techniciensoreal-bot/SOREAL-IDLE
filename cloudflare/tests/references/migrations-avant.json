@@ -15,7 +15,7 @@
    "rebirth": "c4dfc391ac646d3b235dcc2e",
    "systems": "dfe5bf39bab76544cf52935d",
    "challenge": "ff4ff75c12ac33e81082145c",
-   "bank": "80d1a57567b7a492a02678e3",
+   "bank": "ed3048c4c4ddf56e16cfe09c",
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "7211da0e112b530f675d4873",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -23,7 +23,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "7f9974622f4046845ab4e864"
+  "tout": "cf24cee4ed201b1e7da5d4cb"
  },
  "reference-2": {
   "cles": {
@@ -41,7 +41,7 @@
    "rebirth": "77ba49611766395bc2aa0801",
    "systems": "1c887ef9ec58e17516d6773b",
    "challenge": "97a98c5052d59b59d8b7d061",
-   "bank": "5d08fbc301b935aa9bd19934",
+   "bank": "a93ac3eade27db61e47c2697",
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "e26f5486439779cee3412b12",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -49,7 +49,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "44e23d4d67825a314e13807f"
   },
-  "tout": "06a5dee2027394e67f3b2d22"
+  "tout": "d8d84cdcdfeff8c5fba1366f"
  },
  "sans-etatVersion": {
   "cles": {
@@ -67,7 +67,7 @@
    "rebirth": "dc4cdcbbf7acddd1ab4238e3",
    "systems": "dfe5bf39bab76544cf52935d",
    "challenge": "ff4ff75c12ac33e81082145c",
-   "bank": "80d1a57567b7a492a02678e3",
+   "bank": "ed3048c4c4ddf56e16cfe09c",
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "7211da0e112b530f675d4873",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -75,7 +75,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "7b12109e3c81747ab7093b95"
+  "tout": "72be047f974c21b21e2d78da"
  },
  "resourceModel-50": {
   "cles": {
@@ -93,7 +93,7 @@
    "rebirth": "77ba49611766395bc2aa0801",
    "systems": "1c887ef9ec58e17516d6773b",
    "challenge": "97a98c5052d59b59d8b7d061",
-   "bank": "5d08fbc301b935aa9bd19934",
+   "bank": "a93ac3eade27db61e47c2697",
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "e26f5486439779cee3412b12",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -101,7 +101,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "44e23d4d67825a314e13807f"
   },
-  "tout": "afa2cf606b002ed59896f324"
+  "tout": "bffe06db8c6ea55123f18044"
  },
  "resourceModel-51": {
   "cles": {
@@ -119,7 +119,7 @@
    "rebirth": "c4dfc391ac646d3b235dcc2e",
    "systems": "dfe5bf39bab76544cf52935d",
    "challenge": "ff4ff75c12ac33e81082145c",
-   "bank": "80d1a57567b7a492a02678e3",
+   "bank": "ed3048c4c4ddf56e16cfe09c",
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "7211da0e112b530f675d4873",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -127,7 +127,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "6b8e01ebab8af93d6915a1e4"
+  "tout": "a15df89b591592ab07d28bce"
  },
  "resourceModel-absent": {
   "cles": {
@@ -145,7 +145,7 @@
    "rebirth": "c4dfc391ac646d3b235dcc2e",
    "systems": "dfe5bf39bab76544cf52935d",
    "challenge": "ff4ff75c12ac33e81082145c",
-   "bank": "80d1a57567b7a492a02678e3",
+   "bank": "ed3048c4c4ddf56e16cfe09c",
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "7211da0e112b530f675d4873",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -153,7 +153,7 @@
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "1f03217cba33d86576c86e03"
+  "tout": "9d11b13b2c710ad425734f44"
  },
  "legacy-sans-saveSchema": {
   "cles": {
@@ -171,7 +171,7 @@
    "rebirth": "4b396cac390e494587ca3119",
    "systems": "d1cf856f689a83892a03e654",
    "challenge": "e78c2ef92f128999d1e19d3b",
-   "bank": "735118c085a5c7b152f7f400",
+   "bank": "9e2efca2db223651973b5e06",
    "selloutEffects": "c69da2e9992f39b57e6d3452",
    "selloutShop": "5a8f46270af5d8e723080bb8",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -180,7 +180,7 @@
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "487073d80424b9120d9e4d9c"
+  "tout": "5b5963b8b348e7bc170b1899"
  },
  "legacy-schema-46": {
   "cles": {
@@ -198,7 +198,7 @@
    "rebirth": "c4dfc391ac646d3b235dcc2e",
    "systems": "b66cf6ea23923544c459bcca",
    "challenge": "ff4ff75c12ac33e81082145c",
-   "bank": "80d1a57567b7a492a02678e3",
+   "bank": "ed3048c4c4ddf56e16cfe09c",
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "65f3c93e309b83c506f1639b",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -207,7 +207,7 @@
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "5e282c5b6118d4ac7e0f9ca7"
+  "tout": "b0fed7180a2a93af4f3572f8"
  },
  "vide": {
   "cles": {
@@ -225,7 +225,7 @@
    "rebirth": "c63532633b6f107293d8df0e",
    "systems": "e0ddcb0d363f187b6de66f5c",
    "challenge": "e78c2ef92f128999d1e19d3b",
-   "bank": "9e047d2e2a43bb8f822fc037",
+   "bank": "a7c9f78e024b7ee7a80f3ad3",
    "selloutEffects": "c69da2e9992f39b57e6d3452",
    "selloutShop": "47f29cb0cd2abea72af6359f",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -233,7 +233,7 @@
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "6dbd7902916f6b5a8cfac8d1"
+  "tout": "b06ea98b232381e5f75e46d7"
  },
  "null": {
   "cles": {
@@ -251,7 +251,7 @@
    "rebirth": "c63532633b6f107293d8df0e",
    "systems": "e0ddcb0d363f187b6de66f5c",
    "challenge": "e78c2ef92f128999d1e19d3b",
-   "bank": "9e047d2e2a43bb8f822fc037",
+   "bank": "a7c9f78e024b7ee7a80f3ad3",
    "selloutEffects": "c69da2e9992f39b57e6d3452",
    "selloutShop": "47f29cb0cd2abea72af6359f",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
@@ -259,6 +259,6 @@
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "6dbd7902916f6b5a8cfac8d1"
+  "tout": "b06ea98b232381e5f75e46d7"
  }
 }
