@@ -2231,7 +2231,7 @@
             'Vous avez vaincu '+nom+' !'
           );
           /* Succès (2026-11-14) : « vaincre un titan avant qu'il attaque » (aucune attaque du titan pendant ce combat) et « survivre à un ennemi explosif » (explosion survécue) : annoncés au serveur avec la victoire. */
-          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt),sansCoup:Boolean(fight.titanId)&&!(REG.idleTitanAttaquesV1>0),exploderSurvived:Boolean(REG.idleExploderSurvivedV1)};
+          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt),sansCoup:Boolean(fight.titanId)&&!(REG.idleTitanAttaquesV1>1),exploderSurvived:Boolean(REG.idleExploderSurvivedV1)};
           REG.idleExploderSurvivedV1=false;
           REG.idleAdventureResolutionPendingV2='resolveZoneFight';
           /* Titan vaincu : l'écran de combat joue son départ (il rapetisse en tournant) puis annonce son retour (modules/titans-combat-ecran-v1.js). */

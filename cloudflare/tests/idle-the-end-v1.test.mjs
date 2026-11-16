@@ -38,12 +38,12 @@ function avecRandom(valeur, fn) {
   s.systems.quirks.unlocked = true;
   s.systems.quirks.data.levels = Object.assign({}, s.systems.quirks.data.levels, { 176: 1 });
   s.systems.wishes.data.tracks[203] = { level: 1 };
-  s = normalizeIdleNguState(s, { bosses: 299 }, 1_000_001);
+  s = normalizeIdleNguState(s, { bosses: 300 }, 1_000_001);
   assert.deepEqual([482, 486, 490].map((id) => has(s, id)), [true, true, true]);
-  assert.equal(has(s, 487), false, "boss 299 : pas encore");
-  s = normalizeIdleNguState(s, { bosses: 300 }, 1_000_002);
-  assert.equal(has(s, 487), true, "boss 300 vaincu en Sadistic");
-  const normal = normalizeIdleNguState(neuf("normal"), { bosses: 300 }, 1_000_002);
+  assert.equal(has(s, 487), false, "boss 300 : pas encore (le 301e boss est requis, lu dans le jeu)");
+  s = normalizeIdleNguState(s, { bosses: 301 }, 1_000_002);
+  assert.equal(has(s, 487), true, "301e boss vaincu en Sadistic");
+  const normal = normalizeIdleNguState(neuf("normal"), { bosses: 301 }, 1_000_002);
   assert.equal(has(normal, 487), false, "hors Sadistic : rien");
   // premier instantané : les pièces trouvées seulement, sans compteur
   const snap = idleNguSnapshot(s, ctx, 1_000_003).adventure.theEnd;
@@ -108,9 +108,9 @@ function avecRandom(valeur, fn) {
   assert.equal(vu.seconds, 0);
   s = advanceIdleNguState(s, 100000, ctx, 1_100_000);
   const mi = idleNguSnapshot(s, ctx, 1_100_000).systems.find((x) => x.id === "hacks").finalHack;
-  assert.ok(Math.abs(mi.seconds - 100000) < 1, "1 seconde par seconde");
+  assert.ok(Math.abs(mi.seconds - 50000) < 1, "hors ligne : demi-vitesse (Character::addOfflineProgress, audit hors ligne 2026-11-16)");
   assert.equal(has(s, 488), false);
-  s = advanceIdleNguState(s, 100000, ctx, 1_200_000);
+  s = advanceIdleNguState(s, 300000, ctx, 1_200_000);
   assert.equal(has(s, 488), true);
 }
 

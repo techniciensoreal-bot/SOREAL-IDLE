@@ -284,14 +284,15 @@ const TITAN_QP_V1=Object.freeze({t6:{wish:73,qp:1},t7:{wish:41,qp:3},nerd:{wish:
 /* Convert.ToInt64 d'un flottant : arrondi au plus proche, les demi-valeurs vers le pair (comportement de .NET). */
 function arrondiPairV1(x){const f=Math.floor(x),d=x-f;if(d<.5)return f;if(d>.5)return f+1;return f%2===0?f:f+1;}
 
-function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0){
+function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0,horsLigne=false){
   const r=TITAN_REWARDS_V1[id];
   const out={gold:0,experience:0,ap:0,ppProgress:0,qp:0};
   if(!r)return out;
   const wishes=ctx&&ctx.wishLevels&&typeof ctx.wishLevels==="object"?ctx.wishLevels:{};
-  const rewardMult=1+.1*Math.min(Math.max(0,I(wishes[3])),TITAN_TIER_RANK_V1[tierKey]||0);
+  /* Hors ligne (Character::adventureOfflineProgress, audit 2026-11-16) : pas de facteur du souhait 3 (palier de récompense) ; aucun Or. */
+  const rewardMult=horsLigne?1:1+.1*Math.min(Math.max(0,I(wishes[3])),TITAN_TIER_RANK_V1[tierKey]||0);
   const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;
-  out.gold=Math.max(1,Math.round((r.gold[0]+Math.random()*(r.gold[1]-r.gold[0]))*goldDropsMult*Math.max(0,N(ctx&&ctx.goldMultiplier,1))));
+  out.gold=horsLigne?0:Math.max(1,Math.round((r.gold[0]+Math.random()*(r.gold[1]-r.gold[0]))*goldDropsMult*Math.max(0,N(ctx&&ctx.goldMultiplier,1))));
   /*
    * Perk 34 « Bonus Titan EXP! » (page Experience) : « +50% EXP from Titans. +3 kill per level that will benefit
    * from this Perk » : +50 % fixe sur les 3 x niveau premiers kills de chaque titan par Rebirth. La composition
@@ -367,8 +368,9 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
     if(d.flag&&!s.unlockFlags[d.flag])continue;
     if(!titanGate(s,d))continue;
     const st=s.titans[d.id]||{kills:0,nextAt:0};
-    /* Case à cocher PAR TITAN (Norman, 2026-10-10) : cochée = auto-kill ; le vieux réglage global reste valable pour les titans jamais réglés. */
-    if(!(st.autoKill===true||(s.autoKillTitansEnabled&&st.autoKill!==false)))continue;
+    /* Case à cocher PAR TITAN (Norman, 2026-10-10) : cochée = auto-kill ; le vieux réglage global reste valable pour les titans jamais réglés. Hors ligne le jeu ne lit aucune case (audit 2026-11-16) : seuls les seuils comptent. */
+    const horsLigneTitan=!ctx.enLigne;
+    if(!horsLigneTitan&&!(st.autoKill===true||(s.autoKillTitansEnabled&&st.autoKill!==false)))continue;
     /*
      * Le palier (Easy/Normal/Hard/Brutal) n'est PAS le même concept que ctx.difficulty (Normal/Evil/Sadistic, le
      * mode de difficulté du run) -- confusion corrigée le 2026-09-27 (le premier jet réutilisait ctx.difficulty à
@@ -381,17 +383,17 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
     if(d.forms){
       if(I(st.kills)<titanFormesKillsAutoKillV1(d)||!s.unlockFlags.walderpFinalDefeated)continue;
       const essai=d.forms[d.forms.length-1];
-      if(N(essai.autoKillP)>0&&N(stats.power)>=essai.autoKillP&&N(stats.toughness)>=essai.autoKillT)tier=essai;
+      if(N(essai.autoKillP)>0&&N(stats.power)>=essai.autoKillP&&N(stats.toughness)>=essai.autoKillT&&N(stats.regen)>=N(essai.autoKillR))tier=essai;
     }else if(d.difficulties){
       for(const cle of ["brutal","hard","normal","easy"]){
         const essai=d.difficulties[cle];
         if(!essai||!(N(essai.autoKillP)>0))continue;
         const dejaKills=Math.max(0,I((st.difficultyKills||{})[cle],0));
-        const statsOk=N(stats.power)>=essai.autoKillP&&N(stats.toughness)>=essai.autoKillT;
+        const statsOk=N(stats.power)>=essai.autoKillP&&N(stats.toughness)>=essai.autoKillT&&N(stats.regen)>=N(essai.autoKillR);
         const killsOk=essai.autoKillKills&&dejaKills>=essai.autoKillKills;
         if(statsOk||killsOk){tier=essai;tierKey=cle;break;}
       }
-    }else if(N(d.autoKillP)>0&&N(stats.power)>=d.autoKillP&&N(stats.toughness)>=d.autoKillT){
+    }else if(N(d.autoKillP)>0&&N(stats.power)>=d.autoKillP&&N(stats.toughness)>=d.autoKillT&&N(stats.regen)>=N(d.autoKillR)){
       tier=d;
     }
     if(!tier)continue;
@@ -405,7 +407,7 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
         if(!st.difficultyKills||typeof st.difficultyKills!=="object")st.difficultyKills={};
         st.difficultyKills[tierKey]=I(st.difficultyKills[tierKey],0)+1;
       }
-      creditTitanRewardsV1(s,d.id,ctx,tierKey,st.rebirthKills);
+      creditTitanRewardsV1(s,d.id,ctx,tierKey,st.rebirthKills,horsLigneTitan);
       /*
        * BUTIN EN LIGNE (Norman, 2026-10-11 : « on garde l'auto kill hors ligne comme celui du Wiki (EXP, Or, AP, PP, QP), mais l'auto kill EN LIGNE doit donner les loots ») : quand le joueur est connecté (ctx.enLigne : synchro courte), chaque
        * kill tire le même butin qu'un combat manuel (rollTitanLootV1, même bonus de drop, même premier objet de déblocage) ; hors ligne, jamais aucun objet (wiki : « no items drop while you are offline »).

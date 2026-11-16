@@ -1290,10 +1290,21 @@ function appliquerProgressionEnergieSorealIdle__p6(bossBattusMaintenant, bossBlo
        * prévu du boss. Un boss de ton niveau donne 100 %, puis la valeur
        * décroît progressivement jusqu'à 0.
        */
+      /*
+       * Lu dans le jeu (BossController::rewardExp, build 1260, audit 2026-11-16, E7) : la 1re victoire d'un boss (bonus « une fois ») REMPLACE l'EXP de base
+       * (elle ne s'y ajoute pas) et addExp arrondit vers le bas (Math.Floor).
+       */
+      const estPremiereFoisJamais =
+        bossCombatIndex >= highestBossJamaisAtteint;
+      const bonusPremiereFoisBrut =
+        estPremiereFoisJamais
+          ? xpBonusPremiereFoisSorealIdle_(bossCombatIndex)
+          : 0;
       const xpReelle =
+        bonusPremiereFoisBrut > 0 ? 0 :
         Math.max(
           0,
-          Math.round(
+          Math.floor(
             recompenseXpBossNiveauSorealIdle_(
               bossCombatIndex,
               niveau
@@ -1337,17 +1348,12 @@ function appliquerProgressionEnergieSorealIdle__p6(bossBattusMaintenant, bossBlo
        * record avant CE kill signifie que ce boss n'a jamais été vaincu
        * sur ce compte.
        */
-      const estPremiereFoisJamais =
-        bossCombatIndex >= highestBossJamaisAtteint;
-
       const bonusPremiereFois =
-        estPremiereFoisJamais
+        bonusPremiereFoisBrut > 0
           ? Math.max(
               0,
-              Math.round(
-                xpBonusPremiereFoisSorealIdle_(
-                  bossCombatIndex
-                ) *
+              Math.floor(
+                bonusPremiereFoisBrut *
                 Math.max(
                   1,
                   nombreSorealIdle_(

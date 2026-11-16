@@ -4,6 +4,7 @@ import {
   advanceIdleNguState,
   normalizeIdleNguState
 } from "../src/idle-ngu-progression.js";
+import { advanceTitanAutoKillV1 } from "../src/idle-adventure-v47.js";
 
 /*
  * Norman (2026-09-26/27), en réponse à docs/HORS-LIGNE.md : « traite le point 1 » -- Auto-Kill des Titans, en
@@ -42,19 +43,41 @@ const TITAN_ITEM_IDS = ["aNumber", "giantSeed", "scrapPaper", "uugHair", "wander
   assert.ok(t1 && t1.kills > 0, "GRB doit avoir été auto-tué au moins une fois sur 10 jours (cooldown 1h)");
   // ~240 cycles possibles en 10 jours (cooldown plancher 1h) : large marge de tolérance, aucune valeur inventée exigée au kill près.
   assert.ok(t1.kills >= 200 && t1.kills <= 241, "environ un kill par heure (cooldown plancher), pas un rattrapage instantané ni bloqué : " + t1.kills);
-  assert.ok(state.adventure.permanent.experience > 0 && state.adventure.permanent.ap > 0 && state.adventure.permanent.gold > 0, "EXP/AP/or crédités comme un vrai kill");
+  assert.ok(state.adventure.permanent.experience > 0 && state.adventure.permanent.ap > 0, "EXP/AP crédités comme un vrai kill");
+  assert.equal(state.adventure.permanent.gold, 0, "aucun Or hors ligne (Character::adventureOfflineProgress, audit hors ligne 2026-11-16)");
   assert.ok(!state.adventure.inventory.some((it) => TITAN_ITEM_IDS.includes(it.definitionId)), "aucun objet de titan (wiki : « no items drop while you are offline »)");
   assert.equal(Object.keys(state.adventure.unlockItems || {}).length, 0, "aucun déblocage d'objet garanti (1er kill) accordé par Auto-Kill");
 }
 
-// --- réglage désactivé : aucun auto-kill, même avec des stats suffisantes et un long rattrapage ---
+// --- réglage désactivé : EN LIGNE aucun auto-kill ; HORS LIGNE le jeu ne lit aucune case (audit hors ligne 2026-11-16) : les seuils suffisent ---
 {
   const ctx = { bosses: 300, adventurePower: 5000, adventureToughness: 5000 };
   let state = normalizeIdleNguState(null, ctx, 1000);
   state.difficulty = "extreme";
+  const enLigne = advanceIdleNguState(structuredClone(state), 60, ctx, 1000 + 60 * 1000);
+  assert.ok(!enLigne.adventure.titans.t1 || enLigne.adventure.titans.t1.kills === 0, "réglage fermé, en ligne : aucun Auto-Kill");
   const dix_jours = 10 * 24 * 3600;
   state = advanceIdleNguState(state, dix_jours, ctx, 1000 + dix_jours * 1000);
-  assert.ok(!state.adventure.titans.t1 || state.adventure.titans.t1.kills === 0, "réglage fermé : aucun Auto-Kill");
+  assert.ok(state.adventure.titans.t1 && state.adventure.titans.t1.kills >= 200, "hors ligne : aucune case lue, GRB est tué dès que les seuils sont atteints");
+}
+
+// --- Health Regen (lu dans le jeu) : Walderp exige 150 000 de régénération en plus de la puissance et de la défense ---
+{
+  const ctx = { bosses: 300, adventurePower: 5e9, adventureToughness: 5e9 };
+  let state = normalizeIdleNguState(null, ctx, 1000);
+  state.difficulty = "extreme";
+  state.adventure.unlockFlags.walderpFinalDefeated = true;
+  state.adventure.titans.t5 = { kills: 7, nextAt: 2000, rebirthKills: 7 };
+  const dix = 10 * 24 * 3600;
+  const ok = advanceIdleNguState(structuredClone(state), dix, ctx, 1000 + dix * 1000);
+  assert.ok(ok.adventure.titans.t5.kills > 7, "régénération suffisante : Walderp est auto-tué");
+  /* appel direct : mêmes seuils de puissance et de défense, régénération trop basse -> aucun kill ; assez haute -> kill */
+  const base = () => structuredClone(state).adventure;
+  const stats = (regen) => ({ power: 5e9, toughness: 5e9, regen });
+  const bas = base(); advanceTitanAutoKillV1(bas, { bosses: 300, difficulty: "extreme", enLigne: false, stats: stats(149999), wishLevels: {} }, dix, 1000 + dix * 1000);
+  assert.equal(bas.titans.t5.kills, 7, "regen 149 999 < 150 000 : Walderp n'est pas auto-tué");
+  const haut = base(); advanceTitanAutoKillV1(haut, { bosses: 300, difficulty: "extreme", enLigne: false, stats: stats(150000), wishLevels: {} }, dix, 1000 + dix * 1000);
+  assert.ok(haut.titans.t5.kills > 7, "regen 150 000 : Walderp est auto-tué");
 }
 
 // --- Walderp (t5) : la forme finale n'est Auto-Kill qu'après une victoire manuelle (wiki : forms 1-4 "cannot autokill") ---

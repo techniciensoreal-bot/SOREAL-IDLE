@@ -31,7 +31,8 @@ const objets = (s) => s.adventure.inventory.length + Object.keys(s.adventure.unl
   const dix = 10 * 24 * 3600;
   const s = advanceIdleNguState(s0, dix, ctx, 1000 + dix * 1000);
   assert.ok(s.adventure.titans.t1.kills >= 200, "kills réguliers hors ligne");
-  assert.ok(s.adventure.permanent.experience > 0 && s.adventure.permanent.ap > 0 && s.adventure.permanent.gold > 0, "récompenses créditées");
+  assert.ok(s.adventure.permanent.experience > 0 && s.adventure.permanent.ap > 0, "récompenses créditées");
+  assert.equal(s.adventure.permanent.gold, 0, "aucun Or hors ligne (audit hors ligne 2026-11-16)");
   assert.equal(objets(s), avant, "aucun objet hors ligne (wiki : no items drop while you are offline)");
   assert.equal(s.adventure.dernierButinAutoKill, undefined);
 }

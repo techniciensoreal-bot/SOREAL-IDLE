@@ -17,7 +17,7 @@ import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
 import { IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_META_VERSION, IDLE_NGU_TRACKS, IDLE_WISH_MAX_SLOTS_V1, RESOURCE_KEYS, WISH_MIN_LEVEL_SECONDS, challengePermanentBonuses, clamp, clone, int, num } from "./idle-ngu-catalogues.js";
 import { expShopPurchasedV1 } from "./idle-ngu-actions.js";
 import { advanceTheEndFinalHackV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, syncWishAllocationTotalsV1, wandoosCalculVitessesV1, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
-import { externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, setAllocation, totalAllocated } from "./idle-ngu-ressources.js";
+import { externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, rebaserProgressionSecondesV1, setAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { bloodMigrerAllocationV1, bloodRitualMagicV1, diggerBonuses, diggerDrainTotal } from "./idle-ngu-systemes.js";
 import { setFacteurNguV1, beardBonusMultiplier, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
 import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, wishLevelV1 } from "./idle-ngu-snapshot.js";
@@ -190,12 +190,30 @@ export function beardTrackUnlocked(state, trackDef) {
   return int(state.challenge?.completions?.troll, 0) >= required;
 }
 
-function advanceBeardTrack(state, system, trackDef, track, seconds, sameResourceCount = 1) {
+/*
+ * Secondes passées barre pleine pendant une absence (lu dans le jeu : Character::addOfflineProgress, id 2231, audit hors ligne 2026-11-16, E3) : tempsPlein = clamp(secs - ceil((cap - courante) / ressourceParSeconde), 0, secs),
+ * mesuré AVANT la production de l'absence. La magie utilise elle aussi la production d'ÉNERGIE par seconde (bug du jeu, repris tel quel). Seules ces secondes font avancer les barbes hors ligne.
+ */
+export function barbesTempsPleinV1(state, seconds) {
+  const energie = state.resources?.energy;
+  const magie = state.resources?.magic;
+  const parSeconde = Math.max(0, idleNguResourceGenerationPerSecond(state, "energy"));
+  const tempsPlein = (res, resource) => {
+    if (!res) return 0;
+    const manque = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap") - num(res.current, 0));
+    if (manque <= 1e-9) return seconds;
+    if (!(parSeconde > 0)) return 0;
+    return clamp(seconds - Math.ceil(manque / parSeconde), 0, seconds);
+  };
+  return { energy: tempsPlein(energie, "energy"), magic: state.systems?.bloodMagic?.unlocked ? tempsPlein(magie, "magic") : 0 };
+}
+
+function advanceBeardTrack(state, system, trackDef, track, seconds, sameResourceCount = 1, horsLigne = false, plafondNiveaux = Infinity) {
   if (!system.active || !beardTrackUnlocked(state, trackDef) || seconds <= 0) return;
 
   const resource = trackDef.resource || "energy";
-  /* Lu dans le jeu (AllBeardsController::beardProgressPerTick, build 1260, 2026-11-15) : une barbe n'avance que si la ressource est PLEINE (curEnergy / curMagic >= cap total). */
-  if (num(state.resources?.[resource]?.current, 0) + 1e-9 < idleNguEffectiveResourceStatV1(state, resource, "cap")) return;
+  /* Lu dans le jeu (AllBeardsController::beardProgressPerTick, build 1260, 2026-11-15) : une barbe n'avance que si la ressource est PLEINE (curEnergy / curMagic >= cap total). Hors ligne : seulement les secondes passées barre pleine (`seconds`). */
+  if (!horsLigne && num(state.resources?.[resource]?.current, 0) + 1e-9 < idleNguEffectiveResourceStatV1(state, resource, "cap")) return;
   const diggers = diggerBonuses(state);
   const diggerSpeed = resource === "magic"
     ? Math.max(1, num(diggers.magicBeard, 1))
@@ -246,7 +264,7 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
   const aTick = baseRate / 50;
   const ticksDe = (n) => Math.max(1, Math.ceil((n + 1) / aTick - 1e-9));   /* durée du niveau n en ticks */
   const res = niveauxEnTicksV1(level, progress0 * ticksDe(level), Math.max(0, num(seconds, 0)) * 50, aTick);
-  level += res.gained;
+  level += Math.min(res.gained, plafondNiveaux);   /* garde-fou du jeu hors ligne : au plus max(tempsPlein) x 50 x 1,01 niveaux */
   let progress = clamp(res.P / ticksDe(level), 0, 0.999999999);   /* fraction du niveau en cours (en ticks) */
 
   const startingLevel = Math.max(0, int(track.tempLevel, 0));
@@ -457,7 +475,7 @@ export function atAvancerTempsV1(level, p, seconds, rate) {
   return { gained: res.gained, p: Math.max(0, Math.min(0.999999999, res.P / ticksDe(L + res.gained))) };
 }
 
-function advanceAdvancedTrainingV1(state, s, tracks, seconds) {
+function advanceAdvancedTrainingV1(state, s, tracks, seconds, horsLigne = false) {
   const wandoosOk = Boolean(state.systems.wandoos?.unlocked);
   const wandoosTrack = id => id === "wandoosEnergy" || id === "wandoosMagic";
   if (wishLevelV1(state, 190) >= 1) {
@@ -491,12 +509,16 @@ function advanceAdvancedTrainingV1(state, s, tracks, seconds) {
       const level = Math.max(0, Math.floor(num(t.tempLevel, 0)));
       const step = atAvancerTempsV1(level, Math.max(0, num(t.progress, 0)), seconds, rate);
       let gained = step.gained;
+      /* Hors ligne (Character::advancedTrainingOfflineProgress, id 2246, audit 2026-11-16, E5) : niveaux = min(gain, cible - niveau) quand une cible est posée ; la barre est alors à 0. */
+      let cappedByTarget = false;
+      const cibleHL = Math.floor(num(t.target, 0));
+      if (horsLigne && cibleHL > 0 && gained > Math.max(0, cibleHL - level)) { gained = Math.max(0, cibleHL - level); cappedByTarget = true; }
       const roomAt = challengeHundredLevelsRemaining(state);
       const cappedByPool = gained > roomAt;
       if (cappedByPool) gained = roomAt;
       challengeHundredLevelsConsume(state, gained);
       t.tempLevel = level + gained;
-      t.progress = cappedByPool ? 0 : step.p;
+      t.progress = (cappedByPool || cappedByTarget) ? 0 : step.p;
     }
   }
   s.tempLevel = Object.values(s.data.tracks).reduce((sum, x) => sum + x.tempLevel, 0);
@@ -560,7 +582,11 @@ export function atSetTrackEnergyV1(state, trackId, value, context = {}) {
   s.allocation.energy = atEnergyTotalV1(s);
 }
 
-export function advanceTrackSystem(state, def, seconds) {
+/*
+ * horsLigne (absence longue, mêmes passes que le jeu : audit hors ligne 2026-11-16) : null en ligne ; sinon { tempsPlein: { energy, magic } } pour les barbes, et le simple fait d'être hors ligne
+ * borne l'Entraînement avancé à sa cible (E5) et fait avancer le hack final à demi-vitesse (E6).
+ */
+export function advanceTrackSystem(state, def, seconds, horsLigne = null) {
   const s = state.systems[def.id];
   if (!s.unlocked || seconds <= 0) return;
   const tracks = IDLE_NGU_TRACKS[def.id] || [];
@@ -570,10 +596,13 @@ export function advanceTrackSystem(state, def, seconds) {
     const countBy = { energy: 0, magic: 0 };
     for (const id of ids) countBy[(tracks.find(x => x.id === id)?.resource) || "energy"] += 1;
     const penaltyFactor = state.adventure?.completedSets?.beardverse ? 0.9 : 1;
+    const tp = horsLigne && horsLigne.tempsPlein;
+    const plafondNiveaux = tp ? Math.floor(Math.max(tp.energy, tp.magic) * 50 * 1.01) : Infinity;
     for (const id of ids) {
       const bd = tracks.find(x => x.id === id);
       const same = Math.max(1, countBy[bd.resource || "energy"] * penaltyFactor);
-      advanceBeardTrack(state, s, bd, s.data.tracks[id], seconds, same);
+      if (tp) advanceBeardTrack(state, s, bd, s.data.tracks[id], (bd.resource === "magic" ? tp.magic : tp.energy), same, true, plafondNiveaux);
+      else advanceBeardTrack(state, s, bd, s.data.tracks[id], seconds, same);
     }
     s.data.beardSlots = beardSlotsV1(state);
     s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
@@ -609,7 +638,8 @@ export function advanceTrackSystem(state, def, seconds) {
   if (!t) return;
 
   if (def.id === "hacks") {
-    advanceTheEndFinalHackV1(state, seconds);
+    /* Hack final : hors ligne le jeu avance à DEMI-vitesse (Character::addOfflineProgress, id 2250 : endHackSpeed x secs x 50 / 2). */
+    advanceTheEndFinalHackV1(state, horsLigne ? seconds / 2 : seconds);
     advanceHackTrack(state, s, trackDef, t, seconds);
     s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
     return;
@@ -617,7 +647,7 @@ export function advanceTrackSystem(state, def, seconds) {
 
   if (def.id === "advancedTraining") {
     /* Chaque compétence a SA propre allocation (comme dans le jeu d'origine) : voir advanceAdvancedTrainingV1. */
-    advanceAdvancedTrainingV1(state, s, tracks, seconds);
+    advanceAdvancedTrainingV1(state, s, tracks, seconds, Boolean(horsLigne));
     return;
   } else {
   let throughput = 0;
@@ -965,14 +995,30 @@ function avancerTmProgressifV1(state, seconds) {
   s.tempLevel = s.level;
 }
 
-export function advanceTimeMachine(state, seconds) {
+export function advanceTimeMachine(state, seconds, orDejaCredite = false) {
   const s = state.systems.timeMachine;
   if (!s.unlocked || seconds <= 0) return;
   if (seconds <= TM_PROGRESSIF_MAX_SECONDES_V1) return avancerTmProgressifV1(state, seconds);
-  return avancerTmGrossierV1(state, seconds);
+  return avancerTmGrossierV1(state, seconds, orDejaCredite);
 }
 
-function avancerTmGrossierV1(state, seconds) {
+/* Une absence plus longue que ce seuil passe par la passe « hors ligne » de la Time Machine (le pas progressif ne couvre que les fenêtres courtes). */
+export function tmAbsenceHorsLigneV1(seconds) { return seconds > TM_PROGRESSIF_MAX_SECONDES_V1; }
+
+/*
+ * Or hors ligne, lu dans le jeu (Character::addOfflineProgress puis la passe Or id 2235, audit hors ligne 2026-11-16, E1) : `goldPerSecond x secs` est crédité EN TÊTE avec les niveaux de Time Machine
+ * d'AVANT l'absence (net du drain des Diggers) ; les Augmentations, Blood Magic puis la Time Machine dépensent ensuite cet Or.
+ */
+export function crediterOrHorsLigneV1(state, seconds) {
+  const s = state.systems.timeMachine;
+  if (!s.unlocked || !(seconds > 0)) return;
+  const gain = idleNguTimeMachineGoldPerSecond(state) * seconds;
+  if (!(gain > 0)) return;
+  state.currencies.gold += gain;
+  s.data.producedThisRun += gain;
+}
+
+function avancerTmGrossierV1(state, seconds, orDejaCredite = false) {
   const s = state.systems.timeMachine;
   if (!s.unlocked || seconds <= 0) return;
   const d = s.data;
@@ -1020,10 +1066,12 @@ function avancerTmGrossierV1(state, seconds) {
 
   tmApplyTargets(state);
 
-  const gps = idleNguTimeMachineGoldPerSecond(state);
-  const gain = gps * seconds;
-  state.currencies.gold += gain;
-  d.producedThisRun += gain;
+  if (!orDejaCredite) {
+    const gps = idleNguTimeMachineGoldPerSecond(state);
+    const gain = gps * seconds;
+    state.currencies.gold += gain;
+    d.producedThisRun += gain;
+  }
   s.level = Math.floor(d.speedLevel + d.goldLevel);
   s.tempLevel = s.level;
 }

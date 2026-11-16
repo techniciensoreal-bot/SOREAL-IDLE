@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 285,
-  "sha": "7f457b973302d826c3a6ffae78ed8fae7ba13929"
+  "pin": 286,
+  "sha": "af8deaadc4474035d6c3802cc44aedb0f10de92a"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -816,8 +816,8 @@
   "sha": "214432df5a603f4e9ceacc9628bf8ce5258c5fd9"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 46,
-  "sha": "3285a2f803b905e2e65ae98b8a6266ac943cdc5f"
+  "pin": 47,
+  "sha": "dfb3be222fdf13821514a18ecfe177a256244b9a"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 63,

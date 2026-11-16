@@ -980,10 +980,11 @@ const fresh=(context={}, now=1_000_000)=>
     state,
     {action:"adventure",adventure:{action:"titan",titan:"t1"}},
     {bosses:100,adventurePower:1e9,adventureToughness:1e9},
-    2_000_000
+    1_060_000
   );
+  /* synchro courte (60 s, en ligne) : le rattrapage hors ligne tuerait GRB tout seul sans case (audit hors ligne 2026-11-16) */
   // No Rebirth : -15 min à partir de Jake seulement, GRB garde son cooldown de 1 h.
-  assert.equal(applied.result.nextAt,2_000_000+60*60*1000);
+  assert.equal(applied.result.nextAt,1_060_000+60*60*1000);
   assert.ok(applied.result.drops.some(x=>x.set==="grb"&&x.level===1));
 }
 

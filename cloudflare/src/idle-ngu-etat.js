@@ -1262,7 +1262,7 @@ function idleTheEndSyncV1(state, now) {
   if (int(state.systems.wishes?.data?.tracks?.["203"]?.level, 0) >= 1) idleTheEndGrantV1(adv, 490, now);
   if (adv.skillState?.endPiece481) idleTheEndGrantV1(adv, 481, now);
   if (adv.unlockFlags?.traitorDefeated) idleTheEndGrantV1(adv, 495, now);
-  if (num(state.difficultyPeaks?.extreme, 0) >= 300) idleTheEndGrantV1(adv, 487, now);
+  if (num(state.difficultyPeaks?.extreme, 0) >= 301) idleTheEndGrantV1(adv, 487, now); /* lu dans le jeu (BossController::advanceBoss, audit 2026-11-16) : bossID > 300 après le 301e boss en Sadistic */
 }
 
 /*

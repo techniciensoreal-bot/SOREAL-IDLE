@@ -15,9 +15,8 @@
  * paliers) et "Rebirthing" (9 paliers). "Secret Achievements" : 18 entrées.
  * 153 succès au total, comme l'annonce la page.
  *
- * ÉCART DU WIKI (non corrigé, signalé) : la page annonce "a maximum of 5825
- * BPs" mais la somme de ses propres lignes vaut 5815 BP. Les valeurs retenues
- * sont celles de chaque ligne (seules données vérifiables individuellement).
+ * ÉCART DU WIKI (corrigé le 2026-11-16, audit du code du jeu design/audit-code-jeu/succes.md) : la page annonce 5825 BP mais ses lignes en font 5815 ; le tableau
+ * sérialisé du jeu (achievementBP, 153 valeurs) fait bien 5825 : Boss 190 = 50 BP et Boss 230 = 55 BP (le wiki avait 45 et 50). Le jeu fait foi.
  *
  * AUDIT du 2026-11-14 (Norman : « il faut vraiment que tout y soit ») : les 153 succès sont maintenant SUIVIS, donc obtenables (test idle-succes-audit-complet-v1 : un état réel par succès).
  * Les six qui ne l'étaient pas :
@@ -68,7 +67,7 @@ const GROUPES_RESSOURCE = Object.freeze([
 ]);
 
 /* "Defeat Boss 10!" (5) ... "Defeat Boss 300!" (60). */
-const BP_BOSS = Object.freeze([5, 10, 15, 20, 25, 25, 30, 30, 35, 35, 35, 40, 40, 40, 45, 45, 45, 45, 45, 50, 50, 50, 50, 55, 55, 55, 60, 60, 60, 60]);
+const BP_BOSS = Object.freeze([5, 10, 15, 20, 25, 25, 30, 30, 35, 35, 35, 40, 40, 40, 45, 45, 45, 45, 50, 50, 50, 50, 55, 55, 55, 55, 60, 60, 60, 60]);
 /* "Rebirth once!" (5) ... "Rebirth 10000 times!" (60). */
 const REBIRTHS = Object.freeze([[1, 5], [3, 10], [10, 15], [30, 20], [100, 25], [300, 30], [1000, 40], [3000, 50], [10000, 60]]);
 

@@ -68,10 +68,10 @@ assert.equal(sad.noTimeMachine.reward.experience, 200000);
   assert.equal(done.state.currencies.experience - expAvant, 400 * 3);
   /*
    * 2026-09-24 : l'AP des défis reçoit désormais le bonus des succès (page Arbitrary Points ;
-   * ici boss 10..200 + "Rebirth once!" = 665 BP -> x1,0665), arrondi inférieur.
+   * ici boss 10..200 + "Rebirth once!" = 670 BP -> x1,067 (boss 190 = 50 BP, audit du jeu 2026-11-16)), arrondi inférieur.
    */
-  assert.equal(idleAchievementsApMultiplierV1(done.state), 1.0665);
-  assert.equal(done.state.currencies.ap - apAvant, 15997);
+  assert.equal(idleAchievementsApMultiplierV1(done.state), 1.067);
+  assert.equal(done.state.currencies.ap - apAvant, 16005);
 }
 
 // Bonus permanents par difficulté
