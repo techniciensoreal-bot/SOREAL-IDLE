@@ -1411,12 +1411,13 @@
             degatsEnnemiAdventureIdleV2_(
               fight.mobPower,
               toughnessEffectif,
-              facteurAleaDegats
+              facteurAleaDegats,
+              multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)
             )
           );
           /* Ennemi explosif : au moment de son attaque (son « Attack Rate » est son compte à rebours) il EXPLOSE : son coup ordinaire x1000 (lu dans le jeu), puis il disparaît (mobs-types-v1.js). */
           if(window.SorealMobTypesV1&&!fight.titanId&&window.SorealMobTypesV1.types(fight).exploder){
-            const issueExplosion=explosionEnnemiAdventureIdleV1_(fight,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,facteurAleaDegats));
+            const issueExplosion=explosionEnnemiAdventureIdleV1_(fight,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,facteurAleaDegats,multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)));
             if(issueExplosion==='mort'){terminerCombatAdventureLocalV2_(fight,false);return;}
             if(issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;terminerCombatAdventureLocalV2_(fight,true);return;}
           }
@@ -1445,7 +1446,7 @@
              * grandit (cumulée, 1,01 puissance n) AVANT la réduction par ta Robustesse : dégâts = max(10 % de sa puissance, puissance - Robustesse / 2). Appliquée seulement au résultat final (après la réduction), la croissance
              * ne comptait presque pas (Norman, 2026-10-12 : « son attaque ne montait pas beaucoup, plus le combat dure plus il est supposé taper fort, ça se stack »).
              */
-            if(att.croissanceTitan>1)degats=Math.min(avant,degatsEnnemiAdventureIdleV2_(fight.mobPower*att.croissanceTitan,toughnessEffectif,facteurAleaDegats));
+            if(att.croissanceTitan>1)degats=Math.min(avant,degatsEnnemiAdventureIdleV2_(fight.mobPower*att.croissanceTitan,toughnessEffectif,facteurAleaDegats,multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)));
             if(att.multDegats!==1)degats=Math.min(avant,Math.round(degats*att.multDegats));
             if(att.type==='puissante'){
               ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');

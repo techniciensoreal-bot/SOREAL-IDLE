@@ -2066,7 +2066,7 @@
         );
       }
 
-      function degatsEnnemiAdventureIdleV2_(power,toughness,facteur){
+      function degatsEnnemiAdventureIdleV2_(power,toughness,facteur,buffDefense){
         const p=Math.max(0,idleNombre_(power));
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-203 */
         const base=Math.max(
@@ -2078,7 +2078,8 @@
           0,
           Math.floor(
             base*
-            Math.max(.8,Math.min(1.2,idleNombre_(facteur)||1))
+            Math.max(.8,Math.min(1.2,idleNombre_(facteur)||1))/
+            Math.max(1,idleNombre_(buffDefense)||1)   /* PlayerController::takeDamage : le dégât est AUSSI divisé par le facteur de buff de défense (en plus de la Robustesse multipliée) */
           )
         );
       }
