@@ -77,7 +77,7 @@
             'La banque de niveaux se calcule pour chaque barbe séparément, comme dans le jeu.'
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
-            'Magie du sang : un bouton « Automatique » apparaît sur chaque sort déjà découvert (Nombre, Spaghetti, Or) : le sang est réparti à parts égales entre les sorts cochés et lancé chaque seconde, comme dans le jeu. Un sort α ou β lancé sans MacGuffin équipé consomme quand même le sang.',
+            'Magie du sang : un bouton « Automatique » apparaît sur chaque sort déjà découvert (Nombre, Spaghetti, Or) : le sang est réparti à parts égales entre les sorts cochés et lancé chaque seconde, comme dans le jeu. Un sort lancé sans l’objet nécessaire consomme quand même le sang.',
             'Magie du sang : arrondis, plafonds et conditions des sorts corrigés d’après le code du jeu.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
