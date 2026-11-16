@@ -85,8 +85,8 @@ function safeZoneFileNames_(zone){
 }
 const IDLE_BOSSES_R2_PREFIX="idle/bosses/";
 const IDLE_ITEMS_R2_PREFIX="idle/items/";
-/* Icones du jeu livrees avec le frontend, par id d'objet du jeu (repli quand R2 n'a pas l'image) : 335 a 341 = Items/Clue1. */
-const IDLE_ITEM_ICONES_LIVREES_V1=Object.freeze({335:"clue1",336:"clue1",337:"clue1",338:"clue1",339:"clue1",340:"clue1",341:"clue1"});
+/* Icones du jeu livrees avec le frontend, par id d'objet du jeu (repli quand R2 n'a pas l'image) : 335 a 341 = Items/Clue1 ; 342 = texture Tier26Chest2 (Blue Eyes Ultimate Chestplate, version bleue de Tier26Chest = Blue Eyes White) ; 372 = texture Tier30Glop (GLOP), sharedassets0.assets, build 1260. */
+const IDLE_ITEM_ICONES_LIVREES_V1=Object.freeze({335:"clue1",336:"clue1",337:"clue1",338:"clue1",339:"clue1",340:"clue1",341:"clue1",342:"blue-eyes-ultimate",372:"glop"});
 const IDLE_ITEMS_R2_EXTENSIONS=IDLE_ADVENTURE_R2_EXTENSIONS;
 const IDLE_ITEM_SET_NAMES=Object.freeze({
   training:"Training Set",
@@ -1301,7 +1301,16 @@ async function playerImage_(request,env,url){
   const portrait=String(url.searchParams.get("portrait")||"").trim().slice(0,80);
   /* Repli (portrait automatique d'un set �quip� sans image dans R2) : le portrait choisi par le joueur, puis le d�faut. */
   const repli=String(url.searchParams.get("fallback")||"").trim().slice(0,80);
-  const key=(portrait&&idlePortraitPickR2KeyV1(keys,portrait))||(repli&&idlePortraitPickR2KeyV1(keys,repli))||choisirCleJoueurR2_(keys,zone);
+  /* Portraits du jeu livres avec le frontend (cloudflare/public/player/, textures de sharedassets0.assets, build 1260 : ChallengesNormal/Evil/Sadistic = portraits 63 a 65) quand R2 n'a pas le fichier. */
+  const pr=portrait?idlePortraitPickR2KeyV1(keys,portrait):"";
+  const prBase=portrait.toLowerCase().replace(/\.webp$/,"");
+  if(portrait&&!pr&&/^portrait-defis-(normal|evil|sadistic)$/.test(prBase)&&env.ASSETS&&typeof env.ASSETS.fetch==="function"){
+    try{
+      const r=await env.ASSETS.fetch(new Request(new URL("/player/"+prBase+".webp",request.url)));
+      if(r.ok&&/^image\//i.test(r.headers.get("content-type")||""))return new Response(r.body,{status:200,headers:{"content-type":"image/webp","cache-control":"public, max-age=86400"}});
+    }catch(_e){}
+  }
+  const key=(portrait&&pr)||(repli&&idlePortraitPickR2KeyV1(keys,repli))||choisirCleJoueurR2_(keys,zone);
   if(!key)return new Response("Image de joueur introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
   return reponseObjetR2_(request,env,{key});
 }

@@ -20,7 +20,7 @@ import { IDLE_FENETRE_HALLOWEEN_V1, dansFenetreAnnuelleV1, jourBruxellesV1 } fro
  *    (multiplicateur = 1 + % / 100) : le seuil est donc « strictement plus de 150 % » (audit bestiaire-portraits-daycare-ygg.md 2.2).
  *  - « Complete all the Normal / Evil / SADISTIC challenges » (portraits 63, 64, 65) : lu dans le jeu
  *    (AllChallengesController::checkChallengesForPortrait, 2026-11-16), pour CHAQUE difficulté les 11 défis à leur nombre MAXIMUM
- *    de complétions (curCompletions >= maxCompletions) ; images à fournir (portrait-defis-<difficulté>.webp, docs/PORTRAITS-NOMS-FICHIERS.md).
+ *    de complétions (curCompletions >= maxCompletions) ; images du jeu (textures ChallengesNormal/Evil/Sadistic) livrées dans public/player/ (portrait-defis-<difficulté>.webp), servies en repli par /api/idle/media/player.
  * Non implémenté : Sexy Player Fashion Pack (110 kreds), bonus Steam, connexion d'Halloween (portrait 51 du jeu : image inconnue, pas inventée),
  * Krissmuss 2020 (événements passés).
  *

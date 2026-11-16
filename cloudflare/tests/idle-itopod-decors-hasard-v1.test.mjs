@@ -77,8 +77,8 @@ console.log("idle-itopod-decors-hasard-v1: OK");
   const { readdirSync } = await import("node:fs");
   const ids = [...readFileSync("cloudflare/src/idle-perks-v1.js", "utf8").matchAll(/\{ id: (\d+), name/g)].map((m) => m[1]);
   const fichiers = new Set(readdirSync("cloudflare/public/perks"));
-  /* Perk 56 (« MacGuffin Daycare! », ajouté le 2026-11-16 d après le jeu) : son image n existe pas encore dans /perks (l image du jeu est à fournir) ; la page masque l image absente (onerror). */
-  assert.deepEqual(ids.filter((i) => !fichiers.has(i + ".webp")), ["56"], "une image par perk du catalogue (sauf le 56, image à fournir)");
+  /* Perk 56 (« MacGuffin Daycare! ») : image du jeu (texture MacGuffinDaycare, 46 x 46, sharedassets0.assets, build 1260), extraite le 2026-11-16 : plus aucune tolérance. */
+  assert.deepEqual(ids.filter((i) => !fichiers.has(i + ".webp")), [], "une image par perk du catalogue");
 }
 console.log("idle-itopod-decors-hasard-v1 (avatars, perks): OK");
 

@@ -20,4 +20,15 @@ assert.deepEqual([...clue.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10], "sign
 assert.equal(clue.readUInt32BE(16), 46);
 assert.equal(clue.readUInt32BE(20), 46);
 assert.ok(media.includes("IDLE_ITEM_ICONES_LIVREES_V1") && media.includes('335:"clue1"') && media.includes('341:"clue1"') && media.includes('"/items/"+IDLE_ITEM_ICONES_LIVREES_V1[explicitItemId]+".png"'), "repli des icônes livrées");
+/* Images du jeu (build 1260, sharedassets0.assets), extraites le 2026-11-16, livrées en repli quand R2 n'a rien : GLOP (372) = Tier30Glop, Blue Eyes Ultimate Chestplate (342) = Tier26Chest2 (version bleue de Tier26Chest, Blue Eyes White), portraits 63 à 65 = ChallengesNormal/Evil/Sadistic, portrait 51 = PlayerPortrait_Halloween (pas encore branché : aucune condition d'obtention dans SOREAL). */
+const taille = (f, n) => { const b = readFileSync(f); assert.deepEqual([...b.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]); assert.equal(b.readUInt32BE(16), n); assert.equal(b.readUInt32BE(20), n); };
+taille("cloudflare/public/items/glop.png", 46);
+taille("cloudflare/public/items/blue-eyes-ultimate.png", 46);
+assert.ok(media.includes('342:"blue-eyes-ultimate"') && media.includes('372:"glop"'), "icônes 342 et 372");
+for (const n of ["defis-normal", "defis-evil", "defis-sadistic", "halloween-51"]) {
+  const b = readFileSync((n === "halloween-51" ? "design/images-jeu/portrait-" : "cloudflare/public/player/portrait-") + n + ".webp");
+  assert.equal(b.slice(0, 4).toString("latin1"), "RIFF"); assert.equal(b.slice(8, 12).toString("latin1"), "WEBP");
+}
+assert.ok(media.includes("portrait-defis-(normal|evil|sadistic)") && media.includes('"/player/"+prBase+".webp"'), "repli des portraits de défis");
+assert.equal(readFileSync("cloudflare/public/perks/56.webp").slice(8, 12).toString("latin1"), "WEBP", "perk 56");
 console.log("idle-titans-image-pretre-v1: OK");
