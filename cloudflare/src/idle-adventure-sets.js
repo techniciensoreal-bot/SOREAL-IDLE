@@ -966,6 +966,15 @@ exileClueBuster:{name:"Buster of the Exile (Clue)",zone:"",slot:"special",dropLe
 exileClueAntennae:{name:"Antennae of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 sackExile:{name:"Sack of the Exile",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 /*
+ * Chaîne secrète de la Bête (Norman, 2026-11-16 ; ids et noms de la table d'objets du jeu, build 1260, ItemNameDesc::constructItemInfo) : 179 A Crumpled Note, 180 The First Clue, 181 The Second Clue,
+ * 182 The Third Clue, 183 The Final Clue! (tous de type 10, jamais équipables, aucune stat). Enchaînement et conditions : idle-bete-secret-v1.js ; textes : idle-adventure-descriptions-v1.js.
+ */
+crumpledNote:{name:"A Crumpled Note",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+beastClue1:{name:"The First Clue",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+beastClue2:{name:"The Second Clue",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+beastClue3:{name:"The Third Clue",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+beastClue4:{name:"The Final Clue!",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+/*
  * La GLOP (quête d'IT HUNGERS, Norman, 2026-11-16 : « tout objet du jeu doit exister dans SOREAL »). Ids et noms de la table d'objets du jeu (build 1260) : 367 A Well Done Steak With Ketchup,
  * 368 Pickle Ice Cream, 369 A Can of Surstromming, 370 A Jar of Marmite, 371 Pizza With Pineapple (cinq ingrédients, type 10), 372 GLOP (type 10), 387 GLOP Recipe (type 10). Aucune stat. Ni les ingrédients
  * ni la GLOP ne se fusionnent ni ne s'équipent. Fabrication, usage et butin : idle-glop-v1.js.
@@ -1400,6 +1409,12 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "exileClueBuster":339,
   "exileClueAntennae":340,
   "sackExile":341,
+  /* Chaîne de la Bête : ids du jeu (build 1260). */
+  "crumpledNote":179,
+  "beastClue1":180,
+  "beastClue2":181,
+  "beastClue3":182,
+  "beastClue4":183,
   /* Cœurs du Sellout Shop, Wandoos XL, Triple Flubber, Heroic Sigil, Still-Beating Heart (fiches wiki, champ "Id"). */
   "heartRed":119,
   "heartYellow":129,

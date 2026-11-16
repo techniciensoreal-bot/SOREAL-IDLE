@@ -601,7 +601,8 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
   /* wiki Walderp, infobox « autokill5 » : « 13M Power, 7M Toughness, 150k Health Regen, 3 kills on Walderp's final form ». Ici autoKillKills s'AJOUTE aux stats (ce n'est pas une alternative comme pour les titans à difficultés). */
   {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000,autoKillR:150000,autoKillKills:3}
 ]},
-{id:"t6",name:"The Beast",boss:132,cooldown:3.5*H,drop:"heroicSigil",avatarLevel:6,difficulties:{
+/* Chaîne secrète de la Bête (Norman, 2026-11-16 ; AdventureController::spawnEnemy, build 1260) : la zone du 6e titan n'y fait apparaître THE BEAST que si « titan6Unlocked » est vrai, posé UNIQUEMENT par Rebirth::checkSpecial (idle-bete-secret-v1.js) ; sinon SKELETON GUARDIAN (entrée « skeleton » plus bas). Avant le 2026-11-16 la Bête s'ouvrait au boss 132 : les parties qui l'avaient (boss 132 déjà atteint, ou Bête déjà vaincue) gardent l'accès (migration 53 -> 54, idle-migrations-v1.js). */
+{id:"t6",name:"The Beast",boss:132,secret:true,requiresUnlock:"titan6Unlocked",cooldown:3.5*H,drop:"heroicSigil",avatarLevel:6,difficulties:{
   easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8,autoKillP:2.5e9,autoKillT:1.6e9,autoKillR:2.5e7},
   normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9,autoKillP:2.5e10,autoKillT:1.6e10,autoKillR:2.5e8},
   hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10,autoKillP:2.5e11,autoKillT:1.6e11,autoKillR:2.5e9},
@@ -692,5 +693,13 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * il ne verse ni or ni EXP. Aucun seuil de puissance : le jeu n'en a pas (le combat se résout coup par coup, sans condition de stats), donc p = t = 0. Il disparaît dès
  * que l'Exilé est débloqué (hiddenWhenFlag) ; l'Exilé, lui, ne se montre qu'à partir de là.
  */
-{id:"priest",name:"PRIEST OF EXILE",boss:190,evilOnly:true,secret:true,hiddenWhenFlag:"titan9Unlocked",cooldown:5.5*H,p:0,t:0,drop:"",avatarLevel:6}
+{id:"priest",name:"PRIEST OF EXILE",boss:190,evilOnly:true,secret:true,hiddenWhenFlag:"titan9Unlocked",cooldown:5.5*H,p:0,t:0,drop:"",avatarLevel:6},
+/*
+ * SKELETON GUARDIAN (chaîne secrète de la Bête, Norman 2026-11-16 ; code du jeu build 1260 : AdventureController::spawnEnemy, createEnemyTable, LootDrop::zone19Drop) : tant que « titan6Unlocked »
+ * est faux, la zone du 6e titan fait apparaître SKELETON GUARDIAN (ennemi de type 12) à la place de The Beast. Attaque 3, Power 3e7, Toughness 3e7, Regen 3e6, PV 3e9 (createEnemyTable ;
+ * IDLE_TITAN_COMBAT_V1.skeleton). Même déblocage et même minuteur de zone que la Bête (boss 132) : sa victoire relance le minuteur de la Bête (enemyDeath : boss6Spawn.reset). Butin : la Note froissée
+ * (179, niveau 100) à CHAQUE victoire, ni or ni EXP ni compteur de titans. Aucun seuil de puissance : le jeu n'en a pas (le combat se résout coup par coup), donc p = t = 0. Il disparaît dès que la Bête est
+ * débloquée (hiddenWhenFlag) ou déjà vaincue (remplacePar) ; la Bête, elle, ne se montre qu'à partir de là.
+ */
+{id:"skeleton",name:"SKELETON GUARDIAN",boss:132,secret:true,hiddenWhenFlag:"titan6Unlocked",remplacePar:"t6",cooldown:3.5*H,p:0,t:0,drop:"",avatarLevel:6}
 ]);

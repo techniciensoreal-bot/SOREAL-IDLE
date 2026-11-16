@@ -186,7 +186,7 @@ Jeu : après la dernière compétence, l'énergie passe à la PREMIÈRE non atte
 
 Priorité 3 (contenu absent)
 
-**E11. Secret de la Bête (`checkSpecial`).** Rebirth avec les 4 indices faits (UUG, Grand Corrupted Tree, Jake, ITOPOD) et un temps de rebirth strictement compris entre 2585 et 2615 s débloque le titan 6. SOREAL le débloque directement au boss 132. Attention règle n°2 (aucun spoil) : un secret ne doit rien révéler avant sa découverte. À décider avec Norman ; si implémenté, ajouter `unlockFlags.beastSecret` et tester `runSeconds` dans `applyRebirthResetV56_` AVANT la remise à zéro.
+**E11. Secret de la Bête (`checkSpecial`). CORRIGÉ le 2026-11-16 : voir `bete-secret.md` (chaîne complète, migration 53 -> 54).** Rebirth avec les 4 indices faits (UUG, Grand Corrupted Tree, Jake, ITOPOD) et un temps de rebirth strictement compris entre 2585 et 2615 s débloque le titan 6. SOREAL le débloque directement au boss 132. Attention règle n°2 (aucun spoil) : un secret ne doit rien révéler avant sa découverte. À décider avec Norman ; si implémenté, ajouter `unlockFlags.beastSecret` et tester `runSeconds` dans `applyRebirthResetV56_` AVANT la remise à zéro.
 
 ---
 

@@ -7,6 +7,7 @@ import { aleaV1 } from "./idle-alea-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { ITOPOD_AUTOATTACK_REGEN_V1, itopodCycleV1, itopodDrawAiV1 } from "./idle-itopod-combat-v1.js";
 import { exileHackV1, exileItopodV1 } from "./idle-antlers-v1.js";
+import { beteDebutVisiteV1, beteItopodV1 } from "./idle-bete-secret-v1.js";
 import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
 import { span, enveloppeSpan } from "./idle-spans-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleRangDifficulteV1 } from "./idle-difficulty-gates-v1.js";
@@ -937,6 +938,8 @@ function advanceTowerV1(state, seconds, context) {
     }
     /* Tentacule de l'Exilé (337) : LootDrop::checkExileDrop, étages 950 à 999, exige le Visage (336) déjà vu (idle-antlers-v1.js). */
     if (floor >= 950 && floor <= 999) exileItopodV1(state.adventure, floor, n);
+    /* Dernier indice de la Bête (183) : LootDrop::checkITOPODSecret (étage 100, départ 0, premier kill de l'étage, joueur nu depuis le début de la visite ; idle-bete-secret-v1.js). d.killsOnFloor = kills déjà faits sur l'étage. */
+    if (state.adventure && state.adventure.unlockFlags && state.adventure.unlockFlags.clue3Complete) beteItopodV1(state.adventure, d, floor, n, d.killsOnFloor);
     d.kills += n;
     d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
     const boosts = Math.floor(d.boostProgress);
@@ -1182,6 +1185,8 @@ export function towerSetFloorsV1(state, payload) {
       /* Étages changés par le bouton : on recommence au PREMIER ennemi de l'étage choisi (Norman, 2026-10-15). */
       if (d.startFloor != null) d.floor = d.startFloor;
       d.killsOnFloor = 0;
+      delete d.beteElig;
+      beteDebutVisiteV1(state.adventure, d);
       tower.level = d.floor;
       return { auto: true, start: d.startFloor, end: d.endFloor };
     }
@@ -1196,6 +1201,9 @@ export function towerSetFloorsV1(state, payload) {
   d.endFloor = end;
   d.autoOptimal = false;
   /* Changer les étages avec les boutons recommence TOUJOURS au premier ennemi de l'étage de départ choisi (Norman, 2026-10-15), qu'on soit déjà dans la plage ou non. */
+  /* Début d'une visite de l'ITOPOD (ZoneSelector::changeZone) : éligible au dernier indice de la Bête si l'indice 3 est fait. */
+  delete d.beteElig;
+  beteDebutVisiteV1(state.adventure, d);
   d.floor = start;
   d.killsOnFloor = 0;
   return { start, end };

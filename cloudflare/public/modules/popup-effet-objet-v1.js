@@ -121,6 +121,9 @@ function construire(payload,res){
   }else if(adv==='loseZoneFight'&&r.glop&&r.glop.recette&&Array.isArray(r.glop.messages)&&r.glop.messages.length){
     /* LootDrop::postDeathDrops : K.O. par IT HUNGERS = la recette de la GLOP (textes du jeu). */
     spec={cle:'glop-recette',icone:'📜',img:'',titre:'Une recette…',nom:'Recette de la GLOP',phrase:r.glop.messages.map(function(m){return [String(m),'t'];}),rows:[]};
+  }else if(r.secretBete&&typeof r.secretBete==='object'&&Array.isArray(r.secretBete.messages)&&r.secretBete.messages.length){
+    /* Chaîne secrète de la Bête (LootDrop::zone19Drop, checkUUGSecret, checkTreeSecret, checkJakeSecret) : les messages du journal du jeu, déjà dans la langue du joueur ; rien d'autre n'est annoncé (aucun compteur, aucune condition). */
+    spec={cle:'bete-indice',icone:'📜',img:'',titre:'Quelque chose a été laissé derrière…',nom:'',phrase:r.secretBete.messages.map(function(m){return [String(m),'t'];}),rows:[]};
   }else if(a==='useYggFruit'&&r.poop&&typeof r.poop==='object'){
     spec={cle:'poop',icone:'💩',img:imageReserve('poop')?'/shop/'+imageReserve('poop')+'.png':'',titre:'Poop utilisée !',nom:'',
       phrase:r.poop.factor!=null?[['Fruit d’Yggdrasil','t'],['×'+fmt(r.poop.factor),'v']]:[['Fruit d’Yggdrasil renforcé','t']],rows:[]};

@@ -11,8 +11,8 @@ import { IDLE_TITAN_COMBAT_V1, idleTitanCombatV1 } from "../src/idle-titans-comb
 const ctx = { bosses: 100, stats: { power: 1e20, toughness: 1e20, hp: 500 } };
 const agir = (s, p, t = 10_000, c = ctx) => applyIdleAdventureActionV47(s, p, c, t);
 
-// 1. Données : les 14 titans (+ le Prêtre d'Exilé, 2026-11-16), valeurs de l'encadré wiki.
-assert.equal(Object.keys(IDLE_TITAN_COMBAT_V1).length, 15);
+// 1. Données : les 14 titans (+ le Prêtre d'Exilé et SKELETON GUARDIAN, 2026-11-16), valeurs de l'encadré wiki.
+assert.equal(Object.keys(IDLE_TITAN_COMBAT_V1).length, 16);
 assert.deepEqual(idleTitanCombatV1("t1"), { hp: 300000, power: 666, toughness: 666, regen: 66, attackRate: 2 });
 assert.equal(idleTitanCombatV1("t6", "brutal").hp, 5e13);
 assert.equal(idleTitanCombatV1("t5", "", 4).hp, 1e9);
@@ -74,7 +74,8 @@ assert.ok(gagne.result.experience > 0 || gagne.result.drops.length > 0, "récomp
 assert.throws(() => agir(gagne.state, { action: "startTitanFight", titan: "t1" }, 41_000), /TITAN_EN_REAPPARITION/);
 
 // 7. Titan à difficultés : stats du palier choisi.
-let b = agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t6", difficulty: "hard" }, 10_000, { bosses: 200, stats: ctx.stats });
+const sBete = normalizeIdleAdventureStateV47({}); sBete.unlockFlags.titan6Unlocked = true; /* la Bête n'existe qu'une fois le secret trouvé (titan6Unlocked, 2026-11-16) */
+let b = agir(sBete, { action: "startTitanFight", titan: "t6", difficulty: "hard" }, 10_000, { bosses: 200, stats: ctx.stats });
 assert.equal(b.state.fight.monsterHpMax, 5e12);
 assert.equal(b.state.fight.mobAttackRate, 1.9);
 assert.equal(b.state.fight.titanTier, "hard");

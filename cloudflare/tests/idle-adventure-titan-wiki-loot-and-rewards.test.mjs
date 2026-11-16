@@ -156,6 +156,7 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
   s.currencies.pp = 0;
   s.systems.tower.data = { ...(s.systems.tower.data || {}), ppProgress: 800000 };
   s.adventure.titans.t6 = { kills: 0, nextAt: 0 };
+  s.adventure.unlockFlags.titan6Unlocked = true; /* la Bête n'existe qu'une fois le secret trouvé (2026-11-16) */
   const avant = Math.random;
   Math.random = () => PLUS_RIEN;
   let r;
@@ -182,6 +183,7 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
   st.systems.wishes.data.tracks[3] = { level: 3 };
   st.systems.wishes.data.tracks[73] = { level: 1 };
   st.adventure.titans.t6 = { kills: 0, nextAt: 0 };
+  st.adventure.unlockFlags.titan6Unlocked = true; /* la Bête n'existe qu'une fois le secret trouvé (2026-11-16) */
   const avant = Math.random;
   Math.random = () => PLUS_RIEN;
   let r;
@@ -207,6 +209,7 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
   let st = normalizeIdleNguState({ difficulty: "extreme" }, {}, 0);
   st.systems.wishes.data.tracks[3] = { level: 1 };
   st.adventure.titans.t6 = { kills: 0, nextAt: 0 };
+  st.adventure.unlockFlags.titan6Unlocked = true; /* la Bête n'existe qu'une fois le secret trouvé (2026-11-16) */
   const avant = Math.random;
   Math.random = () => PLUS_RIEN;
   let r;

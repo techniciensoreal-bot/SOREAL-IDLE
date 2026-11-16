@@ -31,7 +31,7 @@ import { createTrollStateV1, normaliserR3NomV1 } from "./idle-ngu-systemes.js";
 import { externalResourceAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { baseState, normalizeResource } from "./idle-ngu-etat.js";
 
-export const ETAT_VERSION_COURANTE = 53;
+export const ETAT_VERSION_COURANTE = 54;
 
 function migrateLegacyTrackV47_(target, raw) {
   if (!target || !raw || typeof raw !== "object") return;
@@ -306,6 +306,26 @@ export const MIGRATIONS = Object.freeze([
     de: 52, vers: 53, nom: "version-etat-v53", phase: "normalise",
     /* Introduit `etatVersion` : rien d'autre à transformer, l'étiquette est posée par appliquerMigrationV1. */
     appliquer(etat) { return etat; }
+  }),
+  Object.freeze({
+    de: 53, vers: 54, nom: "bete-secrete-v54", phase: "normalise",
+    /*
+     * Chaîne secrète de la Bête (2026-11-16, idle-bete-secret-v1.js) : avant, The Beast s'ouvrait au boss 132. Elle n'existe plus qu'une fois `titan6Unlocked` posé par Rebirth::checkSpecial. Aucune perte : toute partie
+     * qui avait l'accès par l'ancienne règle (boss 132 déjà atteint, y compris par le pic de difficulté, ou Bête déjà combattue) reçoit `titan6Unlocked` ; les autres devront trouver le secret. Pure : ne lit que l'état et le contexte.
+     */
+    appliquer(etat, contexte) {
+      const adv = etat && etat.adventure;
+      if (!estObjet(adv)) return etat;
+      if (!estObjet(adv.unlockFlags)) adv.unlockFlags = {};
+      if (adv.unlockFlags.titan6Unlocked) return etat;
+      const jeu = (contexte && contexte.jeu) || {};
+      const pics = estObjet(etat.difficultyPeaks) ? Object.values(etat.difficultyPeaks).map((v) => num(v, 0)) : [];
+      const etaitOuverte = num(etat.records && etat.records.highestBoss, 0) >= 132 || num(jeu.bosses, 0) >= 132 || pics.some((v) => v >= 132);
+      const t6 = estObjet(adv.titans) ? adv.titans.t6 : null;
+      const dejaVue = estObjet(t6) && (num(t6.kills, 0) > 0 || num(t6.nextAt, 0) > 0);
+      if (etaitOuverte || dejaVue) adv.unlockFlags.titan6Unlocked = true;
+      return etat;
+    }
   })
 ]);
 

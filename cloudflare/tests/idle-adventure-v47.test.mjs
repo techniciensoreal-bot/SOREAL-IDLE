@@ -23,17 +23,18 @@ import {
 const gates=Object.fromEntries(IDLE_ADVENTURE_ZONES.map(z=>[z.id,z.boss]));
 assert.deepEqual([gates.tutorial,gates.sewers,gates.forest,gates.cave,gates.sky,gates.hsb,gates.clock,gates["2d"],gates.ancient,gates.avsp,gates.mega],[4,7,17,37,48,58,66,74,82,90,100]);
 // Titans 1-7 historiques + Greasy Nerd (4,5 h), Godmother (5 h), IT HUNGERS (6,5 h), ROCK LOBSTER (7 h), AMALGAMATE (433,33 min) ajoutés le 2026-09-23
-assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.cooldown/3600000),[1,1,2,2,3,3.5,5.5,4.5,5,6.5,7,7.5,1,1,5.5]); // + TIPPI et THE TRAITOR (2026-09-25, plancher de 60 min) ; AMALGAMATE : 27 000 s lus dans le jeu ; + Prêtre d'Exilé
+assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.cooldown/3600000),[1,1,2,2,3,3.5,5.5,4.5,5,6.5,7,7.5,1,1,5.5,3.5]); // + TIPPI et THE TRAITOR (2026-09-25, plancher de 60 min) ; AMALGAMATE : 27 000 s lus dans le jeu ; + Prêtre d'Exilé ; + SKELETON GUARDIAN (même minuteur que la Bête, 2026-11-16)
 assert.deepEqual(IDLE_ADVENTURE_ZONES.map(x=>x.avatarLevel),[1,1,1,2,2,3,3,4,4,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6]);
-assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.avatarLevel),[3,4,5,6,6,6,6,6,6,6,6,6,6,6,6]);
+assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.avatarLevel),[3,4,5,6,6,6,6,6,6,6,6,6,6,6,6,6]);
 assert.deepEqual(IDLE_ADVENTURE_TITANS.slice(1).map(x=>[x.requiresTitan,x.requiresKills,x.requiresUnlock]),[
   ["t1",24,"ngu"],["t2",24,"yggdrasil"],["t3",28,"diggers"],
-  [undefined,undefined,undefined],[undefined,undefined,undefined],[undefined,undefined,"titan9Unlocked"], // t7 : l'Exilé n'existe qu'une fois assemblé (2026-11-16)
+  [undefined,undefined,undefined],[undefined,undefined,"titan6Unlocked"],[undefined,undefined,"titan9Unlocked"], // t6 : la Bête n'existe qu'une fois le secret trouvé ; t7 : l'Exilé n'existe qu'une fois assemblé (2026-11-16)
   [undefined,undefined,undefined],[undefined,undefined,undefined],[undefined,undefined,undefined],[undefined,undefined,undefined],[undefined,undefined,undefined],
   [undefined,undefined,undefined],["tippi",1,undefined], // TIPPI, THE TRAITOR (2026-09-25)
-  [undefined,undefined,undefined] // Prêtre d'Exilé (2026-11-16)
+  [undefined,undefined,undefined], // Prêtre d'Exilé (2026-11-16)
+  [undefined,undefined,undefined] // SKELETON GUARDIAN (2026-11-16)
 ]);
-assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.drop),["aNumber","giantSeed","scrapPaper","uugHair","wanderersCane","heroicSigil","stillBeatingHeart","incriminatingEvidence","severedUnicornHead","","","","","",""]);
+assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.drop),["aNumber","giantSeed","scrapPaper","uugHair","wanderersCane","heroicSigil","stillBeatingHeart","incriminatingEvidence","severedUnicornHead","","","","","","",""]);
 assert.equal(idleAdventureMergeLevelV47(0,0),1);
 assert.equal(idleAdventureMergeLevelV47(5,3),9);
 assert.equal(idleAdventureMergeLevelV47(90,90),100);

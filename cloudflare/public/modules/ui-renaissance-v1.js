@@ -323,6 +323,13 @@
               return;
             }
 
+            /* Chaîne secrète de la Bête : le Rebirth vient-il de débloquer le titan 6 (Rebirth::checkSpecial) ? On compare l'état d'avant et d'après ; le texte est celui du jeu. */
+            let beteAvantV1=false;
+            try{
+              const advAvantV1=REG.idleEtat?aventureMetaIdleV47_(REG.idleEtat):null;
+              beteAvantV1=Boolean(advAvantV1&&advAvantV1.unlockFlags&&advAvantV1.unlockFlags.titan6Unlocked);
+            }catch(_e){}
+
             REG.idleEtat=
               res.joueur;
 
@@ -377,6 +384,12 @@
               messageFlottantIdleV32_(
                 '♻️ Rebirth réussi · NUMBER '+formatGrandNombreIdleV70_(res.number||REG.idleEtat&&REG.idleEtat.renaissance&&REG.idleEtat.renaissance.number||1)
               );
+              try{
+                const advApresV1=aventureMetaIdleV47_(REG.idleEtat);
+                if(!beteAvantV1&&advApresV1&&advApresV1.unlockFlags&&advApresV1.unlockFlags.titan6Unlocked){
+                  toastIdleV5_('TU AS LIBÉRÉ LA PUISSANCE DE LA BÊTE ! TREMBLE DE PEUR DEVANT TA PROPRE STUPIDITÉ !');
+                }
+              }catch(_e){}
             });
           })
           .withFailureHandler(function(e){
