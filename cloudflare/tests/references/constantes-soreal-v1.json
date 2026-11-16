@@ -32,14 +32,6 @@
       "description": "\"when you are in idle mode quests will be handed in and new ones started automatically\". CHOIX SOREAL : la quête relancée est une Major si `preferMajor` est actif et qu'une Major est en banque, sinon une Minor. / export function advanceIdleQuestingV1(state, s",
       "statut": "à valider par Norman",
       "date": "2026-11-09"
-    },
-    {
-      "fichier": "idle-adventure-zones.js",
-      "marqueur": "choix soreal",
-      "repere": "choix SOREAL : seuil égal aux propres stats du Prêtre, comme",
-      "description": "Seuil de puissance (p, t = 6e21) pour affronter le Prêtre d'Exilé : le code du jeu ne donne que les stats de l'ennemi (Power 6e21, Toughness 6e21), pas de seuil ; le wiki ne publie rien pour lui. Le seuil reprend ses propres stats (comme les autres titans reprennent les stats recommandées). Respawn = celui de l'Exilé (même zone de titan).",
-      "statut": "à valider par Norman",
-      "date": "2026-11-16"
     }
   ]
 }

@@ -13,8 +13,8 @@ const t7 = IDLE_ADVENTURE_TITANS.find(x => x.id === "t7");
 
 /* Statistiques lues dans createEnemyTable : Attaque 2, Power 6e21, Toughness 6e21, Regen 6e20, PV 6e23. */
 assert.equal(priest.boss, 190);
-assert.equal(priest.p, 6e21);
-assert.equal(priest.t, 6e21);
+assert.equal(priest.p, 0, "aucun seuil de puissance : le jeu n en a pas (combat coup par coup)");
+assert.equal(priest.t, 0);
 assert.deepEqual(IDLE_TITAN_COMBAT_V1.priest.variantes[""], { hp: 6e23, power: 6e21, toughness: 6e21, regen: 6e20, attackRate: 2 });
 assert.equal(priest.cooldown, t7.cooldown, "même minuteur de zone que l'Exilé");
 
@@ -31,7 +31,6 @@ const ids = s => idleAdventureSnapshotV47(s, 301, "difficile").titans.map(t => t
 {
   assert.throws(() => agir(neuf(), { action: "titan", titan: "priest" }, { ...CTX, bosses: 189 }), /TITAN_VERROUILLE/);
   assert.throws(() => agir(neuf(), { action: "titan", titan: "priest" }, { ...CTX, difficulty: "normal" }), /DIFFICULTE_EVIL_REQUISE/);
-  assert.throws(() => agir(neuf(), { action: "titan", titan: "priest" }, { ...CTX, stats: { power: 5e21, toughness: 6e21 } }), /PUISSANCE_INSUFFISANTE/);
 }
 /* Sans le Sceau en arme : le Sceau tombe. Avec le Sceau équipé : le Visage. Ni or ni EXP. */
 {

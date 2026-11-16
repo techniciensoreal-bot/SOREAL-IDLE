@@ -685,9 +685,8 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * tant que « titan9Unlocked » est faux, la zone du 9e titan fait apparaître « PRIEST OF EXILE » à la place de l'Exilé
  * (AdventureController::spawnEnemy) : Attaque 2, Power 6e21, Toughness 6e21, Regen 6e20, PV 6e23 (createEnemyTable ; IDLE_TITAN_COMBAT_V1.priest).
  * Même déblocage que l'Exilé (boss 190 en Evil) et même respawn (même minuteur de zone). Butin : LootDrop::zone30Drop (rollTitanLootV1 "priest") ;
- * il ne verse ni or ni EXP. Le seuil de puissance du combat (p, t) reprend la Power / Toughness du Prêtre dans le jeu : le wiki ne donne rien pour
- * lui (choix SOREAL : seuil égal aux propres stats du Prêtre, comme l'ensemble des titans le font avec les stats recommandées). Il disparaît dès
+ * il ne verse ni or ni EXP. Aucun seuil de puissance : le jeu n'en a pas (le combat se résout coup par coup, sans condition de stats), donc p = t = 0. Il disparaît dès
  * que l'Exilé est débloqué (hiddenWhenFlag) ; l'Exilé, lui, ne se montre qu'à partir de là.
  */
-{id:"priest",name:"PRIEST OF EXILE",boss:190,evilOnly:true,secret:true,hiddenWhenFlag:"titan9Unlocked",cooldown:5.5*H,p:6e21,t:6e21,drop:"",avatarLevel:6}
+{id:"priest",name:"PRIEST OF EXILE",boss:190,evilOnly:true,secret:true,hiddenWhenFlag:"titan9Unlocked",cooldown:5.5*H,p:0,t:0,drop:"",avatarLevel:6}
 ]);
