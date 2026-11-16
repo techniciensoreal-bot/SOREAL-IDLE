@@ -22,7 +22,7 @@ assert.ok(capAvec > capSans, "le casque donne du cap");
 const lourd = JSON.parse(JSON.stringify(state));
 lourd.systems.wandoos.unlocked = true; lourd.systems.wandoos.allocation = { energy: capAvec };
 assert.throws(
-  () => applyIdleNguAction(lourd, { action: "adventure", adventure: { action: "unequip", itemId: hat.id, id: hat.id } }, {}, 10),
+  () => applyIdleNguAction(lourd, { action: "adventure", adventure: { action: "unequip", itemId: hat.id, id: hat.id } }, { bosses: 100 }, 10),
   /^Error: Libère .+ d'énergie avant de retirer cette pièce\.$/
 );
 assert.equal(lourd.adventure.equipment.head, hat.id, "rien n'a été retiré");

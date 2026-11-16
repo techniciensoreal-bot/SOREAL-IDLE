@@ -2,8 +2,8 @@
  "depart": {
   "tm": {
    "vitesse": [
-    150,
-    6.45381285583
+    147,
+    8.39733138462
    ],
    "or": [
     5,
@@ -55,37 +55,37 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 43150176918700,
-  "energie": 6981191,
-  "energieMax": 25619760,
-  "magie": 1371243.44,
+  "or": 43063184101900,
+  "energie": 0,
+  "energieMax": 16724880,
+  "magie": 1259739.44,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "f33e8c5ec55ceaaa"
+   "empreinte": "53ce88d614eb6322"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 7.04132366833e+46,
+   "pv": 5.43440107078e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 2.26614304854e+36,
-   "defense": 1.19483380179e+36,
-   "pvMax": 2.38644622871e+47
+   "attaque": 1.16329726261e+36,
+   "defense": 6.34667996064e+35,
+   "pvMax": 1.22505345239e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "47b8b1d2788cde16",
-   "timeMachine": "d4b4307aac0e9b74",
-   "bloodMagic": "10574f9d84d94a7f",
+   "timeMachine": "6ba44dde0a368394",
+   "bloodMagic": "6151de041df5038a",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "cab68f7b01e1182f",
    "yggdrasil": "d82d1b11cc8c9d50",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "8db552f37d44ea90",
+   "tower": "3033e507caa2d815",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -96,8 +96,8 @@
  "apres allocations": {
   "tm": {
    "vitesse": [
-    150,
-    6.45381285583
+    147,
+    8.39733138462
    ],
    "or": [
     5,
@@ -149,37 +149,37 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 43150176918700,
-  "energie": 22119748,
-  "energieMax": 25619760,
-  "magie": 3774859.44,
+  "or": 43063184101900,
+  "energie": 13224868,
+  "energieMax": 16724880,
+  "magie": 3663355.44,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "f33e8c5ec55ceaaa"
+   "empreinte": "53ce88d614eb6322"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 7.04132366833e+46,
+   "pv": 5.43440107078e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 2.26614304854e+36,
-   "defense": 1.19483380179e+36,
-   "pvMax": 2.38644622871e+47
+   "attaque": 1.16329726261e+36,
+   "defense": 6.34667996064e+35,
+   "pvMax": 1.22505345239e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
    "augmentations": "fb137388047351da",
-   "timeMachine": "d4b4307aac0e9b74",
-   "bloodMagic": "025d24901abd725d",
+   "timeMachine": "6ba44dde0a368394",
+   "bloodMagic": "9a8f3418beba89fa",
    "wandoos": "668afb7f1c4850ce",
    "ngu": "fb3be078019a50c7",
    "yggdrasil": "d82d1b11cc8c9d50",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "8db552f37d44ea90",
+   "tower": "3033e507caa2d815",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -190,17 +190,17 @@
  "apres combats d'aventure": {
   "tm": {
    "vitesse": [
-    150,
-    87.349596065
+    147,
+    111.403248546
    ],
    "or": [
     5,
-    315.728485285
+    536.086744627
    ]
   },
   "augments": {
    "scissors": [
-    173,
+    136,
     0,
     0,
     0
@@ -243,37 +243,37 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 44171934000100,
-  "energie": 22119748,
-  "energieMax": 25619760,
-  "magie": 3809983.2,
+  "or": 44055466546900,
+  "energie": 13224868,
+  "energieMax": 16724880,
+  "magie": 3685098.72,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "fcf15ba8783f97ce"
+   "empreinte": "852b2f567b38671e"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 7.04132366833e+46,
+   "pv": 5.43440107078e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 2.26614304854e+36,
-   "defense": 1.19483380179e+36,
-   "pvMax": 2.44017420211e+47
+   "attaque": 1.16329726261e+36,
+   "defense": 6.34667996064e+35,
+   "pvMax": 1.25263406096e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "42e9959dc0f41ea8",
-   "timeMachine": "c8e5f006b5679429",
-   "bloodMagic": "e0bd038b4f580e14",
+   "augmentations": "a620d7b483d1293c",
+   "timeMachine": "ba1e6f0a27210f1e",
+   "bloodMagic": "948ae7233e1043b2",
    "wandoos": "668afb7f1c4850ce",
-   "ngu": "4ef693e4c6cdcae3",
+   "ngu": "bb80f43951a8728e",
    "yggdrasil": "8b52f48635a7fc47",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "3726fe6593160c1d",
+   "tower": "e0cfe8caab718fdd",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -284,17 +284,17 @@
  "apres +2 s": {
   "tm": {
    "vitesse": [
-    150,
-    89.349596065
+    147,
+    113.403248546
    ],
    "or": [
     5,
-    317.728485285
+    538.086744627
    ]
   },
   "augments": {
    "scissors": [
-    198,
+    156,
     0,
     0,
     0
@@ -337,37 +337,37 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 44455764021700,
-  "energie": 22119748,
-  "energieMax": 25619760,
-  "magie": 3819739.8,
+  "or": 44331102106100,
+  "energie": 13224868,
+  "energieMax": 16724880,
+  "magie": 3691138.52,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "5283ffa712520d41"
+   "empreinte": "fad5ee342627f045"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 7.17037887578e+46,
+   "pv": 5.50295220297e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 2.26614304854e+36,
-   "defense": 1.19483380179e+36,
-   "pvMax": 2.45515282279e+47
+   "attaque": 1.16329726261e+36,
+   "defense": 6.34667996064e+35,
+   "pvMax": 1.26032315562e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "90313f04d7fb137f",
-   "timeMachine": "77fa317a75d5b6a0",
-   "bloodMagic": "302e29189812fe74",
+   "augmentations": "e6cb06fe54d9dd7e",
+   "timeMachine": "4e0322093e1ea886",
+   "bloodMagic": "c1329c0b437cbf6d",
    "wandoos": "668afb7f1c4850ce",
-   "ngu": "e45fa7eca051d7e8",
+   "ngu": "427a8f08a97ebdc7",
    "yggdrasil": "f9f0ff2c180c3dfe",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "78d09354e949cace",
+   "tower": "01bb9041dfe2c7f5",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -378,19 +378,19 @@
  "apres +10 s": {
   "tm": {
    "vitesse": [
-    150,
-    99.349596065
+    147,
+    123.403248546
    ],
    "or": [
     5,
-    327.728485285
+    548.086744627
    ]
   },
   "augments": {
    "scissors": [
-    298,
+    232,
     0,
-    0.06,
+    0,
     0
    ],
    "milk": [
@@ -431,37 +431,37 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 45874865139700,
-  "energie": 22119748,
-  "energieMax": 25619760,
-  "magie": 3868522.8,
+  "or": 45709248582100,
+  "energie": 13224868,
+  "energieMax": 16724880,
+  "magie": 3721337.52,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "5ede42bed276a3c6"
+   "empreinte": "a5afd7058d1f30f3"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 7.82753505146e+46,
+   "pv": 5.85201831785e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 2.26614304854e+36,
-   "defense": 1.19483380179e+36,
-   "pvMax": 2.53039492402e+47
+   "attaque": 1.16329726261e+36,
+   "defense": 6.34667996064e+35,
+   "pvMax": 1.29894778281e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "ee191314a844f550",
-   "timeMachine": "1bc70b7bc99d224a",
-   "bloodMagic": "f4a8502366dc60bd",
+   "augmentations": "d4a52fcd6c033444",
+   "timeMachine": "50ddfebb3b83b472",
+   "bloodMagic": "31b9ff858ca9dbf6",
    "wandoos": "668afb7f1c4850ce",
-   "ngu": "bdd0e199935efa4d",
+   "ngu": "a472f6d15f4e8542",
    "yggdrasil": "ef61a8a8c64251e3",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "992804be7fb0d3b9",
+   "tower": "963a8e1892cfc417",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -472,19 +472,19 @@
  "apres +60 s": {
   "tm": {
    "vitesse": [
-    151,
-    59.749596066
+    148,
+    14.1432485465
    ],
    "or": [
-    6,
-    21.0084852859
+    5,
+    608.086744627
    ]
   },
   "augments": {
    "scissors": [
-    635,
+    487,
     0,
-    0.0599999999997,
+    0.16,
     0
    ],
    "milk": [
@@ -525,37 +525,37 @@
    ]
   },
   "entrainementAvance": {},
-  "or": 54974385834400,
-  "energie": 22119748,
-  "energieMax": 25619760,
-  "magie": 4161220.8,
+  "or": 53997176656400,
+  "energie": 13224868,
+  "energieMax": 16724880,
+  "magie": 3902531.52,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "b659236e7c8fbe42"
+   "empreinte": "ed5da373f97185ee"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 1.21973120015e+47,
+   "pv": 8.17314245741e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 2.26614304854e+36,
-   "defense": 1.19483380179e+36,
-   "pvMax": 2.99867696919e+47
+   "attaque": 1.16329726261e+36,
+   "defense": 6.34667996064e+35,
+   "pvMax": 1.53933473527e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "f9da95bd1a7f6b7d",
-   "timeMachine": "12979ebffe37c37b",
-   "bloodMagic": "6c33c5d8a0070c60",
+   "augmentations": "a1ed36bd903e4d56",
+   "timeMachine": "e781868b3db9c311",
+   "bloodMagic": "ec0a27366491a3b8",
    "wandoos": "668afb7f1c4850ce",
-   "ngu": "ecab918dd76b3234",
+   "ngu": "6ff6e05f312e6c82",
    "yggdrasil": "b4561bb64ef32c88",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "a68d184c884678a8",
+   "tower": "81f402422b8c2186",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -566,19 +566,19 @@
  "apres +600 s": {
   "tm": {
    "vitesse": [
-    157,
-    48.289596072
+    151,
+    99.4832485495
    ],
    "or": [
-    7,
-    193.168485287
+    6,
+    579.446744628
    ]
   },
   "augments": {
    "scissors": [
-    1914,
+    1459,
     0,
-    0.640000000017,
+    0.160000000009,
     0
    ],
    "milk": [
@@ -640,38 +640,38 @@
     0
    ]
   },
-  "or": 176347607674000,
-  "energie": 22119748,
-  "energieMax": 25619760,
+  "or": 154382874356000,
+  "energie": 13224868,
+  "energieMax": 16724880,
   "magie": 4275150,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "9480ab52aa2b189d"
+   "empreinte": "3fa1f5fc98cfe2ca"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 2.09508013984e+48,
+   "pv": 1.12980009857e+48,
    "vaincus": null
   },
   "combat": {
-   "attaque": 2.26614304854e+36,
-   "defense": 1.19483380179e+36,
-   "pvMax": 2.42011067052e+48
+   "attaque": 1.16329726261e+36,
+   "defense": 6.34667996064e+35,
+   "pvMax": 1.24233468846e+48
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "4f8a6f98b7595741",
-   "augmentations": "ee6be2962df35775",
+   "augmentations": "91e557a664ca6832",
    "advancedTraining": "35a4001ed556af66",
-   "timeMachine": "5c38103dce103736",
-   "bloodMagic": "ba0fedbcb25f10ed",
+   "timeMachine": "ce192d6ab06a7cd7",
+   "bloodMagic": "2bfcab6dcf6b7182",
    "wandoos": "668afb7f1c4850ce",
-   "ngu": "378e86c1ac914466",
+   "ngu": "25882349a061bd4d",
    "yggdrasil": "085c9cf65bcf3f8d",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "2335029bded2ed50",
+   "tower": "5b6fd60945330b44",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",

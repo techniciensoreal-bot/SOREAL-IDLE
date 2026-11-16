@@ -393,6 +393,8 @@ if(s.fight.active&&s.fight.zone&&s.fight.zone!==s.selectedZone){s.fight=X(base()
 {const r=s.retourSafe&&typeof s.retourSafe==="object"?s.retourSafe:{};s.retourSafe={raison:String(r.raison||"").slice(0,40),detail:String(r.detail||"").slice(0,160),at:Math.max(0,I(r.at))}}
 /* Seconde arme : slot toujours présent ; les secondes armes rangées en accessoires par l'ancienne version (100 % de leurs stats) sont migrées. */
 s.dualWieldRatio=Math.min(1,Math.max(0,N(s.dualWieldRatio)));
+/* Boss effectif (boss du Rebirth en cours + 301 par difficulté, posé par le moteur NGU) : mise à l'échelle bossRequired des objets (idle-adventure-boss-requis-v1.js). Absent = aucune échelle. */
+if(typeof s.bossEffectif==="number"&&Number.isFinite(s.bossEffectif))s.bossEffectif=Math.max(0,Math.floor(s.bossEffectif));else delete s.bossEffectif;
 s.theEnd=idleTheEndNormalizeV1(s.theEnd);
 s.equipment=Object.assign({},s.equipment);
 s.equipment.weapon2=typeof s.equipment.weapon2==="string"?s.equipment.weapon2:"";
