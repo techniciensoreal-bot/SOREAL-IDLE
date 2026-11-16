@@ -622,7 +622,7 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * correctif -- seul le combat/tracking "v4 vaincu" est nécessaire pour la
  * condition de déblocage Sadistic ; le butin sera une passe séparée.
  */
-{id:"t7",name:"The Exile",boss:190,evilOnly:true,cooldown:5.5*H,drop:"stillBeatingHeart",avatarLevel:6,difficulties:{
+{id:"t7",name:"The Exile",boss:190,evilOnly:true,secret:true,requiresUnlock:"titan9Unlocked",cooldown:5.5*H,drop:"stillBeatingHeart",avatarLevel:6,difficulties:{
   easy:{p:2.3e22,t:1.2e22,autoKillP:1e23,autoKillT:5e22,autoKillKills:24},
   normal:{p:3.72e23,t:1.56e23,autoKillP:2e24,autoKillT:1e24,autoKillKills:24},
   hard:{p:7.45e24,t:3.55e24,autoKillP:4e25,autoKillT:2e25,autoKillKills:24},
@@ -679,5 +679,15 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * secret : ni nom ni carte tant que le titan n'est pas accessible.
  */
 {id:"tippi",name:"TIPPI THE TUTORIAL MOUSE",boss:296,sadisticOnly:true,secret:true,cooldown:H,p:4e34,t:1.5e34,drop:"",avatarLevel:6},
-{id:"traitor",name:"THE TRAITOR",boss:300,sadisticOnly:true,secret:true,cooldown:H,p:1.5e35,t:4e34,drop:"",avatarLevel:6,requiresTitan:"tippi",requiresKills:1}
+{id:"traitor",name:"THE TRAITOR",boss:300,sadisticOnly:true,secret:true,cooldown:H,p:1.5e35,t:4e34,drop:"",avatarLevel:6,requiresTitan:"tippi",requiresKills:1},
+/*
+ * Prêtre d'Exilé (chaîne secrète de l'Exilé, Norman 2026-11-16 ; code du jeu build 1260, voir design/audit-code-jeu/antlers-wahwee.md §6) :
+ * tant que « titan9Unlocked » est faux, la zone du 9e titan fait apparaître « PRIEST OF EXILE » à la place de l'Exilé
+ * (AdventureController::spawnEnemy) : Attaque 2, Power 6e21, Toughness 6e21, Regen 6e20, PV 6e23 (createEnemyTable ; IDLE_TITAN_COMBAT_V1.priest).
+ * Même déblocage que l'Exilé (boss 190 en Evil) et même respawn (même minuteur de zone). Butin : LootDrop::zone30Drop (rollTitanLootV1 "priest") ;
+ * il ne verse ni or ni EXP. Le seuil de puissance du combat (p, t) reprend la Power / Toughness du Prêtre dans le jeu : le wiki ne donne rien pour
+ * lui (choix SOREAL : seuil égal aux propres stats du Prêtre, comme l'ensemble des titans le font avec les stats recommandées). Il disparaît dès
+ * que l'Exilé est débloqué (hiddenWhenFlag) ; l'Exilé, lui, ne se montre qu'à partir de là.
+ */
+{id:"priest",name:"PRIEST OF EXILE",boss:190,evilOnly:true,secret:true,hiddenWhenFlag:"titan9Unlocked",cooldown:5.5*H,p:6e21,t:6e21,drop:"",avatarLevel:6}
 ]);

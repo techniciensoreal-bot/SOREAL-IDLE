@@ -42,6 +42,8 @@ assert.equal(t7.drop, "stillBeatingHeart");
 // --- exileBrutalDefeated : jamais posé avant Brutal, posé et PERMANENT après ---
 {
   let s = normalizeIdleAdventureStateV47({});
+  /* Chaîne secrète de l'Exilé (2026-11-16) : l'Exilé n'existe qu'une fois assemblé (titan9Unlocked), voir idle-antlers-*.test.mjs. */
+  s.unlockFlags.titan9Unlocked = true;
   const ctxEasy = { bosses: 190, difficulty: "difficile", stats: { power: 2.3e22, toughness: 1.2e22 } };
   s = applyIdleAdventureActionV47(s, { action: "titan", titan: "t7", difficulty: "easy" }, ctxEasy, 1).state;
   assert.equal(s.unlockFlags.exileBrutalDefeated, undefined, "Vaincre Easy ne doit jamais poser le flag Brutal.");
@@ -66,6 +68,7 @@ assert.equal(t7.drop, "stillBeatingHeart");
 // --- alias "titan7" (comme titan1..titan6 déjà supportés) ---
 {
   let s = normalizeIdleAdventureStateV47({});
+  s.unlockFlags.titan9Unlocked = true;
   const ctxBrutal = { bosses: 190, difficulty: "difficile", stats: { power: 2.2e26, toughness: 1.0e26 } };
   const { result } = applyIdleAdventureActionV47(s, { action: "titan", titan: "titan7", difficulty: "brutal" }, ctxBrutal, 1);
   assert.equal(result.id, "t7", "L'alias titan7 doit résoudre vers t7, comme titan1..titan6.");

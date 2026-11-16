@@ -35,6 +35,7 @@
  * est un facteur SÉPARÉ x1,1 (1,15 x 1,1 = 1,265, mesuré 1,265). Non mesurés (objets ou systèmes inaccessibles au banc) : souhait 47, Mobster, objets de quête, Hack, cartes.
  */
 import { IDLE_PERKS_CATALOG_V1 } from "./idle-perks-v1.js";
+import { exileIndiceBeteV1 } from "./idle-antlers-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { IDLE_QUIRKS_CATALOG_V1 } from "./idle-quirks-v1.js";
 import { IDLE_WISHES_CATALOG_V1 } from "./idle-wishes-v1.js";
@@ -397,8 +398,10 @@ function completeQuestV1(state, d, env, auto) {
   d.stats.qpEarned += reward.qp;
   d.stats.apEarned += reward.ap;
   d.lastReward = { major: q.major, zone: q.zone, qp: reward.qp, ap: reward.ap, active: !q.usedIdle, butter: reward.butter, auto: Boolean(auto) };
+  /* BeastQuestController::giveRewardsAndClear (build 1260) : quête rendue à la main, aucun objet venu de l'idle, jauge idle entre 90 % et 100 %, Tentacule (337) vu : Bois de l'Exilé (338). Avant la remise à zéro de la quête (clearQuest). */
+  const indiceExile = exileIndiceBeteV1(state.adventure, d.idle, q);
   d.quest = null;
-  return { completed: true, ...d.lastReward };
+  return { completed: true, ...d.lastReward, ...(indiceExile ? { indiceExile: true } : {}) };
 }
 
 /* Remise : "turn in all items that match your current quest" ; le surplus reste en stock. */

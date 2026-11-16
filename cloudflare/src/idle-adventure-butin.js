@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { BOOSTS, C, I, N } from "./idle-adventure-base.js";
+import { exileWahweeV1 } from "./idle-antlers-v1.js";
 import { IDLE_ADVENTURE_MOB_BESTIARY_V1, IDLE_ADVENTURE_ZONES, idleAdventureBestiaryAverageV1 } from "./idle-adventure-zones.js";
 import { SETS, SPECIALS, defById } from "./idle-adventure-sets.js";
 import { base, boost, item, rollFreshEquipmentStatsV1, special } from "./idle-adventure-objets.js";
@@ -679,7 +680,7 @@ function definitionsEquipmentPoolAdventureV2(pool){
   return setDef.slots.map(slot=>setId+":"+slot);
 }
 
-function rollEquipmentAdventureV2(s,z,pool,dropMult){
+function rollEquipmentAdventureV2(s,z,pool,dropMult,info){
   const defs=definitionsEquipmentPoolAdventureV2(pool);
   if(!defs.length)return null;
   if(pool.requiresCompletedSet&&!s.completedSets[String(pool.requiresCompletedSet)])return null;
@@ -689,6 +690,7 @@ function rollEquipmentAdventureV2(s,z,pool,dropMult){
 
   const definitionId=guaranteed?firstId:defs[I(Math.random()*defs.length)];
   if(!definitionId)return null;
+  if(info)info.reussi=true;
 
   const override=pool.levels&&pool.levels[definitionId];
   const baseLevel=override!=null?override:(pool.level!=null?pool.level:z.dropLevel);
@@ -762,8 +764,11 @@ function rollProfileLootAdventureV2(s,z,boss,dropMult,mobName){
 
   const out=[];
   for(const pool of profile.equipment||[]){
-    const o=rollEquipmentAdventureV2(s,z,pool,dropMult);
+    const info={reussi:false};
+    const o=rollEquipmentAdventureV2(s,z,pool,dropMult,info);
     if(o)out.push(o);
+    /* Docteur Wahwee (LootDrop::zone13Drop, build 1260) : tirage d'une pièce Mega réussi + Bois (338) vu + set Mega complet porté -> Buster (339), même sac plein. */
+    if(boss&&z.id==="mega"&&pool.set==="mega"){const c=exileWahweeV1(s,info.reussi);if(c)out.push(c)}
   }
   for(const def of profile.boosts||[]){
     const o=rollBoostAdventureV2(s,z,def,dropMult);

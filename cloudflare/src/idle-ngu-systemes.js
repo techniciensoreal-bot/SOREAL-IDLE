@@ -6,6 +6,7 @@
 import { aleaV1 } from "./idle-alea-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { ITOPOD_AUTOATTACK_REGEN_V1, itopodCycleV1, itopodDrawAiV1 } from "./idle-itopod-combat-v1.js";
+import { exileHackV1, exileItopodV1 } from "./idle-antlers-v1.js";
 import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
 import { span, enveloppeSpan } from "./idle-spans-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
@@ -931,6 +932,8 @@ function advanceTowerV1(state, seconds, context) {
       const p = Math.min(1, 0.00005 * (floor - (IDLE_THE_END_TOWER_FIRST_FLOOR_V1 - 1)));
       if (Math.random() < 1 - Math.pow(1 - p, n)) idleTheEndGrantV1(state.adventure, 491, Date.now());
     }
+    /* Tentacule de l'Exilé (337) : LootDrop::checkExileDrop, étages 950 à 999, exige le Visage (336) déjà vu (idle-antlers-v1.js). */
+    if (floor >= 950 && floor <= 999) exileItopodV1(state.adventure, floor, n);
     d.kills += n;
     d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
     const boosts = Math.floor(d.boostProgress);
@@ -1440,6 +1443,8 @@ function passesDuTempsSeulV1(state, secs, context, now) {
   span("avance:ngus", () => advanceNgusV1(state, secs));
   span("avance:barbes", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs));
   span("avance:hacks", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs));
+  /* Antennes de l'Exilé (340) : Hack Hack avec R3 = plafond - 1, toutes les 60 s (HacksController::checkExilePiece). */
+  exileHackV1(state, secs);
   span("avance:souhaits", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs));
 }
 

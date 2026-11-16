@@ -111,6 +111,7 @@ const TITAN_ITEM_IDS = ["aNumber", "giantSeed", "scrapPaper", "uugHair", "wander
   const ctx = { bosses: 300, adventurePower: 7.5e26, adventureToughness: 3.7e26, difficulty: "difficile" }; // seuil Brutal exact de l'Exile ; "difficile" (Evil) jamais "brutal" : bien deux notions différentes
   let state = normalizeIdleNguState(null, ctx, 1000);
   state.difficulty = "difficile";
+  state.adventure.unlockFlags.titan9Unlocked = true; /* chaîne secrète de l'Exilé (2026-11-16) : l'Exilé n'existe qu'une fois assemblé */
   state = applyIdleNguAction(state, { action: "adventure", adventure: { action: "setAutoKillTitans", enabled: true } }, ctx, 1000).state;
   state = advanceIdleNguState(state, 6 * 3600, ctx, 1000 + 6 * 3600 * 1000);
   assert.ok(state.adventure.titans.t7 && state.adventure.titans.t7.kills > 0, "Exile Auto-Kill au palier Brutal malgré un mode de jeu 'difficile' (Evil), pas 'extreme'");

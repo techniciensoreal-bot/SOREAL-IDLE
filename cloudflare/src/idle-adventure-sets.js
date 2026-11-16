@@ -946,7 +946,21 @@ tripleFlubber:{name:"The Triple Flubber",zone:"",slot:"accessory",dropLevel:0,p:
  * Sigil (set)", "Still-Beating Heart (set)") soit complétable, comme A Number / UUG's Armpit Hair.
  */
 heroicSigil:{name:"Heroic Sigil",zone:"",slot:"special",dropLevel:4,p:0,t:0},
-stillBeatingHeart:{name:"A Still-Beating Heart",zone:"",slot:"special",dropLevel:4,p:0,t:0}
+stillBeatingHeart:{name:"A Still-Beating Heart",zone:"",slot:"special",dropLevel:4,p:0,t:0},
+/*
+ * Chaîne secrète de l'Exilé (Norman, 2026-11-16 : « tout objet du jeu doit exister dans SOREAL »). Sept objets 335 à 341 lus dans le code du jeu
+ * (build 1260, Assembly-CSharp, table d'objets : noms, types, valeurs ; aucune stat, aucun taux inventé). Description complète et enchaînement :
+ * design/audit-code-jeu/antlers-wahwee.md. 335 est de type « arme » (4) : il se porte dans l'emplacement d'arme (le Prêtre d'Exilé exige
+ * qu'il soit équipé) ; 336 à 341 sont de type 10 (objets d'indice, jamais équipables). Clés distinctes des accessoires du titan (328 à 334) : les
+ * noms d'affichage : ceux du jeu (qui répète « Antlers / Tentacle / Antennae / Buster of the Exile » pour les indices), suivis de « (Clue) » pour les distinguer des accessoires (deux objets ne peuvent pas porter le même nom dans SOREAL).
+ */
+sealExile:{name:"Seal of the Exile",zone:"",slot:"weapon",dropLevel:0,p:0,t:0},
+faceExile:{name:"Face of the Exile",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+exileClueTentacle:{name:"Tentacle of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+exileClueAntlers:{name:"Antlers of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+exileClueBuster:{name:"Buster of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+exileClueAntennae:{name:"Antennae of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+sackExile:{name:"Sack of the Exile",zone:"",slot:"special",dropLevel:0,p:0,t:0}
 });
 
 export const SPECIALS=Object.freeze(Object.fromEntries(Object.entries(SPECIALS_EN_V1).map(([id,d])=>[id,{...d,name:NOMS_SPECIALS_FR_V1[id]||d.name}])));
@@ -1362,6 +1376,14 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "uugHair":141,
   "incriminatingEvidence":294,
   "severedUnicornHead":343,
+  /* Chaîne de l'Exilé : ids du jeu (build 1260), voir idle-adventure-sets.js SPECIALS. */
+  "sealExile":335,
+  "faceExile":336,
+  "exileClueTentacle":337,
+  "exileClueAntlers":338,
+  "exileClueBuster":339,
+  "exileClueAntennae":340,
+  "sackExile":341,
   /* Cœurs du Sellout Shop, Wandoos XL, Triple Flubber, Heroic Sigil, Still-Beating Heart (fiches wiki, champ "Id"). */
   "heartRed":119,
   "heartYellow":129,
