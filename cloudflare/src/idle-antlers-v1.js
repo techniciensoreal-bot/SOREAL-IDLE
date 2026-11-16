@@ -170,26 +170,35 @@ export function exileAssembleV1(s) {
 
 const PIECES_ASSEMBLABLES_V1 = Object.freeze(["faceExile", "exileClueTentacle", "exileClueAntlers", "exileClueBuster", "exileClueAntennae", "sackExile"]);
 
+/* Textes du jeu annoncés à l'assemblage (ItemController::consumeItem, méthode 3794, infobulles) ; traduits par le serveur (design/traductions/fr/misc.json). */
+export const IDLE_EXILE_MESSAGES_V1 = Object.freeze({
+  debloque: "The pieces vibrate with the mystical voodoo energy that only unlocking something can generate. You can now face THE EXILE in Adventure mode!",
+  recompenseSpeciale: "The ground beneath you rumbles and shakes violently for a moment, like an earthquake. You're sure something has changed about the Exile, but you can't see it yet.",
+  lecher: "You're overcome with a desire to individually lick every piece of the Exile, which of course you succumb to. It takes 30 minutes to give each piece a proper tongue polishing until they sparkle in the noon sun... you gross bastard."
+});
+
 /*
- * « Utiliser » une pièce (ItemController::consumeItem, méthode 3794, objets 336 à 341) : rien n'est consommé. Avec le Sac (341) à la case 13 :
- * si l'Exilé est déjà débloqué -> titan9SpecialReward, sinon rien. Sans le Sac : première fois -> titan9Unlocked (l'Exilé se montre à la place du
- * Prêtre), ensuite un simple message.
+ * « Utiliser » une pièce (ItemController::consumeItem, méthode 3794, objets 336 à 341 retirables) : rien n'est consommé. Avec le Sac (341) à la case 13 (exileSpecialAssembled) :
+ * si l'Exilé n'est pas encore débloqué -> rien ; sinon titan9SpecialReward + message du tremblement. Sans le Sac, assemblage complet (exileAssembled) : première fois -> titan9Unlocked
+ * + message ; ensuite un message (« lécher les pièces »). Assemblage incomplet : rien, sans message (comme le jeu). Une pièce verrouillée n'est pas retirable : rien.
  */
 export function exileUtiliserPieceV1(s, itemId) {
   const o = (s.inventory || []).find(x => x && String(x.id) === String(itemId || ""));
   if (!o) throw Error("OBJET_INTROUVABLE");
   if (!PIECES_ASSEMBLABLES_V1.includes(o.definitionId)) throw Error("OBJET_NON_ASSEMBLABLE");
+  const rien = { assemble: false, special: false, debloque: false, recompenseSpeciale: false };
+  if (o.locked) return rien;
   const etat = exileAssembleV1(s);
   const flags = s.unlockFlags;
   if (etat.special) {
     if (!flags.titan9Unlocked) return { assemble: true, special: true, debloque: false, recompenseSpeciale: false };
     flags.titan9SpecialReward = true;
-    return { assemble: true, special: true, debloque: false, recompenseSpeciale: true };
+    return { assemble: true, special: true, debloque: false, recompenseSpeciale: true, message: IDLE_EXILE_MESSAGES_V1.recompenseSpeciale };
   }
-  if (!etat.assemble) return { assemble: false, special: false, debloque: false, recompenseSpeciale: false };
+  if (!etat.assemble) return rien;
   if (!flags.titan9Unlocked) {
     flags.titan9Unlocked = true;
-    return { assemble: true, special: false, debloque: true, recompenseSpeciale: false };
+    return { assemble: true, special: false, debloque: true, recompenseSpeciale: false, message: IDLE_EXILE_MESSAGES_V1.debloque };
   }
-  return { assemble: true, special: false, debloque: false, recompenseSpeciale: false };
+  return { assemble: true, special: false, debloque: false, recompenseSpeciale: false, message: IDLE_EXILE_MESSAGES_V1.lecher };
 }

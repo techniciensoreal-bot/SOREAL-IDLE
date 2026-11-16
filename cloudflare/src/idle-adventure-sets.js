@@ -7,6 +7,7 @@ import { NOMS_SETS_FR_V1, NOMS_SPECIALS_FR_V1, NOMS_SETS_OBJETS_FR_V1, NOMS_PIEC
 import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
 import { BOOSTS, N } from "./idle-adventure-base.js";
 import { base } from "./idle-adventure-objets.js";
+import { IDLE_ADVENTURE_DESCRIPTIONS_V1 } from "./idle-adventure-descriptions-v1.js";
 
 export const SETS={
 /*
@@ -966,7 +967,19 @@ exileClueTentacle:{name:"Tentacle of the Exile (Clue)",zone:"",slot:"special",dr
 exileClueAntlers:{name:"Antlers of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 exileClueBuster:{name:"Buster of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 exileClueAntennae:{name:"Antennae of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
-sackExile:{name:"Sack of the Exile",zone:"",slot:"special",dropLevel:0,p:0,t:0}
+sackExile:{name:"Sack of the Exile",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+/*
+ * La GLOP (quête d'IT HUNGERS, Norman, 2026-11-16 : « tout objet du jeu doit exister dans SOREAL »). Ids et noms de la table d'objets du jeu (build 1260) : 367 A Well Done Steak With Ketchup,
+ * 368 Pickle Ice Cream, 369 A Can of Surstromming, 370 A Jar of Marmite, 371 Pizza With Pineapple (cinq ingrédients, type 10), 372 GLOP (type 10), 387 GLOP Recipe (type 10). Aucune stat. Ni les ingrédients
+ * ni la GLOP ne se fusionnent ni ne s'équipent. Fabrication, usage et butin : idle-glop-v1.js.
+ */
+wellDoneSteak:{name:"A Well Done Steak With Ketchup",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+pickleIceCream:{name:"Pickle Ice Cream",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+canSurstromming:{name:"A Can of Surstromming",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+jarOfMarmite:{name:"A Jar of Marmite",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+pizzaPineapple:{name:"Pizza With Pineapple",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+glop:{name:"GLOP",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+glopRecipe:{name:"GLOP Recipe",zone:"",slot:"special",dropLevel:0,p:0,t:0}
 });
 
 export const SPECIALS=Object.freeze(Object.fromEntries(Object.entries(SPECIALS_EN_V1).map(([id,d])=>[id,{...d,name:NOMS_SPECIALS_FR_V1[id]||d.name}])));
@@ -1525,6 +1538,13 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "blackLotus":333,
   "busterExile":334,
   "blueEyesChestplate":342,
+  "wellDoneSteak":367,
+  "pickleIceCream":368,
+  "canSurstromming":369,
+  "jarOfMarmite":370,
+  "pizzaPineapple":371,
+  "glop":372,
+  "glopRecipe":387,
   "theCricket":380,
   "evilRubberDucky":381,
   "gasGiant":382,
@@ -1619,7 +1639,7 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
     }
   }
   for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,specials:d.sType?[[d.sType,N(d.sMax)],...(d.sExtra||[]).map(e=>[e.type,N(e.max0)])]:[],evolutionTo:ITEM_EVOLUTIONS_V1[id]||""});
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,specials:d.sType?[[d.sType,N(d.sMax)],...(d.sExtra||[]).map(e=>[e.type,N(e.max0)])]:[],evolutionTo:ITEM_EVOLUTIONS_V1[id]||"",/* itemDesc du jeu (texte anglais d'origine, traduit par le serveur) : seulement pour les objets qui en ont un (idle-adventure-descriptions-v1.js) */...(IDLE_ADVENTURE_DESCRIPTIONS_V1[id]?{desc:IDLE_ADVENTURE_DESCRIPTIONS_V1[id]}:{})});
   }
   return catalog;
 })());

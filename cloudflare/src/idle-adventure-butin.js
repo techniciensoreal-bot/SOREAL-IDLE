@@ -5,6 +5,8 @@
  */
 import { BOOSTS, C, I, N } from "./idle-adventure-base.js";
 import { exileWahweeV1 } from "./idle-antlers-v1.js";
+import { glopIngredientButinV1 } from "./idle-glop-v1.js";
+import { aleaV1 } from "./idle-alea-v1.js";
 import { IDLE_ADVENTURE_MOB_BESTIARY_V1, IDLE_ADVENTURE_ZONES, idleAdventureBestiaryAverageV1 } from "./idle-adventure-zones.js";
 import { SETS, SPECIALS, defById } from "./idle-adventure-sets.js";
 import { base, boost, item, rollFreshEquipmentStatsV1, special } from "./idle-adventure-objets.js";
@@ -829,6 +831,8 @@ export function rollKill(s,ctx){
 
   const exact=rollProfileLootAdventureV2(s,z,boss,dropMult,ctx.forceMobName);
   const out=exact===null?rollLegacyZoneLootAdventureV2(s,z,dropMult,ctx):exact;
+  /* Ingrédients de la GLOP (quête d'IT HUNGERS, LootDrop::zone7Drop, 15, 20, 22, 29) : tirage plat par ennemi nommé, une fois la quête démarrée (idle-glop-v1.js). */
+  glopIngredientButinV1(s,z.id,ctx.forceMobName,aleaV1(ctx),out);
 
   if(
     !boss&&z.id==="forest"&&String(ctx.forceMobName||"")==="Goblin"&&

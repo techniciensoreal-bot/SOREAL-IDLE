@@ -136,7 +136,7 @@ const lancer = (id, e, n, tirage, t0 = 0) => { let r = null; for (let i = 0; i <
   assert.equal(api.multDegatsJoueur("hungers", e, 0), 0, "invincible sans Glop");
   proche(api.attaqueTitan("hungers", e, 2000, 0.99).multDegats, 1 + 402 / 100, "toujours x1 (jamais de puissante) avec growCount qui monte de 400 par attaque");
   e = api.neuf("hungers", 1); e.glopStock = 1;
-  r = api.attaqueTitan("hungers", e, 0, 0.1); assert.equal(r.type, "base"); assert.equal(e.glopCount, 4, "Glop consommé : +5 tours, une charge par attaque"); assert.equal(e.glopStock, 0); assert.ok(!e.invincible);
+  r = api.attaqueTitan("hungers", e, 0, 0.1); assert.equal(r.type, "base"); assert.equal(e.glopCount, 4, "Glop consommé : +5 tours, une charge par attaque"); assert.equal(e.glopStock, 0); assert.equal(e.glopsUtilises, 1, "annoncé au serveur à la fin du combat"); assert.ok(!e.invincible);
   assert.equal(api.multDegatsJoueur("hungers", e, 0), 1, "vulnérable avec Glop");
   assert.equal(api.attaqueTitan("hungers", e, 2000, 0.8).type, "puissante", "tirage 1..5 : 4-5 puissante");
   lancer("hungers", e, 3, 0.1, 4000); assert.equal(e.glopCount, 0);

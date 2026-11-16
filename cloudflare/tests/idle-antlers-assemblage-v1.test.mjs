@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { neuf, agir, ajouter } from "./_antlers-aide.mjs";
+import { IDLE_EXILE_MESSAGES_V1 as MSG } from "../src/idle-antlers-v1.js";
 import { inventoryCapacityAdventureV1 } from "../src/idle-adventure-inventaire.js";
 
 /*
@@ -38,13 +39,21 @@ assert.ok(inventoryCapacityAdventureV1(neuf()) >= 24, "le sac de départ a au mo
   assert.equal(s.unlockFlags.titan9Unlocked, undefined);
   const avant = s.inventory.length;
   const r = agir(s, { action: "assembleExile", itemId: ids.faceExile });
-  assert.deepEqual(r.result, { assemble: true, special: false, debloque: true, recompenseSpeciale: false });
+  assert.deepEqual(r.result, { assemble: true, special: false, debloque: true, recompenseSpeciale: false, message: MSG.debloque });
   assert.equal(r.state.unlockFlags.titan9Unlocked, true);
   assert.equal(r.state.inventory.length, avant, "rien n'est consommé");
   /* Deuxième utilisation : simple message, rien ne change. */
   const r2 = agir(r.state, { action: "assembleExile", itemId: ids.faceExile });
-  assert.deepEqual(r2.result, { assemble: true, special: false, debloque: false, recompenseSpeciale: false });
+  assert.deepEqual(r2.result, { assemble: true, special: false, debloque: false, recompenseSpeciale: false, message: MSG.lecher });
   assert.equal(r2.state.unlockFlags.titan9SpecialReward, undefined);
+}
+/* Une pièce verrouillée n'est pas « retirable » (ItemController::consumeItem exige Equipment.removable) : l'utiliser ne fait rien. */
+{
+  const { s, ids } = monter();
+  s.inventory.find(x => x.id === ids.faceExile).locked = true;
+  const r = agir(s, { action: "assembleExile", itemId: ids.faceExile });
+  assert.deepEqual(r.result, { assemble: false, special: false, debloque: false, recompenseSpeciale: false });
+  assert.equal(r.state.unlockFlags.titan9Unlocked, undefined);
 }
 /* Chaque pièce manquante, une mauvaise case, une autre zone : rien. */
 for (const def of Object.keys(PLACES)) {
@@ -82,7 +91,7 @@ for (const def of Object.keys(PLACES)) {
   assert.equal(r.state.unlockFlags.titan9SpecialReward, undefined);
   const n = monter({ sac: true, flags: { titan9Unlocked: true } });
   const r2 = agir(n.s, { action: "assembleExile", itemId: n.ids.sackExile });
-  assert.deepEqual(r2.result, { assemble: true, special: true, debloque: false, recompenseSpeciale: true });
+  assert.deepEqual(r2.result, { assemble: true, special: true, debloque: false, recompenseSpeciale: true, message: MSG.recompenseSpeciale });
   assert.equal(r2.state.unlockFlags.titan9SpecialReward, true);
   assert.equal(r2.state.inventory.length, n.s.inventory.length);
 }

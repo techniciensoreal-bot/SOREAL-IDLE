@@ -1397,7 +1397,7 @@
           REG.idleTitanAttaquesV1=0;REG.idleExploderSurvivedV1=false;   /* succès « sans coup » et « explosif survécu » : compteurs de CE combat */
           try{if(window.SorealMobTypesV1)window.SorealMobTypesV1.reinit(maintenantTick);}catch(_e){}   /* types d'ennemis (mobs-types-v1.js) : poison et paralysie repartent de zéro */
           REG.idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf(fight.titanId,window.SorealTitanComportementsV1.niveauDeDifficulte(fight.titanTier)):null;
-          if(REG.idleTitanEtatV1){REG.idleTitanEtatV1.id=fight.titanId;REG.idleTitanEtatV1.cadenceMs=intervalleAttaqueEnnemiAdventureIdleV2_(fight);}
+          if(REG.idleTitanEtatV1){REG.idleTitanEtatV1.id=fight.titanId;REG.idleTitanEtatV1.cadenceMs=intervalleAttaqueEnnemiAdventureIdleV2_(fight);REG.idleTitanEtatV1.glopStock=Math.max(0,Math.floor(Number(fight.glopStock)||0));}   /* GLOP du sac au départ (envoyées par le serveur, IT HUNGERS seulement) */
           REG.idleTitanTickPrecV1=0;
           /*
            * Norman (2026-10-13) : « quand on active le mode manuel du combat, les CD de chacune des attaques doivent être en cours : si une a un CD de 20 s, elle ne sera disponible que 20 s après le début du combat. »

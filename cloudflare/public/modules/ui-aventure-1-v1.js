@@ -2141,7 +2141,7 @@
         const action=REG.idleAdventureResolutionPendingV2;
         actionMetaIdleV130_({
           action:'adventure',
-          adventure:{action:action,titanId:idleAdventureResolutionIdentiteV2.titanId,titanStartedAt:idleAdventureResolutionIdentiteV2.titanStartedAt,titanSansCoup:idleAdventureResolutionIdentiteV2.sansCoup===true,exploderSurvived:idleAdventureResolutionIdentiteV2.exploderSurvived===true}
+          adventure:{action:action,titanId:idleAdventureResolutionIdentiteV2.titanId,titanStartedAt:idleAdventureResolutionIdentiteV2.titanStartedAt,titanSansCoup:idleAdventureResolutionIdentiteV2.sansCoup===true,exploderSurvived:idleAdventureResolutionIdentiteV2.exploderSurvived===true,glopsUtilises:Math.max(0,Math.floor(Number(idleAdventureResolutionIdentiteV2.glopsUtilises)||0))}
         });
         if(metaOccupeIdleV130_()){
           REG.idleAdventureResolutionPendingV2='';
@@ -2231,7 +2231,7 @@
             'Vous avez vaincu '+nom+' !'
           );
           /* Succès (2026-11-14) : « vaincre un titan avant qu'il attaque » (aucune attaque du titan pendant ce combat) et « survivre à un ennemi explosif » (explosion survécue) : annoncés au serveur avec la victoire. */
-          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt),sansCoup:Boolean(fight.titanId)&&!(REG.idleTitanAttaquesV1>0),exploderSurvived:Boolean(REG.idleExploderSurvivedV1)};
+          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt),sansCoup:Boolean(fight.titanId)&&!(REG.idleTitanAttaquesV1>0),exploderSurvived:Boolean(REG.idleExploderSurvivedV1),glopsUtilises:REG.idleTitanEtatV1?(REG.idleTitanEtatV1.glopsUtilises||0):0};
           REG.idleExploderSurvivedV1=false;
           REG.idleAdventureResolutionPendingV2='resolveZoneFight';
           /* Titan vaincu : l'écran de combat joue son départ (il rapetisse en tournant) puis annonce son retour (modules/titans-combat-ecran-v1.js). */
@@ -2246,7 +2246,7 @@
             'enemy',
             'Vous avez été mis K.O. par '+nom+' ! Retour à la Safe Zone…'
           );
-          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt)};
+          idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt),glopsUtilises:REG.idleTitanEtatV1?(REG.idleTitanEtatV1.glopsUtilises||0):0};
           REG.idleAdventureResolutionPendingV2='loseZoneFight';
         }
 
