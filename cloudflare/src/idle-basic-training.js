@@ -14,6 +14,7 @@
 
 import { PLAFOND_HORS_LIGNE_SECONDES_V1 } from "./idle-hors-ligne-v1.js";
 
+/* baseValue : tableau _trainFactor du constructeur de Training (build 1260, lu dans le code du jeu) : 150, 1000, 5000, 20000, 80000, 250000 (une sauvegarde très ancienne garde 2000, 10000, 50000, 200000). */
 export const BASIC_TRAINING_V411=Object.freeze({
   version:411,
   maxLevelsPerSecond:50,
@@ -43,7 +44,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
       group:"attack",
       name:"Attaque puissante",
       baseCap:30000,
-      baseValue:2000,
+      baseValue:5000,
       prerequisite:"attaque_reguliere",
       prerequisiteLevel:10000
     }),
@@ -52,7 +53,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
       group:"attack",
       name:"Parade",
       baseCap:50000,
-      baseValue:10000,
+      baseValue:20000,
       prerequisite:"attaque_renforcee",
       prerequisiteLevel:15000
     }),
@@ -61,7 +62,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
       group:"attack",
       name:"Attaque perçante",
       baseCap:70000,
-      baseValue:50000,
+      baseValue:80000,
       prerequisite:"contre_palette",
       prerequisiteLevel:20000
     }),
@@ -70,7 +71,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
       group:"attack",
       name:"Attaque ultime",
       baseCap:100000,
-      baseValue:200000,
+      baseValue:250000,
       prerequisite:"percee_quai",
       prerequisiteLevel:25000
     }),
@@ -98,7 +99,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
       group:"defense",
       name:"Soin",
       baseCap:30000,
-      baseValue:2000,
+      baseValue:5000,
       prerequisite:"defense_renforcee",
       prerequisiteLevel:10000
     }),
@@ -107,7 +108,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
       group:"defense",
       name:"Bonus offensif",
       baseCap:50000,
-      baseValue:10000,
+      baseValue:20000,
       prerequisite:"recuperation",
       prerequisiteLevel:15000
     }),
@@ -116,7 +117,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
       group:"defense",
       name:"Charge",
       baseCap:70000,
-      baseValue:50000,
+      baseValue:80000,
       prerequisite:"boost_offensif",
       prerequisiteLevel:20000
     }),
@@ -125,7 +126,7 @@ export const BASIC_TRAINING_V411=Object.freeze({
       group:"defense",
       name:"Bonus ultime",
       baseCap:100000,
-      baseValue:200000,
+      baseValue:250000,
       prerequisite:"charge_logistique",
       prerequisiteLevel:25000
     })
