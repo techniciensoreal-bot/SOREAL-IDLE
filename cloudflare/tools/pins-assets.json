@@ -524,8 +524,8 @@
   "sha": "6e4cbf91707f4afc61ca635a8b7b15c2f0f3ae34"
  },
  "/modules/mobs-types-v1.js": {
-  "pin": 8,
-  "sha": "8606a9083d1edd548c179d7e0a8ea365f37a5e05"
+  "pin": 9,
+  "sha": "c99f4c8293b9b3793b8a06f2d2eafd8790f6d54d"
  },
  "/modules/money-pit-page-v1.js": {
   "pin": 33,
@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 277,
-  "sha": "53bd499c14aafd0f1d520806d3946b9da8a828bb"
+  "pin": 278,
+  "sha": "19bf80a2d298650c4feaac9b22667500b9177850"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -748,12 +748,12 @@
   "sha": "8b1943a4002d3e5db7912a15b1d60c3375a48225"
  },
  "/modules/titans-combat-ecran-v1.js": {
-  "pin": 17,
-  "sha": "f87ad5e0cceac093330b5250256e527aa2d9d495"
+  "pin": 18,
+  "sha": "af7023e6e01931c03174729554bd25b27f04936b"
  },
  "/modules/titans-comportements-v1.js": {
-  "pin": 12,
-  "sha": "079997d5c286a8639b40feff052a061ac1997b0e"
+  "pin": 13,
+  "sha": "8ab7eed0158f2d6959734b5dbe5163463780a22b"
  },
  "/modules/titans-v1.js": {
   "pin": 24,
@@ -816,8 +816,8 @@
   "sha": "214432df5a603f4e9ceacc9628bf8ce5258c5fd9"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 45,
-  "sha": "6e9314fddc53cae90715e90458cda94f171569f6"
+  "pin": 48,
+  "sha": "3285a2f803b905e2e65ae98b8a6266ac943cdc5f"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 63,
@@ -840,8 +840,8 @@
   "sha": "df71495e5381548e29eb2bb8b7a9569f2db7e4ce"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 53,
-  "sha": "77f074371311524056ab28b29cabe865fc33876d"
+  "pin": 55,
+  "sha": "fe65c7d0a9a775c663981253fb7fcecf4d58c716"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,

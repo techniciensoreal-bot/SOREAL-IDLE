@@ -285,9 +285,17 @@ function etats(f){
   var maintenant=Date.now(),api=window.SorealTitanComportementsV1,out=[];
   if(typeof window.__titanJoueurParalyseIdleV1__==='function'&&window.__titanJoueurParalyseIdleV1__(maintenant))out.push('<span class="tcv-etat mal">⚡ Paralysé</span>');
   if(e.saignements>0&&api&&api.regenRetireeSaignement)out.push('<span class="tcv-etat mal">🩸 Saignement ×'+e.saignements+' · régénération −'+Math.round(api.regenRetireeSaignement(f.titanId,e))+' PV/s</span>');
-  if(e.attaques>1)out.push('<span class="tcv-etat">📈 Force du titan +'+Math.round((e.attaques-1))+' %</span>');
-  if(e.affaibliJusqua>maintenant)out.push('<span class="tcv-etat mal">☁️ Tes dégâts sont réduits</span>');
+  var force=(e.gc>0&&String(f.titanId)!=='t4')?e.gc:e.attaques;   /* growCount du jeu (le Traître, IT HUNGERS... le font monter autrement que de 1 par attaque) */
+  if(force>1)out.push('<span class="tcv-etat">📈 Force du titan +'+Math.round(force-1)+' %</span>');
+  if(e.affaibliJusqua>maintenant||e.offenseFin>maintenant)out.push('<span class="tcv-etat mal">☁️ Tes dégâts manuels sont réduits</span>');
   if(e.draineJusqua>maintenant)out.push('<span class="tcv-etat mal">☁️ Tu subis plus de dégâts</span>');
+  if(e.aura===1||e.aura===1000)out.push('<span class="tcv-etat">🔥 Aura du titan active</span>');
+  if(e.aura===3)out.push('<span class="tcv-etat">🪨 Armure de métal : tes dégâts ÷3</span>');
+  if(e.aura===4)out.push('<span class="tcv-etat mal">⏰ Temps ralenti pour toi</span>');
+  if(e.aura===5)out.push('<span class="tcv-etat mal">🫧 Tes coups rebondissent sur toi</span>');
+  if(e.aura===6)out.push('<span class="tcv-etat mal">☁️ Ta régénération est inversée</span>');
+  if(e.genou)out.push('<span class="tcv-etat mal">🦵 Capacités ralenties ×3</span>');
+  if(e.bouclierCoups>0)out.push('<span class="tcv-etat">🛡️ Bouclier : '+e.bouclierCoups+' coup(s) annulé(s)</span>');
   return out.join('');
 }
 

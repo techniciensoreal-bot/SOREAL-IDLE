@@ -37,6 +37,7 @@
   function basicTrainingIdleV120_(){return REG.basicTrainingIdleV120_.apply(null,arguments);}
   function systemeMetaParIdIdleV130_(){return REG.systemeMetaParIdIdleV130_.apply(null,arguments);}
   function urlMobR2IdleV1_(){return REG.urlMobR2IdleV1_.apply(null,arguments);}
+  function titanApresCoupJoueurIdleV1_(){return REG.titanApresCoupJoueurIdleV1_.apply(null,arguments);}
   function restPvInitialIdleV1_(){return REG.restPvInitialIdleV1_.apply(null,arguments);}
   function pageInventaireIdleV28_(){return REG.pageInventaireIdleV28_.apply(null,arguments);}
 
@@ -1349,11 +1350,10 @@
         try{fx.jouer(cible,type,texte);}catch(e){}
       }
 
-      function titanMultDegatsJoueurIdleV1_(fight,maintenant){
+      function titanMultDegatsJoueurIdleV1_(fight,maintenant,idle){
         const api=window.SorealTitanComportementsV1;
-        return api&&REG.idleTitanEtatV1&&fight&&fight.titanId?api.multDegatsJoueur(fight.titanId,REG.idleTitanEtatV1,maintenant):1;
+        return api&&REG.idleTitanEtatV1&&fight&&fight.titanId?api.multDegatsJoueur(fight.titanId,REG.idleTitanEtatV1,maintenant,Boolean(idle)):1;
       }
-
       function titanCompetenceDesactiveeIdleV1_(competence){
         const api=window.SorealTitanComportementsV1;
         return Boolean(api&&REG.idleTitanEtatV1&&api.competenceDesactivee(REG.idleTitanEtatV1.id,REG.idleTitanEtatV1,competence));
@@ -1535,11 +1535,13 @@
         return a&&a.unlockFlags&&a.unlockFlags.purpleLiquidMaxed?1.5:1.4;
       }
 
-      function multiplicateurPowerManuelAdventureIdleV3_(maintenant,a){
+      function multiplicateurPowerManuelAdventureIdleV3_(maintenant,a,idle){
         let mult=1;
-        if(REG.idleAdventureManualStateV3.offensiveBuffUntil>maintenant)mult*=1.2;
-        if(REG.idleAdventureManualStateV3.ultimateBuffUntil>maintenant)mult*=1.3;
-        if(REG.idleAdventureManualStateV3.megaBuffUntil>maintenant)mult*=1.2;
+        if(!idle){
+          if(REG.idleAdventureManualStateV3.offensiveBuffUntil>maintenant)mult*=1.2;
+          if(REG.idleAdventureManualStateV3.ultimateBuffUntil>maintenant)mult*=1.3;
+          if(REG.idleAdventureManualStateV3.megaBuffUntil>maintenant)mult*=1.2;
+        }
         mult*=multiplicateurBeastPowerAdventureIdleV4_(a);
         return mult;
       }
@@ -1765,18 +1767,19 @@
           Math.max(0,idleNombre_(fight.mobToughness))*
           (def&&def.pierce?1-Math.max(0,Math.min(.99,def.pierce)):1);
         const avant=Math.max(0,idleNombre_(fight.monsterHp));
+        const multTitanManuel=titanMultDegatsJoueurIdleV1_(fight,maintenant);
         const degats=Math.min(
           avant,
           degatsJoueurAdventureIdleV2_(
             power,
             toughness,
-            multiplier*titanMultDegatsJoueurIdleV1_(fight,maintenant),
+            multiplier*multTitanManuel,
             facteurAleatoireDegatsAdventureIdleV2_()
           )
         );
         fight.monsterHp=Math.max(0,avant-degats);
         impactMonstreAdventureIdleV1_();
-        fxIdleV1_('mob',titanMultDegatsJoueurIdleV1_(fight,maintenant)===0?'invincible':({strong:'fort',piercing:'perce',ultimate:'ultime'})[def&&def.id]||'coup',idleEntier_(degats));
+        fxIdleV1_('mob',multTitanManuel===0?'invincible':({strong:'fort',piercing:'perce',ultimate:'ultime'})[def&&def.id]||'coup',idleEntier_(degats));
         /* Mode manuel, en vert -- distinct du bleu 'player' de l'attaque idle automatique (Norman, 2026-09-27). */
         ajouterLogAventureIdleV1_(
           'manual',
@@ -1787,6 +1790,7 @@
         if(fight.monsterHp<=0){
           terminerCombatAdventureLocalV2_(fight,true);
         }else{
+          if(fight.titanId)titanApresCoupJoueurIdleV1_(fight,({parry:2,regular:3,strong:4,piercing:5,ultimate:6})[def&&def.id]||3,degats,maintenant);
           pousserEtatVersRuntimePartageIdleV1_();
         }
         return true;
@@ -2066,7 +2070,7 @@
         );
       }
 
-      function degatsEnnemiAdventureIdleV2_(power,toughness,facteur,buffDefense){
+      function degatsEnnemiAdventureIdleV2_(power,toughness,facteur,buffDefense,multCoup){
         const p=Math.max(0,idleNombre_(power));
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-203 */
         const base=Math.max(
@@ -2078,8 +2082,9 @@
           0,
           Math.floor(
             base*
-            Math.max(.8,Math.min(1.2,idleNombre_(facteur)||1))/
-            Math.max(1,idleNombre_(buffDefense)||1)   /* PlayerController::takeDamage : le dégât est AUSSI divisé par le facteur de buff de défense (en plus de la Robustesse multipliée) */
+            Math.max(.8,Math.min(1.2,idleNombre_(facteur)||1))*
+            (multCoup==null?1:Math.max(0,idleNombre_(multCoup)))/
+            Math.max(1e-9,idleNombre_(buffDefense)||1)   /* PlayerController::takeDamage : le dégât est AUSSI divisé par le facteur de buff de défense (en plus de la Robustesse multipliée) */
           )
         );
       }
@@ -2158,22 +2163,24 @@
         );
         if(!(secondes>0))return;
 
-        const regenBaseJoueur=
-          Math.max(0,idleNombre_(a&&a.stats&&a.stats.regen))*
-          (REG.idleAdventureIdleModeV3?1.2:1);
+        const regenStatJoueur=
+          Math.max(0,idleNombre_(a&&a.stats&&a.stats.regen));
         const debutRegen=REG.idleAdventureFightLastRegenAtV2;
         const hyperSecondes=Math.max(
           0,
           (Math.min(jusqua,REG.idleAdventureManualStateV3.hyperRegenUntil)-debutRegen)/1000
         );
-        /* Saignement du titan (lu dans le jeu) : 2 PV/s de moins PAR cumul sur la régénération par seconde ; elle peut devenir négative (le joueur perd alors des PV). */
+        /* manageFight (lu dans le jeu) : (régénération - saignement) x durée, PUIS x5 (Hyper Regen, quel que soit le signe), PUIS x1,2 (Idle Mode) ; aura 6 : -(régénération - saignement) x durée, sans multiplicateur. Saignement : 2 PV/s par cumul. */
         const apiTitanRegen=window.SorealTitanComportementsV1;
-        const retraitSaignement=REG.idleTitanEtatV1&&apiTitanRegen&&fight.titanId?apiTitanRegen.regenRetireeSaignement(fight.titanId,REG.idleTitanEtatV1):0;
-        const regenNette=regenBaseJoueur-retraitSaignement;
+        const etatTitanRegen=REG.idleTitanEtatV1&&apiTitanRegen&&fight.titanId?REG.idleTitanEtatV1:null;
+        const retraitSaignement=etatTitanRegen?apiTitanRegen.regenRetireeSaignement(fight.titanId,etatTitanRegen):0;
+        const regenNette=regenStatJoueur-retraitSaignement;
         const regenJoueur=
-          regenNette*(secondes+(regenNette>0?hyperSecondes*4:0));
+          etatTitanRegen&&apiTitanRegen.regenJoueurInversee(etatTitanRegen)
+            ?-(regenNette*secondes)
+            :regenNette*(REG.idleAdventureIdleModeV3?1.2:1)*(secondes+hyperSecondes*4);
         const regenEnnemi=
-          Math.max(0,idleNombre_(fight.mobHpRegen));
+          Math.max(0,idleNombre_(fight.mobHpRegen))*(etatTitanRegen?apiTitanRegen.facteurRegenEnnemi(etatTitanRegen):1);
 
         if(regenJoueur>0){
           fight.playerHp=Math.min(
