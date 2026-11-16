@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
+import { ITOPOD_AUTOATTACK_REGEN_V1, itopodCycleV1, itopodDrawAiV1 } from "./idle-itopod-combat-v1.js";
 import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
 import { span, enveloppeSpan } from "./idle-spans-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
@@ -811,7 +812,7 @@ export function diggerViewV1(state){
  *    20 au-delà du palier 20 ; EXP du palier = 1, 2, puis (palier-1)(palier-2)+2), PP de première
  *    atteinte des étages multiples de 10 ;
  *  - par défaut (départ/fin non réglés) : montée jusqu'à l'« étage optimal » (le plus haut où un coup suffit).
- * Non modélisé : chute de Boosts (14 %, niveau 1), MacGuffins, mort du joueur (les dégâts subis).
+ * Ennemis qui attaquent et mort du joueur : en ligne seulement, quand un étage du parcours demande 1,8 s de coups ou plus (idle-itopod-combat-v1.js, towerBoucleCombatV1).
  */
 const TOWER_MAX_FLOOR_V1 = 1600;
 
@@ -881,7 +882,8 @@ function advanceTowerV1(state, seconds, context) {
 
   const gear = idleEquipementEffectifLectureV1(state);   /* lecture seule (équipement partagé et gelé) */
   const bonuses = idleNguBonusesLectureV1(state);
-  const powerRaw = idleAdventureCombatStatsV1(gear, context, bonuses).power;
+  const combatStats = idleAdventureCombatStatsV1(gear, context, bonuses);
+  const powerRaw = combatStats.power;
   /* Pour l'écran (Norman, 2026-10-04 : « les ennemis doivent prendre des coups, la vie descend progressivement quand on n'est pas assez fort pour les tuer d'un coup ») : coups nécessaires pour tuer un ennemi de l'étage en cours
      (towerHitsV1, la même formule que la progression), délai de réapparition et intervalle entre deux coups. 0 = pas assez de Power pour avancer. */
   d.hitsParKill = 0;
@@ -974,7 +976,21 @@ function advanceTowerV1(state, seconds, context) {
 
   let time = seconds + d.killTime;
   let guard = 0;
-  while (guard++ < 20000) {
+  /* Les ennemis de l'ITOPOD attaquent (idle-itopod-combat-v1.js, lu dans le jeu le 2026-11-16) : en ligne (synchro courte), si un étage du parcours demande 1,8 s de coups ou plus (premier coup de l'ennemi), chaque kill est simulé avec les PV du joueur ; sinon (un coup tue avant le premier coup de l'ennemi) le calcul par lots ci-dessous est exact. Hors ligne le jeu ne simule aucun combat (kills = secondes / (1 + réapparition)) : calcul par lots. */
+  const hpMax = Math.max(0, num(combatStats.hp, 0));
+  const regenJoueur = Math.max(0, num(combatStats.regen, 0)) * ITOPOD_AUTOATTACK_REGEN_V1;
+  const etageLePlusHaut = auto ? optimal : end;
+  const combatNecessaire = !shifter && seconds < TOWER_COMBAT_MAX_SECONDS_V1 && hpMax > 0 && interval * towerHitsV1(power, idleBonus, etageLePlusHaut) >= TOWER_FIRST_STRIKE_SECONDS_V1;
+  if (combatNecessaire) {
+    if (!Number.isFinite(d.hp)) d.hp = hpMax;
+    d.hp = clamp(d.hp, 0, hpMax);
+    time = towerBoucleCombatV1({ d, time, auto, start, end, optimal, power, idleBonus, toughness: Math.max(0, num(combatStats.toughness, 0)), interval, respawn, hpMax, regenJoueur, applyKills, reachFloor });
+  } else if (Number.isFinite(d.hp)) {
+    /* Hors combat les PV se régénèrent seuls (jamais au-delà du maximum). */
+    d.hp = clamp(d.hp + regenJoueur * seconds, 0, hpMax);
+    d.fightAi = null;
+  }
+  while (!combatNecessaire && guard++ < 20000) {
     if (shifter && towerAppliquerEtageOptimalV1(d, optimal)) {
       start = d.startFloor;
       end = d.endFloor;
@@ -1020,13 +1036,57 @@ function advanceTowerV1(state, seconds, context) {
       reachFloor(d.floor);
     }
   }
-  d.killTime = Math.min(time, killTimeAt(d.floor));
+  d.killTime = combatNecessaire ? Math.min(time, TOWER_COMBAT_MAX_KILLTIME_V1) : Math.min(time, killTimeAt(d.floor));
   const pp = Math.floor(d.ppProgress / 1e6);
   if (pp > 0) {
     d.ppProgress -= pp * 1e6;
     state.currencies.pp += pp;
   }
   tower.level = d.floor;
+}
+
+/* Combat simulé seulement en ligne (synchro de moins de 5 minutes, même seuil que le farm hors ligne) ; premier coup de l'ennemi = 1,5 x 1,2 s (EnemyAI::Update). */
+const TOWER_COMBAT_MAX_SECONDS_V1 = 5 * 60;
+const TOWER_FIRST_STRIKE_SECONDS_V1 = 1.8;
+/* Temps de cycle conservé entre deux synchros quand le joueur ne peut plus tuer ni mourir : borné pour garder la simulation courte. */
+const TOWER_COMBAT_MAX_KILLTIME_V1 = 5 * 60;
+
+/*
+ * Boucle de combat de l'ITOPOD en ligne : un cycle (réapparition + combat) à la fois, avec les PV du joueur (d.hp) et l'IA tirée de l'ennemi (d.fightAi, gardée jusqu'à la fin du cycle).
+ * Un kill compte comme dans le calcul par lots ; la mort du joueur le renvoie à l'étage de départ (le compteur de 10 kills n'est pas remis à zéro) et vide ses PV (playerDeath du jeu). Renvoie le temps restant.
+ */
+function towerBoucleCombatV1(c) {
+  const { d, auto, start, end, optimal } = c;
+  let time = c.time;
+  for (let garde = 0; garde < 5000; garde++) {
+    if (auto) {
+      if (d.floor > optimal) d.floor = optimal;
+    } else if (d.floor < start || d.floor > end) {
+      d.floor = start;
+      d.killsOnFloor = 0;
+    }
+    if (!Number.isInteger(d.fightAi)) d.fightAi = itopodDrawAiV1();
+    const r = itopodCycleV1({ floor: d.floor, ai: d.fightAi, power: c.power, toughness: c.toughness, idleMult: c.idleBonus, interval: c.interval, hp: d.hp, hpMax: c.hpMax, regen: c.regenJoueur, respawn: c.respawn, tMax: time });
+    if (!r.complete) break;
+    time -= r.t;
+    d.hp = r.hp;
+    d.fightAi = null;
+    if (r.outcome === "death") {
+      d.deaths = Math.max(0, int(d.deaths, 0)) + 1;
+      d.floor = auto ? 0 : start;
+      continue;
+    }
+    c.applyKills(1, d.floor);
+    d.killsOnFloor += 1;
+    if (d.killsOnFloor >= 10) {
+      d.killsOnFloor = 0;
+      if (auto) d.floor = Math.min(optimal, d.floor + 1);
+      else if (d.floor >= end) d.floor = start;
+      else d.floor += 1;
+      c.reachFloor(d.floor);
+    }
+  }
+  return time;
 }
 
 /*
