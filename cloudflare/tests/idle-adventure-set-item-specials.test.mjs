@@ -24,7 +24,8 @@ import { normalizeIdleNguState, idleNguBonuses } from "../src/idle-ngu-progressi
   for (const slot of ["head", "chest", "legs", "boots", "weapon", "tie", "paperweight"]) {
     for (const [type, , , max100] of SET_ITEM_SPECIALS_V1[`jake:${slot}`] || []) totaux[type] = (totaux[type] || 0) + max100;
   }
-  const attendu = { energyCapPct: 150.92, energyPowerPct: 825.6, goldDropsPct: 400, magicCapPct: 47.12, magicPowerPct: 392.64, nguSpeedPct: 120 };
+  /* Alignement sur le code du jeu (2026-11-16) : A Regular Tie, Magic Power 108,2 / 216,4 (la page wiki donnait 108,12 / 216,24 : total 392,64) */
+  const attendu = { energyCapPct: 150.92, energyPowerPct: 825.6, goldDropsPct: 400, magicCapPct: 47.12, magicPowerPct: 392.8, nguSpeedPct: 120 };
   for (const [type, valeur] of Object.entries(attendu)) {
     assert.ok(Math.abs((totaux[type] || 0) - valeur) < 0.011, `${type} : ${totaux[type]} != ${valeur}`);
   }

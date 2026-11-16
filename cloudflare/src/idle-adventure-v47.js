@@ -6,7 +6,8 @@ import { idleTheEndNormalizeV1, idleTheEndGrantV1, idleTheEndHasV1, idleTheEndSn
 import { IDLE_ADVENTURE_TITANS, IDLE_ADVENTURE_ZONES } from "./idle-adventure-zones.js";
 import { I, N, X, __perfCompteursV1 } from "./idle-adventure-base.js";
 import { IDLE_ADVENTURE_COFFRE_COEURS_V1, IDLE_ADVENTURE_COFFRE_LOOTY_V1, IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1, IDLE_ADVENTURE_COFFRE_TITAN_OBJETS_V1, accessorySlotsCapacityAdventureV1, add, applyBoost, coffreDeposer, coffreRetirer, cube, discard, equip, idleAdventureCoffreSlotsV1, idleAdventureCubeSoftcapV1, inventoryCapacityAdventureV1, inventoryUsedAdventureV1, merge, reorderInventoryAdventureV2, secondeArmeDebloqueeAdventureV1, setLockAdventureV1, syncInventorySlotsAdventureV2, trashPutAdventureV1, trashRecoverAdventureV1, unequip } from "./idle-adventure-inventaire.js";
-import { IDLE_ADVENTURE_ITEM_CATALOG_V1, SETS, SETS_OBJETS_V1, SPECIALS, defById } from "./idle-adventure-sets.js";
+import { IDLE_ADVENTURE_ITEM_CATALOG_V1, SETS, SETS_OBJETS_V1, SPECIALS, defById, wikiItemIdAdventureV1 } from "./idle-adventure-sets.js";
+import { idleBossRequisEchelleV1, idleBossRequisFacteurV1 } from "./idle-adventure-boss-requis-v1.js";
 import { base, idleAdventureBaseStatsV1, idleAdventureBoostManquantV1, idleAdventureNiveauEstMaxV1, idleAdventureObjetPleinementMaxeV1, idleAdventureSpecialBaseStatsV1, idleAdventureSpecialsListV1, item, normalizeIdleAdventureStateV47, special } from "./idle-adventure-objets.js";
 import { exileUtiliserPieceV1 } from "./idle-antlers-v1.js";
 import { consume, consumeAdventureSkillItemV1, fluxTitanV1, idleAdventureCubeTierV1, idleAdventureSpecialsByTypeV1, loseZoneFight, resolveZoneFight, setAutoKillTitanV1, setAutoKillTitansV1, setBeastModeAdventureV1, startTitanFight, startZoneFight, titan, titanCombatSnapshotV1, titanDifficulteOkV1, titanFound, titanGate, transformAdventureItemV1, useMove69AdventureV1, useUnlockItem } from "./idle-adventure-combat.js";
@@ -173,7 +174,7 @@ export function idleAdventureEquipmentStatsV47(raw){
 /*
  * Clé du mémo d'équipement (plan design/ARCHITECTURE-CIBLE.md, étape 1 ; Norman, 2026-11-05 : « un calcul qui met trop de temps » : 132 clés de 60 Ko par action, 1 ms chacune) : SEULES les données que le calcul lit entrent dans la clé :
  * l'équipement porté (identifiants), les objets PORTÉS (ceux de l'inventaire dont l'identifiant est équipé, seconde arme comprise : le calcul filtre l'inventaire de cette façon, la normalisation ne regarde que les armes parmi les accessoires),
- * dualWieldRatio, setRewards, permanent, cube et idleAttackBonus. Le reste de l'état d'Aventure (sac, coffre, liste d'objets, zone, filtres…, ~50 Ko) ne change jamais ce résultat : preuve par mutation de CHAQUE champ de l'état de
+ * dualWieldRatio, bossEffectif (échelle bossRequired des objets) et res3Actif (condition du set Evidence), 2026-11-16, setRewards, permanent, cube et idleAttackBonus. Le reste de l'état d'Aventure (sac, coffre, liste d'objets, zone, filtres…, ~50 Ko) ne change jamais ce résultat : preuve par mutation de CHAQUE champ de l'état de
  * référence (idle-equipement-cle-v1.test.mjs) et SOREAL_IDLE_VERIF_BONUS=1 (chaque réutilisation du mémo est comparée à un recalcul).
  */
 export function idleAdventureCleEquipementV1(raw){
@@ -184,7 +185,7 @@ export function idleAdventureCleEquipementV1(raw){
   /* La normalisation rejoue checkSets : les récompenses de sets dépendent de la liste d'objets (itemList), des sets complétés et du niveau de CHAQUE objet du sac (record) : ils entrent dans la clé, le sac sous forme compacte (définition, niveau). */
   /* Audit 2026-11-12 : sac à plat (définition, niveau, définition, niveau…) au lieu d'une paire par objet (450 petits tableaux par appel) ; ids dans un Set (au lieu de includes par objet). La clé change de FORME seulement : elle reste fonction de ce que le calcul lit (idle-equipement-cle-v1). */
   const sac=[];if(Array.isArray(raw.inventory))for(const x of raw.inventory){if(x){sac.push(x.definitionId,x.level)}else sac.push(0,0)}
-  return JSON.stringify([raw.version,e,portes,raw.dualWieldRatio,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac]);
+  return JSON.stringify([raw.version,e,portes,raw.dualWieldRatio,raw.bossEffectif,raw.res3Actif,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac]);
 }
 function idleAdventureEquipmentStatsMemoV47(raw,lecture){
   let cle=null;
@@ -220,8 +221,17 @@ function idleAdventureEquipmentStatsCalculV47(raw){
   /* Seconde arme : ses stats comptent à hauteur de dualWieldRatio (0,05 x niveaux des souhaits 28 et 45). */
   const arme2=s.equipment.weapon2&&!ids.includes(s.equipment.weapon2)?s.inventory.find(x=>x.id===s.equipment.weapon2):null;
   const ratio2=arme2?Math.min(1,Math.max(0,N(s.dualWieldRatio))):0;
-  const basePower=equipped.reduce((a,x)=>a+N(x.power),0)+ratio2*N(arme2&&arme2.power)+N(s.setRewards.adventurePower);
-  const baseToughness=equipped.reduce((a,x)=>a+N(x.toughness),0)+ratio2*N(arme2&&arme2.toughness)+N(s.setRewards.adventureToughness);
+  /*
+   * Mise à l'échelle par le boss atteint (alignement sur le jeu, 2026-11-16 : equipAttackBonus 3604, equipDefenseBonus 3605, equipSpecBonus 3606) : chaque objet équipé donne
+   * floor(valeur x min(1, boss effectif / bossRequired)) pour Power et Toughness (et chaque special, voir idleAdventureSpecialsByTypeV1) ; HP et Regen en sont dérivés (x3 et x0,03).
+   * Boss effectif = boss tués dans le Rebirth en cours + 301 par difficulté (state.adventure.bossEffectif, posé par la synchro NGU) ; absent = aucune échelle.
+   */
+  const be=Number.isFinite(s.bossEffectif)?s.bossEffectif:null;
+  const echelle=o=>idleBossRequisFacteurV1(o&&(o.wikiItemId||wikiItemIdAdventureV1(o.definitionId)),be);
+  const pw=o=>idleBossRequisEchelleV1(N(o&&o.power),echelle(o));
+  const tg=o=>idleBossRequisEchelleV1(N(o&&o.toughness),echelle(o));
+  const basePower=equipped.reduce((a,x)=>a+pw(x),0)+ratio2*pw(arme2)+N(s.setRewards.adventurePower);
+  const baseToughness=equipped.reduce((a,x)=>a+tg(x),0)+ratio2*tg(arme2)+N(s.setRewards.adventureToughness);
   /*
    * hp/regen par objet (2026-09-15, Norman : "les items qu'on loot...
    * doivent procurer de la regen de vie") — dérivés directement de
@@ -230,8 +240,8 @@ function idleAdventureEquipmentStatsCalculV47(raw){
    * ainsi TOUT objet déjà en inventaire (créé avant ce correctif, donc
    * sans ces champs) en bénéficie immédiatement, sans migration de save.
    */
-  const equippedHp=equipped.reduce((a,x)=>a+N(x.power)*3,0)+ratio2*N(arme2&&arme2.power)*3;
-  const equippedRegen=equipped.reduce((a,x)=>a+N(x.toughness)*.03,0)+ratio2*N(arme2&&arme2.toughness)*.03;
+  const equippedHp=equipped.reduce((a,x)=>a+pw(x)*3,0)+ratio2*pw(arme2)*3;
+  const equippedRegen=equipped.reduce((a,x)=>a+tg(x)*.03,0)+ratio2*tg(arme2)*.03;
   /*
    * La stat d'équipement doit rester canonique et indépendante de la zone.
    * Exemple réel signalé : un pantalon +0,03 HP Regen affichait +0,15 en
@@ -240,8 +250,8 @@ function idleAdventureEquipmentStatsCalculV47(raw){
    * propriété de l'équipement : il est désormais appliqué uniquement par
    * le tick client de repos.
    */
-  const specialsByType=idleAdventureSpecialsByTypeV1(equipped);
-  if(ratio2>0)for(const [type,value] of Object.entries(idleAdventureSpecialsByTypeV1([arme2])))specialsByType[type]=N(specialsByType[type])+ratio2*N(value);
+  const specialsByType=idleAdventureSpecialsByTypeV1(equipped,be);
+  if(ratio2>0)for(const [type,value] of Object.entries(idleAdventureSpecialsByTypeV1([arme2],be)))specialsByType[type]=N(specialsByType[type])+ratio2*N(value);
   const cubePowerContribution=idleAdventureCubeSoftcapV1(s.cube.power,basePower);
   const cubeToughnessContribution=idleAdventureCubeSoftcapV1(s.cube.toughness,baseToughness);
   return{

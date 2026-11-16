@@ -12,7 +12,8 @@ import { definitionEquipmentDropAdventureV2, idleAdventureDropChanceV2, idleAdve
 import { C, I, MAX, N, UNLOCK_PAR_OBJET_V1, X, unlockMap } from "./idle-adventure-base.js";
 import { add, cube, equip, inventoryCapacityAdventureV1, inventoryUsedAdventureV1, syncInventorySlotsAdventureV2 } from "./idle-adventure-inventaire.js";
 import { boost, idleAdventureNiveauEstMaxV1, idleAdventureSpecialsListV1, special } from "./idle-adventure-objets.js";
-import { ITEM_EVOLUTIONS_V1, SETS, SETS_OBJETS_V1 } from "./idle-adventure-sets.js";
+import { ITEM_EVOLUTIONS_V1, SETS, SETS_OBJETS_V1, wikiItemIdAdventureV1 } from "./idle-adventure-sets.js";
+import { idleBossRequisEchelleV1, idleBossRequisFacteurV1 } from "./idle-adventure-boss-requis-v1.js";
 
 /*
  * Correctif 2026-09-14 (Norman) :
@@ -1077,11 +1078,13 @@ export function idleAdventureCubeTierV1(cube){
  * (dropMultiplier notamment, déjà câblé sur specials.dropChancePct) captent
  * automatiquement la contribution des objets sans changement de leur côté.
  */
-export function idleAdventureSpecialsByTypeV1(equipped){
+export function idleAdventureSpecialsByTypeV1(equipped,bossEffectif=null){
   const out={};
   const add=(type,value)=>{if(!type)return;out[type]=N(out[type])+N(value)};
   for(const o of equipped){
-    for(const sv of idleAdventureSpecialsListV1(o))add(sv.type,sv.value);
+    /* Jeu (equipSpecBonus 3606) : chaque special vaut floor(points x min(1, boss effectif / bossRequired)) ; points = valeur x ratio de l'objet. */
+    const f=idleBossRequisFacteurV1(o&&(o.wikiItemId||wikiItemIdAdventureV1(o.definitionId)),bossEffectif);
+    for(const sv of idleAdventureSpecialsListV1(o))add(sv.type,f<1&&sv.ratio>0?idleBossRequisEchelleV1(Math.round(sv.value*sv.ratio*1e6)/1e6,f)/sv.ratio:sv.value);
   }
   return out;
 }

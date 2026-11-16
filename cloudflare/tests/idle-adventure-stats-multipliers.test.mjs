@@ -90,6 +90,7 @@ const neuf = () => normalizeIdleNguState({}, ctx, 0);
 // Specials d'équipement : tous les types sont exposés (Respawn, Resource 3...)
 {
   let a = neuf().adventure;
+  a.bossEffectif = 100; /* l objet a un bossRequired de 100 (jeu, equipSpecBonus) : sans 100 boss, ses specials sont mis à l échelle */
   a = applyIdleAdventureActionV47(a, { action: "addItem", definitionId: "uug:ringGreed", level: 0 }, { bosses: 100 }, 1).state;
   const id = a.inventory.find((i) => i.definitionId === "uug:ringGreed").id;
   a = applyIdleAdventureActionV47(a, { action: "equip", id, slot: "accessory" }, { bosses: 100 }, 1).state;

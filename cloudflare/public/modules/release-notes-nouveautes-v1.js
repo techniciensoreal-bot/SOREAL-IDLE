@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Une longue chaîne d’objets cachés du jeu a été ajoutée côté moteur (l’interface pour l’assembler arrive ensuite).",
-    "Titans : les capacités des titans suivants (Walderp, la Bête, le Nerd, la Marraine, l’Exilé, IT HUNGERS, le Homard, l’Amalgame, Tippi, le Traître) suivent maintenant le jeu, et la régénération, les nuages, les explosifs et les paralysies sont corrigés d’après le code du jeu."
+    "Équipement, d’après le code du jeu : chaque objet ne donne la totalité de ses stats qu’une fois un certain boss atteint dans le Rebirth en cours (avant, la part proportionnelle), plusieurs bonus d’objets ont été corrigés, et un set demande maintenant que la troisième ressource soit active."
   ] };
 })();

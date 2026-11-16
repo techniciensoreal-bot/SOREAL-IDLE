@@ -63,7 +63,7 @@ mega:{name:"Mega Set",source:"mega",slots:["head","chest","legs","boots","weapon
  *   remplacement de pièce qui n'existe pas encore, omis.
  * - choco : la récompense réelle du wiki ("débloque MacGuffins/Bar Bar")
  *   dépend ENTIÈREMENT du système MacGuffins (non construit) — aucun
- *   nombre à mettre ici sans l'inventer, reward volontairement vide.
+ *   nombre à mettre ici sans l'inventer, reward vide. Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) : MacGuffins, accessoires rares et kills x0,9 par MacGuffin via completedSets.choco (idle-adventure-butin.js, idle-macguffins-v1.js).
  */
 beardverse:{name:"Beardverse Set",source:"beardverse",slots:["head","chest","legs","boots","weapon"],p:175000,t:111000,reward:{experience:8000}},
 badly:{name:"Badly Drawn Set",source:"badly",slots:["head","chest","legs","boots","weapon"],p:1000000,t:530000,reward:{experience:30000,ap:5000,boostEffectiveness:.2}},
@@ -184,8 +184,7 @@ typo:{name:"Typo Set",source:"typozone",slots:["head","chest","legs","boots","we
  * Card/A handful of Krazy Bonez, 2 accessoires). "Bonus for Completion:
  * 10% Faster Major Quests! + 3 Beast Butters" -- Questing (statut :
  * documenté mais jamais implémenté en mécanique jouable) et Beast Mode
- * (jamais construit chez SOREAL) sont tous deux hors périmètre : reward
- * volontairement vide. Total p/t = 585 200 000 / 278 000 000 (somme des
+ * (jamais construit chez SOREAL) étaient alors hors périmètre : reward vide. Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) : Major Quests 10 % plus courtes et 3 Beast Butter via completedSets.fad (questing-v1.js). Total p/t = 585 200 000 / 278 000 000 (somme des
  * 7 pièces "Stats Max").
  */
 fad:{name:"Fad Set",source:"fadlands",slots:["head","chest","legs","boots","weapon","pokeymanCard","krazyBonez"],p:585200000,t:278000000,reward:{}},
@@ -199,7 +198,7 @@ fad:{name:"Fad Set",source:"fadlands",slots:["head","chest","legs","boots","weap
  * Attack! (5.01x -> 7.01x)" -- "Ultimate Attack" est une compétence
  * ITOPOD/combat discrète qui n'existe pas dans le modèle de combat
  * SOREAL (attaque/défense continues, jamais de multiplicateur d'attaque
- * spéciale) : reward volontairement vide. Total p/t = 913 800 000 /
+ * spéciale) : reward vide. Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) : Ultimate Attack +2 par completedSets.jrpg (ui-aventure-1-v1.js). Total p/t = 913 800 000 /
  * 442 000 000 (somme des 7 pièces "Stats Max").
  */
 jrpg:{name:"JRPG Set",source:"jrpgville",slots:["head","chest","legs","boots","weapon","zipper","wig"],p:913800000,t:442000000,reward:{}},
@@ -211,7 +210,7 @@ jrpg:{name:"JRPG Set",source:"jrpgville",slots:["head","chest","legs","boots","w
  * accessoires). "Bonus for Completion: +5 Max Deck Size" -- système
  * Cards (débloqué par "A Still-Beating Heart", drop garanti de l'Exile,
  * cf. commentaire IDLE_ADVENTURE_TITANS ci-dessus) jamais construit chez
- * SOREAL : reward volontairement vide. Total p/t = 2 227 200 000 /
+ * SOREAL : reward vide. Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) : +5 de taille de deck par IDLE_CARDS_SETS_V1.rad (idle-cards-v1.js). Total p/t = 2 227 200 000 /
  * 1 100 000 000 (somme des 7 pièces "Stats Max").
  */
 rad:{name:"Rad Set",source:"radlands",slots:["head","chest","legs","boots","weapon","notDrugs","gloveOfPower"],p:2227200000,t:1100000000,reward:{}},
@@ -233,7 +232,7 @@ backtoschool:{name:"Back To School Set",source:"backtoschool",slots:["head","che
  * zone!" -- formulation qualitative sans mécanique ni magnitude précisée
  * (double tirage complet ? un item garanti en plus ? le wiki ne le
  * détaille pas) : jamais implémenté sur une supposition, reward
- * volontairement vide (règle n°1, AGENTS.md). Le bonus post-complétion
+ * vide (règle n°1, AGENTS.md). Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) : le code du jeu (zone33Drop) donne l'objet supplémentaire, branché via completedSets.western (idle-adventure-butin.js). Le bonus post-complétion
  * "A 9mm Beretta" (drop supplémentaire "if Western (set) complete") est
  * un 8e objet de loot hors des 7 pièces de complétion -- même statut que
  * les autres rares multi-zones (Ascended Pendant, Sir Looty) déjà
@@ -254,8 +253,7 @@ western:{name:"Western Set",source:"westworld",slots:["head","chest","legs","boo
  * Baguette comme second slot arme distinct -- déjà le même principe que
  * les 2 slots accessoires des sets précédents, juste appliqué à une arme
  * au lieu d'un bijou. "Bonus for Completion: Faster Cooks!!" -- le
- * système Cooking n'existe pas du tout chez SOREAL : reward
- * volontairement vide. Total p/t = 16 524 000 000 / 5 080 000 000
+ * système Cooking n'existait pas chez SOREAL : reward vide. Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) : durée de repas réduite par breadSetReductionHours (idle-cooking-v1.js). Total p/t = 16 524 000 000 / 5 080 000 000
  * (somme des 8 pièces "Stats Max").
  */
 bread:{name:"Bread Set",source:"breadverse",slots:["head","chest","legs","boots","weapon","baguette","creamPie","yeast"],p:16524000000,t:5080000000,reward:{}},
@@ -267,7 +265,7 @@ bread:{name:"Bread Set",source:"breadverse",slots:["head","chest","legs","boots"
  * accessoires (A Bit of White Powder, Some Rolling Paper). "weapon" =
  * A Rusty Old Sabre, "vinylShard" = second slot arme (même principe que
  * "baguette" pour Bread). "Bonus for Completion: Less crappy cards!" --
- * système Cards non construit chez SOREAL : reward volontairement vide.
+ * système Cards non construit chez SOREAL à l'époque : reward vide. Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) : rareté minimale des cartes par rarityMin (idle-cards-v1.js).
  * Total p/t = 22 076 601 000 / 6 820 000 000 (somme des 8 pièces
  * "Stats Max").
  */
@@ -310,8 +308,7 @@ construction:{name:"Construction Set",source:"construction",slots:["head","chest
  * Duck Shorts/Duck Slippers) + 2 accessoires (Some Duck-t Tape, A Duck
  * Caller). "weapon" = The Zapper (la plus grosse Power), "shotgun" =
  * second slot arme. "Bonus for Completion: +6% Mayo and Card Speed!" --
- * Mayo et Cards n'existent ni l'un ni l'autre chez SOREAL : reward
- * volontairement vide. Total p/t = 123 080 000 000 / 32 100 000 000
+ * Mayo et Cards n'existaient ni l'un ni l'autre chez SOREAL : reward vide. Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) : cartes et mayo x1,06 par IDLE_CARDS_SETS_V1.duck. Total p/t = 123 080 000 000 / 32 100 000 000
  * (somme des 8 pièces "Stats Max").
  */
 duck:{name:"Duck Set",source:"duckduck",slots:["head","chest","legs","boots","weapon","shotgun","ducktTape","duckCaller"],p:123080000000,t:32100000000,reward:{}},
@@ -354,7 +351,7 @@ pirate:{name:"Pirate Set",source:"aethereansea",slots:["head","chest","legs","bo
  * Même convention que Bread/Disco pour les sets à 2 armes : "weapon" porte
  * l'arme à la plus grosse Power, la seconde arme a son propre slot.
  * Bonus de complétion : AUCUN n'est exprimable avec les champs setRewards
- * existants, donc reward:{} (jamais approximé, règle n°1 AGENTS.md) :
+ * existants, donc reward:{} (jamais approximé, règle n°1 AGENTS.md). Mise à jour 2026-11-16 (audit du code du jeu) : l'effet est désormais branché ailleurs, par completedSets, et `reward` reste {} à dessein (rien à verser dans setRewards) pour Greasy Nerd (macguffins-v1.js), Mobster (IDLE_QUEST_MOBSTER_SET_QP_PCT_V1), Space (idle-cooking-v1.js), Rock et Amalgamate (IDLE_CARDS_SETS_V1) ; seul Exile reste sans effet (drops Sack/Face of the Exile non portés) :
  * - Greasy Nerd : "All MacGuffins drop 1 level higher!"
  * - Mobster : "+15% QP Gain"
  * - Exile : "Unlocks something secret!" (drops Sack/Face of the Exile, consommables absents)
@@ -684,8 +681,8 @@ wanderersCane:{name:"Wanderer's Cane",zone:"",slot:"weapon",dropLevel:10,p:17000
 shrunkenVoodooDoll:{name:"Shrunken Voodoo Doll",zone:"",slot:"accessory",dropLevel:4,p:66666,t:66666,sBase:200,sMax:200,sType:"beardSpeedPct",sExtra:[{type:"nguSpeedPct",base:200,max0:200,max100:400}]},
 // wiki : "A Priceless Van-Gogh Painting" (lvl 4, Titan The Beast Hard+) — Power/Toughness Max at lvl 0 = 30 000/30 000. Specials : Energy Cap (200/200/400%), Gold Drops (3000/3000/6000%), Magic Cap (200/200/400%).
 pricelessVanGoghPainting:{name:"A Priceless Van-Gogh Painting",zone:"",slot:"accessory",dropLevel:4,p:30000,t:30000,sBase:200,sMax:200,sType:"energyCapPct",sExtra:[{type:"goldDropsPct",base:3000,max0:3000,max100:6000},{type:"magicCapPct",base:200,max0:200,max100:400}]},
-// wiki : "A Small Gerbil" (lvl 4, Titan The Beast Brutal) — Power/Toughness Max at lvl 0 = 100 000/100 000. Specials : Energy Power (2000/6000/12000%), Magic Cap (200/600/1200%), Magic Power (2000/6000/12000%).
-smallGerbil:{name:"A Small Gerbil",zone:"",slot:"accessory",dropLevel:4,p:100000,t:100000,sBase:2000,sMax:6000,sType:"energyPowerPct",sExtra:[{type:"magicCapPct",base:200,max0:600,max100:1200},{type:"magicPowerPct",base:2000,max0:6000,max100:12000}]},
+// Alignement sur le code du jeu (2026-11-16, ItemNameDesc::constructItemInfo id 195 : valeur de départ = plafond, 6000 / 6000 / 600) ; wiki : "A Small Gerbil" (lvl 4, Titan The Beast Brutal) — Power/Toughness Max at lvl 0 = 100 000/100 000. Specials : Energy Power (2000/6000/12000%), Magic Cap (200/600/1200%), Magic Power (2000/6000/12000%).
+smallGerbil:{name:"A Small Gerbil",zone:"",slot:"accessory",dropLevel:4,p:100000,t:100000,sBase:6000,sMax:6000,sType:"energyPowerPct",sExtra:[{type:"magicCapPct",base:600,max0:600,max100:1200},{type:"magicPowerPct",base:6000,max0:6000,max100:12000}]},
 /*
  * Compétences Adventure avancées — objets de déblocage NGU.
  * - Red Liquid : lvl 5, rare drop du Grand Corrupted Tree, consommé pour
@@ -723,11 +720,11 @@ ascendedForestPendant:{name:"Ascended Forest Pendant",zone:"",slot:"accessory",d
 // wiki : "Ascended Ascended Forest Pendant" (Id 94, Accessory) — Power/Toughness Max at lvl 0 = 800/800. Specials : Drop Chance (20/40/80%), Gold Drops (200/400/800%), Magic Power (20/100/200%).
 ascendedAscendedForestPendant:{name:"Ascended Ascended Forest Pendant",zone:"",slot:"accessory",dropLevel:1,p:800,t:800,sBase:20,sMax:40,sType:"dropChancePct",sExtra:[{type:"goldDropsPct",base:200,max0:400,max100:800},{type:"magicPowerPct",base:20,max0:100,max100:200}]},
 // wiki : "Dragon Wings" (Id 110, Accessory) — Power/Toughness Max at lvl 0 = 82/82. Specials : Gold Drops (0/200/400%), Magic Cap (14.14/22.82/45.64%), Magic Power (41.4/108.2/216.2%).
-dragonWings:{name:"Dragon Wings",zone:"ancient",slot:"accessory",dropLevel:4,p:82,t:82,sBase:0,sMax:200,sType:"goldDropsPct",sExtra:[{type:"magicCapPct",base:14.14,max0:22.82,max100:45.64},{type:"magicPowerPct",base:41.4,max0:108.2,max100:216.2}]},
+dragonWings:{name:"Dragon Wings",zone:"ancient",slot:"accessory",dropLevel:4,p:82,t:82,sBase:0,sMax:200,sType:"goldDropsPct",sExtra:[{type:"magicCapPct",base:14.14,max0:22.82,max100:45.64},{type:"magicPowerPct",base:41.4,max0:108.2,max100:216.4}]},
 // wiki : "Stapler" (Id 118, Accessory) — Power/Toughness Max at lvl 0 = 500/0. Specials : Energy Cap (22.33/30/60%), Respawn (3/6/12%).
 stapler:{name:"Stapler",zone:"",slot:"accessory",dropLevel:4,p:500,t:0,sBase:22.33,sMax:30,sType:"energyCapPct",sExtra:[{type:"respawnReductionPct",base:3,max0:6,max100:12}]},
 // wiki : "A Beanie" (Id 127, Head) — Power/Toughness Max at lvl 0 = 2000/3000. Specials : Magic Cap (20/53/106%), Magic Power (70/184.9/369.8%).
-aBeanie:{name:"A Beanie",zone:"avsp",slot:"head",dropLevel:4,p:2000,t:3000,sBase:20,sMax:53,sType:"magicCapPct",sExtra:[{type:"magicPowerPct",base:70,max0:184.9,max100:369.8}]},
+aBeanie:{name:"A Beanie",zone:"avsp",slot:"head",dropLevel:4,p:2000,t:3000,sBase:20,sMax:53,sType:"magicCapPct",sExtra:[{type:"magicPowerPct",base:70,max0:185,max100:370}]},
 // wiki : "Sir Looty McLootington III, Esquire" (Id 128, Accessory) — Power/Toughness Max at lvl 0 = 200/200. Specials : Drop Chance (10/40/80%), Energy Power (0/100/200%), Magic Power (0/100/200%).
 sirLooty:{name:"Sir Looty McLootington III, Esquire",zone:"",slot:"accessory",dropLevel:5,p:200,t:200,sBase:10,sMax:40,sType:"dropChancePct",sExtra:[{type:"energyPowerPct",base:0,max0:100,max100:200},{type:"magicPowerPct",base:0,max0:100,max100:200}]},
 // wiki : "Ascended Ascended Ascended Pendant" (Id 142, Accessory) — Power/Toughness Max at lvl 0 = 40000/40000. Specials : Drop Chance (100/100/200%), Energy Power (270/270/540%), Gold Drops (800/800/1600%).
@@ -817,7 +814,7 @@ redMeeple:{name:"Red Meeple Thingy",zone:"",slot:"accessory",dropLevel:4,p:50000
 // wiki : "A Bag of Trash" (Id 248, Accessory) — Power/Toughness Max at lvl 0 = 500000/500000. Specials : Daycare Speed (10/10/20%), Energy Cap (1000/1000/2000%), Magic Cap (1000/1000/2000%), Resource 3 Bars (5/5/10%).
 bagOfTrash:{name:"A Bag of Trash",zone:"",slot:"accessory",dropLevel:4,p:500000,t:500000,sBase:10,sMax:10,sType:"daycareSpeedPct",sExtra:[{type:"energyCapPct",base:1000,max0:1000,max100:2000},{type:"magicCapPct",base:1000,max0:1000,max100:2000},{type:"r3BarsPct",base:5,max0:5,max100:10}]},
 // wiki : "Heart Shaped Panties" (Id 249, Accessory) — Power/Toughness Max at lvl 0 = 666666/666666. Specials : Energy Cap (667/667/1333%), Magic Cap (667/667/1333%), NGU Speed (333/333/666%), Resource 3 Power (6.67/6.67/13.33%).
-heartShapedPanties:{name:"Heart Shaped Panties",zone:"",slot:"accessory",dropLevel:4,p:666666,t:666666,sBase:667,sMax:667,sType:"energyCapPct",sExtra:[{type:"magicCapPct",base:667,max0:667,max100:1333},{type:"nguSpeedPct",base:333,max0:333,max100:666},{type:"r3PowerPct",base:6.67,max0:6.67,max100:13.33}]},
+heartShapedPanties:{name:"Heart Shaped Panties",zone:"",slot:"accessory",dropLevel:4,p:666666,t:666666,sBase:666.6666,sMax:666.6666,sType:"energyCapPct",sExtra:[{type:"magicCapPct",base:666.6666,max0:666.6666,max100:1333.3332},{type:"nguSpeedPct",base:333.3333,max0:333.3333,max100:666.6666},{type:"r3PowerPct",base:6.666666,max0:6.666666,max100:13.333332}]},
 // wiki : "Violin Case" (Id 272, Accessory) — Power/Toughness Max at lvl 0 = 7000000/7000000. Specials : Energy Bars (13000/13000/26000%), Energy Cap (1300/1300/2600%), Magic Bars (13000/13000/26000%), Magic Cap (1300/1300/2600%), Resource 3 Power (13/13/26%).
 violinCase:{name:"Violin Case",zone:"",slot:"accessory",dropLevel:4,p:7000000,t:7000000,sBase:13000,sMax:13000,sType:"energyBarsPct",sExtra:[{type:"energyCapPct",base:1300,max0:1300,max100:2600},{type:"magicBarsPct",base:13000,max0:13000,max100:26000},{type:"magicCapPct",base:1300,max0:1300,max100:2600},{type:"r3PowerPct",base:13,max0:13,max100:26}]},
 // wiki : "Molotov Cocktail" (Id 273, Accessory) — Power/Toughness Max at lvl 0 = 10000000/10000000. Specials : NGU Speed (200/200/400%), Seed Gain (50/50/100%), Wandoos Speed (800/800/1600%).
@@ -899,8 +896,8 @@ titanEffigy:{name:"The Titan Effigy",zone:"",slot:"accessory",dropLevel:4,p:1300
 heartRed:{name:"My Red Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartRed",p:100,t:100,pBase:69,tBase:69,sBase:0,sMax:30,sType:"dropChancePct",sExtra:[{type:"expPct",base:2.5,max0:5,max100:10}]},
 // wiki "My Yellow Heart" (Id 129) : Power 69/100/200, Toughness 69/100/200 ; Specials : Arbitrary Points (5/10/20%), Gold Drops (0/300/600%).
 heartYellow:{name:"My Yellow Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartYellow",p:100,t:100,pBase:69,tBase:69,sBase:5,sMax:10,sType:"apPct",sExtra:[{type:"goldDropsPct",base:0,max0:300,max100:600}]},
-// wiki "My Brown Heart" (Id 162) : Power 69/100/200, Toughness 69/100/200 ; Specials : Energy Power (100/100/200%), Magic Power (100/100/200%), Seed Gain (0/35/70%).
-heartBrown:{name:"My Brown Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartBrown",p:100,t:100,pBase:69,tBase:69,sBase:100,sMax:100,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:100,max0:100,max100:200},{type:"seedGainPct",base:0,max0:35,max100:70}]},
+// Alignement sur le jeu (2026-11-16) : Seed Gain démarre à son plafond 35 (curSpec 35000 = capSpec). Wiki "My Brown Heart" (Id 162) : Power 69/100/200, Toughness 69/100/200 ; Specials : Energy Power (100/100/200%), Magic Power (100/100/200%), Seed Gain (0/35/70%).
+heartBrown:{name:"My Brown Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartBrown",p:100,t:100,pBase:69,tBase:69,sBase:100,sMax:100,sType:"energyPowerPct",sExtra:[{type:"magicPowerPct",base:100,max0:100,max100:200},{type:"seedGainPct",base:35,max0:35,max100:70}]},
 // wiki "My Green Heart" (Id 171) : Power 69/100/200, Toughness 69/100/200 ; Specials : Beard Speed (30/30/60%), Drop Chance (50/50/100%), Respawn (4/4/8%).
 heartGreen:{name:"My Green Heart",zone:"",slot:"accessory",dropLevel:0,sellout:"heartGreen",p:100,t:100,pBase:69,tBase:69,sBase:30,sMax:30,sType:"beardSpeedPct",sExtra:[{type:"dropChancePct",base:50,max0:50,max100:100},{type:"respawnReductionPct",base:4,max0:4,max100:8}]},
 // wiki "My Blue Heart" (Id 196) : Power 69/420/840, Toughness 69/420/840 ; Specials : Gold Drops (100/100/200%), NGU Speed (40/40/80%).

@@ -1145,6 +1145,10 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     /* Dual Wielding : ratio de la seconde arme = 0,05 x (niveau du souhait 28 + niveau du souhait 45), maximum 1 (wiki Wishes ; source tierce player.ts). */
     state.adventure.dualWieldRatio = Math.min(1, 0.05 * (Math.max(0, wishLevelV1(state, 28)) + Math.max(0, wishLevelV1(state, 45))));
+    /* Boss effectif du jeu (Character::effectiveBossID, 2237) : boss tués dans le Rebirth en cours (context.bosses, remis à 0 à chaque Rebirth) + 301 en Evil + 301 de plus en Sadistic. Mise à l'échelle bossRequired des objets (idle-adventure-boss-requis-v1.js). */
+    state.adventure.bossEffectif = Math.max(0, int(context.bosses, 0)) + 301 * (state.difficulty === "extreme" ? 2 : state.difficulty === "difficile" ? 1 : 0);
+    /* Resource3.res3On (jeu) : condition du versement du set Incriminating Evidence ; Resource 3 vit avec les Hacks dans ce moteur (idle-ngu-ressources.js). */
+    state.adventure.res3Actif = Boolean(state.systems.hacks?.unlocked);
     state.adventure.bonusSlots = {
       inventory: Math.max(0, int(perks.inventorySlots, 0)) + Math.max(0, int(quirkBonusesV1(idleQuirkNiveauxV1(state)).inventorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).inventorySlots, 0)) + Math.max(0, int(wishes.inventorySlots, 0)) + Math.max(0, int(state.selloutShop?.purchases?.extraInventorySpace, 0)) + expShopPurchasedV1(state, "inventorySpace"),
       accessory: Math.max(0, int(perks.accessorySlotBonus, 0)) + Math.max(0, int(quirkBonusesV1(idleQuirkNiveauxV1(state)).accessorySlotBonus, 0)) + Math.max(0, int(challengePermanentBonuses(state).accessorySlots, 0)) + ["extraAccessorySlot1", "extraAccessorySlot2", "extraAccessorySlot3", "extraAccessorySlot4", "extraAccessorySlot5", "extraAccessorySlotEvil"].reduce((sum, id) => sum + Math.min(1, int(state.selloutShop?.purchases?.[id], 0)), 0) + expShopPurchasedV1(state, "accessorySlot1") + expShopPurchasedV1(state, "accessorySlot2") + (wishLevelV1(state, 109) >= 1 ? 1 : 0)
