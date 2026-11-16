@@ -753,6 +753,8 @@ export function multiplicateurDpsJoueurBossSorealIdle_(
   );
 }
 
+const REGEN_BOSS_APPELS_PAR_SECONDE_V1=50;
+
 export function regenBossSecondeSorealIdle_(
   bossIndex,
   pvMax
@@ -799,7 +801,8 @@ export function regenBossSecondeSorealIdle_(
     )/
     pvReference;
 
-  return regenReference*ratioPv;
+  /* BossController::Start (build 1260) : InvokeRepeating("fight", 0, 0.02) = 50 appels par seconde ; BossController::fight ajoute Character.bossRegen a CHAQUE appel (sans le facteur 0,02 des degats), meme hors combat, puis plafonne a bossMaxHP : la regeneration par seconde vaut 50 x la valeur du tableau (audit boss-at-rebirth E4, 2026-11-16). */
+  return regenReference*ratioPv*REGEN_BOSS_APPELS_PAR_SECONDE_V1;
 }
 
 function multiplicateurAttaqueBossSorealIdle_(
@@ -1612,10 +1615,6 @@ export function definitionBossSorealIdle_(
     );
   }
 
-  /*
-   * Après le catalogue initial, on garde la progression infinie
-   * sans recycler les mêmes statistiques.
-   */
   const dernier =
     equilibrerBossPrincipalSorealIdleV413_(
       catalogue[
@@ -1624,6 +1623,11 @@ export function definitionBossSorealIdle_(
       catalogue.length - 1,
       difficulty
     );
+
+  /*
+   * Après le catalogue initial, on garde la progression infinie
+   * sans recycler les mêmes statistiques.
+   */
 
   const supplement =
     n - catalogue.length + 1;
