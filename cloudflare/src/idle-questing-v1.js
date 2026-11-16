@@ -326,8 +326,10 @@ export function normalizeIdleQuestingDataV1(raw) {
     quest: normalizeQuestV1(src.quest),
     idle: Boolean(src.idle),
     preferMajor: src.preferMajor !== false,
-    useButter: src.useButter !== false,
-    majorsBanked: Math.max(0, I(src.majorsBanked)),
+    /* Lu dans le jeu (BeastQuest.usedButter) : le beurre est actif seulement quand le joueur l'utilise ; par défaut il n'est plus consommé automatiquement. */
+    useButter: src.useButter === true,
+    /* Lu dans le jeu (BeastQuest::.ctor) : 3 Major en banque au départ. */
+    majorsBanked: src.majorsBanked === undefined ? 3 : Math.max(0, I(src.majorsBanked)),
     majorProgressSeconds: Math.max(0, N(src.majorProgressSeconds)),
     items,
     maxedItems,
@@ -360,7 +362,9 @@ function addButtersV1(state, n) {
 
 export function idleQuestEligibleZonesV1(state) {
   const done = state?.adventure?.completedSets || {};
-  return IDLE_QUEST_ITEMS_V1.filter(x => Boolean(done[x.set])).map(x => x.zone);
+  /* Lu dans le jeu (BeastQuestController::constructQuestList, 2026-11-16) : Sewers toujours disponible ; Evilverse et Pretty Pink Princess seulement à partir d'Evil ; les autres demandent leur set complété. */
+  const evil = state?.difficulty && state.difficulty !== "normal";
+  return IDLE_QUEST_ITEMS_V1.filter(x => x.zone === "sewers" || (Boolean(done[x.set]) && (evil || (x.zone !== "evilverse" && x.zone !== "pinkprincess")))).map(x => x.zone);
 }
 
 function startQuestV1(state, d, major, now, rng) {
@@ -469,9 +473,8 @@ export function advanceIdleQuestingV1(state, seconds, env = {}, now = Date.now()
   }
 
   const cap = idleQuestBankCapV1(state);
-  if (d.majorsBanked >= cap) {
-    d.majorProgressSeconds = 0;
-  } else {
+  {
+    /* Lu dans le jeu (BeastQuestController::Update) : le minuteur tourne toujours, même banque pleine ; à chaque intervalle on retire le seuil et on ajoute une Major (la banque est plafonnée). */
     const interval = idleQuestMajorIntervalSecondsV1(state);
     d.majorProgressSeconds += secs;
     const gained = Math.floor(d.majorProgressSeconds / interval);
@@ -479,7 +482,6 @@ export function advanceIdleQuestingV1(state, seconds, env = {}, now = Date.now()
       d.majorsBanked = Math.min(cap, d.majorsBanked + gained);
       d.majorProgressSeconds -= gained * interval;
     }
-    if (d.majorsBanked >= cap) d.majorProgressSeconds = 0;
   }
 
   if (!d.idle) return;

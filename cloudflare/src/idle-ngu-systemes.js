@@ -22,7 +22,7 @@ import { IDLE_R3_NOMS_V1 } from "./idle-r3-names-v1.js";
 import { advanceIdleCookingV1 } from "./idle-cooking-v1.js";
 import { advanceIdleDaycareV1 } from "./idle-daycare-v1.js";
 import { advanceIdleQuestingV1 } from "./idle-questing-v1.js";
-import { tickSelloutEffectsV1 } from "./idle-sellout-shop-v1.js";
+import { IDLE_SELLOUT_MINUTEURS_HORS_LIGNE_V1, tickSelloutEffectsV1 } from "./idle-sellout-shop-v1.js";
 import { idleAchievementsEvaluateV1 } from "./idle-achievements-v1.js";
 import { DEFIS_SANS_HORS_LIGNE_IDS_V1, PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1 } from "./idle-hors-ligne-v1.js";
 import { EARLY_GAME_MAX_OFFLINE_SECONDS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_SYSTEMS, IDLE_NGU_YGG_FRUITS, challengeCompletionsV1, challengePermanentBonuses, challengeTierV1, clamp, int, nowMs, num } from "./idle-ngu-catalogues.js";
@@ -308,7 +308,8 @@ function advanceMoneyPitAndDaily(state, now) {
   /* Octroi des cases 1 et 2 d'octobre 2026 (idle-login-calendar-v1.js) : seulement pour qui voit le calendrier (Money Pit découvert). */
   if (pit.unlocked) idleLoginCalendarOctroiV1(state, nowMs(now));
   const spin = state.systems.dailySpin;
-  if (spin.unlocked && !spin.data.readyAt) spin.data.readyAt = now;
+  /* Lu dans le jeu (DailyReward::.ctor) : le chrono du tour démarre à 23 h et tourne depuis la création de la partie (plafond 36 h). */
+  if (spin.unlocked && !spin.data.readyAt) spin.data.readyAt = now + 24 * 3600000 - Math.min(36 * 3600000, 23 * 3600000 + Math.max(0, num(state.records?.playSeconds, 0)) * 1000);
 }
 
 export function yggMaxTier(state) {
@@ -512,7 +513,7 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
       result.ppProgress=progress;
     }else if(def.effect==="macguffinAlpha"||def.effect==="macguffinBeta"){
       /* Wiki Yggdrasil : ni NGU Yggdrasil (tableau "NGU Yggdrasil / Yggdrasil Yield"), seulement Poop x Quirk x Equip x FirstHarvest. */
-      const fx=macguffinEatFruitV1(state,def.effect==="macguffinAlpha"?"alpha":"beta",grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier);
+      const fx=macguffinEatFruitV1(state,def.effect==="macguffinAlpha"?"alpha":"beta",grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier*(def.effect==="macguffinAlpha"?1+0.2*wishLevelV1(state,60):1)); /* souhait 60 : +20 % par niveau au Fruit of MacGuffin α (lu dans le jeu, WishesController::totalFruitGuffbonus, 2026-11-16) */
       result.macguffinLevels=fx.levels;
       result.macguffins=fx.touched;
     }else if(def.effect==="powerDelta"){
@@ -1398,7 +1399,21 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
    * reste vrai après un Rebirth (les Augmentations testaient déjà le boss) : la Time Machine produisait et se
    * levelait, et Blood Magic tournait, dès le boss 1 d'un nouveau Rebirth.
    */
-  if (secs > 0) passesDuTempsSeulV1(state, secs, context, now);
+  if (secs > 0) {
+    /* Hors ligne (même seuil de 5 minutes que le farm hors ligne) : l'effet des potions, charmes et Bar Bars n'entre pas dans la production (lu dans le jeu). */
+    const horsLigneBoutique = secs >= 5 * 60 && state.selloutEffects?.remaining;
+    let misDeCote = null;
+    if (horsLigneBoutique) {
+      misDeCote = {};
+      for (const k of Object.keys(state.selloutEffects.remaining)) {
+        if (IDLE_SELLOUT_MINUTEURS_HORS_LIGNE_V1.includes(k)) continue;
+        misDeCote[k] = state.selloutEffects.remaining[k];
+        delete state.selloutEffects.remaining[k];
+      }
+    }
+    try { passesDuTempsSeulV1(state, secs, context, now); }
+    finally { if (misDeCote) Object.assign(state.selloutEffects.remaining, misDeCote); }
+  }
   else if (typeof process !== "undefined" && process.env && process.env.SOREAL_IDLE_VERIF_TEMPS_NUL === "1") {
     const avant = JSON.stringify(state);
     const copie = JSON.parse(avant);
@@ -1423,7 +1438,7 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   /* Questing (crochet 1/4) : Major Quests gagnées avec le temps + barre d'idle. */
   if (state.systems.questing?.unlocked) span("avance:quetes", () => advanceIdleQuestingV1(state, secs, questingEnvV1(state, context), nowMs(now)));
 
-  span("avance:effetsBoutique", () => tickSelloutEffectsV1(state, secs));
+  span("avance:effetsBoutique", () => tickSelloutEffectsV1(state, secs, secs >= 5 * 60));
   span("fin:reconcilier", () => reconcileResourceCurrents(state,context));
   state.updatedAt = nowMs(now);
   span("fin:yggRapide", () => applyYggQuickActivationV1(state, now));

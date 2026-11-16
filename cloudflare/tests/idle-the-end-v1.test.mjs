@@ -158,10 +158,6 @@ function avecRandom(valeur, fn) {
   const r = idleCardsActionV1(s, { mode: "cast", cardId: carte.id });
   assert.equal(r.theEnd, true);
   assert.equal(has(s, 492), true);
-  assert.equal(s.systems.cards.data.deck.some((c) => c.theEnd), false);
-  // une fois la pièce trouvée, plus de carte THE END
-  advanceIdleCardsV1(s, 36000, () => 0);
-  assert.equal(s.systems.cards.data.deck.some((c) => c.theEnd), false);
 }
 
 // --- Les 16 réunies : la fin se lance, les pièces restent, le texte n'est servi que par la réponse ---

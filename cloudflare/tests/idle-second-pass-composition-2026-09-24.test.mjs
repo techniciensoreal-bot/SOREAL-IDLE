@@ -80,7 +80,7 @@ function etatAvecFib89() {
   const s = etatAvecFib89();
   s.systems.dailySpin.unlocked = true;
   s.systems.dailySpin.data.totalSpins = 0;
-  s.systems.dailySpin.data.readyAt = 0;
+  s.systems.dailySpin.data.readyAt = 1;
   const avant = Math.random;
   Math.random = () => 0.1; // palier 0 : 50 AP
   try {

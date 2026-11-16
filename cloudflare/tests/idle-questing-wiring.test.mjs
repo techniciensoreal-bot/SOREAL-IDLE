@@ -42,7 +42,7 @@ function base(sets = { sewers: true }) {
 
 // --- Génération : zones selon les sets complétés, 50-59 objets, Fibonacci 610 ---
 {
-  assert.throws(() => act(base({}), { action: "questStart" }), /QUETE_AUCUNE_ZONE/, "aucun set complété : aucune zone");
+  assert.equal(act(base({}), { action: "questStart" }).result.zone, "sewers", "aucun set complété : Sewers est toujours disponible (lu dans le jeu)");
   const bas = avecAleatoire(0, () => act(base(), { action: "questStart" }));
   assert.equal(bas.result.zone, "sewers");
   assert.equal(bas.result.required, 50);
@@ -53,7 +53,7 @@ function base(sets = { sewers: true }) {
   fibo.systems.perks.unlocked = true;
   fibo.systems.perks.data = { levels: { 94: 610 } };
   assert.equal(avecAleatoire(0.999999, () => act(fibo, { action: "questStart" })).result.required, 50, "Fibonacci 610 : toujours 50");
-  assert.throws(() => act(base(), { action: "questStart", major: true }), /QUETE_MAJEURE_INDISPONIBLE/);
+  { const vide = base(); vide.systems.questing.data.majorsBanked = 0; assert.throws(() => act(vide, { action: "questStart", major: true }), /QUETE_MAJEURE_INDISPONIBLE/); }
   assert.throws(() => act(bas.state, { action: "questStart" }), /QUETE_DEJA_ACTIVE/);
 }
 
@@ -61,9 +61,9 @@ function base(sets = { sewers: true }) {
 {
   let s = base();
   s = advanceIdleNguState(s, 28199, ctx, T0 + 28199_000);
-  assert.equal(s.systems.questing.data.majorsBanked, 0);
+  assert.equal(s.systems.questing.data.majorsBanked, 3, "3 Major au départ (lu dans le jeu)");
   s = advanceIdleNguState(s, 1, ctx, T0 + 28200_000);
-  assert.equal(s.systems.questing.data.majorsBanked, 1, "une Major toutes les 7 h 50");
+  assert.equal(s.systems.questing.data.majorsBanked, 4, "une Major toutes les 7 h 50");
   s = advanceIdleNguState(s, 28200 * 30, ctx, T0 + 28200_000 * 31);
   assert.equal(s.systems.questing.data.majorsBanked, 10, "plafond 10");
   s.selloutShop.purchases.extendedQuestBank = 1;
@@ -186,6 +186,7 @@ let enQuete;
   s = act(s, { action: "questHandIn" }, T0 + 2000).state;
   s.systems.questing.data.majorsBanked = 3;
   s.systems.questing.data.majorProgressSeconds = 1234;
+  s.systems.questing.data.useButter = true;   /* le beurre est opt-in (lu dans le jeu : usedButter) */
 
   const rb = rebirthIdleNguState(s, ctx, T0 + 400_000);
   const d = rb.systems.questing.data;

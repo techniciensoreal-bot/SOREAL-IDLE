@@ -667,11 +667,12 @@ export function macguffinAddLevelsV1(state, mode, levels, rng = Math.random) {
   });
 }
 
-export function macguffinBloodSpellLevelsV1(spell, blood) {
+export function macguffinBloodSpellLevelsV1(spell, blood, facteur = 1) {
   const def = IDLE_MACGUFFIN_BLOOD_SPELLS_V1[spell];
   const b = Math.max(0, N(blood, 0));
   if (!def || b < def.minimum) return 0;
-  return Math.max(0, Math.floor(Math.log(b / def.divisor) / Math.log(def.base) + 1 + 1e-9));
+  /* facteur : souhait 59 (WishesController::totalBloodGuffbonus, +20 % par niveau) multiplié AVANT l'arrondi inférieur, comme dans le jeu (castMacguffin1Spell). */
+  return Math.max(0, Math.floor((Math.log(b / def.divisor) / Math.log(def.base) + 1 + 1e-9) * Math.max(1, N(facteur, 1))));
 }
 
 function castBloodMacguffin(state, spell, now, rng) {
@@ -684,7 +685,7 @@ function castBloodMacguffin(state, spell, now, rng) {
   if (now > 0 && now < N(data[readyKey], 0)) throw new Error("SORT_EN_RECHARGE");
   const blood = Math.floor(N(state.currencies?.blood, 0));
   if (blood < def.minimum) throw new Error("SANG_INSUFFISANT");
-  const levels = macguffinBloodSpellLevelsV1(spell, blood);
+  const levels = macguffinBloodSpellLevelsV1(spell, blood, spell === "alpha" ? 1 + 0.2 * wishLevel(state, 59) : 1);
   /* Souhait 24 "I wish Blood MacGuffin α wasn't so random" : premier slot au lieu d'un slot au hasard. */
   const mode = spell === "beta" ? "all" : (wishLevel(state, 24) > 0 ? "first" : "random");
   const touched = macguffinAddLevelsV1(state, mode, levels, rng);

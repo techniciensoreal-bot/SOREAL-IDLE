@@ -27,7 +27,9 @@ function fresh(ap = 5_000_000) {
   s = utiliser(acheter(s, "energyPotionBeta").state, "energyPotionBeta");
   assert.ok(Math.abs(idleNguBonuses(s).energyPowerMultiplier / avant - 4) < 1e-9, "α et β se cumulent : x4");
   // le timer est décompté par le moteur (3600 s)
-  const apres = advanceIdleNguState(s, 3601, ctx, 2_000_000 + 3_601_000);
+  /* en ligne (pas de saut hors ligne : les potions restent figées hors ligne, lu dans le jeu) : 13 pas de 281 s */
+  let apres = s;
+  for (let i = 1; i <= 13; i++) apres = advanceIdleNguState(apres, 281, ctx, 2_000_000 + i * 281_000);
   assert.ok(Math.abs(idleNguBonuses(apres).energyPowerMultiplier / avant - 2) < 1e-9, "après 60 min il ne reste que la beta");
   // le Rebirth perd la beta
   assert.equal(Object.keys(apres.selloutEffects.remaining).length, 0);

@@ -143,6 +143,8 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
 // --- Génération : 1 carte par heure, deck plein => arrêt ---
 {
   let s = base();
+  { const neuf = base(); advanceIdleCardsV1(neuf, 0, seeded(9)); assert.equal(neuf.systems.cards.data.deck.length, 1, "une première carte est offerte au déblocage (lu dans le jeu)"); }
+  s.systems.cards.data.premiereCarteOfferte = true;
   advanceIdleCardsV1(s, 3599, seeded(1));
   assert.equal(s.systems.cards.data.deck.length, 0);
   advanceIdleCardsV1(s, 1, seeded(2));
@@ -165,7 +167,7 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   } finally {
     Math.random = hasardOrigine;
   }
-  assert.equal(t.systems.cards.data.deck.length, 2);
+  assert.equal(t.systems.cards.data.deck.length, 3, "1 carte offerte + 2 en 2 h");
 }
 
 // --- Mayo : 1 générateur = 1 mayo/h ; 2 générateurs = partage ; Mayo Infuser x2 ---

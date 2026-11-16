@@ -29,8 +29,6 @@ const NON_DETECTES = {
     40: "QP du Godmother : lu par la table TITAN_QP_V1 (idle-adventure-v47.js)",
     41: "QP du Titan suivant le Godmother : TITAN_QP_V1",
     44: "art du Daycare Kitty (cosmétique)",
-    59: "NON IMPLÉMENTÉ : Blood MacGuffin α +20 %/niveau (arrondi non publié, voir WORKLOG 2026-09-24)",
-    60: "NON IMPLÉMENTÉ : Fruit of MacGuffin α +20 %/niveau (arrondi non publié)",
     74: "QP du Greasy Nerd : TITAN_QP_V1",
     75: "portrait de joueur (cosmétique), aucun effet de jeu"
   }

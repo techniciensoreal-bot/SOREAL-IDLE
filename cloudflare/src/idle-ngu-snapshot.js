@@ -362,7 +362,7 @@ function construireSnapshotNguV1(state, context, now) {
     resourcePurchases: Object.fromEntries(Object.entries(IDLE_NGU_RESOURCE_PURCHASES).filter(([resource]) => ressourceDecouverteV1(state, resource)).map(([resource, stats]) => [
       resource,
       Object.fromEntries(Object.entries(clone(stats)).map(([stat, achat]) => {
-        if (!resourcePurchaseUnlocked(IDLE_NGU_RESOURCE_PURCHASES[resource][stat], context)) delete achat.unlockBoss;
+        if (!resourcePurchaseUnlocked(IDLE_NGU_RESOURCE_PURCHASES[resource][stat], context, state, resource)) delete achat.unlockBoss;
         return [stat, achat];
       }))
     ])),
@@ -402,7 +402,7 @@ function construireSnapshotNguV1(state, context, now) {
       Object.fromEntries(Object.keys(IDLE_NGU_RESOURCE_PURCHASES[resource]).map(stat => {
         const purchase = IDLE_NGU_RESOURCE_PURCHASES[resource][stat];
         return [stat, {
-          unlocked: resourcePurchaseUnlocked(purchase, context)   /* neededBosses retiré (audit 2026-11-14, règle n°2) : jamais lu par le client */
+          unlocked: resourcePurchaseUnlocked(purchase, context, state, resource)   /* neededBosses retiré (audit 2026-11-14, règle n°2) : jamais lu par le client */
         }];
       }))
     ])),
@@ -447,9 +447,13 @@ function construireSnapshotNguV1(state, context, now) {
  * jamais remis à 0). purchase.unlockBoss est absent (undefined) sur
  * speed/bars, donc toujours considéré débloqué pour ces deux stats.
  */
-function resourcePurchaseUnlocked(purchase, context) {
+function resourcePurchaseUnlocked(purchase, context, state, resource) {
   const needed = num(purchase?.unlockBoss, 0);
-  return needed <= 0 || num(context?.bosses, 0) >= needed;
+  /* Lu dans le jeu (EnergyPurchases / MagicPurchases / Resource3Purchases, 2026-11-16) : la magie et la ressource 3 n'ont aucun verrou de boss ;
+     l'énergie utilise le RECORD permanent de boss (jamais remis à zéro par un Rebirth). */
+  if (resource && resource !== "energy") return true;
+  const boss = Math.max(num(context?.bosses, 0), num(state?.records?.highestBoss, 0));
+  return needed <= 0 || boss >= needed;
 }
 
 /* Boutique AP, anti-spoil (2026-11-03) : un article de magie ou de ressource 3 n'est envoyé qu'une fois ce type DÉCOUVERT (permanent), ou s'il est déjà acheté. */
@@ -472,7 +476,7 @@ export function buyResource(state, resource, stat, quantity, context = {}) {
   if (resource === "r3" && !ressourceDecouverteV1(state, "r3")) throw new Error("R3_VERROUILLEE");
   const purchase=IDLE_NGU_RESOURCE_PURCHASES[resource]?.[stat];
   if (!purchase) throw new Error("ACHAT_RESSOURCE_INDISPONIBLE");
-  if (!resourcePurchaseUnlocked(purchase, context)) throw new Error("ACHAT_VERROUILLE_BOSS");
+  if (!resourcePurchaseUnlocked(purchase, context, state, resource)) throw new Error("ACHAT_VERROUILLE_BOSS");
   /*
    * Achat en lot (capture Norman : "+1 for 80 EXP" / "+10 for 800 EXP" /
    * "+100 for 8000 EXP", plus le montant personnalisé de droite) : une seule
@@ -1257,7 +1261,7 @@ function challengeUnlocked(def,state,context={}) {
   const highestBoss=Math.max(0,int(state.records.highestBoss,context.bosses||0));
   if(def.id==="basic")return highestBoss>=58;
   if(def.id==="noAugmentations")return highestBoss>=75;
-  if(def.id==="twentyFourHours")return num(state.challenge.bestMs?.basic,Infinity)<=24*3600000;
+  if(def.id==="twentyFourHours")return num(state.challenge.bestMs?.basic,Infinity)<24*3600000;
   if(def.id==="hundredLevels")return challengeNguLevels(state)>=10;
   /* Wiki Challenges : « Discover (NOT complete) every piece of the GRB set » -- les 7 pièces vues au moins une fois. */
   if(def.id==="noEquipment"){

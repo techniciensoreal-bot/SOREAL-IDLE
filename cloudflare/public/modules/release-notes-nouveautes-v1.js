@@ -4,11 +4,10 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Atouts, d’après le code du jeu : les bonus de même type venant d’atouts différents se multiplient (vitesse de certains systèmes, chance de drop, troisième ressource), l’atout de difficulté maximale vaut ×10, et les banques de temps sont plafonnées à 75 %.",
-    "Les Points Arbitraires d’un Rebirth se calculent comme dans le jeu : (secondes − 3600) / 500, et les prix de plusieurs articles de la boutique ont été corrigés d’après le code du jeu ; les cœurs achetés arrivent au niveau 10.",
-    "Plusieurs systèmes de jeu ont été alignés sur le code du jeu : minuteurs, plafonds, répartition des coûts et facteurs de temps.",
-    "Aventure, d’après le code du jeu : l’or de la première zone, plusieurs taux de drop, l’EXP des boss (base du Challenge de 24 h, +2 % par complétion, atout séparé), l’exposant de la racine cubique du drop, le temps de recharge de Oh Shit et quelques valeurs d’objets ont été corrigés.",
-    "La récompense d’EXP d’un défi reçoit maintenant tous les bonus d’EXP, et le bonus d’Aventure du défi de base se multiplie avec son bonus de difficulté.",
-    "Quêtes : le +2 de l’atout de quête mineure s’applique dès qu’il est possédé (base plafonnée à 16), les AP de quête ont une base fixe, et les bonus de récompense active se multiplient entre eux."
+    "Hors ligne, les potions, charmes et boosts consommables restent figés (seuls deux d’entre eux s’écoulent) et n’entrent plus dans la production hors ligne ; l’achat d’énergie suit le record de boss.",
+    "Le premier coup d’un ennemi arrive à 1,5 × son intervalle d’attaque, comme dans le jeu, et le défi de 24 h demande un temps de base strictement inférieur à 24 h.",
+    "Quêtes : Sewers est toujours disponible, on démarre avec 3 Major en banque, le minuteur continue banque pleine, et le beurre n’est plus consommé automatiquement.",
+    "Titans : la cachette de Walderp (opacités), sa cadence d’attaque, les sauterelles, les paralysies et les statistiques de Rock Lobster suivent les valeurs lues dans le jeu.",
+    "Le chrono du tour de la roue démarre à 23 h comme dans le jeu (le premier tour est prêt après une heure de jeu)."
   ] };
 })();

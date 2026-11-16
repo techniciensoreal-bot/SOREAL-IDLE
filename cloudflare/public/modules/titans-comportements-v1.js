@@ -55,7 +55,7 @@
       /* Tirage sur 7 : [0,1) Paralyze, [1,3) Bleed, [3,5) Power Attack, le reste attaque de base. */
       tirer:function(e,tirage){
         var t=tirage*7;
-        if(t<1&&e.depuisParalysie>=10)return 'paralysie';
+        if(t<1&&e.depuisParalysie+1>=10)return 'paralysie';   /* lu dans le jeu : compteur incrémenté AVANT le test, possible dès la 10e attaque */
         if(t>=1&&t<3)return 'saignement';
         if(t>=3&&t<5)return 'puissante';
         return 'base';
@@ -91,12 +91,12 @@
     /* Tirage sur 5 : [0,1) sauterelles (si 10 attaques depuis les dernières), [1,3) puissante, le reste base. */
     tirer:function(e,tirage){
       var t=tirage*5;
-      if(t<1&&e.depuisSauterelles>=10)return 'sauterelles';
+      if(t<1&&e.depuisSauterelles+1>=10)return 'sauterelles';   /* idem : dès la 10e attaque */
       if(t>=1&&t<3)return 'puissante';
       return 'base';
     },
     multPuissante:1.5,
-    rafaleCoups:10,rafaleMs:150,multRafale:0.5,
+    rafaleCoups:10,rafaleMs:300,   /* lu dans le jeu (jakeAI) : attackRate x 0,15 = 0,30 s pour une cadence de 2 s */multRafale:0.5,
     chemiseCadence:20,
     ordre:['ultimate','heal','piercing','ultimateBuff','strong','offensiveBuff']
   };

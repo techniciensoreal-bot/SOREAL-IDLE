@@ -941,15 +941,12 @@ export function rollKill(s,ctx){
  * N'A JAMAIS EU de citation wiki dans ce fichier — recherché en direct au
  * navigateur (2026-09-18) sur ngu-idle.fandom.com pour une page qui
  * documenterait un "PV du joueur en combat d'Aventure" : aucune page de ce
- * type n'existe. Cause architecturale confirmée : le vrai NGU Idle n'a
- * PAS de barre de vie joueur en Aventure — son "Adventure Mode" est un
- * système à SEUIL (le Power/Toughness du joueur doit dépasser le seuil
- * "One Hit P/T" du mob pour le tuer en un coup, cf. commentaire détaillé
- * plus haut sur monsterHpMaxForZoneV1/z.oneHitP) ; le combat "coup par
- * coup avec vraie barre de vie" est un choix SOREAL délibéré (Norman,
- * 2026-09-09 : "Comme pour les boss"), documenté comme tel, jamais une
- * mécanique NGU réelle à citer. Il n'existe donc structurellement AUCUNE
- * page wiki à citer pour un "+10" côté joueur. Conformément à la règle
+ * type n'existe. CORRECTION (2026-11-16, code du jeu build 1260) : l'affirmation
+ * d'origine (« le vrai NGU Idle n'a pas de barre de vie joueur ») était FAUSSE : le jeu
+ * résout bien l'Aventure coup par coup, avec la vie du joueur (EnemyAI::attack,
+ * PlayerController, Character.curHP) et des cadences par entité. Le combat « coup par coup
+ * avec vraie barre de vie » de SOREAL est donc le comportement du vrai jeu. Seul le "+10"
+ * de vie du joueur restait sans source publiée. Conformément à la règle
  * n°1 d'AGENTS.md ("si une page ne publie pas la magnitude exacte dont on
  * a besoin : ne pas inventer de repli, réduire la fonctionnalité à ce qui
  * est réellement confirmé") : le "+10" est retiré, playerHpMaxForAdventureV1

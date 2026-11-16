@@ -11,6 +11,7 @@ const context = { bosses: 100 };
 let s = normalizeIdleNguState({}, context, 10_000_000);
 s.currencies.gold = 100000;
 s = advanceIdleNguState(s, 0, context, 10_000_000);
+s.records.playSeconds = 3600 * 5; s.systems.dailySpin.data.readyAt = 1;   /* le tour est prêt dès 1 h de jeu (lu dans le jeu) */
 assert.deepEqual(JSON.parse(JSON.stringify(s.systems.dailySpin.data.rewardsTotal)), { ap: 0, seeds: 0, items: {} }, "totaux vides dès une sauvegarde neuve");
 
 // 40 tours : les totaux gardent tout (l'historique, lui, est borné).

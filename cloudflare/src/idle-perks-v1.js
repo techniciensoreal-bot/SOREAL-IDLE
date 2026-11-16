@@ -143,7 +143,7 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
    * rebirth ». Le +50 % est donc FIXE et c'est le nombre de kills qui croît (3 par niveau) : l'ancien
    * `titanExpFirstKillsPct: 0.5` par niveau n'était de toute façon lu par personne (audit 2026-09-24).
    */
-  { id: 34, name: "Bonus Titan EXP!", effect: "First 3 kills of each titan, each rebirth, grant +50% extra EXP per level", cost: 30, cap: 3, bonus: { titanExpBonusKills: 3 } },
+  { id: 34, name: "Bonus Titan EXP!", effect: "The first (3 x level - 1) kills of each titan, each rebirth, grant +50% extra EXP", cost: 30, cap: 3, bonus: { titanExpBonusKills: 3 } },
   { id: 35, name: "Bonus Boss Exp!", effect: "+2% bonus to exp dropped by bosses 24 and on, per level", cost: 20, cap: 25, bonus: { bossExpPct: 0.02 } },
   { id: 36, name: "Advanced Training Level Bank I", effect: "Saves 1% (rounded down) of Advanced Training levels gained per rebirth", cost: 3, cap: 10, bonus: { atBankPct: 0.01 } },
   { id: 37, name: "Advanced Training Level Bank II", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 10, cap: 10, bonus: { atBankPct: 0.01 } },

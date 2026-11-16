@@ -1292,8 +1292,9 @@
           REG.idleAdventureFightIdentityV2=identite;
           REG.idleAdventureFightNextPlayerHitV2=
             maintenantTick+intervalleIdleAttackAdventureIdleV4_(a);
+          /* Lu dans le jeu (EnemyAI::Update, drapeau firstStrike posé par resetAI) : le PREMIER coup de l'ennemi arrive à 1,5 x son intervalle d'attaque. */
           REG.idleAdventureFightNextEnemyHitV2=
-            maintenantTick+intervalleAttaqueEnnemiAdventureIdleV2_(fight);
+            maintenantTick+(titanComportementsIdleV1_(fight)?1:1.5)*intervalleAttaqueEnnemiAdventureIdleV2_(fight); /* pas de premier coup x1,5 pour les titans (EnemyAI::Update : leur IA répond avant le code firstStrike) */
           REG.idleAdventureFightLastRegenAtV2=maintenantTick;
           REG.idleTitanAttaquesV1=0;REG.idleExploderSurvivedV1=false;   /* succès « sans coup » et « explosif survécu » : compteurs de CE combat */
           try{if(window.SorealMobTypesV1)window.SorealMobTypesV1.reinit(maintenantTick);}catch(_e){}   /* types d'ennemis (mobs-types-v1.js) : poison et paralysie repartent de zéro */

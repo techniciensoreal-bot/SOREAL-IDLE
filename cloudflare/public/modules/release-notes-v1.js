@@ -30,6 +30,7 @@
         date:'2026-11-16',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Hors ligne, les potions, charmes et boosts consommables restent figés (seuls deux d’entre eux s’écoulent) et n’entrent plus dans la production hors ligne ; l’achat d’énergie suit le record de boss.',
             'Atouts, d’après le code du jeu : les bonus de même type venant d’atouts différents se multiplient (vitesse de certains systèmes, chance de drop, troisième ressource), l’atout de difficulté maximale vaut ×10, et les banques de temps sont plafonnées à 75 %.',
             'Les Points Arbitraires d’un Rebirth se calculent comme dans le jeu : (secondes − 3600) / 500, et les prix de plusieurs articles de la boutique ont été corrigés d’après le code du jeu ; les cœurs achetés arrivent au niveau 10.',
             'Plusieurs systèmes de jeu ont été alignés sur le code du jeu : minuteurs, plafonds, répartition des coûts et facteurs de temps.'
@@ -39,21 +40,25 @@
             'Les cœurs Rouge et Jaune complets remplacent le bonus de l’objet équipé (EXP et AP) au lieu de prendre le plus grand des deux, comme dans le vrai jeu.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Le premier coup d’un ennemi arrive à 1,5 × son intervalle d’attaque, comme dans le jeu, et le défi de 24 h demande un temps de base strictement inférieur à 24 h.',
             'Aventure, d’après le code du jeu : l’or de la première zone, plusieurs taux de drop, l’EXP des boss (base du Challenge de 24 h, +2 % par complétion, atout séparé), l’exposant de la racine cubique du drop, le temps de recharge de Oh Shit et quelques valeurs d’objets ont été corrigés.'
           ]},
           {menu:'challenges', titre:'Défis', points:[
             'La récompense d’EXP d’un défi reçoit maintenant tous les bonus d’EXP, et le bonus d’Aventure du défi de base se multiplie avec son bonus de difficulté.'
           ]},
           {menu:'questing', titre:'Quêtes', points:[
+            'Quêtes : Sewers est toujours disponible, on démarre avec 3 Major en banque, le minuteur continue banque pleine, et le beurre n’est plus consommé automatiquement.',
             'Quêtes : le +2 de l’atout de quête mineure s’applique dès qu’il est possédé (base plafonnée à 16), les AP de quête ont une base fixe, et les bonus de récompense active se multiplient entre eux.'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
             'Le cap d’énergie de ce système se calcule comme dans le jeu : la part entière de l’énergie nécessaire, plus un.'
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'Titans : la cachette de Walderp (opacités), sa cadence d’attaque, les sauterelles, les paralysies et les statistiques de Rock Lobster suivent les valeurs lues dans le jeu.',
             'Récompenses de titan, d’après le code du jeu : le facteur du défi d’EXP s’applique avant les autres, et le bonus d’EXP des premières victoires porte sur une victoire de moins par niveau (3 × niveau − 1), comme dans le vrai jeu.'
           ]},
           {menu:'moneyPit', titre:'Money Pit', points:[
+            'Le chrono du tour de la roue démarre à 23 h comme dans le jeu (le premier tour est prêt après une heure de jeu).',
             'Money Pit, d’après le code du jeu : chaque lot est un tirage distinct (Puissance et Endurance séparées, trois boosts, un cas « rien » au premier palier), de nouveaux lots font monter d’un niveau l’équipement porté, et les paliers les plus hauts (pilule de fer, graines, EXP selon le nombre de jets) sont ajoutés.'
           ]}
         ]

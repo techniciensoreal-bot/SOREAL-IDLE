@@ -117,6 +117,7 @@ assert.equal(
 let daily=normalizeIdleNguState({},context,10_000_000);
 daily.currencies.gold=100000;
 daily=advanceIdleNguState(daily,0,context,10_000_000);
+daily.systems.dailySpin.data.readyAt=1;   /* le tour est prêt dès 1 h de jeu (lu dans le jeu) */
 
 const clesSpin=new Set();
 let curseurSpin=daily;

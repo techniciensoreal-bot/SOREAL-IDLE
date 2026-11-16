@@ -2,14 +2,6 @@
   "_doc": "Registre des constantes « choix SOREAL » (AGENTS.md règle n°1, exception de Norman du 2026-10-04 : si aucune source ne publie l'ampleur, une constante modérée est permise, signalée par un commentaire). Une entrée par commentaire repéré par idle-constantes-soreal-registre-v1.test.mjs ; repere = début exact du commentaire (espaces normalisés). Statut « à valider par Norman » tant qu'il n'a pas confirmé la valeur ; ne jamais ajouter de constante sans entrée ici.",
   "entrees": [
     {
-      "fichier": "idle-adventure-butin.js",
-      "marqueur": "choix soreal",
-      "repere": "choix SOREAL délibéré (Norman, 2026-09-09 : \"Comme pour les",
-      "description": "nsterHpMaxForZoneV1/z.oneHitP) ; le combat \"coup par coup avec vraie barre de vie\" est un choix SOREAL délibéré (Norman, 2026-09-09 : \"Comme pour les boss\"), documenté comme tel, jamais une mécanique NGU réelle à citer. Il n'existe donc structurellement AUCUNE",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
       "fichier": "idle-questing-v1.js",
       "marqueur": "choix soreal",
       "repere": "CHOIX SOREAL\" : ce sont des conventions de code, jamais des",
@@ -24,30 +16,6 @@
       "description": "|| {}; const bonus = idleQuestBonusTotalsV1(state); let handedIn = 0; let gained = 0; /* CHOIX SOREAL : niveaux croissants (garde les objets montés en niveau le plus longtemps possible). */ const levels = Object.keys(stock).map(Number).sort((a, b) => a - b);",
       "statut": "à valider par Norman",
       "date": "2026-11-09"
-    },
-    {
-      "fichier": "modules/walderp-cachette-v1.js",
-      "marqueur": "choix soreal",
-      "repere": "choix SOREAL à valider par Norman (2026-11-13) : l'opacité d",
-      "description": "Cachette de Walderp : opacités de départ (4 %) et d'arrivée (100 %) de la petite image (« nearly invisible » puis « more visible », non chiffrées par le wiki) ; choix SOREAL à valider par Norman.",
-      "statut": "à valider par Norman",
-      "date": "2026-11-14"
-    },
-    {
-      "fichier": "modules/walderp-cachette-v1.js",
-      "marqueur": "choix soreal",
-      "repere": "choix SOREAL (non publié) : « starts out nearly invisible ».",
-      "description": "Opacité de départ 0,04 (« starts out nearly invisible », non publié) ; choix SOREAL.",
-      "statut": "à valider par Norman",
-      "date": "2026-11-14"
-    },
-    {
-      "fichier": "modules/walderp-cachette-v1.js",
-      "marqueur": "choix soreal",
-      "repere": "choix SOREAL (non publié) : « becomes more visible ». */ var",
-      "description": "Opacité d'arrivée 1 (« becomes more visible », non publié) ; choix SOREAL.",
-      "statut": "à valider par Norman",
-      "date": "2026-11-14"
     },
     {
       "fichier": "modules/ngu-labo-v1.js",

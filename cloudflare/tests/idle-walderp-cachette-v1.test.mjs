@@ -58,10 +58,13 @@ assert.equal(api.CYCLE_MS, 180000, "cycle de 3 minutes du wiki (valeur de repli)
 
 /* --- visibilité : presque invisible au début de chaque cycle, puis de plus en plus visible --- */
 {
-  assert.ok(api.opacite(0, 180000) <= 0.05, "presque invisible au début du cycle");
-  assert.equal(api.opacite(180000, 180000), 1, "bien visible à la fin");
+  /* lu dans le jeu (2026-11-16) : départ 0,20 - 0,05 x trouvailles déjà faites, arrivée 0,40 - 0,05 x trouvailles (forme = nombre de victoires : trouvailles = forme - 1) */
+  assert.ok(Math.abs(api.opacite(0, 180000, 1) - 0.2) < 1e-9, "départ 0,20 la première fois");
+  assert.ok(Math.abs(api.opacite(180000, 180000, 1) - 0.4) < 1e-9, "arrivée 0,40 la première fois");
+  assert.ok(Math.abs(api.opacite(0, 180000, 3) - 0.1) < 1e-9, "départ 0,10 après deux trouvailles");
+  assert.ok(Math.abs(api.opacite(180000, 180000, 4) - 0.25) < 1e-9, "arrivée 0,25 à la quatrième forme");
   let avant = -1;
-  for (let ms = 0; ms <= 180000; ms += 9000) { const o = api.opacite(ms, 180000); assert.ok(o > avant, "la visibilité ne fait que monter"); avant = o; }
+  for (let ms = 0; ms <= 180000; ms += 9000) { const o = api.opacite(ms, 180000, 1); assert.ok(o > avant, "la visibilité ne fait que monter"); avant = o; }
 }
 
 /* --- menu du cycle : déterministe, change à chaque cycle, tous les menus possibles, jamais hors de la liste --- */
@@ -122,7 +125,7 @@ assert.equal(api.CYCLE_MS, 180000, "cycle de 3 minutes du wiki (valeur de repli)
   assert.equal(bouton().textContent, "", "aucun texte");
   const anim = bouton().animations[0];
   assert.equal(anim.options.duration, 180000);
-  assert.ok(anim.images[0].opacity <= 0.05 && anim.images[1].opacity === 1);
+  assert.ok(Math.abs(anim.images[0].opacity - 0.15) < 1e-9 && Math.abs(anim.images[1].opacity - 0.35) < 1e-9, "opacités lues dans le jeu : 0,15 puis 0,35 (une trouvaille déjà faite)");
   assert.equal(anim.currentTime, 0);
   maintenant += 90_000;
   nav.api.mettreAJour();

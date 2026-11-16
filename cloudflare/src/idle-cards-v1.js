@@ -595,6 +595,7 @@ export function normalizeIdleCardsDataV1(raw) {
     out.deck.push(card);
   }
   out.nextId = Math.max(1, I(src.nextId, 1));
+  out.premiereCarteOfferte = Boolean(src.premiereCarteOfferte);
   /* Pas de plafond à 1 : le recyclage (perk 216) peut avancer le minuteur de plus d'un cycle. */
   out.spawnProgress = Math.max(0, Math.min(1e6, N(src.spawnProgress, 0)));
   out.chonkerProgress = Math.max(0, Math.min(1e6, N(src.chonkerProgress, 0)));
@@ -756,6 +757,17 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
   const mods = idleCardsModifiersV1(state);
   const B = IDLE_CARDS_BASE_V1;
 
+  /* Lu dans le jeu (le cœur mangé appelle CardsController::addCard) : une première carte est offerte au déblocage ; une partie qui a déjà des cartes ne reçoit rien. */
+  if (!data.premiereCarteOfferte) {
+    data.premiereCarteOfferte = true;
+    if (!data.deck.length && N(data.nextId, 1) <= 1) {
+      /* hasard propre à cette carte (graine fixe) : l'offre du déblocage ne consomme jamais le hasard du reste du moteur, donc ne change pas l'ordre des tirages. */
+      let graine = 0x5EED1234;
+      const rngPremiere = () => { graine = (graine + 0x6D2B79F5) | 0; let t = Math.imul(graine ^ (graine >>> 15), 1 | graine); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+      data.deck.push(idleCardsCreateCardV1(state, { rng: rngPremiere, mods, chonker: false }));
+    }
+  }
+
   if (secs > 0) {
     const active = data.generators.slice(0, mods.generators);
     if (active.length) {
@@ -776,8 +788,8 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
       while (data[key] >= 1 && data.deck.length < mods.deckSize) {
         data.deck.push(idleCardsCreateCardV1(state, { rng, mods, chonker }));
         data[key] -= 1;
-        /* Carte THE END (page Cards, End Card) : ~1 % de chance, en Sadistic, à côté de n'importe quelle carte normale ; une seule à la fois, tant que la pièce manque. */
-        if (!chonker && state.difficulty === "extreme" && !idleTheEndHasV1(state.adventure, 492) && !data.deck.some((c) => c.theEnd) && rng() < IDLE_THE_END_CARD_CHANCE_V1) {
+        /* Carte THE END (CardsController::addCard, lu dans le jeu 2026-11-16) : 1 % de chance, en Sadistic, à chaque carte ajoutée, sans autre condition. */
+        if (!chonker && state.difficulty === "extreme" && rng() < IDLE_THE_END_CARD_CHANCE_V1) {
           const cout = {};
           for (const id of MAYO_IDS) cout[id] = IDLE_THE_END_CARD_MAYO_V1;
           data.deck.push({ id: "carte-" + data.nextId, type: IDLE_CARDS_TYPES_V1[0].id, tier: 1, rarity: 1, mayo: cout, bonusPct: 0, protected: false, chonker: false, theEnd: true });

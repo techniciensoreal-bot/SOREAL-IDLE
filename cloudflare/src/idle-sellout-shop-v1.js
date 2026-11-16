@@ -406,10 +406,16 @@ function appliquerEffetDirectV1(state, itemId, times = 1) {
   }
 }
 
-export function tickSelloutEffectsV1(state, seconds) {
+/*
+ * Lu dans le jeu (AllArbitraryController::updateSpecialItems, Character::addOfflineProgress, cardsOfflineProgress ; 2026-11-16) : hors ligne, SEULS le Muffin et le
+ * Mayo Infuser s'écoulent ; potions, charmes et Bar Bars restent figés et leur effet n'entre pas dans la production hors ligne.
+ */
+export const IDLE_SELLOUT_MINUTEURS_HORS_LIGNE_V1 = Object.freeze(["macguffinMuffin", "mayoInfuser"]);
+export function tickSelloutEffectsV1(state, seconds, horsLigne = false) {
   const fx = state.selloutEffects;
   if (!fx || !fx.remaining || !(seconds > 0)) return;
   for (const k of Object.keys(fx.remaining)) {
+    if (horsLigne && !IDLE_SELLOUT_MINUTEURS_HORS_LIGNE_V1.includes(k)) continue;
     fx.remaining[k] = Math.max(0, N(fx.remaining[k], 0) - seconds);
     if (fx.remaining[k] <= 0) delete fx.remaining[k];
   }

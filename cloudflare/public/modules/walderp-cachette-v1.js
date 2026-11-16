@@ -14,16 +14,17 @@
  * - Règle n°4 (aucun redessin visible) : l'image est UN nœud persistant accroché à <body>, hors de la page redessinée ; il est remis à jour après chaque
  *   redessin (window.__SOREAL_IDLE_APRES_REDESSIN_V1__) et à la fin de chaque cycle (une seule minuterie, posée seulement tant qu'il est caché).
  *
- * Valeurs NON publiées par le wiki, choix SOREAL à valider par Norman (2026-11-13) : l'opacité de départ et d'arrivée (« nearly invisible » puis « more
- * visible » : 4 % à 100 %, montée régulière), la place de l'image dans l'écran (tirée avec la graine) et sa taille.
+ * Opacités LUES dans le code du jeu (build 1260, 2026-11-16, WaldoSaysUnlocker::attachWaldoToMenu et Update) : départ 0,20 - 0,05 x trouvailles déjà faites, arrivée
+ * 0,40 - 0,05 x trouvailles, montée de 0,2 en 180 s. La place de l'image dans l'écran (tirée avec la graine) et sa taille dépendent de SOREAL (position tirée avec la graine ; taille fixée par l'interface).
  */
 (function(){
   'use strict';
   if(window.__SOREAL_IDLE_WALDERP_CACHETTE_V1__)return;
 
   var CYCLE_MS=180000;      /* wiki Walderp : « You will have 3 minutes to find him » (valeur de repli ; le moteur envoie hideCycleMs). */
-  var OPACITE_DEBUT=0.04;   /* choix SOREAL (non publié) : « starts out nearly invisible ». */
-  var OPACITE_FIN=1;        /* choix SOREAL (non publié) : « becomes more visible ». */
+  var OPACITE_DEBUT=0.2;    /* lu dans le jeu : 0,2 - 0,05 x trouvailles déjà faites (0 à 3). */
+  var OPACITE_FIN=0.4;      /* lu dans le jeu : 0,4 - 0,05 x trouvailles. */
+  function opacitesDe(forme){var f=Math.max(0,Math.min(3,Math.floor(Number(forme)||0)-1));return {debut:OPACITE_DEBUT-0.05*f,fin:OPACITE_FIN-0.05*f};}
   var MENUS_EXCLUS={admin:1}; /* outil de l'administrateur, pas un menu du jeu. */
   var CLASSE='soreal-idle-walderp-cachette-v1'; /* styles : soreal-idle-ui.css (aucune feuille injectée par le JS) */
   var noeud=null,minuterie=0,cleAffichee='';
@@ -58,9 +59,10 @@
     return {numero:numero,debut:d+numero*duree,duree:duree};
   }
 
-  function opacite(ecoule,duree){
+  function opacite(ecoule,duree,forme){
     var p=Math.max(0,Math.min(1,ecoule/duree));
-    return OPACITE_DEBUT+(OPACITE_FIN-OPACITE_DEBUT)*p;
+    var o=opacitesDe(forme);
+    return o.debut+(o.fin-o.debut)*p;
   }
 
   function registre(){return window.__SOREAL_IDLE_REG__||{};}
@@ -170,11 +172,11 @@
       if(n.__anim){try{n.__anim.cancel();}catch(_e){}n.__anim=null;}
       if(typeof n.animate==='function'){
         /* Web Animations : la montée suit le temps réel du cycle, même si l'onglet a dormi (currentTime recalé sur l'heure du jeu). */
-        n.__anim=n.animate([{opacity:OPACITE_DEBUT},{opacity:OPACITE_FIN}],{duration:s.cycle.duree,fill:'both',easing:'linear'});
+        var op=opacitesDe(s.forme);n.__anim=n.animate([{opacity:op.debut},{opacity:op.fin}],{duration:s.cycle.duree,fill:'both',easing:'linear'});
       }
     }
     if(n.__anim){try{n.__anim.currentTime=ecoule;}catch(_e){}}
-    else n.style.opacity=String(Math.round(opacite(ecoule,s.cycle.duree)*100)/100);
+    else n.style.opacity=String(Math.round(opacite(ecoule,s.cycle.duree,s.forme)*100)/100);
     n.hidden=false;
   }
 

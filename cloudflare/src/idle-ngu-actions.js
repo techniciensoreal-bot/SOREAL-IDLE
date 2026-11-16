@@ -611,7 +611,7 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
    * Rebirth qui ne remplit pas les deux conditions ; bonus versé une seule fois.
    */
   {
-    const rapide=runSeconds<30*60&&Math.max(0,int(context.bosses,0))>=37;
+    const rapide=runSeconds<=30*60&&Math.max(0,int(context.bosses,0))>=37;
     state.records.speedrunStreak=rapide?Math.max(0,int(state.records.speedrunStreak,0))+1:0;
     if(rapide&&state.records.speedrunStreak>=3&&!(num(state.records.speedrunBonusClaimed,0)>0)){
       state.records.speedrunBonusClaimed=1;

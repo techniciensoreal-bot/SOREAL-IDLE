@@ -82,7 +82,7 @@ r = api.attaqueTitan("t3", e, 5, 4.5 / 5); assert.equal(r.type, "chemise"); asse
 e = api.neuf(); api.attaqueTitan("t3", e, 0, 0.5);
 for (let i = 0; i < 10; i++) api.attaqueTitan("t3", e, 1, 4.5 / 5);
 r = api.attaqueTitan("t3", e, 2, 0.5 / 5);
-assert.equal(r.type, "sauterelles"); proche(r.multDegats, 0.5 * (1 + e.attaques / 100), "sauterelles : demi-dégâts x (1 + n/100)"); assert.ok(r.suite); assert.equal(r.intervalleMs, 150);
+assert.equal(r.type, "sauterelles"); proche(r.multDegats, 0.5 * (1 + e.attaques / 100), "sauterelles : demi-dégâts x (1 + n/100)"); assert.ok(r.suite); assert.equal(r.intervalleMs, 300, "0,30 s (attackRate x 0,15, lu dans le jeu)");
 let coups = 1;
 while (true) { const x = api.attaqueTitan("t3", e, 3, 0.9); assert.equal(x.type, "sauterelle"); proche(x.multDegats, 0.5 * (1 + e.attaques / 100)); coups++; if (!x.suite) break; }
 assert.equal(coups, 10, "10 attaques rapides");
