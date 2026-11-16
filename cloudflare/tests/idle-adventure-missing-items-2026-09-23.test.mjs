@@ -40,10 +40,10 @@ const S = IDLE_ADVENTURE_SPECIALS;
   // "Stapler" : Power 0/500/1000, pas de Toughness ; Energy Cap 22.33/30/60, Respawn 3/6/12
   assert.deepEqual([S.stapler.p, S.stapler.t, S.stapler.sType, S.stapler.sBase, S.stapler.sMax], [500, 0, "energyCapPct", 22.33, 30]);
   assert.deepEqual(S.stapler.sExtra, [{ type: "respawnReductionPct", base: 3, max0: 6, max100: 12 }]);
-  // "A Beanie" : Type Head ; Power 0/2000/4000, Toughness 1600/3000/6000 ; Magic Cap 20/53/106, Magic Power 70/184.9/369.8
+  // "A Beanie" : Type Head ; Power 0/2000/4000, Toughness 1600/3000/6000 ; Magic Cap 20/53/106, Magic Power 70/184.9/369.8 /* Alignement sur le jeu (2026-11-16) : 185 / 370 */
   assert.equal(S.aBeanie.slot, "head");
   assert.deepEqual([S.aBeanie.p, S.aBeanie.t, S.aBeanie.sBase, S.aBeanie.sMax], [2000, 3000, 20, 53]);
-  assert.deepEqual(S.aBeanie.sExtra, [{ type: "magicPowerPct", base: 70, max0: 184.9, max100: 369.8 }]);
+  assert.deepEqual(S.aBeanie.sExtra, [{ type: "magicPowerPct", base: 70, max0: 185, max100: 370 }]);
   // "The Candy Cane of Destiny" : Type Weapon ; Power 170000, Toughness 12000 ; 6 Specials
   assert.equal(S.candyCaneDestiny.slot, "weapon");
   assert.deepEqual([S.candyCaneDestiny.p, S.candyCaneDestiny.t, S.candyCaneDestiny.sType, S.candyCaneDestiny.sBase], [170000, 12000, "energyBarsPct", 1000]);

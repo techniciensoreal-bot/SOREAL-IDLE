@@ -395,6 +395,8 @@ if(s.fight.active&&s.fight.zone&&s.fight.zone!==s.selectedZone){s.fight=X(base()
 s.dualWieldRatio=Math.min(1,Math.max(0,N(s.dualWieldRatio)));
 /* Boss effectif (boss du Rebirth en cours + 301 par difficulté, posé par le moteur NGU) : mise à l'échelle bossRequired des objets (idle-adventure-boss-requis-v1.js). Absent = aucune échelle. */
 if(typeof s.bossEffectif==="number"&&Number.isFinite(s.bossEffectif))s.bossEffectif=Math.max(0,Math.floor(s.bossEffectif));else delete s.bossEffectif;
+/* Resource 3 active (Hacks débloqués, posé par le moteur NGU) : condition de la récompense du set Incriminating Evidence (checkSets). */
+if(typeof s.res3Actif!=="boolean")delete s.res3Actif;
 s.theEnd=idleTheEndNormalizeV1(s.theEnd);
 s.equipment=Object.assign({},s.equipment);
 s.equipment.weapon2=typeof s.equipment.weapon2==="string"?s.equipment.weapon2:"";
@@ -730,7 +732,10 @@ function checkSets(s){
   if(!auMoinsUnMax){accorderConsommablesSetsV1(s);return}
   for(const [id,d] of entreesSetsV1()){if(s.completedSets[id])continue;const ok=d.slots.every(slot=>idleAdventureNiveauEstMaxV1(s.itemList[`${id}:${slot}`]?.maxLevel));if(!ok)continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward);if(id==="training")s.unlockFlags.trainingSetExp20V1=true}
   /* Sets d'objets hors équipement (SETS_OBJETS_V1) : complétés quand chaque objet a atteint le niveau 100. */
-  for(const [id,d] of __advCtx.SETS_OBJETS_ENTREES_V1){if(s.completedSets[id])continue;if(!d.items.every(defId=>idleAdventureNiveauEstMaxV1(s.itemList[defId]?.maxLevel)))continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward)}
+  for(const [id,d] of __advCtx.SETS_OBJETS_ENTREES_V1){if(s.completedSets[id])continue;
+    /* Jeu (AllItemListController::checkforBonuses 3406, evidenceComplete) : le set Incriminating Evidence ne verse sa récompense (+2 Power / +80 000 Cap / +2 Bars de Resource 3, +1 potion R3 de chaque) que si Resource 3 est active (Resource3.res3On) ; sinon il attend, sans être marqué complété. res3Actif est posé par la synchro NGU (Hacks débloqués) ; absent = inconnu, comportement inchangé. Alignement du 2026-11-16. */
+    if(id==="incriminatingEvidence"&&s.res3Actif===false)continue;
+    if(!d.items.every(defId=>idleAdventureNiveauEstMaxV1(s.itemList[defId]?.maxLevel)))continue;s.completedSets[id]=true;appliquerRecompenseSetV1(s,d.reward)}
   accorderConsommablesSetsV1(s);
 }
 

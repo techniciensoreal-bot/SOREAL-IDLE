@@ -25,7 +25,7 @@ import { normalizeIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progr
 const FICHES = [
   ["heartRed", 119, 225000, 100, 100, 69, [["dropChancePct", 0, 30, 60], ["expPct", 2.5, 5, 10]]],
   ["heartYellow", 129, 150000, 100, 100, 69, [["apPct", 5, 10, 20], ["goldDropsPct", 0, 300, 600]]],
-  ["heartBrown", 162, 225000, 100, 100, 69, [["energyPowerPct", 100, 100, 200], ["magicPowerPct", 100, 100, 200], ["seedGainPct", 0, 35, 70]]],
+  ["heartBrown", 162, 225000, 100, 100, 69, [["energyPowerPct", 100, 100, 200], ["magicPowerPct", 100, 100, 200], ["seedGainPct", 35, 35, 70]]],
   ["heartGreen", 171, 225000, 100, 100, 69, [["beardSpeedPct", 30, 30, 60], ["dropChancePct", 50, 50, 100], ["respawnReductionPct", 4, 4, 8]]],
   ["heartBlue", 196, 225000, 420, 420, 69, [["goldDropsPct", 100, 100, 200], ["nguSpeedPct", 40, 40, 80]]],
   ["heartPurple", 212, 225000, 100, 1000, 69, [["beardSpeedPct", 40, 40, 80], ["dropChancePct", 40, 40, 80]]],

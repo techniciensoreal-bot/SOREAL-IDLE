@@ -173,7 +173,7 @@ export function idleAdventureEquipmentStatsV47(raw){
 /*
  * Clé du mémo d'équipement (plan design/ARCHITECTURE-CIBLE.md, étape 1 ; Norman, 2026-11-05 : « un calcul qui met trop de temps » : 132 clés de 60 Ko par action, 1 ms chacune) : SEULES les données que le calcul lit entrent dans la clé :
  * l'équipement porté (identifiants), les objets PORTÉS (ceux de l'inventaire dont l'identifiant est équipé, seconde arme comprise : le calcul filtre l'inventaire de cette façon, la normalisation ne regarde que les armes parmi les accessoires),
- * dualWieldRatio, bossEffectif (échelle bossRequired des objets, 2026-11-16), setRewards, permanent, cube et idleAttackBonus. Le reste de l'état d'Aventure (sac, coffre, liste d'objets, zone, filtres…, ~50 Ko) ne change jamais ce résultat : preuve par mutation de CHAQUE champ de l'état de
+ * dualWieldRatio, bossEffectif (échelle bossRequired des objets) et res3Actif (condition du set Evidence), 2026-11-16, setRewards, permanent, cube et idleAttackBonus. Le reste de l'état d'Aventure (sac, coffre, liste d'objets, zone, filtres…, ~50 Ko) ne change jamais ce résultat : preuve par mutation de CHAQUE champ de l'état de
  * référence (idle-equipement-cle-v1.test.mjs) et SOREAL_IDLE_VERIF_BONUS=1 (chaque réutilisation du mémo est comparée à un recalcul).
  */
 export function idleAdventureCleEquipementV1(raw){
@@ -184,7 +184,7 @@ export function idleAdventureCleEquipementV1(raw){
   /* La normalisation rejoue checkSets : les récompenses de sets dépendent de la liste d'objets (itemList), des sets complétés et du niveau de CHAQUE objet du sac (record) : ils entrent dans la clé, le sac sous forme compacte (définition, niveau). */
   /* Audit 2026-11-12 : sac à plat (définition, niveau, définition, niveau…) au lieu d'une paire par objet (450 petits tableaux par appel) ; ids dans un Set (au lieu de includes par objet). La clé change de FORME seulement : elle reste fonction de ce que le calcul lit (idle-equipement-cle-v1). */
   const sac=[];if(Array.isArray(raw.inventory))for(const x of raw.inventory){if(x){sac.push(x.definitionId,x.level)}else sac.push(0,0)}
-  return JSON.stringify([raw.version,e,portes,raw.dualWieldRatio,raw.bossEffectif,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac]);
+  return JSON.stringify([raw.version,e,portes,raw.dualWieldRatio,raw.bossEffectif,raw.res3Actif,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac]);
 }
 function idleAdventureEquipmentStatsMemoV47(raw,lecture){
   let cle=null;

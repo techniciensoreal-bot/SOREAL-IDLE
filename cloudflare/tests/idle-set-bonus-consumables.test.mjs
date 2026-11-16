@@ -70,7 +70,7 @@ const neuf = () => {
 
 // ---------- Incriminating Evidence : 1 potion Resource 3 α, β et δ ----------
 {
-  let s = neuf();
+  let s = neuf(); s.systems.hacks.unlocked = true; /* jeu : le set Evidence ne verse que si Resource 3 est active */
   const avant = idleNguBonuses(s).r3PowerMultiplier;
   s = toutUtiliser(ajouter(s, "incriminatingEvidence"));
   assert.equal(s.adventure.completedSets.incriminatingEvidence, true);
