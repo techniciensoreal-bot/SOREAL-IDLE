@@ -77,7 +77,7 @@ let niveauxMax = 0, nguCmp = 0, wdCmp = 0, nguCap = 0, wdCap = 0, nguPasseNiveau
 for (const ngu of ["augments", "wandoos", "respawn"]) {
   for (const part of [1e-4, 1e-2, 0.2, 1]) {          /* part de l'énergie libre placée */
     for (const dt of [0.5, 3, 25, 200, 3000]) {
-      const m = nouvelle();
+      const m = nouvelle(1e9);   /* assez d énergie libre quelle que soit l échelle de l équipement (stats des objets proportionnelles au boss : lu dans le jeu) */
       const libre = sync(m).joueur.energie;
       agir(m, { action: "allocateNgu", ngu, value: Math.floor(libre * part) });
       avancer(2000); sync(m);
@@ -109,7 +109,7 @@ for (const ngu of ["augments", "wandoos", "respawn"]) {
 function wandoos(bootFini, res) {
   for (const part of [1e-4, 1e-3, 1e-2, 0.2, 1]) {
     for (const dt of [0.5, 3, 25, 200]) {
-      const m = nouvelle();
+      const m = nouvelle(1e9);
       if (bootFini) { avancer(3700 * 1000); sync(m); }
       const r0 = sync(m);
       const libre = res === "energy" ? r0.joueur.energie : r0.joueur.systemes.resources.magic.current;

@@ -78,7 +78,7 @@
             'Certains fruits n’apparaissent qu’une fois leur condition remplie, comme dans le jeu, et le fruit d’Or n’arrondit plus en minutes.'
           ]},
           {menu:'wishes', titre:'Wishes', points:[
-            'Les bonus de puissance, de plafond et de barres de plusieurs souhaits se multiplient entre souhaits (au lieu de s’additionner), un souhait de vitesse est corrigé, et la QP des titans suit le jeu.'
+            'Les bonus de puissance, de plafond et de barres se multiplient maintenant d’un souhait à l’autre (au lieu de s’additionner), un souhait de vitesse est corrigé, et la QP de certains combats suit le jeu.'
           ]},
           {menu:'daycare', titre:'Garderie', points:[
             'Garderie : tous les objets ont maintenant leur taux du jeu (87 ajoutés, 3 corrigés), et les fragments peuvent y être placés avec l’atout adapté.'

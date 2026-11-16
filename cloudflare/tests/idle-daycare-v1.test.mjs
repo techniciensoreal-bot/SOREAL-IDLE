@@ -20,7 +20,7 @@ const near = (a, b, msg, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${msg}
 // --- Table des heures de base (pages objets) ---
 {
   const t = IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1;
-  assert.equal(Object.keys(t).length, 408, "321 taux du wiki + 87 lus dans le jeu (audit 2026-11-16, level0 @2343560).");
+  assert.equal(Object.keys(t).length, 415, "321 taux du wiki + 87 lus dans le jeu + 7 de la chaîne de l Exilé (audit 2026-11-16, level0 @2343560).");
   assert.equal(t[248], 48, "A Bag of Trash : un niveau toutes les 48 h.");
   assert.equal(t[77], 1, "Tutorial Cube : 1 h.");
   assert.equal(t[53], 1, "Forest Pendant : 1 h.");

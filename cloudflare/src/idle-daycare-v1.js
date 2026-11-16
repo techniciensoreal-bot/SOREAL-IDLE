@@ -419,6 +419,7 @@ export const IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 = Object.freeze({
   429: 96, // amplifier
   445: 24, // edgyMagicite
   446: 24, // creepyDoll
+  335: 72, 336: 72, 337: 72, 338: 72, 339: 72, 340: 72, 341: 72, // chaîne de l'Exilé (table daycareRate de la scène : 259 200 s chacun, lu dans level0 @2343560, 2026-11-16)
   449: 48, // throOdignslug
   450: 48, // linkCable
   451: 72, // handCursor
