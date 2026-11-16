@@ -704,6 +704,8 @@ export function nukerBossSorealIdle(
         stats.metaNgu
       );
 
+    const bossDepartNukeV1 = bossVaincus;
+
     while (iterations < 500) {
       iterations += 1;
 
@@ -712,6 +714,22 @@ export function nukerBossSorealIdle(
         renaissanceNativeCountNuke < 1;
 
       if (bossBloqueRenaissanceNuke) {
+        break;
+      }
+
+      /*
+       * Lu dans le jeu (BossController::nukeBosses, build 1260, audit 2026-11-16, E2) : le NUKE s'arrête quand bossID >= highestBoss ET bossID < 124 ;
+       * highestBoss est le record en difficulté NORMAL (nombre de boss vaincus). Il ne passe donc un boss d'index < 124 que si ce boss a déjà été vaincu
+       * en Normal ; à partir de l'index 124, il peut tuer de nouveaux boss. (Le record local suit les boss déjà tombés pendant cet appel en Normal.)
+       */
+      if (
+        bossVaincus < 124 &&
+        bossVaincus >= Math.max(
+          0,
+          Math.floor(nombreSorealIdle_(stats.metaNgu && stats.metaNgu.difficultyPeaks && stats.metaNgu.difficultyPeaks.normal, 0)),
+          (stats.metaNgu && stats.metaNgu.difficulty) === 'normal' ? bossDepartNukeV1 : 0
+        )
+      ) {
         break;
       }
 
@@ -765,10 +783,19 @@ export function nukerBossSorealIdle(
         bossVaincus
       );
 
+      /* Bonus « 1re fois » : il REMPLACE l'EXP de base, arrondi vers le bas (BossController::rewardExp, audit 2026-11-16, E7). */
+      const estPremiereFoisJamaisNuke =
+        bossIndexNuke >= highestBossJamaisAtteintNuke;
+      const bonusPremiereFoisBrutNuke =
+        estPremiereFoisJamaisNuke
+          ? xpBonusPremiereFoisSorealIdle_(bossIndexNuke)
+          : 0;
+
       const xpReelleNuke =
+        bonusPremiereFoisBrutNuke > 0 ? 0 :
         Math.max(
           0,
-          Math.round(
+          Math.floor(
               recompenseXpBossNiveauSorealIdle_(
               bossIndexNuke,
               niveauNuke
@@ -792,17 +819,12 @@ export function nukerBossSorealIdle(
         xpGagnee += xpReelleNuke;
       }
 
-      const estPremiereFoisJamaisNuke =
-        bossIndexNuke >= highestBossJamaisAtteintNuke;
-
       const bonusPremiereFoisNuke =
-        estPremiereFoisJamaisNuke
+        bonusPremiereFoisBrutNuke > 0
           ? Math.max(
               0,
-              Math.round(
-                xpBonusPremiereFoisSorealIdle_(
-                  bossIndexNuke
-                ) *
+              Math.floor(
+                bonusPremiereFoisBrutNuke *
                 xpMultiplierNuke *
                 facteurExpBossPerkSorealIdle_(bonusNguNuke, bossIndexNuke)
               )

@@ -38,12 +38,12 @@ function avecRandom(valeur, fn) {
   s.systems.quirks.unlocked = true;
   s.systems.quirks.data.levels = Object.assign({}, s.systems.quirks.data.levels, { 176: 1 });
   s.systems.wishes.data.tracks[203] = { level: 1 };
-  s = normalizeIdleNguState(s, { bosses: 299 }, 1_000_001);
+  s = normalizeIdleNguState(s, { bosses: 300 }, 1_000_001);
   assert.deepEqual([482, 486, 490].map((id) => has(s, id)), [true, true, true]);
-  assert.equal(has(s, 487), false, "boss 299 : pas encore");
-  s = normalizeIdleNguState(s, { bosses: 300 }, 1_000_002);
-  assert.equal(has(s, 487), true, "boss 300 vaincu en Sadistic");
-  const normal = normalizeIdleNguState(neuf("normal"), { bosses: 300 }, 1_000_002);
+  assert.equal(has(s, 487), false, "boss 300 : pas encore (le 301e boss est requis, lu dans le jeu)");
+  s = normalizeIdleNguState(s, { bosses: 301 }, 1_000_002);
+  assert.equal(has(s, 487), true, "301e boss vaincu en Sadistic");
+  const normal = normalizeIdleNguState(neuf("normal"), { bosses: 301 }, 1_000_002);
   assert.equal(has(normal, 487), false, "hors Sadistic : rien");
   // premier instantané : les pièces trouvées seulement, sans compteur
   const snap = idleNguSnapshot(s, ctx, 1_000_003).adventure.theEnd;

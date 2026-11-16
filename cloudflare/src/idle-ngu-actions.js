@@ -598,7 +598,8 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
   const committedNumber=forced===null?rb.nextNumber:forced;
 
   /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth » ; le jeu compte (secondes - 3600) / 500. */
-  if(!options.challengeId&&runSeconds>=3600){
+  /* audit du jeu 2026-11-16 (E10) : awardAP est appelé par engage(bool) pour TOUT rebirth, y compris le démarrage d'un défi */
+  if(runSeconds>=3600){
     state.currencies.ap+=apWithBonusV1(state,Math.floor(Math.max(0,Math.floor(runSeconds)-3600)/500)); /* lu dans le jeu (Rebirth::awardAP) : (secondes - 3600) / 500, division entière */
   }
 
@@ -946,11 +947,11 @@ export function idleNguRichJerksAttackPctV1(state) {
  */
 export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
   const peaks = state && state.difficultyPeaks ? state.difficultyPeaks : {};
-  const bossReadyEvil = num(peaks.normal, 0) >= 301;
+  const bossReadyEvil = num(peaks.normal, 0) >= 300; /* lu dans le jeu (Rebirth::setEvilNextRebirth, audit 2026-11-16) : highestBoss >= 300 */
   const richJerksItopodBonusPct = idleNguRichJerksAttackPctV1(state) * idleNguItopodStatBonusPctV1(state);
   const richJerksReady = richJerksItopodBonusPct >= 1e6;
   const beastV4Ready = Boolean(context.beastV4Beaten);
-  const bossReadySadistic = num(peaks.difficile, 0) >= 301;
+  const bossReadySadistic = num(peaks.difficile, 0) >= 300; /* lu dans le jeu (Rebirth::setSadisticNextRebirth) : highestHardBoss >= 300 */
   const exileV4Ready = Boolean(context.exileV4Beaten);
   return {
     difficile: {

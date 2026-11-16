@@ -181,10 +181,13 @@ const OLD_INVENTED_XP_BOSS_1_A_20 = [
     initIdx >= 0 && initIdx < whileIdx,
     "highestBossJamaisAtteint doit être initialisé AVANT la boucle de simulation (un seul appel peut vaincre plusieurs boss)."
   );
+  /* Audit du code du jeu (2026-11-16, E7) : le bonus « 1re fois » REMPLACE l'EXP de base (BossController::rewardExp) et addExp arrondit vers le bas. */
   assert.ok(
-    estPremiereFoisIdx > xpReelleIdx,
-    "La détection FTBE doit avoir lieu après le calcul du XP normal du kill."
+    estPremiereFoisIdx >= 0 && estPremiereFoisIdx < xpReelleIdx,
+    "La détection FTBE doit avoir lieu avant le calcul du XP de base du kill (le bonus le remplace)."
   );
+  assert.ok(prog.includes("bonusPremiereFoisBrut > 0 ? 0 :"), "Combat : le bonus 1re fois remplace l'EXP de base.");
+  assert.ok(!/Math[.]round[(]\s*(recompenseXpBossNiveauSorealIdle_|bonusPremiereFoisBrut)/.test(prog), "Combat : EXP de boss arrondie vers le bas.");
   assert.ok(
     enregistrerIdx > estPremiereFoisIdx && enregistrerIdx < bossVaincusIncrIdx,
     "Le high-water-mark FTBE doit être avancé après la détection, avant que bossVaincus (compteur du run) ne soit lui-même incrémenté."
@@ -199,6 +202,7 @@ const OLD_INVENTED_XP_BOSS_1_A_20 = [
     nuke.indexOf("let highestBossJamaisAtteintNuke =") < nuke.indexOf("while (iterations < 500)"),
     "NUKE doit aussi initialiser son propre high-water-mark local AVANT la boucle (plusieurs boss peuvent tomber dans le même appel)."
   );
+  assert.ok(nuke.includes("bonusPremiereFoisBrutNuke > 0 ? 0 :") && !/Math[.]round[(]\s*recompenseXpBossNiveauSorealIdle_/.test(nuke), "NUKE : le bonus 1re fois remplace l'EXP de base, arrondi vers le bas.");
   assert.ok(
     nuke.includes("const estPremiereFoisJamaisNuke =") &&
     nuke.includes("enregistrerBossJamaisVaincuSorealIdle_(\n          stats.metaNgu,"),
