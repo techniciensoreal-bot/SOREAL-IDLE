@@ -102,7 +102,15 @@ function migrateLegacyMetaToV47(raw, now) {
   state.bank.advancedTraining = Math.max(0, num(src.bank?.advancedTraining, 0));
   state.bank.timeMachineSpeed = Math.max(0, num(src.bank?.timeMachineSpeed, src.bank?.timeMachine || 0));
   state.bank.timeMachineGold = Math.max(0, num(src.bank?.timeMachineGold, 0));
-  state.bank.beards = Math.max(0, num(src.bank?.beards, 0));
+  /* Banque des barbes PAR barbe (jeu : Beard.bankedLevel) ; l'ancien format (un seul nombre, calcule sur la 1re barbe active) est rattache a cette barbe. */
+  state.bank.beards = {};
+  if (src.bank?.beards && typeof src.bank.beards === "object") {
+    for (const [id, v] of Object.entries(src.bank.beards)) if (Math.max(0, Math.floor(num(v, 0))) > 0) state.bank.beards[String(id)] = Math.max(0, Math.floor(num(v, 0)));
+  } else if (num(src.bank?.beards, 0) > 0) {
+    const sys = src.systems?.beards?.data;
+    const first = (Array.isArray(sys?.activeTracks) && sys.activeTracks[0]) || sys?.activeTrack || "attack";
+    state.bank.beards[String(first)] = Math.floor(num(src.bank.beards, 0));
+  }
 
   /*
    * 4G's Sellout Shop : purchases est un compteur par objet du catalogue,
