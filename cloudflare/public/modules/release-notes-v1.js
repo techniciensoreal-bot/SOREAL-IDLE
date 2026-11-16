@@ -61,6 +61,7 @@
             'Le cap d’énergie de ce système se calcule comme dans le jeu : la part entière de l’énergie nécessaire, plus un.'
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'L’accès à un titan tardif suit maintenant les règles du jeu ; les parties qui y avaient déjà accès le gardent. Plusieurs objets liés (notes, indices) ont leurs textes et images du jeu.',
             'Titans : les capacités des titans suivants (Walderp, la Bête, le Nerd, la Marraine, l’Exilé, IT HUNGERS, le Homard, l’Amalgame, Tippi, le Traître) suivent maintenant le jeu, et la régénération, les nuages, les explosifs et les paralysies sont corrigés d’après le code du jeu.',
             'Titans : la cachette de Walderp (opacités), sa cadence d’attaque, les sauterelles, les paralysies et les statistiques de Rock Lobster suivent les valeurs lues dans le jeu.',
             'Récompenses de titan, d’après le code du jeu : le facteur du défi d’EXP s’applique avant les autres, et le bonus d’EXP des premières victoires porte sur une victoire de moins par niveau (3 × niveau − 1), comme dans le vrai jeu.'
