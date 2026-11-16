@@ -5857,6 +5857,9 @@ body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-expand-butto
 .soreal-idle-blood-sort-infos-v1{background:rgba(0,0,0,.28);border-radius:10px;padding:7px 8px}
 .soreal-idle-blood-sort-v1 .soreal-idle-blood-sort-desc-v1{color:#ffe3e8;margin:0}
 .soreal-idle-blood-sort-v1 .soreal-idle-blood-sort-apercu-v1{color:#ffe0a8;margin-top:5px}
+/* Case « Automatique » d'un sort (Nombre, Spaghetti, Or) : lancé chaque seconde avec sa part du sang, comme dans le jeu. */
+.soreal-idle-blood-auto-v1{width:100%;margin-top:6px;padding:5px 8px;border-radius:9px;border:1px solid rgba(255,255,255,.5);background:rgba(0,0,0,.28);color:#fff;font:700 12px/1.2 inherit;cursor:pointer}
+.soreal-idle-blood-auto-v1[aria-pressed="true"]{background:#fff;color:#7a1030}
 .soreal-idle-blood-sort-v1 .soreal-idle-blood-lancer-v1{margin-top:auto;width:100%;font-size:13px}
 /* Le thème sombre global impose ses fonds bleus en !important : la page Blood Magic doit donc répondre en !important. */
 body.soreal-idle-active-v47 .soreal-idle-bloodmagic-v1 .soreal-idle-section-v8{

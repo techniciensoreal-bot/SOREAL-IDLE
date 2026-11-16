@@ -295,6 +295,35 @@ function appliquerSortCumulV1(spells, spell, montant) {
   return spells.bloodSpaghetti;
 }
 
+/*
+ * Sorts automatiques (lu dans le jeu, build 1260, 2026-11-16 : RebirthPowerSpell::autoSpell, relancé toutes les secondes par InvokeRepeating).
+ * Condition : boss > 36 (bossID) ; le sang est réparti à parts égales (floor) entre les sorts cochés (Nombre, Spaghetti, Or) et chacun lance son lancer partiel,
+ * dans cet ordre, avec le MÊME montant. Les cases sont des champs du jeu (BloodMagic.*AutoSpell), conservés au Rebirth. Le jeu n'exécute rien hors ligne.
+ */
+export function setBloodAutoSpellV1(state, spell, valeur, context = {}) {
+  const def = IDLE_SORTS_AUTO_V1.find((x) => x.spell === spell);
+  if (!def) throw new Error("SORT_SANG_INVALIDE");
+  if (!state.systems.bloodMagic?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const spells = state.systems.bloodMagic.data.spells;
+  spells[def.cle] = valeur === undefined ? !spells[def.cle] : Boolean(valeur);
+  return { spell, auto: spells[def.cle] };
+}
+
+export function avancerSortsAutoV1(state, secs, context) {
+  const bm = state.systems.bloodMagic;
+  if (!bm?.unlocked || !(secs > 0)) return;
+  const spells = bm.data.spells;
+  const actifs = IDLE_SORTS_AUTO_V1.filter((x) => spells[x.cle]);
+  if (!actifs.length) { if (spells.autoReste) spells.autoReste = 0; return; }
+  /* Pas de lancer hors ligne (même seuil de 5 min que le reste du hors ligne) ; boss > 36 (même condition que l'avance des rituels). */
+  if (secs >= 5 * 60 || num(context.bosses, 0) < 37) return;
+  const cumul = Math.max(0, num(spells.autoReste, 0)) + secs;
+  if (cumul < 1) { spells.autoReste = cumul; return; }
+  spells.autoReste = cumul - Math.floor(cumul);
+  const montant = Math.floor(Math.max(0, num(state.currencies.blood, 0)) / actifs.length);
+  for (const x of actifs) castBloodSpellPartielV1(state, x.spell, montant);
+}
+
 function castBloodSpellSansTrace(state, spell, now = 0) {
   const minimum = BLOOD_SPELL_MINIMUMS_V1[spell];
   if (minimum === undefined) throw new Error("SORT_SANG_INVALIDE");
@@ -1491,6 +1520,7 @@ function passesDuTempsSeulV1(state, secs, context, now) {
     if (tmActive) span("avance:machineTemporelle", () => advanceTimeMachine(state, secs));
     if (num(context.bosses, 0) >= 37) span("avance:bloodMagic", () => advanceBloodMagic(state, secs, context));
   }
+  span("avance:sortsAuto", () => avancerSortsAutoV1(state, secs, context));
   span("avance:yggdrasil", () => advanceYggdrasil(state, secs, nowMs(now)));
   span("avance:wandoos", () => advanceWandoos(state, secs, context, now));
   span("avance:ngus", () => advanceNgusV1(state, secs));
