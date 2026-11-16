@@ -84,9 +84,15 @@ Jeu : 31 536 000 s. Correctif : `PLAFOND_HORS_LIGNE_SECONDES_V1 = 365 * 24 * 60 
 
 **E8. Seuil « hors ligne » 5 min au lieu de 10 s** (`idle-ngu-systemes.js:1464`, `1247`, `1500`) : le jeu retire l'effet des potions / charmes / Bar Bars et le farm pour tout écart > 10 s. SOREAL attend 300 s (parce que chaque synchro en ligne est un « delta »). Sans conséquence jouable (un retour à moins de 5 min peut garder une potion active : au maximum 5 min d'avantage).
 
+> **Suite 2026-11-16 : volontairement NON aligné.** Le moteur ne distingue pas « en ligne » de « hors ligne » autrement que par l’écart entre deux synchros ; en ligne cet écart peut aller jusqu’à 90 s (`IDLE_SYNCHRO_AFFAMEE_MS_V1`, `ui-noyau-v1.js`), une page en arrière-plan est ralentie par le navigateur. Un seuil de 10 s retirerait les potions, charmes et Bar Bars en pleine partie. Le seuil de 5 minutes reste (écart de gain au plus 5 min d’effet de potion).
+
 **E9. Wandoos 98 : installation de 24 h** : le jeu exige `installTime >= 86 400` (compté à 0,02 s par tick, seulement en ligne : 4779) avant tout effet ; hors ligne, `installTime` n'avance PAS. SOREAL n'a aucune notion d'installation. À confirmer avec le wiki / Norman : si l'installation de 24 h existe réellement pour le joueur, SOREAL donne Wandoos immédiatement. Boot : le jeu applique la vitesse de boot de la FIN de l'absence à toute la fenêtre ; SOREAL moyenne la rampe (moins généreux) : pour coller, `bootFraction = clamp(elapsedFin / bootSeconds, 0, 1)` sur la fenêtre entière.
 
+> **Suite 2026-11-16 : installation faite** (migration 55 -> 56, `installSeconds`, lu dans 4779 / 4819 : 24 h EN LIGNE, conservée au Rebirth, n’avance pas hors ligne ; les parties qui avaient déjà Wandoos sont installées). Le boot (rampe moyennée) reste inchangé.
+
 **E10. Hacks : un seul hack actif** (`idle-ngu-pistes.js:603`) : le jeu fait progresser TOUS les hacks ayant du R3 alloué ; SOREAL n'avance que `activeTrack`. Écart de conception en ligne comme hors ligne, hors du périmètre strict de cette mission (à confirmer dans `HacksController::updateAllHacks` 3194, qui boucle bien sur tous les hacks).
+
+> **Suite 2026-11-16 : fait.** Chaque hack a sa Resource 3 (`tracks[id].r3`), tous ceux qui en ont avancent (`allocation.r3` = total) ; action `allocateHack`, barre d’outils commune = nouveau total. Antennes de l’Exilé : R3 du hack 13 seul. Respawn (`AdventureController::respawnTime`, 140) aligné : aucun plancher 0,34 s, plafond objets = facteur 0,2 (80 %) dans les trois difficultés.
 
 **E11. Chronologie des Titans** : cooldowns du No Rebirth Challenge : le jeu retire `900 s x complétions` (plafond propre à chaque titan : 3 600, 3 600 (t3/t4), 7 200 (t5), 9 000 (t6), 12 600 (t7), 14 400 (t8), 16 200 (t9), 19 800 (t10), 21 600 (t11), 23 400 (t12)), plancher 3 600 s ; Évil / Sadistic comptent à partir de t7. SOREAL utilise trois variables de réduction globales (`titanCooldownReductionMs...`, `idleAdventureTitanCooldownMsV1`). NON VÉRIFIÉ numériquement.
 

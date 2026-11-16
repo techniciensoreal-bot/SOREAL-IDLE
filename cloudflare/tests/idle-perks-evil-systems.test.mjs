@@ -31,7 +31,7 @@ assert.equal(idlePerkByIdV1(228).cap, 100);
   assert.ok(Math.abs(r.state.systems.bloodMagic.data.spells.ironPill - Math.pow(10000, 0.25) * 26) < 1e-6);
 }
 
-// Respawn : facteurs multiplicatifs, plancher 0,34 s
+// Respawn : facteurs multiplicatifs, aucun plancher (lu dans le jeu)
 {
   const s = normalizeIdleNguState({ difficulty: "extreme" }, { bosses: 100 }, 1_000_000);
   s.systems.perks.data.levels[93] = 100;

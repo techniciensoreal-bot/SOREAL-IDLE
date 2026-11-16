@@ -1594,7 +1594,7 @@ export function questingEnvV1(state, context) {
   const gear = idleEquipementEffectifV1(state);
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   return {
-    respawnSeconds: Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1))),
+    respawnSeconds: 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1)),
     idleAttackSeconds: state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1,
     gearQuestDropsPct: Math.max(0, num(gear.specialsByType?.questDropsPct, 0)),
     /* Heroic Sigil (set) : "Quest items drop 10% more often!" (SETS_OBJETS_V1.heroicSigil). */
