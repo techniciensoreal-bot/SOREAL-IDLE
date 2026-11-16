@@ -22,9 +22,9 @@ function etat(coeurNiveau) {
 // Zone : 800 kills suffisent avec le cœur au niveau 100, pas au niveau 99.
 {
   const avec = etat(100);
-  assert.equal(macguffinOnZoneKillsV1(avec, "sewers", 799).length, 0);
+  assert.equal(macguffinOnZoneKillsV1(avec, "sewers", 800).length, 0, "strictement superieur au seuil : pas de drop a 800");
   const drops = macguffinOnZoneKillsV1(avec, "sewers", 1);
-  assert.equal(drops.length, 1, "800e kill : fragment de The Sewers");
+  assert.equal(drops.length, 1, "801e kill (seuil + 1, LootDrop::macGuffinThreshold) : fragment de The Sewers");
   assert.equal(drops[0].type, "energyPower");
   assert.equal(macguffinOnZoneKillsV1(etat(99), "sewers", 800).length, 0, "cœur niveau 99 : il faut 1 000 kills");
 }

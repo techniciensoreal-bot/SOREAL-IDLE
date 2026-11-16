@@ -51,11 +51,12 @@ export const IDLE_MACGUFFIN_FORMULAS_V1 = Object.freeze({
   golden: Object.freeze({ lin: 0.005 }),
   augment: Object.freeze({ lin: 0.001 }),
   stat: Object.freeze({ lin: 0.01 }),
-  wandoos: Object.freeze({ lin: 0.002, exp: 0.25, coef: 0.06325 }),
-  number: Object.freeze({ lin: 0.005, exp: 0.25, coef: 0.1581 }),
-  blood: Object.freeze({ lin: 0.003, exp: 0.2, coef: 0.1194 }),
-  r3Power: Object.freeze({ lin: 0.0005, exp: 0.3, coef: 0.01255 }),
-  r3CapBar: Object.freeze({ lin: 0.0005, exp: 0.2, coef: 0.0199 })
+  /* Coefficients lus dans le jeu (*BonusPerRebirth, build 1260, 2026-11-16) : coef IL x lin (Wandoos 31,63 x 0,002 ; NUMBER 31,63 x 0,005 ; Blood 39,81 x 0,003 ; R3 Power 25,12 x 0,0005 ; R3 Cap/Bar 39,81 x 0,0005). */
+  wandoos: Object.freeze({ lin: 0.002, exp: 0.25, coef: 0.06326 }),
+  number: Object.freeze({ lin: 0.005, exp: 0.25, coef: 0.15815 }),
+  blood: Object.freeze({ lin: 0.003, exp: 0.2, coef: 0.11943 }),
+  r3Power: Object.freeze({ lin: 0.0005, exp: 0.3, coef: 0.01256 }),
+  r3CapBar: Object.freeze({ lin: 0.0005, exp: 0.2, coef: 0.019905 })
 });
 
 /*
@@ -278,7 +279,7 @@ export function macguffinRebirthGainPctV1(typeId, level, ratio) {
   const f = IDLE_MACGUFFIN_FORMULAS_V1[type.formula];
   const L = Math.max(0, N(level, 0));
   const T = Math.max(0, N(ratio, 0));
-  const base = f.exp !== undefined && L > 100 ? Math.pow(L + 1, f.exp) * f.coef : (L + 1) * f.lin;
+  const base = f.exp !== undefined && L + 1 > 100 ? Math.pow(L + 1, f.exp) * f.coef : (L + 1) * f.lin;
   return base * T;
 }
 
@@ -571,8 +572,9 @@ export function macguffinOnZoneKillsV1(state, zoneId, kills) {
   if (data.zoneCounter.zone !== zoneId) data.zoneCounter = { zone: zoneId, kills: 0 };
   data.zoneCounter.kills += I(kills, 0);
   const required = macguffinZoneKillsRequiredV1(state);
-  while (data.zoneCounter.kills >= required) {
-    data.zoneCounter.kills -= required;
+  /* Lu dans le jeu (LootDrop::macGuffinThreshold, build 1260, 2026-11-16) : le fragment tombe quand globalKillCounter > seuil (strict), soit au kill seuil + 1 ; le compteur repart de 0. */
+  while (data.zoneCounter.kills > required) {
+    data.zoneCounter.kills -= required + 1;
     addDrop(state, data, type.id, true, out);
   }
   return out;
