@@ -119,29 +119,34 @@ export function exileWahweeV1(s, tirageMegaReussi) {
 }
 
 /*
- * Hack Hack : tant que le Hack actif est « Hack Hack » avec R3 alloué = plafond total de R3 - 1 et que le Buster (339) est vu, le jeu donne les Antennes (340)
- * toutes les 60 s. Écart connu avec le jeu : sa minuterie tourne en continu et teste la condition à chaque échéance ; ici le temps où la condition est
- * tenue s'accumule (data.exileHoldS), un objet par minute tenue, et retombe à 0 dès qu'elle ne l'est plus (le contrôle ne se joue qu'aux synchros).
+ * Hack Hack : HacksController::checkExilePiece (méthode 3180) est lancée par InvokeRepeating(60 s, 60 s) dans HacksController::Start (méthode 3178) : une minuterie CONTINUE, qui tourne
+ * que la condition soit tenue ou non et qui teste la condition à chaque échéance (60 s, 120 s...). Condition (R3 allumée, Hack n°13 avec R3 = plafond total - 1, Buster 339 déjà vu) -> une paire d'Antennes (340).
+ * Reproduction : la phase de la minuterie (data.exilePhaseS, 0 à 60 s) avance de tout le temps joué ; chaque échéance franchie pendant la synchro teste la condition sur l'état de la synchro (constant
+ * entre deux actions du joueur : toute action synchronise d'abord). InvokeRepeating ne tourne pas hors connexion (le jeu ne rejoue pas ses minuteries) : une synchro de 5 minutes ou plus (même seuil
+ * « hors ligne » que le farm d'Aventure) remet la phase à 0, comme une nouvelle ouverture du jeu (la première échéance tombe 60 s après le démarrage).
  */
-export function exileHackV1(state, seconds) {
+export function exileHackV1(state, seconds, enLigne = true) {
   const hacks = state && state.systems && state.systems.hacks;
   const adv = state && state.adventure;
-  if (!hacks || !hacks.unlocked || !adv || !hacks.data) return [];
+  if (!hacks || !hacks.data || !adv) return [];
   const d = hacks.data;
-  const tient = d.activeTrack === "hackHack"
-    && exileVuV1(adv, IDLE_EXILE_OBJETS_V1.buster)
-    && Number(hacks.allocation && hacks.allocation.r3) === Math.floor(idleNguEffectiveResourceStatV1(state, "r3", "cap")) - 1
-    && Math.floor(idleNguEffectiveResourceStatV1(state, "r3", "cap")) - 1 >= 0;
-  if (!tient) {
-    if (d.exileHoldS !== undefined) delete d.exileHoldS;
+  if (!enLigne) {
+    if (d.exilePhaseS !== undefined) delete d.exilePhaseS;
     return [];
   }
-  d.exileHoldS = Math.max(0, Number(d.exileHoldS) || 0) + Math.max(0, Number(seconds) || 0);
+  const total = Math.max(0, Number(d.exilePhaseS) || 0) + Math.max(0, Number(seconds) || 0);
+  const echeances = Math.floor(total / IDLE_EXILE_HACK_PERIODE_S_V1);
+  const phase = total - echeances * IDLE_EXILE_HACK_PERIODE_S_V1;
+  if (phase > 0 || d.exilePhaseS !== undefined) d.exilePhaseS = phase;   /* temps nul : l'état ne change pas (SOREAL_IDLE_VERIF_TEMPS_NUL) */
+  if (!(echeances > 0) || !hacks.unlocked) return [];
+  const cap = Math.floor(idleNguEffectiveResourceStatV1(state, "r3", "cap"));
+  const tient = d.activeTrack === "hackHack"
+    && exileVuV1(adv, IDLE_EXILE_OBJETS_V1.buster)
+    && cap - 1 >= 0
+    && Number(hacks.allocation && hacks.allocation.r3) === cap - 1;
+  if (!tient) return [];
   const out = [];
-  while (d.exileHoldS >= IDLE_EXILE_HACK_PERIODE_S_V1 && out.length < 50) {
-    d.exileHoldS -= IDLE_EXILE_HACK_PERIODE_S_V1;
-    exileDonnerV1(adv, IDLE_EXILE_OBJETS_V1.antennae, out);
-  }
+  for (let i = 0; i < echeances && out.length < 50; i++) exileDonnerV1(adv, IDLE_EXILE_OBJETS_V1.antennae, out);
   return out;
 }
 
@@ -165,26 +170,35 @@ export function exileAssembleV1(s) {
 
 const PIECES_ASSEMBLABLES_V1 = Object.freeze(["faceExile", "exileClueTentacle", "exileClueAntlers", "exileClueBuster", "exileClueAntennae", "sackExile"]);
 
+/* Textes du jeu annoncés à l'assemblage (ItemController::consumeItem, méthode 3794, infobulles) ; traduits par le serveur (design/traductions/fr/misc.json). */
+export const IDLE_EXILE_MESSAGES_V1 = Object.freeze({
+  debloque: "The pieces vibrate with the mystical voodoo energy that only unlocking something can generate. You can now face THE EXILE in Adventure mode!",
+  recompenseSpeciale: "The ground beneath you rumbles and shakes violently for a moment, like an earthquake. You're sure something has changed about the Exile, but you can't see it yet.",
+  lecher: "You're overcome with a desire to individually lick every piece of the Exile, which of course you succumb to. It takes 30 minutes to give each piece a proper tongue polishing until they sparkle in the noon sun... you gross bastard."
+});
+
 /*
- * « Utiliser » une pièce (ItemController::consumeItem, méthode 3794, objets 336 à 341) : rien n'est consommé. Avec le Sac (341) à la case 13 :
- * si l'Exilé est déjà débloqué -> titan9SpecialReward, sinon rien. Sans le Sac : première fois -> titan9Unlocked (l'Exilé se montre à la place du
- * Prêtre), ensuite un simple message.
+ * « Utiliser » une pièce (ItemController::consumeItem, méthode 3794, objets 336 à 341 retirables) : rien n'est consommé. Avec le Sac (341) à la case 13 (exileSpecialAssembled) :
+ * si l'Exilé n'est pas encore débloqué -> rien ; sinon titan9SpecialReward + message du tremblement. Sans le Sac, assemblage complet (exileAssembled) : première fois -> titan9Unlocked
+ * + message ; ensuite un message (« lécher les pièces »). Assemblage incomplet : rien, sans message (comme le jeu). Une pièce verrouillée n'est pas retirable : rien.
  */
 export function exileUtiliserPieceV1(s, itemId) {
   const o = (s.inventory || []).find(x => x && String(x.id) === String(itemId || ""));
   if (!o) throw Error("OBJET_INTROUVABLE");
   if (!PIECES_ASSEMBLABLES_V1.includes(o.definitionId)) throw Error("OBJET_NON_ASSEMBLABLE");
+  const rien = { assemble: false, special: false, debloque: false, recompenseSpeciale: false };
+  if (o.locked) return rien;
   const etat = exileAssembleV1(s);
   const flags = s.unlockFlags;
   if (etat.special) {
     if (!flags.titan9Unlocked) return { assemble: true, special: true, debloque: false, recompenseSpeciale: false };
     flags.titan9SpecialReward = true;
-    return { assemble: true, special: true, debloque: false, recompenseSpeciale: true };
+    return { assemble: true, special: true, debloque: false, recompenseSpeciale: true, message: IDLE_EXILE_MESSAGES_V1.recompenseSpeciale };
   }
-  if (!etat.assemble) return { assemble: false, special: false, debloque: false, recompenseSpeciale: false };
+  if (!etat.assemble) return rien;
   if (!flags.titan9Unlocked) {
     flags.titan9Unlocked = true;
-    return { assemble: true, special: false, debloque: true, recompenseSpeciale: false };
+    return { assemble: true, special: false, debloque: true, recompenseSpeciale: false, message: IDLE_EXILE_MESSAGES_V1.debloque };
   }
-  return { assemble: true, special: false, debloque: false, recompenseSpeciale: false };
+  return { assemble: true, special: false, debloque: false, recompenseSpeciale: false, message: IDLE_EXILE_MESSAGES_V1.lecher };
 }

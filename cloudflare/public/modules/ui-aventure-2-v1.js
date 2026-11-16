@@ -1871,7 +1871,7 @@
             (boutonEquiper||boutonDesequiper)+
             boutonVerrouiller+(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__?window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.boutonFiche(REG.idleEtat,id,item):'')+ /* Garderie (daycare-page-v1.js) : absent si verrouillée (règle n°2) */
             boutonDebloquer+
-            boutonConsommer+
+            boutonConsommer+(window.__SOREAL_IDLE_EXILE_GLOP_V1__?window.__SOREAL_IDLE_EXILE_GLOP_V1__.boutonsFiche(item):'')+ /* pièces de l'Exilé, ingrédients de la GLOP (exile-glop-v1.js) */
             boutonTransformer+
             boutonInstallerOs+
             boutonSemerGraine+
@@ -1881,7 +1881,7 @@
 
         corps.innerHTML=
           enteteFicheObjetIdleV1_(item,'Niveau '+niveau+'/100'+(item.fullyMaxed?' · tout au maximum':''))+
-          statsHtml+
+          statsHtml+(window.__SOREAL_IDLE_EXILE_GLOP_V1__?window.__SOREAL_IDLE_EXILE_GLOP_V1__.descriptionFiche(a,item):'')+ /* texte de description du jeu (catalogue du serveur) */
           piedFicheObjetIdleV1_(item)+
           actionsObjetHtml;
         root.style.display='block';

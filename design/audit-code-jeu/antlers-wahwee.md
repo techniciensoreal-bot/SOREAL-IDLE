@@ -85,3 +85,11 @@ Constat : SOREAL a les accessoires 328/330/332/334 et le titan `t7`, mais AUCUN 
 - Ordre exact des hacks du jeu (13 = Hack Hack déduit du wiki) ; sémantique de `Hack.res3` vs l'état SOREAL.
 - Hors ligne : `questingOfflineProgress` peut laisser `idleProgress` à 1 exactement ; effet sur 338 non testé.
 - Images/icônes `Items/Clue1` des indices à fournir.
+
+## 10. Suite du 2026-11-16 (tout lu dans le code du jeu, build 1260)
+- **Antennes (340)** : `HacksController::Start` (3178) lance `checkExilePiece` par `InvokeRepeating(60, 60)` : minuterie CONTINUE, condition testée à chaque échéance. Reproduit exactement (`exileHackV1`, phase `data.exilePhaseS`) ; hors connexion (synchro de 5 min ou plus) la phase repart de 0 (le jeu ne rejoue pas ses minuteries). Plus d'écart documenté.
+- **Jauge idle / hors ligne** : `updateIdleQuest` remet `idleProgress` à 0 dès qu'il atteint 1 ; `questingOfflineProgress` ne laisse qu'un reste fractionnaire (< 1) ; la borne « <= 1 » du 338 est donc toujours vraie, seul le seuil 0,9 compte. SOREAL (jauge bornée à 0,999999999999) est équivalent ; test `idle-antlers-quete-hors-ligne-v1`.
+- **Blue Eyes Ultimate Chestplate (342)** : torse unique, Attack 5 500 000, Defense 160 000 000 ; spéciaux 49 = Res3 Cap 120 %, 51 = Wish Speed 25 %, 50 = Hack Speed 20 % (1e7 points pour 1 %, `Equipment::effectName`). Butin `LootDrop::zone30Drop` : `titan9SpecialReward`, min(1e-6 x loot, 25 %), niveau 0, sur tout palier de l'Exilé.
+- **GLOP (372)** : voir `idle-glop-v1.js` (départ de quête par K.O. contre IT HUNGERS = `postDeathDrops` 555, ingrédients 367 à 371 `zone7/15/20/22/29Drop`, `attemptToMakeGlop` 3772, `checkAndUseGlop` 290 = +5 attaques par GLOP retirée du sac). La description du jeu dit « about 8 attacks » mais le code ajoute 5 : le code fait foi.
+- **Images** : le jeu fournit le sprite du Prêtre (`PriestOfTheExile`, 184 x 184) et l'icône `Clue1` (46 x 46) dans `sharedassets0.assets` (+ `.resS`) : extraits tels quels dans `cloudflare/public/titans/priest.png` et `cloudflare/public/items/clue1.png`, servis en repli par les routes média existantes.
+- **Reste inconnu** : `titan9questStarted` (aucune écriture trouvée), l'ordre exact des hacks du jeu pour le n°13 (déduit du wiki, cohérent avec `totalWishSpeedBonus` qui lit le n°14).

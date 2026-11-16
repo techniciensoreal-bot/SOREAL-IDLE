@@ -8,14 +8,14 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - keyframes : **441**
 - fichiersAvecWebAnimations : **21**
 - fichiersCanvas : **13**
-- pointsEntreeRejouables : **272**
+- pointsEntreeRejouables : **273**
 - mortsDeBase : **3**
 - retoursJoueur : **8**
 - retoursBoss : **7**
 - mortsNouvelles : **5**
 - effetsReglables : **4**
 - sonsEffets : **82**
-- dossiersDeRessources : **22**
+- dossiersDeRessources : **24**
 
 ## Menus
 Basic Training (`entrainement`) · Fight Boss (`combat`) · Adventure (`aventure`) · Rebirth (`renaissance`) · Augmentations (`augmentations`) · Advanced Training (`avance`) · Time Machine (`machine`) · Blood Magic (`sang`) · ITOPOD (`tower`) · Item Daycare (`daycare`) · Challenges (`challenges`) · Titans (`titans`) · NGU (`ngu`) · Wandoos (`wandoos`) · Yggdrasil (`yggdrasil`) · Gold Diggers (`diggers`) · Beards (`beards`) · MacGuffins (`macguffins`) · Hacks (`hacks`) · Questing (`questing`) · Quirks (`quirks`) · Wishes (`wishes`) · Cards (`cards`) · Cooking (`cooking`) · Boutique (`shop`) · Chroniques (`chroniques`) · Chat (`chat`) · Settings (`parametres`) · Admin (`admin`)
@@ -33,7 +33,7 @@ achievement, albumDix, albumFerme, albumPage, augTic, baille, bloodCap, bloodMin
 soreal_idle_effet_decor_v1, soreal_idle_effet_feu_v1, soreal_idle_effet_nav_v1, soreal_idle_effet_orage_v1
 
 ## Points d'entrée rejouables (window.__SOREAL_IDLE_*__)
-Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 272 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
+Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 273 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
 
 ## Animations CSS orphelines (définies mais nommées nulle part ailleurs)
 `bnPulse` (soreal-idle-itopod.css) · `rgFeuV1` (soreal-idle-itopod.css) · `sorealIdleBtTickV1` (soreal-idle-ui.css)
@@ -56,6 +56,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `img/mineurs/fonds` : 1
 - `img/mineurs/labos` : 17
 - `intro` : 16
+- `items` : 1
 - `machine-v2` : 3
 - `machine-v3` : 9
 - `magic/boss` : 299
@@ -63,6 +64,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `magic/safe` : 32
 - `perks` : 173
 - `shop` : 74
+- `titans` : 1
 - `trou` : 2
 - `voice-en` : 16
 - `wandoos` : 1

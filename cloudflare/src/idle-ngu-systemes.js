@@ -1463,7 +1463,7 @@ function passesDuTempsSeulV1(state, secs, context, now) {
   span("avance:barbes", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs, tempsPleinBarbes ? { tempsPlein: tempsPleinBarbes } : null));
   span("avance:hacks", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs, horsLigne ? {} : null));
   /* Antennes de l'Exilé (340) : Hack Hack avec R3 = plafond - 1, toutes les 60 s (HacksController::checkExilePiece). */
-  exileHackV1(state, secs);
+  exileHackV1(state, secs, secs < 5 * 60);
   span("avance:souhaits", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs));
 }
 

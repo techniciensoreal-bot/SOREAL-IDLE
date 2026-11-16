@@ -85,6 +85,8 @@ function safeZoneFileNames_(zone){
 }
 const IDLE_BOSSES_R2_PREFIX="idle/bosses/";
 const IDLE_ITEMS_R2_PREFIX="idle/items/";
+/* Icones du jeu livrees avec le frontend, par id d'objet du jeu (repli quand R2 n'a pas l'image) : 335 a 341 = Items/Clue1. */
+const IDLE_ITEM_ICONES_LIVREES_V1=Object.freeze({335:"clue1",336:"clue1",337:"clue1",338:"clue1",339:"clue1",340:"clue1",341:"clue1"});
 const IDLE_ITEMS_R2_EXTENSIONS=IDLE_ADVENTURE_R2_EXTENSIONS;
 const IDLE_ITEM_SET_NAMES=Object.freeze({
   training:"Training Set",
@@ -1155,6 +1157,16 @@ async function itemSet_(request,env,url){
       ?choisirObjetItemR2ParIdEtTier_(objects,explicitItemId,tier,nomReel,slot,setId)
       :choisirObjetItemR2ParId_(objects,explicitItemId,nomReel,slot,setId))
     :choisirObjetItemR2_(objects,nomReel,slot,setId);
+  /*
+   * Icone du jeu livree avec le frontend quand R2 n'a rien (cloudflare/public/items/) : les sept objets de la chaine de l'Exile (335 a 341) ont tous pour icone Items/Clue1 dans le jeu
+   * (build 1260, table d'objets, champ path) : texture Clue1 46 x 46 de sharedassets0.assets, extraite telle quelle. Meme chemin d'image que les autres objets (wikiItemId).
+   */
+  if((!object||!object.key)&&IDLE_ITEM_ICONES_LIVREES_V1[explicitItemId]&&env.ASSETS&&typeof env.ASSETS.fetch==="function"){
+    try{
+      const r=await env.ASSETS.fetch(new Request(new URL("/items/"+IDLE_ITEM_ICONES_LIVREES_V1[explicitItemId]+".png",request.url)));
+      if(r.ok&&/^image\//i.test(r.headers.get("content-type")||""))return new Response(r.body,{status:200,headers:{"content-type":"image/png","cache-control":"public, max-age=86400"}});
+    }catch(_e){}
+  }
   return reponseObjetR2_(request,env,object);
 }
 
@@ -1533,6 +1545,16 @@ async function titanImage_(request,env,url){
     const keys=await objetsDossierMobR2_(env,prefixe);
     const key=choisirCleTitanR2_(keys,id,tier,form,sprite);
     if(key)return reponseObjetR2_(request,env,{key});
+  }
+  /*
+   * Image du jeu livree avec le frontend (cloudflare/public/titans/<id>.png) quand R2 n'a rien : le Pretre d'Exile (texture PriestOfTheExile, 184 x 184, de sharedassets0.assets du jeu,
+   * build 1260, extraite telle quelle) n'a pas d'image dans R2. Meme chemin que les autres titans (/api/idle/media/titan?id=priest).
+   */
+  if(env.ASSETS&&typeof env.ASSETS.fetch==="function"){
+    try{
+      const r=await env.ASSETS.fetch(new Request(new URL("/titans/"+id.toLowerCase()+".png",request.url)));
+      if(r.ok&&/^image\//i.test(r.headers.get("content-type")||""))return new Response(r.body,{status:200,headers:{"content-type":"image/png","cache-control":"public, max-age=86400"}});
+    }catch(_e){}
   }
   return new Response("Image de titan introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
 }

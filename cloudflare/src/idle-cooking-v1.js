@@ -35,8 +35,7 @@
  *   A Can of Surstromming, A Jar of Marmite, Pizza With Pineapple) ne sont
  *   PAS des ingrédients de Cooking : pages "GLOP", "GLOP Recipe" et
  *   "Secrets and Spoilers" > IT HUNGERS, ce sont les composants de la GLOP
- *   qui sert à COMBATTRE IT HUNGERS (quête non modélisée, voir
- *   idle-adventure-v47.js). Les ingrédients de Cooking sont générés avec
+ *   qui sert à COMBATTRE IT HUNGERS (quête : idle-glop-v1.js). Les ingrédients de Cooking sont générés avec
  *   chaque repas, sans inventaire ni drop.
  */
 import { IDLE_ADVENTURE_SPECIALS } from "./idle-adventure-v47.js";

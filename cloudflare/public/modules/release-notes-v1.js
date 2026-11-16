@@ -42,7 +42,7 @@
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Équipement, d’après le code du jeu : chaque objet ne donne la totalité de ses stats qu’une fois un certain boss atteint dans le Rebirth en cours (avant, la part proportionnelle), plusieurs bonus d’objets ont été corrigés, et un set demande maintenant que la troisième ressource soit active.',
-            'Une longue chaîne d’objets cachés du jeu a été ajoutée côté moteur (l’interface pour l’assembler arrive ensuite).',
+            'Une longue chaîne d’objets cachés du jeu a été ajoutée, avec la fabrication, l’assemblage et les boutons « Utiliser » sur les objets concernés.',
             'Le premier coup d’un ennemi arrive à 1,5 × son intervalle d’attaque, comme dans le jeu, et le défi de 24 h demande un temps de base strictement inférieur à 24 h.',
             'Aventure, d’après le code du jeu : l’or de la première zone, plusieurs taux de drop, l’EXP des boss (base du Challenge de 24 h, +2 % par complétion, atout séparé), l’exposant de la racine cubique du drop, le temps de recharge de Oh Shit et quelques valeurs d’objets ont été corrigés.'
           ]},

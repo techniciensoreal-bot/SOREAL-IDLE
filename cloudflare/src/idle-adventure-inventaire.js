@@ -523,8 +523,8 @@ export const IDLE_ADVENTURE_COFFRE_TITAN_OBJETS_V1=Object.freeze({
   t6:["heroicSigil","ascendedX3Pendant","baldEgg","shrunkenVoodooDoll","pricelessVanGoghPainting","giantApple","powerPill","smallGerbil","mysteriousPurpleLiquid"],
   nerd:["incriminatingEvidence","ordinaryCalculator","animeFigurine","ascendedX4Pendant","theD20","theD8","animeBodypillow","redMeeple","bagOfTrash","heartShapedPanties"],
   godmother:["severedUnicornHead","kingLooty","violinCase","molotovCocktail","godmothersRing","godmothersWand","leftFairyWing","rightFairyWing"],
-  t7:["stillBeatingHeart","theJoker","antlersExile","creditCard","tentacleExile","skipCard","antennaeExile","blackLotus","busterExile","sealExile","faceExile","exileClueTentacle","exileClueAntlers","exileClueBuster","exileClueAntennae","sackExile"],
-  hungers:["theCricket","ascendedX5Pendant","emperorLooty","evilRubberDucky","gasGiant","carbonRod","kleinBottle","alienBugNest","theKey"],
+  t7:["stillBeatingHeart","theJoker","antlersExile","creditCard","tentacleExile","skipCard","antennaeExile","blackLotus","busterExile","sealExile","faceExile","exileClueTentacle","exileClueAntlers","exileClueBuster","exileClueAntennae","sackExile","blueEyesChestplate"],
+  hungers:["theCricket","ascendedX5Pendant","emperorLooty","evilRubberDucky","gasGiant","carbonRod","kleinBottle","alienBugNest","theKey","wellDoneSteak","pickleIceCream","canSurstromming","jarOfMarmite","pizzaPineapple","glop","glopRecipe"],
   lobster:["ascendedX6Pendant","galacticHeraldLooty","skippingStone","bedRock","rockCandy","brokenScissors","portableStairway","amplifier"],
   amalgamate:["ascendedX7Pendant","supremeIntelligenceLooty","rawSlabOfWood","tieOfApathy","titanEffigy"]
 });

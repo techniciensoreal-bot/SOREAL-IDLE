@@ -6,14 +6,14 @@
   "keyframes": 441,
   "fichiersAvecWebAnimations": 21,
   "fichiersCanvas": 13,
-  "pointsEntreeRejouables": 272,
+  "pointsEntreeRejouables": 273,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
   "mortsNouvelles": 5,
   "effetsReglables": 4,
   "sonsEffets": 82,
-  "dossiersDeRessources": 22
+  "dossiersDeRessources": 24
  },
  "menus": [
   {
@@ -4540,6 +4540,7 @@
   "__SOREAL_IDLE_ETAGERE_V1__": "modules/etagere-personnage-v1.js",
   "__SOREAL_IDLE_ETAT_HEURE_V1__": "standalone-bridge.js",
   "__SOREAL_IDLE_EVENEMENTS_AVENTURE_V1__": "modules/ui-amorcage-v1.js",
+  "__SOREAL_IDLE_EXILE_GLOP_V1__": "modules/exile-glop-v1.js",
   "__SOREAL_IDLE_EXPRESSIONS_V1__": "modules/voix-expressions-v1.js",
   "__SOREAL_IDLE_EXP_ACHATS_V1__": "modules/boutique-exp-page-v1.js",
   "__SOREAL_IDLE_EXP_NOMS_V1__": "modules/boutique-exp-page-v1.js",
@@ -4814,6 +4815,7 @@
   "img/mineurs/fonds": 1,
   "img/mineurs/labos": 17,
   "intro": 16,
+  "items": 1,
   "machine-v2": 3,
   "machine-v3": 9,
   "magic/boss": 299,
@@ -4821,6 +4823,7 @@
   "magic/safe": 32,
   "perks": 173,
   "shop": 74,
+  "titans": 1,
   "trou": 2,
   "voice-en": 16,
   "wandoos": 1

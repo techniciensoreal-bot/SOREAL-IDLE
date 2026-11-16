@@ -639,7 +639,7 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * déblocage et difficulté minimale de la page Titans. Le Greasy Nerd et la Godmother
  * déverrouillent Hacks et Wishes (objets Incriminating Evidence / A Severed Unicorn's Head).
  * Non modélisé : la quête du Secrets and Spoilers (Nerd, Godmother, IT HUNGERS), le butin
- * d'objets qui n'existent pas encore, GLOP (IT HUNGERS), les 3 objets « paper » (ROCK LOBSTER),
+ * d'objets qui n'existent pas encore, les 3 objets « paper » (ROCK LOBSTER) (la GLOP d'IT HUNGERS : idle-glop-v1.js),
  * le Ring of Apathy (AMALGAMATE Brutal), TIPPI et THE TRAITOR (respawn/EXP/or/butin non publiés).
  */
 {id:"nerd",name:"Greasy Nerd",boss:125,evilOnly:true,cooldown:4.5*H,drop:"incriminatingEvidence",avatarLevel:6,difficulties:{

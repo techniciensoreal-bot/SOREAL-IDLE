@@ -223,7 +223,7 @@
     note:'Simulées dans le combat : sans GLOP il est invincible et sa puissance grimpe de 400 % par attaque ; avec GLOP il est vulnérable (une charge par attaque) ; Attaque puissante.',
     tour:function(e,tirage,maintenant){
       e.gc+=1;e.attaques+=1;var m=1+e.gc/100;
-      if(!(e.glopCount>0)&&e.glopStock>0){e.glopStock-=1;e.glopCount+=5;}
+      if(!(e.glopCount>0)&&e.glopStock>0){e.glopStock-=1;e.glopsUtilises=(e.glopsUtilises||0)+1;e.glopCount+=5;}   /* checkAndUseGlop : la GLOP quitte le sac ; la page annonce `glopsUtilises` au serveur à la fin du combat */
       if(!(e.glopCount>0)){e.invincible=true;e.gc+=400;return R('devore',1*m,{invincibleDebut:e.attaques===1});}
       e.glopCount-=1;e.invincible=false;
       return simple(m,entier(tirage,5),3);
@@ -315,7 +315,7 @@
 
   function neuf(id,niveau){
     return {anneau:null,depuisSauterelles:0,chemises:0,saignements:0,affaibliJusqua:0,draineJusqua:0,attaques:0,depuisParalysie:0,paralyseJusqua:0,paralysieDebut:0,paralysieAttaquesRestantes:0,
-      gc:0,file:[],niveau:Math.max(1,Math.min(4,Number(niveau)||1)),cadenceMs:2000,aura:0,boucle:false,dit:false,consigne:0,nerdHacks:0,genou:false,glopCount:0,glopStock:0,invincible:false,
+      gc:0,file:[],niveau:Math.max(1,Math.min(4,Number(niveau)||1)),cadenceMs:2000,aura:0,boucle:false,dit:false,consigne:0,nerdHacks:0,genou:false,glopCount:0,glopStock:0,glopsUtilises:0,invincible:false,
       bouclierCoups:0,croissanceRythme:1,skip:0,pv:null,offenseFacteur:1,offenseAtk:1,offenseFin:0,defenseFacteur:1,defenseFin:0};
   }
 

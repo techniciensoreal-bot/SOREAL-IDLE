@@ -7,6 +7,7 @@ import { NOMS_SETS_FR_V1, NOMS_SPECIALS_FR_V1, NOMS_SETS_OBJETS_FR_V1, NOMS_PIEC
 import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
 import { BOOSTS, N } from "./idle-adventure-base.js";
 import { base } from "./idle-adventure-objets.js";
+import { IDLE_ADVENTURE_DESCRIPTIONS_V1 } from "./idle-adventure-descriptions-v1.js";
 
 export const SETS={
 /*
@@ -843,6 +844,12 @@ antennaeExile:{name:"Antennae of the Exile",zone:"",slot:"accessory",dropLevel:4
 blackLotus:{name:"The Black Lotus",zone:"",slot:"accessory",dropLevel:4,p:150000000,t:150000000,sBase:40000,sMax:40000,sType:"energyCapPct",sExtra:[{type:"magicCapPct",base:40000,max0:40000,max100:80000},{type:"r3CapPct",base:45,max0:45,max100:90},{type:"wishSpeedPct",base:20,max0:20,max100:40}]},
 // wiki : "Buster of the Exile" (Id 334, Accessory) — Power/Toughness Max at lvl 0 = 250000000/250000000. Specials : Energy Power (400000/400000/800000%), Hack Speed (20/20/40%), Magic Power (400000/400000/800000%), Resource 3 Power (400/400/800%).
 busterExile:{name:"Buster of the Exile",zone:"",slot:"accessory",dropLevel:4,p:250000000,t:250000000,sBase:400000,sMax:400000,sType:"energyPowerPct",sExtra:[{type:"hackSpeedPct",base:20,max0:20,max100:40},{type:"magicPowerPct",base:400000,max0:400000,max100:800000},{type:"r3PowerPct",base:400,max0:400,max100:800}]},
+/*
+ * Blue Eyes Ultimate Chestplate (objet 342 du jeu, build 1260, table d'objets de Assembly-CSharp ; type 1 = torse, unique) : curAttack 5 500 000, curDefense 160 000 000 ; specials : type 49 = Res3 Cap
+ * 1 200 000 000 points, type 51 = Wish Speed 250 000 000, type 50 = Hack Speed 200 000 000, tous trois a 10 000 000 points pour 1 % (Equipment::effectName et types.json) : 120 %, 25 %, 20 %. Meme conversion que The Joker
+ * (type 49 = 400 000 000 -> 40 %). Obtenu sur les titans de l'Exile apres l'assemblage avec le Sac (titan9SpecialReward), LootDrop::zone30Drop : niveau 0, 0,0001 % x facteur de loot, plafond 25 % (idle-adventure-combat.js).
+ */
+blueEyesChestplate:{name:"Blue Eyes Ultimate Chestplate",zone:"",slot:"chest",dropLevel:0,p:5500000,t:160000000,sBase:120,sMax:120,sType:"r3CapPct",sExtra:[{type:"wishSpeedPct",base:25,max0:25,max100:50},{type:"hackSpeedPct",base:20,max0:20,max100:40}]},
 // wiki : "'The Cricket'" (Id 380, Weapon) — Power/Toughness Max at lvl 0 = 2100000000/90000000. Specials : Energy Cap (28300/28300/56600%), Energy Power (249000/249000/498000%), Magic Cap (28300/28300/56600%), Magic Power (249000/249000/498000%), Resource 3 Power (253/253/506%).
 theCricket:{name:"'The Cricket'",zone:"",slot:"weapon",dropLevel:4,p:2100000000,t:90000000,sBase:28300,sMax:28300,sType:"energyCapPct",sExtra:[{type:"energyPowerPct",base:249000,max0:249000,max100:498000},{type:"magicCapPct",base:28300,max0:28300,max100:56600},{type:"magicPowerPct",base:249000,max0:249000,max100:498000},{type:"r3PowerPct",base:253,max0:253,max100:506}]},
 // wiki : "Evil Rubber Ducky" (Id 381, Accessory) — Power/Toughness Max at lvl 0 = 225000000/225000000. Specials : Energy Bars (304000/304000/608000%), Energy Cap (30300/30300/60600%), Magic Bars (304000/304000/608000%), Magic Cap (30300/30300/60600%), Magic Power (301000/301000/602000%).
@@ -957,7 +964,19 @@ exileClueTentacle:{name:"Tentacle of the Exile (Clue)",zone:"",slot:"special",dr
 exileClueAntlers:{name:"Antlers of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 exileClueBuster:{name:"Buster of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 exileClueAntennae:{name:"Antennae of the Exile (Clue)",zone:"",slot:"special",dropLevel:0,p:0,t:0},
-sackExile:{name:"Sack of the Exile",zone:"",slot:"special",dropLevel:0,p:0,t:0}
+sackExile:{name:"Sack of the Exile",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+/*
+ * La GLOP (quête d'IT HUNGERS, Norman, 2026-11-16 : « tout objet du jeu doit exister dans SOREAL »). Ids et noms de la table d'objets du jeu (build 1260) : 367 A Well Done Steak With Ketchup,
+ * 368 Pickle Ice Cream, 369 A Can of Surstromming, 370 A Jar of Marmite, 371 Pizza With Pineapple (cinq ingrédients, type 10), 372 GLOP (type 10), 387 GLOP Recipe (type 10). Aucune stat. Ni les ingrédients
+ * ni la GLOP ne se fusionnent ni ne s'équipent. Fabrication, usage et butin : idle-glop-v1.js.
+ */
+wellDoneSteak:{name:"A Well Done Steak With Ketchup",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+pickleIceCream:{name:"Pickle Ice Cream",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+canSurstromming:{name:"A Can of Surstromming",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+jarOfMarmite:{name:"A Jar of Marmite",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+pizzaPineapple:{name:"Pizza With Pineapple",zone:"",slot:"special",dropLevel:1,p:0,t:0},
+glop:{name:"GLOP",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+glopRecipe:{name:"GLOP Recipe",zone:"",slot:"special",dropLevel:0,p:0,t:0}
 });
 
 export const SPECIALS=Object.freeze(Object.fromEntries(Object.entries(SPECIALS_EN_V1).map(([id,d])=>[id,{...d,name:NOMS_SPECIALS_FR_V1[id]||d.name}])));
@@ -1515,6 +1534,14 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "antennaeExile":332,
   "blackLotus":333,
   "busterExile":334,
+  "blueEyesChestplate":342,
+  "wellDoneSteak":367,
+  "pickleIceCream":368,
+  "canSurstromming":369,
+  "jarOfMarmite":370,
+  "pizzaPineapple":371,
+  "glop":372,
+  "glopRecipe":387,
   "theCricket":380,
   "evilRubberDucky":381,
   "gasGiant":382,
@@ -1609,7 +1636,7 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
     }
   }
   for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,specials:d.sType?[[d.sType,N(d.sMax)],...(d.sExtra||[]).map(e=>[e.type,N(e.max0)])]:[],evolutionTo:ITEM_EVOLUTIONS_V1[id]||""});
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,specials:d.sType?[[d.sType,N(d.sMax)],...(d.sExtra||[]).map(e=>[e.type,N(e.max0)])]:[],evolutionTo:ITEM_EVOLUTIONS_V1[id]||"",/* itemDesc du jeu (texte anglais d'origine, traduit par le serveur) : seulement pour les objets qui en ont un (idle-adventure-descriptions-v1.js) */...(IDLE_ADVENTURE_DESCRIPTIONS_V1[id]?{desc:IDLE_ADVENTURE_DESCRIPTIONS_V1[id]}:{})});
   }
   return catalog;
 })());

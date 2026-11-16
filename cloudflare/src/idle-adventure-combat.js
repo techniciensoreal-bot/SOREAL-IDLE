@@ -7,6 +7,7 @@ import { IDLE_TITAN_COMBAT_V1, idleTitanCombatV1 } from "./idle-titans-combat-v1
 import { idleTheEndHasV1, idleTheEndGrantV1 } from "./idle-the-end-v1.js";
 import { aleaV1 } from "./idle-alea-v1.js";
 import { exileDonnerV1, exilePretreButinV1, IDLE_EXILE_OBJETS_V1 } from "./idle-antlers-v1.js";
+import { glopCompterV1, glopConsommerV1, glopMortParFaimV1 } from "./idle-glop-v1.js";
 import { IDLE_ADVENTURE_MOB_BESTIARY_V1, IDLE_ADVENTURE_MOB_CATALOG_V1, IDLE_ADVENTURE_TITANS, IDLE_ADVENTURE_ZONES } from "./idle-adventure-zones.js";
 import { definitionEquipmentDropAdventureV2, idleAdventureDropChanceV2, idleAdventureMobAttackFactorV1, idleAdventureMobBestiaryEntryV1, idleAdventureMobTypeV1, monsterHpMaxForZoneV1WithMob, playerHpMaxForAdventureV1, rollKill, unlockedZone, versZoneSureV1 } from "./idle-adventure-butin.js";
 import { C, I, MAX, N, UNLOCK_PAR_OBJET_V1, X, unlockMap } from "./idle-adventure-base.js";
@@ -173,7 +174,7 @@ export function startTitanFight(s,ctx,t,id,difficulty){
   const playerHpMax=playerHpMaxForAdventureV1(stats);
   const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;
   versZoneSureV1(s,"titan","Un titan t'attend : le combat se déroule en Zone sûre");
-  s.fight={active:true,zone:"safe",monsterHp:c.hp,monsterHpMax:c.hp,boss:true,playerHp,playerHpMax,monsterIndex:-1,mobAttackFactor:1,mobType:"titan",mobName:pre.formIndex>=0?nomBase+" (forme "+(pre.formIndex+1)+")":nomBase,mobPower:c.power,mobToughness:c.toughness,mobHpRegen:c.regen,mobAttackRate:c.attackRate,titanId:pre.id,titanTier:pre.tierKey||"",titanForm:pre.formIndex,titanStartedAt:t};/* « En direct » (Norman, 2026-10-04) : combats de titan lancés / perdus, lus par idle-flux-v1.js (la victoire vient du compteur de kills). */fluxTitanV1(s,"starts",pre.id);
+  s.fight={active:true,zone:"safe",monsterHp:c.hp,monsterHpMax:c.hp,boss:true,playerHp,playerHpMax,monsterIndex:-1,mobAttackFactor:1,mobType:"titan",mobName:pre.formIndex>=0?nomBase+" (forme "+(pre.formIndex+1)+")":nomBase,mobPower:c.power,mobToughness:c.toughness,mobHpRegen:c.regen,mobAttackRate:c.attackRate,titanId:pre.id,titanTier:pre.tierKey||"",titanForm:pre.formIndex,titanStartedAt:t,/* IT HUNGERS : GLOP du sac au départ (EnemyAI::checkAndUseGlop les cherche dans le sac ; idle-glop-v1.js) */...(pre.id==="hungers"?{glopStock:glopCompterV1(s)}:{})};/* « En direct » (Norman, 2026-10-04) : combats de titan lancés / perdus, lus par idle-flux-v1.js (la victoire vient du compteur de kills). */fluxTitanV1(s,"starts",pre.id);
   return{titanStarted:pre.id,tier:pre.tierKey||"",form:pre.formIndex,hp:c.hp};
 }
 
@@ -181,7 +182,7 @@ export function resolveZoneFight(s,ctx,t=Date.now()){if(!s.fight?.active)throw E
  * Un titan ne se gagne que par SON combat (Norman, 2026-10-04 : « j'ai tué un titan via un bug : je ne l'ai pas vu apparaître, j'ai mis un coup et il était mort, alors que je n'ai pas les stats »). Cause : le client
  * terminait un combat de zone ordinaire presque fini au moment où le serveur démarrait le titan ; sa victoire arrivait alors que le combat actif était celui du titan, et comptait comme une victoire contre lui
  * (garde de 2 s dépassée). Le client dit désormais QUEL titan il a vaincu (id + heure de départ du combat) ; sans correspondance exacte, la résolution est refusée et le combat du titan continue.
- */if(String(ctx.fightTitanId||"")!==String(f.titanId)||N(ctx.fightTitanStartedAt)!==N(f.titanStartedAt))throw Error("COMBAT_TITAN_AUTRE");/* Succès « vaincre X avant qu'il n'attaque » (2026-11-14) : une victoire sans aucun coup du titan est forcément rapide ; la garde de 2 s ne doit pas la refuser (l'identité exacte du combat, id + heure de départ, reste exigée). */if(t-N(f.titanStartedAt)<(ctx.titanSansCoup===true?300:2000))throw Error("COMBAT_TITAN_TROP_COURT");s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return titan(s,f.titanId,ctx,t,f.titanTier||"",{fromFight:true,sansCoup:ctx.titanSansCoup===true})}/* Succès « Survive an attack from an exploder enemy » (2026-11-14) : le client annonce qu'il a survécu à l'explosion ; accepté seulement si le combat en cours est bien celui d'un ennemi explosif. */if(ctx.exploderSurvived===true&&/exploder/i.test(String(s.fight.mobType||"")))s.unlockFlags.exploderSurvived=true;const wasBoss=Boolean(s.fight.boss),mobName=String(s.fight.mobName||""),mobSeed=Math.floor(N(s.fight.monsterIndex,-1));s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};/* mobName et mobSeed : le mob qui vient de tomber (écran de la Machine temporelle) */return Object.assign(rollKill(s,Object.assign({},ctx,{forceBoss:wasBoss,forceMobName:mobName})),{mobName,mobSeed})}
+ */if(String(ctx.fightTitanId||"")!==String(f.titanId)||N(ctx.fightTitanStartedAt)!==N(f.titanStartedAt))throw Error("COMBAT_TITAN_AUTRE");/* Succès « vaincre X avant qu'il n'attaque » (2026-11-14) : une victoire sans aucun coup du titan est forcément rapide ; la garde de 2 s ne doit pas la refuser (l'identité exacte du combat, id + heure de départ, reste exigée). */if(t-N(f.titanStartedAt)<(ctx.titanSansCoup===true?300:2000))throw Error("COMBAT_TITAN_TROP_COURT");s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};/* GLOP utilisées pendant le combat : retirées du sac (jamais plus que le stock du départ). */if(f.titanId==="hungers")glopConsommerV1(s,Math.min(N(ctx.glopsUtilises),I(f.glopStock)));return titan(s,f.titanId,ctx,t,f.titanTier||"",{fromFight:true,sansCoup:ctx.titanSansCoup===true})}/* Succès « Survive an attack from an exploder enemy » (2026-11-14) : le client annonce qu'il a survécu à l'explosion ; accepté seulement si le combat en cours est bien celui d'un ennemi explosif. */if(ctx.exploderSurvived===true&&/exploder/i.test(String(s.fight.mobType||"")))s.unlockFlags.exploderSurvived=true;const wasBoss=Boolean(s.fight.boss),mobName=String(s.fight.mobName||""),mobSeed=Math.floor(N(s.fight.monsterIndex,-1));s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};/* mobName et mobSeed : le mob qui vient de tomber (écran de la Machine temporelle) */return Object.assign(rollKill(s,Object.assign({},ctx,{forceBoss:wasBoss,forceMobName:mobName})),{mobName,mobSeed})}
 
 /*
  * Défaite en Aventure (Norman, 2026-09-09) : "en aventure, on doit être
@@ -208,7 +209,7 @@ function fluxTransformV1(s,de,vers){const f=s.boostFlux&&typeof s.boostFlux==='o
 
 export function fluxTitanV1(s,cle,id){const f=s.titanFlux&&typeof s.titanFlux==="object"?s.titanFlux:{starts:0,losses:0,last:""};f[cle]=Math.max(0,I(f[cle],0))+1;f.last=String(id);s.titanFlux=f}
 
-export function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};versZoneSureV1(s,"defaite","Tu as été mis K.O. dans cette zone");return{defeated:true,zone}}
+export function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;const fightPerdu=s.fight;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};versZoneSureV1(s,"defaite","Tu as été mis K.O. dans cette zone");/* IT HUNGERS (LootDrop::postDeathDrops) : K.O. par lui = départ de la quête de la GLOP (drapeau + recette) ; les GLOP utilisées sont retirées du sac (idle-glop-v1.js). */if(fightPerdu.titanId==="hungers"){glopConsommerV1(s,Math.min(N(ctx.glopsUtilises),I(fightPerdu.glopStock)));return{defeated:true,zone,glop:glopMortParFaimV1(s)}}return{defeated:true,zone}}
 
 export function titanGate(s,d){const own=s.titans[d.id]||{};/* Prêtre d'Exilé : remplacé par l'Exilé dès que celui-ci est débloqué (ou déjà vaincu : parties d'avant la chaîne secrète). */if(d.hiddenWhenFlag&&(s.unlockFlags[d.hiddenWhenFlag]||I(s.titans.t7&&s.titans.t7.kills)>0))return false;if(I(own.kills)>0)return true;if(d.requiresUnlock&&!s.unlockFlags[d.requiresUnlock])return false;if(d.requiresTitan&&I(s.titans[d.requiresTitan]?.kills)<I(d.requiresKills))return false;return true}
 
@@ -606,8 +607,8 @@ export function advanceAdventureZoneAutoFarmOfflineV1(s,ctx,seconds,t){
  * Objets du wiki volontairement NON tirés (système absent ou taux inconnu,
  * jamais remplacés par une valeur de repli) : Heroic Sigil (déjà débloqué via
  * d.drop), A busted copy of Wandoos XL, The First/Second/Third Clue,
- * MacGuffin Fragments, Sack/Face of the Exile, Blue Eyes Ultimate Chestplate
- * ("secret unlock" sans condition publiée), les morceaux de THE END.
+ * MacGuffin Fragments, les morceaux de THE END. (Sack/Face of the Exile et Blue Eyes Ultimate
+ * Chestplate : lus dans LootDrop::zone30Drop, voir le titan t7 ci-dessous.)
  */
 function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
   const chance=p=>Math.random()<idleAdventureDropChanceV2(p,1,dropMult,null);
@@ -756,6 +757,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
       if(alea()<.02)exileDonnerV1(s,IDLE_EXILE_OBJETS_V1.sack,out);
       if(alea()<.25)exileDonnerV1(s,IDLE_EXILE_OBJETS_V1.face,out);
     }
+    /* Blue Eyes Ultimate Chestplate (342) : LootDrop::zone30Drop (build 1260) : tant que titan9SpecialReward (Sac assemble), tirage min(0,0001 % x facteur de loot, 25 %) a chaque victoire sur l'Exile, niveau 0 (makeTitanLevelledLoot(342, 0) : ni +4 ni bonus). */
+    if(s.unlockFlags&&s.unlockFlags.titan9SpecialReward&&chanceEvil(.000001,.25))objet("blueEyesChestplate",0);
     titanEvil("exile",.00002,
       [["theJoker",4,.00002,.25],["antlersExile",4,.00002,.25],["ascendedX4Pendant",50,.000015,.25],["kingLooty",50,.000015,.25]],
       [["creditCard",4,.00001,.25],["tentacleExile",4,.00001,.25]],

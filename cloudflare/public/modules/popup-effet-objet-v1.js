@@ -111,6 +111,16 @@ function construire(payload,res){
   }else if((adv==='useUnlockItem'||adv==='consumeUnlock')&&r.flag){
     var nom=NOMS_SYSTEMES[String(r.flag)]||'';
     if(nom)spec={cle:'deblocage:'+String(r.flag),icone:'🔓',img:'',titre:'Nouveau système débloqué !',nom:nom,phrase:[['Système débloqué','t']],rows:[]};
+  }else if(adv==='makeGlop'){
+    /* attemptToMakeGlop : le texte (succès ou premier ingrédient manquant) est celui du jeu, déjà dans la langue du joueur (r.message) ; verrouillé = rien (r.message vide). */
+    if(r.fabrique)spec={cle:'glop-fabriquee',icone:'🧪',img:'',titre:'GLOP fabriquée !',nom:'GLOP',phrase:[[String(r.message||''),'t']],rows:[]};
+    else if(r.message)spec={cle:'glop-manque',icone:'🥣',img:'',son:'purchaseRefused',titre:'Fabrication impossible',nom:'',phrase:[[String(r.message),'t']],rows:[]};
+  }else if(adv==='assembleExile'&&r.message){
+    /* consumeItem (pièces 336 à 341) : texte du jeu (déblocage de l'Exilé, tremblement du Sac, message répété) ; assemblage incomplet = aucun message, aucun popup (comme le jeu). */
+    spec={cle:'exile-pieces',icone:'🧩',img:'',titre:r.debloque?'L’Exilé t’attend !':(r.recompenseSpeciale?'Le sol tremble…':'Pièces de l’Exilé'),nom:'',phrase:[[String(r.message),'t']],rows:[]};
+  }else if(adv==='loseZoneFight'&&r.glop&&r.glop.recette&&Array.isArray(r.glop.messages)&&r.glop.messages.length){
+    /* LootDrop::postDeathDrops : K.O. par IT HUNGERS = la recette de la GLOP (textes du jeu). */
+    spec={cle:'glop-recette',icone:'📜',img:'',titre:'Une recette…',nom:'Recette de la GLOP',phrase:r.glop.messages.map(function(m){return [String(m),'t'];}),rows:[]};
   }else if(a==='useYggFruit'&&r.poop&&typeof r.poop==='object'){
     spec={cle:'poop',icone:'💩',img:imageReserve('poop')?'/shop/'+imageReserve('poop')+'.png':'',titre:'Poop utilisée !',nom:'',
       phrase:r.poop.factor!=null?[['Fruit d’Yggdrasil','t'],['×'+fmt(r.poop.factor),'v']]:[['Fruit d’Yggdrasil renforcé','t']],rows:[]};

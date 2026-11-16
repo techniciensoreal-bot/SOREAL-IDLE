@@ -339,6 +339,7 @@ export const IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 = Object.freeze({
   365: 72, // A Pink Bandana
   366: 72, // A 9mm Beretta
   372: 24, // GLOP
+  367: 24, 368: 24, 369: 24, 370: 24, 371: 24, 387: 24, // ingrédients et recette de GLOP (table daycareRate de la scène : 86 400 s chacun)
   373: 72, // Space Helmet
   374: 72, // Space Suit Chest
   375: 72, // Space Suit Legs
