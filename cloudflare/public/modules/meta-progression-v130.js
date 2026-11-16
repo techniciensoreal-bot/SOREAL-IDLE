@@ -799,9 +799,12 @@
                 window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(emojiNomIdleV1_(s.id,p.id,p.name||p.id))+
                 ' · '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(niveau)+
                 '<br><small>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(p.effect||'')+'</small>'+
+                /* Hacks : chaque hack a sa propre Resource 3 et tous ceux qui en ont avancent (jeu : HacksController::updateAllHacks) ; on voit ce qui est placé sur chacun. */
+                (s.id==='hacks'&&Number(st.r3)>0?'<br><small>Placé : <strong>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Number(st.r3))+'</strong></small>':'')+
               '</button>';
             }).join('')+
           '</div>'+
+          (s.id==='hacks'?'<div class="soreal-idle-note-v4" style="margin-top:6px">Tous les hacks qui ont de la ressource placée avancent en même temps. Le + et le − de la barre d’outils agissent sur la piste active.</div>':'')+
         '</div>';
       }
 

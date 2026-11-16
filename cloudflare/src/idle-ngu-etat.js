@@ -87,6 +87,7 @@ function createTrackState(def) {
   const out = {};
   for (const track of tracks) {
     out[track.id] = { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 };
+    if (def.id === "hacks") out[track.id].r3 = 0;   /* Resource 3 propre à chaque hack (Hack.res3 dans le jeu) */
   }
   const created = {
     tracks: out,
@@ -823,6 +824,30 @@ export function normalizeResource(raw, resource = "energy") {
   };
 }
 
+/* Total de Resource 3 placé sur les hacks (chacun a la sienne). */
+export function hackR3TotalV1(s) {
+  let total = 0;
+  for (const t of Object.values(s?.data?.tracks || {})) total += Math.max(0, num(t?.r3, 0));
+  return total;
+}
+
+/*
+ * Chaque hack a SA Resource 3 (lu dans le jeu : Hack.res3, HacksController::addR3 3189) et TOUS ceux qui en ont avancent (updateAllHacks 3194). `allocation.r3` du système reste le TOTAL placé. Quand le total
+ * annoncé diffère de la somme des hacks (ancienne sauvegarde à allocation unique, ou écriture directe du total), l'écart va sur le hack actif : rien n'est perdu ni compté deux fois ; le total redevient la somme.
+ */
+export function hackAbsorberAllocationV1(s) {
+  const tracks = s?.data?.tracks;
+  if (!tracks) return;
+  const somme = hackR3TotalV1(s);
+  const total = Math.max(0, num(s.allocation?.r3, 0));
+  if (Math.abs(total - somme) > 1e-9) {
+    const actif = tracks[s.data.activeTrack || ""] || Object.values(tracks)[0];
+    const autres = somme - Math.max(0, num(actif?.r3, 0));
+    if (actif) actif.r3 = Math.max(0, total - autres);
+  }
+  s.allocation.r3 = hackR3TotalV1(s);
+}
+
 function normalizeTracks(def, rawData) {
   const created = createTrackState(def);
   if (!created.tracks) return rawData && typeof rawData === "object" ? clone(rawData) : {};
@@ -836,6 +861,7 @@ function normalizeTracks(def, rawData) {
       permanentLevel: Math.max(0, num(src.permanentLevel, 0)),
       progress: Math.max(0, num(src.progress, 0))
     };
+    if (def.id === "hacks") out.tracks[track.id].r3 = Math.max(0, num(src.r3, 0));
     /* Advanced Training : énergie propre et Target de chaque compétence (voir advanceAdvancedTrainingV1). */
     if (def.id === "advancedTraining") {
       out.tracks[track.id].energy = Math.max(0, num(src.energy, 0));
@@ -1042,6 +1068,7 @@ function normalizeSystem(def, raw) {
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
     if (def.id === "wishes") normalizeWishSlotsV1(s, src.data);
+    if (def.id === "hacks") hackAbsorberAllocationV1(s);
   } else {
     s.data = src.data && typeof src.data === "object" ? clone(src.data) : {};
   }
