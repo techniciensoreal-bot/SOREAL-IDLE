@@ -31,7 +31,7 @@ import { DEFIS_SANS_HORS_LIGNE_IDS_V1, PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1 } fr
 import { EARLY_GAME_MAX_OFFLINE_SECONDS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_SYSTEMS, IDLE_NGU_YGG_FRUITS, challengeCompletionsV1, challengePermanentBonuses, challengeTierV1, clamp, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { advanceAugmentations, advanceGeneratedResources, externalResourceAllocation, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, reconcileResourceCurrents, reclaimAllocatedResource, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
 import { advanceWandoos, applyYggQuickActivationV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState } from "./idle-ngu-etat.js";
-import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, questRewardFactorTitansV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
+import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { achievementMetricsV1, advanceNgusV1, apWithBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
 import { advanceTimeMachine, advanceTrackSystem, barbesTempsPleinV1, crediterOrHorsLigneV1, idleNguTimeMachineGrossGoldPerSecond, tmAbsenceHorsLigneV1 } from "./idle-ngu-pistes.js";
 import { daycareFactorsV1, expShopPurchasedV1, inventoryAutoEnvV1 } from "./idle-ngu-actions.js";
@@ -534,8 +534,8 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
       result.mayoProgress=fxMayo.progress;
       result.mayoGained=fxMayo.whole;
     }else if(def.effect==="quirks"){
-      /* Fruit of Quirks : ⌈T x 3 x QPRewardModifier x Poop x Quirk_Ygg x Equip_YggYield x FirstHarvest⌉ (pas de NGU Yggdrasil). */
-      const qp=idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier);
+      /* Fruit of Quirks (FruitController::consumeQPFruit, build 1260, audit 2026-11-16) : ⌈3 x T x Poop x Quirk_Ygg x Equip_YggYield x questRewardFactor (SANS le beurre : le jeu le divise) x FirstHarvest⌉ (pas de NGU Yggdrasil). */
+      const qp=idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier*questRewardFactorTitansV1(state,{}));
       state.currencies.qp=Math.max(0,num(state.currencies.qp,0))+qp;
       result.qp=qp;
     }
@@ -578,7 +578,7 @@ export function apercuYggFruitV1(state,def,f,poopFactor=1){
   else if(def.effect==="macguffinAlpha"||def.effect==="macguffinBeta")effets.push(["macguffin",macguffinFruitLevelsV1(def.effect==="macguffinAlpha"?"alpha":"beta",grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier)]);
   else if(def.effect==="powerDelta")effets.push(["powerDelta",Math.ceil(factor*7*yieldFruit)]);
   else if(def.effect==="mayo")effets.push(["mayo",idleCardsMayoFruitApercuV1(state,def.mayo,idleYggMayoFruitBaseV1(grownTier,poopFactor>1?poopFactor:1))]);
-  else if(def.effect==="quirks")effets.push(["quirks",idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier)]);
+  else if(def.effect==="quirks")effets.push(["quirks",idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier*questRewardFactorTitansV1(state,{}))]);
   return {
     tier:grownTier,
     harvest:{seeds:yggSeedGain(def,grownTier,true,seedYieldMultiplier,firstHarvestMultiplier,false)},
@@ -1236,6 +1236,7 @@ function advanceLateSystems(state, seconds, context, now) {
       stats: { power: combatAventure.power, toughness: combatAventure.toughness, regen: combatAventure.regen },
       wishLevels: wishLevelsMapV1(state),
       questRewardFactor: questRewardFactorTitansV1(state, context),
+      questButterFactor: questButterFactorTitansV1(state),
       titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
       goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1)),

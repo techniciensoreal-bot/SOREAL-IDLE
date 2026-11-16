@@ -316,7 +316,9 @@ function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0,horsLigne=false){
   const qpDef=TITAN_QP_V1[id];
   /* Lu dans le jeu (LootDrop::zoneNDrop, build 1260, 2026-11-16) : qp = (long)((long)(base x questRewardFactor) x higherVFactor). */
   if(qpDef&&I(wishes[qpDef.wish])>0){
-    const facteurQp=Math.max(1,N(ctx&&ctx.questRewardFactor,1));
+    /* boss6QP et boss7QP (titans 6 et Nerd) ne divisent PAS le beurre : questRewardFactor le contient quand le beurre est actif (BeastQuest.usedButter) ; les titans 8 à 12 le divisent (donc aucun beurre). */
+    const beurre=(id==="t6"||id==="nerd")?Math.max(1,N(ctx&&ctx.questButterFactor,1)):1;
+    const facteurQp=Math.max(1,N(ctx&&ctx.questRewardFactor,1))*beurre;
     out.qp=Math.floor(Math.floor(qpDef.qp*facteurQp+1e-9)*rewardMult+1e-9);
   }
   s.permanent.gold=N(s.permanent.gold)+out.gold;

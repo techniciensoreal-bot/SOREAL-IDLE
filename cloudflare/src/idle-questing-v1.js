@@ -281,6 +281,13 @@ export function idleQuestQpMultiplierV1(state, env) {
   );
 }
 
+/* Beurre « en cours » (BeastQuest.usedButter du jeu) : une quête est en cours, la case beurre est cochée et il en reste ; facteur butterModifier (x2, x2,2 avec le Blue Heart), sinon 1. Sert aux titans 6 et Nerd (boss6QP, boss7QP). */
+export function idleQuestButterEnCoursV1(state) {
+  const d = state?.systems?.questing?.data;
+  if (!d || !d.quest || d.useButter !== true || buttersV1(state) <= 0) return 1;
+  return IDLE_QUEST_BUTTER_FACTOR_V1 * idleHeartsConsumableFactorV1(state);
+}
+
 export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
   const bonus = idleQuestBonusTotalsV1(state);
   const base = major
