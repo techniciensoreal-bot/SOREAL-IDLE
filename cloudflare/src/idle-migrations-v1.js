@@ -31,7 +31,7 @@ import { createTrollStateV1, normaliserR3NomV1 } from "./idle-ngu-systemes.js";
 import { externalResourceAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { baseState, normalizeResource } from "./idle-ngu-etat.js";
 
-export const ETAT_VERSION_COURANTE = 53;
+export const ETAT_VERSION_COURANTE = 54;
 
 function migrateLegacyTrackV47_(target, raw) {
   if (!target || !raw || typeof raw !== "object") return;
@@ -306,6 +306,26 @@ export const MIGRATIONS = Object.freeze([
     de: 52, vers: 53, nom: "version-etat-v53", phase: "normalise",
     /* Introduit `etatVersion` : rien d'autre à transformer, l'étiquette est posée par appliquerMigrationV1. */
     appliquer(etat) { return etat; }
+  }),
+  Object.freeze({
+    de: 53, vers: 54, nom: "retrait-synchro-basic-training-v54", phase: "normalise",
+    /*
+     * Retrait de l'achat « Synchro Basic Training » (boutique EXP, original SOREAL, 50 EXP) : l'Insta Training Cap du jeu place déjà 6 en attaque ET 6 en défense à chaque Rebirth (Rebirth::instaTrain, build 1260),
+     * la case sous Input ne sert plus. Une partie qui l'avait achetée est REMBOURSÉE de son prix (50 EXP) une seule fois et l'achat disparaît de l'état. Pas d'horloge ni de hasard.
+     */
+    appliquer(etat) {
+      const achats = etat && etat.bonuses && etat.bonuses.expShop;
+      if (estObjet(achats) && Object.prototype.hasOwnProperty.call(achats, "syncBasicTraining")) {
+        const possede = Math.max(0, int(achats.syncBasicTraining, 0)) > 0;
+        delete achats.syncBasicTraining;
+        if (possede && estObjet(etat.currencies)) {
+          etat.currencies.experience = Math.max(0, num(etat.currencies.experience, 0)) + 50;
+          /* Le remboursement n'est pas de l'EXP « gagnée » : le repère du total gagné suit (records.expLastSeen). */
+          if (estObjet(etat.records) && Number.isFinite(Number(etat.records.expLastSeen))) etat.records.expLastSeen = Number(etat.records.expLastSeen) + 50;
+        }
+      }
+      return etat;
+    }
   })
 ]);
 

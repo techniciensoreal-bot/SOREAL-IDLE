@@ -31,7 +31,7 @@ import { DEFIS_SANS_HORS_LIGNE_IDS_V1, PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1 } fr
 import { EARLY_GAME_MAX_OFFLINE_SECONDS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_SYSTEMS, IDLE_NGU_YGG_FRUITS, challengeCompletionsV1, challengePermanentBonuses, challengeTierV1, clamp, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { advanceAugmentations, advanceGeneratedResources, externalResourceAllocation, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, reconcileResourceCurrents, reclaimAllocatedResource, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
 import { advanceWandoos, applyYggQuickActivationV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState } from "./idle-ngu-etat.js";
-import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, questRewardFactorTitansV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
+import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { achievementMetricsV1, advanceNgusV1, apWithBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
 import { advanceTimeMachine, advanceTrackSystem, barbesTempsPleinV1, crediterOrHorsLigneV1, idleNguTimeMachineGrossGoldPerSecond, tmAbsenceHorsLigneV1 } from "./idle-ngu-pistes.js";
 import { daycareFactorsV1, expShopPurchasedV1, inventoryAutoEnvV1 } from "./idle-ngu-actions.js";
@@ -597,8 +597,8 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
       result.mayoProgress=fxMayo.progress;
       result.mayoGained=fxMayo.whole;
     }else if(def.effect==="quirks"){
-      /* Fruit of Quirks : ⌈T x 3 x QPRewardModifier x Poop x Quirk_Ygg x Equip_YggYield x FirstHarvest⌉ (pas de NGU Yggdrasil). */
-      const qp=idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier);
+      /* Fruit of Quirks (FruitController::consumeQPFruit, build 1260, audit 2026-11-16) : ⌈3 x T x Poop x Quirk_Ygg x Equip_YggYield x questRewardFactor (SANS le beurre : le jeu le divise) x FirstHarvest⌉ (pas de NGU Yggdrasil). */
+      const qp=idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier*questRewardFactorTitansV1(state,{}));
       state.currencies.qp=Math.max(0,num(state.currencies.qp,0))+qp;
       result.qp=qp;
     }
@@ -641,7 +641,7 @@ export function apercuYggFruitV1(state,def,f,poopFactor=1){
   else if(def.effect==="macguffinAlpha"||def.effect==="macguffinBeta")effets.push(["macguffin",macguffinFruitLevelsV1(def.effect==="macguffinAlpha"?"alpha":"beta",grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier)]);
   else if(def.effect==="powerDelta")effets.push(["powerDelta",Math.ceil(factor*7*yieldFruit)]);
   else if(def.effect==="mayo")effets.push(["mayo",idleCardsMayoFruitApercuV1(state,def.mayo,idleYggMayoFruitBaseV1(grownTier,poopFactor>1?poopFactor:1))]);
-  else if(def.effect==="quirks")effets.push(["quirks",idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier)]);
+  else if(def.effect==="quirks")effets.push(["quirks",idleYggFruitOfQuirksQpV1(grownTier,quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier*questRewardFactorTitansV1(state,{}))]);
   return {
     tier:grownTier,
     harvest:{seeds:yggSeedGain(def,grownTier,true,seedYieldMultiplier,firstHarvestMultiplier,false)},
@@ -761,12 +761,11 @@ function niveauMaxSupporteDiggerV1(state,id,demande){
     const dx=s.data.diggers[x.id];
     if(dx&&dx.active&&dx.runLevel>0)autres+=diggerDrainAtLevel(x,dx.runLevel);
   }
-  let bas=0,haut=Math.max(0,int(demande,0));
-  while(bas<haut){
-    const m=Math.ceil((bas+haut)/2);
-    if(autres+diggerDrainAtLevel(def,m)<=gross)bas=m;else haut=m-1;
-  }
-  return bas;
+  /* Lu dans le jeu (AllGoldDiggerController::setLevelMaxAffordable, build 1260, audit 2026-11-16, economie.md) : niveau = partie entière de ln(or par seconde net / drain de base) / ln(croissance), plafonné au niveau maximum acheté, jamais négatif. Comme le drain du niveau L vaut base x croissance^(L-1), c'est UN niveau sous le plus haut qui tienne (marge du jeu). Le niveau demandé reste un plafond (SOREAL). */
+  const net=gross-autres;
+  if(!(net>=def.drain)||!(def.growth>1))return 0;
+  const niveauJeu=Math.floor(Math.log(net/def.drain)/Math.log(def.growth));
+  return Math.max(0,Math.min(int(demande,0),int(s.data.diggers[id]?.maxLevel,0),niveauJeu));
 }
 
 export function setDiggerLevel(state,id,level,ajuster){
@@ -975,7 +974,16 @@ function advanceTowerV1(state, seconds, context) {
   let end = d.endFloor == null ? null : clamp(int(d.endFloor, 0), start ?? 0, TOWER_MAX_FLOOR_V1);
   let auto = start === null || end === null;
   /* Lazy ITOPOD Floor Shifter acheté (wiki : « check your optimal floor after each kill, and adjust it ») et mode Auto choisi : les étages suivent l'étage optimal à chaque tour. */
-  const shifter = Boolean(state.selloutShop?.purchases?.lazyItopodFloorShifter) && d.autoOptimal === true;
+  let shifter = Boolean(state.selloutShop?.purchases?.lazyItopodFloorShifter) && d.autoOptimal === true;
+  /* Hors ligne (audit du code du jeu, 2026-11-16, design/audit-code-jeu/hors-ligne.md E2, Character::addOfflineProgress 2240) : le jeu ne tient compte NI des étages de départ et de fin du joueur NI du Floor Shifter ; il joue UN SEUL étage, le meilleur étage calculé, plafonné à l'étage le plus haut déjà atteint (jamais de nouvel étage ni de PP de première atteinte). */
+  const horsLigneItopod = seconds >= TOWER_COMBAT_MAX_SECONDS_V1;
+  if (horsLigneItopod) {
+    const etageUnique = Math.max(0, Math.min(optimal, d.highestFloor));
+    start = etageUnique;
+    end = etageUnique;
+    auto = false;
+    shifter = false;
+  }
   d.optimalFloor = optimal;
   d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);
   d.respawnS = respawn;
@@ -1003,7 +1011,10 @@ function advanceTowerV1(state, seconds, context) {
     d.kills += n;
     d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
     const boosts = Math.floor(d.boostProgress);
-    if (boosts > 0) {
+    /* Hors ligne le jeu ne donne des boosts qu'avec le filtre « Filter Boosts into Infinity Cube » (hasCubeFilter) : sans lui, aucun objet de boost (le gain direct en puissance du cube n'est pas repris : formule non vérifiée, voir le rapport). */
+    const boostsPermis = !horsLigneItopod || inventoryAutoEnvV1(state).filterBoostsIntoCube;
+    if (boosts > 0 && !boostsPermis) d.boostProgress -= boosts;
+    if (boosts > 0 && boostsPermis) {
       d.boostProgress -= boosts;
       const types = ["power", "toughness", "special"];
       const forceBoost = towerBoostStrengthV1(tier);
@@ -1288,6 +1299,7 @@ function advanceLateSystems(state, seconds, context, now) {
       stats: { power: combatAventure.power, toughness: combatAventure.toughness, regen: combatAventure.regen },
       wishLevels: wishLevelsMapV1(state),
       questRewardFactor: questRewardFactorTitansV1(state, context),
+      questButterFactor: questButterFactorTitansV1(state),
       titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
       goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1)),

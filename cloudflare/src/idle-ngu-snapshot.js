@@ -19,7 +19,7 @@ import { idleWishByIdV1 } from "./idle-wishes-v1.js";
 import { idleDaycareSnapshotV1, IDLE_DAYCARE_PERK_FRAGMENTS_V1 } from "./idle-daycare-v1.js";
 import { idleMacguffinTypeV1, normalizeMacguffinDataV1 } from "./idle-macguffins-v1.js";
 import { idleInventoryAutoSnapshotV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1 } from "./idle-inventory-auto-v1.js";
-import { idleQuestingSnapshotV1, idleQuestQpMultiplierV1 } from "./idle-questing-v1.js";
+import { idleQuestingSnapshotV1, idleQuestQpMultiplierV1, idleQuestButterEnCoursV1 } from "./idle-questing-v1.js";
 import { idleLoginCalendarSnapshotV1 } from "./idle-login-calendar-v1.js";
 import { idsPortraitsDeChaineV1, idlePortraitsSnapshotV1 } from "./idle-portraits-v1.js";
 import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
@@ -1612,6 +1612,10 @@ export function questingEnvV1(state, context) {
  * LIMITE connue : le jeu multiplie aussi par butterModifier quand le Beast Butter est actif (usedButter) ; ici le beurre n'est consommé que par une quête
  * (idle-questing-v1.js), donc il n'est jamais compté pour un titan.
  */
+export function questButterFactorTitansV1(state) {
+  return idleQuestButterEnCoursV1(state);
+}
+
 export function questRewardFactorTitansV1(state, context) {
   return Math.max(1, idleQuestQpMultiplierV1(state, questingEnvV1(state, context)));
 }
@@ -1651,6 +1655,7 @@ export function titanFight(state, context, now) {
     Object.assign({},context,{
       wishLevels:wishLevelsMapV1(state),
       questRewardFactor:questRewardFactorTitansV1(state,context),
+      questButterFactor:questButterFactorTitansV1(state),
       titanExpBonusKills:perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct:challengePermanentBonuses(state).bossExpPct,
       goldMultiplier:Math.max(0,num(idleNguBonusesLectureV1(state).adventureGoldMultiplier,1)),

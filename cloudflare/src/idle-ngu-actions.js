@@ -26,7 +26,7 @@ import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { FENETRE_INSTANT_CLIC_MS_V1 } from "./idle-instant-clic-v1.js";
 import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveBeardOnRebirth, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, setNguAdvanceV1, setNguAllocationV1, setNguTargetV1, setNguTierV1, syncIdleNguState, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
-import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, daycareFragmentsExtV1, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, questRewardFactorTitansV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
+import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, daycareFragmentsExtV1, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
@@ -151,7 +151,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         boostPowerMultiplier: Math.max(1, num(idleNguBonusesLectureV1(state).boostPowerMultiplier, 1)),
         cubeBoostRate: Math.max(0.01, num(perkBonusesV1(idlePerkNiveauxV1(state)).cubeBoostRate, 0.01)),
         cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
-        wishLevels: wishLevelsMapV1(state), questRewardFactor: questRewardFactorTitansV1(state, context),
+        wishLevels: wishLevelsMapV1(state), questRewardFactor: questRewardFactorTitansV1(state, context), questButterFactor: questButterFactorTitansV1(state),
         titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
         /* No Equipment Challenge : rien ne peut être équipé tant que le défi est actif (idle-adventure-v47.js, action equip). */
         equipmentLocked: state.challenge?.active === "noEquipment",
@@ -1037,16 +1037,10 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
    */
   /* Norman (2026-10-02) : le tri passe à 20 EXP et rejoint le nouveau rayon « Toc » de la boutique. */
   sortInventory: Object.freeze({ name: "Sort Inventory", cost: () => 20, gain: 1, max: 1 }),
-  /*
-   * « Synchro Basic Training » (Norman, 2026-10-02) : case à cocher sous Input dans Basic Training ; cochée, ce qu'on place dans une compétence est placé au même
-   * instant dans sa jumelle (Attaque passive / Blocage, etc.) pour que les deux montent exactement à la même vitesse. Fonctionnalité SOREAL originale, absente
-   * du wiki NGU Idle : prix et rayon donnés par Norman (le prix n'est pas tiré du wiki). L'effet est purement côté client (les allocations des deux compétences
-   * partent ensemble) ; le serveur ne fait que mémoriser l'achat (bonus basicTrainingSync).
-   */
-  syncBasicTraining: Object.freeze({ name: "Basic Training Sync", cost: () => 50, gain: 1, max: 1 }),
+  /* « Synchro Basic Training » (Norman, 2026-10-02) retirée le 2026-11-16 : l'Insta Training Cap du jeu place déjà 6 en attaque ET 6 en défense à chaque Rebirth. Les parties qui l'avaient achetée sont remboursées par la migration 53 -> 54 (idle-migrations-v1.js). */
   /*
    * « Synchro Wandoos » (Norman, 2026-10-23) : interrupteur de métal sur le clavier de Wandoos ; allumé, les touches 0, −, + et CAP de l'énergie agissent aussi sur la magie (et inversement), avec ce qu'il y a de libre.
-   * Fonctionnalité SOREAL originale, absente du wiki NGU Idle : prix (25 EXP de plus que la Synchro Basic Training) et rayon donnés par Norman. Effet purement côté client ; le serveur mémorise l'achat (bonus wandoosSync).
+   * Fonctionnalité SOREAL originale, absente du wiki NGU Idle : prix (75 EXP) et rayon donnés par Norman. Effet purement côté client ; le serveur mémorise l'achat (bonus wandoosSync).
    */
   syncWandoos: Object.freeze({ name: "Wandoos Sync", cost: () => 75, gain: 1, max: 1 }),
   /* Menus animés (Norman, 2026-10-04 : « enlève les animations des menus du haut ; pour les avoir, un achat dans le rayon Toc à 40 EXP qui permet de savoir quand un menu est actif »). Fonctionnalité SOREAL absente du wiki NGU Idle : prix et rayon donnés par Norman ; le serveur ne fait que mémoriser l'achat (drapeau menusAnimes), l'animation est dessinée par le client. */
@@ -1162,7 +1156,7 @@ function buyExpShopV1(state, payload) {
 const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1 = Object.freeze({
   adventurePower: "adventure", adventureToughness: "adventure", adventureHp: "adventure", adventureRegen: "adventure",
   customInput1: "adventure", customInput2: "adventure", customInput3: "adventure", customInput4: "adventure", inventorySpace: "adventure", accessorySlot1: "adventure", accessorySlot2: "adventure", autoMerge: "adventure", sortInventory: "adventure",
-  syncWandoos: "wandoos", syncBasicTraining: "adventure", doubleTap: "adventure", tripleTap: "adventure", basicLootFilter: "adventure",
+  syncWandoos: "wandoos", doubleTap: "adventure", tripleTap: "adventure", basicLootFilter: "adventure",
   loadoutSlots: "adventure", loadoutSlot3: "adventure", boostRecycling: "adventure", inventoryMergeSlot: "adventure",
   diggerSlot: "diggers", beardSlot: "beards", daycareSlot1: "adventure", daycareSlot2: "daycare", daycareSlot3: "daycare",
   macguffinSlot1: "macguffins", macguffinSlot2: "macguffins"

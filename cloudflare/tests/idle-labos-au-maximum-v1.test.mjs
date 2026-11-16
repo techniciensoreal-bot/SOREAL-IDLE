@@ -21,6 +21,8 @@ const drain = (l) => (l <= 0 ? 0 : def.drain * Math.pow(def.growth, l - 1));
 const d = state.systems.diggers.data.diggers.drop;
 d.maxLevel = 400;   // beaucoup plus de niveaux possédés que l'or n'en supporte
 let attendu = 0; while (attendu < 400 && drain(attendu + 1) <= gross) attendu += 1;
+// Audit du code du jeu (2026-11-16, setLevelMaxAffordable) : le jeu donne UN niveau sous le plus haut qui tienne (partie entière de ln(gps / drain de base) / ln(croissance)).
+attendu -= 1;
 assert.ok(attendu >= 2 && attendu < 400, "scénario utile : le maximum supporté est entre 2 et 399 (" + attendu + ")");
 
 // sans ajustement : comportement d'avant (le travail au-delà de l'or est refusé)
@@ -30,9 +32,9 @@ assert.throws(() => applyIdleNguAction(state, { action: "setDiggerLevel", digger
 
 // avec ajustement : le plus haut niveau supporté, et le mineur reste au travail
 const r = applyIdleNguAction(state, { action: "setDiggerLevel", digger: "drop", level: 400, fit: true }, context, 1_000_000).state.systems.diggers.data.diggers.drop;
-assert.equal(r.runLevel, attendu, "Au maximum = plus haut niveau que l'or par seconde supporte");
+assert.equal(r.runLevel, attendu, "Au maximum = niveau du jeu (un sous le plus haut supporté)");
 assert.equal(r.active, true, "il reste au travail");
-assert.ok(drain(r.runLevel) <= gross && drain(r.runLevel + 1) > gross, "un niveau de plus ne passerait plus");
+assert.ok(drain(r.runLevel) <= gross && drain(r.runLevel + 2) > gross, "deux niveaux de plus ne passeraient plus");
 
 // au repos : même niveau, sans le mettre au travail
 const repos = applyIdleNguAction(state, { action: "toggleDigger", digger: "drop", active: false }, context, 1_000_000).state;

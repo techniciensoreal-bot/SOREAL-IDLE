@@ -10,8 +10,8 @@
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "7bb87bc5a52bfa61b0b3e0c1",
    "resources": "97c694d4d637b2f0b0750b4a",
-   "currencies": "a5acc29eb32d04e2e2491c83",
-   "records": "8e5a126d8cc5a8e9edf8fefc",
+   "currencies": "e38771d07eb328fa1feda291",
+   "records": "fc4a7581ec57e4ccc6b4d1b4",
    "rebirth": "c4dfc391ac646d3b235dcc2e",
    "systems": "dfe5bf39bab76544cf52935d",
    "challenge": "ff4ff75c12ac33e81082145c",
@@ -19,11 +19,11 @@
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "7211da0e112b530f675d4873",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
-   "bonuses": "c34ec38c34b51245d054b294",
+   "bonuses": "0f8ef7e6aa931f3d0414bb32",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "882d30efae72dd2cbbbc4f9a"
+  "tout": "ba25dfe8c2da720d20582fba"
  },
  "reference-2": {
   "cles": {
@@ -36,8 +36,8 @@
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "a70ee6d2c73d4c47754ab603",
    "resources": "409f7c6b07d44b0aaa26de3e",
-   "currencies": "d574663eaeb1a139bc6227f3",
-   "records": "5b4ad299b429b73ec80e9576",
+   "currencies": "6655c62a279bfb924422e2ca",
+   "records": "440143bc5574496cb302a829",
    "rebirth": "77ba49611766395bc2aa0801",
    "systems": "1c887ef9ec58e17516d6773b",
    "challenge": "97a98c5052d59b59d8b7d061",
@@ -45,11 +45,11 @@
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "e26f5486439779cee3412b12",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
-   "bonuses": "c34ec38c34b51245d054b294",
+   "bonuses": "0f8ef7e6aa931f3d0414bb32",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "44e23d4d67825a314e13807f"
   },
-  "tout": "7dd23408487bc746db1f5282"
+  "tout": "cf56a5aa955059d2c07be5e3"
  },
  "sans-etatVersion": {
   "cles": {
@@ -62,8 +62,8 @@
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "fffc78adbce33f2ea6c2b59d",
    "resources": "455fc5e8858f28c58b80d970",
-   "currencies": "a5acc29eb32d04e2e2491c83",
-   "records": "c048d2e646ee4b717a16040f",
+   "currencies": "e38771d07eb328fa1feda291",
+   "records": "a2d893a2e514fdcdd4ff8b76",
    "rebirth": "dc4cdcbbf7acddd1ab4238e3",
    "systems": "dfe5bf39bab76544cf52935d",
    "challenge": "ff4ff75c12ac33e81082145c",
@@ -71,11 +71,11 @@
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "7211da0e112b530f675d4873",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
-   "bonuses": "c34ec38c34b51245d054b294",
+   "bonuses": "0f8ef7e6aa931f3d0414bb32",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "232f8615169fc8f9f3453774"
+  "tout": "70ade1a4bf29eeed44d6fe7e"
  },
  "resourceModel-50": {
   "cles": {
@@ -88,8 +88,8 @@
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "a70ee6d2c73d4c47754ab603",
    "resources": "9be73b1e10b89a4a03e1daef",
-   "currencies": "d574663eaeb1a139bc6227f3",
-   "records": "5b4ad299b429b73ec80e9576",
+   "currencies": "6655c62a279bfb924422e2ca",
+   "records": "440143bc5574496cb302a829",
    "rebirth": "77ba49611766395bc2aa0801",
    "systems": "1c887ef9ec58e17516d6773b",
    "challenge": "97a98c5052d59b59d8b7d061",
@@ -97,11 +97,11 @@
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "e26f5486439779cee3412b12",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
-   "bonuses": "c34ec38c34b51245d054b294",
+   "bonuses": "0f8ef7e6aa931f3d0414bb32",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "44e23d4d67825a314e13807f"
   },
-  "tout": "14c11d793044643da9983399"
+  "tout": "d2900547fd9a66a696faa731"
  },
  "resourceModel-51": {
   "cles": {
@@ -114,8 +114,8 @@
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "7bb87bc5a52bfa61b0b3e0c1",
    "resources": "efbe5be97652aa941f7621cf",
-   "currencies": "a5acc29eb32d04e2e2491c83",
-   "records": "8e5a126d8cc5a8e9edf8fefc",
+   "currencies": "e38771d07eb328fa1feda291",
+   "records": "fc4a7581ec57e4ccc6b4d1b4",
    "rebirth": "c4dfc391ac646d3b235dcc2e",
    "systems": "dfe5bf39bab76544cf52935d",
    "challenge": "ff4ff75c12ac33e81082145c",
@@ -123,11 +123,11 @@
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "7211da0e112b530f675d4873",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
-   "bonuses": "c34ec38c34b51245d054b294",
+   "bonuses": "0f8ef7e6aa931f3d0414bb32",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "2d36a6c2b400469676d957cc"
+  "tout": "b3c81778b39da5e762f4a022"
  },
  "resourceModel-absent": {
   "cles": {
@@ -140,8 +140,8 @@
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "7bb87bc5a52bfa61b0b3e0c1",
    "resources": "81b88baf3c78fc54533b275d",
-   "currencies": "a5acc29eb32d04e2e2491c83",
-   "records": "8e5a126d8cc5a8e9edf8fefc",
+   "currencies": "e38771d07eb328fa1feda291",
+   "records": "fc4a7581ec57e4ccc6b4d1b4",
    "rebirth": "c4dfc391ac646d3b235dcc2e",
    "systems": "dfe5bf39bab76544cf52935d",
    "challenge": "ff4ff75c12ac33e81082145c",
@@ -149,11 +149,11 @@
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "7211da0e112b530f675d4873",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
-   "bonuses": "c34ec38c34b51245d054b294",
+   "bonuses": "0f8ef7e6aa931f3d0414bb32",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f",
    "uiPrefs": "f0d2b17d8cd17e8706fe5f13"
   },
-  "tout": "6b976fdab1af2b8d967bbb99"
+  "tout": "e9ab55b37f01e8ca457567a6"
  },
  "legacy-sans-saveSchema": {
   "cles": {
@@ -193,8 +193,8 @@
    "difficultyPeaks": "cc16097f267eaebf894c7a58",
    "adventure": "7bb87bc5a52bfa61b0b3e0c1",
    "resources": "79def304f8c17653a12681a1",
-   "currencies": "a5acc29eb32d04e2e2491c83",
-   "records": "101d942a2f8338967bd900b8",
+   "currencies": "e38771d07eb328fa1feda291",
+   "records": "c33eb9855368bb19c057cb22",
    "rebirth": "c4dfc391ac646d3b235dcc2e",
    "systems": "b66cf6ea23923544c459bcca",
    "challenge": "ff4ff75c12ac33e81082145c",
@@ -202,12 +202,12 @@
    "selloutEffects": "c09b9035d4ad5af7d1b6372f",
    "selloutShop": "65f3c93e309b83c506f1639b",
    "r3Nom": "78f51b8da863e02c80c8ce2e",
-   "bonuses": "c34ec38c34b51245d054b294",
+   "bonuses": "0f8ef7e6aa931f3d0414bb32",
    "migration": "6728f63cd4ad5287b79830bc",
    "uiPrefs": "44136fa355b3678a1146ad16",
    "recentClientMutations": "4f53cda18c2baa0c0354bb5f"
   },
-  "tout": "17ddbca58ed8d13e904224fe"
+  "tout": "c8aff089b37ace904774865a"
  },
  "vide": {
   "cles": {

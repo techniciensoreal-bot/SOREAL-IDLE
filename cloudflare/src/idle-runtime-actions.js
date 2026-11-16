@@ -1188,7 +1188,7 @@ export function renaitreSorealIdle(
     feuille.getRange(ligne,c.XP).setValue(0);
     /*
      * Insta Training Cap (Boutique AP ; Norman, 2026-10-12) : « This upgrade will assign 6 energy, 1 for each training, almost immediately into each rebirth. » (wiki NGU Idle, 4G's Sellout Shop). Dès le Rebirth, 6 d'énergie
-     * sont placées sur Attaque passive (et 6 sur Blocage avec la Synchro Basic Training) ; le reste de l'énergie de départ reste libre.
+     * sont placées sur Attaque passive (et 6 sur Blocage : la Synchro Basic Training, retirée le 2026-11-16, n'est plus nécessaire) ; le reste de l'énergie de départ reste libre.
      */
     /* Insta Training Cap (Boutique AP) : voir instaTrainingCapSorealIdle_ (partagée avec le lancement d'un défi). */
     const energieLibreDepart = instaTrainingCapSorealIdle_(stats, energieDepart);
@@ -1343,7 +1343,7 @@ export function combattreAventureSorealIdle(...args) {
 
 /*
  * Insta Training Cap (Boutique AP ; Norman, 2026-10-12) : « This upgrade will assign 6 energy, 1 for each training, almost immediately into each rebirth. » (wiki NGU Idle, 4G's Sellout Shop). À CHAQUE début de run : 6 d'énergie sont placées sur Attaque passive
- * (et 6 sur Blocage avec la Synchro Basic Training) ; le reste de l'énergie de départ reste libre. Norman (2026-11-02) : « en partie normale ça se fait bien, c'est en lançant un défi que le souci apparaît » : le lancement d'un défi fait renaître (wiki NGU,
+ * (et 6 sur Blocage : la Synchro Basic Training, retirée le 2026-11-16, n'est plus nécessaire) ; le reste de l'énergie de départ reste libre. Norman (2026-11-02) : « en partie normale ça se fait bien, c'est en lançant un défi que le souci apparaît » : le lancement d'un défi fait renaître (wiki NGU,
  * page Challenges) et doit donc donner la même chose ; il ne le faisait pas (attaque, défense et vie du run restaient trop bas jusqu'à une visite de l'Entraînement de base). Retourne l'énergie qui reste libre.
  */
 function instaTrainingCapSorealIdle_(stats, energieDepart, offert = false) {

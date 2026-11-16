@@ -38,7 +38,7 @@ const I = window.__SOREAL_IDLE_BOUTIQUE_INFO_I_V1__;
 assert.ok(I && typeof I.bouton === "function", "module du « i » chargé");
 
 // 1. Chaque article de déblocage a une phrase ; aucun chiffre, aucun « wiki », aucun nom de set.
-const DEBLOCAGES = ["daycareSlot1", "daycareSlot2", "daycareSlot3", "diggerSlot", "beardSlot", "macguffinSlot1", "macguffinSlot2", "accessorySlot1", "accessorySlot2", "inventorySpace", "basicLootFilter", "autoMerge", "sortInventory", "doubleTap", "tripleTap", "boostRecycling", "loadoutSlots", "loadoutSlot3", "inventoryMergeSlot", "trainingAutoAdvance", "syncBasicTraining", "syncWandoos", "menuAnimations", "customInput1", "customInput2", "customInput3", "customInput4"];
+const DEBLOCAGES = ["daycareSlot1", "daycareSlot2", "daycareSlot3", "diggerSlot", "beardSlot", "macguffinSlot1", "macguffinSlot2", "accessorySlot1", "accessorySlot2", "inventorySpace", "basicLootFilter", "autoMerge", "sortInventory", "doubleTap", "tripleTap", "boostRecycling", "loadoutSlots", "loadoutSlot3", "inventoryMergeSlot", "trainingAutoAdvance", "syncWandoos", "menuAnimations", "customInput1", "customInput2", "customInput3", "customInput4"];
 for (const id of DEBLOCAGES) {
   assert.ok(IDLE_NGU_EXP_SHOP_V1[id], id + " existe dans la boutique EXP");
   const t = I.texte({ id });

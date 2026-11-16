@@ -18,7 +18,6 @@
   function rafraichirEnergieEtBoutonsIdleV9_(){return REG.rafraichirEnergieEtBoutonsIdleV9_.apply(null,arguments);}
   function pousserEtatVersRuntimePartageIdleV1_(){return REG.pousserEtatVersRuntimePartageIdleV1_.apply(null,arguments);}
   function synchroniserJeuIdleV7_(){return REG.synchroniserJeuIdleV7_.apply(null,arguments);}
-  function planSynchroBasicTrainingIdleV1_(){return REG.planSynchroBasicTrainingIdleV1_.apply(null,arguments);}
   function messageFlottantIdleV32_(){return REG.messageFlottantIdleV32_.apply(null,arguments);}
   function jouerEffetAudioIdleV199_(){return REG.jouerEffetAudioIdleV199_.apply(null,arguments);}
   function formaterEtaTimeMachineIdleV1_(){return REG.formaterEtaTimeMachineIdleV1_.apply(null,arguments);}
@@ -797,24 +796,12 @@
             )
           );
 
-        /* Synchro Basic Training (Norman, 2026-10-02) : case cochée sous Input, offerte par l'achat « Synchro Basic Training » de la boutique EXP. Les compétences vont
-         * par paire (attaque ↔ défense) ; ce qu'on place dans l'une est placé au même instant dans l'autre. Fonction pure : planSynchroBasicTrainingIdleV1_. */
-        const jumelle=synchroBasicTrainingActifIdleV1_()?skillBasicTrainingParIdIdleV120_(IDLE_BT_JUMELLES_V1[id]):null;
-        const synchro=!!(jumelle&&jumelle.unlocked);
         const entree=inputBasicTrainingIdleV120_();
         let plan;
 
-        /* « 0 » (Norman, 2026-10-11) : retire TOUTE l'énergie de cette barre, et d'elle seule (même avec Synchro, la jumelle ne bouge pas). */
+        /* « 0 » (Norman, 2026-10-11) : retire TOUTE l'énergie de cette barre, et d'elle seule. */
         if(action==='zero'){
-          plan={a:0,b:synchro?idleEntier_(jumelle.allocation):0};
-        }else if(synchro){
-          plan=planSynchroBasicTrainingIdleV1_(
-            action,
-            {courant:courant,cap:capBasicTrainingLocalIdleV120_(skill)},
-            {courant:idleEntier_(jumelle.allocation),cap:capBasicTrainingLocalIdleV120_(jumelle)},
-            idleAvant,
-            entree
-          );
+          plan={a:0,b:0};
         }else{
           let cible=courant;
 
@@ -834,8 +821,7 @@
         }
 
         const delta=
-          (plan.a-courant)+
-          (synchro?plan.b-idleEntier_(jumelle.allocation):0);
+          (plan.a-courant);
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-18 */
         if(
@@ -857,8 +843,6 @@
 
         skill.allocation=
           plan.a;
-
-        if(synchro)jumelle.allocation=plan.b;
 
         REG.idleEtat.energie=
           Math.max(
@@ -882,33 +866,6 @@
         programmerEnvoiBasicTrainingIdleV120_(
           70
         );
-      }
-
-      /* Paires de Basic Training : toujours ensemble (Norman, 2026-10-02). Les identifiants sont ceux du serveur (attaque ↔ défense de même ligne). */
-      const IDLE_BT_JUMELLES_V1={
-        attaque_passive:'blocage',blocage:'attaque_passive',
-        attaque_reguliere:'defense_renforcee',defense_renforcee:'attaque_reguliere',
-        attaque_renforcee:'recuperation',recuperation:'attaque_renforcee',
-        contre_palette:'boost_offensif',boost_offensif:'contre_palette',
-        percee_quai:'charge_logistique',charge_logistique:'percee_quai',
-        ultime_soreal:'ultime_logistique',ultime_logistique:'ultime_soreal'
-      };
-
-      /* La case n'existe (et ne compte) que si l'achat a été fait : le serveur l'annonce par `basicTrainingSynchro`. */
-      /*
-       * Norman (2026-10-03) : « le bouton Synchro doit conserver son état après un Rebirth ». L'achat est mémorisé : une réponse qui ne porte pas (encore) l'information (champ absent) ne fait ni
-       * disparaître la case ni perdre son choix ; seul un « non » explicite du serveur (partie réinitialisée) l'efface. Le choix coché/décoché reste dans le stockage local, jamais touché par un Rebirth.
-       */
-      let idleBtSynchroAcheteV1=false;
-
-      function synchroBasicTrainingAcheteIdleV1_(){
-        if(REG.idleEtat&&typeof REG.idleEtat.basicTrainingSynchro==='boolean')idleBtSynchroAcheteV1=REG.idleEtat.basicTrainingSynchro;
-        return idleBtSynchroAcheteV1;
-      }
-
-      function synchroBasicTrainingActifIdleV1_(){
-        if(!REG.idleEtat||!synchroBasicTrainingAcheteIdleV1_())return false;
-        try{return window.localStorage.getItem(REG.IDLE_BT_SYNCHRO_CLE_V1)==='1';}catch(e){return false;}
       }
 
       function presetBasicTrainingIdleV120_(
@@ -1695,16 +1652,6 @@
                 oninput="window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
                 onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"
               >
-              ${synchroBasicTrainingAcheteIdleV1_()?`
-              <label class="soreal-idle-bt-synchro-v1" title="Cochée : l'énergie placée dans une compétence est placée en même temps dans sa jumelle (Attaque passive ↔ Blocage…)">
-                <input
-                  type="checkbox"
-                  id="sorealIdleTrainingSynchroV1"
-                  ${synchroBasicTrainingActifIdleV1_()?'checked':''}
-                  onchange="window.__basculerSynchroBasicTrainingIdleV1__(this.checked)"
-                >
-                🔗 Synchro
-              </label>`:''}
             </div></div>
 
             <div class="soreal-idle-bt-groupe-v1" data-bt-groupe-v1="energy">

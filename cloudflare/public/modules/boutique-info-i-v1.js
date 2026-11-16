@@ -36,7 +36,6 @@
     loadoutSlot3:'Ajoute un emplacement de configuration de plus pour ton équipement.',
     inventoryMergeSlot:'Ajoute un emplacement d’automerge dans ton sac : les premières cases (contour bleu) ne reçoivent aucun butin, dépose-y les objets à faire monter ; la fusion automatique s’en occupe en priorité.',
     trainingAutoAdvance:'Basic Training passe tout seul à la compétence suivante.',
-    syncBasicTraining:'Ajoute une case qui place ton énergie dans deux compétences jumelles en même temps.',
     syncWandoos:'Ajoute un interrupteur qui fait agir les touches de l’énergie aussi sur la magie.',
     menuAnimations:'Fait s’animer les boutons du menu du haut quand leur menu est actif.',
     customInput1:'Ajoute un bouton à côté du champ Input qui y place le nombre que tu choisis.',

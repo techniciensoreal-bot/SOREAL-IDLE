@@ -28,8 +28,7 @@
  * décision documentée, sans elle les fruits seraient visibles dès Yggdrasil).
  *
  * NON implémenté (valeur non exacte dans le wiki, ou système absent) :
- *  - QPRewardModifier du Fruit of Quirks : jamais défini par le wiki (page
- *    Questing : « then multiplied by other bonuses ») -> laissé à 1 ;
+ *  - (fait le 2026-11-16 d'après le jeu, consumeQPFruit) QPRewardModifier du Fruit of Quirks = questRewardFactor (sans le beurre), appliqué par l'appelant ;
  *  - (fait le 2026-09-24 : A Giant Seed est un vrai objet, Seed (set) donne
  *    10 Poop, la graine réutilisée donne des graines -- voir plus bas) ;
  *  - (fait le 2026-09-24 : Poop d'Icarus Proudbottom en The Sky, tirée par
@@ -343,7 +342,7 @@ export function idleYggSeedUnitV1(def, tier, eaten) {
 
 /*
  * Fruit of Quirks : « ⌈T x 3 x QPRewardModifier x Poop x Quirk_Ygg x
- * Equip_YggYield x FirstHarvest⌉ ». QPRewardModifier non publié -> 1.
+ * Equip_YggYield x FirstHarvest⌉ ». QPRewardModifier = questRewardFactor, passé dans `multipliers` par l'appelant (lu dans le jeu, 2026-11-16).
  */
 export function idleYggFruitOfQuirksQpV1(tier, multipliers = 1) {
   return Math.ceil(Math.max(1, I(tier, 1)) * 3 * Math.max(0, N(multipliers, 1)));

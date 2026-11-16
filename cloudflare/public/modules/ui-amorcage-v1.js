@@ -398,13 +398,6 @@ if(typeof window!=='undefined'){
       }
 }
 
-      /* @amorce S:window.__basculerSynchroBasicTrainingIdleV1__=function(coche){ try{windo */
-function __amorcer_85(){
-window.__basculerSynchroBasicTrainingIdleV1__=function(coche){
-        try{window.localStorage.setItem(REG.IDLE_BT_SYNCHRO_CLE_V1,coche?'1':'0');}catch(e){}
-      };
-}
-
       /* @amorce S:window.__ajusterBasicTrainingIdleV120__= ajusterBasicTrainingIdleV120_;  */
 function __amorcer_92(){
 window.__ajusterBasicTrainingIdleV120__=
@@ -1946,7 +1939,6 @@ window.__acheterAmeliorationIdleV12__=
     __amorcer_54:__amorcer_54,
     __amorcer_57:__amorcer_57,
     __amorcer_67:__amorcer_67,
-    __amorcer_85:__amorcer_85,
     __amorcer_92:__amorcer_92,
     __amorcer_93:__amorcer_93,
     __amorcer_94:__amorcer_94,
