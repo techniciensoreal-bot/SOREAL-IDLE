@@ -85,8 +85,8 @@ function safeZoneFileNames_(zone){
 }
 const IDLE_BOSSES_R2_PREFIX="idle/bosses/";
 const IDLE_ITEMS_R2_PREFIX="idle/items/";
-/* Icones du jeu livrees avec le frontend, par id d'objet du jeu (repli quand R2 n'a pas l'image) : 335 a 341 et 180 (Premier indice de la Bete) = Items/Clue1 ; 342 = texture Tier26Chest2 (Blue Eyes Ultimate Chestplate, version bleue de Tier26Chest = Blue Eyes White) ; 372 = texture Tier30Glop (GLOP), sharedassets0.assets, build 1260. */
-const IDLE_ITEM_ICONES_LIVREES_V1=Object.freeze({335:"clue1",336:"clue1",337:"clue1",338:"clue1",339:"clue1",340:"clue1",341:"clue1",342:"blue-eyes-ultimate",372:"glop",180:"clue1"});
+/* Icones du jeu livrees avec le frontend, par id d'objet du jeu (repli quand R2 n'a pas l'image) : 335 a 341 et 180 (Premier indice de la Bete) = Items/Clue1 ; 342 = texture Tier26Chest2 (Blue Eyes Ultimate Chestplate, version bleue de Tier26Chest = Blue Eyes White) ; 181 a 183 = textures Clue2, Clue3, Clue4 (indices de l'enigme de la Bete) ; 372 = texture Tier30Glop (GLOP), sharedassets0.assets, build 1260. */
+const IDLE_ITEM_ICONES_LIVREES_V1=Object.freeze({335:"clue1",336:"clue1",337:"clue1",338:"clue1",339:"clue1",340:"clue1",341:"clue1",342:"blue-eyes-ultimate",372:"glop",180:"clue1",181:"clue2",182:"clue3",183:"clue4"});
 const IDLE_ITEMS_R2_EXTENSIONS=IDLE_ADVENTURE_R2_EXTENSIONS;
 const IDLE_ITEM_SET_NAMES=Object.freeze({
   training:"Training Set",

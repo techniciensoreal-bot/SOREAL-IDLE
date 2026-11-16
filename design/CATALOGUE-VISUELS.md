@@ -56,7 +56,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `img/mineurs/fonds` : 1
 - `img/mineurs/labos` : 17
 - `intro` : 16
-- `items` : 3
+- `items` : 6
 - `machine-v2` : 3
 - `machine-v3` : 9
 - `magic/boss` : 299
@@ -65,7 +65,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `perks` : 174
 - `player` : 3
 - `shop` : 74
-- `titans` : 1
+- `titans` : 2
 - `trou` : 2
 - `voice-en` : 16
 - `wandoos` : 1

@@ -31,4 +31,8 @@ for (const n of ["defis-normal", "defis-evil", "defis-sadistic", "halloween-51"]
 }
 assert.ok(media.includes("portrait-defis-(normal|evil|sadistic)") && media.includes('"/player/"+prBase+".webp"'), "repli des portraits de défis");
 assert.equal(readFileSync("cloudflare/public/perks/56.webp").slice(8, 12).toString("latin1"), "WEBP", "perk 56");
+/* Clue2/3/4 (objets 181 a 183) et SkeletalGuardian (titan skeleton, 184 x 184), sharedassets0.assets build 1260, extraits le 2026-11-16. */
+taille("cloudflare/public/items/clue2.png", 46); taille("cloudflare/public/items/clue3.png", 46); taille("cloudflare/public/items/clue4.png", 46);
+taille("cloudflare/public/titans/skeleton.png", 184);
+assert.ok(media.includes('181:"clue2"') && media.includes('182:"clue3"') && media.includes('183:"clue4"'), "icônes 181 à 183");
 console.log("idle-titans-image-pretre-v1: OK");
