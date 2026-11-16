@@ -24,10 +24,7 @@
  *    used, such as the energy/magic potions, poop, or even the pills!" -> le
  *    facteur de chaque consommable est multiplié par 1,1.
  *
- * CHOIX SOREAL (convention, pas un nombre de jeu) : pour Red/Yellow, le bonus
- * "max heart bonus even when not equipped" n'est pas cumulé avec celui du cœur
- * équipé -- on retient le plus grand des deux (le wiki parle du MÊME bonus,
- * simplement disponible sans l'équiper ; "max 20%" pour l'AP).
+ * Red/Yellow (lu dans le code du jeu, Character::addExp / addAP, build 1260, 2026-11-15) : cœur complété ? 1,1 (EXP) ou 1,2 (AP) : 1 + bonus équipé ; le set REMPLACE le bonus équipé.
  */
 
 import { nombreV1, entierV1 } from "./idle-outils-v1.js";   /* outils communs (identiques aux anciennes définitions locales) */
@@ -66,14 +63,16 @@ function completed(state, setId) {
 export function idleHeartsExpMultiplierV1(state, gearSpecials) {
   const equipe = Math.max(0, N(gearSpecials?.expPct, 0)) / 100;
   const set = Math.max(0, N(setRewards(state).heartExpPct, 0));
-  return 1 + Math.max(equipe, set);
+  /* Lu dans le jeu (Character::addExp, build 1260) : (cœur complété ? 1,1 : 1 + bonus équipé) : le set complété REMPLACE le bonus équipé, il ne se compare pas à lui. */
+  return 1 + (set > 0 ? set : equipe);
 }
 
 /* Yellow Heart : AP équipé (Special "apPct", en %) ou 20 % du set complété -- facteur (1 + bonus). */
 export function idleHeartsApMultiplierV1(state, gearSpecials) {
   const equipe = Math.max(0, N(gearSpecials?.apPct, 0)) / 100;
   const set = Math.max(0, N(setRewards(state).heartApPct, 0));
-  return 1 + Math.max(equipe, set);
+  /* Lu dans le jeu (Character::addAP) : (cœur complété ? 1,2 : 1 + bonus équipé). */
+  return 1 + (set > 0 ? set : equipe);
 }
 
 /* Blue Heart (set) : facteur appliqué à l'effet de chaque consommable (x2 -> x2,2). */

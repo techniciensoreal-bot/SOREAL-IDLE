@@ -18,14 +18,6 @@
       "date": "2026-11-09"
     },
     {
-      "fichier": "idle-hearts-v1.js",
-      "marqueur": "choix soreal",
-      "repere": "CHOIX SOREAL (convention, pas un nombre de jeu) : pour Red/Y",
-      "description": "s, poop, or even the pills!\" -> le facteur de chaque consommable est multiplié par 1,1. * CHOIX SOREAL (convention, pas un nombre de jeu) : pour Red/Yellow, le bonus \"max heart bonus even when not equipped\" n'est pas cumulé avec celui du cœur équipé -- on reti",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
       "fichier": "idle-macguffins-v1.js",
       "marqueur": "choix soreal",
       "repere": "choix SOREAL pour interdire le cumul de deux copies non fusi",
