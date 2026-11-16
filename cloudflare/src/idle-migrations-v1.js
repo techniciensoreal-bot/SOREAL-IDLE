@@ -31,7 +31,7 @@ import { createTrollStateV1, normaliserR3NomV1 } from "./idle-ngu-systemes.js";
 import { externalResourceAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { baseState, normalizeResource } from "./idle-ngu-etat.js";
 
-export const ETAT_VERSION_COURANTE = 55;
+export const ETAT_VERSION_COURANTE = 56;
 
 function migrateLegacyTrackV47_(target, raw) {
   if (!target || !raw || typeof raw !== "object") return;
@@ -344,6 +344,24 @@ export const MIGRATIONS = Object.freeze([
       const t6 = estObjet(adv.titans) ? adv.titans.t6 : null;
       const dejaVue = estObjet(t6) && (num(t6.kills, 0) > 0 || num(t6.nextAt, 0) > 0);
       if (etaitOuverte || dejaVue) adv.unlockFlags.titan6Unlocked = true;
+      return etat;
+    }
+  }),
+  Object.freeze({
+    de: 55, vers: 56, nom: "installation-wandoos-v56", phase: "normalise",
+    /*
+     * Installation de Wandoos 98 (2026-11-16, lu dans le jeu : 24 h de jeu en ligne avant tout effet). Aucune perte : une partie qui a déjà Wandoos (système débloqué, niveaux de Dump, niveaux d'OS) est considérée INSTALLÉE ;
+     * une partie qui ne l'a pas encore débloqué part de zéro. Pure : ne lit que l'état.
+     */
+    appliquer(etat) {
+      const w = etat && etat.systems && etat.systems.wandoos;
+      if (!estObjet(w)) return etat;
+      if (!estObjet(w.data)) w.data = {};
+      if (Number.isFinite(Number(w.data.installSeconds)) && w.data.installSeconds !== undefined) return etat;
+      const os = estObjet(w.data.osLevels) ? w.data.osLevels : {};
+      const sert = Boolean(w.unlocked) || num(w.data.dumpEnergyLevel, 0) > 0 || num(w.data.dumpMagicLevel, 0) > 0
+        || num(os.moneyPit, 0) > 0 || num(os.consumed98, 0) > 0 || num(os.consumedXl, 0) > 0;
+      w.data.installSeconds = sert ? 86400 : 0;
       return etat;
     }
   })

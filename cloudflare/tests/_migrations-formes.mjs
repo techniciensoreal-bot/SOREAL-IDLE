@@ -29,6 +29,13 @@ export function construireFormes() {
   const rm0 = copie(r1);
   delete rm0.resourceModelVersion;
   formes.push({ nom: "resourceModel-absent", raw: rm0, ctx });
+  /* Avant l'installation de Wandoos (55 -> 56) : Wandoos débloqué avec des niveaux, aucun champ `installSeconds`. */
+  const wd55 = copie(r1);
+  wd55.etatVersion = 55;
+  wd55.systems.wandoos.unlocked = true;
+  wd55.systems.wandoos.data = Object.assign({}, wd55.systems.wandoos.data, { dumpEnergyLevel: 120, dumpMagicLevel: 30 });
+  delete wd55.systems.wandoos.data.installSeconds;
+  formes.push({ nom: "wandoos-avant-installation", raw: wd55, ctx });
   /* Legacy : pas de saveSchema, ancienne version, suivis et systèmes à l'ancienne mode. */
   formes.push({
     nom: "legacy-sans-saveSchema",

@@ -181,6 +181,11 @@ export function preparerPartieTestSorealIdle(sessionToken, options) {
       const drapeaux = (meta.adventure.unlockFlags && typeof meta.adventure.unlockFlags === 'object') ? meta.adventure.unlockFlags : {};
       for (const k of ['ngu', 'yggdrasil', 'diggers', 'beards', 'tower', 'wandoos', 'hacks', 'wishes', 'questing', 'quirks', 'cards', 'cooking', 'macguffins', 'walderpFinalDefeated', 'basicTrainingComplete']) drapeaux[k] = true; /* banc d'essai : tous les systèmes qui acceptent de l'énergie, de la magie ou de la 3e ressource (2026-10-09) */
       meta.adventure.unlockFlags = drapeaux;
+      /* Wandoos : l'installation de 24 h en ligne est faite d'office pour les essais (partie « tout débloqué »). */
+      if (!meta.systems || typeof meta.systems !== 'object') meta.systems = {};
+      if (!meta.systems.wandoos || typeof meta.systems.wandoos !== 'object') meta.systems.wandoos = {};
+      if (!meta.systems.wandoos.data || typeof meta.systems.wandoos.data !== 'object') meta.systems.wandoos.data = {};
+      meta.systems.wandoos.data.installSeconds = 86400;
       applique.systemes = true;
     }
     if (or !== null) { meta.currencies.gold = or; applique.or = or; }

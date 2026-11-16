@@ -308,6 +308,15 @@
     return {fraction:Math.max(0,Math.min(1,ecoule/total)),restant:Math.max(0,total-ecoule),total:total};
   }
 
+  /* Installation de 24 h (lu dans le jeu) : avance en direct entre deux réponses, comme le chargement de l'OS ; absente (null) une fois terminée. */
+  function installVu_(v){
+    var ins=v&&v.installation;
+    if(!ins||!(nb_(ins.total)>0))return null;
+    var lu=Date.now();
+    if(vues&&typeof ins==='object'){if(vues.has(ins))lu=vues.get(ins);else vues.set(ins,lu);}
+    var total=nb_(ins.total),ecoule=Math.min(total,nb_(ins.ecoule)+Math.max(0,(Date.now()-lu)/1000));
+    return {fraction:Math.max(0,Math.min(1,ecoule/total)),restant:Math.max(0,total-ecoule),total:total};
+  }
   function dureeTexte_(sec){
     var s=Math.max(0,Math.ceil(nb_(sec)));
     if(s<60)return s+' s';
@@ -342,7 +351,8 @@
       e.al=Object.assign({},e.al);e.al[res]=Math.max(0,Math.min(vis.v,total));
       e.vue=Object.assign({},e.vue);e.vue[cleLibre]=Math.max(0,total-e.al[res]);
     });
-    e.enChargement=bootVu_(vue).fraction<0.9999;
+    e.enInstallation=Boolean(installVu_(vue));
+    e.enChargement=!e.enInstallation&&bootVu_(vue).fraction<0.9999;
     /* Instant (horloge locale) où le serveur a calculé ces chiffres : les barres de niveau avancent à partir de là, jamais d'un repère périmé. */
     e.at=(j&&Number.isFinite(j.__recuPerfV1))?j.__recuPerfV1:(vues&&vue&&typeof vue==='object'?(function(){var lu=maintenant_();if(vues.has(vue))lu=vues.get(vue);else vues.set(vue,lu);return lu;})():maintenant_());
     return e;
@@ -381,6 +391,17 @@
   function logo_(os){
     return '<div class="wd-logo" data-os="'+html_(os)+'"><span class="wd-drapeau" aria-hidden="true"><i></i><i></i><i></i><i></i></span>'+
       '<span class="wd-marque">Wandoos <b>'+html_(COURT_OS[os])+'</b></span></div>';
+  }
+  /* Installation de Wandoos (24 h de jeu en ligne, lu dans le jeu) : tant qu'elle dure, l'ordinateur n'a rien à offrir. Texte du jeu : « Installing wandoos 98… x % complete. » */
+  function ecranInstallation_(e){
+    var b=installVu_(e.vue)||{fraction:1,restant:0};
+    var pct=Math.floor(b.fraction*1000)/10;
+    return '<div class="wd-centre">'+logo_(e.os)+
+      '<div class="wd-boot"><div class="wd-barre wd-barre-boot"><i id="wd-inst-fill" style="width:'+(b.fraction*100).toFixed(1)+'%"></i></div>'+
+      '<div class="wd-ligne"><span>Installation de Wandoos… <b id="wd-inst-pct">'+pct.toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1})+'</b> % terminé.</span></div>'+
+      '<div class="wd-ligne wd-petit"><span>Temps restant avant la fin de l’installation : <b id="wd-inst-reste">'+html_(dureeTexte_(b.restant))+'</b></span></div>'+
+      '<div class="wd-ligne wd-petit"><span>L’installation avance seulement pendant que tu joues.</span></div></div>'+
+    '</div>';
   }
   function ecranEteint_(e){
     var total=nb_(e.vue.bootSecondes);
@@ -521,7 +542,8 @@
   }
   function clavier_(e,phase){
     var couleur='<div class="wd-groupe"><span class="wd-leg">Écran</span><button type="button" class="wd-touche wd-touche-couleur" title="Changer la couleur de l’écran" aria-label="Changer la couleur de l’écran (vingt couleurs)" onclick="'+API+'.couleur()">COULEUR<small class="wd-nomcouleur">'+couleur_().toUpperCase()+'</small></button></div>';
-    var demarrage=e.actif
+    var demarrage=phase==='installation'?''
+      :e.actif
       ?touche_('■ ÉTEINDRE','',API+'.eteindre()','wd-espace','Éteindre Wandoos')
       :touche_('▶ DÉMARRER','',API+'.demarrer()','wd-espace','Démarrer Wandoos');
     var haut='';
@@ -540,6 +562,7 @@
 
   /* Phases : éteint -> (allumage, une fois par Rebirth) -> bureau ; le chargement de l'OS est un cadre du bureau tant qu'il n'est pas terminé. */
   function phaseDe_(e){
+    if(e.enInstallation)return 'installation';
     if(!e.actif)return 'eteint';
     if(allumage&&allumageProgres_()<1)return 'allumage';
     return 'bureau';
@@ -550,8 +573,8 @@
     var c=couleur_();
     declencherAllumage_(e);
     var phase=phaseDe_(e);
-    var ecran=phase==='allumage'?ecranAllumage_(e):(phase==='bureau'?ecranBureau_(e):ecranEteint_(e));
-    if((phase==='allumage'||(phase==='bureau'&&e.enChargement))&&!timerTic&&typeof setInterval==='function')timerTic=setInterval(tic_,100);
+    var ecran=phase==='installation'?ecranInstallation_(e):phase==='allumage'?ecranAllumage_(e):(phase==='bureau'?ecranBureau_(e):ecranEteint_(e));
+    if((phase==='installation'||phase==='allumage'||(phase==='bureau'&&e.enChargement))&&!timerTic&&typeof setInterval==='function')timerTic=setInterval(tic_,100);
     planifierVie_();
     return '<div class="wd-poste" data-sans-couleur-nombre="1" data-couleur="'+c+'" data-phase="'+phase+'"><div class="wd-crt"><div class="wd-ecran">'+ecran+'</div></div>'+clavier_(e,phase)+'</div>';
   }
@@ -597,7 +620,16 @@
       /* Chargement de l'OS (Norman, 2026-11-03 : « les lignes dans la barre orange font des sauts ») : la largeur de la barre et ses chiffres changent à chaque synchro ; ils ne comptent pas dans la signature, sinon tout le poste était remplacé (outerHTML) toutes les 4 s et l'animation des rayures repartait de zéro. */
       /* Norman (2026-11-04) : « la barre de chargement de l'OS avec ses traits zébrés fait encore des sauts à chaque fois que la barre du bas tique » : la largeur des barres de niveau, leur pourcentage et leur temps restant changent à chaque rafraîchissement ; ils ne comptent pas dans la signature (la boucle d'animation les réécrit à chaque image), sinon tout le poste était remplacé et les rayures repartaient de zéro. */
       .replace(/(data-wd-remplissage style="width:)[^"]*/g,'$1').replace(/(<span class="wd-pct" data-wd-pct>)[^<]*/g,'$1').replace(/(<span data-wd-reste>)[^<]*/g,'$1')
+      .replace(/(id="wd-inst-fill" style="width:)[^"]*/,'$1').replace(/(<b id="wd-inst-(?:pct|reste)">)[^<]*/g,'$1')
       .replace(/(<small data-wd-cap="[a-z]+">)[^<]*/g,'$1').replace(/(id="wd-ch-fill" style="width:)[^"]*/,'$1').replace(/(<b id="wd-ch-(?:pct|vit|reste)">)[^<]*/g,'$1');
+    if(signature===signaturePosteV1_&&document.getElementById('wd-inst-fill')){
+      /* Installation : mêmes nœuds, seules la largeur et les chiffres changent (jamais de redessin, règle n°4). */
+      var inst=document.createElement('div');inst.innerHTML=html;
+      var fi=document.getElementById('wd-inst-fill'),nfi=inst.querySelector('#wd-inst-fill');
+      if(fi&&nfi&&fi.style.width!==nfi.style.width)fi.style.width=nfi.style.width;
+      ['wd-inst-pct','wd-inst-reste'].forEach(function(id){var a=document.getElementById(id),n=inst.querySelector('#'+id);if(a&&n&&a.textContent!==n.textContent)a.textContent=n.textContent;});
+      return;
+    }
     if(signature===signaturePosteV1_&&poste.querySelector&&poste.querySelector('[data-wd-barre]')){
       var neuves=document.createElement('div');neuves.innerHTML=html;
       var nouvelles=neuves.querySelectorAll('[data-wd-barre]'),actuelles=poste.querySelectorAll('[data-wd-barre]');
@@ -629,9 +661,21 @@
   function meta_(payload){var f=window.__actionMetaIdleV130__;if(typeof f==='function')f(payload);}
   function arreterTimer_(){if(timerTic){clearInterval(timerTic);timerTic=0;}}
   /* Un seul minuteur : fait avancer l'écran d'allumage, puis la barre de chargement ; s'arrête dès qu'il n'y a plus rien à animer. */
+  var instEcrit_={};   /* dernières valeurs ÉCRITES (jamais relues dans la page : en anglais le texte affiché est traduit) */
   function tic_(){
     var H=H_();
     var e=H&&H.getIdleEtat?etat_(H.getIdleEtat()):null;
+    if(e&&e.enInstallation&&document.querySelector('.wd-poste')){
+      var bi=installVu_(e.vue),fi=document.getElementById('wd-inst-fill');
+      if(!bi||!fi){arreterTimer_();return;}
+      var tf=(bi.fraction*100).toFixed(1)+'%';
+      if(fi.style.width!==tf)fi.style.width=tf;
+      var pi=document.getElementById('wd-inst-pct'),ri=document.getElementById('wd-inst-reste');
+      var tp=(Math.floor(bi.fraction*1000)/10).toLocaleString('fr-FR',{minimumFractionDigits:1,maximumFractionDigits:1}),tr=dureeTexte_(bi.restant);
+      if(pi&&instEcrit_.p!==tp){instEcrit_.p=tp;pi.textContent=tp;}
+      if(ri&&instEcrit_.r!==tr){instEcrit_.r=tr;ri.textContent=tr;}
+      return;
+    }
     if(!e||!e.actif||!document.querySelector('.wd-poste')){arreterTimer_();return;}
     if(allumage){
       if(allumage.bios&&Date.now()-allumage.debut>=BIOS_MS){allumage.bios=false;rafraichirPoste_();}   /* fin du BIOS : l'écran d'accueil prend la place */

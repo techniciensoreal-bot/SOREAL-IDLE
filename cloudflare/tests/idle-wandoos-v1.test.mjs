@@ -33,6 +33,7 @@ function unlockedWandoos(now = 100_000_000) {
   state.adventure.unlockFlags.wandoos = true;
   state = normalizeIdleNguState(state, context, now);
   state.runStartedAt = now - 2 * 3600 * 1000;
+  state.systems.wandoos.data.installSeconds = 86400;   /* installation terminée */
   assert.equal(state.systems.wandoos.unlocked, true, "Sanity: wandoos doit être débloqué via adventure.unlockFlags.wandoos.");
   return state;
 }

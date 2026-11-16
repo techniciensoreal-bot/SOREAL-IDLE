@@ -8,6 +8,7 @@ import { normalizeIdleNguState, advanceIdleNguState, applyIdleNguAction } from "
 const ctx = { bosses: 58, bestGold: 1e6, adventurePower: 1e9 };
 const w = normalizeIdleNguState({ difficulty: "difficile" }, ctx, 0); /* souhait 4 = Evil ; Wandoos y est ralenti de 1e12 */
 w.systems.wandoos.unlocked = true;
+w.systems.wandoos.data.installSeconds = 86400;
 w.systems.wandoos.allocation.energy = 1e18; /* 1e6 x 1e12 (ralentissement Evil) : vitesse de base 0,05 niveau/s */
 const NOW = 10 * 3600 * 1000; /* 10 h apres le debut du run : boot termine */
 const total = (x) => x.systems.wandoos.data.dumpEnergyLevel + x.systems.wandoos.data.dumpEnergyProgress;

@@ -556,8 +556,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 297,
-  "sha": "3046ee3610d80f89c745a04cfa02c88085bcd523"
+  "pin": 298,
+  "sha": "76584472e603d2370917e10dcbfb5d7808e4f867"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -772,12 +772,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1058,
-  "sha": "94746ab69b7d3e887c8c7c4815471f68268c0d32"
+  "pin": 1059,
+  "sha": "1d921c301939593362669610bcff9d1c65ac4550"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 879,
-  "sha": "fcaa61dee25f768c479801ed6720f8c8c7ad5d2a"
+  "pin": 880,
+  "sha": "e310d324c45ebcfe126abe5a57fd4a5f89eb7d45"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -932,8 +932,8 @@
   "sha": "813c8eb9bc917c96321cae6100b339e54c10c1fa"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 83,
-  "sha": "279c3e35ba072b0a3f6bfdd9ba9cb3a6539fba0b"
+  "pin": 84,
+  "sha": "657c03eb46b680fce97085904d9c3080de504443"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 2,

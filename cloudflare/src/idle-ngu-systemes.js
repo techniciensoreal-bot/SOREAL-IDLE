@@ -1463,6 +1463,7 @@ export function applyTrollEffectV1(state, id) {
     if (r) { r.current = 0; r.fillProgress = 0; }
   } else if (id === "wandoos") {
     const w = state.systems.wandoos?.data;
+    /* Troll « wipeWandoos » : niveaux et barres seulement, jamais l'installation (installSeconds). */
     if (w) { w.dumpEnergyLevel = 0; w.dumpMagicLevel = 0; w.dumpEnergyProgress = 0; w.dumpMagicProgress = 0; }
   }
 }

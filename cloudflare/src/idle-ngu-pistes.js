@@ -16,7 +16,7 @@ import { nguLevelsFromWorkV1 } from "./idle-ngu-catalog-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
 import { IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_META_VERSION, IDLE_NGU_TRACKS, IDLE_WISH_MAX_SLOTS_V1, RESOURCE_KEYS, WISH_MIN_LEVEL_SECONDS, challengePermanentBonuses, clamp, clone, int, num } from "./idle-ngu-catalogues.js";
 import { expShopPurchasedV1 } from "./idle-ngu-actions.js";
-import { advanceTheEndFinalHackV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, syncWishAllocationTotalsV1, wandoosCalculVitessesV1, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
+import { advanceTheEndFinalHackV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, syncWishAllocationTotalsV1, WANDOOS_INSTALL_SECONDES_V1, wandoosCalculVitessesV1, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
 import { externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, rebaserProgressionSecondesV1, setAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { bloodMigrerAllocationV1, bloodRitualMagicV1, diggerBonuses, diggerDrainTotal } from "./idle-ngu-systemes.js";
 import { setFacteurNguV1, beardBonusMultiplier, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
@@ -790,7 +790,10 @@ export function wandoosViewV1(state, now) {
   const xl = idleWandoosXlUnlockedV1(state);
   const energy = state.resources?.energy || {};
   const magic = state.resources?.magic || {};
+  const installee = Math.max(0, Math.min(WANDOOS_INSTALL_SECONDES_V1, num(state.systems.wandoos?.data?.installSeconds, WANDOOS_INSTALL_SECONDES_V1)));
   return {
+    /* Installation de 24 h en ligne (jeu : Wandoos98Controller::installTextUpdate) : présente seulement tant qu'elle n'est pas finie ; l'écran montre alors la barre d'installation à la place de l'ordinateur. */
+    installation: installee < WANDOOS_INSTALL_SECONDES_V1 ? { ecoule: installee, total: WANDOOS_INSTALL_SECONDES_V1 } : null,
     os: c.osId,
     osNom: c.os.name,
     osDisponibles: ["98"].concat(meh ? ["meh"] : [], xl ? ["xl"] : []),

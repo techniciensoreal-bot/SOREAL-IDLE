@@ -783,7 +783,9 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
        */
       const permanentOs=s.data.os;
       const permanentOsLevels=clone(s.data.osLevels);
+      const installSeconds=s.data.installSeconds;   /* l'installation de 24 h survit au Rebirth (Wandoos98::reset n'y touche pas) */
       s.data=createWandoosData();
+      if(Number.isFinite(installSeconds))s.data.installSeconds=installSeconds;
       s.data.os=permanentOs;
       s.data.osLevels=permanentOsLevels;
     }
