@@ -33,6 +33,9 @@
             'Les valeurs de base de l’entraînement de base et la réduction du facteur de buff de défense sur les dégâts reçus suivent maintenant les valeurs lues dans le code du jeu.',
             'Les cœurs Rouge et Jaune complets remplacent le bonus de l’objet équipé (EXP et AP) au lieu de prendre le plus grand des deux, comme dans le vrai jeu.'
           ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'Le cap d’énergie de ce système se calcule comme dans le jeu : la part entière de l’énergie nécessaire, plus un.'
+          ]},
           {menu:'titans', titre:'Titans', points:[
             'Récompenses de titan, d’après le code du jeu : le facteur du défi d’EXP s’applique avant les autres, et le bonus d’EXP des premières victoires porte sur une victoire de moins par niveau (3 × niveau − 1), comme dans le vrai jeu.'
           ]},

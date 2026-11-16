@@ -461,7 +461,7 @@ export function wandoosCalculVitessesV1(state, seconds, now) {
   const capDe = (multiplicateurEspece) => {
     const m = idleCardsMultiplierV1(state, "wandoos") * osLevelMultiplier * beardWandoos * diggerWandoos * challengeWandoos
       * nguWandoosMultiplier * wandoosSetMultiplier * bootPourCap * multiplicateurEspece;
-    const cap = Number.isFinite(m) && m > 0 ? Math.ceil(requirement / m) : NaN;
+    const cap = Number.isFinite(m) && m > 0 ? Math.floor(requirement / m) + 1 : NaN;
     return Number.isFinite(cap) && cap > 0 ? cap : null;
   };
   const energyCap = capDe(atEnergyDumpMultiplier * quirkEnergyMultiplier * macguffinEffectMultiplierV1(state, "energyWandoos"));

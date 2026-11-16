@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Récompenses de titan, d’après le code du jeu : le facteur du défi d’EXP s’applique avant les autres, et le bonus d’EXP des premières victoires porte sur une victoire de moins par niveau (3 × niveau − 1), comme dans le vrai jeu."
+    "Le cap d’énergie de ce système se calcule comme dans le jeu : la part entière de l’énergie nécessaire, plus un."
   ] };
 })();

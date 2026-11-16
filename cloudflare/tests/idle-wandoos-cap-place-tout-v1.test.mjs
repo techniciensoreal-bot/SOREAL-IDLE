@@ -76,7 +76,7 @@ for (const libre of [1e6, 1e15, 8e18]) {
 }
 // Norman (2026-11-03) : « tant que le cap n'est pas atteint, le bouton cap doit mettre tout ce qui est en stock ; si on possède plus que ce qu'il faut, elle ne prendra que ce dont elle a besoin ».
 // La page lit l'énergie libre dans la dernière synchro (jusqu'à ~4 s) : périmée, elle bornait la demande (reliquat, voire AUCUN envoi). CAP demande le cap lui-même ; le moteur borne au libre réel.
-for (const [libre, vue, attendu] of [[5e8, 0, 5e8], [5e8, 1e8, 5e8], [999999999, 10, 999999999], [3e10, 1e8, 25e9], [3e10, 0, 25e9]]) {
+for (const [libre, vue, attendu] of [[5e8, 0, 5e8], [5e8, 1e8, 5e8], [999999999, 10, 999999999], [3e10, 1e8, 25e9 + 1], [3e10, 0, 25e9 + 1]]) {
   const r = essai(libre, "normal", false, vue);
   assert.equal(r.alloue, attendu, "synchro périmée (libre lu " + vue + ", réel " + libre + ") : " + (libre < 1e9 ? "tout le stock" : "seulement le cap"));
   assert.equal(r.libreApres, libre - attendu, "aucun reliquat sous le cap, reste exact au-dessus");
@@ -98,7 +98,7 @@ for (const [deja, libre] of [[5e10, 0], [5e10, 7e8], [1e11, 123]]) {
   let r = essai(5e8, "normal", false, undefined, "cap", undefined, undefined, 4e8);
   assert.equal(r.alloue, 9e8); assert.equal(r.libreApres, 0, "libre insuffisant : tout le libre");
   r = essai(3e10, "normal", false, undefined, "cap", undefined, undefined, 8e8);
-  assert.equal(r.alloue, 25e9, "libre suffisant : atteint le cap"); assert.equal(r.libreApres, 3e10 + 8e8 - 25e9);
+  assert.equal(r.alloue, 25e9 + 1, "libre suffisant : atteint le cap"); assert.equal(r.libreApres, 3e10 + 8e8 - 25e9 - 1);
 }
 // Pendant le chargement : le cap est celui du moment (plus grand) ; placé = ancien cap final > cap(boot) ne se produit pas, mais placé au-dessus du cap COURANT retombe à lui.
 {
