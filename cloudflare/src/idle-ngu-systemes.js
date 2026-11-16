@@ -828,16 +828,16 @@ function towerHitsV1(power, idleBonus, floor) {
   return Math.max(1, Math.ceil((600 * scale) / Math.max(1e-9, damage)));
 }
 
-function towerOptimalFloorV1(power, idleBonus) {
-  let lo = 0;
-  let hi = TOWER_MAX_FLOOR_V1;
-  if (towerHitsV1(power, idleBonus, 0) > 1) return 0;
-  while (lo < hi) {
-    const mid = Math.ceil((lo + hi) / 2);
-    if (towerHitsV1(power, idleBonus, mid) <= 1) lo = mid;
-    else hi = mid - 1;
-  }
-  return lo;
+/*
+ * Étage optimal = Character::calculateBestItopodLevel du jeu (NGU Idle build 1260, lu le 2026-11-16) : 0 sous 700 de Puissance, sinon floor(log base 1,05 de (Puissance / 765 x Idle Attack Power)), au moins 1.
+ * Le jeu le plafonne en plus à l'étage le plus haut atteint (highestItopodLevel) ; ici ce plafond est laissé à la montée progressive (Auto) et à towerAppliquerEtageOptimalV1 (départ au plus à « plus haut - 1 »).
+ * Ce n'est PAS « le plus haut étage tuable en un coup » (calcul d'avant, de ~5 étages plus haut) : le jeu garde une marge pour les aléas des coups (0,8 à 1,2) et des PV (0,98 à 1,02).
+ */
+export function towerOptimalFloorV1(power, idleBonus) {
+  if (!(power >= 700)) return 0;
+  const x = (power / 765) * Math.max(0.1, idleBonus);
+  const f = Math.floor(Math.log(x) / Math.log(1.05) + 1e-9);
+  return Math.min(TOWER_MAX_FLOOR_V1, Math.max(1, f));
 }
 
 /* Page ITOPOD, colonne « Boost » : force du boost lâché par palier (14 % de chance par kill, niveau 1). */
