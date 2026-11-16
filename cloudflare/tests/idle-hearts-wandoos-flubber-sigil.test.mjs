@@ -106,6 +106,7 @@ function titan(id, aleatoire, difficulty = "easy") {
   let s = normalizeIdleNguState({}, context, now);
   s.adventure.unlockFlags.wandoos = true;
   s = normalizeIdleNguState(s, context, now);
+  s.systems.wandoos.data.installSeconds = 86400;   /* installation de 24 h terminée (migration 55 -> 56) */
   assert.equal(s.systems.wandoos.unlocked, true);
 
   // Wandoos 98 : "Upgrading costs a number of levels equal to the new Wandoos OS Level".
@@ -150,6 +151,7 @@ function titan(id, aleatoire, difficulty = "easy") {
       assert.equal(s.adventure.completedSets.wandoosXl, true);
     }
     s.runStartedAt = now - 27 * 60 * 1000; // 27 min écoulées
+    s.systems.wandoos.data.installSeconds = 86400;   /* installation de 24 h terminée */
     s.resources.energy.cap = 1e9;
     s.resources.energy.current = 1e9;
     s = applyIdleNguAction(s, { action: "allocate", system: "wandoos", resource: "energy", value: 1e9 }, context, now).state;

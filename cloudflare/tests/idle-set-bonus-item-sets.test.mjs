@@ -58,6 +58,7 @@ for (const [id, set] of Object.entries(IDLE_ADVENTURE_ITEM_SETS_V1)) {
       assert.equal(s.currencies.experience - xpAvant, 300, "300 EXP crédités à la complétion");
     }
     s.runStartedAt = now - (bootTermine ? 2 * 3600 * 1000 : 1800 * 1000);
+    s.systems.wandoos.data.installSeconds = 86400;   /* installation de 24 h terminée */
     s.resources.energy.cap = 1e9;
     s.resources.energy.current = 1e9;
     s = applyIdleNguAction(s, { action: "allocate", system: "wandoos", resource: "energy", value: 5e8 }, context, now).state;

@@ -87,6 +87,7 @@ function createTrackState(def) {
   const out = {};
   for (const track of tracks) {
     out[track.id] = { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 };
+    if (def.id === "hacks") out[track.id].r3 = 0;   /* Resource 3 propre à chaque hack (Hack.res3 dans le jeu) */
   }
   const created = {
     tracks: out,
@@ -335,6 +336,7 @@ export const IDLE_WANDOOS_OS_V1 = Object.freeze({
  * depuis le 2026-09-23, la consommation des copies "A busted copy of
  * Wandoos 98/XL" (action méta consumeWandoosCopy, idle-wandoos-os-v1.js).
  */
+export const WANDOOS_INSTALL_SECONDES_V1 = 86400;   /* lu dans le jeu : installTime >= 86400 */
 export function createWandoosData() {
   return {
     os: "98",
@@ -342,6 +344,8 @@ export function createWandoosData() {
     dumpMagicLevel: 0,
     dumpEnergyProgress: 0,
     dumpMagicProgress: 0,
+    /* Installation de Wandoos 98 (lu dans le jeu, Wandoos98Controller::updateWandoos, build 1260, 2026-11-16) : 24 h de jeu EN LIGNE (0,02 s par tick) avant tout effet ; ne se remet pas à zéro au Rebirth (Wandoos98::reset n'y touche pas). */
+    installSeconds: 0,
     osLevels: { moneyPit: 0, consumed98: 0, consumedXl: 0 }
   };
 }
@@ -487,6 +491,18 @@ const WANDOOS_HORS_LIGNE_SECONDES_V1 = 300;
 export function advanceWandoos(state, seconds, context, now) {
   const s = state.systems.wandoos;
   if (!s?.unlocked || seconds <= 0) return;
+  /*
+   * Installation de 24 h (lu dans le jeu, Wandoos98Controller::updateWandoos 4779 et Character::addOfflineProgress 2242, build 1260, 2026-11-16) : tant qu'elle n'est pas finie, elle avance (EN LIGNE seulement) et aucun
+   * niveau n'est gagné ; hors ligne (même seuil de 5 minutes que le reste) elle n'avance pas. Le temps qui reste après la fin de l'installation compte pour Wandoos.
+   */
+  const installee = num(s.data.installSeconds, WANDOOS_INSTALL_SECONDES_V1);
+  if (installee < WANDOOS_INSTALL_SECONDES_V1) {
+    if (seconds >= 5 * 60) return;
+    const utilise = Math.min(seconds, WANDOOS_INSTALL_SECONDES_V1 - installee);
+    s.data.installSeconds = installee + utilise;
+    seconds -= utilise;
+    if (seconds <= 1e-9) return;
+  }
   const calc = wandoosCalculVitessesV1(state, seconds, now);
   /* Tick par tick (lu dans le jeu, build 1260, 2026-11-15) : voir wandoosAvancerTicksV1 (idle-tick-v1.js). */
   const debutBoot = Math.max(0, calc.boot.elapsed - seconds);   /* secondes de boot écoulées au début de la fenêtre */
@@ -849,6 +865,30 @@ export function normalizeResource(raw, resource = "energy") {
   };
 }
 
+/* Total de Resource 3 placé sur les hacks (chacun a la sienne). */
+export function hackR3TotalV1(s) {
+  let total = 0;
+  for (const t of Object.values(s?.data?.tracks || {})) total += Math.max(0, num(t?.r3, 0));
+  return total;
+}
+
+/*
+ * Chaque hack a SA Resource 3 (lu dans le jeu : Hack.res3, HacksController::addR3 3189) et TOUS ceux qui en ont avancent (updateAllHacks 3194). `allocation.r3` du système reste le TOTAL placé. Quand le total
+ * annoncé diffère de la somme des hacks (ancienne sauvegarde à allocation unique, ou écriture directe du total), l'écart va sur le hack actif : rien n'est perdu ni compté deux fois ; le total redevient la somme.
+ */
+export function hackAbsorberAllocationV1(s) {
+  const tracks = s?.data?.tracks;
+  if (!tracks) return;
+  const somme = hackR3TotalV1(s);
+  const total = Math.max(0, num(s.allocation?.r3, 0));
+  if (Math.abs(total - somme) > 1e-9) {
+    const actif = tracks[s.data.activeTrack || ""] || Object.values(tracks)[0];
+    const autres = somme - Math.max(0, num(actif?.r3, 0));
+    if (actif) actif.r3 = Math.max(0, total - autres);
+  }
+  s.allocation.r3 = hackR3TotalV1(s);
+}
+
 function normalizeTracks(def, rawData) {
   const created = createTrackState(def);
   if (!created.tracks) return rawData && typeof rawData === "object" ? clone(rawData) : {};
@@ -862,6 +902,7 @@ function normalizeTracks(def, rawData) {
       permanentLevel: Math.max(0, num(src.permanentLevel, 0)),
       progress: Math.max(0, num(src.progress, 0))
     };
+    if (def.id === "hacks") out.tracks[track.id].r3 = Math.max(0, num(src.r3, 0));
     /* Advanced Training : énergie propre et Target de chaque compétence (voir advanceAdvancedTrainingV1). */
     if (def.id === "advancedTraining") {
       out.tracks[track.id].energy = Math.max(0, num(src.energy, 0));
@@ -1045,6 +1086,8 @@ function normalizeSystem(def, raw) {
     s.data.dumpMagicLevel = Math.max(0, num(data.dumpMagicLevel, 0));
     s.data.dumpEnergyProgress = Math.max(0, num(data.dumpEnergyProgress, 0));
     s.data.dumpMagicProgress = Math.max(0, num(data.dumpMagicProgress, 0));
+    /* Champ absent = partie d'avant l'installation (migration 55 -> 56) : déjà installée, aucune perte. */
+    s.data.installSeconds = data.installSeconds !== undefined && Number.isFinite(Number(data.installSeconds)) ? clamp(num(data.installSeconds, 0), 0, WANDOOS_INSTALL_SECONDES_V1) : (src.unlocked ? WANDOOS_INSTALL_SECONDES_V1 : 0);
     s.data.osLevels = {
       moneyPit: Math.max(0, Math.min(100, num(data.osLevels?.moneyPit, 0))),
       consumed98: Math.max(0, Math.min(100, num(data.osLevels?.consumed98, 0))),
@@ -1066,6 +1109,7 @@ function normalizeSystem(def, raw) {
   } else if ((IDLE_NGU_TRACKS[def.id] || []).length) {
     s.data = normalizeTracks(def, src.data);
     if (def.id === "wishes") normalizeWishSlotsV1(s, src.data);
+    if (def.id === "hacks") hackAbsorberAllocationV1(s);
   } else {
     s.data = src.data && typeof src.data === "object" ? clone(src.data) : {};
   }

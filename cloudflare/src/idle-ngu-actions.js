@@ -29,7 +29,7 @@ import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveB
 import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, daycareFragmentsExtV1, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
-import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
+import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, hackActionV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
 import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 import { beteSpecialRebirthV1 } from "./idle-bete-secret-v1.js";
 
@@ -266,7 +266,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "selectTrack" && String(payload.system || "") === "wishes") {
     /* Ancien contrat ("Piste active") : place le souhait dans le slot 1. */
     result = setWishSlotV1(state, 0, String(payload.track || ""));
-  } else if (action === "allocate") {
+  } else if (hackActionV1(state, action, payload, context)) { /* Resource 3 des hacks (idle-ngu-pistes.js) */ } else if (action === "allocate") {
     if (String(payload.system || "") === "ngu") throw new Error("UTILISER_ALLOCATE_NGU");
     setAllocation(
       state,
@@ -722,6 +722,7 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
     const s=state.systems[def.id];
     if(def.kind==="run")resetRunSystem(def,s);
     if(def.id==="hacks"||def.id==="wishes")s.allocation={energy:0,magic:0,r3:0};
+    if(def.id==="hacks")for(const t of Object.values(s.data?.tracks||{}))t.r3=0;   /* la Resource 3 de chaque hack est rendue au Rebirth */
     /* Slots de souhaits : les souhaits placés restent, les ressources allouées sont perdues comme avant. */
     if(def.id==="wishes")for(const k of RESOURCE_KEYS)clearWishSlotAllocationsV1(s,k);
     if(def.id==="diggers"&&s.data?.diggers){
@@ -783,7 +784,9 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
        */
       const permanentOs=s.data.os;
       const permanentOsLevels=clone(s.data.osLevels);
+      const installSeconds=s.data.installSeconds;   /* l'installation de 24 h survit au Rebirth (Wandoos98::reset n'y touche pas) */
       s.data=createWandoosData();
+      if(Number.isFinite(installSeconds))s.data.installSeconds=installSeconds;
       s.data.os=permanentOs;
       s.data.osLevels=permanentOsLevels;
     }

@@ -967,7 +967,7 @@ function advanceTowerV1(state, seconds, context) {
    * jamais comme condition de progression en elle-même.
    */
   if (!tower.active && towerHitsV1(power, idleBonus, 0) > 1) return;
-  const respawn = Math.max(0.34, 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1)));
+  const respawn = 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1));   /* AdventureController::respawnTime : 4 s x facteurs, sans plancher (audit 2026-11-16) */
   const interval = state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1;
   const optimal = towerOptimalFloorV1(power, idleBonus);
   /* Wiki NGU Idle, page ITOPOD (ngu-idle.fandom.com/wiki/ITOPOD, vérifiée le 2026-10-12) : « your start floor ranging from 0 to 1 below the highest floor you've reached, and your end floor going all the way up to 1600 » ; « If you ... defeat ten enemies on your end floor, you'll immediately go back to your start floor. » */
@@ -1465,6 +1465,7 @@ export function applyTrollEffectV1(state, id) {
     if (r) { r.current = 0; r.fillProgress = 0; }
   } else if (id === "wandoos") {
     const w = state.systems.wandoos?.data;
+    /* Troll « wipeWandoos » : niveaux et barres seulement, jamais l'installation (installSeconds). */
     if (w) { w.dumpEnergyLevel = 0; w.dumpMagicLevel = 0; w.dumpEnergyProgress = 0; w.dumpMagicProgress = 0; }
   }
 }

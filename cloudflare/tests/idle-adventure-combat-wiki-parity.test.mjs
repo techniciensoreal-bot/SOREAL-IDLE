@@ -81,10 +81,10 @@ assert.equal(regenRepos({ stats: { regen: 2 } }, "safe"), 10);
 assert.equal(regenRepos({ stats: { regen: 2 }, setRewards: { safeZoneRegen10x: true } }, "safe"), 20);
 assert.equal(regenRepos({ stats: { regen: 2 } }, "forest"), 2);
 
-/* --- Respawn : 4 s de base, plancher 0,34 s (page Respawn) --- */
+/* --- Respawn : 4 s de base, aucun plancher (lu dans le jeu, AdventureController::respawnTime, 2026-11-16) --- */
 assert.ok(ui.includes("const IDLE_ADVENTURE_RESPAWN_MS_V1=4000;"), "Respawn : 4 s de base");
 const reduction = fonction("respawnReductionAdventureIdleV1_", { idleNombre_ });
-assert.ok(Math.abs(4000 * (1 - reduction({ systemes: { bonuses: { respawnReduction: 0.99 } } })) - 340) < 1e-6, "Respawn : minimum effectif 0,34 s");
+assert.ok(Math.abs(4000 * (1 - reduction({ systemes: { bonuses: { respawnReduction: 0.99 } } })) - 40) < 1e-6, "Respawn : aucun plancher de 0,34 s dans le jeu");
 
 /* --- Buffs / skills avancés : page « Skills » --- */
 const puissance = block(ui, "function multiplicateurPowerManuelAdventureIdleV3_(", "function multiplicateurChargeAdventureIdleV3_(");

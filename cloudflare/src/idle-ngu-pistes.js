@@ -16,7 +16,7 @@ import { nguLevelsFromWorkV1 } from "./idle-ngu-catalog-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
 import { IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_META_VERSION, IDLE_NGU_TRACKS, IDLE_WISH_MAX_SLOTS_V1, RESOURCE_KEYS, WISH_MIN_LEVEL_SECONDS, challengePermanentBonuses, clamp, clone, int, num } from "./idle-ngu-catalogues.js";
 import { expShopPurchasedV1 } from "./idle-ngu-actions.js";
-import { advanceTheEndFinalHackV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, syncWishAllocationTotalsV1, wandoosCalculVitessesV1, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
+import { hackAbsorberAllocationV1, hackR3TotalV1, advanceTheEndFinalHackV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, syncWishAllocationTotalsV1, WANDOOS_INSTALL_SECONDES_V1, wandoosCalculVitessesV1, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
 import { externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, rebaserProgressionSecondesV1, setAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { bloodMigrerAllocationV1, bloodRitualMagicV1, diggerBonuses, diggerDrainTotal } from "./idle-ngu-systemes.js";
 import { setFacteurNguV1, beardBonusMultiplier, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
@@ -312,7 +312,7 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
    * you generate Resource 3 until you hit your cap », « The output of each task is (points invested * Power) ») :
    * seconde passe 2026-09-24, elles multipliaient à tort la vitesse des Hacks.
    */
-  const throughput = Math.max(0, num(system.allocation.r3, 0)) * Math.max(1, idleNguEffectiveResourceStatV1(state, "r3", "power")) * hackSpeedMultiplier;
+  const throughput = Math.max(0, num(track.r3, 0)) * Math.max(1,idleNguEffectiveResourceStatV1(state, "r3", "power")) * hackSpeedMultiplier;
   if (throughput <= 0) return;
 
   let level = Math.max(0, int(track.level, 0));
@@ -583,6 +583,52 @@ export function atSetTrackEnergyV1(state, trackId, value, context = {}) {
 }
 
 /*
+ * Resource 3 d'UN hack (lu dans le jeu : chaque Hack a sa res3, HacksController::addR3 3189 ; updateAllHacks 3194 fait avancer TOUS ceux qui en ont). Mêmes plafonds qu'une allocation ordinaire ;
+ * `allocation.r3` du système reste le total (somme des hacks).
+ */
+export function hackSetTrackR3V1(state, trackId, value, context = {}) {
+  const s = state.systems.hacks;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const t = s.data?.tracks?.[trackId];
+  if (!t) throw new Error("PISTE_INCONNUE");
+  hackAbsorberAllocationV1(s);
+  const autres = hackR3TotalV1(s) - Math.max(0, num(t.r3, 0));
+  setAllocation(state, "hacks", "r3", autres + Math.max(0, num(value, 0)), context);
+  t.r3 = Math.max(0, num(s.allocation.r3, 0) - autres);
+  s.allocation.r3 = hackR3TotalV1(s);
+}
+
+/* Actions de Resource 3 des hacks : « allocateHack » (valeur absolue pour UN hack) et « allocate » hacks/r3 de la barre d'outils (valeur = nouveau total) ; rend vrai si l'action est de ce genre. */
+export function hackActionV1(state, action, payload, context = {}) {
+  if (action === "allocateHack") { hackSetTrackR3V1(state, String(payload.track || ""), num(payload.value, 0), context); return true; }
+  if (action === "allocate" && String(payload.system || "") === "hacks" && String(payload.resource || "") === "r3") { hackAllocateTotalV1(state, num(payload.value, 0), context); return true; }
+  return false;
+}
+
+/* Barre d'outils commune (valeur = nouveau TOTAL placé) : l'écart va sur le hack actif ; une baisse est reprise au hack actif d'abord, puis aux autres (dans l'ordre des hacks). */
+export function hackAllocateTotalV1(state, value, context = {}) {
+  const s = state.systems.hacks;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  hackAbsorberAllocationV1(s);
+  const avant = hackR3TotalV1(s);
+  setAllocation(state, "hacks", "r3", Math.max(0, num(value, 0)), context);
+  let ecart = Math.max(0, num(s.allocation.r3, 0)) - avant;
+  const tracks = s.data.tracks;
+  const actif = tracks[s.data.activeTrack || ""] || Object.values(tracks)[0];
+  if (ecart >= 0) { actif.r3 = Math.max(0, num(actif.r3, 0)) + ecart; }
+  else {
+    ecart = -ecart;
+    for (const t of [actif, ...Object.values(tracks).filter((x) => x !== actif)]) {
+      const pris = Math.min(ecart, Math.max(0, num(t.r3, 0)));
+      t.r3 = Math.max(0, num(t.r3, 0)) - pris;
+      ecart -= pris;
+      if (ecart <= 0) break;
+    }
+  }
+  s.allocation.r3 = hackR3TotalV1(s);
+}
+
+/*
  * horsLigne (absence longue, mêmes passes que le jeu : audit hors ligne 2026-11-16) : null en ligne ; sinon { tempsPlein: { energy, magic } } pour les barbes, et le simple fait d'être hors ligne
  * borne l'Entraînement avancé à sa cible (E5) et fait avancer le hack final à demi-vitesse (E6).
  */
@@ -640,7 +686,12 @@ export function advanceTrackSystem(state, def, seconds, horsLigne = null) {
   if (def.id === "hacks") {
     /* Hack final : hors ligne le jeu avance à DEMI-vitesse (Character::addOfflineProgress, id 2250 : endHackSpeed x secs x 50 / 2). */
     advanceTheEndFinalHackV1(state, horsLigne ? seconds / 2 : seconds);
-    advanceHackTrack(state, s, trackDef, t, seconds);
+    /* Tous les hacks qui ont de la Resource 3 avancent (HacksController::updateAllHacks 3194 ; hors ligne, Character::addOfflineProgress 2250), chacun avec la sienne. */
+    hackAbsorberAllocationV1(s);
+    for (const def2 of tracks) {
+      const th = s.data.tracks[def2.id];
+      if (th && Math.max(0, num(th.r3, 0)) > 0) advanceHackTrack(state, s, def2, th, seconds);
+    }
     s.level = Object.values(s.data.tracks).reduce((sum, x) => sum + x.level, 0);
     return;
   }
@@ -790,7 +841,10 @@ export function wandoosViewV1(state, now) {
   const xl = idleWandoosXlUnlockedV1(state);
   const energy = state.resources?.energy || {};
   const magic = state.resources?.magic || {};
+  const installee = Math.max(0, Math.min(WANDOOS_INSTALL_SECONDES_V1, num(state.systems.wandoos?.data?.installSeconds, WANDOOS_INSTALL_SECONDES_V1)));
   return {
+    /* Installation de 24 h en ligne (jeu : Wandoos98Controller::installTextUpdate) : présente seulement tant qu'elle n'est pas finie ; l'écran montre alors la barre d'installation à la place de l'ordinateur. */
+    installation: installee < WANDOOS_INSTALL_SECONDES_V1 ? { ecoule: installee, total: WANDOOS_INSTALL_SECONDES_V1 } : null,
     os: c.osId,
     osNom: c.os.name,
     osDisponibles: ["98"].concat(meh ? ["meh"] : [], xl ? ["xl"] : []),

@@ -17,6 +17,7 @@ import "./idle-adventure-v47.js";
 import { special, record } from "./idle-adventure-objets.js";
 import { add, inventoryCapacityAdventureV1, syncInventorySlotsAdventureV2 } from "./idle-adventure-inventaire.js";
 import { idleNguEffectiveResourceStatV1 } from "./idle-ngu-ressources.js";
+import { hackAbsorberAllocationV1 } from "./idle-ngu-etat.js";
 
 export const IDLE_EXILE_OBJETS_V1 = Object.freeze({
   seal: "sealExile",           /* 335 */
@@ -140,10 +141,14 @@ export function exileHackV1(state, seconds, enLigne = true) {
   if (phase > 0 || d.exilePhaseS !== undefined) d.exilePhaseS = phase;   /* temps nul : l'état ne change pas (SOREAL_IDLE_VERIF_TEMPS_NUL) */
   if (!(echeances > 0) || !hacks.unlocked) return [];
   const cap = Math.floor(idleNguEffectiveResourceStatV1(state, "r3", "cap"));
-  const tient = d.activeTrack === "hackHack"
-    && exileVuV1(adv, IDLE_EXILE_OBJETS_V1.buster)
+  hackAbsorberAllocationV1(hacks);
+  /* Hack n°13 avec SA Resource 3 = plafond total - 1 (HacksController::checkExilePiece : Hack.res3 du hack 13). */
+  const r3HackHack = d.tracks && d.tracks.hackHack && d.tracks.hackHack.r3 !== undefined
+    ? Number(d.tracks.hackHack.r3)
+    : (d.activeTrack === "hackHack" ? Number(hacks.allocation && hacks.allocation.r3) : 0);
+  const tient = exileVuV1(adv, IDLE_EXILE_OBJETS_V1.buster)
     && cap - 1 >= 0
-    && Number(hacks.allocation && hacks.allocation.r3) === cap - 1;
+    && r3HackHack === cap - 1;
   if (!tient) return [];
   const out = [];
   for (let i = 0; i < echeances && out.length < 50; i++) exileDonnerV1(adv, IDLE_EXILE_OBJETS_V1.antennae, out);

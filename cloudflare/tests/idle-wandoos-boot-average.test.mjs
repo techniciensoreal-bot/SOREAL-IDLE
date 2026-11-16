@@ -15,6 +15,7 @@ function wandoos() {
   s.adventure.unlockFlags.wandoos = true;
   s = normalizeIdleNguState(s, ctx, T0);
   s.runStartedAt = T0;
+  s.systems.wandoos.data.installSeconds = 86400;   /* installation de 24 h terminée */
   s.resources.energy.cap = 1e9;
   s.resources.energy.current = 1e9;
   s = applyIdleNguAction(s, { action: "allocate", system: "wandoos", resource: "energy", value: 1e6 }, ctx, T0).state; /* 0,002 niveau/s a pleine vitesse (facteur d OS 1/25) */

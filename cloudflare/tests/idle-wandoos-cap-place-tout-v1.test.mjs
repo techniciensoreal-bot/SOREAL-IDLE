@@ -16,6 +16,7 @@ function essai(libre, difficulte, magie = false, libreVue = undefined, mode = "c
   state.adventure.unlockFlags.wandoos = true;
   state = normalizeIdleNguState(state, context, now);
   state.runStartedAt = now - secondes * 1000;
+  state.systems.wandoos.data.installSeconds = 86400;   /* installation de 24 h terminée */
   state.difficulty = difficulte;
   state.systems.bloodMagic.unlocked = true;
   state.resources.energy.cap = 9e18;

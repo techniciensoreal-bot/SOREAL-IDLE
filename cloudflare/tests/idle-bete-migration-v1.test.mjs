@@ -11,7 +11,7 @@ const cp = o => JSON.parse(JSON.stringify(o));
 const T0 = 1.76e12;
 const m = M.MIGRATIONS.find(x => x.de === 54);
 assert.equal(m.vers, 55);
-assert.equal(M.ETAT_VERSION_COURANTE, 55);
+assert.ok(M.ETAT_VERSION_COURANTE >= 55);
 
 function ancien(modif = {}) {
   const e = cp(lireReference(1));
@@ -65,10 +65,10 @@ const migrer = (e, jeu = {}) => M.appliquerMigrationV1(m, e, { now: T0, jeu });
   const e = ancien(); e.records.highestBoss = 140;
   const n = normalizeIdleNguState(e, { bosses: 0 }, T0);
   assert.equal(n.adventure.unlockFlags.titan6Unlocked, true);
-  assert.equal(n.etatVersion, 55);
+  assert.equal(n.etatVersion, M.ETAT_VERSION_COURANTE);
   const neuf = normalizeIdleNguState({}, { bosses: 0 }, T0);
   assert.ok(!neuf.adventure.unlockFlags.titan6Unlocked, "nouvelle partie : le secret reste à trouver");
-  assert.equal(neuf.etatVersion, 55);
+  assert.equal(neuf.etatVersion, M.ETAT_VERSION_COURANTE);
 }
 
 /* Rebirth de bout en bout : 4 indices faits + 2600 s de partie : titan6Unlocked ; 2000 s : non. */

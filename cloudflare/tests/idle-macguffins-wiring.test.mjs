@@ -305,6 +305,7 @@ function fragment(s, type, level, equipped) {
   const prep = x => {
     x.runStartedAt = T0 - 10 * 3600 * 1000;
     x.systems.wandoos.unlocked = true;
+    x.systems.wandoos.data.installSeconds = 86400;   /* installation terminée */
     x.systems.wandoos.allocation.energy = 1e6;
     x.systems.wandoos.allocation.magic = 1e6;
   };

@@ -1138,16 +1138,17 @@ function idleNguBonusesSansMacguffinCoeurV1(state) {
 
 /*
  * Wiki Respawn : temps de base 4 s ; facteurs multiplicatifs (NGU Respawn, set Clock -5 %, perk
- * SPAWN FASTER DAMMIT, souhait « enemies spawned faster » -1 %/niveau) ; les objets « Build Respawn »
- * s'additionnent puis sont plafonnés (48 % Normal, 58 % Evil, 78 % Sadistic). Plancher : 0,34 s.
+ * SPAWN FASTER DAMMIT, souhait « enemies spawned faster » -1 %/niveau) ; les objets « Build Respawn » s'additionnent.
+ * Lu dans le jeu (AdventureController::respawnTime, méthode 140, build 1260, 2026-11-16) : temps = baseRespawn (4 s) x bonus NGU x max(0,2 ; 1 - bonus des objets) x 0,95 (set Horloge) x perk 93 x souhait 46 ; PAS de
+ * plancher de 0,34 s (aucune constante 0,34 dans le code) et le plafond des objets est le facteur plancher 0,2 (soit 80 %), le même dans les trois difficultés (le wiki donnait 48 / 58 / 78 % et 0,34 s : écartés).
  */
 function respawnReductionV1(state, nguFx, adventureGear, perkBonuses) {
-  const cap = state.difficulty === "extreme" ? 78 : state.difficulty === "difficile" ? 58 : 48;
+  const cap = 80;
   const itemsPct = Math.min(cap, Math.max(0, num(adventureGear.specials?.respawnReductionPct, 0) - Math.max(0, num(state.adventure?.setRewards?.respawn, 0)) * 100));
   const clockSet = 1 - Math.max(0, Math.min(1, num(state.adventure?.setRewards?.respawn, 0)));
   const wishLevel = Math.max(0, Math.min(10, int(idleWishTracksActifsV1(state)["46"]?.level, 0)));
   const remaining = (1 - nguFx.respawnReduction) * clockSet * perkBonuses.respawnRemaining * (1 - wishLevel * 0.01) * (1 - itemsPct / 100);
-  return clamp(1 - remaining, 0, 1 - 0.34 / 4);
+  return clamp(1 - remaining, 0, 1);
 }
 
 export function unlockInfo(def, state, context) {
