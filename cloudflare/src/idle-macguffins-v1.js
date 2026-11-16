@@ -33,7 +33,7 @@
 import { nombreV1, entierV1 } from "./idle-outils-v1.js";
 import { idleAdventureDropChanceV2 } from "./idle-adventure-v47.js";
 import { idleHeartsPurpleCompleteV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
-import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
+import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1, idleRangDifficulteV1 } from "./idle-difficulty-gates-v1.js";
 
 const N = nombreV1;   /* outil commun (corps identique) */
 const I = entierV1;   /* outil commun (corps identique) */
@@ -264,6 +264,7 @@ export function macguffinUnlockedV1(state) {
  */
 export function macguffinTimeRatioV1(seconds, sadisticTroll2 = false) {
   const t = Math.max(0, N(seconds, 0));
+  if (t < 180) return 0;   /* lu dans le jeu (InventoryController::macGuffinBonusTimeFactor, build 1260, 2026-11-16) : sous 180 s, facteur 0 */
   if (t < 1800) return Math.pow(t / 1800, 2);
   if (!sadisticTroll2) return Math.min(20, Math.pow(t / 1800, 0.5));
   if (t <= 86400) return t / 1800;
@@ -282,7 +283,8 @@ export function macguffinRebirthGainPctV1(typeId, level, ratio) {
 }
 
 export function macguffinSadisticTroll2V1(state) {
-  return tierCompletions(state, "extreme", "troll") >= 2;
+  /* lu dans le jeu (macGuffinBonusTimeFactor) : la branche exige la difficulté COURANTE Sadistic ET 2 complétions du Troll Sadistic */
+  return idleRangDifficulteV1(state?.difficulty) >= 2 && tierCompletions(state, "extreme", "troll") >= 2;
 }
 
 /*
@@ -451,9 +453,10 @@ export function macguffinMergeLevelV1(a, b) {
 }
 
 /*
- * Un seul fragment d'un même type peut être équipé à la fois : non publié
- * par le wiki, choix SOREAL pour interdire le cumul de deux copies non
- * fusionnées (la fusion reste la seule façon de monter un type).
+ * Un seul fragment d'un même type peut être équipé à la fois : lu dans le jeu
+ * (InventoryController::swapMacguffin, build 1260, 2026-11-16 : si l'id de
+ * l'objet est déjà dans les MacGuffins équipés, l'échange est refusé via
+ * alreadyInMacguffins). La fusion reste la seule façon de monter un type.
  */
 function equipFragment(state, data, uid, slotIndex) {
   const found = findFragment(data, uid);

@@ -18,14 +18,6 @@
       "date": "2026-11-09"
     },
     {
-      "fichier": "idle-macguffins-v1.js",
-      "marqueur": "choix soreal",
-      "repere": "choix SOREAL pour interdire le cumul de deux copies non fusi",
-      "description": "} /* Un seul fragment d'un même type peut être équipé à la fois : non publié par le wiki, choix SOREAL pour interdire le cumul de deux copies non fusionnées (la fusion reste la seule façon de monter un type). / function equipFragment(state, data, uid, slotInde",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
       "fichier": "idle-questing-v1.js",
       "marqueur": "choix soreal",
       "repere": "CHOIX SOREAL\" : ce sont des conventions de code, jamais des",

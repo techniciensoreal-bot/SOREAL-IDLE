@@ -50,6 +50,8 @@ const tableNormale = [[300, 0.03], [900, 0.25], [1800, 1], [2100, 1.08], [h, 1.4
 for (const [s, bonus] of tableNormale) proche(macguffinTimeRatioV1(s), bonus, 0.005, `T normal à ${s} s`);
 assert.equal(macguffinTimeRatioV1(300 * h), 20, "Plafond 20 (200 h).");
 assert.equal(macguffinTimeRatioV1(0), 0);
+assert.equal(macguffinTimeRatioV1(179.9), 0, "Sous 180 s le jeu donne un facteur 0 (macGuffinBonusTimeFactor).");
+assert.ok(macguffinTimeRatioV1(180) > 0, "Des 180 s le facteur est positif.");
 /* 2e Troll Challenge Sadistic : second tableau. */
 const tableTroll = [[300, 0.03], [900, 0.25], [1800, 1], [h, 2], [24 * h, 48], [48 * h, 63.34], [72 * h, 74.49], [170 * h, 104.86]];
 for (const [s, bonus] of tableTroll) proche(macguffinTimeRatioV1(s, true), bonus, 0.01, `T troll à ${s} s`);
