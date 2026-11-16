@@ -3,5 +3,7 @@
  * FICHIER GÉNÉRÉ par `node cloudflare/tools/marquer-nouveautes-push.mjs` (à lancer avant le commit d'un push ; la liste est remplacée, jamais cumulée). Ne pas l'éditer à la main.
  */
 (function(){
-  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [] };
+  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "L’achat qui place de l’énergie dans l’entraînement au Rebirth met toujours 6 en attaque et 6 en défense, comme dans le jeu (plus de condition d’achat supplémentaire)."
+  ] };
 })();

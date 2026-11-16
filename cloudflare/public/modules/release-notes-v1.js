@@ -57,6 +57,9 @@
             'Titans : la cachette de Walderp (opacités), sa cadence d’attaque, les sauterelles, les paralysies et les statistiques de Rock Lobster suivent les valeurs lues dans le jeu.',
             'Récompenses de titan, d’après le code du jeu : le facteur du défi d’EXP s’applique avant les autres, et le bonus d’EXP des premières victoires porte sur une victoire de moins par niveau (3 × niveau − 1), comme dans le vrai jeu.'
           ]},
+          {menu:'entrainement', titre:'Entraînement', points:[
+            'L’achat qui place de l’énergie dans l’entraînement au Rebirth met toujours 6 en attaque et 6 en défense, comme dans le jeu (plus de condition d’achat supplémentaire).'
+          ]},
           {menu:'moneyPit', titre:'Money Pit', points:[
             'Le chrono du tour de la roue démarre à 23 h comme dans le jeu (le premier tour est prêt après une heure de jeu).',
             'Money Pit, d’après le code du jeu : chaque lot est un tirage distinct (Puissance et Endurance séparées, trois boosts, un cas « rien » au premier palier), de nouveaux lots font monter d’un niveau l’équipement porté, et les paliers les plus hauts (pilule de fer, graines, EXP selon le nombre de jets) sont ajoutés.'
