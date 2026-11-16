@@ -39,7 +39,7 @@ function rebirth(avecSynchro, avecAchat = true) {
   return { attaque: sk.attaque_passive.allocation, blocage: sk.blocage.allocation };
 }
 
-assert.deepEqual(rebirth(false), { attaque: 6, blocage: 0 }, "achat seul : 6 dans Attaque passive");
+assert.deepEqual(rebirth(false), { attaque: 6, blocage: 6 }, "achat seul : 6 en attaque ET 6 en défense (aligné sur le jeu : Rebirth::instaTrain)");
 assert.deepEqual(rebirth(true), { attaque: 6, blocage: 6 }, "avec la Synchro : 6 aussi dans Blocage (première barre de la défense)");
 assert.deepEqual(rebirth(true, false), { attaque: 0, blocage: 0 }, "sans l'achat : rien n'est placé");
 console.log("idle-insta-training-cap-v1: OK");

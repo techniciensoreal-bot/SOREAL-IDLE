@@ -1350,14 +1350,14 @@ function instaTrainingCapSorealIdle_(stats, energieDepart, offert = false) {
   let energieLibre = energieDepart;
   if (stats && stats.metaNgu && stats.metaNgu.selloutShop && stats.metaNgu.selloutShop.purchases && stats.metaNgu.selloutShop.purchases.instaTrainingCap) {
     /* Norman (2026-10-19) : « il est supposé placer 6 points dans Attaque passive, et si on a acheté la synchro du Basic Training, 6 aussi dans la première barre de la défense (Blocage) ». */
-    const voulu = { attaque_passive: 6 };
-    if (Math.floor(Number(stats.metaNgu?.bonuses?.expShop?.syncBasicTraining) || 0) >= 1) voulu.blocage = 6;
+    /* Aligné sur le jeu (Rebirth::instaTrain, 2026-11-16, décision de Norman) : toujours 6 en attaque ET 6 en défense, plus 12 d'énergie ; plus de condition « Synchro Basic Training ». */
+    const voulu = { attaque_passive: 6, blocage: 6 };
     /* `offert` (lancement d'un défi) : un défi démarre à 0 d'énergie (une Renaissance, à ENERGIE_BASE) ; les 6 (ou 12) d'énergie de l'achat sont donc accordées en plus, l'énergie libre reste intacte. */
     const besoin = Object.values(voulu).reduce((t, v) => t + v, 0);
-    const budget = offert ? energieDepart + besoin : energieDepart;
+    const budget = energieDepart + besoin;
     const insta = applyBasicTrainingAllocationsV411(stats.entrainementBase, voulu, budget, budget, {});
     stats.entrainementBase = insta.state;
-    energieLibre = offert ? energieDepart : Math.max(0, nombreSorealIdle_(insta.idleEnergy, 0));
+    energieLibre = energieDepart;
   }
   return energieLibre;
 }
