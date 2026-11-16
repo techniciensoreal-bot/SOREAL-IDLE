@@ -2,45 +2,45 @@
  "partie-reference-1": {
   "obtenirEtat": {
    "synchros": 3,
-   "reponse": "02dab67589765409a0c5eada",
-   "ligne": "103dbde346d029cd005ce925"
+   "reponse": "1058c1c2823c238dc0b9399d",
+   "ligne": "ebf1db441740848fc6c12fce"
   },
   "agirProgression": {
    "synchros": 4,
-   "reponse": "7537fb8243a73af2633c7ba3",
-   "ligne": "e3ad8813042e2326411a15d0"
+   "reponse": "cb546cad688458d23211a8d2",
+   "ligne": "0af1235e4d6e56ab146d3256"
   },
   "synchroniser": {
    "synchros": 3,
-   "reponse": "a7e98dde9ea7ad744defe79a",
-   "ligne": "22de161741f588b799a7e481"
+   "reponse": "7080374e21a526c8d2b895d7",
+   "ligne": "875fa830056ca97535413556"
   },
   "battement": {
    "synchros": 0,
    "reponse": "b312b36544ecc75887cdca3d",
-   "ligne": "22de161741f588b799a7e481"
+   "ligne": "875fa830056ca97535413556"
   }
  },
  "partie-reference-2": {
   "obtenirEtat": {
    "synchros": 3,
-   "reponse": "ad7058ad25e2f112cf56b388",
-   "ligne": "e1dc1ac73697492169b089e1"
+   "reponse": "4024982d7150b33544a9a364",
+   "ligne": "26bfdd650782eca6bb1cbfc9"
   },
   "agirProgression": {
    "synchros": 4,
-   "reponse": "1a512a2e8eb67c04709f63e6",
-   "ligne": "a3f56230de4c1d4bd9ab4110"
+   "reponse": "5c3f8e0b51dc72f551c48b4c",
+   "ligne": "d6b49af8970f6a7838cab338"
   },
   "synchroniser": {
    "synchros": 3,
-   "reponse": "9941b57a4bf051992064c8b7",
-   "ligne": "8447b62b4088a129acb61074"
+   "reponse": "9ff623c0f2624dc1bb258973",
+   "ligne": "e23af94c0c3556406d836f95"
   },
   "battement": {
    "synchros": 0,
    "reponse": "a1cf4ad0296f8a8a7d2d10bc",
-   "ligne": "8447b62b4088a129acb61074"
+   "ligne": "e23af94c0c3556406d836f95"
   }
  }
 }

@@ -133,7 +133,7 @@ function avecRandom(valeur, fn) {
     let s = normalizeIdleNguState({}, c, 1_000_000);
     s.systems.tower.unlocked = true;
     s.systems.tower.active = true;
-    Object.assign(s.systems.tower.data, { floor: etage, killsOnFloor: 0, highestFloor: etage + 1, startFloor: etage, endFloor: etage, kills: 0 });
+    Object.assign(s.systems.tower.data, { floor: etage, killsOnFloor: 0, highestFloor: etage, startFloor: etage, endFloor: etage, kills: 0 });
     return avecRandom(0.5, () => advanceIdleNguState(s, 200_000, c, 1_100_000));
   };
   assert.equal(has(tour(1449), 491), false, "étage 1449 : chance nulle");

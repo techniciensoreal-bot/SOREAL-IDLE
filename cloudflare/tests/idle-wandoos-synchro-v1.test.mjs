@@ -4,8 +4,8 @@ import { lireSrc } from "./_src-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { normalizeIdleNguState, idleNguSnapshot, applyIdleNguAction, IDLE_NGU_EXP_SHOP_V1 } from "../src/idle-ngu-progression.js";
 
-/* « Synchro Wandoos » (Norman, 2026-10-23) : rayon Toc, 25 EXP de plus que la Synchro Basic Training, interrupteur de métal sur le clavier de Wandoos. */
-assert.equal(IDLE_NGU_EXP_SHOP_V1.syncWandoos.cost(0), IDLE_NGU_EXP_SHOP_V1.syncBasicTraining.cost(0) + 25, "25 EXP de plus que la Synchro Basic Training");
+/* « Synchro Wandoos » (Norman, 2026-10-23) : rayon Toc, 75 EXP (la Synchro Basic Training, 50 EXP, a été retirée le 2026-11-16), interrupteur de métal sur le clavier de Wandoos. */
+assert.equal(IDLE_NGU_EXP_SHOP_V1.syncWandoos.cost(0), 75, "Synchro Wandoos : 75 EXP");
 assert.equal(IDLE_NGU_EXP_SHOP_V1.syncWandoos.max, 1);
 const ctx = { bosses: 100 };
 let etat = normalizeIdleNguState({}, ctx, 1_000_000);
@@ -16,7 +16,7 @@ assert.equal(idleNguSnapshot(etat, ctx, 2_000_000).bonuses.wandoosSync, true);
 assert.ok(lireSrc("idle-runtime-etat.js").includes("wandoosSynchro:"), "drapeau annoncé au client");
 
 const meta = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta();
-assert.ok(meta.includes("syncWandoos:'🔗 Synchro Wandoos'") && meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','syncWandoos','menuAnimations'];"));
+assert.ok(meta.includes("syncWandoos:'🔗 Synchro Wandoos'") && meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncWandoos','menuAnimations'];"));
 assert.ok(/syncWandoos:'wandoos'/.test(meta), "anti-spoil : l'achat n'apparaît qu'avec Wandoos découvert");
 
 const w = readFileSync("cloudflare/public/modules/wandoos-retro-v1.js", "utf8");

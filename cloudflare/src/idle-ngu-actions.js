@@ -1033,16 +1033,10 @@ export const IDLE_NGU_EXP_SHOP_V1 = Object.freeze({
    */
   /* Norman (2026-10-02) : le tri passe à 20 EXP et rejoint le nouveau rayon « Toc » de la boutique. */
   sortInventory: Object.freeze({ name: "Sort Inventory", cost: () => 20, gain: 1, max: 1 }),
-  /*
-   * « Synchro Basic Training » (Norman, 2026-10-02) : case à cocher sous Input dans Basic Training ; cochée, ce qu'on place dans une compétence est placé au même
-   * instant dans sa jumelle (Attaque passive / Blocage, etc.) pour que les deux montent exactement à la même vitesse. Fonctionnalité SOREAL originale, absente
-   * du wiki NGU Idle : prix et rayon donnés par Norman (le prix n'est pas tiré du wiki). L'effet est purement côté client (les allocations des deux compétences
-   * partent ensemble) ; le serveur ne fait que mémoriser l'achat (bonus basicTrainingSync).
-   */
-  syncBasicTraining: Object.freeze({ name: "Basic Training Sync", cost: () => 50, gain: 1, max: 1 }),
+  /* « Synchro Basic Training » (Norman, 2026-10-02) retirée le 2026-11-16 : l'Insta Training Cap du jeu place déjà 6 en attaque ET 6 en défense à chaque Rebirth. Les parties qui l'avaient achetée sont remboursées par la migration 53 -> 54 (idle-migrations-v1.js). */
   /*
    * « Synchro Wandoos » (Norman, 2026-10-23) : interrupteur de métal sur le clavier de Wandoos ; allumé, les touches 0, −, + et CAP de l'énergie agissent aussi sur la magie (et inversement), avec ce qu'il y a de libre.
-   * Fonctionnalité SOREAL originale, absente du wiki NGU Idle : prix (25 EXP de plus que la Synchro Basic Training) et rayon donnés par Norman. Effet purement côté client ; le serveur mémorise l'achat (bonus wandoosSync).
+   * Fonctionnalité SOREAL originale, absente du wiki NGU Idle : prix (75 EXP) et rayon donnés par Norman. Effet purement côté client ; le serveur mémorise l'achat (bonus wandoosSync).
    */
   syncWandoos: Object.freeze({ name: "Wandoos Sync", cost: () => 75, gain: 1, max: 1 }),
   /* Menus animés (Norman, 2026-10-04 : « enlève les animations des menus du haut ; pour les avoir, un achat dans le rayon Toc à 40 EXP qui permet de savoir quand un menu est actif »). Fonctionnalité SOREAL absente du wiki NGU Idle : prix et rayon donnés par Norman ; le serveur ne fait que mémoriser l'achat (drapeau menusAnimes), l'animation est dessinée par le client. */
@@ -1158,7 +1152,7 @@ function buyExpShopV1(state, payload) {
 const IDLE_EXP_SYSTEME_DE_L_ACHAT_V1 = Object.freeze({
   adventurePower: "adventure", adventureToughness: "adventure", adventureHp: "adventure", adventureRegen: "adventure",
   customInput1: "adventure", customInput2: "adventure", customInput3: "adventure", customInput4: "adventure", inventorySpace: "adventure", accessorySlot1: "adventure", accessorySlot2: "adventure", autoMerge: "adventure", sortInventory: "adventure",
-  syncWandoos: "wandoos", syncBasicTraining: "adventure", doubleTap: "adventure", tripleTap: "adventure", basicLootFilter: "adventure",
+  syncWandoos: "wandoos", doubleTap: "adventure", tripleTap: "adventure", basicLootFilter: "adventure",
   loadoutSlots: "adventure", loadoutSlot3: "adventure", boostRecycling: "adventure", inventoryMergeSlot: "adventure",
   diggerSlot: "diggers", beardSlot: "beards", daycareSlot1: "adventure", daycareSlot2: "daycare", daycareSlot3: "daycare",
   macguffinSlot1: "macguffins", macguffinSlot2: "macguffins"

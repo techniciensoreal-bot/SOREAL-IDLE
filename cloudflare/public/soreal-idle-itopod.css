@@ -1534,8 +1534,8 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
  * Énergie placée, niveaux et cibles des NGU, calendrier, boutique, étages de la tour, horodatages du chat…). Sur ordinateur (au-dessus de 700 px), chacun passe à 13 ou 14 px ; le téléphone n'est pas touché.
  */
 @media (min-width:701px){
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-toolbar-v120 :is(label,span,small,button,b,.soreal-idle-bt-info-v1,.soreal-idle-bt-synchro-v1):where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){font-size:var(--bt-fs,14px)!important}
-  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-info-v1,.soreal-idle-bt-synchro-v1,.soreal-idle-summary-v28):where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){font-size:14px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-bt-toolbar-v120 :is(label,span,small,button,b,.soreal-idle-bt-info-v1):where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){font-size:var(--bt-fs,14px)!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 :is(.soreal-idle-bt-info-v1,.soreal-idle-summary-v28):where(:not(.soreal-idle-page-root-v28[data-menu="entrainement"] *)){font-size:14px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .nl-v1 :is(small,.nl-niveau,.nl-effet,.nl-niveau b,.nl-cible span,.nl-cible){font-size:14px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-boss-lore-name-v184{font-size:14px!important}
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .chro-lecture-txt-v1{font-size:13px!important}

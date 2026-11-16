@@ -23,8 +23,8 @@ assert.ok(meta.includes("__ajusterAdvancedTrainingIdleV1__(''+idH+'','zero')") &
 assert.ok(blood.includes("__ajusterRituelBloodMagicIdleV1__(''+idHtml+'','zero')") && blood.includes(":mode==='zero'?0:current+idleAvant"), "Rituels de Blood Magic");
 assert.ok(ngu.includes("ajuster(''+idH+'','zero')") && ngu.includes("var valeur=mode==='zero'?0:"), "NGU");
 assert.ok(meta.includes("ajusterVoeu('+argsVoeu+''zero''") && alloc.includes("var valeur=mode==='zero'?0:mode==='max'"), "Souhaits");
-// Entraînement de base avec Synchro : la jumelle ne bouge pas
-assert.ok(ui.includes("plan={a:0,b:synchro?idleEntier_(jumelle.allocation):0};"), "« 0 » ne touche pas la jumelle (Synchro)");
+// Entraînement de base : « 0 » ne retire que la barre touchée
+assert.ok(ui.includes("plan={a:0,b:0};"), "« 0 » ne retire que cette barre");
 // quatre colonnes pour les quatre boutons
 assert.ok(L("cloudflare/public/soreal-idle-itopod.css").includes("grid-template-columns:repeat(4,minmax(0,1fr))!important"), "quatre boutons alignés");
 

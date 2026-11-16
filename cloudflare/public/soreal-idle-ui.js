@@ -22,7 +22,6 @@
       Object.defineProperty(UI_PARTAGE_V1,'IDLE_ADVENTURE_ADVANCED_SKILLS_V4',{get:function(){return IDLE_ADVENTURE_ADVANCED_SKILLS_V4;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'IDLE_ADVENTURE_MANUAL_ATTACKS_V3',{get:function(){return IDLE_ADVENTURE_MANUAL_ATTACKS_V3;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'IDLE_ADVENTURE_MANUAL_DEFENSE_V3',{get:function(){return IDLE_ADVENTURE_MANUAL_DEFENSE_V3;},configurable:true});
-      Object.defineProperty(UI_PARTAGE_V1,'IDLE_BT_SYNCHRO_CLE_V1',{get:function(){return IDLE_BT_SYNCHRO_CLE_V1;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'IDLE_DISPO_MONEY_PIT_V1',{get:function(){return IDLE_DISPO_MONEY_PIT_V1;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'IDLE_MENUS_V1',{get:function(){return IDLE_MENUS_V1;},configurable:true});
       Object.defineProperty(UI_PARTAGE_V1,'IDLE_MENUS_VIVANTS_V1',{get:function(){return IDLE_MENUS_VIVANTS_V1;},configurable:true});
@@ -275,10 +274,8 @@
 
 
 
-      const IDLE_BT_SYNCHRO_CLE_V1='soreal_idle_bt_synchro_v1';
 
 
-      UI_PARTAGE_V1.__amorcer_85();
 
 
 

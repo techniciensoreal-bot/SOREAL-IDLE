@@ -307,16 +307,6 @@ id:
         0
       ) >= 1,
 
-    /* Achat « Synchro Basic Training » (rayon Toc de la boutique EXP) : le client affiche alors la case à cocher sous Input. */
-    basicTrainingSynchro:
-      nombreSorealIdle_(
-        statsEtat.metaNgu &&
-        statsEtat.metaNgu.bonuses &&
-        statsEtat.metaNgu.bonuses.expShop &&
-        statsEtat.metaNgu.bonuses.expShop.syncBasicTraining,
-        0
-      ) >= 1,
-
     /* Achat « Synchro Wandoos » (rayon Toc) : le clavier de Wandoos affiche alors l'interrupteur de synchro. */
     wandoosSynchro:
       nombreSorealIdle_(

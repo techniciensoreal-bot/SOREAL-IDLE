@@ -4,77 +4,64 @@ import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import { normalizeIdleNguState, idleNguSnapshot, applyIdleNguAction, IDLE_NGU_EXP_SHOP_V1 } from "../src/idle-ngu-progression.js";
+import { migrerEtatV1 } from "../src/idle-migrations-v1.js";
 
 /*
- * Rayon « Toc » + « Synchro Basic Training » + chiffres de vie fixes (Norman, 2026-10-02).
- * Le prix de la Synchro (50 EXP) est un choix SOREAL (achat original, absent du wiki NGU Idle).
+ * Rayon « Toc » (Norman, 2026-10-02) et RETRAIT de la « Synchro Basic Training » (2026-11-16) : l'Insta Training Cap du jeu place déjà 6 en attaque ET 6 en défense à chaque Rebirth
+ * (Rebirth::instaTrain, build 1260) ; l'achat, la case sous Input et le plan de répartition des paires n'existent plus. Les parties qui l'avaient achetée sont remboursées (migration 53 -> 54).
  */
 const ui = lireUiComplet();
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const runtime = lireSrc("idle-sqlite-runtime.js");
 
-// 1. Serveur : prix du tri, nouvel achat, drapeau annoncé au client.
+// 1. Serveur : le tri reste, la Synchro n'existe plus ni dans le catalogue ni dans l'état annoncé.
 {
   assert.equal(IDLE_NGU_EXP_SHOP_V1.sortInventory.cost(0), 20, "Trier l'inventaire : 20 EXP");
-  assert.equal(IDLE_NGU_EXP_SHOP_V1.syncBasicTraining.max, 1, "achat unique");
-  assert.ok(IDLE_NGU_EXP_SHOP_V1.syncBasicTraining.cost(0) > 0);
+  assert.equal(IDLE_NGU_EXP_SHOP_V1.syncBasicTraining, undefined, "plus d'achat Synchro Basic Training");
   const ctx = { bosses: 100 };
   let etat = normalizeIdleNguState({}, ctx, 1_000_000);
   etat.currencies.experience = 500;
-  assert.equal(idleNguSnapshot(etat, ctx, 2_000_000).bonuses.basicTrainingSync, false, "pas d'achat : pas de synchro");
-  etat = applyIdleNguAction(etat, { action: "buyExpShop", item: "syncBasicTraining", quantity: 1 }, ctx, 0).state;
-  const achete = idleNguSnapshot(etat, ctx, 2_000_000);
-  assert.equal(achete.bonuses.basicTrainingSync, true);
-  assert.equal(etat.bonuses.expShop.syncBasicTraining, 1, "état stocké lu par le moteur pour annoncer basicTrainingSynchro");
-  assert.ok(achete.expShop.some((it) => it.id === "syncBasicTraining"));
-  assert.ok(runtime.includes("basicTrainingSynchro:"), "le drapeau est un champ de premier niveau de l'état joueur");
+  assert.throws(() => applyIdleNguAction(etat, { action: "buyExpShop", item: "syncBasicTraining", quantity: 1 }, ctx, 0), /ACHAT_EXP_INCONNU/);
+  const snap = idleNguSnapshot(etat, ctx, 2_000_000);
+  assert.equal(Object.prototype.hasOwnProperty.call(snap.bonuses, "basicTrainingSync"), false);
+  assert.ok(!snap.expShop.some((it) => it.id === "syncBasicTraining"));
+  assert.ok(!runtime.includes("basicTrainingSynchro:"), "plus de drapeau annoncé au client");
 }
 
-// 2. Client : la logique de répartition de la paire (fonction pure extraite du jeu).
+// 2. Migration : un compte qui avait acheté la Synchro est remboursé (50 EXP) une seule fois, l'achat disparaît.
 {
-  const debut = ui.indexOf("function planSynchroBasicTrainingIdleV1_(");
-  const fin = ui.indexOf("function presetBasicTrainingIdleV120_(");
-  assert.ok(debut > 0 && fin > debut);
-  const plan = new Function(ui.slice(debut, fin) + "\nreturn planSynchroBasicTrainingIdleV1_;")();
-  const sk = (courant, cap) => ({ courant, cap });
-
-  // Exemple de Norman : cap 241 chacune, 482 d'énergie générée -> les deux au plafond.
-  assert.deepEqual(plan("cap", sk(0, 241), sk(0, 241), 482, 1), { a: 241, b: 241 });
-  // Surplus laissé dans l'énergie disponible (jamais consommé).
-  assert.deepEqual(plan("cap", sk(0, 241), sk(0, 241), 1000, 1), { a: 241, b: 241 });
-  // Pas assez pour les deux : l'énergie disponible est coupée en deux parts égales.
-  assert.deepEqual(plan("cap", sk(0, 241), sk(0, 241), 200, 1), { a: 100, b: 100 });
-  assert.deepEqual(plan("cap", sk(0, 241), sk(0, 241), 201, 1), { a: 100, b: 100 }, "le reste impair reste libre");
-  // Une barre déjà pleine ne reçoit rien.
-  assert.deepEqual(plan("cap", sk(241, 241), sk(40, 241), 1000, 1), { a: 241, b: 241 });
-  // + : l'Input est ajouté aux deux au même moment.
-  assert.deepEqual(plan("plus", sk(10, 241), sk(10, 241), 482, 125), { a: 135, b: 135 });
-  assert.deepEqual(plan("plus", sk(10, 241), sk(10, 241), 100, 125), { a: 60, b: 60 }, "pas assez : deux parts égales");
-  assert.deepEqual(plan("plus", sk(10, 241), sk(10, 241), 0, 125), { a: 10, b: 10 });
-  // − : l'Input est retiré des deux, jamais sous 0.
-  assert.deepEqual(plan("moins", sk(200, 241), sk(50, 241), 0, 125), { a: 75, b: 0 });
+  const ctx = { bosses: 100 };
+  const ancien = normalizeIdleNguState({}, ctx, 1_000_000);
+  ancien.etatVersion = 53;
+  ancien.bonuses.expShop = { syncBasicTraining: 1, sortInventory: 1 };
+  ancien.currencies.experience = 10;
+  const r = migrerEtatV1(JSON.parse(JSON.stringify(ancien)), { now: 2_000_000, jeu: ctx, phase: "normalise" });
+  assert.ok(r.jouees.includes("retrait-synchro-basic-training-v54"));
+  assert.equal(r.etat.currencies.experience, 60, "remboursé de 50 EXP");
+  assert.equal(r.etat.bonuses.expShop.syncBasicTraining, undefined);
+  assert.equal(r.etat.bonuses.expShop.sortInventory, 1, "les autres achats restent");
+  const encore = migrerEtatV1(r.etat, { now: 2_000_000, jeu: ctx, phase: "normalise" });
+  assert.equal(encore.etat.currencies.experience, 60, "idempotent : jamais remboursé deux fois");
+  // sans achat : aucun EXP ajouté
+  const sans = normalizeIdleNguState({}, ctx, 1_000_000);
+  sans.etatVersion = 53; sans.currencies.experience = 10;
+  assert.equal(migrerEtatV1(JSON.parse(JSON.stringify(sans)), { now: 2_000_000, jeu: ctx, phase: "normalise" }).etat.currencies.experience, 10);
 }
 
-// 3. Câblage client : paires, case sous Input réservée à l'achat, branche de synchro.
+// 3. Client : plus de case, plus de plan de paire, plus de clé.
 {
-  for (const [a, b] of [["attaque_passive", "blocage"], ["attaque_reguliere", "defense_renforcee"], ["attaque_renforcee", "recuperation"], ["contre_palette", "boost_offensif"], ["percee_quai", "charge_logistique"], ["ultime_soreal", "ultime_logistique"]]) {
-    assert.ok(ui.includes(a + ":'" + b + "'," + "") || ui.includes(a + ":'" + b + "'\n") || ui.includes(a + ":'" + b + "',"), "paire " + a + " / " + b);
-    assert.ok(ui.includes(b + ":'" + a + "'"), "paire inverse " + b + " / " + a);
+  for (const mort of ["sorealIdleTrainingSynchroV1", "planSynchroBasicTrainingIdleV1_", "synchroBasicTrainingAcheteIdleV1_", "IDLE_BT_SYNCHRO_CLE_V1", "basculerSynchroBasicTrainingIdleV1", "IDLE_BT_JUMELLES_V1", "basicTrainingSynchro"]) {
+    assert.ok(!ui.includes(mort), mort + " a disparu du client");
   }
-  assert.ok(ui.includes("${synchroBasicTrainingAcheteIdleV1_()?`") && ui.includes('id="sorealIdleTrainingSynchroV1"'), "case sous Input, seulement après l'achat");
-  assert.ok(ui.includes("if(!idleEtat||!synchroBasicTrainingAcheteIdleV1_())return false;"), "sans achat, jamais de synchro même si une ancienne préférence existe");
-  /* Après un Rebirth (Norman, 2026-10-03) : un champ absent ne fait pas perdre l'achat ; seul un « non » explicite l'efface. */
-  assert.ok(ui.includes("if(idleEtat&&typeof idleEtat.basicTrainingSynchro==='boolean')idleBtSynchroAcheteV1=idleEtat.basicTrainingSynchro;"), "achat mémorisé, effacé seulement par un « non » explicite");
-  assert.ok(ui.includes("const synchro=!!(jumelle&&jumelle.unlocked);"), "la jumelle doit être débloquée");
 }
 
-// 4. Boutique : rayon Toc (Trier l'inventaire + Synchro), plus dans Débuts.
+// 4. Boutique : rayon Toc (Trier l'inventaire, Synchro Wandoos, Menus animés), plus dans Débuts.
 {
   assert.ok(meta.includes("{id:'toc',icone:'🧰',nom:'Toc'}"));
-  assert.ok(meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncBasicTraining','syncWandoos','menuAnimations'];"));
+  assert.ok(meta.includes("const IDLE_EXP_TOC_V1=['sortInventory','syncWandoos','menuAnimations'];"));
   const debuts = meta.match(/const IDLE_EXP_DEBUTS_V1=\[[^\]]*\]/)[0];
   assert.ok(!debuts.includes("sortInventory"), "Trier l'inventaire a quitté Débuts");
-  assert.ok(meta.includes("syncBasicTraining:'🔗 Synchro Basic Training'"));
+  assert.ok(!meta.includes("Synchro Basic Training"));
 }
 
 // 5. Chiffres de vie fixes : case des PV actuels à largeur constante, alignée à droite.
@@ -83,28 +70,10 @@ const runtime = lireSrc("idle-sqlite-runtime.js");
   const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
   assert.ok(/\.soreal-idle-hp-cur-v1\{[^}]*display:inline-block;[^}]*text-align:right;/.test(css));
 }
-console.log("idle-bt-synchro-v1: OK");
 
-/*
- * Norman (2026-10-04) : « si j'ai mis 2000 alors que le cap est 50, quand je clique sur Max il doit me rendre l'énergie en trop et laisser ce qui est nécessaire au cap de la barre. »
- */
+// 6. Le bouton Max d'une barre redescend au cap (Norman, 2026-10-04) ; pas de faux message quand de l'énergie est rendue.
 {
-  const ui2 = lireUiComplet();
-  const debut2 = ui2.indexOf("function planSynchroBasicTrainingIdleV1_(");
-  const fin2 = ui2.indexOf("function presetBasicTrainingIdleV120_(");
-  const plan2 = new Function(ui2.slice(debut2, fin2) + "\nreturn planSynchroBasicTrainingIdleV1_;")();
-  const sk2 = (courant, cap) => ({ courant, cap });
-  // Synchro : 2000 sur une barre au cap 50 -> elle redescend à 50 ; sa jumelle (vide) monte à son cap grâce à l'énergie rendue, même sans énergie libre.
-  assert.deepEqual(plan2("cap", sk2(2000, 50), sk2(0, 50), 0, 1), { a: 50, b: 50 }, "excès rendu, jumelle complétée");
-  assert.deepEqual(plan2("cap", sk2(2000, 50), sk2(2000, 50), 0, 1), { a: 50, b: 50 }, "les deux au-dessus : les deux redescendent");
-  assert.deepEqual(plan2("cap", sk2(2000, 50), sk2(10, 50), 0, 1), { a: 50, b: 50 });
-  assert.deepEqual(plan2("cap", sk2(50, 50), sk2(50, 50), 0, 1), { a: 50, b: 50 }, "déjà au cap : rien ne bouge");
-  // Jamais plus de cap dans les cas d'excès, même avec beaucoup d'énergie libre.
-  assert.deepEqual(plan2("cap", sk2(2000, 50), sk2(0, 50), 100000, 1), { a: 50, b: 50 });
-  // Comportement d'avant conservé quand rien ne dépasse.
-  assert.deepEqual(plan2("cap", sk2(0, 241), sk2(0, 241), 200, 1), { a: 100, b: 100 });
-  // Le bouton Max d'une barre seule (sans Synchro) redescend déjà au cap : cible = cap quand la barre le dépasse ; le message « aucune énergie » ne s'affiche plus quand de l'énergie est rendue.
-  assert.ok(ui2.includes("cible=capBasicTrainingLocalIdleV120_(skill);\n\n            if(cible>courant){"), "sans Synchro : cible = cap");
-  assert.ok(ui2.includes("action!=='moins'&&\n          delta===0&&\n          idleAvant<=0"), "pas de faux message quand l'énergie est rendue");
+  assert.ok(ui.includes("cible=capBasicTrainingLocalIdleV120_(skill);\n\n            if(cible>courant){"), "cible = cap");
+  assert.ok(ui.includes("action!=='moins'&&\n          delta===0&&\n          idleAvant<=0"), "pas de faux message quand l'énergie est rendue");
 }
-console.log("idle-bt-synchro-v1 (Max rend l'excès): OK");
+console.log("idle-bt-synchro-v1: OK");

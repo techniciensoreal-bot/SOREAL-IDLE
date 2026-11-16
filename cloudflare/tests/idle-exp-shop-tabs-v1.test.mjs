@@ -73,9 +73,9 @@ const TOUS = ["debuts", "toc", "energy", "magic", "r3", "aventure", "slots"];
   assert.ok(pages.aventure.includes("Rich Jerks") && pages.aventure.includes("adventurePower"));
   assert.ok(!pages.debuts.includes("Rich Jerks") && !pages.slots.includes("adventurePower"));
   assert.ok(pages.slots.includes("🌱 Yggdrasil : Auto-Activate"));
-  // Rayon Toc (Norman, 2026-10-02) : Trier l'inventaire (déplacé, 20 EXP) et Synchro Basic Training
-  assert.ok(pages.toc.includes("Trier l’inventaire") && pages.toc.includes("Synchro Basic Training"));
-  assert.ok(!pages.debuts.includes("Trier l’inventaire") && !pages.slots.includes("Synchro Basic Training"));
+  // Rayon Toc (Norman, 2026-10-02) : Trier l'inventaire (déplacé, 20 EXP), Synchro Wandoos et Menus animés
+  assert.ok(pages.toc.includes("Trier l’inventaire"));
+  assert.ok(!pages.debuts.includes("Trier l’inventaire"));
   // Les statistiques Energy (Vitesse, Puissance, Plafond, Barres) sont dans leur onglet, pas dans les autres
   assert.ok(pages.energy.includes("Vitesse") && pages.energy.includes("Barres"));
   assert.ok(!pages.debuts.includes("Vitesse de remplissage") && !pages.slots.includes("Vitesse"));

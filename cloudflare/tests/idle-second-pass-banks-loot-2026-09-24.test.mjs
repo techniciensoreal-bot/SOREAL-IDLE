@@ -87,7 +87,7 @@ function withAt(levels, perks = {}, quirks = {}) {
   const random = Math.random;
   try {
     Math.random = () => 0.05; // < 10 % : chaque boost gagne un niveau
-    s = advanceIdleNguState(s, 5 * 100, tctx, T0 + 1_000_000);
+    for (let i = 0; i < 5; i++) s = advanceIdleNguState(s, 100, tctx, T0 + 1_000_000 + i * 100_000);  // synchros en ligne (hors ligne, le jeu ne donne aucun boost d'ITOPOD sans le filtre cube)
   } finally {
     Math.random = random;
   }

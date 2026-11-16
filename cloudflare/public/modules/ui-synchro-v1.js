@@ -16,40 +16,6 @@
         return typeof window.__SOREAL_IDLE_HEURE_V1__==='function'?window.__SOREAL_IDLE_HEURE_V1__():Date.now();
       }
 
-      /*
-       * Nouvelle allocation des deux compétences d'une paire. `a` = celle qu'on a touchée, `b` = sa jumelle ({courant, cap} = niveau alloué, plafond).
-       *  + : chacune reçoit l'Input ; si l'énergie libre ne suffit pas pour les deux, elle est partagée en deux parts égales (le reste de la division reste libre).
-       *  − : chacune perd l'Input (jamais sous 0).
-       *  Cap : chacune monte à son plafond si l'énergie libre suffit pour les deux ; sinon l'énergie libre est coupée en deux parts égales, chaque part limitée au besoin de sa
-       *        barre. Le surplus reste dans l'énergie disponible.
-       */
-      function planSynchroBasicTrainingIdleV1_(action,a,b,libre,entree){
-        const moitie=Math.floor(Math.max(0,libre)/2);
-        if(action==='plus'){
-          const ajout=entree*2<=libre?entree:moitie;
-          return {a:a.courant+ajout,b:b.courant+ajout};
-        }
-        if(action==='moins'){
-          return {a:Math.max(0,a.courant-entree),b:Math.max(0,b.courant-entree)};
-        }
-        if(action==='cap'){
-          /*
-           * Max rend l'énergie EN TROP (Norman, 2026-10-04 : « si j'ai mis 2000 alors que le cap est 50, Max doit me rendre l'énergie en trop et laisser ce qui est nécessaire au cap ») : une barre au-dessus de son cap
-           * redescend à son cap, et l'énergie rendue peut servir à compléter sa jumelle. Une barre en dessous monte à son cap avec l'énergie libre (plus celle qui vient d'être rendue).
-           */
-          const rendA=Math.max(0,a.courant-a.cap);
-          const rendB=Math.max(0,b.courant-b.cap);
-          const dispo=Math.max(0,libre)+rendA+rendB;
-          const moitieDispo=Math.floor(dispo/2);
-          const besoinA=Math.max(0,a.cap-a.courant);
-          const besoinB=Math.max(0,b.cap-b.courant);
-          const donneA=besoinA+besoinB<=dispo?besoinA:Math.min(besoinA,moitieDispo);
-          const donneB=besoinA+besoinB<=dispo?besoinB:Math.min(besoinB,moitieDispo);
-          return {a:rendA>0?a.cap:a.courant+donneA,b:rendB>0?b.cap:b.courant+donneB};
-        }
-        return {a:a.courant,b:b.courant};
-      }
-
       function fightEnAttenteServeurIdleV1_(){
         return Boolean(
           REG.idleVictoireBossLocaleV49||
@@ -103,7 +69,6 @@
 
   Object.assign(REG,{
     heureServeurIdleV1_:heureServeurIdleV1_,
-    planSynchroBasicTrainingIdleV1_:planSynchroBasicTrainingIdleV1_,
     fightEnAttenteServeurIdleV1_:fightEnAttenteServeurIdleV1_,
     idleServeurOccupeV60_:idleServeurOccupeV60_,
     idleVusServeurV1_:idleVusServeurV1_,

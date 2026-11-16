@@ -19,7 +19,7 @@ console.log("idle-exp-shop-images-v1: OK");
 // Illustrations du rayon Toc (Norman, 2026-10-04) : trois images, une par achat, servies depuis /shop/ ; l'emoji reste dessous si l'image manque.
 {
   const { existsSync, readFileSync: lire } = await import("node:fs");
-  for (const [achat, fichier] of [["sortInventory", "exp-inventaire"], ["syncBasicTraining", "exp-basic-training"], ["menuAnimations", "exp-menus"]]) {
+  for (const [achat, fichier] of [["sortInventory", "exp-inventaire"], ["syncWandoos", "exp-basic-training"], ["menuAnimations", "exp-menus"]]) {
     assert.ok(existsSync(`cloudflare/public/shop/${fichier}.png`), `image ${fichier}.png présente`);
     const png = lire(`cloudflare/public/shop/${fichier}.png`);
     assert.equal(png.readUInt32BE(0), 0x89504e47, `${fichier}.png est bien un PNG`);
