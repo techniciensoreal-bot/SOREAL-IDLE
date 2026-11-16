@@ -1522,6 +1522,8 @@ export function portraitEnvV1(state) {
     acquis: idsPortraitsDeChaineV1(state.records.portraitsAcquis),
     wishLevel: id => wishLevelV1(state, id),
     macguffinPct: id => macguffinPermanentPctV1(state, id),
+    /* Portraits 63 / 64 / 65 du jeu : les 11 défis de la difficulté à leur nombre maximum de complétions (AllChallengesController::checkChallengesForPortrait). */
+    defisTousMax: tier => challengeDefsForTierV1(tier).every(def => Math.max(0, int(challengeCompletionsV1(state, tier)?.[def.id], 0)) >= def.max),
     /*
      * Special Prize réclamé AVANT l'existence du choix (pas de choix enregistré) : le joueur n'a pas pu prendre le chaton, il le reçoit
      * (Norman, 2026-09-25 : « débloque le chaton sur mon compte, je ne l'ai pas choisi car il n'était pas là »).
