@@ -30,6 +30,7 @@
         date:'2026-11-16',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Hors ligne, le temps compté monte à un an au maximum, et le jeu local passe de nouveau par les mêmes règles.',
             'Hors ligne, les potions, charmes et boosts consommables restent figés (seuls deux d’entre eux s’écoulent) et n’entrent plus dans la production hors ligne ; l’achat d’énergie suit le record de boss.',
             'Atouts, d’après le code du jeu : les bonus de même type venant d’atouts différents se multiplient (vitesse de certains systèmes, chance de drop, troisième ressource), l’atout de difficulté maximale vaut ×10, et les banques de temps sont plafonnées à 75 %.',
             'Les Points Arbitraires d’un Rebirth se calculent comme dans le jeu : (secondes − 3600) / 500, et les prix de plusieurs articles de la boutique ont été corrigés d’après le code du jeu ; les cœurs achetés arrivent au niveau 10.',
@@ -41,16 +42,18 @@
             'Les cœurs Rouge et Jaune complets remplacent le bonus de l’objet équipé (EXP et AP) au lieu de prendre le plus grand des deux, comme dans le vrai jeu.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'La régénération des boss suit le rythme du jeu (elle s’applique 50 fois par seconde), et la réflexion de dégâts et le ralentissement des attaques de certains ennemis suivent les formules du jeu.',
             'Équipement, d’après le code du jeu : chaque objet ne donne la totalité de ses stats qu’une fois un certain boss atteint dans le Rebirth en cours (avant, la part proportionnelle), plusieurs bonus d’objets ont été corrigés, et un set demande maintenant que la troisième ressource soit active.',
             'Une longue chaîne d’objets cachés du jeu a été ajoutée, avec la fabrication, l’assemblage et les boutons « Utiliser » sur les objets concernés.',
             'Le premier coup d’un ennemi arrive à 1,5 × son intervalle d’attaque, comme dans le jeu, et le défi de 24 h demande un temps de base strictement inférieur à 24 h.',
             'Aventure, d’après le code du jeu : l’or de la première zone, plusieurs taux de drop, l’EXP des boss (base du Challenge de 24 h, +2 % par complétion, atout séparé), l’exposant de la racine cubique du drop, le temps de recharge de Oh Shit et quelques valeurs d’objets ont été corrigés.'
           ]},
           {menu:'challenges', titre:'Défis', points:[
-            'Trois portraits « tous les défis au maximum » sont ajoutés (leurs images arrivent ensuite) et le seuil d’un portrait de fragment est corrigé.',
+            'Trois portraits « tous les défis au maximum » sont ajoutés et le seuil d’un portrait de fragment est corrigé.',
             'La récompense d’EXP d’un défi reçoit maintenant tous les bonus d’EXP, et le bonus d’Aventure du défi de base se multiplie avec son bonus de difficulté.'
           ]},
           {menu:'questing', titre:'Quêtes', points:[
+            'Le fruit de quêtes et le beurre appliqué aux récompenses de certaines quêtes suivent les règles du jeu.',
             'Quêtes : Sewers est toujours disponible, on démarre avec 3 Major en banque, le minuteur continue banque pleine, et le beurre n’est plus consommé automatiquement.',
             'Quêtes : le +2 de l’atout de quête mineure s’applique dès qu’il est possédé (base plafonnée à 16), les AP de quête ont une base fixe, et les bonus de récompense active se multiplient entre eux.'
           ]},
@@ -63,15 +66,18 @@
             'Récompenses de titan, d’après le code du jeu : le facteur du défi d’EXP s’applique avant les autres, et le bonus d’EXP des premières victoires porte sur une victoire de moins par niveau (3 × niveau − 1), comme dans le vrai jeu.'
           ]},
           {menu:'entrainement', titre:'Entraînement', points:[
+            'L’achat « Synchro Basic Training », qui n’existe pas dans le jeu, est retiré : les 50 EXP dépensés sont remboursés une seule fois.',
             'L’achat qui place de l’énergie dans l’entraînement au Rebirth met toujours 6 en attaque et 6 en défense, comme dans le jeu (plus de condition d’achat supplémentaire).'
           ]},
           {menu:'tower', titre:'Tour', points:[
+            'Hors ligne, la Tour joue un seul étage (le meilleur étage possible, sans dépasser le plus haut atteint), sans nouvel étage ni PP de première atteinte, et ne donne plus d’objets de boost sans le filtre du Cube.',
             'Tour : les ennemis attaquent maintenant comme dans le jeu (16 ennemis aux comportements variés), tu peux y perdre ta vie et retomber à l’étage de départ, et l’étage optimal se calcule comme dans le jeu.'
           ]},
           {menu:'beards', titre:'Barbes', points:[
             'La banque de niveaux se calcule pour chaque barbe séparément, comme dans le jeu.'
           ]},
           {menu:'sang', titre:'Magie du sang', points:[
+            'Magie du sang : un bouton « Automatique » apparaît sur chaque sort déjà découvert (Nombre, Spaghetti, Or) : le sang est réparti à parts égales entre les sorts cochés et lancé chaque seconde, comme dans le jeu. Un sort α ou β lancé sans MacGuffin équipé consomme quand même le sang.',
             'Magie du sang : arrondis, plafonds et conditions des sorts corrigés d’après le code du jeu.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
@@ -150,6 +156,7 @@
             'Dans « En direct », manger ou récolter un fruit annonce le fruit s’il est seul, ou un message de groupe si plusieurs fruits sont consommés d’un coup.'
           ]},
           {menu:'diggers', titre:'Labos', points:[
+            'Les mineurs se règlent au plus haut niveau que le rendement net permet, selon la formule du jeu.',
             'Dans « En direct », quand un joueur met un labo au travail, la phrase dit lequel (seulement un labo que tu as déjà ouvert).',
             'Labos : quand le moteur refuse de faire travailler un labo (pas assez d’or par seconde à ce niveau, plus de place libre, aucun niveau choisi), un message le dit maintenant au lieu de ne rien afficher.',
             'Labos : le bouton + est maintenant bien grisé quand tu n’as pas acheté le niveau suivant, pour montrer que tu es au maximum de ce que tu as acheté.'
