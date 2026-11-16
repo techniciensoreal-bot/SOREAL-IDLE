@@ -303,6 +303,15 @@ export const IDLE_YGG_NUMBERS_TROLL_COMPLETIONS_V1 = 5;
 
 export function idleYggFruitUnlockedV1(state, fruitId) {
   if (fruitId === "numbers") return I(state?.challenge?.completions?.troll, 0) >= IDLE_YGG_NUMBERS_TROLL_COMPLETIONS_V1;
+  /*
+   * Lu dans le jeu (FruitController::upgrade, build 1260, 2026-11-16) : conditions evaluees seulement tant que le fruit n'a jamais ete debloque (maxTier = 0).
+   *  - Fruit of Rage (id 9) : ITOPOD debloque (PlayerSettings.itopodOn) ;
+   *  - Fruit of MacGuffin α (id 10) : succes 145 = « Defeat WALDERP 's final form! » (11e secret, apres les 135 succes normaux) ;
+   *  - Fruit of Quirks (id 14) : Titan 6 vaincu (beastOn).
+   */
+  if (fruitId === "rage") return Boolean(state?.systems?.tower?.unlocked);
+  if (fruitId === "macguffinAlpha") return state?.systems?.achievements?.data?.unlocked?.secretWalderpFinal !== undefined || Boolean(state?.adventure?.unlockFlags?.walderpFinalDefeated);
+  if (fruitId === "quirks") return I(state?.adventure?.titans?.t6?.kills, 0) > 0;
   /* Fruits de Mayo : disponibles avec le système Cards. */
   if (idleYggIsMayoFruitV1(fruitId)) return Boolean(state?.systems?.cards?.unlocked);
   return true;

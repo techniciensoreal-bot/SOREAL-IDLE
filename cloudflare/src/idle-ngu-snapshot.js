@@ -31,7 +31,7 @@ import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAu
 import { IDLE_AT_ORDRE_V1, beardActiveIdsV1, beardSlotsV1, beardTrackUnlocked, bloodMagicViewV1, finiOuNullV1, timeMachineViewV1, wandoosViewV1, wishSlotCountV1, wishSlotsSnapshotV1 } from "./idle-ngu-pistes.js";
 import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, castBloodSpell, createTrollStateV1, diggerLaboVisibleV1, diggerViewV1, ritualUnlocked, bloodParSecondeV1, pitGrainesGrenadeV1, yggMaxTier, yggTierUpgradeCost, apercuYggFruitV1 } from "./idle-ngu-systemes.js";
 import { IDLE_WANDOOS_OS_V1, RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, idleTheEndFinalHackSnapshotV1 } from "./idle-ngu-etat.js";
-/* Fruit à découvrir (anti-spoil, règle n°2) : les fruits de Mayo (système Cards) et le Fruit of Numbers (5e complétion du défi Troll) n'apparaissent qu'une fois obtenus, même Yggdrasil découvert. */const yggFruitSecretV1 = (id) => idleYggIsMayoFruitV1(id) || id === "numbers";
+/* Fruit à découvrir (anti-spoil, règle n°2) : les fruits de Mayo (système Cards), le Fruit of Numbers (5e complétion du défi Troll), le Fruit of Rage (ITOPOD), le Fruit of MacGuffin α (forme finale de Walderp) et le Fruit of Quirks (Titan 6) n'apparaissent qu'une fois obtenus, même Yggdrasil découvert. */const yggFruitSecretV1 = (id) => idleYggIsMayoFruitV1(id) || id === "numbers" || id === "rage" || id === "macguffinAlpha" || id === "quirks";
 
 function nguSnapshotV1(state, context) {
   const s = state.systems.ngu;
