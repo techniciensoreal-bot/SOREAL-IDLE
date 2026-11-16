@@ -25,9 +25,6 @@ Un lot = un seul effet ; Puissance et Robustesse sont deux lots SÉPARÉS (le mo
 
 À vérifier avant de recoder : les ids d'objets des paliers 2 à 4, la formule des graines des paliers 12-16, le sens exact de `randomLevelUp` (un accessoire équipé au hasard, +1 niveau, jusqu'à 100) et `allLevelUp`, et si le Wandoos du palier 6 à 11 est bien « +niveau avec plafond ».
 
-## Écart avec le moteur actuel (`idle-ngu-snapshot.js`, `IDLE_MONEY_PIT_REWARDS_V1`)
-- Puissance et Robustesse versées ENSEMBLE (`adventureStats`) : dans le jeu, deux lots distincts, donc deux fois plus de lots dans le tirage.
-- Boosts : 3 cas sur 8 (palier 1) ou 9 (paliers 2 à 4), pas un seul lot.
-- Cas « rien » (palier 1) et lots « niveaux d'équipement » absents du tirage.
-- Paliers 12 à 16 absents.
-Rien de ceci n'est encore corrigé : le niveau d'équipement exige de modéliser `Equipment::levelUp` (stats par niveau des accessoires équipés).
+## État du moteur (mis à jour le 2026-11-16, après les commits 1a45cf98 et 2a57a122)
+- Aligné : un cas = un lot (Puissance et Endurance séparées, trois boosts, cas « rien » au palier 1), niveaux d'équipement (+1 niveau, plafond 100) et de garderie, paliers 12 à 16 (seulement avec le souhait n°4), pilule de fer, graines de grenade, EXP x min(10, jets du run + 1).
+- Pas d'écart connu avec le code du jeu pour ce système.

@@ -33,6 +33,9 @@
             'Les valeurs de base de l’entraînement de base et la réduction du facteur de buff de défense sur les dégâts reçus suivent maintenant les valeurs lues dans le code du jeu.',
             'Les cœurs Rouge et Jaune complets remplacent le bonus de l’objet équipé (EXP et AP) au lieu de prendre le plus grand des deux, comme dans le vrai jeu.'
           ]},
+          {menu:'titans', titre:'Titans', points:[
+            'Récompenses de titan, d’après le code du jeu : le facteur du défi d’EXP s’applique avant les autres, et le bonus d’EXP des premières victoires porte sur une victoire de moins par niveau (3 × niveau − 1), comme dans le vrai jeu.'
+          ]},
           {menu:'moneyPit', titre:'Money Pit', points:[
             'Money Pit, d’après le code du jeu : chaque lot est un tirage distinct (Puissance et Endurance séparées, trois boosts, un cas « rien » au premier palier), de nouveaux lots font monter d’un niveau l’équipement porté, et les paliers les plus hauts (pilule de fer, graines, EXP selon le nombre de jets) sont ajoutés.'
           ]}

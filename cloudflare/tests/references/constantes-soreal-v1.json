@@ -10,14 +10,6 @@
       "date": "2026-11-09"
     },
     {
-      "fichier": "idle-adventure-combat.js",
-      "marqueur": "choix soreal",
-      "repere": "choix SOREAL). / const perkTitanExp=I(rebirthKills)>0&&I(reb",
-      "description": "souhait « V2/3/4 Titans had better rewards » n'est pas publiée : facteurs multiplicatifs (choix SOREAL). / const perkTitanExp=I(rebirthKills)>0&&I(rebirthKills)<=Math.max(0,I(ctx&&ctx.titanExpBonusKills,0))?1.5:1; /* 24 Hour Challenge (page Challenges) : « +10",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
       "fichier": "idle-questing-v1.js",
       "marqueur": "choix soreal",
       "repere": "CHOIX SOREAL\" : ce sont des conventions de code, jamais des",

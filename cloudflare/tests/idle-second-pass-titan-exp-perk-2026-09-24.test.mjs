@@ -20,7 +20,7 @@ function tuer(etat, ctx, t) {
   return applyIdleAdventureActionV47(etat, { action: "titan", titan: "t1" }, ctx, t);
 }
 
-/* Niveau 1 : les 3 premiers kills valent +50 % (35 x 1,5 = 52,5 -> 53), le 4e retombe à 35. */
+/* Niveau 1 (lu dans le code du jeu, 2026-11-16) : le compteur est déjà incrémenté quand le bonus est testé et la condition est « inférieur à 3 x niveau » : 2 victoires bonifiées (35 x 1,5 = 52,5, sans arrondi : le jeu arrondit après les autres bonus). */
 {
   let etat = normalizeIdleAdventureStateV47({});
   const ctx = { bosses: 58, stats: { power: 1300, toughness: 1300 }, titanExpBonusKills: perkBonusesV1({ 34: 1 }).titanExpBonusKills };
@@ -30,7 +30,7 @@ function tuer(etat, ctx, t) {
     etat = r.state;
     exp.push(r.result.experience);
   }
-  assert.deepEqual(exp, [53, 53, 53, 35]);
+  assert.deepEqual(exp, [52.5, 52.5, 35, 35]);
   assert.equal(etat.titans.t1.rebirthKills, 4);
   assert.equal(etat.titans.t1.kills, 4);
 }
@@ -42,7 +42,7 @@ function tuer(etat, ctx, t) {
   assert.equal(r.result.experience, 35);
 }
 
-/* Niveau 2 : 6 kills bonifiés. */
+/* Niveau 2 : 5 victoires bonifiées (6 - 1). */
 {
   let etat = normalizeIdleAdventureStateV47({});
   const ctx = { bosses: 58, stats: { power: 1300, toughness: 1300 }, titanExpBonusKills: 6 };
@@ -52,7 +52,7 @@ function tuer(etat, ctx, t) {
     etat = r.state;
     exp.push(r.result.experience);
   }
-  assert.deepEqual(exp, [53, 53, 53, 53, 53, 53, 35]);
+  assert.deepEqual(exp, [52.5, 52.5, 52.5, 52.5, 52.5, 35, 35]);
 }
 
 /* Le compteur repart à zéro à chaque Rebirth (« every rebirth »), pas les kills à vie. */

@@ -42,7 +42,7 @@ const exp = (s) => s.currencies.experience;
   assert.ok(Math.abs(exp(s) - 35 * 1.05) < 1e-9, `EXP x1,05 : ${exp(s)}`);
 }
 
-/* Bonus Titan EXP! niveau 1 : les 3 premieres morts du titan (par Rebirth) valent x1,5. */
+/* Bonus Titan EXP! niveau 1 : les 2 premieres morts du titan (3 x niveau - 1, lu dans le jeu) (par Rebirth) valent x1,5. */
 {
   let s = neuf((x) => { x.systems.perks.data.levels[34] = 1; });
   const gains = [];
@@ -53,7 +53,7 @@ const exp = (s) => s.currencies.experience;
     s = tuerT1(s, T + i * 1000);
     gains.push(exp(s) - before);
   }
-  assert.deepEqual(gains.map((g) => Math.round(g * 100) / 100), [53, 53, 53, 35], "3 premieres morts x1,5 puis normal");
+  assert.deepEqual(gains.map((g) => Math.round(g * 100) / 100), [52.5, 52.5, 35, 35], "2 premieres morts x1,5 (compteur deja incremente, strictement inferieur a 3 x niveau : lu dans le jeu) puis normal");
 
   /* Nouveau Rebirth : le compteur repart. */
   s.currencies.experience = 0;
@@ -61,10 +61,10 @@ const exp = (s) => s.currencies.experience;
   s.adventure.titans.t1 = Object.assign({}, s.adventure.titans.t1 || {}, { nextAt: 0 });
   const before = exp(s);
   s = tuerT1(s, T + 4 * 3600 * 1000 + 1000);
-  assert.ok(Math.abs(exp(s) - before - 53) < 1e-9, "apres un Rebirth, la premiere mort re-beneficie du bonus");
+  assert.ok(Math.abs(exp(s) - before - 52.5) < 1e-9, "apres un Rebirth, la premiere mort re-beneficie du bonus");
 }
 {
-  /* Niveau 2 : les 6 premieres. */
+  /* Niveau 2 : les 5 premieres (6 - 1). */
   let s = neuf((x) => { x.systems.perks.data.levels[34] = 2; });
   const gains = [];
   for (let i = 0; i < 7; i += 1) {
@@ -73,6 +73,6 @@ const exp = (s) => s.currencies.experience;
     s = tuerT1(s, T + i * 1000);
     gains.push(Math.round((exp(s) - before) * 100) / 100);
   }
-  assert.deepEqual(gains, [53, 53, 53, 53, 53, 53, 35]);
+  assert.deepEqual(gains, [52.5, 52.5, 52.5, 52.5, 52.5, 35, 35]);
 }
 console.log("idle-experience-bonus-adventure: OK");

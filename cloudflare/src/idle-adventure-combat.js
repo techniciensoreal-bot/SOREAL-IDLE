@@ -278,6 +278,9 @@ const TITAN_TIER_RANK_V1=Object.freeze({easy:0,normal:1,hard:2,brutal:3});
 
 const TITAN_QP_V1=Object.freeze({t6:{wish:73,qp:1},t7:{wish:41,qp:3},nerd:{wish:74,qp:1},godmother:{wish:40,qp:2},hungers:{wish:100,qp:4},lobster:{wish:187,qp:5},amalgamate:{wish:204,qp:6}});
 
+/* Convert.ToInt64 d'un flottant : arrondi au plus proche, les demi-valeurs vers le pair (comportement de .NET). */
+function arrondiPairV1(x){const f=Math.floor(x),d=x-f;if(d<.5)return f;if(d>.5)return f+1;return f%2===0?f:f+1;}
+
 function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0){
   const r=TITAN_REWARDS_V1[id];
   const out={gold:0,experience:0,ap:0,ppProgress:0,qp:0};
@@ -289,17 +292,20 @@ function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0){
   /*
    * Perk 34 « Bonus Titan EXP! » (page Experience) : « +50% EXP from Titans. +3 kill per level that will benefit
    * from this Perk » : +50 % fixe sur les 3 x niveau premiers kills de chaque titan par Rebirth. La composition
-   * avec le souhait « V2/3/4 Titans had better rewards » n'est pas publiée : facteurs multiplicatifs (choix SOREAL).
+   * avec le souhait « V2/3/4 Titans had better rewards » : lu dans le code du jeu (build 1260, 2026-11-16,
+   * LootDrop::zoneNDrop et LootDrop::higherVFactor) : EXP = (long)(base x facteur du 24 Hour Challenge), puis x 1,5 si le
+   * compteur de victoires de CE titan (déjà incrémenté pour la victoire en cours) est STRICTEMENT inférieur à 3 x niveau du
+   * perk, puis x facteur du souhait ; les bonus d'EXP (NGU, équipement...) s'appliquent ensuite, à la conversion.
    */
-  const perkTitanExp=I(rebirthKills)>0&&I(rebirthKills)<=Math.max(0,I(ctx&&ctx.titanExpBonusKills,0))?1.5:1;
+  const perkTitanExp=I(rebirthKills)>0&&I(rebirthKills)<Math.max(0,I(ctx&&ctx.titanExpBonusKills,0))?1.5:1;
   /*
    * 24 Hour Challenge (page Challenges) : « +10% EXP whenever you defeat boss 24 or higher (rounded down) (bonus also
    * applies to Titans) » (+4 % Evil, +2 % Sadistic par complétion) ; guide du nouveau joueur : « completing make bosses
-   * and Titans give more exp ». Facteur multiplicatif avec les précédents (composition non publiée), arrondi inférieur.
+   * and Titans give more exp ». Dans le jeu, ce facteur est appliqué AVANT les deux autres (AdventureController::bossNExp).
    */
-  out.experience=Math.round(I(r.exp,0)*rewardMult*perkTitanExp);
   const challengeExp=Math.max(0,N(ctx&&ctx.titanExpChallengePct,0));
-  if(challengeExp>0)out.experience=Math.floor(out.experience*(1+challengeExp));
+  const baseExp=challengeExp>0?arrondiPairV1(I(r.exp,0)*(1+challengeExp)):I(r.exp,0);
+  out.experience=(baseExp*perkTitanExp*Math.round(10*rewardMult))/10;/* (10 + n) / 10 : évite 750 x 1,1 = 825,0000000000001 */
   out.ap=I(r.ap,0);
   out.ppProgress=Math.round(I(r.ppProgress,0)*rewardMult);
   const qpDef=TITAN_QP_V1[id];

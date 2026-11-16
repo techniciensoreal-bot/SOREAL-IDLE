@@ -174,7 +174,7 @@ function etatAvecFib89() {
   const etat = normalizeIdleAdventureStateV47({});
   const r = applyIdleAdventureActionV47(etat, { action: "titan", titan: "t1" },
     { bosses: 58, stats: { power: 1300, toughness: 1300 }, titanExpChallengePct: 0.10 * 3 }, 1000);
-  assert.equal(r.result.experience, Math.floor(35 * 1.3), "35 EXP x 1,3 = 45,5 -> 45");
+  assert.equal(r.result.experience, 46, "35 x 1,3 = 45,5 -> Convert.ToInt64 arrondit au pair : 46 (lu dans le jeu, 2026-11-16)");
 }
 
 /* --- 9. Cube : 1 % de la valeur TOTALE du boost (Boosted Boosts / Beasted Boosts compris, page Boost). --- */
