@@ -22,5 +22,5 @@ test("le moteur ferme le combat, le Nuke et la definition apres le dernier boss"
   assert.ok(/if \(bossFinDesBossAtteinteSorealIdle_\(n\)\) \{\s*return \{/.test(boss), "definitionBossSorealIdle_ doit renvoyer le boss de fin");
   const combat = lireSrc("idle-runtime-combat.js");
   assert.ok(/if \(bossFinDesBossAtteinteSorealIdle_\(bossVaincus\)\) break;/.test(combat), "le Nuke doit s'arreter apres le dernier boss");
-  assert.ok(/if \(bossFinDesBossAtteinteSorealIdle_\(bossIndex\)\) \{\s*return \{ok:true,actif:false,ignore:true,finDesBoss:true/.test(combat), "aucun combat ne doit demarrer apres le dernier boss");
+  assert.ok(/if \(bossFinDesBossAtteinteSorealIdle_\(bossIndex\)\) return \{ok:true,actif:false,ignore:true,finDesBoss:true/.test(combat), "aucun combat ne doit demarrer apres le dernier boss");
 });

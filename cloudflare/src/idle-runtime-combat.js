@@ -321,9 +321,7 @@ export function definirCombatBossSorealIdle(
       stats.bossRespawnJusqua = 0;
 
       /* BossController::beginFight : bossID > 300 => isFighting = false, aucun combat (audit 2026-11-16, E3). */
-      if (bossFinDesBossAtteinteSorealIdle_(bossIndex)) {
-        return {ok:true,actif:false,ignore:true,finDesBoss:true,bossSelection:bossIndex+1};
-      }
+      if (bossFinDesBossAtteinteSorealIdle_(bossIndex)) return {ok:true,actif:false,ignore:true,finDesBoss:true,bossSelection:bossIndex+1};
 
       const niveauRequis =
         niveauRequisBossSorealIdle_(
