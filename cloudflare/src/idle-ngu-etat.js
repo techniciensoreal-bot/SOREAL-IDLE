@@ -738,6 +738,41 @@ const IDLE_DIFFICULTY_SPEED_DIVIDERS_V1 = Object.freeze({
   bloodMagic: { difficile: 1e9, extreme: 1e22 }
 });
 
+/*
+ * Diviseurs de vitesse des Augmentations PAR PISTE (build 1260, 2026-11-16, lus dans la scène `level0`, composant
+ * `AllAugsController`, champs `evilAugSpeedDividers`, `sadisticAugSpeedDividers`, `evilUpgradeSpeedDividers`,
+ * `sadisticUpgradeSpeedDividers`, 7 valeurs chacun dans l'ordre Ciseaux, Lait, Canon, Minigun, Buster, Exosquelette,
+ * Épée laser). Le jeu les utilise tels quels (`AugmentController::getAugProgressPerTick` / `getUpgradeProgressPerTick` :
+ * Evil = puissance / diviseur / 50 000 x énergie / (niveau + 1) ; Sadistic = puissance / diviseur / `sadisticDivider()` = 5e7,
+ * sans le 50 000) : le rapport à Normal n'est donc PAS uniforme comme le dit le wiki (2,5e12 / 2,5e27), il vaut
+ * 2,5e12 / 2,5e27 pour Ciseaux et Lait, puis jusqu'à 2,544e12 / 2,544e27 (+1,8 %) pour les pistes suivantes.
+ * Les valeurs sont celles du jeu arrondies au flottant 32 bits d'origine (1e15 écrit 999999986991104 dans la scène).
+ */
+const IDLE_AUGMENT_DIVIDERS_V1 = Object.freeze({
+  difficile: Object.freeze({
+    aug: Object.freeze([1e15, 1.7e16, 2.9e17, 5e18, 8.5e19, 1.19e23, 1.666e26]),
+    upgrade: Object.freeze([1e15, 1.2e16, 1.44e17, 1.728e18, 2.074e19, 1.659e22, 1.327e25])
+  }),
+  extreme: Object.freeze({
+    aug: Object.freeze([1e27, 1.7e28, 2.9e29, 5e30, 8.5e31, 1.19e35, 1.666e38]),
+    upgrade: Object.freeze([1e27, 1.2e28, 1.44e29, 1.72e30, 2.074e31, 1.659e34, 1.327e37])
+  })
+});
+
+/*
+ * Facteur à appliquer à la durée NORMALE (`base` secondes) d'une piste pour la difficulté du joueur. Normal : 1.
+ * Evil : diviseur Evil / diviseur Normal ; Sadistic : diviseur Sadistic x (5e7 / 50 000) / diviseur Normal.
+ * `base` est le diviseur Normal de la piste (identique à `baseSeconds`). Repli : le facteur uniforme du wiki.
+ */
+export function idleNguAugmentDifficultyDividerV1(state, augId, upgrade, base) {
+  const diff = state?.difficulty;
+  const table = IDLE_AUGMENT_DIVIDERS_V1[diff];
+  const i = IDLE_NGU_AUGMENTATIONS.findIndex((a) => a.id === augId);
+  const brut = table && i >= 0 && base > 0 ? (upgrade ? table.upgrade : table.aug)[i] : 0;
+  if (!(brut > 0)) return idleNguDifficultySpeedDividerV1(state, "augmentations");
+  return (diff === "extreme" ? brut * 1000 : brut) / base;
+}
+
 export function idleNguDifficultySpeedDividerV1(state, system) {
   const tiers = IDLE_DIFFICULTY_SPEED_DIVIDERS_V1[system];
   if (!tiers) return 1;

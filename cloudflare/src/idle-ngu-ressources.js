@@ -11,7 +11,7 @@ import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleSelloutPotionFactorV1 } from "./idle-sellout-shop-v1.js";
 import { idleCardsMultiplierV1 } from "./idle-cards-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_META_VERSION, IDLE_NGU_SYSTEMS, MIN_REBIRTH_SECONDS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, int, num, safePow, safeProduct } from "./idle-ngu-catalogues.js";
-import { defaultResource, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, normalizeRebirthState } from "./idle-ngu-etat.js";
+import { defaultResource, idleNguAugmentDifficultyDividerV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, normalizeRebirthState } from "./idle-ngu-etat.js";
 import { setRitualAllocationV1, trollBossDividerV1 } from "./idle-ngu-systemes.js";
 import { avecPorteeBonusV1, beardBonusMultiplier, clearNguAllocationsV1, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1, nguNumberRebirthV1, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, minRebirthSecondsV1, setAugmentAllocationV214_, wishLevelV1 } from "./idle-ngu-snapshot.js";
@@ -510,7 +510,7 @@ function augmentationSecondsModelV1(state, def, upgrade = false, allocOverride =
   const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
   const base = upgrade ? def.upgrade.baseSeconds : def.baseSeconds;
   const challengeSpeed=challengePermanentBonuses(state).augmentationSpeedMultiplier*idleCardsMultiplierV1(state,"augments"); /* + Cards AUGS */
-  const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "augmentations");
+  const difficultyDivider = idleNguAugmentDifficultyDividerV1(state, def.id, Boolean(upgrade), base);
   const gearAugmentSpeed = gearPctV1(gearSpecialsV1(state), "augmentSpeedPct");
   /*
    * 2026-09-24 (audit de composition, page « Augmentations ») : « All
