@@ -469,8 +469,8 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
 
   if(!harvest){
     if(def.effect==="gold"){
-      const minutes=Math.ceil(factor*30*firstHarvestMultiplier);
-      const gold=Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*minutes*60;
+      /* Lu dans le jeu (FruitController::consumeGoldFruit, build 1260, 2026-11-16) : facteur x 1800 x GPS brut x bonus de récolte, SANS arrondi. */
+      const gold=Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*(factor*1800*firstHarvestMultiplier);
       state.currencies.gold+=gold;
       result.gold=gold;
     }else if(def.effect==="powerAlpha"){
@@ -563,8 +563,7 @@ export function apercuYggFruitV1(state,def,f,poopFactor=1){
   const yieldFruit=nguFxV1(state).yggdrasil*quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier;
   const effets=[];
   if(def.effect==="gold"){
-    const minutes=Math.ceil(factor*30*firstHarvestMultiplier);
-    effets.push(["gold",Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*minutes*60]);
+    effets.push(["gold",Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*(factor*1800*firstHarvestMultiplier)]);
   }else if(def.effect==="powerAlpha")effets.push(["powerAlpha",Math.ceil(factor*yieldFruit)]);
   else if(def.effect==="adventure"){
     const baseToughness=Math.max(1,idleAdventureCombatStatsV1(idleEquipementEffectifLectureV1(state),{},null).toughness);
