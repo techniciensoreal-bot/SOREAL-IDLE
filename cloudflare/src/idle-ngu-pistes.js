@@ -1043,7 +1043,35 @@ function avancerTmGrossierV1(state, seconds, orDejaCredite = false) {
     let step = dureeNiveauEnTicksV1(facteur * Math.max(1, d[niv] + 1));
     if (!Number.isFinite(step)) return;
     rebaserProgressionSecondesV1(d, prog, step);
-    while (t > 1e-12 && garde++ < 100000 && !tmTargetReached(d[cible], d[niv])) {
+    while (t > 1e-12 && garde++ < 2000000 && !tmTargetReached(d[cible], d[niv])) {
+      /* Longue absence (le jeu borne l'écart à 1 an, aucun plafond de niveaux) : les niveaux qui durent le MÊME nombre de ticks (n dans ]a(m-1), a m], a = tick / facteur) sont avancés par GROUPES en forme fermée (temps = niveaux x durée, Or = somme arithmétique de 5 000 000 x n) ; les derniers niveaux du groupe restent exacts. */
+      if (d[prog] <= 0 && t > 64 * step && facteur > 0 && Number.isFinite(facteur)) {
+        const a = IDLE_TICK_SECONDS_V1 / facteur;
+        const n = d[niv] + 1;
+        const m = Math.max(1, Math.ceil(n / a - 1e-9));
+        const dernier = Math.floor(a * (m + 1e-9));
+        let c = Math.max(1, dernier - n + 1);
+        const cibleN = num(d[cible], 0);
+        if (cibleN > 0) c = Math.min(c, cibleN - d[niv]);
+        if (limiteDefi) c = Math.min(c, challengeHundredLevelsRemaining(state));
+        if (c > 8) {
+          const unite = step - PAYE_V1;
+          const somme = (b) => 5000000 * (b * n + (b * (b - 1)) / 2);
+          let lo = 0, hi = Math.max(0, Math.min(c, Math.floor((t - 1e-9) / unite) - 2));
+          while (lo < hi) { const mid = Math.floor((lo + hi + 1) / 2); if (somme(mid) <= state.currencies.gold * (1 - 1e-12) - 1e-9) lo = mid; else hi = mid - 1; }
+          const b = Math.min(lo - 2, c - 2);
+          if (b >= 8 && Number.isFinite(somme(b))) {
+            state.currencies.gold -= somme(b);
+            t = Math.max(0, t - b * unite);
+            d[niv] += b;
+            challengeHundredLevelsConsume(state, b);
+            step = dureeNiveauEnTicksV1(facteur * Math.max(1, d[niv] + 1));
+            if (!Number.isFinite(step)) break;
+            rebaserProgressionSecondesV1(d, prog, step);
+            continue;
+          }
+        }
+      }
       if (d[prog] <= 0) {
         const cout = tmLevelGoldCost(d[niv] + 1);
         if (state.currencies.gold + 1e-9 < cout || (limiteDefi && challengeHundredLevelsRemaining(state) <= 0)) break;

@@ -1,4 +1,4 @@
-import { wandoosAvancerTicksV1 } from "./idle-tick-v1.js";
+import { wandoosAvancerTicksV1, wandoosHorsLigneV1 } from "./idle-tick-v1.js";
 /*
  * NGU : création, normalisation et migration de l'état (audit d'architecture, 2026-10-16 : découpage de idle-ngu-progression.js).
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
@@ -483,6 +483,7 @@ export function wandoosCalculVitessesV1(state, seconds, now) {
   return { s, osId, os, requirement, totalOsLevel, osLevelMultiplier, boot, energySpeed, magicSpeed, energyAlloc, magicAlloc, energyCap, magicCap, energyRaw, magicRaw, setPct };
 }
 
+const WANDOOS_HORS_LIGNE_SECONDES_V1 = 300;
 export function advanceWandoos(state, seconds, context, now) {
   const s = state.systems.wandoos;
   if (!s?.unlocked || seconds <= 0) return;
@@ -490,8 +491,13 @@ export function advanceWandoos(state, seconds, context, now) {
   /* Tick par tick (lu dans le jeu, build 1260, 2026-11-15) : voir wandoosAvancerTicksV1 (idle-tick-v1.js). */
   const debutBoot = Math.max(0, calc.boot.elapsed - seconds);   /* secondes de boot écoulées au début de la fenêtre */
   const duree = seconds;
-  const e = wandoosAvancerTicksV1(num(s.data.dumpEnergyProgress, 0), calc.energyRaw, calc.boot.bootSeconds, debutBoot, calc.setPct, duree);
-  const m = wandoosAvancerTicksV1(num(s.data.dumpMagicProgress, 0), calc.magicRaw, calc.boot.bootSeconds, debutBoot, calc.setPct, duree);
+  /* Absence (même seuil de 5 minutes que le reste du hors ligne) : formule du jeu, vitesse de boot de la FIN pour toute la fenêtre (wandoosHorsLigneV1) ; en ligne, tick par tick. */
+  const horsLigne = seconds >= WANDOOS_HORS_LIGNE_SECONDES_V1;
+  const avancer = (acc, raw) => (horsLigne
+    ? wandoosHorsLigneV1(acc, raw, calc.boot.bootSeconds, calc.boot.elapsed, calc.setPct, duree)
+    : wandoosAvancerTicksV1(acc, raw, calc.boot.bootSeconds, debutBoot, calc.setPct, duree));
+  const e = avancer(num(s.data.dumpEnergyProgress, 0), calc.energyRaw);
+  const m = avancer(num(s.data.dumpMagicProgress, 0), calc.magicRaw);
   s.data.dumpEnergyProgress = e.acc;
   s.data.dumpMagicProgress = m.acc;
   let energyGain = e.gained;

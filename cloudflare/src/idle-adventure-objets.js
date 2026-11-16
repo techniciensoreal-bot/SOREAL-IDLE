@@ -8,7 +8,7 @@ import { idleTheEndNormalizeV1 } from "./idle-the-end-v1.js";
 import { idleSpecialPointsRatioV1 } from "./idle-adventure-special-points-v1.js";
 import { SETS, SETS_OBJETS_V1, SET_ITEM_NAMES_V1, SPECIALS, defById, idleAdventureItemStatsMaxV1, wikiItemIdAdventureV1, wikiItemIdBoostV1 } from "./idle-adventure-sets.js";
 import { BOOSTS, C, I, MAX, N, UNLOCK_PAR_OBJET_V1, X, __perfCompteursV1, unlockMap } from "./idle-adventure-base.js";
-import { IDLE_SECOND_WEAPON_SLOTS_V1, add, applyBoost, cube, equip, inventoryCapacityAdventureV1, inventoryUsedAdventureV1, merge, syncInventorySlotsAdventureV2, unequip } from "./idle-adventure-inventaire.js";
+import { IDLE_SECOND_WEAPON_SLOTS_V1, add, applyBoost, cube, cubeDirect, equip, inventoryCapacityAdventureV1, inventoryUsedAdventureV1, merge, syncInventorySlotsAdventureV2, unequip } from "./idle-adventure-inventaire.js";
 import { IDLE_ADVENTURE_V47, __advCtx } from "./idle-adventure-v47.js";
 import { IDLE_ADVENTURE_ZONES } from "./idle-adventure-zones.js";
 
@@ -185,6 +185,8 @@ export function idleAdventureMergeItemsV1(state,a,b){return merge(state,a,b)}
 export function idleAdventureApplyBoostItemV1(state,boostId,targetId,ctx){return applyBoost(state,boostId,targetId,ctx)}
 
 export function idleAdventureCubeBoostItemV1(state,boostId,ctx){return cube(state,boostId,ctx)}
+
+export function idleAdventureCubeDirectV1(state,strength,kills,ctx){return cubeDirect(state,strength,kills,ctx)}
 
 export function idleAdventureEquipItemV1(state,id,slot){return equip(state,id,slot)}
 

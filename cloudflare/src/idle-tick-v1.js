@@ -56,6 +56,24 @@ export function niveauxEnTicksV1(level, P, budget, a, maxGain = Infinity) {
  * un boot d'une heure), ensuite la vitesse est constante : calcul par groupes (ceil(1 / p) ticks par niveau). `raw` = niveaux par seconde SANS le boot ni le set (valeur brute, non plafonnée), `setPct` = bonus du set
  * Wandoos une fois le boot fini (0,10 ou 0), `acc` = fraction de la barre, `start` = secondes de boot écoulées au début de la fenêtre. Retourne { gained, acc }.
  */
+/*
+ * Wandoos HORS LIGNE (lu dans le jeu, build 1260, 2026-11-16 : Character::wandoosOfflineProgress, Wandoos98Controller::energyProgressToAdd / bootupSpeedFactor, Character::constantLevelGain ; design/audit-code-jeu/hors-ligne.md E9) :
+ * le boot avance de la durée de l'absence PUIS la vitesse de la FIN de l'absence (facteur de boot = min(1, boot écoulé / durée du boot), x 1,1 une fois le boot fini avec le set Wandoos) vaut pour TOUTE la fenêtre ;
+ * p = vitesse brute par tick x facteur (au plus 1) ; ticks = secondes x 50 ; un niveau demande ceil(1 / p) ticks ; il n'y a aucun niveau si ticks < ceil(ceil(1 / p) x barre), sinon floor(ticks / ceil(1 / p)) niveaux et la barre est inchangée
+ * (la fraction de barre en cours n'est pas comptée, comme dans le jeu) ; sous le seuil la barre avance de p x ticks.
+ * `raw` = niveaux par seconde sans boot ni set, `bootFin` = secondes de boot écoulées à la FIN de la fenêtre. Retourne { gained, acc }.
+ */
+export function wandoosHorsLigneV1(acc, raw, bootSeconds, bootFin, setPct, seconds) {
+  const a = Math.max(0, Math.min(0.999999999, Number(acc) || 0));
+  const fBoot = Math.max(0, Math.min(1, (Number(bootFin) || 0) / Math.max(1e-9, Number(bootSeconds) || 0)));
+  const p = Math.min(1, (Math.max(0, Number(raw) || 0) / 50) * fBoot * (fBoot >= 1 ? 1 + Math.max(0, Number(setPct) || 0) : 1));
+  if (!(p >= 1e-9)) return { gained: 0, acc: a };
+  const ticks = Math.floor(Math.max(0, Number(seconds) || 0) * 50);
+  const need = Math.max(1, Math.ceil(1 / p - 1e-9));   /* tolérance des flottants comme dureeNiveauEnTicksV1 */
+  if (ticks < Math.ceil(need * a)) return { gained: 0, acc: Math.min(0.999999999, a + p * ticks) };
+  return { gained: Math.floor(ticks / need), acc: a };
+}
+
 export function wandoosAvancerTicksV1(acc, raw, bootSeconds, start, setPct, seconds) {
   let a = Math.max(0, Math.min(0.999999999, Number(acc) || 0));
   let ticks = Math.max(0, Number(seconds) || 0) * 50;

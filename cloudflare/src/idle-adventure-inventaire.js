@@ -464,6 +464,22 @@ export function cube(s,boostId,ctx){
 }
 
 /*
+ * Gain DIRECT du cube pour les kills d'ITOPOD hors ligne (Character::adventureOfflineProgress du jeu, build 1260, lu le 2026-11-16, design/audit-code-jeu/hors-ligne.md E2) :
+ * avec « Filter Boosts into Infinity Cube! » (Arbitrary.hasCubeFilter), AUCUN objet de boost n'est créé ; le jeu ajoute à la puissance ET à la robustesse du cube
+ * capAttack[id du boost] x kills / 8 x boostBonus / ((perk 26 ? 50 : 100) / diviseur du souhait 110 x 2), où capAttack[id] = force du boost (1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000).
+ * C'est le même calcul que le cube() ci-dessus pour un boost « special » (0,5 % ou 1 % de la valeur totale sur chaque stat), appliqué à kills / 8 boosts.
+ */
+export function cubeDirect(s,strength,kills,ctx){
+  if(!s.cube||typeof s.cube!=="object")return 0;
+  const brut=Math.max(0,N(strength))*Math.max(0,N(kills))/8;
+  const taux=Math.max(.01,N(ctx&&ctx.cubeBoostRate,.01));
+  const gain=brut*boostEffectivenessFactorV1(s)*Math.max(1,N(ctx&&ctx.boostPowerMultiplier,1))*Math.max(1,N(ctx&&ctx.cubeBoostEffectiveness,1))*taux/2;
+  s.cube.power=N(s.cube.power)+gain;
+  s.cube.toughness=N(s.cube.toughness)+gain;
+  return gain;
+}
+
+/*
  * Audit 2026-09-13 (wiki NGU, page Infinity Cube, section Softcap) : "When
  * your Infinity Cube's Power and Toughness stats exceeds your equipment +
  * base stats (softcap), you'll still get the full stat up to that softcap,
