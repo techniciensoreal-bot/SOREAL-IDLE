@@ -286,7 +286,7 @@ const TITAN_QP_V1=Object.freeze({t6:{wish:73,qp:1},t7:{wish:41,qp:3},nerd:{wish:
 /* Convert.ToInt64 d'un flottant : arrondi au plus proche, les demi-valeurs vers le pair (comportement de .NET). */
 function arrondiPairV1(x){const f=Math.floor(x),d=x-f;if(d<.5)return f;if(d>.5)return f+1;return f%2===0?f:f+1;}
 
-function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0,horsLigne=false){
+function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0,horsLigne=false,repeat=1){
   const r=TITAN_REWARDS_V1[id];
   const out={gold:0,experience:0,ap:0,ppProgress:0,qp:0};
   if(!r)return out;
@@ -322,6 +322,9 @@ function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0,horsLigne=false){
     const facteurQp=Math.max(1,N(ctx&&ctx.questRewardFactor,1))*beurre;
     out.qp=Math.floor(Math.floor(qpDef.qp*facteurQp+1e-9)*rewardMult+1e-9);
   }
+  /* repeat : nombre de victoires identiques crédité d'un coup (hors ligne, forme fermée du jeu : AdventureController::bossNExp x nombre de victoires ; le facteur par victoire ne change plus une fois la fenêtre du perk 34 passée). */
+  const n=Math.max(1,I(repeat,1));
+  if(n>1){out.gold*=n;out.experience*=n;out.ap*=n;out.ppProgress*=n;out.qp*=n;}
   s.permanent.gold=N(s.permanent.gold)+out.gold;
   s.permanent.experience=N(s.permanent.experience)+out.experience;
   s.permanent.ap=N(s.permanent.ap)+out.ap;
@@ -408,6 +411,25 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
     let cursor=Math.max(debut,N(st.nextAt,0));
     let cycles=0;
     while(cursor<=t&&cycles<2000){
+      /* Hors ligne, comme le jeu (Character::adventureOfflineProgress : nombre de victoires = floor((minuteur + secondes) / respawn), récompense x nombre, aucune boucle) : une fois la fenêtre du perk 34 passée et le titan en forme finale, TOUTES les victoires restantes sont créditées d'un coup, sans plafond de cycles (une absence d'un an en donne des milliers). */
+      const fenetreFinie=I(st.rebirthKills,0)>=Math.max(0,I(ctx&&ctx.titanExpBonusKills,0));
+      const formeFinale=!d.forms||I(st.kills,0)>=d.forms.length;
+      if(horsLigneTitan&&fenetreFinie&&formeFinale&&cycles>0){
+        const cd=Math.max(TITAN_COOLDOWN_FLOOR_MS_V1,N(idleAdventureTitanCooldownMsV1(d.id,ctx,st.kills),d.cooldown));
+        const lot=Math.floor((t-cursor)/cd)+1;
+        if(lot>1){
+          st.kills=I(st.kills,0)+lot;
+          st.rebirthKills=I(st.rebirthKills,0)+lot;
+          if(tierKey){
+            if(!st.difficultyKills||typeof st.difficultyKills!=="object")st.difficultyKills={};
+            st.difficultyKills[tierKey]=I(st.difficultyKills[tierKey],0)+lot;
+          }
+          creditTitanRewardsV1(s,d.id,ctx,tierKey,st.rebirthKills,true,lot);
+          cursor+=lot*cd;
+          cycles+=lot;
+          break;
+        }
+      }
       cycles+=1;
       st.kills=I(st.kills,0)+1;
       st.rebirthKills=I(st.rebirthKills,0)+1;

@@ -14,7 +14,7 @@
    "scissors": [
     12176,
     0,
-    0.00633584324392,
+    0.00633584324405,
     0
    ],
    "milk": [
@@ -98,7 +98,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "ee4fda33eab48c57",
+   "augmentations": "d466e71978c7dc3d",
    "advancedTraining": "5a42d37a1163f69a",
    "timeMachine": "24e50df24be752dd",
    "bloodMagic": "1b013ec2ee11917a",
@@ -130,7 +130,7 @@
    "scissors": [
     12176,
     0,
-    0.00633584324392,
+    0.00633584324405,
     0
    ],
    "milk": [
@@ -214,7 +214,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "e434751fc8955bf7",
+   "augmentations": "2c59946cf75095f3",
    "advancedTraining": "22838a233f974ba7",
    "timeMachine": "24e50df24be752dd",
    "bloodMagic": "1b013ec2ee11917a",
@@ -478,7 +478,7 @@
    "scissors": [
     12180,
     0,
-    0.206188877941,
+    0.206188877944,
     0
    ],
    "milk": [
@@ -562,7 +562,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "53b33377355b9740",
+   "augmentations": "569782deebff6904",
    "advancedTraining": "26e705ffe63c3834",
    "timeMachine": "f76b13875794a323",
    "bloodMagic": "21bebf5dc7d7dfab",
@@ -710,7 +710,7 @@
    "scissors": [
     12317,
     0,
-    0.606188877943,
+    0.606188877944,
     0
    ],
    "milk": [
@@ -794,7 +794,7 @@
   "systemes": {
    "achievements": "4eda027f31ff90e2",
    "dailySpin": "e40377802becc72f",
-   "augmentations": "b886a898f2968eb8",
+   "augmentations": "9321ca334b218066",
    "advancedTraining": "878d90a4c4de3863",
    "timeMachine": "9c118209e6887c5e",
    "bloodMagic": "04ecf45f0101b7d0",
@@ -803,7 +803,7 @@
    "yggdrasil": "20e7c00a8456165d",
    "moneyPit": "27e9f8eb66f97040",
    "diggers": "a5eb6d452ff8bf0b",
-   "tower": "946772bed88413f9",
+   "tower": "9faf2690046758b6",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",

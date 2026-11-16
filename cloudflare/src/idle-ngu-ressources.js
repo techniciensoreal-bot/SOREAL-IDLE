@@ -565,7 +565,7 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
   /*
    * Lu dans le code du jeu (build 1260, 2026-11-15 : AugmentController::advanceAug) : l'OR EST PAYÉ AU DÉBUT du niveau, au premier tick (barre à 0) ; sans assez d'Or la barre ne bouge pas (elle reste à 0). Le niveau
    * suivant se paie de la même façon à son premier tick. Un niveau dure ceil(durée / tick) ticks (quantification : idle-tick-v1.js), le premier tick compris. « Niveau payé » = barre > 0.
-   * Passe exacte niveau par niveau (une barre rapide gagne au plus 50 niveaux par seconde, donc elle reste courte même pour des heures d'absence ; garde-fou : 3 000 000 niveaux par appel).
+   * Passe exacte niveau par niveau ; pour une longue absence (le jeu borne l'écart à 1 an) les niveaux qui durent le MÊME nombre de ticks sont avancés par GROUPES en forme fermée (temps = niveaux x durée, Or = somme arithmétique des coûts), les derniers niveaux de chaque groupe restant exacts : aucun plafond de niveaux par appel (avant : 3 000 000, que 17 h d'une barre à 50 niveaux par seconde dépassent).
    */
   {
     const l0=Math.max(0,int(upgrade?pair.upgradeLevel:pair.level,0));
@@ -576,10 +576,29 @@ function advanceAugmentationTrackV214_(state,seconds,context,def,pair,upgrade){
     /* Ancienne sauvegarde : barre pleine « en attente d'Or » (l'Or se payait à la fin) : elle repart à 0 et sera payée au début. */
     if(p>=modele(l0+1)-1e-9)p=0;
     const premierTick=IDLE_TICK_SECONDS_V1;
-    while(k<plafondDefi&&k<3000000){
+    let garde=0;
+    while(k<plafondDefi&&garde++<2000000){
       const n=l0+k+1;
       const duree=modele(n);
       if(!Number.isFinite(duree))break;
+      if(p<=0&&t>64*duree&&modele.brut){
+        /* Groupe de niveaux de même durée : n dans ]a(m-1), a m] avec a = tick / durée brute du niveau 1 (même découpage que niveauxEnTicksV1, idle-tick-v1.js). */
+        const brut1=modele.brut(1);
+        const a=Number.isFinite(brut1)&&brut1>0?IDLE_TICK_SECONDS_V1/brut1:0;
+        if(a>0&&Number.isFinite(a)){
+          const m=Math.max(1,Math.ceil(n/a-1e-9));
+          const dernier=Math.floor(a*(m+1e-9));
+          const c=Math.min(Math.max(1,dernier-n+1),plafondDefi-k);
+          if(c>8){
+            const somme=(b)=>baseOr*(upgrade?(b*n*n+n*b*(b-1)+(b-1)*b*(2*b-1)/6):(b*n+b*(b-1)/2));
+            const bTemps=Math.floor((t-1e-9)/duree)-2;
+            let lo=0,hi=Math.min(c,bTemps);
+            while(lo<hi){const mid=Math.floor((lo+hi+1)/2);if(somme(mid)<=or*(1-1e-12)-1e-9)lo=mid;else hi=mid-1;}
+            const b=Math.min(lo-2,c-2);
+            if(b>=8&&Number.isFinite(somme(b))){or-=somme(b);t=Math.max(0,t-b*duree);k+=b;continue;}
+          }
+        }
+      }
       if(p<=0){
         const cout=baseOr*(upgrade?n*n:n);
         if(!Number.isFinite(cout)||or+1e-9<cout||t<=1e-9)break;   /* sans Or (ou sans temps) la barre ne démarre pas */

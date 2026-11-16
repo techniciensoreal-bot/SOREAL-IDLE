@@ -18,7 +18,7 @@ import { idleLoginCalendarOctroiV1 } from "./idle-login-calendar-v1.js";
 import { acquerirSkinsV1 } from "./idle-daycare-skins-v1.js";
 import { acquerirPortraitsV1 } from "./idle-portraits-v1.js";
 import { idleYggFruitUnlockedV1, idleYggAutoActivateV1, idleYggActivationCostV1, idleYggSeedUnitV1, idleYggUsePoopV1, idleYggMayoFruitBaseV1, idleYggFruitOfQuirksQpV1, idleYggQuickActivationV1, idleYggTierSecondsV1, idleYggItopodPoopV1 } from "./idle-yggdrasil-extra-v1.js";
-import { idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleEquipementEffectifLectureV1, idleAdventureBoostV1, zoneNormalePlusAvanceeV1, advanceTitanAutoKillV1, advanceAdventureZoneAutoFarmOfflineV1 } from "./idle-adventure-v47.js";
+import { idleAdventureEquipmentStatsV47, idleAdventureCubeDirectV1, idleEquipementEffectifV1, idleEquipementEffectifLectureV1, idleAdventureBoostV1, zoneNormalePlusAvanceeV1, advanceTitanAutoKillV1, advanceAdventureZoneAutoFarmOfflineV1 } from "./idle-adventure-v47.js";
 import { idleCardsMayoFruitProgressV1, idleCardsMayoFruitApercuV1, advanceIdleCardsV1 } from "./idle-cards-v1.js";
 import { idleInventoryReceiveDropV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1, advanceIdleInventoryAutoV1 } from "./idle-inventory-auto-v1.js";
 import { idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
@@ -98,7 +98,7 @@ function advanceBloodMagic(state, seconds, context) {
     rebaserProgressionSecondesV1(rs, "progress", secondsPerCompletion);
     /*
      * Lu dans le code du jeu (build 1260, 2026-11-15 : BloodMagicController::updateBloodMagic) : l'Or du rituel est payé AU DÉBUT (barre à 0, premier tick) ; sans assez d'Or la barre ne bouge pas ; à la fin la barre
-     * repart de 0 sans report et le rituel suivant se paie à son tour. La durée est celle d'un nombre ENTIER de ticks (secondsPerCompletion). « Payé » = barre > 0. Une passe en formule : au plus 1 000 000 rituels.
+     * repart de 0 sans report et le rituel suivant se paie à son tour. La durée est celle d'un nombre ENTIER de ticks (secondsPerCompletion). « Payé » = barre > 0. Une passe en formule, sans plafond de rituels (le jeu n'en a pas : constantLevelGain).
      */
     let t = seconds, p = Math.max(0, num(rs.progress, 0)), completions = 0;
     if (p >= secondsPerCompletion - 1e-9) p = 0;   /* ancienne forme « barre pleine en attente d'Or » */
@@ -114,7 +114,7 @@ function advanceBloodMagic(state, seconds, context) {
       const dejaFaits = completions;
       const pleins = Math.floor((t + 1e-9) / secondsPerCompletion);
       const payables = Math.floor((or + 1e-9) / ritual.gold);
-      const n = Math.max(0, Math.min(pleins, payables, 1000000, limiteDefi - dejaFaits));
+      const n = Math.max(0, Math.min(pleins, payables, limiteDefi - dejaFaits));
       t = Math.max(0, t - n * secondsPerCompletion);
       or -= n * ritual.gold;
       completions += n;
@@ -1012,12 +1012,14 @@ function advanceTowerV1(state, seconds, context) {
     /* Dernier indice de la Bête (183) : LootDrop::checkITOPODSecret (étage 100, départ 0, premier kill de l'étage, joueur nu depuis le début de la visite ; idle-bete-secret-v1.js). d.killsOnFloor = kills déjà faits sur l'étage. */
     if (state.adventure && state.adventure.unlockFlags && state.adventure.unlockFlags.clue3Complete) beteItopodV1(state.adventure, d, floor, n, d.killsOnFloor);
     d.kills += n;
-    d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
-    const boosts = Math.floor(d.boostProgress);
-    /* Hors ligne le jeu ne donne des boosts qu'avec le filtre « Filter Boosts into Infinity Cube » (hasCubeFilter) : sans lui, aucun objet de boost (le gain direct en puissance du cube n'est pas repris : formule non vérifiée, voir le rapport). */
-    const boostsPermis = !horsLigneItopod || inventoryAutoEnvV1(state).filterBoostsIntoCube;
-    if (boosts > 0 && !boostsPermis) d.boostProgress -= boosts;
-    if (boosts > 0 && boostsPermis) {
+    /* Hors ligne (Character::adventureOfflineProgress du jeu, lu le 2026-11-16) : AUCUN objet de boost, ni tirage ; avec « Filter Boosts into Infinity Cube! » le jeu ajoute directement à la puissance et à la robustesse du cube capAttack[boost du palier] x kills / 8 x bonus des boosts / (diviseur x 2) (idleAdventureCubeDirectV1) ; sans le filtre, rien. */
+    if (horsLigneItopod) {
+      const envCube = inventoryAutoEnvV1(state);
+      if (envCube.filterBoostsIntoCube) idleAdventureCubeDirectV1(state.adventure, towerBoostStrengthV1(tier), n, envCube.boostCtx());
+    }
+    if (!horsLigneItopod) d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
+    const boosts = horsLigneItopod ? 0 : Math.floor(d.boostProgress);
+    if (boosts > 0) {
       d.boostProgress -= boosts;
       const types = ["power", "toughness", "special"];
       const forceBoost = towerBoostStrengthV1(tier);
