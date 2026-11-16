@@ -40,7 +40,7 @@ import { normalizeIdleNguState, idleNguBonuses } from "../src/idle-ngu-progressi
   assert.equal(mole.power, 120, "Mole Hammer : Base value 120, jamais un tirage aléatoire");
   // "A Regular Tie" publie une Base value (82) au-dessus de son plafond du niveau 0 (81.5) : ramenée au plafond.
   r = applyIdleAdventureActionV47(r.state, { action: "addItem", definitionId: "jake:tie", level: 0 }, {}, 1);
-  assert.equal(r.state.inventory.find((o) => o.definitionId === "jake:tie").toughness, 81.5);
+  assert.equal(r.state.inventory.find((o) => o.definitionId === "jake:tie").toughness, 82);
 }
 
 // Objet déjà possédé, créé à 0 avant le correctif : remonte à sa Base value au chargement.

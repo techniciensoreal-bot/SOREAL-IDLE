@@ -1550,7 +1550,7 @@
         {id:'hyperRegen',label:'Hyper Regen',icon:'💚',cooldown:35000},
         {id:'beastMode',label:'Beast Mode',icon:'🐲',cooldown:15000},
         {id:'megaBuff',label:'Mega Buff',icon:'🌟',cooldown:50000},
-        {id:'ohShit',label:'Oh Shit',icon:'🚨',cooldown:35000},
+        {id:'ohShit',label:'Oh Shit',icon:'🚨',cooldown:50000},
         {id:'move69',label:'Move 69',icon:'69',cooldown:3600000}
       ]);
 

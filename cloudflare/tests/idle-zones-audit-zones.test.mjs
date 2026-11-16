@@ -87,7 +87,7 @@ assert.deepEqual([zone("westworld").p, zone("westworld").t], [2.65e27, 8.3e26]);
   assert.deepEqual(a.normal.boosts, [{ strength: 10000, chance: 1e-8, cap: 0.17 }, { strength: 10000, chance: 1e-8, cap: 0.17 }]);
   assert.deepEqual(a.normal.equipment, [{ chance: 4e-9, cap: 0.05, set: "pirate", level: 1 }]);
   assert.deepEqual(a.boss.equipment, [{ chance: 1.2e-8, cap: 0.15, set: "pirate", level: 1 }]);
-  assert.equal(a.boss.specials, undefined, "taux \"chance ?\" non publiés -- aucun tirage inventé");
+  assert.equal(a.boss.specials.length, 2, "Aethereal Sea : taux lus dans le code du jeu (2026-11-16)");
 }
 
 // 6. Le snapshot expose bien ces champs aux clients.

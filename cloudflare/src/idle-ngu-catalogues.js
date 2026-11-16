@@ -352,7 +352,8 @@ export function challengePermanentBonuses(state){
   const noEquipmentSadistic=k(s,"noEquipment");
   return {
     /* Basic : +5 % par complétion (+10 % la première) en Normal, +10 % par complétion en Evil. */
-    adventureStatsMultiplier:1+basic*0.05+(basic>0?0.10:0)+k(e,"basic")*0.10,
+    /* Lu dans le jeu (AllChallengesController::adventureBonus, 2026-11-16) : (1 + 0,05 c + 0,1 si c >= 1) x (1 + 0,1 x complétions Evil). */
+    adventureStatsMultiplier:(1+basic*0.05+(basic>0?0.10:0))*(1+k(e,"basic")*0.10),
     boostRecycleChance:clamp(basic*0.10,0,1),
     augmentationPowerMultiplier:1+noAugs*0.25,
     /* No Augs : +10 % (1re, Normal), Evil +5 % par complétion et +25 % supplémentaires à la dernière. */
@@ -391,6 +392,8 @@ export function challengePermanentBonuses(state){
     /* 100 Levels Normal : +20 % de vitesse Wandoos permanente par complétion. */
     wandoosSpeedChallengeMultiplier:1+k(c,"hundredLevels")*0.20,
     /* 24 Hour : +10 % (Normal), +4 % (Evil), +2 % (Sadistic) d'EXP des boss 24+ par complétion. */
+    /* Complétions NORMALES du 24 Hour : seules elles comptent pour l'EXP des boss (BossController::rewardExp, lu dans le jeu, 2026-11-16). */
+    h24NormalCompletions:k(c,"twentyFourHours"),
     bossExpPct:k(c,"twentyFourHours")*0.10+k(e,"twentyFourHours")*0.04+k(s,"twentyFourHours")*0.02,
     /* No Equipment Sadistic : +2 % d'Idle Attack par complétion, +10 % à la dernière (1,5 x 1,2 = 1,8). */
     idleAttackBonus:noEquipmentSadistic*0.02+(noEquipmentSadistic>=5?0.10:0),

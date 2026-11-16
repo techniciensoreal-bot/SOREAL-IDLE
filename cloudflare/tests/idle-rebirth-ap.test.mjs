@@ -11,6 +11,7 @@ function apApres(secondes) {
   return (r.state || r).currencies.ap;
 }
 assert.equal(apApres(1800), 0, "moins d'une heure : aucun AP");
-assert.equal(apApres(3600), 7, "1 h = floor(3600 / 500)");
-assert.equal(apApres(5000), 10);
+assert.equal(apApres(3600), 0, "1 h = (3600 - 3600) / 500 (lu dans le jeu : Rebirth::awardAP)");
+assert.equal(apApres(7200), 7, "2 h = floor(3600 / 500)");
+assert.equal(apApres(5000), 2);
 console.log("idle-rebirth-ap ok");

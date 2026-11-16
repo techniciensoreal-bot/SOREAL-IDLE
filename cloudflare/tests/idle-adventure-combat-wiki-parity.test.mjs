@@ -39,7 +39,7 @@ for (const [id, cd] of [["block", 10000], ["defensiveBuff", 45000], ["heal", 150
   assert.ok(new RegExp("id:'" + id + "'[^}]*cooldown:" + cd + "}").test(defense), "Skills : cooldown " + id + " = " + cd);
 }
 const avances = block(ui, "const IDLE_ADVENTURE_ADVANCED_SKILLS_V4=", "]);");
-for (const [id, cd] of [["paralyze", 15000], ["hyperRegen", 35000], ["beastMode", 15000], ["megaBuff", 50000], ["ohShit", 35000], ["move69", 3600000]]) {
+for (const [id, cd] of [["paralyze", 15000], ["hyperRegen", 35000], ["beastMode", 15000], ["megaBuff", 50000], ["ohShit", 50000], ["move69", 3600000]]) {
   assert.ok(new RegExp("id:'" + id + "'[^}]*cooldown:" + cd + "}").test(avances), "Skills : cooldown " + id + " = " + cd);
 }
 

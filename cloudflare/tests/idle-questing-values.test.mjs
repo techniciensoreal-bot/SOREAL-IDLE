@@ -82,7 +82,7 @@ assert.deepEqual(
 
 // --- Catalogues : coût / plafond / clé (page Perk Points) ---
 const perks = {
-  87: [30000, 1, { questMinorBaseQp: 2 }],
+  87: [30000, 1, { questMinorBaseAlways: 2 }],
   89: [400, 50, { qpEarningsPct: 0.002 }],
   90: [200, 30, { questDropsPct: 0.5 }],
   91: [25000, 1, { questIdleDividerReduction: 1 }],
@@ -172,8 +172,8 @@ assert.deepEqual([r(etat(), { major: true }).qp, r(etat(), { major: true }).ap],
 assert.deepEqual([r(etat(), { major: true, usedIdle: true }).qp, r(etat(), { major: true, usedIdle: true }).ap], [50, 50]);
 assert.deepEqual([r(etat(), { major: false }).qp, r(etat(), { major: false, usedIdle: true }).qp], [20, 10], "Minor : 20 % de la Major");
 assert.equal(r(etat({ 87: 1 }), { major: false, usedIdle: true }).ap, 12, "Arbitrary Points : 12 avec Not So Minor Anymore");
-assert.equal(r(etat({}, {}, { 101: 10 }), { major: true }).ap, 120, "Arbitrary Points : 120 (active major with wish bonus)");
-assert.equal(r(etat({}, {}, { 19: 10, 62: 10 }), { major: true }).qp, 130, "souhaits 19/62 : +30 % sur la récompense active");
+assert.equal(r(etat({}, {}, { 101: 10 }), { major: true }).ap, 100, "Arbitrary Points : 100 = 50 x 2 (lu dans le jeu : majorQuestAPReward = 50, sans les bonus de base)");
+assert.equal(r(etat({}, {}, { 19: 10, 62: 10 }), { major: true }).qp, 132, "souhaits 19/62 : produit 1,2 x 1,1 sur la récompense active (lu dans le jeu)");
 assert.equal(r(etat({}, {}, { 19: 10, 62: 10 }), { major: true, usedIdle: true }).qp, 50, "sans effet en idle");
 assert.equal(r(etat({}, {}, { 47: 10 }), { major: true, usedIdle: true }).qp, 60, "souhait 47 : +2 %/niveau");
 assert.equal(r(etat({}, {}, {}, { sets: { mobster: true } }), { major: true, usedIdle: true }).qp, 57, "Mobster : +15 %");

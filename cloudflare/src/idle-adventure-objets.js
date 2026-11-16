@@ -31,7 +31,7 @@ import { IDLE_ADVENTURE_ZONES } from "./idle-adventure-zones.js";
  * "Max stat at lvl 0" de 81.5 ; cleanItem() ramène la valeur au plafond.
  */
 const ITEM_BASE_VALUE_PT_V1=Object.freeze({
-  "training:weapon":[3,0],"training:head":[0,1],"training:chest":[0,1],"training:legs":[0,1],"training:boots":[0,1],"sewers:weapon":[2,0],
+  "training:weapon":[3,0],"training:head":[0,1],"training:chest":[0,1],"training:legs":[0,1],"training:boots":[0,1],"sewers:weapon":[4,0],
   "sewers:head":[0,1],"sewers:chest":[0,3],"sewers:legs":[0,3],"sewers:boots":[0,3],"sewers:amulet":[1,1],"forest:weapon":[20,0],
   "forest:head":[0,8],"forest:chest":[0,8],"forest:legs":[0,8],"forest:boots":[0,8],"forest:ring":[2,2],"cave:weapon":[120,0],
   "cave:head":[0,28],"cave:chest":[0,28],"cave:legs":[0,28],"cave:boots":[0,28],"cave:ring":[2,2],"hsb:weapon":[305,0],
@@ -84,7 +84,7 @@ const ITEM_BASE_VALUE_PT_V1=Object.freeze({
   "magicBarBarAccessory":[50000,50000],"ascendedX5Pendant":[400000,400000],"emperorLooty":[300000,300000],"ascendedX6Pendant":[20000000,20000000],"galacticHeraldLooty":[30000000,30000000],"ascendedX7Pendant":[400000000,400000000],
   "supremeIntelligenceLooty":[500000000,500000000],"beretta9mm":[1400000000,70000000],"edgyMagicite":[666000,666000],"creepyDoll":[930000,930000],"theExponential":[2800000,2800000],"rushmoreNose":[5000000,5000000],
   "throOdignslug":[17000000,17000000],"linkCable":[28000000,28000000],"handCursor":[35000000,35000000],"radMixtape":[100000000,100000000],"ordinaryCalculator":[250000,250000],"animeFigurine":[250000,250000],
-  "theD20":[250000,250000],"theD8":[250000,250000],"animeBodypillow":[500000,500000],"redMeeple":[500000,500000],"bagOfTrash":[500000,500000],"heartShapedPanties":[666666,666666],
+  "theD20":[250000,250000],"theD8":[300000,250000],"animeBodypillow":[500000,500000],"redMeeple":[500000,500000],"bagOfTrash":[500000,500000],"heartShapedPanties":[666666,666666],
   "violinCase":[7000000,7000000],"molotovCocktail":[10000000,10000000],"godmothersRing":[15000000,15000000],"godmothersWand":[22000000,22000000],"leftFairyWing":[60000000,60000000],"theJoker":[66600000,66600000],
   "antlersExile":[80000000,0],"tentacleExile":[110000000,100000000],"skipCard":[120000000,120000000],"antennaeExile":[100000000,100000000],"blackLotus":[150000000,150000000],"busterExile":[250000000,250000000],
   "theCricket":[2100000000,90000000],"evilRubberDucky":[225000000,225000000],"gasGiant":[290000000,290000000],"carbonRod":[400000000,400000000],"kleinBottle":[380000000,380000000],"alienBugNest":[456000000,456000000],

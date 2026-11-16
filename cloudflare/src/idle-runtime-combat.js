@@ -490,9 +490,16 @@ export function definirCombatBossSorealIdle(
  * d'index 23 et plus (boss 24+) reçoivent ce facteur en plus du multiplicateur d'XP.
  */
 export function facteurExpBossPerkSorealIdle_(bonus, indexBoss) {
-  return indexBoss >= 23
-    ? Math.max(1, nombreSorealIdle_(bonus && bonus.bossExpMultiplierFromPerks, 1))
-    : 1;
+  if (indexBoss < 23) return 1;
+  /*
+   * Lu dans le jeu (BossController::rewardExp, build 1260, 2026-11-16) : base = max((boss - 13) / 10, 1) + 1 dès la 1re complétion NORMALE du 24 Hour,
+   * x (1 + 0,02 x complétions normales), x facteur de l'atout « Bonus Boss Exp! ». La table de référence ne porte que la partie entière de la base.
+   */
+  const c = Math.max(0, Math.floor(nombreSorealIdle_(bonus && bonus.bossH24NormalCompletions, 0)));
+  const exacte = Math.max((indexBoss - 13) / 10, 1);
+  const entiere = Math.max(1, Math.floor(exacte));
+  const perk = Math.max(1, nombreSorealIdle_(bonus && bonus.bossExpMultiplierFromPerks, 1));
+  return ((exacte + (c >= 1 ? 1 : 0)) * (1 + 0.02 * c) / entiere) * perk;
 }
 
 export function nukerBossSorealIdle(

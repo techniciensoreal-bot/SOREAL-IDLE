@@ -663,16 +663,16 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "62f5c3cda1d40d12"
+   "empreinte": "c65078f44c5451ab"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.83815340063e+73,
+   "pv": 1.83815225272e+73,
    "vaincus": null
   },
   "combat": {
    "attaque": 1.38454200099e+60,
-   "defense": 7.30589142239e+59,
+   "defense": 7.30587367845e+59,
    "pvMax": 3.02096690182e+73
   },
   "systemes": {
@@ -779,7 +779,7 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "5187c77a9493b411"
+   "empreinte": "1ab5257fe29a3d95"
   },
   "boss": {
    "actuel": "Souris Fantômes",
@@ -788,7 +788,7 @@
   },
   "combat": {
    "attaque": 1.44881008248e+60,
-   "defense": 7.64501845859e+59,
+   "defense": 7.64499989101e+59,
    "pvMax": 3.92095432554e+73
   },
   "systemes": {

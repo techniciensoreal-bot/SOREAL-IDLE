@@ -154,21 +154,30 @@ export function idleQuestBonusTotalsV1(state) {
     if (level) addKeys(quirk.bonus, level);
   }
   const wishTracks = idleWishTracksActifsV1(state);
+  /* Lu dans le jeu (BeastQuestController::allActiveModifier) : 2 x souhait 19 x souhait 62, un PRODUIT. */
+  let activeRewardProduct = 1;
   for (const wish of IDLE_WISHES_CATALOG_V1) {
     const level = Math.max(0, Math.min(wish.levels, I(wishTracks[String(wish.id)]?.level)));
-    if (level) addKeys(wish.bonus, level);
+    if (level) {
+      addKeys(wish.bonus, level);
+      if (wish.bonus && wish.bonus.questActiveRewardPct) activeRewardProduct *= 1 + N(wish.bonus.questActiveRewardPct) * level;
+    }
   }
   return {
     /* Lu dans le jeu (BeastQuestController, build 1260, 2026-11-15) : les bonus de base (souhaits 101/102, atouts 147/148) ne s'ajoutent qu'à partir de la difficulté Sadistic. */
     majorBaseBonus: state?.difficulty === "extreme" ? totals.questMajorBaseQp || 0 : 0,
-    minorBaseBonus: state?.difficulty === "extreme" ? totals.questMinorBaseQp || 0 : 0,
+    /* Lu dans le jeu (BeastQuestController::minorQuestReward) : l'atout 87 (+2) s'ajoute dès qu'il est possédé, quelle que soit la difficulté ; l'atout 148 et le souhait 102 seulement à partir de Sadistic ; la base mineure totale (10 + bonus) est plafonnée à 16. */
+    minorBaseBonus: Math.min(6, (totals.questMinorBaseAlways || 0) + (state?.difficulty === "extreme" ? totals.questMinorBaseQp || 0 : 0)),
     handInBonusLevel: totals.questHandinReduction || 0,
     idleDividerReduction: totals.questIdleDividerReduction || 0,
     questDropsPct: totals.questDropsPct || 0,
     trulyIdle: (totals.questTrulyIdle || 0) > 0,
     fixedItems: (totals.questFixedItems || 0) > 0,
     questQpPct: totals.questQpPct || 0,
-    activeRewardPct: totals.questActiveRewardPct || 0
+    activeRewardPct: totals.questActiveRewardPct || 0,
+    activeRewardMultiplier: activeRewardProduct,
+    /* Perk 87 possédé : +2 à la base mineure des AP (plafond 13). */
+    minorApBonus: (totals.questMinorBaseAlways || 0) > 0 ? 2 : 0
   };
 }
 
@@ -252,7 +261,7 @@ export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
     ? IDLE_QUEST_BASE_REWARD_MAJOR_V1 + bonus.majorBaseBonus
     : IDLE_QUEST_BASE_REWARD_MINOR_V1 + bonus.minorBaseBonus;
   const activeFactor = usedIdle ? 1 : IDLE_QUEST_ACTIVE_REWARD_FACTOR_V1;
-  const activeWish = usedIdle ? 1 : 1 + bonus.activeRewardPct;
+  const activeWish = usedIdle ? 1 : bonus.activeRewardMultiplier;
   const data = state?.systems?.questing?.data || {};
   const maxedCount = IDLE_QUEST_ITEMS_V1.filter(x => data.maxedItems && data.maxedItems[x.zone]).length;
   const qpMultiplier =
@@ -271,7 +280,9 @@ export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
   /* Beast Butter : x2, x2,2 avec le Blue Heart (set) ("All consumable give 10% better effects"). */
   const butterFactor = butter ? IDLE_QUEST_BUTTER_FACTOR_V1 * idleHeartsConsumableFactorV1(state) : 1;
   const qp = Math.floor(base * activeFactor * activeWish * qpMultiplier * butterFactor);
-  const ap = Math.floor(base * activeFactor * activeWish * Math.max(0, N(env?.apEarningsMultiplier, 1)));
+  /* Lu dans le jeu (majorQuestAPReward = 50 ; minorQuestAPReward = 10, +2 avec l'atout 87, plafonné à 13) : les bonus de base du QP (souhaits 101/102, atouts 147/148) ne comptent pas pour les AP. */
+  const apBase = major ? 50 : Math.min(13, 10 + bonus.minorApBonus);
+  const ap = Math.floor(apBase * activeFactor * activeWish * Math.max(0, N(env?.apEarningsMultiplier, 1)));
   return { qp, ap, base, activeFactor, activeWish, qpMultiplier, butter: Boolean(butter) };
 }
 

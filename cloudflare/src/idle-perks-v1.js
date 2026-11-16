@@ -206,7 +206,7 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
    * page "Perk Points". Clés `quest*` relues par idleQuestBonusTotalsV1 ; "Better QP Rewards!"
    * rejoint qpEarningsPct, le même compartiment "QP rewards" que Fibonacci 233.
    */
-  { id: 87, name: "Not So Minor Anymore", effect: "The base Minor Quest reward modifier is increased by 2 with this perk! Normally this value is 10.", cost: 30000, cap: 1, bonus: { questMinorBaseQp: 2 } },
+  { id: 87, name: "Not So Minor Anymore", effect: "The base Minor Quest reward modifier is increased by 2 with this perk! Normally this value is 10.", cost: 30000, cap: 1, bonus: { questMinorBaseAlways: 2 } },
   { id: 89, name: "Better QP Rewards!", effect: "Each level in this Perk will improve QP reward by 0.2%!", cost: 400, cap: 50, bonus: { qpEarningsPct: 0.002 } },
   { id: 90, name: "Improved Quest Looting", effect: "Each level in this Perk will improve the drop chance for Quest Items by 0.5%", cost: 200, cap: 30, bonus: { questDropsPct: 0.5 } },
   { id: 91, name: "Advanced Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by 1! Normally, this divider is 8.", cost: 25000, cap: 1, bonus: { questIdleDividerReduction: 1 } },
@@ -250,7 +250,7 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
     effect: "Receive a 1000% Bonus to Attack/Defense, 15% to Adventure Stats, 20% Aug Speed bonus, and 20% NGU Speed Bonus",
     cost: 500000,
     cap: 1,
-    bonus: { statPct: 10.0, adventureStatsPct: 0.15, augmentSpeedPct: 0.2, nguSpeedEnergyPct: 0.2, nguSpeedMagicPct: 0.2 }
+    bonus: { statPct: 9.0 /* le jeu applique x10 (stat6Bonus), soit 1 + 9 : lu dans le code, 2026-11-16 */, adventureStatsPct: 0.15, augmentSpeedPct: 0.2, nguSpeedEnergyPct: 0.2, nguSpeedMagicPct: 0.2 }
   },
   /* Questing (2026-09-23) : remise d'objets de quête et récompenses de base, page "Perk Points". */
   { id: 145, name: "Bonus Quest Handin Progess I", effect: "You can now hand in higher level Quest Items for added progress. The formula is 1 + (level/10) progress, rounded down.", cost: 1500, cap: 1, bonus: { questHandinReduction: 1 } },
@@ -385,7 +385,8 @@ function perkBonusPairesV1(perk) {
   return p;
 }
 /* Bonus en pourcentage dont les atouts DISTINCTS se multiplient (niveaux d'un même atout additionnés) : voir perkBonusesV1. */
-export const PERK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct","qpEarningsPct"]);
+export const PERK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct","qpEarningsPct","r3PowerPct","r3BarsPct","r3CapPct","nguSpeedEnergyPct","nguSpeedMagicPct","wishSpeedPct","dropChancePct"]);
+/* Ressource 3, vitesse des NGU, vitesse des souhaits, taux de drop : produit des atouts, lu dans le code du jeu (build 1260, 2026-11-16 : ItopodPerkController::totalRes3PowerBonus, totalEnergyNGUBonus, totalWishSpeedBonus, totalDropChanceBonus ; chaque atout vaut 1 + niveau x effet par niveau et les atouts se multiplient). */
 export function perkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
   const totals = {};
@@ -442,7 +443,7 @@ export function perkBonusesV1(levelsById) {
     adventurePowerFlat: totals.adventurePowerFlat || 0,
     adventureToughnessFlat: totals.adventureToughnessFlat || 0,
     adventureStatsMultiplier: produits.adventureStatsPct,
-    dropChanceMultiplier: 1 + (totals.dropChancePct || 0),
+    dropChanceMultiplier: produits.dropChancePct,
     statMultiplier: produits.statPct,
     energyPowerMultiplier: produits.energyPowerPct,
     energyBarsMultiplier: produits.energyBarsPct,
@@ -451,8 +452,8 @@ export function perkBonusesV1(levelsById) {
     magicBarsMultiplier: produits.magicBarsPct,
     magicCapMultiplier: produits.magicCapPct,
     boostPowerMultiplier: boostPowerProduct,
-    nguSpeedEnergyMultiplier: 1 + (totals.nguSpeedEnergyPct || 0),
-    nguSpeedMagicMultiplier: 1 + (totals.nguSpeedMagicPct || 0),
+    nguSpeedEnergyMultiplier: produits.nguSpeedEnergyPct,
+    nguSpeedMagicMultiplier: produits.nguSpeedMagicPct,
     adventureGoldMultiplier: 1 + (totals.adventureGoldPct || 0),
     seedYieldMultiplier: 1 + (totals.seedYieldPct || 0),
     lootGoblinChance: Math.min(1, totals.lootGoblinChancePct || 0),
@@ -489,10 +490,10 @@ export function perkBonusesV1(levelsById) {
     ironPillMultiplier: (1 + (totals.ironPillA || 0)) * (1 + (totals.ironPillB || 0)),
     /* Perk 93 : -0,1 % par niveau de temps de respawn (part restante, multiplicative). */
     respawnRemaining: Math.max(0, 1 - (totals.respawnPct || 0)),
-    r3PowerMultiplier: 1 + (totals.r3PowerPct || 0),
-    r3BarsMultiplier: 1 + (totals.r3BarsPct || 0),
-    r3CapMultiplier: 1 + (totals.r3CapPct || 0),
-    wishSpeedMultiplier: 1 + (totals.wishSpeedPct || 0),
+    r3PowerMultiplier: produits.r3PowerPct,
+    r3BarsMultiplier: produits.r3BarsPct,
+    r3CapMultiplier: produits.r3CapPct,
+    wishSpeedMultiplier: produits.wishSpeedPct,
     wishMinTimeReductionSeconds: totals.wishMinTimeSeconds || 0,
     augmentSpeedMultiplier: 1 + (totals.augmentSpeedPct || 0),
     hackMilestoneReduction: Object.fromEntries(Object.entries(totals).filter(([k]) => k.startsWith("hackReduce_")).map(([k, v]) => [k.slice(11), v]))

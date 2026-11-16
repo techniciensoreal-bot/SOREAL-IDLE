@@ -122,7 +122,7 @@ export function idleHeartsBuyV1(state, itemId, deps) {
   if (cost == null) throw new Error("OBJET_AU_MAXIMUM");
   if (N(state.currencies?.ap, 0) < cost) throw new Error("AP_INSUFFISANT");
   if (!state.adventure || typeof state.adventure !== "object") throw new Error("AVENTURE_INDISPONIBLE");
-  const objet = deps.createItem(heart.id, 0);
+  const objet = deps.createItem(heart.id, 10) /* lu dans le jeu : ArbitraryController::buyHeartAP -> makeLevelledLoot(id, 10), build 1260, 2026-11-16 */;
   objet.id = `i${Math.max(1, I(state.adventure.serial, 1))}`;
   state.adventure.serial = Math.max(1, I(state.adventure.serial, 1)) + 1;
   const ajoute = deps.addItem(state.adventure, objet);

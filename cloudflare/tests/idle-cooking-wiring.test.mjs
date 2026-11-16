@@ -95,7 +95,7 @@ assert.equal(cooking.data.bankAnchorAt, t0, "la minuterie démarre au déblocage
   assert.ok(Math.abs(idleNguBonuses(synced).xpMultiplier - base * 2) < 1e-9 * base);
   /* Plafond de 300 % même sur une sauvegarde corrompue. */
   avec.systems.cooking.data.totalExpGainPct = 999;
-  assert.equal(syncIdleNguState(avec, ctx, t0 + 3 * H).bonuses.cookingExp, 3);
+  assert.equal(syncIdleNguState(avec, ctx, t0 + 3 * H).bonuses.cookingExp, 2);
 }
 
 /* Persistance au Rebirth : total, repas et minuterie conservés. */

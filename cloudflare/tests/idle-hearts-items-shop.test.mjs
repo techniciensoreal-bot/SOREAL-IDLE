@@ -31,7 +31,7 @@ const FICHES = [
   ["heartPurple", 212, 225000, 100, 1000, 69, [["beardSpeedPct", 40, 40, 80], ["dropChancePct", 40, 40, 80]]],
   ["heartOrange", 293, 225000, 100, 1000, 69, [["goldDropsPct", 300, 300, 600], ["questDropsPct", 5, 5, 10]]],
   ["heartGrey", 297, 225000, 1000000, 1000000, 1000000, [["r3CapPct", 20, 20, 40], ["r3BarsPct", 20, 20, 40]]],
-  ["heartPink", 344, 225000, 3000000, 3000000, 3000000, [["daycareSpeedPct", 10, 10, 20], ["wishSpeedPct", 10, 10, 20]]],
+  ["heartPink", 344, 175000, 3000000, 3000000, 3000000, [["daycareSpeedPct", 10, 10, 20], ["wishSpeedPct", 10, 10, 20]]],
   ["heartRainbow", 390, 500000, 100, 100, 69, [["cookingPct", 0, 69000000, 138000000], ["r3BarsPct", 100, 100, 200], ["seedGainPct", 30, 30, 60]]]
 ];
 
@@ -83,7 +83,7 @@ assert.equal(IDLE_SELLOUT_SHOP_CATALOG_V1.filter((x) => x.category === "items").
   assert.equal(s.currencies.ap, 275000, "225 000 AP débités");
   const coeur = s.adventure.inventory.find((x) => x.definitionId === "heartRed");
   assert.ok(coeur, "My Red Heart livré dans l'inventaire");
-  assert.equal(coeur.level, 0);
+  assert.equal(coeur.level, 10, "niveau 10 à l achat (lu dans le jeu)");
   assert.equal(coeur.wikiItemId, 119);
   assert.deepEqual([coeur.power, coeur.toughness, coeur.special], [69, 69, 0], "Base value : 69 / 69 / Drop Chance 0 %");
   // Deuxième achat autorisé (pour fusionner vers le niveau 100).

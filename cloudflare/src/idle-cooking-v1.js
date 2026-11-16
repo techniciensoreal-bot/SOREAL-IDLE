@@ -84,8 +84,9 @@ export const IDLE_COOKING_V1 = Object.freeze({
    * Bread Set)". On reproduit le comportement réel (bugué), comme ailleurs
    * dans SOREAL (ex. bug des 5000 Seeds du Daily Spin).
    */
-  bankCapHours: 24.5,
-  bankCapBreadHours: 25.5,
+  /* Lu dans le jeu (CookingController::maxBankedtime = 172800 s, build 1260, 2026-11-16) : 48 h, avec ou sans le set Pain ; le « bug des 24,5 h » du wiki n'existe pas dans le code. */
+  bankCapHours: 48,
+  bankCapBreadHours: 48,
   bankCapDesignHours: 48,
   /* Intro : "permanently increase exp gains, up to a maximum of 300%". */
   totalExpGainMaxPct: 300
@@ -285,7 +286,8 @@ export function idleCookingEfficiencyV1(meal, levels, adventureOrMask) {
   const mask = Array.isArray(adventureOrMask) ? adventureOrMask : masqueSlots(adventureOrMask);
   const lv = levels.map((l, i) => (mask[i] ? l : 0));
   const opt = idleCookingOptimalScoreV1(meal, mask);
-  return opt > 0 ? idleCookingScoreV1(meal, lv, mask) / opt : 0;
+  /* Lu dans le jeu (CookingController::getCurPercentofMaxScore) : efficacité bornée à [0,01 ; 1]. */
+  return opt > 0 ? clamp(idleCookingScoreV1(meal, lv, mask) / opt, 0.01, 1) : 0.01;
 }
 
 /* ------------------------------------------------------------ équipement -- */
@@ -327,7 +329,8 @@ export function idleCookingGearV1(adventure) {
 
 export function idleCookingTotalBonusesV1(adventure) {
   const gear = idleCookingGearV1(adventure);
-  const gearMultiplier = Math.pow(C.gearMultiplierPerPiece, gear.count);
+  /* Lu dans le jeu (CookingController::invCookCheck) : facteur d'équipement plafonné à 1,5. */
+  const gearMultiplier = Math.min(1.5, Math.max(1, Math.pow(C.gearMultiplierPerPiece, gear.count)));
   const spaceSet = Boolean(adventure?.completedSets?.space);
   const mask = masqueSlots(adventure);
   const multiplier =
@@ -374,13 +377,15 @@ export function idleCookingMealExpGainPctV1(efficiency, totalBonusesMultiplier, 
 
 function synchroniserBonusExp(state, data) {
   if (!state.bonuses || typeof state.bonuses !== "object") return;
-  state.bonuses.cookingExp = clamp(num(data.totalExpGainPct, 0), 0, C.totalExpGainMaxPct) / 100;
+  /* Lu dans le jeu (CookingController::totalExpBonus) : le multiplicateur est borné à [1 ; 3], soit au plus +200 %. */
+  state.bonuses.cookingExp = Math.min(2, clamp(num(data.totalExpGainPct, 0), 0, C.totalExpGainMaxPct) / 100);
 }
 
 function nouveauRepas(data, rng) {
   data.meal = generateIdleCookingMealV1(rng);
   data.mealNumber = Math.max(0, int(data.mealNumber, 0)) + 1;
-  data.levels = new Array(C.ingredientCount).fill(0);
+  /* Lu dans le jeu (CookingController::assignNewDish) : les niveaux d'ingrédients ne sont jamais remis à zéro d'un plat au suivant. */
+  if (!Array.isArray(data.levels) || data.levels.length !== C.ingredientCount) data.levels = new Array(C.ingredientCount).fill(0);
 }
 
 /*

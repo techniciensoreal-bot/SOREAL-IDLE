@@ -597,9 +597,9 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
     :Math.max(1,num(options.forceNumber,1));
   const committedNumber=forced===null?rb.nextNumber:forced;
 
-  /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth ». */
+  /* Page Arbitrary Points : « Rebirths over 1 hour long : 1 AP pour chaque 500 s de Rebirth » ; le jeu compte (secondes - 3600) / 500. */
   if(!options.challengeId&&runSeconds>=3600){
-    state.currencies.ap+=apWithBonusV1(state,Math.floor(runSeconds/500));
+    state.currencies.ap+=apWithBonusV1(state,Math.floor(Math.max(0,Math.floor(runSeconds)-3600)/500)); /* lu dans le jeu (Rebirth::awardAP) : (secondes - 3600) / 500, division entière */
   }
 
   /*
@@ -679,8 +679,8 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
 
   const perkBankBonuses=perkBonusesV1(idlePerkNiveauxV1(state));
   const quirkBankBonuses=quirkBonusesV1(idleQuirkNiveauxV1(state));
-  const tmBankPct=Math.max(0,(perkBankBonuses.tmBankMultiplier-1)+(quirkBankBonuses.tmBankMultiplier-1));
-  const beardBankPct=Math.max(0,(perkBankBonuses.beardBankMultiplier-1)+(quirkBankBonuses.beardBankMultiplier-1));
+  const tmBankPct=Math.min(0.75,Math.max(0,(perkBankBonuses.tmBankMultiplier-1)+(quirkBankBonuses.tmBankMultiplier-1))); /* plafond 0,75 lu dans le jeu */
+  const beardBankPct=Math.min(0.75,Math.max(0,(perkBankBonuses.beardBankMultiplier-1)+(quirkBankBonuses.beardBankMultiplier-1))); /* plafond 0,75 lu dans le jeu */
   state.bank.timeMachineSpeed=Math.floor(tmSpeedLevelEnd*tmBankPct);
   state.bank.timeMachineGold=Math.floor(tmGoldLevelEnd*tmBankPct);
   state.bank.beards=Math.floor(beardTempLevelEnd*beardBankPct);
@@ -692,7 +692,7 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
    * Même lecture que Time Machine : pourcentage cumulé du niveau de fin de run,
    * par compétence d'AT ; state.bank.advancedTraining = total retenu.
    */
-  const atBankPct=Math.max(0,(perkBankBonuses.atBankMultiplier-1)+(quirkBankBonuses.atBankMultiplier-1));
+  const atBankPct=Math.min(0.75,Math.max(0,(perkBankBonuses.atBankMultiplier-1)+(quirkBankBonuses.atBankMultiplier-1))); /* plafond 0,75 lu dans le jeu */
   const atBanked={};
   for(const [id,tr] of Object.entries(state.systems.advancedTraining?.data?.tracks||{})){
     atBanked[id]=options.clearBanks?0:Math.floor(Math.max(0,num(tr.tempLevel,0))*atBankPct+1e-9);

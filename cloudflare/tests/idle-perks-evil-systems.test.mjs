@@ -11,9 +11,10 @@ import { normalizeIdleNguState, idleNguBonuses, applyIdleNguAction } from "../sr
 const b = perkBonusesV1({ 84: 5, 85: 3 });
 assert.equal(b.ironPillMultiplier, 26 * 4, "26x au niveau 5 de 84, 4x au niveau 3 de 85");
 assert.ok(Math.abs(perkBonusesV1({ 93: 100 }).respawnRemaining - 0.9) < 1e-12);
-assert.ok(Math.abs(perkBonusesV1({ 95: 100, 98: 50 }).r3PowerMultiplier - (1 + 1 + 0.5)) < 1e-12);
+/* produit des atouts (lu dans le jeu, 2026-11-16) */
+assert.ok(Math.abs(perkBonusesV1({ 95: 100, 98: 50 }).r3PowerMultiplier - 2 * 1.5) < 1e-12);
 assert.ok(Math.abs(perkBonusesV1({ 133: 100 }).r3BarsMultiplier - 1.5) < 1e-12);
-assert.ok(Math.abs(perkBonusesV1({ 108: 50, 155: 100 }).wishSpeedMultiplier - (1 + 0.1 + 0.1)) < 1e-12);
+assert.ok(Math.abs(perkBonusesV1({ 108: 50, 155: 100 }).wishSpeedMultiplier - 1.1 * 1.1) < 1e-12);
 assert.equal(perkBonusesV1({ 109: 50, 110: 50 }).wishMinTimeReductionSeconds, 2400);
 assert.deepEqual(perkBonusesV1({ 113: 2, 219: 3 }).hackMilestoneReduction, { adventureStats: 2, magicNguSpeed: 3 });
 assert.equal(idlePerkByIdV1(144).bonus.augmentSpeedPct, 0.2);

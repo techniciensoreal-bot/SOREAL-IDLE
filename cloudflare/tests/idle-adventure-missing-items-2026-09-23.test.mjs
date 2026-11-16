@@ -125,7 +125,7 @@ assert.deepEqual(ligne("halloweenies", "boss", "emperorLooty"), { id: "emperorLo
 assert.deepEqual(ligne("netherregions", "boss", "galacticHeraldLooty"), { id: "galacticHeraldLooty", chance: 2.4e-8, cap: 0.12, level: 8 });
 // lignes au taux non publié / inexpliqué : jamais tirées
 assert.equal(ligne("chocolate", "boss", "ascendedX3Pendant"), undefined, "\"0.1% + 0.0000001% base chance\" : notation inexpliquée");
-assert.equal(P.aethereansea.boss.specials, undefined, "\"chance ?\" en Aethereal Sea");
+assert.deepEqual(P.aethereansea.boss.specials, [{ id: "ascendedX6Pendant", chance: 4e-8, cap: 0.12, level: 16 }, { id: "galacticHeraldLooty", chance: 1.8e-8, cap: 0.12, level: 16 }], "Aethereal Sea : taux lus dans le code du jeu (2026-11-16)");
 for (const [zone, profil] of Object.entries(P)) for (const pool of ["normal", "boss"]) for (const d of profil[pool]?.specials || []) {
   for (const id of d.ids || [d.id]) assert.ok(S[id], `${zone}.${pool} : ${id} défini`);
 }

@@ -413,8 +413,8 @@ export const IDLE_CARDS_WISH_EFFECTS_V1 = Object.freeze({
   225: Object.freeze({ levels: 10, name: "I wish Cards Spawned Faster VI", bonus: { cardSpeedPct: 0.003 } }),
   227: Object.freeze({ levels: 2, name: "I wish I had BEEFY Cards III", bonus: { cardMayoMax: 1 } }),
   228: Object.freeze({ levels: 2, name: "I wish I didn't have WIMPY cards III", bonus: { cardMayoMin: 1 } }),
-  229: Object.freeze({ levels: 5, name: "I wish my chonkers were CHONKIER", bonus: { chonkerMayoMax: 1 } }),
-  230: Object.freeze({ levels: 5, name: "I wish my chonkers were LESS NOT CHONKIER", bonus: { chonkerMayoMin: 1 } })
+  229: Object.freeze({ levels: 5, name: "I wish my chonkers were CHONKIER", bonus: { chonkerMayoMin: 1 } }),   /* lu dans le jeu : minChonkerMana = 21 + souhait 229, maxChonkerMana = 29 + souhait 230 */
+  230: Object.freeze({ levels: 5, name: "I wish my chonkers were LESS NOT CHONKIER", bonus: { chonkerMayoMax: 1 } })
 });
 
 /* Achats du 4G's Sellout Shop propres aux Cartes (page 4G's Sellout Shop, « Special 4 »). */
@@ -696,15 +696,15 @@ function pickType(rng, chances) {
   return TYPE_IDS[TYPE_IDS.length - 1];
 }
 
+/* Lu dans le jeu (CardsController::generateManaCosts, build 1260, 2026-11-16) : tant qu'il reste du coût, tirer un type de mayo, puis un paquet uniforme de 1 à « reste » unités. */
 function spreadMayo(rng, total) {
-  const kinds = randInt(rng, 1, Math.min(IDLE_CARDS_BASE_V1.maxMayoTypes, total));
-  const pool = MAYO_IDS.slice();
-  const chosen = [];
-  for (let i = 0; i < kinds; i++) chosen.push(pool.splice(Math.floor(rng() * pool.length) % pool.length, 1)[0]);
-  const mayo = Object.fromEntries(chosen.map((id) => [id, 1]));
-  for (let left = total - kinds; left > 0; left--) {
-    const id = chosen[Math.floor(rng() * chosen.length) % chosen.length];
-    mayo[id] += 1;
+  const mayo = {};
+  let left = total;
+  while (left > 0) {
+    const id = MAYO_IDS[Math.floor(rng() * MAYO_IDS.length) % MAYO_IDS.length];
+    const chunk = 1 + Math.min(Math.floor(rng() * left), left - 1);
+    mayo[id] = (mayo[id] || 0) + chunk;
+    left -= chunk;
   }
   return mayo;
 }
@@ -771,7 +771,7 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
     }
 
     const spawnLoop = (key, period, chonker) => {
-      if (data.deck.length >= mods.deckSize) return;
+      /* Lu dans le jeu (CardsController::Update et cardsOfflineProgress) : le minuteur continue deck plein ; la carte est prête dès qu'une place se libère. */
       data[key] = N(data[key], 0) + secs * mods.cardSpeed / period;
       while (data[key] >= 1 && data.deck.length < mods.deckSize) {
         data.deck.push(idleCardsCreateCardV1(state, { rng, mods, chonker }));
@@ -784,7 +784,8 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
           data.nextId += 1;
         }
       }
-      if (data[key] >= 1) data[key] -= Math.floor(data[key]);
+      if (data.deck.length >= mods.deckSize && data[key] > 1) data[key] = 1;
+      else if (data[key] >= 1) data[key] -= Math.floor(data[key]);
     };
     spawnLoop("spawnProgress", B.cardSeconds, false);
     if (mods.chonkers) spawnLoop("chonkerProgress", B.chonkerSeconds, true);

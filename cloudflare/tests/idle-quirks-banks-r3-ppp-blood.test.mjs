@@ -25,7 +25,7 @@ assert.equal(idleQuirkByIdV1(185).cost, 100000);
   const s = normalizeIdleNguState({ difficulty: "extreme" }, {}, 0);
   const sans = idleNguBonuses(s).r3PowerMultiplier;
   s.systems.quirks.data = { levels: { 47: 50, 67: 50 } };
-  assert.ok(Math.abs(idleNguBonuses(s).r3PowerMultiplier / sans - (1 + 0.5 + 0.5)) < 1e-9, "50 x 1 % + 50 x 1 %");
+  assert.ok(Math.abs(idleNguBonuses(s).r3PowerMultiplier / sans - 1.5 * 1.5) < 1e-9, "50 x 1 % x 50 x 1 % (produit, lu dans le jeu)");
 }
 
 // ITOPOD : +10 PPP de base par niveau du quirk 70

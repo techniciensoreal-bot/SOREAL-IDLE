@@ -55,7 +55,7 @@ state.systems.cooking.data.levels[1] = 4;
   assert.doesNotMatch(html, /0,00 % \/ 300/, "anti-spoil : pas de total maximal");
   assert.match(html, /Repas n°1/);
   assert.match(html, /Un repas toutes les 23,5 h/);
-  assert.match(html, /max 24,5 h/);
+  assert.match(html, /max 48,0 h/);
   assert.match(html, /prêt dans 21:30:00/);
   assert.equal((html.match(/Ingrédient n°/g) || []).length, 6, "les emplacements 7 et 8 encore verrouillés n'apparaissent pas");
   assert.doesNotMatch(html, /ROCK LOBSTER|AMALGAMATE|🔒|verrouill/i);

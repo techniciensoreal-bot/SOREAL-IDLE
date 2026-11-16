@@ -296,7 +296,7 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
    * NORMAL (pas un boss) donne "Gold 800-1,000" — jamais le plafond boss
    * (1,600-2,000), et jamais une plage approximée.
    */
-  assert.ok(r.result.gold>=800&&r.result.gold<=1000,"Un kill normal à Sewers doit looter EXACTEMENT la plage sourcée du wiki (800-1000), pas une approximation.");
+  assert.ok(r.result.gold>=1600&&r.result.gold<=2000,"Un kill normal à Sewers loote goldDrop(400) = 1600-2000 (lu dans le code du jeu, 2026-11-16 ; le wiki disait 800-1000)");
   assert.equal(s.permanent.gold,r.result.gold,"L'or gagné doit s'accumuler dans permanent.gold, comme l'expérience.");
 
   // Résoudre sans combat actif doit échouer plutôt que compter un kill fantôme.
@@ -426,7 +426,7 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
     s.fight.monsterHp=0;
     const r=applyIdleAdventureActionV47(s,{action:"resolveZoneFight"},{bosses:7,stats:{power:12,toughness:12}},2);
     assert.ok(r.result.boss,"resolveZoneFight doit rapporter un butin de boss puisque le combat mené (s.fight.boss) en était un.");
-    assert.ok(r.result.gold>=1600&&r.result.gold<=2000,"L'or doit suivre la plage BOSS du wiki (1600-2000), pas la plage normale, puisque s.fight.boss=true faisait autorité.");
+    assert.ok(r.result.gold>=2400&&r.result.gold<=3000,"L or doit suivre la plage BOSS du jeu (2400-3000, lu dans le code), pas la plage normale, puisque s.fight.boss=true faisait autorité.");
     s=r.state;
     assert.equal(s.zone.bossKills.sewers,1,"Le compteur de victoires de boss doit lui aussi suivre s.fight.boss.");
   }

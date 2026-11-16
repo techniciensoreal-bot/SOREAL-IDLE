@@ -512,9 +512,10 @@ export function beardBonusMultiplier(state, role) {
  * perk « Five O'Clock Shadow » atteint le maximum 1 h plus tôt (minimum 12 h) -> pente 8 / (24 - niveau).
  */
 function beardRebirthTimeFactor(seconds, shadowLevel = 0) {
-  const wholeHours = Math.floor(Math.max(0, num(seconds, 0)) / 3600);
-  const hoursToMax = 24 - clamp(int(shadowLevel, 0), 0, 12);
-  return clamp(wholeHours * (8 / hoursToMax), 0, 8);
+  /* Lu dans le jeu (AllBeardsController::timeFactor, 2026-11-16) : continu, 0 sous 3600 s, puis secondes / 10800 x 24 / (24 - niveau), plafonné à 8. */
+  const t = Math.max(0, num(seconds, 0));
+  if (t < 3600) return 0;
+  return clamp((t / 10800 * 24) / (24 - clamp(int(shadowLevel, 0), 0, 12)), 0, 8);
 }
 
 export function convertActiveBeardOnRebirth(state, runSeconds) {
@@ -1023,7 +1024,9 @@ function idleNguBonusesSansMacguffinCoeurV1(state) {
     tmBankMultiplierFromQuirks: quirkBonuses.tmBankMultiplier,
     beardBankMultiplierFromQuirks: quirkBonuses.beardBankMultiplier,
     titanExpBonusKillsFromPerks: perkBonuses.titanExpBonusKills,
-    bossExpMultiplierFromPerks: perkBonuses.bossExpMultiplier + challengeBonuses.bossExpPct,
+    /* Lu dans le jeu (BossController::rewardExp) : le facteur de l'atout est séparé de celui du 24 Hour (voir facteurExpBossPerkSorealIdle_). */
+    bossExpMultiplierFromPerks: perkBonuses.bossExpMultiplier,
+    bossH24NormalCompletions: challengeBonuses.h24NormalCompletions || 0,
     seedYieldMultiplierFromPerks: perkBonuses.seedYieldMultiplier,
     seedYieldMultiplierFromQuirks: quirkBonuses.seedYieldMultiplier,
     // PISTE 2 (2026-09-18) : "Seed Gain" (Candy Corn Necklace, wiki) -- même convention FromPerks/FromQuirks ci-dessus, aucun équivalent existant à étendre.

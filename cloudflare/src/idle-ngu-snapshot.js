@@ -1374,12 +1374,15 @@ export function challengeAction(state, payload, context, now) {
 
     const elapsed=Math.max(0,now-num(state.challenge.startedAt,now));
     const rewarded=before<Math.max(0,int(def.max,0));
+    let rewardExperienceGagnee=0;
     const rewardScale=def.reward?.scaleByNumber?before+1:1;
     const rewardExperience=Math.max(0,num(def.reward?.experience,0))*rewardScale;
     const rewardAp=Math.max(0,num(def.reward?.ap,0))*rewardScale;
     if(rewarded){
       completions[id]=before+1;
-      state.currencies.experience+=rewardExperience;
+      /* Lu dans le jeu (récompense de défi -> Character::addExp) : tous les bonus d'EXP s'appliquent, puis arrondi inférieur. */
+      rewardExperienceGagnee=Math.floor(rewardExperience*Math.max(0,num(idleNguBonusesLectureV1(state).xpMultiplier,1)));
+      state.currencies.experience+=rewardExperienceGagnee;
       /* Page Arbitrary Points : AP des défis majoré par le bonus AP commun, arrondi inférieur. */
       state.currencies.ap+=apWithBonusV1(state,rewardAp);
       /* Basic Challenge Sadistic : mayo de chaque type (page Challenges, idle-cards-v1.js). */
@@ -1399,7 +1402,7 @@ export function challengeAction(state, payload, context, now) {
       completion:Math.max(0,int(completions[id],0)),
       targetBoss:target,
       rewarded,
-      reward:rewarded?{experience:rewardExperience,ap:rewardAp}:{experience:0,ap:0},
+      reward:rewarded?{experience:rewardExperienceGagnee,ap:rewardAp}:{experience:0,ap:0},
       elapsedMs:elapsed
     };
   }

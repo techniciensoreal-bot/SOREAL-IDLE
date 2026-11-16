@@ -92,7 +92,7 @@ function setDrop(s,setId,lv=0){const d=SETS[setId],slot=d.slots[I(Math.random()*
  */
 const ZONE_GOLD_RANGES_V1={
   tutorial:{normal:[400,500],boss:[800,1000]},
-  sewers:{normal:[800,1000],boss:[1600,2000]},
+  sewers:{normal:[1600,2000],boss:[2400,3000]}, /* lu dans le code du jeu, build 1260, 2026-11-16 (LootDrop::zoneNDrop) */
   forest:{normal:[3600,4500],boss:[6000,7500]},
   cave:{normal:[8800,11000],boss:[12000,15000]},
   sky:{normal:[16000,20000],boss:[24000,30000]},
@@ -119,7 +119,7 @@ const ZONE_GOLD_RANGES_V1={
   metaland:{normal:[20000000000,25000000000],boss:[40000000000,50000000000]},
   interdimensional:{normal:[40000000000,50000000000],boss:[120000000000,150000000000]},
   typozone:{normal:[120000000000,150000000000],boss:[200000000000,250000000000]},
-  fadlands:{normal:[180000000000,300000000000],boss:[400000000000,500000000000]},
+  fadlands:{normal:[240000000000,300000000000],boss:[400000000000,500000000000]},
   jrpgville:{normal:[400000000000,500000000000],boss:[520000000000,650000000000]},
   radlands:{normal:[800000000000,1000000000000],boss:[1200000000000,1500000000000]},
   backtoschool:{normal:[600000000000000,750000000000000],boss:[680000000000000,850000000000000]},
@@ -159,7 +159,7 @@ const ZONE_BOSS_EXP_CHANCE_V1={
   clock:{chance:.10,cap:.16,amount:2},
   "2d":{chance:.05,cap:.15,amount:3},
   ancient:{chance:.03,cap:.10,amount:5},
-  avsp:{chance:.01,cap:.10,amount:10},
+  avsp:{chance:.01,cap:.01,amount:10}, /* lu dans le code du jeu, build 1260, 2026-11-16 (LootDrop::zoneNDrop) */
   mega:{chance:.005,cap:.10,amount:15},
   beardverse:{chance:.002,cap:.10,amount:20},
   badly:{chance:.0005,cap:.10,amount:25},
@@ -169,7 +169,7 @@ const ZONE_BOSS_EXP_CHANCE_V1={
    * de la section Loot > Boss de chaque page. The Aethereal Sea ("Exp 1,200" sans taux
    * publié) est volontairement absente : jamais de taux inventé. */
   evilverse:{chance:0.0001,cap:0.03,amount:30},
-  pinkprincess:{chance:0.0003,cap:0.03,amount:30},
+  pinkprincess:{chance:0.00003,cap:0.03,amount:30}, /* lu dans le code du jeu, build 1260, 2026-11-16 (LootDrop::zoneNDrop) */
   metaland:{chance:0.00001,cap:0.03,amount:30},
   interdimensional:{chance:0.00003,cap:0.03,amount:30},
   typozone:{chance:0.000022,cap:0.03,amount:35},
@@ -183,7 +183,8 @@ const ZONE_BOSS_EXP_CHANCE_V1={
   halloweenies:{chance:5e-8,cap:0.15,amount:1200},
   construction:{chance:4e-8,cap:0.15,amount:1200},
   duckduck:{chance:3.3e-8,cap:0.15,amount:1200},
-  netherregions:{chance:1.8e-8,cap:0.15,amount:1200}
+  netherregions:{chance:1.8e-8,cap:0.15,amount:1200},
+  aethereansea:{chance:1.2e-8,cap:0.15,amount:1200} /* lu dans le code du jeu (LootDrop::zone43Drop), build 1260, 2026-11-16 */
 };
 
 /*
@@ -638,7 +639,12 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:4e-9,cap:0.05,set:"pirate",level:1}]
     },
     boss:{
-      equipment:[{chance:1.2e-8,cap:0.15,set:"pirate",level:1}]
+      equipment:[{chance:1.2e-8,cap:0.15,set:"pirate",level:1}],
+      /* lu dans le code du jeu (LootDrop::zone43Drop), build 1260, 2026-11-16 */
+      specials:[
+        {id:"ascendedX6Pendant",chance:4e-8,cap:0.12,level:16},
+        {id:"galacticHeraldLooty",chance:1.8e-8,cap:0.12,level:16}
+      ]
     }
   }
 });
@@ -649,7 +655,7 @@ function zoneUsesCubeRootDropV2(z){
 
 export function idleAdventureDropChanceV2(baseChance,cap,dropMultiplier,zone){
   const mult=Math.max(0,N(dropMultiplier,1));
-  const effectif=zoneUsesCubeRootDropV2(zone)?Math.cbrt(mult):mult;
+  const effectif=zoneUsesCubeRootDropV2(zone)?Math.pow(mult,0.3333333134651184):mult;/* exposant float32 du jeu (Character::lootFactorRooted) */
   return C(N(baseChance)*effectif,0,cap==null?1:N(cap));
 }
 

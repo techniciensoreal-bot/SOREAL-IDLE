@@ -154,7 +154,7 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   near(c.bonusPct, idleCardBonusPctV1(c.type, c.tier, c.rarity, total), 1e-12, "bonus = formule");
   advanceIdleCardsV1(s, 100 * 3600, seeded(3));
   assert.equal(s.systems.cards.data.deck.length, 10, "deck de 10 plein : plus de carte");
-  assert.ok(s.systems.cards.data.spawnProgress < 1, "aucune carte stockée en attente");
+  assert.ok(s.systems.cards.data.spawnProgress === 1, "deck plein : le minuteur reste plein, la carte est prete des qu une place se libere (lu dans le jeu, 2026-11-16)");
   // Via le moteur complet (advanceIdleNguState) aussi.
   let t = base();
   /* Hasard figé : le moteur complet tire avec Math.random ; sans cela ce test échouait environ 3 fois sur 100 (3 cartes au lieu de 2), ce qui bloquait un déploiement en CI (2026-09-26). */

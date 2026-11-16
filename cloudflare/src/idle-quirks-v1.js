@@ -218,7 +218,7 @@ export function idleQuirkNextCostV1(quirk, currentLevel) {
  * "multiply into the existing total" pattern instead of a parallel one.
  */
 /* Bonus en pourcentage dont les quirks DISTINCTS se multiplient (niveaux d'un même quirk additionnés) : voir quirkBonusesV1. */
-export const QUIRK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct"]);
+export const QUIRK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct","r3PowerPct","r3CapPct","r3BarsPct","nguSpeedEnergyPct","nguSpeedMagicPct"]); /* produit des quirks, lu dans le jeu (BeastQuestPerkController::total*Bonus, 2026-11-16) */
 export function quirkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
   const totals = {};
@@ -271,11 +271,11 @@ export function quirkBonusesV1(levelsById) {
     wandoosEnergySpeedPct: totals.wandoosEnergySpeedPct || 0,
     wandoosMagicSpeedPct: totals.wandoosMagicSpeedPct || 0,
     basicTrainingExtraLevels: totals.basicTrainingExtraLevel || 0,
-    nguSpeedEnergyMultiplier: 1 + (totals.nguSpeedEnergyPct || 0),
-    nguSpeedMagicMultiplier: 1 + (totals.nguSpeedMagicPct || 0),
-    r3PowerMultiplier: 1 + (totals.r3PowerPct || 0),
-    r3CapMultiplier: 1 + (totals.r3CapPct || 0),
-    r3BarsMultiplier: 1 + (totals.r3BarsPct || 0),
+    nguSpeedEnergyMultiplier: produits.nguSpeedEnergyPct,
+    nguSpeedMagicMultiplier: produits.nguSpeedMagicPct,
+    r3PowerMultiplier: produits.r3PowerPct,
+    r3CapMultiplier: produits.r3CapPct,
+    r3BarsMultiplier: produits.r3BarsPct,
     itopodPppFlat: totals.itopodPppFlat || 0,
     hackMilestoneReduction: {
       attackDefense: totals.hackMilestoneAttackDefense || 0,

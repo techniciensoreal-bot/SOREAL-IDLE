@@ -37,7 +37,7 @@ const proche = (a, b, eps = 1e-9, msg) => assert.ok(Math.abs(a - b) <= eps, (msg
   assert.equal(C.gearMultiplierPerPiece, 1.03);
   assert.deepEqual([C.spaceSetMultiplier, C.slot7Multiplier, C.slot8Multiplier], [1.10, 1.20, 1.20]);
   assert.deepEqual([C.mealHours, C.breadSetReductionHours], [23.5, 1]);
-  assert.deepEqual([C.bankCapHours, C.bankCapBreadHours, C.bankCapDesignHours], [24.5, 25.5, 48]);
+  assert.deepEqual([C.bankCapHours, C.bankCapBreadHours, C.bankCapDesignHours], [48, 48, 48]);
   assert.equal(C.totalExpGainMaxPct, 300);
   /* "Total: x1.9481 (x2.007 with legs slot bug)" */
   proche(Math.pow(1.03, 7) * 1.1 * 1.2 * 1.2, 1.9481, 5e-5, "total wiki 7 pièces");
@@ -167,10 +167,10 @@ assert.equal(idleCookingUnlockedSlotsV1({ titans: { lobster: { kills: 3 }, amalg
   assert.equal(sans.ready, false);
   assert.equal(sans.readyInMs, 0.5 * H);
   const plein = idleCookingTimerV1(data, { completedSets: {} }, 1000 + 100 * H);
-  assert.equal(plein.bankedMs, 24.5 * H, "banque plafonnée à 24,5 h");
+  assert.equal(plein.bankedMs, 48 * H, "banque plafonnée à 48 h (lu dans le jeu)");
   const pain = idleCookingTimerV1(data, { completedSets: { bread: true } }, 1000 + 100 * H);
   assert.equal(pain.mealMs, 22.5 * H);
-  assert.equal(pain.bankedMs, 25.5 * H);
+  assert.equal(pain.bankedMs, 48 * H);
 }
 
 /* --- gain par repas : formule jshepler (forum Steam), plancher de base 0,36 --- */
@@ -192,16 +192,16 @@ assert.equal(idleCookingMealExpGainPctV1(0, 1.32, 0), 0);
   const t = 1 + 100 * H;
   const r = eatIdleCookingMealV1(state, 250, t);
   assert.equal(r.totalExpGainPct, 250);
-  assert.equal(state.bonuses.cookingExp, 2.5);
-  /* 24,5 h en banque - 23,5 h consommées = 1 h reportée sur le repas suivant. */
+  /* multiplicateur borné à 3 dans le jeu : +200 % au plus */
+  assert.equal(state.bonuses.cookingExp, 2);
+  /* 48 h en banque - 23,5 h consommées = 24,5 h reportées sur le repas suivant. */
   const apres = idleCookingTimerV1(state.systems.cooking.data, state.adventure, t);
-  assert.equal(apres.bankedMs, 1 * H);
-  assert.equal(apres.readyInMs, 22.5 * H);
-  assert.throws(() => eatIdleCookingMealV1(state, 1, t + 1), /COOKING_REPAS_PAS_PRET/);
+  assert.equal(apres.bankedMs, 24.5 * H);
+  assert.equal(apres.readyInMs, 0);
   const r2 = eatIdleCookingMealV1(state, 250, t + 23 * H);
   assert.equal(r2.totalExpGainPct, 300, "plafond de 300 %");
   assert.equal(r2.gainPct, 50);
-  assert.equal(state.bonuses.cookingExp, 3);
+  assert.equal(state.bonuses.cookingExp, 2);
   assert.equal(state.systems.cooking.data.mealsEaten, 2);
   assert.throws(() => eatIdleCookingMealV1(state, null, t + 200 * H), /COOKING_GAIN_REPAS_NON_DOCUMENTE/);
 }

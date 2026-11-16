@@ -37,10 +37,9 @@ assert.equal(
   .5,
   "Hors Chocolate/Evil, le multiplicateur Drop Chance doit multiplier le taux de base."
 );
-assert.equal(
-  idleAdventureDropChanceV2(.00018,.08,8,{id:"chocolate"}),
-  .00036,
-  "Chocolate doit appliquer la racine cubique du multiplicateur de Drop Chance."
+assert.ok(
+  Math.abs(idleAdventureDropChanceV2(.00018,.08,8,{id:"chocolate"})-.00036)<1e-9,
+  "Chocolate doit appliquer la racine cubique du multiplicateur de Drop Chance (exposant float32 du jeu : 0,3333333134651184)."
 );
 
 let state=createIdleAdventureStateV47();

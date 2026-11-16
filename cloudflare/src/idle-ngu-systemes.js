@@ -822,7 +822,7 @@ function towerKillsPerRewardV1(tier) { return tier <= 20 ? 40 - tier : 20; }
 
 function towerHitsV1(power, idleBonus, floor) {
   const scale = Math.pow(1.05, floor);
-  const damage = Math.max(0.1 * power, power - (10 * scale) / 2) * Math.max(0.1, idleBonus);
+  const damage = Math.max(0, power - (10 * scale) / 2) /* le joueur n'a pas de plancher de dégâts dans le jeu (PlayerController) : lu 2026-11-16 */ * Math.max(0.1, idleBonus);
   return Math.max(1, Math.ceil((600 * scale) / Math.max(1e-9, damage)));
 }
 

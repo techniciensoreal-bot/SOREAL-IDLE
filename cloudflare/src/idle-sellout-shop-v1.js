@@ -71,7 +71,7 @@ export const IDLE_SELLOUT_SHOP_CATALOG_V1 = Object.freeze([
   { id: "autoMergeBoostTimers", category: "special1", name: "1/2 Auto Merge and Boost Timers!", effect: "Buy this for a 50% time reduction on Auto Boost and Auto Merge!", cost: flatCost(100000), max: 1 },
   { id: "instaTrainingCap", category: "special1", name: "Insta Training Cap", effect: "This upgrade will assign 6 energy, 1 for each training, almost immediately into each rebirth.", cost: flatCost(10000), max: 1 },
   { id: "customEnergyMagicButtons", category: "special1", name: "Custom Energy/Magic % Buttons", effect: "Unlocks one set of custom % buttons for Energy and Magic inputs! These work like the other custom buttons, but they output a % of your total cap.", cost: flatCost(25000), max: 1 },
-  { id: "moreCustomEnergyMagicButtons", category: "special1", name: "More Custom Energy/Magic % Buttons", effect: "Unlocks another set of custom % buttons for Energy and Magic inputs! These work like the other custom buttons, but they output a % of your total cap.", cost: flatCost(80000), max: 1 },
+  { id: "moreCustomEnergyMagicButtons", category: "special1", name: "More Custom Energy/Magic % Buttons", effect: "Unlocks another set of custom % buttons for Energy and Magic inputs! These work like the other custom buttons, but they output a % of your total cap.", cost: flatCost(100000), max: 1 },
   { id: "yggdrasilHarvestLight", category: "special1", name: "Yggdrasil Harvest Light", effect: "Buy this to have the Yggdrasil menu light up when fruit is fully grown and ready to be eaten of harvested.", cost: flatCost(50000), max: 1 },
   { id: "dailySpinTimeBank", category: "special1", name: "7-Day Time Bank for Daily Spin!", effect: "Buy this to extend the maximum time banked by the daily spin system from 36 hours to 7 days.", cost: flatCost(100000), max: 1 },
   { id: "loadoutSlot", category: "special1", name: "Loadout Slot!", effect: "Max Purchases: 7", cost: linearCappedCost(50000, 10000, Infinity), max: 7 },
@@ -99,7 +99,7 @@ export const IDLE_SELLOUT_SHOP_CATALOG_V1 = Object.freeze([
   { id: "customResource3Button", category: "special3", name: "Custom Resource 3 % Button!", effect: "Unlock a custom Cap % button for Resource 3!", cost: flatCost(50000), max: 1 },
   { id: "anotherCustomResource3Button", category: "special3", name: "Another Custom Resource 3 % Button!", effect: "Unlock another custom Cap % button for Resource 3!", cost: flatCost(150000), max: 1 },
   { id: "customIdleResource3Button", category: "special3", name: "Custom Idle Resource 3 % Button!", effect: "Unlock a custom Idle % button for Resource 3!", cost: flatCost(150000), max: 1 },
-  { id: "resource3NameRandomizer", category: "special3", name: "Resource 3 Name Randomizer", effect: "Unlocks a setting which will randomize the name of your Resource 3 every time you rebirth. It'll pick from a pool of over 200 names!", cost: flatCost(100000), max: 1 },
+  { id: "resource3NameRandomizer", category: "special3", name: "Resource 3 Name Randomizer", effect: "Unlocks a setting which will randomize the name of your Resource 3 every time you rebirth. It'll pick from a pool of over 200 names!", cost: flatCost(85000), max: 1 },
   { id: "fasterWishes", category: "special3", name: "Faster Wishes", effect: "Gain 25% faster Wishes!", cost: flatCost(250000), max: 1 },
   { id: "inventoryMergeSlots", category: "special3", name: "Inventory Merge Slots", effect: "Unlocks an extra inventory merge slot! Max purchases: 4.", cost: tieredCost([50000, 150000, 250000, 500000]), max: 4 },
   { id: "adventureLight", category: "special3", name: "Adventure Light", effect: "The Adventure button will light up when in a safe zone.", cost: flatCost(75000), max: 1 },
@@ -119,7 +119,7 @@ export const IDLE_SELLOUT_SHOP_CATALOG_V1 = Object.freeze([
   { id: "extraDeckSize", category: "special4", name: "Extra Deck Size!", effect: "Unlock extra Deck size with this, to hold more lovely Cards! Max purchases: 50.", cost: flatCost(25000), max: 50 },
   { id: "mayoGenerator", category: "special4", name: "Mayo Generator", effect: "Allows you to run another Mayo generator simultaneously! Also buffs your Mayo Generation speed by 2% per slot. Max purchases: 2.", cost: flatCost(250000), max: 2 },
   { id: "extraTagSlot", category: "special4", name: "Extra Tag Slot!", effect: "Unlock an extra tag Slot for Cards - ensuring you get more of the Cards that you like!", cost: flatCost(250000), max: 1 },
-  { id: "extraAccessorySlot5", category: "special4", name: "Extra Accessory Slot (dernier)", effect: "This is it - the last and most sellout-y Accessory slot. There's no more for AP after this.", cost: flatCost(750000), max: 1 },
+  { id: "extraAccessorySlot5", category: "special4", name: "Extra Accessory Slot (dernier)", effect: "This is it - the last and most sellout-y Accessory slot. There's no more for AP after this.", cost: flatCost(675000), max: 1, minDifficulty: "difficile" },
 
   /*
    * --- Items (Coeurs) --- "each item can be bought multiple times but their effect can only
@@ -134,7 +134,7 @@ export const IDLE_SELLOUT_SHOP_CATALOG_V1 = Object.freeze([
   { id: "heartPurple", category: "items", name: "My Purple Heart <3", effect: "When this heart reaches 100, MacGuffins will drop 20% more often.", cost: flatCost(225000), max: null },
   { id: "heartOrange", category: "items", name: "My Orange Heart <3", effect: "When this heart reaches 100, Quests will earn 20% more QP.", cost: flatCost(225000), max: null },
   { id: "heartGrey", category: "items", name: "My Grey Heart <3", effect: "When this heart reaches 100, Hacks will be 25% faster.", cost: flatCost(225000), max: null },
-  { id: "heartPink", category: "items", name: "My Pink Heart <3", effect: "When this heart reaches 100, you will gain a Wish Slot.", cost: flatCost(225000), max: null },
+  { id: "heartPink", category: "items", name: "My Pink Heart <3", effect: "When this heart reaches 100, you will gain a Wish Slot.", cost: flatCost(175000), max: null },
   { id: "heartRainbow", category: "items", name: "My Rainbow Heart", effect: "When this heart reaches 100, you will gain +10% Card and Mayo generation speed.", cost: flatCost(500000), max: null },
 
   // --- EXP / PP (câblés immédiatement : ajout direct à state.currencies) ---
