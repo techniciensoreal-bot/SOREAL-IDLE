@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.0',
+    courante:'6.1',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.1',
+        nom:'Chiffres du vrai jeu',
+        date:'2026-11-16',
+        groupes:[
+          {menu:'ngu', titre:'NGU', points:[
+            'Les valeurs de base de l’entraînement de base et la réduction du facteur de buff de défense sur les dégâts reçus suivent maintenant les valeurs lues dans le code du jeu.'
+          ]}
+        ]
+      },
       {
         version:'6.0',
         nom:'Des cartes qui comptent',
