@@ -101,6 +101,7 @@ export const NOMS_SPECIALS_FR_V1 = Object.freeze({
   exileClueBuster: "Buster de l'Exilé (indice)",
   exileClueAntennae: "Antennes de l'Exilé (indice)",
   sackExile: "Sac de l'Exilé",
+  blueEyesChestplate: "Plastron ultime aux yeux bleus",
   creditCard: "La carte de crédit",
   tentacleExile: "Tentacule de l'Exilé",
   skipCard: "La carte Passe ton tour",

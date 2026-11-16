@@ -78,6 +78,7 @@ export const IDLE_SPECIAL_POINTS_EXP_V1 = Object.freeze({
   "bread:weapon": [4,3,4,3,6],
   "bread:yeast": [4,7,7],
   "brokenScissors": [3,3,4,7],
+  "blueEyesChestplate": [7,7,7],
   "busterExile": [3,7,3,6],
   "candyCaneDestiny": [3,4,3,3,4,3],
   "candyCornNecklace": [3,3,4,3],

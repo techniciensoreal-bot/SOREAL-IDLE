@@ -599,8 +599,8 @@ export function advanceAdventureZoneAutoFarmOfflineV1(s,ctx,seconds,t){
  * Objets du wiki volontairement NON tirés (système absent ou taux inconnu,
  * jamais remplacés par une valeur de repli) : Heroic Sigil (déjà débloqué via
  * d.drop), A busted copy of Wandoos XL, The First/Second/Third Clue,
- * MacGuffin Fragments, Sack/Face of the Exile, Blue Eyes Ultimate Chestplate
- * ("secret unlock" sans condition publiée), les morceaux de THE END.
+ * MacGuffin Fragments, les morceaux de THE END. (Sack/Face of the Exile et Blue Eyes Ultimate
+ * Chestplate : lus dans LootDrop::zone30Drop, voir le titan t7 ci-dessous.)
  */
 function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
   const chance=p=>Math.random()<idleAdventureDropChanceV2(p,1,dropMult,null);
@@ -749,6 +749,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
       if(alea()<.02)exileDonnerV1(s,IDLE_EXILE_OBJETS_V1.sack,out);
       if(alea()<.25)exileDonnerV1(s,IDLE_EXILE_OBJETS_V1.face,out);
     }
+    /* Blue Eyes Ultimate Chestplate (342) : LootDrop::zone30Drop (build 1260) : tant que titan9SpecialReward (Sac assemble), tirage min(0,0001 % x facteur de loot, 25 %) a chaque victoire sur l'Exile, niveau 0 (makeTitanLevelledLoot(342, 0) : ni +4 ni bonus). */
+    if(s.unlockFlags&&s.unlockFlags.titan9SpecialReward&&chanceEvil(.000001,.25))objet("blueEyesChestplate",0);
     titanEvil("exile",.00002,
       [["theJoker",4,.00002,.25],["antlersExile",4,.00002,.25],["ascendedX4Pendant",50,.000015,.25],["kingLooty",50,.000015,.25]],
       [["creditCard",4,.00001,.25],["tentacleExile",4,.00001,.25]],
