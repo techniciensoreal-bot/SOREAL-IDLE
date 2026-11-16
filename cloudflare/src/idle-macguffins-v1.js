@@ -645,7 +645,7 @@ export function macguffinAfterAdventureV1(state, before, result, opts = {}, rng 
  *    comment il est arrondi (la formule ⌈…⌉ du fruit, page Yggdrasil, ne contient pas Wish_60 ;
  *    celle du sort, page Blood Magic, est un ⌊…⌋). Pour 1 niveau x 1,2, plancher et plafond
  *    donnent 1 ou 2 : écart de 100 %, donc rien n'est deviné ;
- *  - perk 56 « Macguffin Daycare! » : aucune page ne publie la vitesse de Daycare d'un fragment
+ *  - perk 56 « MacGuffin Daycare! » : implémenté le 2026-11-16 d après le jeu (idle-daycare-v1.js : 2 h par niveau, sans plafond 100) ; ancienne note :
  *    (les pages « … MacGuffin Fragment » sont des redirections, sans champ daycare) ;
  *  - fragment Golden : voir IDLE_MACGUFFIN_TYPES_V1 (Gold Drops, source tierce : voir le commentaire du haut).
  */

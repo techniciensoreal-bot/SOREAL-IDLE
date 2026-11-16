@@ -27,7 +27,10 @@
  *    « Gold Diggers » (Daycare Digger, calculé par diggerBonuses), « Hacks » (Daycare Hack, calculé
  *    par hackFxV1), « 4G's Sellout Shop » (Daycare Speed Boost!).
  *
- * Non modélisé (système absent de SOREAL ou magnitude non publiée) : perk « Macguffin Daycare! » (MacGuffins hors de ce module), récompense
+ * Fragments de MacGuffin (perk 56 « MacGuffin Daycare! », lu dans le jeu le 2026-11-16 : InventoryController::swapDaycare exige le niveau >= 1 du perk pour
+ * un objet de type 11 ; DaycareItemController::updateDaycareTimer / levelsAdded exemptent le type 11 du plafond de niveau 100 ; ItemNameDesc.daycareRate = 7 200 s,
+ * soit 2 h par niveau, pour les 22 fragments) : placés depuis l'inventaire des fragments (state.systems.macguffins), repris avec leurs niveaux gagnés.
+ * Non modélisé (système absent de SOREAL ou magnitude non publiée) : récompense
  * « All Equip OR Daycare » du Money Pit (répartition entre les deux cibles non documentée), objets
  * de quête (« Quest items take 48 hours », système Questing absent de l'inventaire).
  *
@@ -471,7 +474,15 @@ const clone = (v) => JSON.parse(JSON.stringify(v));
 /* Tolérance flottante : 360 / (8 x 0,9) doit donner 50 niveaux, pas 49. */
 const EPS = 1e-9;
 
+/* Fragments de MacGuffin : 2 h par niveau (level0 @2343560 daycareRate[198..211, 228, 250, 289..291, 298..300] = 7 200 s, build 1260, 2026-11-16), sans plafond de niveau 100. */
+export const IDLE_DAYCARE_FRAGMENT_HOURS_V1 = 2;
+export const IDLE_DAYCARE_PERK_FRAGMENTS_V1 = 56;
+const FRAGMENT_NIVEAU_MAX_V1 = Number.MAX_SAFE_INTEGER;
+const estFragmentV1 = (item) => Boolean(item) && item.kind === "macguffin";
+const niveauMaxV1 = (item) => (estFragmentV1(item) ? FRAGMENT_NIVEAU_MAX_V1 : IDLE_DAYCARE_MAX_LEVEL_V1);
+
 export function idleDaycareBaseHoursV1(item) {
+  if (estFragmentV1(item)) return IDLE_DAYCARE_FRAGMENT_HOURS_V1;
   const id = int(item && item.wikiItemId, 0);
   const h = IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1[id];
   return Number.isFinite(h) && h > 0 ? h : null;
@@ -535,7 +546,7 @@ function cleanDaycareItemV1(raw) {
   o.definitionId = String(o.definitionId || "");
   if (!o.id || !o.definitionId) return null;
   o.wikiItemId = Math.max(0, int(o.wikiItemId, 0));
-  o.level = clamp(int(o.level, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1);
+  o.level = clamp(int(o.level, 0), 0, niveauMaxV1(o));
   o.locked = Boolean(o.locked);
   return o;
 }
@@ -569,10 +580,11 @@ function hoursPerLevelV1(entry, factors) {
 
 function levelFromHoursV1(entry, factors) {
   const perLevel = hoursPerLevelV1(entry, factors);
-  const start = clamp(int(entry.levelAtEntry, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1);
+  const max = niveauMaxV1(entry.item);
+  const start = clamp(int(entry.levelAtEntry, 0), 0, max);
   if (perLevel == null) return Math.max(start, int(entry.item.level, 0));
   const gained = Math.floor(Math.max(0, num(entry.hours, 0)) / perLevel + EPS);
-  return Math.max(int(entry.item.level, 0), Math.min(IDLE_DAYCARE_MAX_LEVEL_V1, start + gained));
+  return Math.max(int(entry.item.level, 0), Math.min(max, start + gained));
 }
 
 /* Avance tous les slots de `seconds` (en ligne comme hors ligne : même chemin). */
@@ -584,9 +596,10 @@ export function advanceIdleDaycareV1(data, seconds, factors) {
     const perLevel = hoursPerLevelV1(entry, factors);
     if (perLevel == null) continue;
     const before = int(entry.item.level, 0);
-    if (before >= IDLE_DAYCARE_MAX_LEVEL_V1) continue;
-    /* Au-delà du niveau 100, le temps n'est plus compté (niveau plafonné). */
-    const maxHours = (IDLE_DAYCARE_MAX_LEVEL_V1 - clamp(int(entry.levelAtEntry, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1)) * perLevel;
+    const max = niveauMaxV1(entry.item);
+    if (before >= max) continue;
+    /* Au-delà du niveau 100, le temps n'est plus compté (niveau plafonné) ; pas pour un fragment de MacGuffin (type 11 du jeu). */
+    const maxHours = estFragmentV1(entry.item) ? Infinity : (max - clamp(int(entry.levelAtEntry, 0), 0, max)) * perLevel;
     const current = Math.max(0, num(entry.hours, 0));
     entry.hours = Math.max(current, Math.min(maxHours, current + (secs / 3600) * speed));
     entry.item.level = levelFromHoursV1(entry, factors);
@@ -612,13 +625,43 @@ export function idleDaycareEligibilityV1(item) {
 }
 
 /* Place un objet de l'inventaire dans un slot libre. */
-export function idleDaycarePlaceV1(adventure, data, itemId, factors) {
+/*
+ * ext (facultatif) : { fragments: tableau d'inventaire des fragments de MacGuffin (state.systems.macguffins.data.inventory, modifié sur place),
+ * perkFragments: niveau du perk 56, nomDe(type) } ; sans lui, seuls les objets d'Aventure sont plaçables.
+ */
+function fragmentsDeV1(ext) {
+  return ext && Array.isArray(ext.fragments) ? ext.fragments : [];
+}
+
+function idleDaycarePlaceFragmentV1(data, itemId, ext, maintenant) {
+  const liste = fragmentsDeV1(ext);
+  const idx = liste.findIndex((f) => f && String(f.uid) === String(itemId));
+  if (idx < 0) return null;
+  /* Lu dans le jeu (InventoryController::swapDaycare, type 11) : sans le perk 56 « MacGuffin Daycare! », le fragment est refusé. */
+  if (int(ext.perkFragments, 0) < 1) throw new Error("PERK_MACGUFFIN_DAYCARE_REQUIS");
+  const f = liste[idx];
+  const definitionId = "macguffin:" + String(f.type);
+  if (data.slots.some((e) => e.item.definitionId === definitionId)) throw new Error("DAYCARE_OBJET_DEJA_PRESENT");
+  liste.splice(idx, 1);
+  const level = Math.max(0, int(f.level, 0));
+  const nom = typeof ext.nomDe === "function" ? String(ext.nomDe(f.type) || f.type) : String(f.type);
+  const item = { id: String(f.uid), definitionId, kind: "macguffin", fragmentType: String(f.type), name: nom, wikiItemId: 0, level, locked: false };
+  data.slots.push({ item, levelAtEntry: level, hours: 0, placedAt: maintenant });
+  return { id: item.id, definitionId, level };
+}
+
+export function idleDaycarePlaceV1(adventure, data, itemId, factors, ext) {
+  const maintenant = Date.now();
   if (!adventure || !Array.isArray(adventure.inventory)) throw new Error("OBJET_INTROUVABLE");
   const slots = Math.max(0, int(factors && factors.slots, 0));
   if (slots <= 0) throw new Error("SYSTEME_VERROUILLE");
   if (data.slots.length >= slots) throw new Error("DAYCARE_PLEIN");
   const idx = adventure.inventory.findIndex((x) => x && String(x.id) === String(itemId));
-  if (idx < 0) throw new Error("OBJET_INTROUVABLE");
+  if (idx < 0) {
+    const place = idleDaycarePlaceFragmentV1(data, itemId, ext, maintenant);
+    if (place) return place;
+    throw new Error("OBJET_INTROUVABLE");
+  }
   const item = adventure.inventory[idx];
   if (equippedIdsV1(adventure).has(String(item.id))) throw new Error("OBJET_EQUIPE");
   const refus = idleDaycareEligibilityV1(item);
@@ -626,18 +669,25 @@ export function idleDaycarePlaceV1(adventure, data, itemId, factors) {
   if (data.slots.some((e) => e.item.definitionId === item.definitionId)) throw new Error("DAYCARE_OBJET_DEJA_PRESENT");
   adventure.inventory.splice(idx, 1);
   const level = clamp(int(item.level, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1);
-  data.slots.push({ item: clone(item), levelAtEntry: level, hours: 0, placedAt: Date.now() });
+  data.slots.push({ item: clone(item), levelAtEntry: level, hours: 0, placedAt: maintenant });
   /* Le client n'accepte un inventaire serveur que si sa révision avance (protegerJoueurServeurInventaireIdleV208_). */
   adventure.revision = Math.max(0, int(adventure.revision, 0)) + 1;
   return { id: String(item.id), definitionId: item.definitionId, level };
 }
 
 /* Rend l'objet à l'inventaire avec son niveau acquis (enregistré dans la Collection par add()). */
-export function idleDaycareRemoveV1(adventure, data, itemId, factors) {
+export function idleDaycareRemoveV1(adventure, data, itemId, factors, ext) {
   const idx = data.slots.findIndex((e) => String(e.item.id) === String(itemId));
   if (idx < 0) throw new Error("OBJET_INTROUVABLE");
   const entry = data.slots[idx];
   entry.item.level = levelFromHoursV1(entry, factors);
+  if (estFragmentV1(entry.item)) {
+    /* Le fragment retrouve l'inventaire des fragments avec son niveau acquis (il alimente le gain de bonus à chaque Rebirth). */
+    if (!ext || !Array.isArray(ext.fragments)) throw new Error("OBJET_INTROUVABLE");
+    ext.fragments.push({ uid: String(entry.item.id), type: String(entry.item.fragmentType), level: entry.item.level });
+    data.slots.splice(idx, 1);
+    return { id: String(entry.item.id), level: entry.item.level, levelsGained: entry.item.level - entry.levelAtEntry };
+  }
   const added = idleAdventureAddItemV1(adventure, clone(entry.item));
   if (!added) throw new Error("SAC_PLEIN");
   data.slots.splice(idx, 1);
@@ -649,7 +699,7 @@ function secondsV1(hours, speed) {
   return speed > 0 ? (hours / speed) * 3600 : null;
 }
 
-export function idleDaycareSnapshotV1(data, adventure, factors) {
+export function idleDaycareSnapshotV1(data, adventure, factors, ext) {
   const f = factors || idleDaycareFactorsV1({});
   const speed = Math.max(0, num(f.speedMultiplier, 1));
   const inDaycare = new Set();
@@ -658,10 +708,10 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
     const base = idleDaycareBaseHoursV1(entry.item);
     const perLevel = hoursPerLevelV1(entry, f);
     const level = levelFromHoursV1(entry, f);
-    const maxed = level >= IDLE_DAYCARE_MAX_LEVEL_V1;
+    const maxed = level >= niveauMaxV1(entry.item);
     const done = perLevel ? Math.max(0, num(entry.hours, 0)) / perLevel : 0;
     const progress = maxed || !perLevel ? (maxed ? 1 : 0) : Math.max(0, Math.min(1, done - Math.floor(done + EPS)));
-    const restLevels = maxed || !perLevel ? 0 : IDLE_DAYCARE_MAX_LEVEL_V1 - level - progress;
+    const restLevels = maxed || !perLevel ? 0 : (estFragmentV1(entry.item) ? 0 : IDLE_DAYCARE_MAX_LEVEL_V1 - level - progress);
     return {
       item: Object.assign(clone(entry.item), { level }),
       levelAtEntry: entry.levelAtEntry,
@@ -674,7 +724,7 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
       progress,
       maxed,
       secondsToNextLevel: maxed || !perLevel ? null : secondsV1((1 - progress) * perLevel, speed),
-      secondsToMax: maxed || !perLevel ? null : secondsV1(restLevels * perLevel, speed)
+      secondsToMax: maxed || !perLevel || estFragmentV1(entry.item) ? null : secondsV1(restLevels * perLevel, speed)
     };
   });
   const equipped = equippedIdsV1(adventure);
@@ -689,6 +739,19 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
       baseHours: idleDaycareBaseHoursV1(o),
       alreadyInDaycare: inDaycare.has(String(o.definitionId || ""))
     }));
+  /* Fragments de MacGuffin plaçables : seulement avec le perk 56 (jamais d'indice sur ce qui n'est pas acquis : liste vide sinon). */
+  const fragments = int(ext && ext.perkFragments, 0) >= 1
+    ? fragmentsDeV1(ext).filter((x) => x && !inDaycare.has("macguffin:" + String(x.type))).map((x) => ({
+      id: String(x.uid),
+      definitionId: "macguffin:" + String(x.type),
+      wikiItemId: 0,
+      name: typeof ext.nomDe === "function" ? String(ext.nomDe(x.type) || x.type) : String(x.type),
+      level: int(x.level, 0),
+      baseHours: IDLE_DAYCARE_FRAGMENT_HOURS_V1,
+      alreadyInDaycare: false,
+      fragment: true
+    }))
+    : [];
   return {
     slots: f.slots,
     slotSources: clone(f.slotSources || {}),
@@ -697,6 +760,6 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
     speedMultiplier: f.speedMultiplier,
     speedParts: clone(f.speedParts || {}),
     items: slots,
-    inventory: eligible
+    inventory: eligible.concat(fragments)
   };
 }

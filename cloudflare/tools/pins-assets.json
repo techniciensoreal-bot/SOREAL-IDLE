@@ -248,8 +248,8 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 58,
-  "sha": "479d3de1e75d12aa3430204d7267cd5502aae6e1"
+  "pin": 59,
+  "sha": "ec9a28773b2bc672cf6f4ce154c1c5b85d43868e"
  },
  "/modules/daycare-skin-popup-v1.js": {
   "pin": 4,
@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 283,
-  "sha": "7775e72911435ed62c3671228680890edad5c0f2"
+  "pin": 285,
+  "sha": "ece4d628e5bae1a0df3668b01915bbd454c27e46"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,

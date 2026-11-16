@@ -20,6 +20,7 @@ for (const kind of ["perks", "quirks", "wishes"]) {
 const NON_DETECTES = {
   perks: {
     30: "lu par niveau dans idle-yggdrasil-extra-v1.js (Poop des kills ITOPOD)",
+    56: "verrou de la Garderie pour les fragments de MacGuffin : lu par la constante IDLE_DAYCARE_PERK_FRAGMENTS_V1 (idle-daycare-v1.js, idle-ngu-snapshot.js)",
   },
   quirks: {
     13: "Beast's Fertilizer : lu par id dans idle-yggdrasil-extra-v1.js"

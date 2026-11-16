@@ -101,14 +101,14 @@
     const r=!x.maxed&&heures>0&&isFinite(heures)?1/(heures*3600):0;
     const ancien=reperes[id];
     if(ancien&&ancien.p===p&&ancien.lv===lv&&ancien.r===r)return ancien;
-    return (reperes[id]={p:p,lv:lv,r:r,t0:maintenant,max:x.maxed?1:0});
+    return (reperes[id]={p:p,lv:lv,r:r,t0:maintenant,max:x.maxed?1:0,sans100:(x.item&&x.item.kind==='macguffin')?1:0});
   }
   /* Progression exacte à l'instant donné (même formule que le moteur : un niveau = 1 de progression, plafond au niveau 100). */
   function etatA(rep,maintenant){
     if(rep.max)return {p:1,niveau:100};
     const total=rep.p+rep.r*Math.max(0,(maintenant-rep.t0)/1000);
     const gagnes=Math.floor(total+1e-9);
-    if(rep.lv+gagnes>=100)return {p:1,niveau:100};
+    if(!rep.sans100&&rep.lv+gagnes>=100)return {p:1,niveau:100};
     return {p:Math.max(0,Math.min(1,total-gagnes)),niveau:rep.lv+gagnes};
   }
   function decalageLiquide(p){return ((1-p)*100).toFixed(2);}
@@ -208,7 +208,7 @@
 
   function listeSac(d){
     const H=H_();
-    const sac=(Array.isArray(d.inventory)?d.inventory:[]).filter(function(o){return o&&o.baseHours!=null&&!o.alreadyInDaycare&&H.idleEntier_(o.level)<100;});
+    const sac=(Array.isArray(d.inventory)?d.inventory:[]).filter(function(o){return o&&o.baseHours!=null&&!o.alreadyInDaycare&&(o.fragment||H.idleEntier_(o.level)<100);});
     const R=REG_();
     if(!sac.length)return '<div class="soreal-idle-note-v4">Aucun objet à placer dans ton sac (les objets équipés doivent d’abord être déséquipés).</div>';
     return '<div class="gd-choix">'+sac.map(function(o){

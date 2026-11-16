@@ -32,7 +32,7 @@ import {
  */
 
 // --- Catalog shape: 111 entries, unique ids, sane cost/cap ---
-assert.equal(IDLE_PERKS_CATALOG_V1.length, 231, "catalogue complet 2026-09-23 (Cards/Mayo, MacGuffins, Questing, Daycare, slots d'automerge 111-112 inclus)");
+assert.equal(IDLE_PERKS_CATALOG_V1.length, 232, "catalogue complet 2026-11-16, perk 56 incluse (2026-09-23 : Cards/Mayo, MacGuffins, Questing, Daycare, slots d'automerge 111-112 inclus)");
 for (let i = 0; i < 56; i++) {
   const perk = IDLE_PERKS_CATALOG_V1[i];
   assert.equal(perk.id, i, "Perk ids must be sequential 0-55, matching the wiki table order.");
@@ -63,7 +63,9 @@ assert.equal(idlePerkByIdV1(29).cost, 250);
 assert.equal(idlePerkByIdV1(29).bonus.accessorySlotBonus, 1, "Perk 29 is the flat +1 accessory slot confirmed on the wiki.");
 assert.equal(idlePerkByIdV1(55).name, "Adventure Boost For Rich Perks I");
 assert.equal(idlePerkByIdV1(55).bonus.adventureStatsPct, 0.001, "0.1% per level, matches the wiki exactly.");
-assert.equal(idlePerkByIdV1(56), null, "Index 56 (Macguffin Daycare!, Evil only) must not be in the Normal catalog.");
+assert.equal(idlePerkByIdV1(56).name, "MacGuffin Daycare!", "Perk 56 (table du jeu, 2026-11-16) : verrou des fragments de MacGuffin à la Garderie.");
+assert.equal(idlePerkByIdV1(56).cost, 5000);
+assert.equal(idlePerkByIdV1(56).cap, 1);
 assert.equal(idlePerkByIdV1(94).name, "The Fibonacci Perk");
 assert.equal(idlePerkByIdV1(94).cost, 500, "500 PP per level, per the audit.");
 assert.equal(idlePerkByIdV1(94).cap, 1597, "Caps at 1597 (a Fibonacci number), per the audit.");

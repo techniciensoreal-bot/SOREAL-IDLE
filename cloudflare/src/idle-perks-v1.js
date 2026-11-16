@@ -54,8 +54,8 @@
  * 89-92, 104-106, 145-148 : idle-questing-v1.js), Souhaits (108-110, 155-156, 159-160), Cartes (161-216 :
  * idle-cards-v1.js), Hack Milestones (113-115, 217-219 : hackFxV1), Resource 3 (95-103, 122-124, 132-134,
  * 141-143, 226-228 : r3*Pct), Iron Pill I/II (84-85 : ironPillMultiplier), respawn (93 : respawnRemaining).
- * Seule exception non implémentée : perk 56 « Macguffin Daycare! » (aucune vitesse de Daycare publiée pour
- * les fragments).
+ * Perk 56 « MacGuffin Daycare! » (ajouté le 2026-11-16 d après la table du jeu : verrou des fragments de MacGuffin à la Garderie,
+ * idle-daycare-v1.js).
  *
  * Previously "Perks" was a single generic counter (one shared level,
  * exponential 1.55^level cost) with no per-item identity or real effect —
@@ -165,6 +165,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 53, name: "Ooh, Another Digger Slot!", effect: "Yet another Digger Slot", cost: 250, cap: 1, bonus: { diggerSlotBonus: 1 } },
   { id: 54, name: "Stat Boost for Rich Perks II", effect: "+1% Attack/Defense per level", cost: 100, cap: 1000, bonus: { statPct: 0.01 } },
   { id: 55, name: "Adventure Boost For Rich Perks I", effect: "+0.1% to Adventure Stats per level", cost: 100, cap: 1000, bonus: { adventureStatsPct: 0.001 } },
+  /* Perk 56 : table du jeu (coût 5000, cap 1, Evil ; description du jeu). Effet lu dans le jeu (swapDaycare) : verrou d'accès des fragments de MacGuffin à la Garderie (idle-daycare-v1.js). */
+  { id: 56, name: "MacGuffin Daycare!", effect: "With this perk, the Daycare Kitty can use her powers of happiness to improve your ancient cosmic artifacts! c:", cost: 5000, cap: 1, bonus: {} },
   { id: 57, name: "Generic Energy Power Perk II", effect: "+1% bonus multiplier to your Energy Power per level", cost: 50, cap: 100, bonus: { energyPowerPct: 0.01 } },
   { id: 58, name: "Generic Energy Bar Perk II", effect: "+1% bonus multiplier to your Energy Bars per level", cost: 50, cap: 100, bonus: { energyBarsPct: 0.01 } },
   { id: 59, name: "Generic Energy Cap Perk II", effect: "+1% bonus multiplier to your Energy Cap per level", cost: 50, cap: 100, bonus: { energyCapPct: 0.01 } },
@@ -178,7 +180,7 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
    * effets lus directement par id dans idle-macguffins-v1.js (niveau de
    * drop, slots, drops ITOPOD et leurs réductions, sorts Blood α/β) --
    * `bonus` reste vide car aucune clé agrégée de perkBonusesV1 ne s'y
-   * rapporte. 56 ("Macguffin Daycare!") reste exclu : dépend du Daycare.
+   * rapporte. 56 ("MacGuffin Daycare!") : verrou de la Garderie (idle-daycare-v1.js), ajouté le 2026-11-16.
    */
   { id: 65, name: "Improved Macguffin Drops I", effect: "Improve the base level of all MacGuffin drops by 1!", cost: 150, cap: 1, bonus: {} },
   { id: 66, name: "A MacGuffin Slot!", effect: "Gain an additional MacGuffin Slot!", cost: 250, cap: 1, bonus: {} },
