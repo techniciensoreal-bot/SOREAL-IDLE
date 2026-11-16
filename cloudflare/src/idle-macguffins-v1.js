@@ -679,6 +679,8 @@ function castBloodMacguffin(state, spell, now, rng) {
   const def = IDLE_MACGUFFIN_BLOOD_SPELLS_V1[spell];
   if (!def) throw new Error("SORT_SANG_INVALIDE");
   if (perkLevel(state, def.perk) <= 0) throw new Error("SORT_MACGUFFIN_VERROUILLE");
+  /* Lu dans le jeu (RebirthPowerSpell::castMacguffin2Spell, build 1260, 2026-11-16) : le sort β exige la difficulté Evil ou plus (« You can only cast this spell in Evil difficulty or greater! »). */
+  if (spell === "beta" && idleRangDifficulteV1(state?.difficulty) < 1) throw new Error("DIFFICULTE_VERROUILLEE");
   const data = mgData(state);
   if (!data.equipped.length) throw new Error("AUCUN_MACGUFFIN_EQUIPE");
   const readyKey = spell === "alpha" ? "bloodAlphaReadyAt" : "bloodBetaReadyAt";
