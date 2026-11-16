@@ -30,6 +30,7 @@
         date:'2026-11-16',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Hors ligne, une absence d’un an est calculée en entier, sans plafond intermédiaire.',
             'Hors ligne, le temps compté monte à un an au maximum, et le jeu local passe de nouveau par les mêmes règles.',
             'Hors ligne, les potions, charmes et boosts consommables restent figés (seuls deux d’entre eux s’écoulent) et n’entrent plus dans la production hors ligne ; l’achat d’énergie suit le record de boss.',
             'Atouts, d’après le code du jeu : les bonus de même type venant d’atouts différents se multiplient (vitesse de certains systèmes, chance de drop, troisième ressource), l’atout de difficulté maximale vaut ×10, et les banques de temps sont plafonnées à 75 %.',
@@ -58,6 +59,7 @@
             'Quêtes : le +2 de l’atout de quête mineure s’applique dès qu’il est possédé (base plafonnée à 16), les AP de quête ont une base fixe, et les bonus de récompense active se multiplient entre eux.'
           ]},
           {menu:'wandoos', titre:'Wandoos', points:[
+            'Ce système commence par une installation de 24 h (en ligne, conservée au Rebirth) avant de produire, comme dans le jeu ; les parties qui l’utilisaient déjà la gardent installée.',
             'Le cap d’énergie de ce système se calcule comme dans le jeu : la part entière de l’énergie nécessaire, plus un.'
           ]},
           {menu:'titans', titre:'Titans', points:[
@@ -71,6 +73,7 @@
             'L’achat qui place de l’énergie dans l’entraînement au Rebirth met toujours 6 en attaque et 6 en défense, comme dans le jeu (plus de condition d’achat supplémentaire).'
           ]},
           {menu:'tower', titre:'Tour', points:[
+            'Le temps de réapparition des ennemis de la Tour suit la formule du jeu (sans plancher inventé, plafond des objets à 80 %).',
             'Hors ligne, la Tour joue un seul étage (le meilleur étage possible, sans dépasser le plus haut atteint), sans nouvel étage ni PP de première atteinte, et ne donne plus d’objets de boost sans le filtre du Cube.',
             'Tour : les ennemis attaquent maintenant comme dans le jeu (16 ennemis aux comportements variés), tu peux y perdre ta vie et retomber à l’étage de départ, et l’étage optimal se calcule comme dans le jeu.'
           ]},
@@ -435,6 +438,7 @@
             'Quand tu mets de la Magie dans la Machine temporelle, la barre d’Énergie ne recule plus.',
           ]},
           {menu:'augmentations', titre:'Augmentations', points:[
+            'Les diviseurs de vitesse des augmentations aux difficultés élevées et les bonus de base de deux d’entre elles sont corrigés d’après les valeurs exactes du jeu.',
             'Les barres de la page Augmentations avancent maintenant à 60 images par seconde, avec une colonne en cours qui monte en intensité de façon continue, au lieu de saccader.',
             'Une ligne dont la « Cible » est à -1 fait maintenant passer son énergie à la ligne suivante quand « Faire suivre l’énergie » est coché (jusqu’à la dernière ligne pour l’Entraînement avancé), au lieu de la garder ou de te la rendre.',
           ]},
@@ -531,6 +535,7 @@
             'Une barre de Barbe ne dépasse plus 50 niveaux par seconde, même quand elle est au maximum de sa vitesse.',
           ]},
           {menu:'hacks', titre:'Hacks', points:[
+            'Chaque hack a maintenant sa propre Resource 3 et tous ceux qui en ont avancent ensemble, comme dans le jeu.',
             'Un Hack gagne au plus un niveau par tick (50 par seconde), comme dans NGU Idle, même avec un très gros débit de Ressource 3.',
           ]},
           {menu:'wishes', titre:'Wishes', points:[
