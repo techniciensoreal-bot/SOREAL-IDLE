@@ -29,12 +29,16 @@ assert.equal(
 {
   const originalRandom=Math.random;
   try{
+    /* Lu dans le jeu (tier3Reward, build 1260) : 9 cas égaux : 3 boosts (Puissance, Endurance, Spécial), niveau d'équipement au hasard, EXP 2, +5 Puissance, +5 Endurance, +50 PV, +0,5 régén. */
     const cas=[
-      {random:0.01,type:'adventureStats',value:5},
-      {random:0.21,type:'boost',value:5},
-      {random:0.41,type:'adventureHp',value:50},
-      {random:0.61,type:'adventureRegen',value:0.5},
-      {random:0.81,type:'experience',value:2}
+      {random:0.5/9,type:'boost',value:5,boostType:'power'},
+      {random:1.5/9,type:'boost',value:5,boostType:'toughness'},
+      {random:2.5/9,type:'boost',value:5,boostType:'special'},
+      {random:4.5/9,type:'experience',value:2},
+      {random:5.5/9,type:'adventurePower',value:5},
+      {random:6.5/9,type:'adventureToughness',value:5},
+      {random:7.5/9,type:'adventureHp',value:50},
+      {random:8.5/9,type:'adventureRegen',value:0.5}
     ];
     for(const c of cas){
       let cursor=normalizeIdleNguState({},context,1_000_000);
@@ -48,15 +52,19 @@ assert.equal(
 
       if(c.type==='boost'){
         assert.ok(res.result.boost&&res.result.boost.strength===5,"Le tirage Boost du palier 3 doit donner Boost 5.");
-        assert.ok(['power','toughness','special'].includes(res.result.boost.type));
+        assert.equal(res.result.boost.type,c.boostType,"Chaque boost est un cas distinct du tirage.");
         assert.equal(res.state.adventure.inventory.length,beforeInventory+1,"Le Boost doit réellement entrer dans l'inventaire.");
       }else{
         assert.equal(res.result.reward[c.type],c.value,"La magnitude du lot doit être celle du tableau Money Pit NGU.");
       }
 
-      if(c.type==='adventureStats'){
+      if(c.type==='adventurePower'){
         assert.equal(res.state.adventure.permanent.adventurePower,15,'5 du lot + 10 du palier 1E8 (confirmé par le code du jeu)');
+        assert.equal(res.state.adventure.permanent.adventureToughness,10,'la Robustesse ne reçoit QUE les 10 du palier 1E8 (le lot est Puissance seule)');
+      }
+      if(c.type==='adventureToughness'){
         assert.equal(res.state.adventure.permanent.adventureToughness,15);
+        assert.equal(res.state.adventure.permanent.adventurePower,10);
       }
       // 2026-09-24 : 1e9 d'or jeté franchit aussi le seuil 1E8 des One-Time Bonuses (+100 Max HP, +1 Regen).
       if(c.type==='adventureHp')assert.equal(res.state.adventure.permanent.adventureHp,150);
@@ -87,7 +95,7 @@ assert.equal(
     // absent de 40 tirages avec une probabilité (8/9)^40 ≈ 0,9 %). Les tirages alternent désormais
     // un curseur dans la tranche EXP (6/9-7/9) et un dans la tranche Seeds (8/9-1).
     const originalRandomTier6=Math.random;
-    Math.random=()=>(i%2===0?0.7:0.95);
+    Math.random=()=>(i%2===0?4.5/11:5.5/11);   /* palier 6 du jeu (tier6Reward) : 11 cas, EXP = le 5e, graines = le 6e */
     let res;
     try{res=applyIdleNguAction(cursor,{action:'moneyPit'},context,at);}finally{Math.random=originalRandomTier6;}
     assert.equal(res.result.tier,6,"1e15 doit correspondre au palier 6 (wiki : min 1Qa = 1e15).");

@@ -340,8 +340,8 @@
   "sha": "64a8ef29f2f7afac43b5f60a06d069ae55b49704"
  },
  "/modules/flux-v1.js": {
-  "pin": 49,
-  "sha": "bbdd076aad2755cc385a59b3ca17ff39f559e0ec"
+  "pin": 50,
+  "sha": "6788cf4bc4c456cae35f41c8ca1ef338c397a751"
  },
  "/modules/fond-combat-v1.js": {
   "pin": 1,
@@ -528,8 +528,8 @@
   "sha": "8606a9083d1edd548c179d7e0a8ea365f37a5e05"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 31,
-  "sha": "11d9928b6760d29794a1ac17aa133fde23e8bcc0"
+  "pin": 32,
+  "sha": "140cb9988947a072d60bcbc459089511c17f510d"
  },
  "/modules/moqueurs-fuite-v1.js": {
   "pin": 6,
@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 270,
-  "sha": "36746a713c45b601dde5c655ca98dfdad62183a5"
+  "pin": 271,
+  "sha": "34cbda4639a2ecaf6312e2056be34e793a79509e"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -668,12 +668,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 347,
-  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
+  "pin": 349,
+  "sha": "5f8efb7a1b21b9c394ec7778300c3d4da20f437c"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 993,
-  "sha": "e48a80357b4e50876b3cb47f64187cf59d766b1f"
+  "pin": 995,
+  "sha": "9a51d401da4f80979ff2c6319ebbc7a7124b38d6"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -768,12 +768,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1033,
-  "sha": "3b293b3b52180e1bc145542c04bfd124ab8a03b6"
+  "pin": 1035,
+  "sha": "6ad80161c94a03aad022d068679970e09d3ff1ad"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 854,
-  "sha": "47b6337136d514d33132e8439879b9409f30513a"
+  "pin": 856,
+  "sha": "013a71dc5f5171abefa1051563e1d058053edfc9"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -784,8 +784,8 @@
   "sha": "9b5516aea7f5dc123506aa6ccea9c78b94de160c"
  },
  "/modules/trou-recompenses-v1.js": {
-  "pin": 3,
-  "sha": "4aa2c2207b2c812f18678169a5e382619b9c2847"
+  "pin": 4,
+  "sha": "dda19925e04a4afd32aeccdb029102ad40411ffe"
  },
  "/modules/tutorial-framing-v1.js": {
   "pin": 4,

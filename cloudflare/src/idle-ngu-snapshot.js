@@ -7,6 +7,7 @@ import { nguActiveTiersV1, IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, nguParamsV1, 
 import { span } from "./idle-spans-v1.js";
 import { IDLE_SELLOUT_SHOP_CATALOG_V1, idleSelloutShopEffectActiveV1, idleSelloutShopNextCostV1, idleSelloutApplyEffectV1 } from "./idle-sellout-shop-v1.js";
 import { idleAdventureSnapshotV47, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, IDLE_ADVENTURE_SPECIALS, idleAdventureAddItemV1, idleAdventureSpecialItemV1, idleAdventureBoostV1, applyIdleAdventureActionV47 } from "./idle-adventure-v47.js";
+import { accessorySlotsCapacityAdventureV1 } from "./idle-adventure-inventaire.js";
 import { idleCardsSnapshotV1, idleCardsGrantChallengeMayoV1 } from "./idle-cards-v1.js";
 import { idleYggIsMayoFruitV1, idleYggFruitUnlockedV1, idleYggExtraSnapshotV1 } from "./idle-yggdrasil-extra-v1.js";
 import { macguffinSnapshotV1, macguffinPermanentPctV1 } from "./idle-macguffins-v1.js";
@@ -675,7 +676,7 @@ function applyMoneyPitOneTimeBonusesV1(state) {
  * nous a apportés depuis le début »). L'historique ne garde que 20 jets : les totaux sont cumulés à part (data.rewardsTotal) ; pour une sauvegarde
  * d'avant, ils partent de l'historique disponible.
  */
-const MONEY_PIT_TOTAL_KEYS_V1 = Object.freeze(["adventureStats", "adventureHp", "adventureRegen", "cubePower", "cubeToughness", "cubeBoth", "experience", "seeds", "wandoosLevels", "ap", "boosts", "energyBars", "magicBars"]);
+const MONEY_PIT_TOTAL_KEYS_V1 = Object.freeze(["adventureStats", "adventurePower", "adventureToughness", "levelUps", "adventureHp", "adventureRegen", "cubePower", "cubeToughness", "cubeBoth", "experience", "seeds", "wandoosLevels", "ap", "boosts", "energyBars", "magicBars"]);
 
 function moneyPitTotalsVideV1() {
   const t = {};
@@ -737,24 +738,29 @@ export function roueTotauxNormalisesV1(raw, history) {
 }
 
 /* Table des lots du Money Pit par palier (wiki NGU Idle, page Money Pit, « Pit Reward Tiers »). Un seul lot de la liste du palier est tiré ; lue aussi pour l'AFFICHAGE (moneyPitSnapshotV1). */
+/*
+ * Lu dans le code du jeu (PitController::tier1Reward … tier11Reward, build 1260, 2026-11-16 ; détail : design/MONEY-PIT-CODE-DU-JEU-2026-11-16.md) : le tirage est UN entier uniforme, chaque cas est UN lot.
+ * Puissance et Endurance sont deux lots distincts ; les boosts sont trois cas (Puissance, Endurance, Spécial) ; le palier 1 a un cas « rien » ; « niveaux » monte de 1 niveau un équipement porté (au hasard, ou tous)
+ * ou les objets de la garderie. Les paliers 12 à 16 (Or au-delà de 1E50, souhait n°4) ne sont pas encore modélisés.
+ */
+const BP_ = (v) => ({ boost: v, type: "power" });
+const BT_ = (v) => ({ boost: v, type: "toughness" });
+const BS_ = (v) => ({ boost: v, type: "special" });
+const trio_ = (v) => [BP_(v), BT_(v), BS_(v)];
+const cube_ = (p, t, b) => [{ cubePower: p }, { cubeToughness: t }, { cubeBoth: b }];
 export const IDLE_MONEY_PIT_REWARDS_V1 = [
   [],
-  [{ adventureStats: 1 }, { boost: 1 }, { adventureHp: 10 }, { adventureRegen: 0.1 }],
-  [{ adventureStats: 2 }, { boost: 2 }, { adventureHp: 20 }, { adventureRegen: 0.2 }, { experience: 1 }],
-  [{ adventureStats: 5 }, { boost: 5 }, { adventureHp: 50 }, { adventureRegen: 0.5 }, { experience: 2 }],
-  [{ adventureStats: 10 }, { boost: 10 }, { adventureHp: 75 }, { adventureRegen: 1 }, { experience: 3 }],
-  /*
-   * 2026-09-23 (audit, page Money Pit) : paliers 5 à 11 complétés avec TOUTES leurs colonnes
-   * (Adv Stat, Cube P/T ou les deux, HP, regen, EXP, Wandoos, Seeds). Le tirage reste un seul
-   * type de récompense au hasard. « Equip +1 LVL » (équipement/Daycare) n'est pas modélisé.
-   */
-  [{ adventureStats: 20 }, { cubePower: 5 }, { cubeToughness: 5 }, { cubeBoth: 3 }, { adventureHp: 150 }, { adventureRegen: 1.5 }, { experience: 10 }, { seeds: 10 }],
-  [{ adventureStats: 50 }, { cubePower: 10 }, { cubeToughness: 10 }, { cubeBoth: 5 }, { adventureHp: 200 }, { adventureRegen: 2 }, { experience: 25 }, { wandoos: 1, wandoosMax: 20 }, { seeds: 25 }],
-  [{ adventureStats: 100 }, { cubePower: 20 }, { cubeToughness: 20 }, { cubeBoth: 10 }, { adventureHp: 300 }, { adventureRegen: 3 }, { experience: 25 }, { wandoos: 1, wandoosMax: 50 }, { seeds: 100 }],
-  [{ adventureStats: 150 }, { cubePower: 50 }, { cubeToughness: 50 }, { cubeBoth: 25 }, { adventureHp: 450 }, { adventureRegen: 5 }, { experience: 200 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 200 }],
-  [{ adventureStats: 200 }, { cubePower: 100 }, { cubeToughness: 100 }, { cubeBoth: 50 }, { adventureHp: 700 }, { adventureRegen: 6 }, { experience: 300 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 300 }],
-  [{ adventureStats: 250 }, { cubePower: 150 }, { cubeToughness: 150 }, { cubeBoth: 75 }, { adventureHp: 750 }, { adventureRegen: 7.5 }, { experience: 400 }, { wandoos: 2, wandoosMax: 100 }, { seeds: 500 }],
-  [{ adventureStats: 300 }, { cubePower: 200 }, { cubeToughness: 200 }, { cubeBoth: 100 }, { adventureHp: 900 }, { adventureRegen: 9 }, { experience: 500 }, { wandoos: 3, wandoosMax: 100 }, { seeds: 700 }]
+  [...trio_(1), { adventurePower: 1 }, { adventureToughness: 1 }, { adventureHp: 10 }, { adventureRegen: 0.1 }, { rien: 1 }],
+  [...trio_(2), { levelUpRandom: 1 }, { experience: 1 }, { adventurePower: 2 }, { adventureToughness: 2 }, { adventureHp: 20 }, { adventureRegen: 0.2 }],
+  [...trio_(5), { levelUpRandom: 1 }, { experience: 2 }, { adventurePower: 5 }, { adventureToughness: 5 }, { adventureHp: 50 }, { adventureRegen: 0.5 }],
+  [...trio_(10), { levelUpRandom: 2 }, { experience: 3 }, { adventurePower: 10 }, { adventureToughness: 10 }, { adventureHp: 75 }, { adventureRegen: 1 }],
+  [...cube_(5, 5, 3), { levelUpAll: 1 }, { experience: 10 }, { seeds: 10 }, { adventurePower: 20 }, { adventureToughness: 20 }, { adventureHp: 150 }, { adventureRegen: 1.5 }],
+  [...cube_(10, 10, 5), { levelUpAll: 1 }, { experience: 25 }, { seeds: 25 }, { adventurePower: 50 }, { adventureToughness: 50 }, { adventureHp: 200 }, { adventureRegen: 2 }, { wandoos: 1, wandoosMax: 20 }],
+  [...cube_(20, 20, 10), { levelUpAll: 1 }, { experience: 25 }, { seeds: 100 }, { adventurePower: 100 }, { adventureToughness: 100 }, { adventureHp: 300 }, { adventureRegen: 3 }, { wandoos: 1, wandoosMax: 50 }, { levelUpDaycare: 1 }],
+  [...cube_(50, 50, 25), { levelUpAll: 1 }, { experience: 200 }, { seeds: 200 }, { adventurePower: 150 }, { adventureToughness: 150 }, { adventureHp: 450 }, { adventureRegen: 5 }, { wandoos: 2, wandoosMax: 100 }, { levelUpDaycare: 1 }],
+  [...cube_(100, 100, 50), { levelUpAll: 1 }, { experience: 300 }, { seeds: 300 }, { adventurePower: 200 }, { adventureToughness: 200 }, { adventureHp: 700 }, { adventureRegen: 6 }, { wandoos: 2, wandoosMax: 100 }, { levelUpDaycare: 1 }],
+  [...cube_(150, 150, 75), { levelUpAll: 1 }, { experience: 400 }, { seeds: 500 }, { adventurePower: 250 }, { adventureToughness: 250 }, { adventureHp: 750 }, { adventureRegen: 7.5 }, { wandoos: 2, wandoosMax: 100 }, { levelUpDaycare: 1 }],
+  [...cube_(200, 200, 100), { levelUpAll: 1 }, { experience: 500 }, { seeds: 700 }, { adventurePower: 300 }, { adventureToughness: 300 }, { adventureHp: 900 }, { adventureRegen: 9 }, { wandoos: 3, wandoosMax: 100 }, { levelUpDaycare: 1 }]
 ];
 
 /* Lots tirables au palier `tier` : ceux dont le syst�me est d�bloqu� (cube, Wandoos, Yggdrasil) ; utilis� par le tirage ET par la liste annonc�e au joueur : le % affich� est donc la vraie chance (1 / nombre de lots). */
@@ -764,8 +770,49 @@ export function moneyPitLotsDisponiblesV1(state, tier) {
     if ((choix.cubePower || choix.cubeToughness || choix.cubeBoth) && !sys("infinityCube")) return false;
     if (choix.wandoos && !sys("wandoos")) return false;
     if (choix.seeds && !sys("yggdrasil")) return false;
+    if (choix.levelUpDaycare && !sys("daycare")) return false;
     return true;
   });
+}
+
+/*
+ * « Niveaux » du Money Pit (lu dans le jeu : Equipment::levelUp = +1 niveau, plafonné à 100, sur un objet existant ; InventoryController::allLevelUp : arme, bottes, jambières, plastron, casque et tous les
+ * accessoires portés ; randomLevelUp : un emplacement au hasard parmi les 5 pièces et les emplacements d'accessoires, vide = rien ; daycareLevelUp : tous les objets de la garderie, build 1260, 2026-11-16).
+ * Dans SOREAL le niveau d'un objet ne change que le plafond de ses stats (cleanItem) : la montée n'ajoute que le niveau. Retourne le nombre de niveaux ajoutés.
+ */
+function moneyPitMonterNiveauxV1(state, mode, fois) {
+  const adv = state.adventure || {};
+  const inv = Array.isArray(adv.inventory) ? adv.inventory : [];
+  const eq = adv.equipment || {};
+  const monter = (o) => {
+    if (!o || num(o.level, 0) >= 100) return 0;
+    o.level = Math.min(100, Math.max(0, int(o.level, 0)) + 1);
+    return 1;
+  };
+  const porte = (id) => (id ? inv.find((x) => x && String(x.id) === String(id)) : null);
+  if (mode === "levelUpDaycare") {
+    let n = 0;
+    for (const e of Array.isArray(state.systems.daycare?.data?.slots) ? state.systems.daycare.data.slots : []) {
+      const gagne = monter(e && e.item);
+      if (gagne && e.levelAtEntry !== undefined) e.levelAtEntry = Math.min(100, Math.max(0, int(e.levelAtEntry, 0)) + 1);
+      n += gagne;
+    }
+    return n;
+  }
+  const accessoires = Array.isArray(eq.accessories) ? eq.accessories : [];
+  if (mode === "levelUpAll") {
+    let n = 0;
+    for (const id of [eq.weapon, eq.boots, eq.legs, eq.chest, eq.head, ...accessoires]) n += monter(porte(id));
+    return n;
+  }
+  const emplacements = 5 + Math.max(0, int(accessorySlotsCapacityAdventureV1(adv), 0));
+  let n = 0;
+  for (let i = 0; i < Math.max(1, int(fois, 1)); i += 1) {
+    const r = Math.floor(Math.random() * emplacements);
+    const id = r < 5 ? [eq.weapon, eq.boots, eq.legs, eq.chest, eq.head][r] : accessoires[r - 5];
+    n += monter(porte(id));
+  }
+  return n;
 }
 
 export function tossMoneyPit(state, now) {
@@ -854,8 +901,15 @@ export function tossMoneyPit(state, now) {
 
   for (const [k, v] of Object.entries(choix)) {
     if (k === "boost") {
-      const type = ["power", "toughness", "special"][Math.floor(Math.random() * 3)];
-      boostGrant = idleAdventureBoostV1(type, v);
+      boostGrant = idleAdventureBoostV1(choix.type, v);
+    } else if (k === "type" || k === "rien") {
+      /* « type » précise le boost ; « rien » : le cas « sent mauvais » du palier 1 */
+    } else if (k === "adventurePower" || k === "adventureToughness") {
+      state.adventure.permanent[k] = Math.max(0, num(state.adventure.permanent[k], 0)) + v;
+      reward[k] = (reward[k] || 0) + v;
+    } else if (k === "levelUpRandom" || k === "levelUpAll" || k === "levelUpDaycare") {
+      const n = moneyPitMonterNiveauxV1(state, k, v);
+      reward.levelUps = (reward.levelUps || 0) + n;
     } else if (k === "adventureStats") {
       state.adventure.permanent.adventurePower =
         Math.max(0, num(state.adventure.permanent.adventurePower, 0)) + v;

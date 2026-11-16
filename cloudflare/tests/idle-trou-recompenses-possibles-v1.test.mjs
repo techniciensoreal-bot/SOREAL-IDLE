@@ -8,12 +8,12 @@ import { IDLE_MONEY_PIT_REWARDS_V1, IDLE_MONEY_PIT_SEUILS_V1, moneyPitSnapshotV1
 function etat(gold, debloques = []) {
   const s = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
   s.systems.moneyPit.unlocked = true;
-  for (const id of ["infinityCube", "wandoos", "yggdrasil"]) s.systems[id].unlocked = false;
+  for (const id of ["infinityCube", "wandoos", "yggdrasil", "daycare"]) s.systems[id].unlocked = false;
   for (const id of debloques) s.systems[id].unlocked = true;
   s.currencies.gold = gold;
   return s;
 }
-const TOUS = ["infinityCube", "wandoos", "yggdrasil"];
+const TOUS = ["infinityCube", "wandoos", "yggdrasil", "daycare"];
 
 // 1. palier de l'Or en stock = palier que le tirage utiliserait (mêmes seuils que le wiki : 1E5, 1E7, 1E9, 1E11, 1E13, 1E15, 1E18, 1E21, 1E24, 1E27, 1E30)
 assert.deepEqual([...IDLE_MONEY_PIT_SEUILS_V1], [1e5, 1e7, 1e9, 1e11, 1e13, 1e15, 1e18, 1e21, 1e24, 1e27, 1e30]);
@@ -54,7 +54,7 @@ for (let tier = 1; tier <= 11; tier += 1) {
   const sn = moneyPitSnapshotV1(etat(1e30, []));
   assert.ok(sn.lots.length > 0, "les lots d'Aventure et d'EXP restent");
   for (const l of sn.lots) {
-    assert.ok(!l.cubePower && !l.cubeToughness && !l.cubeBoth && !l.wandoos && !l.seeds, "aucun lot de système verrouillé : " + JSON.stringify(l));
+    assert.ok(!l.cubePower && !l.cubeToughness && !l.cubeBoth && !l.wandoos && !l.seeds && !l.levelUpDaycare, "aucun lot de système verrouillé : " + JSON.stringify(l));
   }
   const avecCube = moneyPitSnapshotV1(etat(1e30, ["infinityCube"]));
   assert.ok(avecCube.lots.some((l) => l.cubePower) && !avecCube.lots.some((l) => l.seeds || l.wandoos), "seul le Cube est débloqué");

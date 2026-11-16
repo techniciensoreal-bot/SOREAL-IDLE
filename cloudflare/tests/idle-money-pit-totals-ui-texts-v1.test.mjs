@@ -21,11 +21,11 @@ function jeter(s, gold, t, alea) {
   let s = normalizeIdleNguState({}, { bosses: 100 }, 1_000_000);
   s.systems.moneyPit.unlocked = true;
   assert.ok(s.systems.moneyPit.data.rewardsTotal, "totaux présents dès une sauvegarde neuve");
-  assert.equal(s.systems.moneyPit.data.rewardsTotal.adventureStats, 0);
-  // palier 3 (2e9 d or), tirage 0 = « adventureStats +5 »
-  for (let i = 0; i < 25; i++) s = jeter(s, 2e9, 10_000_000 + i * 30 * H, 0);
+  assert.equal(s.systems.moneyPit.data.rewardsTotal.adventurePower, 0);
+  // palier 3 (2e9 d or, 9 lots du jeu), tirage 5,5/9 = « +5 Puissance »
+  for (let i = 0; i < 25; i++) s = jeter(s, 2e9, 10_000_000 + i * 30 * H, 5.5 / 9);
   const t = s.systems.moneyPit.data.rewardsTotal;
-  assert.equal(t.adventureStats, 25 * 5, "25 jets x 5 : les totaux les gardent tous");
+  assert.equal(t.adventurePower, 25 * 5, "25 jets x 5 : les totaux les gardent tous");
   assert.ok(t.ap >= 25 * 5, "AP du jet cumulés");
   assert.equal(s.systems.moneyPit.data.history.length, 25, "l'historique garde jusqu'à 100 lignes (5 pages de 20)");
   // bonus uniques (1E8 cumulés) : +100 PV max
@@ -36,12 +36,12 @@ function jeter(s, gold, t, alea) {
   assert.equal(u.systems.moneyPit.data.rewardsTotal.adventureHp, 100, "le bonus unique du seuil 1E8 est compté");
   // survit à une normalisation
   const re = normalizeIdleNguState(JSON.parse(JSON.stringify(s)), { bosses: 100 }, 20_000_000);
-  assert.equal(re.systems.moneyPit.data.rewardsTotal.adventureStats, 125);
+  assert.equal(re.systems.moneyPit.data.rewardsTotal.adventurePower, 125);
   // sauvegarde d'avant : les totaux partent de l'historique disponible
   const ancien = JSON.parse(JSON.stringify(s));
   delete ancien.systems.moneyPit.data.rewardsTotal;
   const migre = normalizeIdleNguState(ancien, { bosses: 100 }, 20_000_000);
-  assert.equal(migre.systems.moneyPit.data.rewardsTotal.adventureStats, 25 * 5);
+  assert.equal(migre.systems.moneyPit.data.rewardsTotal.adventurePower, 25 * 5);
 }
 
 const ui = lireUiComplet();

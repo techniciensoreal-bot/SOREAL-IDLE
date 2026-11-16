@@ -101,8 +101,8 @@
       if(!(v>0))return;
       if(cle==='experience'){if(m.spendExp)parties.push('+'+nombreCourt(v)+' EXP');else inconnue=true;return;}
       if(cle==='ap'){if(m.sellout)parties.push('+'+nombreCourt(v)+' AP');else inconnue=true;return;}
-      if(cle==='adventureStats'||cle==='adventureHp'||cle==='adventureRegen'){
-        if(m.aventure)parties.push('+'+nombreCourt(v)+(cle==='adventureStats'?' stats d’Aventure':cle==='adventureHp'?' PV d’Aventure':' régénération d’Aventure'));else inconnue=true;
+      if(cle==='adventureStats'||cle==='adventurePower'||cle==='adventureToughness'||cle==='levelUps'||cle==='adventureHp'||cle==='adventureRegen'){
+        if(m.aventure)parties.push('+'+nombreCourt(v)+(cle==='adventureStats'?' stats d’Aventure':cle==='adventurePower'?' Puissance d’Aventure':cle==='adventureToughness'?' Endurance d’Aventure':cle==='levelUps'?' niveau(x) d’équipement':cle==='adventureHp'?' PV d’Aventure':' régénération d’Aventure'));else inconnue=true;
         return;
       }
       if(cle==='wandoosLevels'){if(m.wandoos)parties.push('+'+nombreCourt(v)+' niveaux Wandoos');else inconnue=true;return;}

@@ -36,7 +36,13 @@
   /* Un lot du moteur -> { icon, name }. Les noms sont ceux du reste de la page (libelleRecompenseMetaV206_). */
   function decrire(l){
     if(l.adventureStats)return {icon:'stats',name:'+'+nb(l.adventureStats)+' Puissance et Endurance d’Aventure'};
-    if(l.boost)return {icon:'boost',name:'Boost '+nb(l.boost)+' (Puissance, Endurance ou Spécial)'};
+    if(l.adventurePower)return {icon:'stats',name:'+'+nb(l.adventurePower)+' Puissance d’Aventure'};
+    if(l.adventureToughness)return {icon:'stats',name:'+'+nb(l.adventureToughness)+' Endurance d’Aventure'};
+    if(l.levelUpRandom)return {icon:'xp',name:'+1 niveau sur un équipement porté (au hasard)'+(l.levelUpRandom>1?', '+nb(l.levelUpRandom)+' fois':'')};
+    if(l.levelUpAll)return {icon:'xp',name:'+1 niveau sur tout l’équipement porté'};
+    if(l.levelUpDaycare)return {icon:'xp',name:'+1 niveau sur tous les objets de la garderie'};
+    if(l.rien)return {icon:'ap',name:'Rien (le Trou rote)'};
+    if(l.boost){const nomB=l.type==='power'?'Puissance':(l.type==='toughness'?'Endurance':(l.type==='special'?'Spécial':''));return {icon:'boost',name:'Boost '+(nomB?nomB+' ':'')+nb(l.boost)+(nomB?'':' (Puissance, Endurance ou Spécial)')};}
     if(l.adventureHp)return {icon:'heart',name:'+'+nb(l.adventureHp)+' PV max d’Aventure'};
     if(l.adventureRegen)return {icon:'regen',name:'+'+nb(l.adventureRegen,2)+' Regen PV d’Aventure'};
     if(l.cubePower)return {icon:'cube',name:'+'+nb(l.cubePower)+' Cube Puissance'};
