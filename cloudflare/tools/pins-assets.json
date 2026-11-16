@@ -128,12 +128,12 @@
   "sha": "8e6e6d3b425266ad258c4058151888ebfc086843"
  },
  "/modules/boutique-exp-page-v1.js": {
-  "pin": 13,
-  "sha": "e076822061e3cf01e1d60cb04b62aa763e8379ef"
+  "pin": 14,
+  "sha": "453fd3c7271f6442829451a339ccdf5ade96e232"
  },
  "/modules/boutique-info-i-v1.js": {
-  "pin": 3,
-  "sha": "3a471c7d5f354b9baf4a159fa42771282ab37da8"
+  "pin": 4,
+  "sha": "dce07105e89c590fb329891f4beab21b6f370994"
  },
  "/modules/boutique-nouveautes-v1.js": {
   "pin": 1,
@@ -556,8 +556,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 295,
-  "sha": "c1f7d923e60909c636b03f588c53f960e69e0a79"
+  "pin": 296,
+  "sha": "535f8c5d0f2660650b764dc22a14a30a1fe908c3"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -816,8 +816,8 @@
   "sha": "842f859ac3ab20f0a1ee7d6c142c959fbe6df312"
  },
  "/modules/ui-amorcage-v1.js": {
-  "pin": 18,
-  "sha": "214432df5a603f4e9ceacc9628bf8ce5258c5fd9"
+  "pin": 19,
+  "sha": "e69258c2c016884a1b63288e00a80aa44c3837f7"
  },
  "/modules/ui-aventure-1-v1.js": {
   "pin": 48,
@@ -852,8 +852,8 @@
   "sha": "e96957a354877249aa733e57f01ce4a2d00a230c"
  },
  "/modules/ui-entrainement-v1.js": {
-  "pin": 20,
-  "sha": "6cfdc7218e947970a2f9ff6ff0bb8b8e89ea243b"
+  "pin": 21,
+  "sha": "1e7fc04b5b6a0e3235b66a8a0a52d4f476298959"
  },
  "/modules/ui-inventaire-v1.js": {
   "pin": 19,
@@ -892,8 +892,8 @@
   "sha": "9cc01ebbaf62123ee5ae9a0a054badd5658f254e"
  },
  "/modules/ui-synchro-v1.js": {
-  "pin": 2,
-  "sha": "3fc0adff9ed844697fd82d2526272ede44323989"
+  "pin": 3,
+  "sha": "915d2020acc7c3386dfa41f2796af4354fd4da89"
  },
  "/modules/ui-tutoriel-v1.js": {
   "pin": 8,
@@ -1040,8 +1040,8 @@
   "sha": "409e74ca0ecf7d7452a3e3641710a8d9ce185733"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 356,
-  "sha": "e563c6f45bbfea3f2c12bd121d5541b2f2efa97d"
+  "pin": 357,
+  "sha": "97ac636d6841ae3578a7f1d1b1ce570d2b0184c5"
  },
  "/soreal-idle-jeu.css": {
   "pin": 9,
@@ -1084,12 +1084,12 @@
   "sha": "ac888ed7122dd8db80cf0c5e747777cbba94f61a"
  },
  "/soreal-idle-ui.css": {
-  "pin": 82,
-  "sha": "687dd7855a386df35d2d70655cabe281d4ac169c"
+  "pin": 83,
+  "sha": "c31dec3569c83b7017f0e3ce59f1b1843b47c1fb"
  },
  "/soreal-idle-ui.js": {
-  "pin": 663,
-  "sha": "2e12d676acbaa6e9aca3e89f3d72309618286127"
+  "pin": 664,
+  "sha": "62114eaa109cbf01af5ce50450d2086d7a006814"
  },
  "/standalone-bridge.js": {
   "pin": 29,
