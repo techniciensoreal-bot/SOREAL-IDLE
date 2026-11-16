@@ -753,6 +753,20 @@ export function multiplicateurDpsJoueurBossSorealIdle_(
   );
 }
 
+const REGEN_BOSS_APPELS_PAR_SECONDE_V1=50;
+
+/* Fin des boss (BossController::advanceBoss / beginFight / fight / nukeBosses, build 1260) : le dernier boss a l'indice 300 ; avec bossID > 300 le jeu pose attaque 69, defense 69, PV et regen 420 et ne combat plus. */
+export const BOSS_DERNIER_INDEX_V1=300;
+const BOSS_FIN_NOM_V1='NONE (YOU KILLED THEM ALL)';
+const BOSS_FIN_ATTAQUE_DEFENSE_V1=69;
+const BOSS_FIN_PV_V1=420;
+const BOSS_FIN_REGEN_V1=420;
+
+/* Vrai quand `bossVaincus` (= bossID du jeu) depasse le dernier boss : plus aucun combat ni Nuke possible. */
+export function bossFinDesBossAtteinteSorealIdle_(bossVaincus){
+  return Math.floor(Number(bossVaincus)||0)>BOSS_DERNIER_INDEX_V1;
+}
+
 export function regenBossSecondeSorealIdle_(
   bossIndex,
   pvMax
@@ -766,6 +780,11 @@ export function regenBossSecondeSorealIdle_(
    * les difficultés Evil/Sadistic, qui divisent les stats Fight Boss,
    * conservent la même proportion sans dupliquer une seconde table.
    */
+  /* Apres le dernier boss : bossRegen = 420 (advanceBoss), toujours ajoute 50 fois par seconde. */
+  if (bossFinDesBossAtteinteSorealIdle_(bossIndex)) {
+    return BOSS_FIN_REGEN_V1*REGEN_BOSS_APPELS_PAR_SECONDE_V1;
+  }
+
   const reference=
     nguBossStatsV1(
       bossIndex
@@ -799,7 +818,8 @@ export function regenBossSecondeSorealIdle_(
     )/
     pvReference;
 
-  return regenReference*ratioPv;
+  /* BossController::Start (build 1260) : InvokeRepeating("fight", 0, 0.02) = 50 appels par seconde ; BossController::fight ajoute Character.bossRegen a CHAQUE appel (sans le facteur 0,02 des degats), meme hors combat, puis plafonne a bossMaxHP : la regeneration par seconde vaut 50 x la valeur du tableau (audit boss-at-rebirth E4, 2026-11-16). */
+  return regenReference*ratioPv*REGEN_BOSS_APPELS_PAR_SECONDE_V1;
 }
 
 function multiplicateurAttaqueBossSorealIdle_(
@@ -1612,10 +1632,6 @@ export function definitionBossSorealIdle_(
     );
   }
 
-  /*
-   * Après le catalogue initial, on garde la progression infinie
-   * sans recycler les mêmes statistiques.
-   */
   const dernier =
     equilibrerBossPrincipalSorealIdleV413_(
       catalogue[
@@ -1624,6 +1640,39 @@ export function definitionBossSorealIdle_(
       catalogue.length - 1,
       difficulty
     );
+
+  /*
+   * Fin des boss (audit boss-at-rebirth E3, 2026-11-16). BossController::advanceBoss (build 1260) :
+   * quand bossID > 300 (301 boss vaincus), plus aucun boss : bossAttack = bossDefense = 69,
+   * bossRegen = bossCurHP = bossMaxHP = 420, texte « NONE (YOU KILLED THEM ALL) ». Il n'y a PAS de
+   * boss au-delà : beginFight, fight et nukeBosses s'arrêtent pour bossID > 300 (voir
+   * `bossFinDesBossAtteinteSorealIdle_`). Ces valeurs ne servent qu'à l'affichage de la fin.
+   */
+  if (bossFinDesBossAtteinteSorealIdle_(n)) {
+    return {
+      id: n + 1,
+      nom: BOSS_FIN_NOM_V1,
+      pv: BOSS_FIN_PV_V1,
+      attaque: BOSS_FIN_ATTAQUE_DEFENSE_V1,
+      defense: BOSS_FIN_ATTAQUE_DEFENSE_V1,
+      xp: 0,
+      pieces: 0,
+      chanceLoot: 0,
+      niveauRequis: Math.max(1, Math.floor(nombreSorealIdle_(dernier.niveauRequis, catalogue.length))),
+      histoire: '',
+      histoireParlee: '',
+      nomParle: '',
+      mortVivant: false,
+      conseil: '',
+      capacites: [],
+      finDesBoss: true
+    };
+  }
+
+  /*
+   * Après le catalogue initial, on garde la progression infinie
+   * sans recycler les mêmes statistiques (seulement si le catalogue est plus court que les 301 boss du jeu).
+   */
 
   const supplement =
     n - catalogue.length + 1;
