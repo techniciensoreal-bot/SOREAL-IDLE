@@ -36,6 +36,7 @@
             'Plusieurs systèmes de jeu ont été alignés sur le code du jeu : minuteurs, plafonds, répartition des coûts et facteurs de temps.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
+            'Le NUMBER gagné au Rebirth suit le temps de Rebirth comme dans le jeu, et les coefficients de plusieurs bonus de niveau ont été corrigés d’après le code du jeu.',
             'Les valeurs de base de l’entraînement de base et la réduction du facteur de buff de défense sur les dégâts reçus suivent maintenant les valeurs lues dans le code du jeu.',
             'Les cœurs Rouge et Jaune complets remplacent le bonus de l’objet équipé (EXP et AP) au lieu de prendre le plus grand des deux, comme dans le vrai jeu.'
           ]},
@@ -65,6 +66,15 @@
           ]},
           {menu:'tower', titre:'Tour', points:[
             'Tour : les ennemis attaquent maintenant comme dans le jeu (16 ennemis aux comportements variés), tu peux y perdre ta vie et retomber à l’étage de départ, et l’étage optimal se calcule comme dans le jeu.'
+          ]},
+          {menu:'beards', titre:'Barbes', points:[
+            'La banque de niveaux se calcule pour chaque barbe séparément, comme dans le jeu.'
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Magie du sang : arrondis, plafonds et conditions des sorts corrigés d’après le code du jeu.'
+          ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Certains fruits n’apparaissent qu’une fois leur condition remplie, comme dans le jeu, et le fruit d’Or n’arrondit plus en minutes.'
           ]},
           {menu:'moneyPit', titre:'Money Pit', points:[
             'Le chrono du tour de la roue démarre à 23 h comme dans le jeu (le premier tour est prêt après une heure de jeu).',

@@ -5,7 +5,7 @@
  */
 import { idleAchievementsBpV1, idleAchievementsApMultiplierV1, IDLE_ACHIEVEMENTS_V1, idleAchievementBossRequisV1 } from "./idle-achievements-v1.js";
 import { span } from "./idle-spans-v1.js";
-import { IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, IDLE_NGU_MAX_LEVEL_V1, nguEffectsV1, nguActiveTiersV1, nguParamsV1, nguLevelsFromWorkV1 } from "./idle-ngu-catalog-v1.js";
+import { IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, IDLE_NGU_MAX_LEVEL_V1, nguEffectsV1, nguEffectPctV1, nguActiveTiersV1, nguParamsV1, nguLevelsFromWorkV1 } from "./idle-ngu-catalog-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
@@ -220,6 +220,25 @@ export function hackFxV1(state) {
 export function nguFxV1(state) {
   if (state.challenge?.active === "noNgu" || trollNguOffV1(state)) return nguEffectsV1({}, state.difficulty);
   return nguEffectsV1(nguLevelsMapV1(state), state.difficulty);
+}
+
+/*
+ * Facteur du NGU NUMBER dans le NUMBER du PROCHAIN Rebirth (Rebirth::calculateNextMultis, build 1260, 2026-11-16). Lu dans l'IL : le jeu appelle
+ * AllNGUController::numberBonus() SANS argument, qui multiplie l'effet par Character.timeMulti pour chacun des trois paliers :
+ * 1 + niveau x facteur x timeMulti (et, au-dela du plafond, 1 + niveau^e x coef x facteur x timeMulti), puis produit des trois.
+ * La version a un argument (sans timeMulti) ne sert qu'a l'affichage : nguFxV1(state).number reste donc l'effet « plein » (affichages).
+ * RISQUE : effet attenue pour un Rebirth de moins d'une heure (timeMulti < 1), legerement amplifie au-dela (1 + t / 2 jours) ; non mesure au banc du vrai jeu.
+ */
+export function nguNumberRebirthV1(state, timeFactor) {
+  if (state.challenge?.active === "noNgu" || trollNguOffV1(state)) return 1;
+  const map = nguLevelsMapV1(state);
+  const tm = Math.max(0, num(timeFactor, 1));
+  let out = 1;
+  for (const tier of nguActiveTiersV1(state.difficulty)) {
+    const L = Math.max(0, num(map[tier]?.number, 0));
+    if (L > 0) out *= 1 + (nguEffectPctV1(tier, "number", L) / 100) * tm;
+  }
+  return out;
 }
 
 export function nguTotalLevelsV1(state) {

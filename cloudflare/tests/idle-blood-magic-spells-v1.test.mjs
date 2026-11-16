@@ -105,7 +105,8 @@ import {
   // Cumul: un second lancer avec 40 000 sang -> total 50 000 -> log2(5)+1 ≈ 3.3219, pas juste log2(4)+1 du dernier lancer seul.
   after.currencies.blood = 40000;
   const after2 = applyIdleNguAction(after, { action: "castBloodSpell", spell: "bloodSpaghetti" }, {}, 1_000_000).state;
-  const expectedPct = Math.log2(50000 / 10000) + 1;
+  /* Jeu : floor(log2(5) + 1) = 3 (arrondi à l entier inférieur, AllBloodMagicController::lootBonus, 2026-11-16). */
+  const expectedPct = Math.floor(Math.log2(50000 / 10000) + 1);
   assert.ok(Math.abs(after2.systems.bloodMagic.data.spells.bloodSpaghetti - (1 + expectedPct / 100)) < 1e-9, "Le cumul doit porter sur le total de sang dépensé à ce sort ce Rebirth (50 000), pas seulement le dernier lancer (40 000).");
 }
 

@@ -95,4 +95,15 @@ const manger = (s, fruit, mode = "eat", poop = true) => applyIdleNguAction(s, { 
   assert.deepEqual(run(true), { reste: 11, gratuites: 1, used: 10 });
 }
 
+// ---------- Jeu (FruitController::usePoop) : test AVANT l'incrementation, gratuit meme sans stock ----------
+{
+  const s = pret("powerAlpha", 1, 0, (x) => { x.adventure.completedSets.heartBrown = true; });
+  s.systems.yggdrasil.data.fruits.powerAlpha.active = true;
+  s.systems.yggdrasil.data.fruits.powerAlpha.growthHours = 1;
+  const r = manger(s, "powerAlpha");
+  assert.equal(r.result.poop.free, true, "la 1re utilisation (poopUsed = 0) est gratuite, sans Poop en stock");
+  assert.equal(r.state.selloutEffects.poopUsed, 1);
+  assert.equal(r.state.selloutEffects.poop, 0);
+}
+
 console.log("idle-yggdrasil-extra-poop: OK");

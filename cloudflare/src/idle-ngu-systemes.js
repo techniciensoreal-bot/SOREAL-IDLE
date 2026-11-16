@@ -9,7 +9,7 @@ import { ITOPOD_AUTOATTACK_REGEN_V1, itopodCycleV1, itopodDrawAiV1 } from "./idl
 import { exileHackV1, exileItopodV1 } from "./idle-antlers-v1.js";
 import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
 import { span, enveloppeSpan } from "./idle-spans-v1.js";
-import { idleQuirkNiveauxV1, idlePerkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
+import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleRangDifficulteV1 } from "./idle-difficulty-gates-v1.js";
 import { macguffinEffectMultiplierV1, macguffinEatFruitV1, macguffinFruitLevelsV1, macguffinOnItopodKillsV1 } from "./idle-macguffins-v1.js";
 import { IDLE_THE_END_LAST_SPELL_BLOOD_V1, idleTheEndGrantV1, IDLE_THE_END_TOWER_FIRST_FLOOR_V1, idleTheEndHasV1 } from "./idle-the-end-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
@@ -270,7 +270,9 @@ function castBloodSpellSansTrace(state, spell, now = 0) {
   if (spell === "ironPill") {
     /* Wiki Blood Magic : Power/Toughness += Blood^0.25 (HP x3, regen x0,03), permanent -- gain ABSOLU, pas un pourcentage. */
     if (now > 0 && now < num(spells.ironPillReadyAt, 0)) throw new Error("SORT_EN_RECHARGE");
-    const gain = Math.pow(blood, 0.25) * perkBonusesV1(idlePerkNiveauxV1(state)).ironPillMultiplier;
+    /* Lu dans le jeu (RebirthPowerSpell::castAdventurePowerupSpell, build 1260, 2026-11-16) : floor(sang^0,25), x ironPillBonus (perks 84/85) SEULEMENT si la difficulté du Rebirth est Evil ou plus, plafonné à 1e8. */
+    const base = Math.floor(Math.pow(blood, 0.25));
+    const gain = Math.min(1e8, idleRangDifficulteV1(state.difficulty) >= 1 ? base * perkBonusesV1(idlePerkNiveauxV1(state)).ironPillMultiplier : base);
     spells.ironPill += gain;
     if (now > 0) spells.ironPillReadyAt = now + (IRON_PILL_COOLDOWN_MS_V1[state.difficulty] || IRON_PILL_COOLDOWN_MS_V1.normal);
     state.currencies.blood = 0;
@@ -279,21 +281,23 @@ function castBloodSpellSansTrace(state, spell, now = 0) {
   }
   if (spell === "counterfeitGold") {
     spells.counterfeitGoldBloodSpent = Math.max(0, num(spells.counterfeitGoldBloodSpent, 0)) + blood;
-    const pct = Math.pow(Math.log2(spells.counterfeitGoldBloodSpent / 1000000) + 1, 2);
-    spells.counterfeitGold = Math.max(1, 1 + pct / 100);
+    /* Lu dans le jeu (AllBloodMagicController::goldBonus, build 1260, 2026-11-16) : 1 si le sang dépensé est sous 1e6, sinon 1 + floor((log2(sang/1e6) + 1)^2) x 0,01. */
+    spells.counterfeitGold = spells.counterfeitGoldBloodSpent < 1000000 ? 1 : 1 + Math.floor(Math.pow(Math.log2(spells.counterfeitGoldBloodSpent / 1000000) + 1, 2)) * 0.01;
     state.currencies.blood = 0;
     bloodCollecteRemiseAZeroV1(state);
     return { spell, spent: blood, multiplier: spells.counterfeitGold };
   }
   if (spell === "bloodSpaghetti") {
     spells.bloodSpaghettiBloodSpent = Math.max(0, num(spells.bloodSpaghettiBloodSpent, 0)) + blood;
-    const pct = Math.log2(spells.bloodSpaghettiBloodSpent / 10000) + 1;
-    spells.bloodSpaghetti = Math.max(1, 1 + pct / 100);
+    /* Lu dans le jeu (AllBloodMagicController::lootBonus, build 1260, 2026-11-16) : 1 si le sang dépensé est sous 10 000, sinon 1 + floor(log2(sang/10 000) + 1) x 0,01. */
+    spells.bloodSpaghetti = spells.bloodSpaghettiBloodSpent < 10000 ? 1 : 1 + Math.floor(Math.log2(spells.bloodSpaghettiBloodSpent / 10000) + 1) * 0.01;
     state.currencies.blood = 0;
     bloodCollecteRemiseAZeroV1(state);
     return { spell, spent: blood, multiplier: spells.bloodSpaghetti };
   }
   if (spell === "leeches") {
+    /* Lu dans le jeu (RebirthPowerSpell::castEndSpell, build 1260, 2026-11-16) : le dernier sort n'existe qu'en difficulté Sadistic (rebirthDifficulty < 2 : refus). */
+    if (idleRangDifficulteV1(state.difficulty) < 2) throw new Error("DIFFICULTE_VERROUILLEE");
     state.currencies.blood = 0;
     bloodCollecteRemiseAZeroV1(state);
     idleTheEndGrantV1(state.adventure, 494, Date.now());
@@ -466,8 +470,8 @@ export function useYggFruit(state,fruitId,mode="eat",options={}){
 
   if(!harvest){
     if(def.effect==="gold"){
-      const minutes=Math.ceil(factor*30*firstHarvestMultiplier);
-      const gold=Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*minutes*60;
+      /* Lu dans le jeu (FruitController::consumeGoldFruit, build 1260, 2026-11-16) : facteur x 1800 x GPS brut x bonus de récolte, SANS arrondi. */
+      const gold=Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*(factor*1800*firstHarvestMultiplier);
       state.currencies.gold+=gold;
       result.gold=gold;
     }else if(def.effect==="powerAlpha"){
@@ -560,8 +564,7 @@ export function apercuYggFruitV1(state,def,f,poopFactor=1){
   const yieldFruit=nguFxV1(state).yggdrasil*quirkYgg*gearPctV1(gearYgg,"yggdrasilYieldPct")*firstHarvestMultiplier;
   const effets=[];
   if(def.effect==="gold"){
-    const minutes=Math.ceil(factor*30*firstHarvestMultiplier);
-    effets.push(["gold",Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*minutes*60]);
+    effets.push(["gold",Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state))*(factor*1800*firstHarvestMultiplier)]);
   }else if(def.effect==="powerAlpha")effets.push(["powerAlpha",Math.ceil(factor*yieldFruit)]);
   else if(def.effect==="adventure"){
     const baseToughness=Math.max(1,idleAdventureCombatStatsV1(idleEquipementEffectifLectureV1(state),{},null).toughness);

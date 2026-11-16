@@ -38,9 +38,9 @@ assert.deepEqual(IDLE_MACGUFFIN_RANDOM_BASE_POOL_V1.slice().sort(),
   ["dropChance", "energyBar", "energyCap", "energyNgu", "energyPower", "magicBar", "magicCap", "magicNgu", "magicPower", "sexy", "smart"],
   "Tirage aléatoire : Energy/Magic Cap/Pow/Bars/NGU/SEXY/SMART + Drop.");
 assert.equal(IDLE_MACGUFFIN_MAX_SLOTS_V1, 22);
-for (const id of ["sexy", "smart"]) {
-  assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === id).effect, null, `${id} : aucun effet branché.`);
-}
+/* Lu dans le jeu (AllBeardsController, indices 8 et 9, 2026-11-16) : SEXY / SMART = vitesse des barbes Energy / Magic. */
+assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === "sexy").effect, "energyBeard");
+assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === "smart").effect, "magicBeard");
 
 assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === "golden").effect, "goldDrops", "Golden : Gold Drops (source tierce, 2026-09-25).");
 
@@ -59,9 +59,9 @@ assert.equal(macguffinTimeRatioV1(1000 * h, true), 104.86, "Plafond 104.86.");
 
 /* --- Gains par Rebirth (points de %) --- */
 proche(macguffinRebirthGainPctV1("energyPower", 0, 1), 0.001, 1e-12, "Power L=0");
-proche(macguffinRebirthGainPctV1("magicPower", 100, 1), 0.101, 1e-12, "Power L=100");
+proche(macguffinRebirthGainPctV1("magicPower", 99, 1), 0.1, 1e-12, "Power L=99 : branche lineaire (L+1 = 100)");
 proche(macguffinRebirthGainPctV1("energyPower", 101, 1), Math.pow(102, 0.3) * 0.02512, 1e-12, "Power L>100");
-proche(macguffinRebirthGainPctV1("energyCap", 100, 2), 0.202, 1e-12, "Cap L=100, T=2");
+proche(macguffinRebirthGainPctV1("energyCap", 99, 2), 0.2, 1e-12, "Cap L=99, T=2");
 proche(macguffinRebirthGainPctV1("dropChance", 500, 1), Math.pow(501, 0.2) * 0.03981, 1e-12, "Drop L>100");
 proche(macguffinRebirthGainPctV1("adventure", 1000, 1), Math.pow(1001, 0.2) * 0.03981, 1e-12, "Adventure L>100");
 proche(macguffinRebirthGainPctV1("sexy", 0, 1), 0.001, 1e-12, "SEXY suit la formule standard");
@@ -69,16 +69,19 @@ proche(macguffinRebirthGainPctV1("golden", 9, 1), 0.05, 1e-12, "Golden (L+1) x 0
 proche(macguffinRebirthGainPctV1("golden", 999, 1), 5, 1e-9, "Golden linéaire au-delà de 100");
 proche(macguffinRebirthGainPctV1("augment", 200, 1), 0.201, 1e-12, "Augment linéaire");
 proche(macguffinRebirthGainPctV1("stat", 0, 1), 0.01, 1e-12, "Stat (L+1) x 0.01 %");
-proche(macguffinRebirthGainPctV1("energyWandoos", 100, 1), 0.202, 1e-12, "Wandoos L=100");
-proche(macguffinRebirthGainPctV1("magicWandoos", 200, 1), Math.pow(201, 0.25) * 0.06325, 1e-12, "Wandoos L>100");
-proche(macguffinRebirthGainPctV1("number", 100, 1), 0.505, 1e-12, "Number L=100");
-proche(macguffinRebirthGainPctV1("number", 300, 1), Math.pow(301, 0.25) * 0.1581, 1e-12, "Number L>100");
+proche(macguffinRebirthGainPctV1("energyWandoos", 99, 1), 0.2, 1e-12, "Wandoos L=99");
+proche(macguffinRebirthGainPctV1("magicWandoos", 200, 1), Math.pow(201, 0.25) * 0.06326, 1e-12, "Wandoos L>100");
+proche(macguffinRebirthGainPctV1("number", 99, 1), 0.5, 1e-12, "Number L=99");
+proche(macguffinRebirthGainPctV1("number", 300, 1), Math.pow(301, 0.25) * 0.15815, 1e-12, "Number L>100");
 proche(macguffinRebirthGainPctV1("blood", 0, 1), 0.003, 1e-12, "Blood L=0");
-proche(macguffinRebirthGainPctV1("blood", 150, 1), Math.pow(151, 0.2) * 0.1194, 1e-12, "Blood L>100");
+proche(macguffinRebirthGainPctV1("blood", 150, 1), Math.pow(151, 0.2) * 0.11943, 1e-12, "Blood L>100");
 proche(macguffinRebirthGainPctV1("r3Power", 0, 1), 0.0005, 1e-12, "R3 Power L=0");
-proche(macguffinRebirthGainPctV1("r3Power", 200, 1), Math.pow(201, 0.3) * 0.01255, 1e-12, "R3 Power L>100");
-proche(macguffinRebirthGainPctV1("r3Cap", 200, 1), Math.pow(201, 0.2) * 0.0199, 1e-12, "R3 Cap L>100");
-proche(macguffinRebirthGainPctV1("r3Bar", 100, 1), 0.0505, 1e-12, "R3 Bar L=100");
+proche(macguffinRebirthGainPctV1("r3Power", 200, 1), Math.pow(201, 0.3) * 0.01256, 1e-12, "R3 Power L>100");
+proche(macguffinRebirthGainPctV1("r3Cap", 200, 1), Math.pow(201, 0.2) * 0.019905, 1e-12, "R3 Cap L>100");
+proche(macguffinRebirthGainPctV1("r3Bar", 99, 1), 0.05, 1e-12, "R3 Bar L=99");
+
+/* Lu dans le jeu (*BonusPerRebirth, 2026-11-16) : la branche exposant commence quand (L + 1) > 100, donc des L = 100. */
+proche(macguffinRebirthGainPctV1("magicPower", 100, 1), Math.pow(101, 0.3) * 0.02512, 1e-12, "Power L=100 : branche exposant");
 
 /* --- Kills par fragment : minimums publiés 720 (zone) et 1 800 (ITOPOD) --- */
 assert.equal(macguffinKillsRequiredV1({}), 1000);

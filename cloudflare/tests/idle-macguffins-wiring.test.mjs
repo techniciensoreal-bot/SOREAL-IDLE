@@ -98,7 +98,7 @@ function fragment(s, type, level, equipped) {
   s.systems.wishes.data.tracks["2"].level = 5;
   s.adventure.completedSets.greasynerd = true;
   assert.equal(macguffinDropLevelV1(s), 7, "Perk 65 + souhait 2 (5 niveaux) + Greasy Nerd set.");
-  const drops = macguffinOnZoneKillsV1(s, "sewers", 1000);
+  const drops = macguffinOnZoneKillsV1(s, "sewers", 1001);
   assert.equal(drops.length, 1);
   assert.equal(drops[0].level, 7);
 }
@@ -106,7 +106,7 @@ function fragment(s, type, level, equipped) {
 /* --- Compteur de zone : 1 000 kills, remis à zéro en changeant de zone, Stat verrouillé sans Choco --- */
 {
   const s = etatDebloque();
-  assert.equal(macguffinOnZoneKillsV1(s, "sewers", 999).length, 0);
+  assert.equal(macguffinOnZoneKillsV1(s, "sewers", 1000).length, 0, "drop strictement apres le seuil (kill 1001)");
   const d = macguffinOnZoneKillsV1(s, "sewers", 1);
   assert.equal(d.length, 1);
   assert.equal(d[0].type, "energyPower");
@@ -116,7 +116,7 @@ function fragment(s, type, level, equipped) {
   assert.deepEqual(s.systems.macguffins.data.zoneCounter, { zone: "forest", kills: 500 }, "Quitter la zone remet le compteur à zéro.");
   assert.equal(macguffinOnZoneKillsV1(s, "chocolate", 5000).length, 0, "Stat : Choco set requis.");
   s.adventure.completedSets.choco = true;
-  const choco = macguffinOnZoneKillsV1(s, "chocolate", 1800);
+  const choco = macguffinOnZoneKillsV1(s, "chocolate", 1802);
   assert.equal(choco.length, 2, "Choco set : 900 kills par fragment.");
   assert.equal(choco[0].type, "stat");
   assert.equal(s.systems.macguffins.data.sourceDropped.stat, true);
@@ -127,10 +127,10 @@ function fragment(s, type, level, equipped) {
 {
   let s = etatDebloque();
   s.adventure.selectedZone = "sewers";
-  s.systems.macguffins.data.zoneCounter = { zone: "sewers", kills: 999 };
+  s.systems.macguffins.data.zoneCounter = { zone: "sewers", kills: 1000 };
   const r = applyIdleNguAction(s, { action: "adventure", adventure: { action: "zoneKill" } }, ctx, T0);
   s = r.state;
-  assert.equal(s.systems.macguffins.data.inventory.length, 1, "Le 1000e kill des Égouts donne le fragment Energy Power.");
+  assert.equal(s.systems.macguffins.data.inventory.length, 1, "Le 1001e kill (seuil + 1) des Égouts donne le fragment Energy Power.");
   assert.equal(s.systems.macguffins.data.inventory[0].type, "energyPower");
   assert.equal(r.result.macguffinDrops.length, 1);
   s = applyIdleNguAction(s, { action: "adventure", adventure: { action: "selectZone", zone: "forest" } }, ctx, T0).state;

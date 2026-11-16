@@ -51,11 +51,12 @@ export const IDLE_MACGUFFIN_FORMULAS_V1 = Object.freeze({
   golden: Object.freeze({ lin: 0.005 }),
   augment: Object.freeze({ lin: 0.001 }),
   stat: Object.freeze({ lin: 0.01 }),
-  wandoos: Object.freeze({ lin: 0.002, exp: 0.25, coef: 0.06325 }),
-  number: Object.freeze({ lin: 0.005, exp: 0.25, coef: 0.1581 }),
-  blood: Object.freeze({ lin: 0.003, exp: 0.2, coef: 0.1194 }),
-  r3Power: Object.freeze({ lin: 0.0005, exp: 0.3, coef: 0.01255 }),
-  r3CapBar: Object.freeze({ lin: 0.0005, exp: 0.2, coef: 0.0199 })
+  /* Coefficients lus dans le jeu (*BonusPerRebirth, build 1260, 2026-11-16) : coef IL x lin (Wandoos 31,63 x 0,002 ; NUMBER 31,63 x 0,005 ; Blood 39,81 x 0,003 ; R3 Power 25,12 x 0,0005 ; R3 Cap/Bar 39,81 x 0,0005). */
+  wandoos: Object.freeze({ lin: 0.002, exp: 0.25, coef: 0.06326 }),
+  number: Object.freeze({ lin: 0.005, exp: 0.25, coef: 0.15815 }),
+  blood: Object.freeze({ lin: 0.003, exp: 0.2, coef: 0.11943 }),
+  r3Power: Object.freeze({ lin: 0.0005, exp: 0.3, coef: 0.01256 }),
+  r3CapBar: Object.freeze({ lin: 0.0005, exp: 0.2, coef: 0.019905 })
 });
 
 /*
@@ -92,8 +93,8 @@ export const IDLE_MACGUFFIN_TYPES_V1 = Object.freeze([
   { id: "magicNgu", item: 203, name: "Magic NGU MacGuffin Fragment", nom: "Fragment MacGuffin Magic NGU", zone: "clock", formula: "standard", effect: "magicNgu", effet: "Vitesse des NGU Magic" },
   { id: "energyBar", item: 204, name: "Energy Bar MacGuffin Fragment", nom: "Fragment MacGuffin Energy Bar", zone: "2d", formula: "standard", effect: "energyBars", effet: "Energy Bars" },
   { id: "magicBar", item: 205, name: "Magic Bar MacGuffin Fragment", nom: "Fragment MacGuffin Magic Bar", zone: "ancient", formula: "standard", effect: "magicBars", effet: "Magic Bars" },
-  { id: "sexy", item: 206, name: "SEXY MacGuffin Fragment", nom: "Fragment MacGuffin SEXY (ex-Energy Beard)", zone: "avsp", formula: "standard", effect: null, effet: "Aucun effet (portrait à 250 %)" },
-  { id: "smart", item: 207, name: "SMART MacGuffin Fragment", nom: "Fragment MacGuffin SMART (ex-Magic Beard)", zone: "mega", formula: "standard", effect: null, effet: "Aucun effet (portrait à 250 %)" },
+  { id: "sexy", item: 206, name: "SEXY MacGuffin Fragment", nom: "Fragment MacGuffin SEXY (ex-Energy Beard)", zone: "avsp", formula: "standard", effect: "energyBeard", effet: "Vitesse des barbes Energy" },
+  { id: "smart", item: 207, name: "SMART MacGuffin Fragment", nom: "Fragment MacGuffin SMART (ex-Magic Beard)", zone: "mega", formula: "standard", effect: "magicBeard", effet: "Vitesse des barbes Magic" },
   { id: "dropChance", item: 208, name: "Drop Chance MacGuffin Fragment", nom: "Fragment MacGuffin Drop Chance", zone: "beardverse", formula: "standard", effect: "dropChance", effet: "Drop Chance" },
   { id: "golden", item: 209, name: "Golden MacGuffin Fragment", nom: "Fragment MacGuffin Golden", zone: "badly", formula: "golden", effect: "goldDrops", effet: "Gold Drops (or des drops d'Aventure ; source tierce)" },
   { id: "augment", item: 210, name: "Augment MacGuffin Fragment", nom: "Fragment MacGuffin Augment", zone: "boring", formula: "augment", effect: "augmentSpeed", effet: "Vitesse des Augments" },
@@ -278,7 +279,7 @@ export function macguffinRebirthGainPctV1(typeId, level, ratio) {
   const f = IDLE_MACGUFFIN_FORMULAS_V1[type.formula];
   const L = Math.max(0, N(level, 0));
   const T = Math.max(0, N(ratio, 0));
-  const base = f.exp !== undefined && L > 100 ? Math.pow(L + 1, f.exp) * f.coef : (L + 1) * f.lin;
+  const base = f.exp !== undefined && L + 1 > 100 ? Math.pow(L + 1, f.exp) * f.coef : (L + 1) * f.lin;
   return base * T;
 }
 
@@ -381,7 +382,7 @@ export function macguffinEffectMultipliersV1(state) {
   const out = {
     energyPower: 1, magicPower: 1, energyCap: 1, magicCap: 1, energyBars: 1, magicBars: 1,
     energyNgu: 1, magicNgu: 1, energyWandoos: 1, magicWandoos: 1, dropChance: 1, goldDrops: 1,
-    augmentSpeed: 1, stat: 1, adventure: 1, number: 1, blood: 1, r3Power: 1, r3Cap: 1, r3Bars: 1
+    augmentSpeed: 1, stat: 1, adventure: 1, energyBeard: 1, magicBeard: 1, number: 1, blood: 1, r3Power: 1, r3Cap: 1, r3Bars: 1
   };
   const perm = state?.systems?.macguffins?.data?.permanent;
   if (!perm) return out;
@@ -517,8 +518,8 @@ function mergeAllOfType(data, typeId) {
 
 /* ---------- Drops ---------- */
 
-function addDrop(state, data, typeId, fromSource, out) {
-  const frag = newFragment(data, typeId, macguffinDropLevelV1(state));
+function addDrop(state, data, typeId, fromSource, out, niveauSupplementaire = 0) {
+  const frag = newFragment(data, typeId, macguffinDropLevelV1(state) + Math.max(0, I(niveauSupplementaire, 0)));
   data.inventory.push(frag);
   if (fromSource) data.sourceDropped[typeId] = true;
   data.lastDrops = [frag, ...(data.lastDrops || [])].slice(0, 20).map(f => ({ ...f }));
@@ -535,10 +536,19 @@ export function macguffinRandomPoolV1(state) {
   return pool;
 }
 
-function dropRandom(state, data, rng, out) {
+function dropRandom(state, data, rng, out, niveauSupplementaire = 0) {
   const pool = macguffinRandomPoolV1(state);
   const pick = pool[Math.min(pool.length - 1, Math.floor(N(rng(), 0) * pool.length))];
-  return addDrop(state, data, pick, false, out);
+  return addDrop(state, data, pick, false, out, niveauSupplementaire);
+}
+
+/*
+ * Lu dans le jeu (LootDrop::titanLevelBonus, build 1260, 2026-11-16) : +1 niveau pour le MacGuffin ALÉATOIRE lâché par un titan
+ * (dropRandomMacguffin(nom, titanLevelBonus())) si le No Rebirth Challenge a été complété au moins une fois ; ni le MacGuffin de zone,
+ * ni celui du Nerd (dropMacguffin(291, 0)), ni les R3 de la Godmother. Même condition que titanLootLevelBonus de l'équipement.
+ */
+function titanLevelBonusV1(state) {
+  return Math.max(0, I(state?.challenge?.completions?.noRebirth, 0)) > 0 ? 1 : 0;
 }
 
 /* Type de fragment de zone lâché par une zone d'Aventure (null si aucun ou verrouillé). */
@@ -562,8 +572,9 @@ export function macguffinOnZoneKillsV1(state, zoneId, kills) {
   if (data.zoneCounter.zone !== zoneId) data.zoneCounter = { zone: zoneId, kills: 0 };
   data.zoneCounter.kills += I(kills, 0);
   const required = macguffinZoneKillsRequiredV1(state);
-  while (data.zoneCounter.kills >= required) {
-    data.zoneCounter.kills -= required;
+  /* Lu dans le jeu (LootDrop::macGuffinThreshold, build 1260, 2026-11-16) : le fragment tombe quand globalKillCounter > seuil (strict), soit au kill seuil + 1 ; le compteur repart de 0. */
+  while (data.zoneCounter.kills > required) {
+    data.zoneCounter.kills -= required + 1;
     addDrop(state, data, type.id, true, out);
   }
   return out;
@@ -594,7 +605,7 @@ export function macguffinOnTitanKillV1(state, titanId, tierKey, dropMultiplier =
   const out = [];
   if (!data || !macguffinUnlockedV1(state)) return out;
   if (titanId === "nerd") addDrop(state, data, "adventure", true, out);
-  if (IDLE_MACGUFFIN_TITAN_RANDOM_V1.includes(titanId)) dropRandom(state, data, rng, out);
+  if (IDLE_MACGUFFIN_TITAN_RANDOM_V1.includes(titanId)) dropRandom(state, data, rng, out, titanLevelBonusV1(state));
   if (titanId === "godmother") {
     const tier = ["easy", "normal", "hard", "brutal"].includes(tierKey) ? tierKey : "easy";
     const mult = Math.max(0.1, N(dropMultiplier, 1));
@@ -679,6 +690,8 @@ function castBloodMacguffin(state, spell, now, rng) {
   const def = IDLE_MACGUFFIN_BLOOD_SPELLS_V1[spell];
   if (!def) throw new Error("SORT_SANG_INVALIDE");
   if (perkLevel(state, def.perk) <= 0) throw new Error("SORT_MACGUFFIN_VERROUILLE");
+  /* Lu dans le jeu (RebirthPowerSpell::castMacguffin2Spell, build 1260, 2026-11-16) : le sort β exige la difficulté Evil ou plus (« You can only cast this spell in Evil difficulty or greater! »). */
+  if (spell === "beta" && idleRangDifficulteV1(state?.difficulty) < 1) throw new Error("DIFFICULTE_VERROUILLEE");
   const data = mgData(state);
   if (!data.equipped.length) throw new Error("AUCUN_MACGUFFIN_EQUIPE");
   const readyKey = spell === "alpha" ? "bloodAlphaReadyAt" : "bloodBetaReadyAt";

@@ -753,7 +753,7 @@ const fresh=(context={}, now=1_000_000)=>
   state.bank.advancedTraining=10;
   state.bank.timeMachineSpeed=20;
   state.bank.timeMachineGold=30;
-  state.bank.beards=40;
+  state.bank.beards={ attack: 40 };
   state.resources.energy.current=400;
   state.currencies.gold=1e9;
   state.systems.augmentations.data.pairs.scissors.level=12;
@@ -766,7 +766,7 @@ const fresh=(context={}, now=1_000_000)=>
   assert.equal(state.currencies.gold,0);
   assert.equal(state.systems.augmentations.data.pairs.scissors.level,0);
   // 2026-09-24 (fusion main) : la banque d Advanced Training est un total unique (bank.advancedTraining), vidé par un défi.
-  assert.deepEqual(state.bank,{advancedTraining:0,timeMachineSpeed:0,timeMachineGold:0,beards:0});
+  assert.deepEqual(state.bank,{advancedTraining:0,timeMachineSpeed:0,timeMachineGold:0,beards:{}});
 
   const reborn=rebirthIdleNguState(state,{bosses:10,attackTrainingLevels:10000},300_000);
   assert.equal(reborn.challenge.active,"basic");

@@ -13,7 +13,7 @@ import { idleCardsMultiplierV1 } from "./idle-cards-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_META_VERSION, IDLE_NGU_SYSTEMS, MIN_REBIRTH_SECONDS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, int, num, safePow, safeProduct } from "./idle-ngu-catalogues.js";
 import { defaultResource, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, normalizeRebirthState } from "./idle-ngu-etat.js";
 import { setRitualAllocationV1, trollBossDividerV1 } from "./idle-ngu-systemes.js";
-import { avecPorteeBonusV1, beardBonusMultiplier, clearNguAllocationsV1, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
+import { avecPorteeBonusV1, beardBonusMultiplier, clearNguAllocationsV1, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1, nguNumberRebirthV1, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, minRebirthSecondsV1, setAugmentAllocationV214_, wishLevelV1 } from "./idle-ngu-snapshot.js";
 import { clearWishSlotAllocationsV1 } from "./idle-ngu-pistes.js";
 
@@ -145,7 +145,8 @@ export function refreshRebirthState(state, context, now) {
     hasPreviousRun: rb.hasPreviousRun,
     attackTrainingLevels: context.attackTrainingLevels,
     bloodMagicBonus: bloodNumberMultiplier(state),
-    nguNumberBonus: nguFxV1(state).number,
+    /* Lu dans le jeu (Rebirth::calculateNextMultis) : le NUMBER des NGU est multiplie par timeMulti (voir nguNumberRebirthV1). */
+    nguNumberBonus: nguNumberRebirthV1(state, idleNguRebirthTimeFactor(runSeconds)),
     beardNumberBonus: beardBonusMultiplier(state, "number"),
     /* 2026-09-24 (page NUMBER) : Fruit of Numbers et Number Hack sont des facteurs du prochain NUMBER. */
     yggNumberBonus: yggFruitNumbersMultiplierV1(state),

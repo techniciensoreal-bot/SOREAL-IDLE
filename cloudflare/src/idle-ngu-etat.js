@@ -654,7 +654,8 @@ export function baseState(now) {
       /* 2026-09-24 : niveaux d'Advanced Training retenus par piste, versés quand le Basic Training est complété. */
       timeMachineSpeed: 0,
       timeMachineGold: 0,
-      beards: 0
+      /* Banque de niveaux de barbes PAR barbe : { <id de piste>: niveaux retenus } (jeu : Beard.bankedLevel). */
+      beards: {}
     },
     /*
      * 4G's Sellout Shop (audit 2026-09-13) — achats permanents, jamais
@@ -1120,6 +1121,19 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
   state.challenge.activeTier = CHALLENGE_TIER_KEYS_V1.includes(source.challenge?.activeTier) ? source.challenge.activeTier : "normal";
   state.challenge.troll = createTrollStateV1(source.challenge?.troll);
   state.bank = Object.assign(baseSous.bank, source.bank || {});
+  /* Banque des barbes PAR barbe : un ancien etat porte un seul nombre (calcule sur la 1re barbe active), rattache a cette barbe ; on ne garde que des entiers > 0. */
+  {
+    const brut = state.bank.beards;
+    const propre = {};
+    if (brut && typeof brut === "object") {
+      for (const [id, v] of Object.entries(brut)) { const n = Math.max(0, Math.floor(num(v, 0))); if (n > 0) propre[String(id)] = n; }
+    } else if (num(brut, 0) > 0) {
+      const sys = source.systems?.beards?.data;
+      const premiere = (Array.isArray(sys?.activeTracks) && sys.activeTracks[0]) || sys?.activeTrack || "attack";
+      propre[String(premiere)] = Math.floor(num(brut, 0));
+    }
+    state.bank.beards = propre;
+  }
   state.bonuses = Object.assign(baseSous.bonuses, source.bonuses || {});
   state.bonuses.cards = normalizeIdleCardBonusesV1(source.bonuses?.cards);
 

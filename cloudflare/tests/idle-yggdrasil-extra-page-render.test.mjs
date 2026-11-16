@@ -46,6 +46,8 @@ state.systems.quirks.data.levels = { 13: 2 };
 state.bonuses.expShop = { yggAutoPomegranate: 1 };
 Object.assign(state.systems.yggdrasil.data.fruits.gold, { tier: 2, active: true, growthHours: 1.5 });
 state.systems.yggdrasil.data.fruits.pomegranate.tier = 1;
+/* Jeu (FruitController::upgrade) : le Fruit of Quirks n'existe qu'apres le Titan 6, Rage apres l'ITOPOD, MacGuffin alpha apres la forme finale de Walderp. */
+state.adventure.titans.t6 = { kills: 1, nextAt: 0, hiddenPanel: "" };
 
 const html = page({ systemes: idleNguSnapshot(state, ctx, T0) }, "yggdrasil", "Yggdrasil");
 assert.ok(html.includes("💩 Poop<b>7</b>"), "stock de Poop visible");
@@ -57,6 +59,7 @@ assert.ok(!/🔒|Troll Challenge|Fruit of Numbers/.test(html), "Fruit of Numbers
 assert.ok(html.includes("⚡ Auto-Activate"), "Pomegranate : Auto-Activate acheté");
 assert.ok(html.includes("window.__acheterAutoYggIdleV1__('yggAutoGold',"), "achat de l'Auto-Activate du Fruit of Gold");
 for (const nom of ["Fruit of Power δ", "Watermelon", "Fruit of Quirks"]) assert.ok(html.includes(nom), nom);
+assert.ok(!html.includes("Fruit of Rage") && !html.includes("Fruit of MacGuffin α"), "Rage (ITOPOD) et MacGuffin α (Walderp) verrouillés : absents (anti-spoil)");
 
 // Case Poop cochée : envoyée avec Manger, puis décochée.
 window.__basculerPoopYggIdleV1__("gold", true);
