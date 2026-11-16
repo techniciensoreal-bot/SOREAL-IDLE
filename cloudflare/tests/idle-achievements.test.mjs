@@ -26,12 +26,12 @@ assert.equal(IDLE_ACHIEVEMENTS_V1.length, 153, "As of build 0.423 there are 153 
 assert.equal(IDLE_ACHIEVEMENTS_V1.filter((a) => !a.secret).length, 135);
 assert.equal(IDLE_ACHIEVEMENTS_V1.filter((a) => a.secret).length, 18);
 assert.equal(new Set(IDLE_ACHIEVEMENTS_V1.map((a) => a.id)).size, 153, "ids uniques");
-/* La page annonce 5825 BP mais ses lignes totalisent 5815 : on garde les lignes. */
-assert.equal(IDLE_ACHIEVEMENTS_V1.reduce((s, a) => s + a.bp, 0), 5815);
+/* Le tableau achievementBP du jeu (153 valeurs) totalise 5825 (le wiki en comptait 5815 : Boss 190 et 230 faux). */
+assert.equal(IDLE_ACHIEVEMENTS_V1.reduce((s, a) => s + a.bp, 0), 5825);
 for (const [id, bp] of [
   ["energyPower_10", 5], ["energyPower_300000000", 50], ["magicPower_3", 5], ["magicPower_100000000", 50],
   ["energyCap_10000", 5], ["energyCap_1000000000000", 50], ["magicCap_30000", 5], ["magicCap_1000000000000", 50],
-  ["energyBars_3", 5], ["magicBars_100000000", 50], ["boss_10", 5], ["boss_60", 25], ["boss_240", 55], ["boss_300", 60],
+  ["energyBars_3", 5], ["magicBars_100000000", 50], ["boss_10", 5], ["boss_60", 25], ["boss_190", 50], ["boss_230", 55], ["boss_240", 55], ["boss_300", 60],
   ["rebirth_1", 5], ["rebirth_1000", 40], ["rebirth_10000", 60],
   ["secretNguMenu", 100], ["secretAtCorner", 60], ["secretSpeedrun", 20], ["secretBeastV4", 25], ["secretEvil", 25]
 ]) assert.equal(idleAchievementV1(id)?.bp, bp, id);
@@ -110,9 +110,9 @@ assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, incon
   s.currencies.gold = 1e9;
   s.systems.achievements.data.unlocked = tous;
   s = normalizeIdleNguState(s, ctx, 1_000_000);
-  assert.equal(idleAchievementsBpV1(s), 5815);   // tous les succès sont suivis (audit 2026-11-14)
+  assert.equal(idleAchievementsBpV1(s), 5825);   // tous les succès sont suivis (audit 2026-11-14)
   const r = applyIdleNguAction(s, { action: "moneyPit" }, ctx, 1_000_000);
-  /* floor(log10(1e9)) = 9 ; x 1,5815 -> 14. */
+  /* floor(log10(1e9)) = 9 ; x 1,5825 -> 14. */
   assert.equal(r.result.reward.ap, 14);
 }
 

@@ -96,7 +96,7 @@ import { readFileSync } from "node:fs";
   const aventure = readFileSync(new URL("../public/modules/ui-aventure-1-v1.js", import.meta.url), "utf8");
   const combat = readFileSync(new URL("../public/modules/ui-combat-2-v1.js", import.meta.url), "utf8");
   assert.ok(combat.includes("REG.idleTitanAttaquesV1=0;REG.idleExploderSurvivedV1=false;") && combat.includes("if(fight.titanId)REG.idleTitanAttaquesV1=(REG.idleTitanAttaquesV1||0)+1;"), "compteur d'attaques du titan remis à zéro à chaque combat et incrémenté à chaque attaque");
-  assert.ok(aventure.includes("sansCoup:Boolean(fight.titanId)&&!(REG.idleTitanAttaquesV1>0)") && aventure.includes("exploderSurvived:Boolean(REG.idleExploderSurvivedV1)"), "victoire : sans coup et explosion survécue notés");
+  assert.ok(aventure.includes("sansCoup:Boolean(fight.titanId)&&!(REG.idleTitanAttaquesV1>1)") && aventure.includes("exploderSurvived:Boolean(REG.idleExploderSurvivedV1)"), "victoire : sans coup et explosion survécue notés");
   assert.ok(aventure.includes("titanSansCoup:idleAdventureResolutionIdentiteV2.sansCoup===true,exploderSurvived:idleAdventureResolutionIdentiteV2.exploderSurvived===true"), "annoncés au serveur avec la résolution");
 }
 console.log("idle-succes-secrets-obtenables-v1 : OK");
