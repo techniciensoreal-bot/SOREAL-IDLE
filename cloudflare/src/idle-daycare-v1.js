@@ -19,8 +19,8 @@
  *    Daycare Speed Boost (15 x 24 / (8 x 90 %)).
  *  - pages objets (« <Objet> will gain one level every N hours when put in the Daycare (base
  *    rate) ») : table IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 ci-dessous, extraite par script des 426
- *    pages objets du miroir (321 taux publiés ; recoupés avec le paramètre `daycare =` des modèles
- *    « Item data » : aucun écart). Les 105 autres pages n'ont pas de ligne Daycare (paramètre
+ *    pages objets du miroir (321 taux publiés, puis 87 ajoutés le 2026-11-16 depuis la table du jeu ; recoupés avec le paramètre `daycare =` des modèles
+ *    « Item data » : aucun écart ; 3 taux corrigés d après le jeu : 386, 504, 505). Les objets restants sans taux (paramètre
  *    `daycare = ?` ou absent) : ces objets sont refusés (TAUX_DAYCARE_INCONNU), jamais un taux inventé.
  *  - pages « Challenges » (Blind Normal/Evil/Sadistic, Troll Evil complétion 3), « Experience »
  *    (Adventure Special), « Perk Points » (27, 28, 86), « Fibonacci Perk », « Wishes » (27),
@@ -349,7 +349,7 @@ export const IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 = Object.freeze({
   383: 72, // An Inanimate Carbon Rod
   384: 72, // A Funky Klein Bottle
   385: 72, // Giant Alien Bug Nest
-  386: 24, // The Key
+  386: 72, // The Key (corrigé : 24 -> 72 h, level0 @2343560 daycareRate[386] = 259200 s, build 1260, 2026-11-16)
   388: 144, // Ascended x7 Pendant
   389: 144, // SUPREME INTELLIGENCE LOOTY
   390: 24, // My Rainbow Heart
@@ -371,9 +371,97 @@ export const IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 = Object.freeze({
   447: 48, // THE EXPONENTIAL
   448: 48, // Mt. Rushmore Roosevelt's Nose
   452: 72, // Rad Mixtape
-  504: 278, // Ascended x9 Pendant
-  505: 278, // LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt
+  504: 1000000 / 3600, // Ascended x9 Pendant (level0 @2343560 : 1 000 000 s ; 278 était un arrondi)
+  505: 1000000 / 3600, // LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt (level0 @2343560 : 1 000 000 s)
   506: 96, // Mysterious Grey Liquid
+  /* Taux ajoutés le 2026-11-16 (audit design/audit-code-jeu/bestiaire-portraits-daycare-ygg.md §4.2) : source = jeu, ItemNameDesc.daycareRate[id] / 3600 (level0 @2343560, build 1260). */
+  391: 24, // stillBeatingHeart
+  392: 96, // bread:head
+  393: 96, // bread:chest
+  394: 96, // bread:legs
+  395: 96, // bread:boots
+  396: 96, // bread:baguette
+  397: 96, // bread:creamPie
+  398: 96, // bread:yeast
+  399: 96, // bread:weapon
+  400: 96, // disco:head
+  401: 96, // disco:chest
+  402: 96, // disco:legs
+  403: 96, // disco:boots
+  404: 96, // disco:weapon
+  405: 96, // disco:whitePowder
+  406: 96, // disco:rollingPaper
+  407: 96, // disco:vinylShard
+  408: 96, // halloweenie:head
+  409: 96, // halloweenie:chest
+  410: 96, // halloweenie:legs
+  411: 96, // halloweenie:boots
+  412: 96, // halloweenie:apple
+  413: 96, // halloweenie:toiletPaper
+  414: 96, // halloweenie:pandora
+  415: 96, // halloweenie:weapon
+  416: 96, // rock:head
+  417: 96, // rock:chest
+  418: 96, // rock:legs
+  419: 96, // rock:boots
+  420: 96, // rock:rocket
+  421: 96, // rock:petRock
+  422: 96, // rock:rollingStone
+  423: 96, // rock:weapon
+  424: 96, // skippingStone
+  425: 96, // bedRock
+  426: 96, // rockCandy
+  427: 96, // brokenScissors
+  428: 96, // portableStairway
+  429: 96, // amplifier
+  445: 24, // edgyMagicite
+  446: 24, // creepyDoll
+  449: 48, // throOdignslug
+  450: 48, // linkCable
+  451: 72, // handCursor
+  453: 120, // construction:head
+  454: 120, // construction:chest
+  455: 120, // construction:legs
+  456: 120, // construction:boots
+  457: 120, // construction:hammer
+  458: 120, // construction:toolbox
+  459: 120, // construction:levelLevel
+  460: 120, // construction:weapon
+  461: 120, // dutch:head
+  462: 120, // dutch:chest
+  463: 120, // dutch:legs
+  464: 120, // dutch:boots
+  465: 120, // dutch:tulip
+  466: 120, // dutch:netherlands
+  467: 120, // dutch:cheese
+  468: 120, // dutch:weapon
+  469: 120, // amalgamate:head
+  470: 120, // amalgamate:chest
+  471: 120, // amalgamate:legs
+  472: 120, // amalgamate:boots
+  473: 120, // amalgamate:deathstick
+  474: 120, // amalgamate:corruptedLeaf
+  475: 120, // amalgamate:glued
+  476: 120, // amalgamate:weapon
+  477: 120, // rawSlabOfWood
+  478: 120, // tieOfApathy
+  479: 120, // titanEffigy
+  496: 120, // duck:head
+  497: 120, // duck:chest
+  498: 120, // duck:legs
+  499: 120, // duck:boots
+  500: 120, // duck:shotgun
+  501: 120, // duck:ducktTape
+  502: 120, // duck:duckCaller
+  503: 120, // duck:weapon
+  507: 96, // pirate:head
+  508: 96, // pirate:chest
+  509: 96, // pirate:legs
+  510: 96, // pirate:boots
+  511: 96, // pirate:cutlass
+  512: 96, // pirate:eyepatch
+  513: 96, // pirate:compass
+  514: 96, // pirate:weapon
 });
 
 const num = numV1;   /* outil commun (corps identique) */

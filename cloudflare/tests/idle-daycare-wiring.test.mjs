@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { idleDaycareEligibilityV1 } from "../src/idle-daycare-v1.js";
 import {
   normalizeIdleNguState,
   applyIdleNguAction,
@@ -56,7 +57,9 @@ const withSlot = (slots = 1) => {
   a = addItem(s, "creepyDoll", 0); s = a.state; const doll = a.id;
   const boost = s.adventure.inventory.find((o) => o.kind === "boost");
   if (boost) assert.throws(() => act(s, { action: "daycarePlace", itemId: boost.id }), /OBJET_NON_ELIGIBLE_DAYCARE/);
-  assert.throws(() => act(s, { action: "daycarePlace", itemId: doll }), /TAUX_DAYCARE_INCONNU/, "Creepy Doll : taux non publié.");
+  /* Le jeu donne un taux à Creepy Doll (24 h, audit 2026-11-16) : plus refusé ; un objet sans taux reste refusé, jamais un taux inventé. */
+  assert.equal(idleDaycareEligibilityV1(s.adventure.inventory.find((o) => o.id === doll)), "", "Creepy Doll : taux du jeu.");
+  assert.equal(idleDaycareEligibilityV1({ wikiItemId: 999999 }), "TAUX_DAYCARE_INCONNU", "objet sans taux refusé.");
   const eq = act(s, { action: "adventure", adventure: { action: "equip", id: pendant, slot: "accessory" } }).state;
   assert.throws(() => act(eq, { action: "daycarePlace", itemId: pendant }), /OBJET_EQUIPE/);
 
