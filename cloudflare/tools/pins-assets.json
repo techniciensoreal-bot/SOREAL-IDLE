@@ -556,8 +556,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 298,
-  "sha": "593af93235abc3cfebe9f6b62bbb8bf2d4ba2429"
+  "pin": 299,
+  "sha": "587555df9534b945e7d9df9eeaa11ad91b733e59"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -1088,8 +1088,8 @@
   "sha": "c31dec3569c83b7017f0e3ce59f1b1843b47c1fb"
  },
  "/soreal-idle-ui.js": {
-  "pin": 664,
-  "sha": "62114eaa109cbf01af5ce50450d2086d7a006814"
+  "pin": 665,
+  "sha": "c80e8a6443871d7b95efe5908d56a7657fdf6591"
  },
  "/standalone-bridge.js": {
   "pin": 29,
