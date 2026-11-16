@@ -822,6 +822,8 @@ function normalizeTracks(def, rawData) {
   if ((IDLE_NGU_TRACKS[def.id] || []).some(t => t.id === source.activeTrack)) {
     out.activeTrack = source.activeTrack;
   }
+  /* Chaîne de l'Exilé : secondes pendant lesquelles « Hack Hack avec R3 = plafond - 1 » est tenu (idle-antlers-v1.js, exileHackV1) ; absent tant que rien n'est tenu. */
+  if (def.id === "hacks" && num(source.exileHoldS, 0) > 0) out.exileHoldS = Math.min(59.999, num(source.exileHoldS, 0));
   if (def.id === "beards") {
     /* 2026-09-23 : plusieurs Beards actives en même temps (une par slot). Ancien état : activeTrack seul. */
     const valid = new Set((IDLE_NGU_TRACKS.beards || []).map(t => t.id));

@@ -11,8 +11,8 @@ import { IDLE_TITAN_COMBAT_V1, idleTitanCombatV1 } from "../src/idle-titans-comb
 const ctx = { bosses: 100, stats: { power: 1e20, toughness: 1e20, hp: 500 } };
 const agir = (s, p, t = 10_000, c = ctx) => applyIdleAdventureActionV47(s, p, c, t);
 
-// 1. Données : les 14 titans, valeurs de l'encadré wiki.
-assert.equal(Object.keys(IDLE_TITAN_COMBAT_V1).length, 14);
+// 1. Données : les 14 titans (+ le Prêtre d'Exilé, 2026-11-16), valeurs de l'encadré wiki.
+assert.equal(Object.keys(IDLE_TITAN_COMBAT_V1).length, 15);
 assert.deepEqual(idleTitanCombatV1("t1"), { hp: 300000, power: 666, toughness: 666, regen: 66, attackRate: 2 });
 assert.equal(idleTitanCombatV1("t6", "brutal").hp, 5e13);
 assert.equal(idleTitanCombatV1("t5", "", 4).hp, 1e9);
