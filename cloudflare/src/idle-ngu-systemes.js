@@ -698,12 +698,11 @@ function niveauMaxSupporteDiggerV1(state,id,demande){
     const dx=s.data.diggers[x.id];
     if(dx&&dx.active&&dx.runLevel>0)autres+=diggerDrainAtLevel(x,dx.runLevel);
   }
-  let bas=0,haut=Math.max(0,int(demande,0));
-  while(bas<haut){
-    const m=Math.ceil((bas+haut)/2);
-    if(autres+diggerDrainAtLevel(def,m)<=gross)bas=m;else haut=m-1;
-  }
-  return bas;
+  /* Lu dans le jeu (AllGoldDiggerController::setLevelMaxAffordable, build 1260, audit 2026-11-16, economie.md) : niveau = partie entière de ln(or par seconde net / drain de base) / ln(croissance), plafonné au niveau maximum acheté, jamais négatif. Comme le drain du niveau L vaut base x croissance^(L-1), c'est UN niveau sous le plus haut qui tienne (marge du jeu). Le niveau demandé reste un plafond (SOREAL). */
+  const net=gross-autres;
+  if(!(net>=def.drain)||!(def.growth>1))return 0;
+  const niveauJeu=Math.floor(Math.log(net/def.drain)/Math.log(def.growth));
+  return Math.max(0,Math.min(int(demande,0),int(s.data.diggers[id]?.maxLevel,0),niveauJeu));
 }
 
 export function setDiggerLevel(state,id,level,ajuster){
