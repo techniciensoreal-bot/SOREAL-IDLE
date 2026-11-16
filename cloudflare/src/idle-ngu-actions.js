@@ -30,7 +30,7 @@ import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, co
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
-import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
+import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 
 /* Cinématiques que l'on peut revoir : identifiant -> code (nombre, les records sont des compteurs). */
 export const IDLE_CINEMATIQUES_V1 = Object.freeze({ intro: 1 });
@@ -352,8 +352,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     for (const id of Object.keys(state.systems.bloodMagic.data.rituals || {})) {
       if (bloodRitualMagicV1(state.systems.bloodMagic, id) > 0) setRitualAllocationV1(state, id, 0, context);
     }
-  } else if (action === "castBloodSpell") {
-    result = castBloodSpell(state, String(payload.spell || "numberBoost"), t);
+  } else if (action === "castBloodSpell" || action === "setBloodAutoSpell") {
+    result = action === "castBloodSpell" ? castBloodSpell(state, String(payload.spell || "numberBoost"), t) : setBloodAutoSpellV1(state, String(payload.spell || ""), payload.value, context);
   } else if (action === "cornerClick") {
     /* Secret « Clicked the bottom right corner of the Advanced Training menu » : le caca n'existe à l'écran qu'avec Wandoos, on refuse sinon. */
     if (!state.systems.wandoos?.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -765,6 +765,10 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
       s.data.bloodPeak=bloodPeak;
       s.data.spells.ironPill=Math.max(0,num(permanent.ironPill,0));
       s.data.spells.ironPillReadyAt=Math.max(0,num(permanent.ironPillReadyAt,0));
+      /* Les cases de sorts automatiques survivent au Rebirth (AllBloodMagicController::reset ne les remet pas à faux). */
+      s.data.spells.autoNumberBoost=Boolean(permanent.autoNumberBoost);
+      s.data.spells.autoBloodSpaghetti=Boolean(permanent.autoBloodSpaghetti);
+      s.data.spells.autoCounterfeitGold=Boolean(permanent.autoCounterfeitGold);
     }
     if(def.id==="wandoos"){
       /*

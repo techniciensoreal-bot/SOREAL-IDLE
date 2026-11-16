@@ -235,7 +235,15 @@ export function createBloodMagicData() {
       counterfeitGold: 1,
       counterfeitGoldBloodSpent: 0,
       bloodSpaghetti: 1,
-      bloodSpaghettiBloodSpent: 0
+      bloodSpaghettiBloodSpent: 0,
+      /*
+       * Sorts automatiques (lu dans le jeu, build 1260, 2026-11-16 : BloodMagic.rebirthAutoSpell / lootAutoSpell / goldAutoSpell, tous faux à la création ;
+       * AllBloodMagicController::reset ne les touche pas : ils survivent au Rebirth). autoReste = secondes écoulées depuis le dernier lancer automatique (cadence de 1 s).
+       */
+      autoNumberBoost: false,
+      autoBloodSpaghetti: false,
+      autoCounterfeitGold: false,
+      autoReste: 0
     }
   };
 }

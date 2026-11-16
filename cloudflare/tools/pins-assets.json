@@ -104,8 +104,8 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 34,
-  "sha": "133264e203f0a44c72af8c47757d3940619ac8b9"
+  "pin": 36,
+  "sha": "fce7f2ab269e1f0a4ffc6fe142cbb28d1a080d70"
  },
  "/modules/borne-bandes-sync-v1.js": {
   "pin": 1,
@@ -556,8 +556,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 290,
-  "sha": "99e1379cd92e9dac4cfdf996328ef6e8bcc86746"
+  "pin": 294,
+  "sha": "34690f708749da4b00cbf30dc5c9eae197ed2fae"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -772,12 +772,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1053,
-  "sha": "99b6edbfa8e2aeeced45c19a8f8135ebe06c481b"
+  "pin": 1054,
+  "sha": "b63d8699a10c07aed12b8c18068d2147809b4899"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 874,
-  "sha": "9ad0c2b2939f7b3c5540a7419d10fc3db2281666"
+  "pin": 875,
+  "sha": "394574249c961eb90ee8ec48ef8e46e8879e84ee"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -1084,8 +1084,8 @@
   "sha": "ac888ed7122dd8db80cf0c5e747777cbba94f61a"
  },
  "/soreal-idle-ui.css": {
-  "pin": 81,
-  "sha": "c1209421e1731f1ce9b71be1a36eb85468ec0390"
+  "pin": 82,
+  "sha": "687dd7855a386df35d2d70655cabe281d4ac169c"
  },
  "/soreal-idle-ui.js": {
   "pin": 663,

@@ -192,6 +192,7 @@ export function setRitualAllocationV1(state, ritualId, value, context = {}) {
  * round, seul un `blood <= 0` générique était appliqué.
  */
 const BLOOD_SPELL_MINIMUMS_V1 = Object.freeze({
+  /* Le jeu n'impose AUCUN minimum au sort du Nombre (RebirthPowerSpell::castRebirthSpell, build 1260, 2026-11-16) ; 1 reste le seuil du bouton (le client le recopie, test idle-blood-lancer-apres-serveur-v1). Le lancer partiel automatique, lui, n'en a aucun. */
   numberBoost: 1,
   ironPill: 100,
   bloodSpaghetti: 10000,
@@ -254,18 +255,90 @@ export function castBloodSpell(state, spell, now = 0) {
   return resultat;
 }
 
+/*
+ * Lancer PARTIEL (lu dans le jeu, build 1260, 2026-11-16 : RebirthPowerSpell::castRebirthSpell(montant), castLootSpell(montant), castGoldSpell(montant), appelés seulement par autoSpell).
+ * Un montant au-dessus du sang disponible ne fait RIEN ; Loot et Gold refusent aussi un montant sous leur minimum (10 000 / 1e6) ; le Nombre n'a aucun minimum. Le montant est
+ * ajouté au cumul du sort et retiré du sang (le reste du sang est conservé). Renvoie null quand le lancer est ignoré. Ne compte pas dans « En direct » (jamais un lancer du joueur).
+ */
+export const IDLE_SORTS_AUTO_V1 = Object.freeze([
+  Object.freeze({ spell: "numberBoost", cle: "autoNumberBoost" }),
+  Object.freeze({ spell: "bloodSpaghetti", cle: "autoBloodSpaghetti" }),
+  Object.freeze({ spell: "counterfeitGold", cle: "autoCounterfeitGold" })
+]);
+
+export function castBloodSpellPartielV1(state, spell, montant) {
+  if (!IDLE_SORTS_AUTO_V1.some((x) => x.spell === spell)) throw new Error("SORT_SANG_INVALIDE");
+  const montantNum = num(montant, NaN);
+  const brut = Math.max(0, num(state.currencies.blood, 0));
+  if (!(montantNum >= 0) || montantNum > brut) return null;
+  if (spell !== "numberBoost" && montantNum < BLOOD_SPELL_MINIMUMS_V1[spell]) return null;
+  const spells = state.systems.bloodMagic.data.spells;
+  if (spell === "numberBoost") spells.numberBoost = Math.max(1, spells.numberBoost) + montantNum;
+  else appliquerSortCumulV1(spells, spell, montantNum);
+  state.currencies.blood = brut - montantNum;
+  /* La collecte par rituel (affichage) ne suit que la remise à zéro complète du sang. */
+  if (state.currencies.blood <= 0) bloodCollecteRemiseAZeroV1(state);
+  return { spell, spent: montantNum };
+}
+
+/* Blood Spaghetti / Counterfeit Gold : cumule le sang et recalcule le bonus (formules lues dans AllBloodMagicController::lootBonus / goldBonus). */
+function appliquerSortCumulV1(spells, spell, montant) {
+  if (spell === "counterfeitGold") {
+    spells.counterfeitGoldBloodSpent = Math.max(0, num(spells.counterfeitGoldBloodSpent, 0)) + montant;
+    /* Lu dans le jeu (AllBloodMagicController::goldBonus, build 1260, 2026-11-16) : 1 si le sang dépensé est sous 1e6, sinon 1 + floor((log2(sang/1e6) + 1)^2) x 0,01. */
+    spells.counterfeitGold = spells.counterfeitGoldBloodSpent < 1000000 ? 1 : 1 + Math.floor(Math.pow(Math.log2(spells.counterfeitGoldBloodSpent / 1000000) + 1, 2)) * 0.01;
+    return spells.counterfeitGold;
+  }
+  spells.bloodSpaghettiBloodSpent = Math.max(0, num(spells.bloodSpaghettiBloodSpent, 0)) + montant;
+  /* Lu dans le jeu (AllBloodMagicController::lootBonus, build 1260, 2026-11-16) : 1 si le sang dépensé est sous 10 000, sinon 1 + floor(log2(sang/10 000) + 1) x 0,01. */
+  spells.bloodSpaghetti = spells.bloodSpaghettiBloodSpent < 10000 ? 1 : 1 + Math.floor(Math.log2(spells.bloodSpaghettiBloodSpent / 10000) + 1) * 0.01;
+  return spells.bloodSpaghetti;
+}
+
+/*
+ * Sorts automatiques (lu dans le jeu, build 1260, 2026-11-16 : RebirthPowerSpell::autoSpell, relancé toutes les secondes par InvokeRepeating).
+ * Condition : boss > 36 (bossID) ; le sang est réparti à parts égales (floor) entre les sorts cochés (Nombre, Spaghetti, Or) et chacun lance son lancer partiel,
+ * dans cet ordre, avec le MÊME montant. Les cases sont des champs du jeu (BloodMagic.*AutoSpell), conservés au Rebirth. Le jeu n'exécute rien hors ligne.
+ */
+export function setBloodAutoSpellV1(state, spell, valeur, context = {}) {
+  const def = IDLE_SORTS_AUTO_V1.find((x) => x.spell === spell);
+  if (!def) throw new Error("SORT_SANG_INVALIDE");
+  if (!state.systems.bloodMagic?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const spells = state.systems.bloodMagic.data.spells;
+  spells[def.cle] = valeur === undefined ? !spells[def.cle] : Boolean(valeur);
+  return { spell, auto: spells[def.cle] };
+}
+
+export function avancerSortsAutoV1(state, secs, context) {
+  const bm = state.systems.bloodMagic;
+  if (!bm?.unlocked || !(secs > 0)) return;
+  const spells = bm.data.spells;
+  const actifs = IDLE_SORTS_AUTO_V1.filter((x) => spells[x.cle]);
+  if (!actifs.length) { if (spells.autoReste) spells.autoReste = 0; return; }
+  /* Pas de lancer hors ligne (même seuil de 5 min que le reste du hors ligne) ; boss > 36 (même condition que l'avance des rituels). */
+  if (secs >= 5 * 60 || num(context.bosses, 0) < 37) return;
+  const cumul = Math.max(0, num(spells.autoReste, 0)) + secs;
+  if (cumul < 1) { spells.autoReste = cumul; return; }
+  spells.autoReste = cumul - Math.floor(cumul);
+  const montant = Math.floor(Math.max(0, num(state.currencies.blood, 0)) / actifs.length);
+  for (const x of actifs) castBloodSpellPartielV1(state, x.spell, montant);
+}
+
 function castBloodSpellSansTrace(state, spell, now = 0) {
   const minimum = BLOOD_SPELL_MINIMUMS_V1[spell];
   if (minimum === undefined) throw new Error("SORT_SANG_INVALIDE");
+  /* Nombre, Spaghetti et Gold prennent le sang TEL QUEL (le jeu ne l'arrondit pas : castRebirthSpell / castLootSpell / castGoldSpell) ; les autres sorts travaillent sur sa partie entière (mêmes seuils entiers, résultat identique). */
+  const brut = Math.max(0, num(state.currencies.blood, 0));
   const blood = Math.floor(state.currencies.blood);
-  if (blood < minimum) throw new Error("SANG_INSUFFISANT");
+  const sangSort = spell === "numberBoost" || spell === "bloodSpaghetti" || spell === "counterfeitGold" ? brut : blood;
+  if (sangSort < minimum) throw new Error("SANG_INSUFFISANT");
   const spells = state.systems.bloodMagic.data.spells;
 
   if (spell === "numberBoost") {
-    spells.numberBoost = Math.max(1, spells.numberBoost) + blood;
+    spells.numberBoost = Math.max(1, spells.numberBoost) + brut;
     state.currencies.blood = 0;
     bloodCollecteRemiseAZeroV1(state);
-    return { spell, spent: blood, multiplier: spells.numberBoost };
+    return { spell, spent: brut, multiplier: spells.numberBoost };
   }
   if (spell === "ironPill") {
     /* Wiki Blood Magic : Power/Toughness += Blood^0.25 (HP x3, regen x0,03), permanent -- gain ABSOLU, pas un pourcentage. */
@@ -279,21 +352,11 @@ function castBloodSpellSansTrace(state, spell, now = 0) {
     bloodCollecteRemiseAZeroV1(state);
     return { spell, spent: blood, gain };
   }
-  if (spell === "counterfeitGold") {
-    spells.counterfeitGoldBloodSpent = Math.max(0, num(spells.counterfeitGoldBloodSpent, 0)) + blood;
-    /* Lu dans le jeu (AllBloodMagicController::goldBonus, build 1260, 2026-11-16) : 1 si le sang dépensé est sous 1e6, sinon 1 + floor((log2(sang/1e6) + 1)^2) x 0,01. */
-    spells.counterfeitGold = spells.counterfeitGoldBloodSpent < 1000000 ? 1 : 1 + Math.floor(Math.pow(Math.log2(spells.counterfeitGoldBloodSpent / 1000000) + 1, 2)) * 0.01;
+  if (spell === "counterfeitGold" || spell === "bloodSpaghetti") {
+    const multiplier = appliquerSortCumulV1(spells, spell, brut);
     state.currencies.blood = 0;
     bloodCollecteRemiseAZeroV1(state);
-    return { spell, spent: blood, multiplier: spells.counterfeitGold };
-  }
-  if (spell === "bloodSpaghetti") {
-    spells.bloodSpaghettiBloodSpent = Math.max(0, num(spells.bloodSpaghettiBloodSpent, 0)) + blood;
-    /* Lu dans le jeu (AllBloodMagicController::lootBonus, build 1260, 2026-11-16) : 1 si le sang dépensé est sous 10 000, sinon 1 + floor(log2(sang/10 000) + 1) x 0,01. */
-    spells.bloodSpaghetti = spells.bloodSpaghettiBloodSpent < 10000 ? 1 : 1 + Math.floor(Math.log2(spells.bloodSpaghettiBloodSpent / 10000) + 1) * 0.01;
-    state.currencies.blood = 0;
-    bloodCollecteRemiseAZeroV1(state);
-    return { spell, spent: blood, multiplier: spells.bloodSpaghetti };
+    return { spell, spent: brut, multiplier };
   }
   if (spell === "leeches") {
     /* Lu dans le jeu (RebirthPowerSpell::castEndSpell, build 1260, 2026-11-16) : le dernier sort n'existe qu'en difficulté Sadistic (rebirthDifficulty < 2 : refus). */
@@ -1457,6 +1520,7 @@ function passesDuTempsSeulV1(state, secs, context, now) {
     if (tmActive) span("avance:machineTemporelle", () => advanceTimeMachine(state, secs));
     if (num(context.bosses, 0) >= 37) span("avance:bloodMagic", () => advanceBloodMagic(state, secs, context));
   }
+  span("avance:sortsAuto", () => avancerSortsAutoV1(state, secs, context));
   span("avance:yggdrasil", () => advanceYggdrasil(state, secs, nowMs(now)));
   span("avance:wandoos", () => advanceWandoos(state, secs, context, now));
   span("avance:ngus", () => advanceNgusV1(state, secs));

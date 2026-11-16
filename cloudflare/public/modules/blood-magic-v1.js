@@ -225,6 +225,15 @@ if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(fu
   }catch(_e){}
 },250);
 
+/* Sort automatique (jeu : RebirthPowerSpell::autoSpell) : case lue dans l'état du moteur, jamais tenue par la page (redessin invisible, règle n°4). Seuls le Nombre, Spaghetti et l'Or en ont une. */
+const IDLE_AUTO_CLES_SORTS_V1={numberBoost:'autoNumberBoost',bloodSpaghetti:'autoBloodSpaghetti',counterfeitGold:'autoCounterfeitGold'};
+function boutonAutoSortBloodV1_(id,spells){
+  const cle=IDLE_AUTO_CLES_SORTS_V1[id];
+  if(!cle)return '';
+  const actif=Boolean(spells&&spells[cle]);
+  return '<button type="button" class="soreal-idle-blood-auto-v1" data-sort-auto="'+id+'" aria-pressed="'+(actif?'true':'false')+'" title="Lance ce sort chaque seconde avec sa part du sang" onclick="window.__actionMetaV47__({action:\'setBloodAutoSpell\',spell:\''+id+'\'})">Automatique : '+(actif?'activé':'désactivé')+'</button>';
+}
+
 function creer(hote){
   const systemeMetaParIdIdleV130_=hote.systemeMeta;
   const envoyerAllocRapideV1_=hote.envoyerAllocRapide;
@@ -646,6 +655,7 @@ function creer(hote){
             (sp.actuel?'<div class="soreal-idle-blood-sort-actuel-v1">'+H.idleHtml_(sp.actuel)+'</div>':'')+
             (infos?'<div id="sorealIdleBloodSortInfosV1_'+idSort+'" class="soreal-idle-blood-sort-infos-v1"'+(ouvert?'':' hidden')+'>'+infos+'</div>':'')+
             (recharge?'<div class="soreal-idle-blood-sort-apercu-v1">⏳ Prêt dans '+formatDureeAugmentIdleV1_(sp.recharge/1000)+'</div>':'')+
+            boutonAutoSortBloodV1_(sp.id,spells)+
             '<button type="button" class="soreal-idle-expand-button-v25 soreal-idle-blood-lancer-v1" data-sort-id="'+idSort+'" data-sang-mini="'+sangMini+'" data-recharge="'+(recharge?'1':'0')+'" '+(peutLancer?'onclick="window.__lancerSortBloodIdleV1__(\''+sp.id+'\')"':'disabled')+'>'+(blood>=sangMini?(recharge?'En recharge':'Lancer le sort'):'Pas assez de sang')+'</button></div>';
         }).join('')+'</div>';
 
