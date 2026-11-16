@@ -31,7 +31,7 @@ import { DEFIS_SANS_HORS_LIGNE_IDS_V1, PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1 } fr
 import { EARLY_GAME_MAX_OFFLINE_SECONDS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_SYSTEMS, IDLE_NGU_YGG_FRUITS, challengeCompletionsV1, challengePermanentBonuses, challengeTierV1, clamp, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { advanceAugmentations, advanceGeneratedResources, externalResourceAllocation, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, reconcileResourceCurrents, reclaimAllocatedResource, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
 import { advanceWandoos, applyYggQuickActivationV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState } from "./idle-ngu-etat.js";
-import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
+import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, questRewardFactorTitansV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { achievementMetricsV1, advanceNgusV1, apWithBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
 import { advanceTimeMachine, advanceTrackSystem, barbesTempsPleinV1, crediterOrHorsLigneV1, idleNguTimeMachineGrossGoldPerSecond, tmAbsenceHorsLigneV1 } from "./idle-ngu-pistes.js";
 import { daycareFactorsV1, expShopPurchasedV1, inventoryAutoEnvV1 } from "./idle-ngu-actions.js";
@@ -1224,6 +1224,7 @@ function advanceLateSystems(state, seconds, context, now) {
       titanLootLevelBonus: titanChallengeBonuses.titanLootLevelBonus,
       stats: { power: combatAventure.power, toughness: combatAventure.toughness, regen: combatAventure.regen },
       wishLevels: wishLevelsMapV1(state),
+      questRewardFactor: questRewardFactorTitansV1(state, context),
       titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
       goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1)),

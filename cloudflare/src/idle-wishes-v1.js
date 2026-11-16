@@ -242,7 +242,7 @@ export const IDLE_WISHES_CATALOG_V1 = Object.freeze([
   { id: 190, name: "I wish I was f**king done with Advanced Training forever!", effect: "Makes Advanced Training menu run at max speed with no more inputs needed", levels: 1, speedDivider: 1.00e18, bonus: {} },
   { id: 191, name: "I wish I could beat up more Bosses VI", effect: "Each level of this wish will grant another stacking +100% bonus to your Attack/Defense", levels: 20, speedDivider: 2.00e25, bonus: { statPct: 1.00 } },
   /* Souhait 192 (2026-11-15) : la page Wishes AFFICHE 6e25 mais sa clé de tri cachée vaut 4e26, et le gear-optimizer (données du jeu) donne 4e26 (comme pour les NGU Sadistic, où il avait raison contre le tableau). Non mesurable dans le vrai jeu : même au maximum de ressources le temps dépasse le seuil « INFINITY TIME ». */
-  { id: 192, name: "I wish I could beat up more Bosses VII", effect: "Each level of this wish will grant another stacking +100% bonus to your Attack/Defense", levels: 20, speedDivider: 4.00e26, bonus: { statPct: 1.00 } },
+  { id: 192, name: "I wish I could beat up more Bosses VII", effect: "Each level of this wish will grant another stacking +100% bonus to your Attack/Defense", levels: 20, speedDivider: 6.00e25, bonus: { statPct: 1.00 } },
   { id: 193, name: "I wish I had more Energy Power VII", effect: "Okay fine! This wish will grant +2% Energy Power per level!", levels: 10, speedDivider: 2.00e24, bonus: { energyPowerPct: 0.02 } },
   { id: 194, name: "I wish I had more Energy Bars VII", effect: "Okay fine! This wish will grant +1% Energy Bars per level!", levels: 10, speedDivider: 2.00e24, bonus: { energyBarsPct: 0.01 } },
   { id: 195, name: "I wish I had more Energy Cap VII", effect: "Okay fine! This wish will grant +1% Energy Cap per level!", levels: 10, speedDivider: 2.00e24, bonus: { energyCapPct: 0.01 } },
@@ -323,16 +323,17 @@ export function wishBonusesV1(tracksById) {
     }
   }
   return {
-    energyPowerMultiplier: 1 + (totals.energyPowerPct || 0),
-    energyCapMultiplier: 1 + (totals.energyCapPct || 0),
-    energyBarsMultiplier: 1 + (totals.energyBarsPct || 0),
-    magicPowerMultiplier: 1 + (totals.magicPowerPct || 0),
-    magicCapMultiplier: 1 + (totals.magicCapPct || 0),
-    magicBarsMultiplier: 1 + (totals.magicBarsPct || 0),
-    r3PowerMultiplier: 1 + (totals.r3PowerPct || 0),
-    r3CapMultiplier: 1 + (totals.r3CapPct || 0),
-    r3BarsMultiplier: 1 + (totals.r3BarsPct || 0),
-    adventureStatsMultiplier: 1 + (totals.adventureStatsPct || 0),
+    energyPowerMultiplier: produitParSouhaitV1(tracks, "energyPowerPct"),
+    energyCapMultiplier: produitParSouhaitV1(tracks, "energyCapPct"),
+    energyBarsMultiplier: produitParSouhaitV1(tracks, "energyBarsPct"),
+    magicPowerMultiplier: produitParSouhaitV1(tracks, "magicPowerPct"),
+    magicCapMultiplier: produitParSouhaitV1(tracks, "magicCapPct"),
+    magicBarsMultiplier: produitParSouhaitV1(tracks, "magicBarsPct"),
+    r3PowerMultiplier: produitParSouhaitV1(tracks, "r3PowerPct"),
+    r3CapMultiplier: produitParSouhaitV1(tracks, "r3CapPct"),
+    r3BarsMultiplier: produitParSouhaitV1(tracks, "r3BarsPct"),
+    /* Jeu (Character::totalEnergyPower... et totalAdv*, WishesController::total...Bonus) : un facteur 1 + niveau x effet PAR souhait, multipliés (souhait 0 = constante 1,05 / 1,2). Audit design/audit-code-jeu/souhaits.md n°1, 2026-11-16. */
+    adventureStatsMultiplier: produitParSouhaitV1(tracks, "adventureStatsPct"),
     statMultiplier: statProduct,
     /* Lu dans le jeu (WishesController::totalWishBonus, HacksController::totalHackSpeedBonus) : un facteur PAR souhait, multipliés entre eux. */
     wishSpeedMultiplier: produitParSouhaitV1(tracks, "wishSpeedPct"),

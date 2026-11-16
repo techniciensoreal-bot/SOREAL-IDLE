@@ -21,9 +21,9 @@ if (!fs.existsSync(`${MIROIR}/pages/Perk Points.json`)) {
     const corriges = (l) => /^(88|89) .* niveaux :/.test(l) || /^(91|192) .* diviseur :/.test(l);
     assert.deepEqual(r[k].filter(numeriques).filter((l) => !corriges(l)), [], `${k} : écarts chiffrés avec le wiki`);
   }
-  /* Écarts de texte connus et acceptés : la perk 56 (MacGuffin Daycare, non implémentée) et trois libellés. */
+  /* Écarts de texte connus et acceptés : trois libellés (la perk 56 existe depuis 2026-11-16). */
   const acceptes = [
-    "wiki 56 \"Macguffin Daycare!\" absent du catalogue",
+    "56 nom : wiki \"Macguffin Daycare!\" / code \"MacGuffin Daycare!\"",
     "148 nom : wiki \"Bigger Deck II<s>I</s>\" / code \"Bigger Deck III\"",
     "202 nom : wiki \"I wish I was a sneak preview of 4G's next Idle game\" / code \"I wish I was a sneak preview of Norman & Sébastien's next Idle game\""
   ];

@@ -47,6 +47,7 @@
             'Aventure, d’après le code du jeu : l’or de la première zone, plusieurs taux de drop, l’EXP des boss (base du Challenge de 24 h, +2 % par complétion, atout séparé), l’exposant de la racine cubique du drop, le temps de recharge de Oh Shit et quelques valeurs d’objets ont été corrigés.'
           ]},
           {menu:'challenges', titre:'Défis', points:[
+            'Trois portraits « tous les défis au maximum » sont ajoutés (leurs images arrivent ensuite) et le seuil d’un portrait de fragment est corrigé.',
             'La récompense d’EXP d’un défi reçoit maintenant tous les bonus d’EXP, et le bonus d’Aventure du défi de base se multiplie avec son bonus de difficulté.'
           ]},
           {menu:'questing', titre:'Quêtes', points:[
@@ -75,6 +76,12 @@
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Certains fruits n’apparaissent qu’une fois leur condition remplie, comme dans le jeu, et le fruit d’Or n’arrondit plus en minutes.'
+          ]},
+          {menu:'wishes', titre:'Wishes', points:[
+            'Les bonus de puissance, de plafond et de barres de plusieurs souhaits se multiplient entre souhaits (au lieu de s’additionner), un souhait de vitesse est corrigé, et la QP des titans suit le jeu.'
+          ]},
+          {menu:'daycare', titre:'Garderie', points:[
+            'Garderie : tous les objets ont maintenant leur taux du jeu (87 ajoutés, 3 corrigés), et les fragments peuvent y être placés avec l’atout adapté.'
           ]},
           {menu:'moneyPit', titre:'Money Pit', points:[
             'Le chrono du tour de la roue démarre à 23 h comme dans le jeu (le premier tour est prêt après une heure de jeu).',

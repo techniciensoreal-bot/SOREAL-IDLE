@@ -46,16 +46,33 @@ const act = (s, p) => applyIdleNguAction(s, p, ctx, 1000);
   assert.equal(snap(s).selectedFile, "PlayerAPportrait21");
 }
 
-// Souhaits 26 / 75 / 202 (niveau 1) et fragments SEXY / SMART à 250 %.
+// Souhaits 26 / 75 / 202 (niveau 1) et fragments SEXY / SMART : multiplicateur strictement > 2,5, soit plus de +150 % (le jeu teste > 2,5 ; audit 2026-11-16).
 {
   const s = fresh();
   s.systems.wishes.data.tracks["75"] = { level: 1, tempLevel: 0, permanentLevel: 0, progress: 0 };
-  s.systems.macguffins.data.permanent.sexy = 249.99;
-  s.systems.macguffins.data.permanent.smart = 250;
+  s.systems.macguffins.data.permanent.sexy = 150;
+  s.systems.macguffins.data.permanent.smart = 150.01;
   const ids = snap(s).list.filter((p) => p.unlocked).map((p) => p.id).sort();
   assert.deepEqual(ids, ["default", "smart", "wish-mayo"]);
-  s.systems.macguffins.data.permanent.sexy = 250;
+  s.systems.macguffins.data.permanent.sexy = 150.01;
   assert.ok(snap(s).list.find((p) => p.id === "sexy").unlocked);
+}
+
+// Portraits 63 / 64 / 65 du jeu : les 11 défis de la difficulté à leur nombre maximum (AllChallengesController::checkChallengesForPortrait, audit 2026-11-16).
+{
+  const s = fresh();
+  const defis = (tier) => tier === "normal" ? s.challenge.completions : s.challenge.completionsTier[tier];
+  const MAX = { basic: 5, noAugmentations: 5, twentyFourHours: 10, hundredLevels: 5, noEquipment: 5, troll: 7, noRebirth: 10, laserSword: 20, blind: 10, noNgu: 10, noTimeMachine: 10 };
+  const ids = () => snap(s).list.filter((p) => p.unlocked).map((p) => p.id).filter((id) => id.startsWith("defis-"));
+  assert.deepEqual(ids(), []);
+  for (const [tier, id] of [["normal", "defis-normal"], ["difficile", "defis-evil"], ["extreme", "defis-sadistic"]]) {
+    Object.assign(defis(tier), MAX);
+    defis(tier).laserSword = 19;
+    assert.ok(!ids().includes(id), id + " : un défi à 19 / 20 ne suffit pas");
+    defis(tier).laserSword = 20;
+    assert.ok(ids().includes(id), id + " : tous les défis au maximum");
+  }
+  assert.deepEqual(ids().sort(), ["defis-evil", "defis-normal", "defis-sadistic"]);
 }
 
 // Un portrait choisi qui n'est plus valide retombe sur le défaut.

@@ -26,7 +26,7 @@ import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { FENETRE_INSTANT_CLIC_MS_V1 } from "./idle-instant-clic-v1.js";
 import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveBeardOnRebirth, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, setNguAdvanceV1, setNguAllocationV1, setNguTargetV1, setNguTierV1, syncIdleNguState, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
-import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
+import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, collectSystem, crediterRecompensesAventure, daycareFragmentsExtV1, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, questRewardFactorTitansV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
@@ -151,7 +151,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         boostPowerMultiplier: Math.max(1, num(idleNguBonusesLectureV1(state).boostPowerMultiplier, 1)),
         cubeBoostRate: Math.max(0.01, num(perkBonusesV1(idlePerkNiveauxV1(state)).cubeBoostRate, 0.01)),
         cubeBoostEffectiveness: 1 + 0.05 * Math.min(20, wishLevelV1(state, 110)),
-        wishLevels: wishLevelsMapV1(state),
+        wishLevels: wishLevelsMapV1(state), questRewardFactor: questRewardFactorTitansV1(state, context),
         titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
         /* No Equipment Challenge : rien ne peut être équipé tant que le défi est actif (idle-adventure-v47.js, action equip). */
         equipmentLocked: state.challenge?.active === "noEquipment",
@@ -511,8 +511,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
      */
     const avantDaycare = photoRecompensesAventure(state);
     result = action === "daycarePlace"
-      ? idleDaycarePlaceV1(state.adventure, state.systems.daycare.data, itemId, factors)
-      : idleDaycareRemoveV1(state.adventure, state.systems.daycare.data, itemId, factors);
+      ? idleDaycarePlaceV1(state.adventure, state.systems.daycare.data, itemId, factors, daycareFragmentsExtV1(state))
+      : idleDaycareRemoveV1(state.adventure, state.systems.daycare.data, itemId, factors, daycareFragmentsExtV1(state));
     crediterRecompensesAventure(state, avantDaycare);
   } else if (action === "cards") {
     result = idleCardsActionV1(state, payload);

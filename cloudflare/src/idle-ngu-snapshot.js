@@ -16,9 +16,10 @@ import { idleDifficulteSuffisanteV1, IDLE_PERK_DIFFICULTE_V1, IDLE_QUIRK_DIFFICU
 import { IDLE_QUIRKS_CATALOG_V1, idleQuirkByIdV1, idleQuirkNextCostV1 } from "./idle-quirks-v1.js";
 import { systemesPerkOuvertsV1 } from "./idle-perks-systemes-v1.js";
 import { idleWishByIdV1 } from "./idle-wishes-v1.js";
-import { idleDaycareSnapshotV1 } from "./idle-daycare-v1.js";
+import { idleDaycareSnapshotV1, IDLE_DAYCARE_PERK_FRAGMENTS_V1 } from "./idle-daycare-v1.js";
+import { idleMacguffinTypeV1, normalizeMacguffinDataV1 } from "./idle-macguffins-v1.js";
 import { idleInventoryAutoSnapshotV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1 } from "./idle-inventory-auto-v1.js";
-import { idleQuestingSnapshotV1 } from "./idle-questing-v1.js";
+import { idleQuestingSnapshotV1, idleQuestQpMultiplierV1 } from "./idle-questing-v1.js";
 import { idleLoginCalendarSnapshotV1 } from "./idle-login-calendar-v1.js";
 import { idsPortraitsDeChaineV1, idlePortraitsSnapshotV1 } from "./idle-portraits-v1.js";
 import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
@@ -344,7 +345,7 @@ function construireSnapshotNguV1(state, context, now) {
     perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => (state.systems.perks?.unlocked || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) && systemesPerkOuvertsV1(p, systemeOuvertPerkV1(state)) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0)),
     quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => (state.systems.quirks?.unlocked || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) && systemesPerkOuvertsV1(q, systemeOuvertPerkV1(state)) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
-    daycare: Object.assign(idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state)), { skins: skinsSnapshotV1(state, daycareSkinsEnvV1(state)) }),
+    daycare: Object.assign(idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state), daycareFragmentsExtV1(state, true)), { skins: skinsSnapshotV1(state, daycareSkinsEnvV1(state)) }),
     /* Automatisation de l'inventaire : déblocages, réglages, minuteurs, slots d'automerge, loadouts, filtre. */
     inventoryAuto: idleInventoryAutoSnapshotV1(state.adventure, inventoryAutoEnvV1(state)),
     /* Questing (crochet 4/4) : état de quête prêt à afficher (idle-questing-v1.js). */
@@ -1476,7 +1477,8 @@ export function crediterRecompensesAventure(state, avant) {
    * chaque événement -- le moteur d'Aventure ne transmet qu'un delta cumulé.
    */
   state.currencies.ap += apWithBonusV1(state, gain("ap"));
-  state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
+  /* QP des titans : le facteur de quête (atouts ITOPOD, Fibonacci 233...) est déjà dans creditTitanRewardsV1 (questRewardFactor, comme le jeu) : ne pas le repasser ici. */
+  state.currencies.qp += gain("qp");
   /* Poop d'Icarus Proudbottom (The Sky, rollKill) : ajoutée au stock de Poop d'Yggdrasil. */
   const poop = Math.floor(gain("poop"));
   if (poop > 0) idleSelloutApplyEffectV1(state, "poop", poop);
@@ -1521,6 +1523,8 @@ export function portraitEnvV1(state) {
     acquis: idsPortraitsDeChaineV1(state.records.portraitsAcquis),
     wishLevel: id => wishLevelV1(state, id),
     macguffinPct: id => macguffinPermanentPctV1(state, id),
+    /* Portraits 63 / 64 / 65 du jeu : les 11 défis de la difficulté à leur nombre maximum de complétions (AllChallengesController::checkChallengesForPortrait). */
+    defisTousMax: tier => challengeDefsForTierV1(tier).every(def => Math.max(0, int(challengeCompletionsV1(state, tier)?.[def.id], 0)) >= def.max),
     /*
      * Special Prize réclamé AVANT l'existence du choix (pas de choix enregistré) : le joueur n'a pas pu prendre le chaton, il le reçoit
      * (Norman, 2026-09-25 : « débloque le chaton sur mon compte, je ne l'ai pas choisi car il n'était pas là »).
@@ -1538,6 +1542,25 @@ export function daycareSkinsEnvV1(state) {
     achats: id => int(state.selloutShop?.purchases?.[id], 0),
     highestBoss: num(state.records?.highestBoss, 0),
     acquis: idsSkinsDeChaineV1(state.records?.daycareSkinsAcquis)
+  };
+}
+
+/*
+ * Garderie : fragments de MacGuffin plaçables (perk 56 « MacGuffin Daycare! », lu dans le jeu). `fragments` est l'inventaire des fragments de
+ * l'état (modifié sur place par le placement / la reprise). En lecture seule (instantané) sur un état sans données normalisées : copie.
+ */
+export function daycareFragmentsExtV1(state, lectureSeule = false) {
+  const s = state.systems?.macguffins;
+  let data = s && s.data;
+  if (!data || !Array.isArray(data.inventory)) {
+    if (!s) return { fragments: [], perkFragments: 0 };
+    data = normalizeMacguffinDataV1(data);
+    if (!lectureSeule) s.data = data;
+  }
+  return {
+    fragments: data.inventory,
+    perkFragments: num(idlePerkNiveauxV1(state)?.[IDLE_DAYCARE_PERK_FRAGMENTS_V1], 0),
+    nomDe: type => (idleMacguffinTypeV1(type) || {}).nom
   };
 }
 
@@ -1585,6 +1608,15 @@ export function questingEnvV1(state, context) {
 }
 
 /*
+ * Facteur de QP des titans (BeastQuestController::questRewardFactor, lu dans le jeu, build 1260, 2026-11-16) : le même que pour les quêtes, plancher 1.
+ * LIMITE connue : le jeu multiplie aussi par butterModifier quand le Beast Butter est actif (usedButter) ; ici le beurre n'est consommé que par une quête
+ * (idle-questing-v1.js), donc il n'est jamais compté pour un titan.
+ */
+export function questRewardFactorTitansV1(state, context) {
+  return Math.max(1, idleQuestQpMultiplierV1(state, questingEnvV1(state, context)));
+}
+
+/*
  * Marque filtered:true sur chaque entrée de result.drops dont l'id est listé dans filteredIds
  * (idleInventoryProcessNewDropsV1) -- le drop reste dans le journal du client (Norman veut le
  * voir, marqué "(filtré)"), il n'est simplement jamais resté dans l'inventaire réel.
@@ -1618,6 +1650,7 @@ export function titanFight(state, context, now) {
     },
     Object.assign({},context,{
       wishLevels:wishLevelsMapV1(state),
+      questRewardFactor:questRewardFactorTitansV1(state,context),
       titanExpBonusKills:perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct:challengePermanentBonuses(state).bossExpPct,
       goldMultiplier:Math.max(0,num(idleNguBonusesLectureV1(state).adventureGoldMultiplier,1)),

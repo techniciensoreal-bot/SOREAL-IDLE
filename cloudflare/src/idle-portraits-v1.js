@@ -15,10 +15,14 @@ import { IDLE_FENETRE_HALLOWEEN_V1, dansFenetreAnnuelleV1, jourBruxellesV1 } fro
  *    « Bonus profile from the Forest set » (PlayerAPportrait20 et 21) ;
  *  - souhaits 26 (« Oscar Meyer Weiner »), 75 (« Mayo ») et 202 (« Sneak Preview ») ;
  *  - SEXY et SMART : page MacGuffin Fragments, « unlocking a player portrait if SEXY (SMART)
- *    MacGuffin bonuses reach 250% ».
- * Non implémenté (voir docs/WORKLOG.md) : « Complete all the Normal / Evil / SADISTIC challenges »
- * (ni « complété » = une fois ou au maximum, ni la difficulté ne sont précisés), Sexy Player Fashion
- * Pack (110 kreds), bonus Steam, connexion d'Halloween, Krissmuss 2020 (événements passés).
+ *    MacGuffin bonuses reach 250% ». Lu dans le jeu (build 1260, InventoryController::Update, 2026-11-16) : le jeu teste
+ *    macguffinBonuses[8 / 9] > 2,5 (multiplicateur, affiché x 100 = « 250 % ») ; SOREAL stocke le bonus AU-DESSUS de 1
+ *    (multiplicateur = 1 + % / 100) : le seuil est donc « strictement plus de 150 % » (audit bestiaire-portraits-daycare-ygg.md 2.2).
+ *  - « Complete all the Normal / Evil / SADISTIC challenges » (portraits 63, 64, 65) : lu dans le jeu
+ *    (AllChallengesController::checkChallengesForPortrait, 2026-11-16), pour CHAQUE difficulté les 11 défis à leur nombre MAXIMUM
+ *    de complétions (curCompletions >= maxCompletions) ; images à fournir (portrait-defis-<difficulté>.webp, docs/PORTRAITS-NOMS-FICHIERS.md).
+ * Non implémenté : Sexy Player Fashion Pack (110 kreds), bonus Steam, connexion d'Halloween (portrait 51 du jeu : image inconnue, pas inventée),
+ * Krissmuss 2020 (événements passés).
  *
  * Le choix du joueur est cosmétique : il n'a aucun effet sur les stats. Le média est servi par
  * /api/idle/media/player (idle-media-v1.js) depuis le dossier R2 idle/player/.
@@ -30,6 +34,7 @@ const WISH = "wish";
 const MACGUFFIN = "macguffin";
 const SPECIAL = "special";
 const ACQUIS = "acquis";
+const DEFIS = "defis";
 
 const TABLE_V1 = [
   ["default", "PlayerAPportrait16", "Portrait par défaut", { type: "default" }],
@@ -86,8 +91,12 @@ const TABLE_V1 = [
   ["amalgamate", "Titangamation Player", "Amalgamate", { type: SET, set: "amalgamate" }],
   ["pirate", "PlayerPirate", "Pirate", { type: SET, set: "pirate" }],
   ["wish-sneak-preview", "Player portrait - sneak preview", "Souhait « Sneak Preview »", { type: WISH, wish: 202 }],
-  ["sexy", "Sexy", "SEXY !", { type: MACGUFFIN, macguffin: "sexy", pct: 250 }],
-  ["smart", "Smart", "SMART", { type: MACGUFFIN, macguffin: "smart", pct: 250 }],
+  ["sexy", "Sexy", "SEXY !", { type: MACGUFFIN, macguffin: "sexy", pct: 150 }],
+  ["smart", "Smart", "SMART", { type: MACGUFFIN, macguffin: "smart", pct: 150 }],
+  /* Portraits 63 / 64 / 65 du jeu : tous les défis au maximum, Normal / Evil / Sadistic (les complétions ne diminuent jamais : le portrait reste acquis). Images à fournir par Norman. */
+  ["defis-normal", "portrait-defis-normal", "Tous les défis (Normal)", { type: DEFIS, tier: "normal"  }],
+  ["defis-evil", "portrait-defis-evil", "Tous les défis (Evil)", { type: DEFIS, tier: "difficile"  }],
+  ["defis-sadistic", "portrait-defis-sadistic", "Tous les défis (Sadistic)", { type: DEFIS, tier: "extreme"  }],
   ["wish-weiner", "PlayerPortrait-Weiner", "Souhait « Oscar Meyer Weiner »", { type: WISH, wish: 26 }],
   ["wish-mayo", "PlayerPortrait-Mayo", "Souhait « Mayo »", { type: WISH, wish: 75 }],
   /* Connexion d'Halloween (Norman, 2026-10-31) : acquis pour toujours à la première synchro dans la fenêtre IDLE_FENETRE_HALLOWEEN_V1 (records.portraitsAcquis). */
@@ -110,7 +119,8 @@ function conditionTexteV1(unlock) {
   if (unlock.type === WISH) return "Terminer le souhait n°" + unlock.wish;
   if (unlock.type === SPECIAL) return "Special Prize";
   if (unlock.type === ACQUIS) return "Connexion pendant Halloween";
-  if (unlock.type === MACGUFFIN) return "Bonus permanent du fragment " + unlock.macguffin.toUpperCase() + " à " + unlock.pct + " %";
+  if (unlock.type === MACGUFFIN) return "Bonus permanent du fragment " + unlock.macguffin.toUpperCase() + " au-delà de " + unlock.pct + " %";
+  if (unlock.type === DEFIS) return "Tous les défis au maximum";
   return "Disponible dès le départ";
 }
 
@@ -122,7 +132,8 @@ export function idlePortraitUnlockedV1(portrait, env = {}) {
   if (u.type === WISH) return typeof env.wishLevel === "function" && Number(env.wishLevel(u.wish)) >= 1;
   if (u.type === SPECIAL) return Number(env.specialPrizeChoice) === u.choice;
   if (u.type === ACQUIS) return Array.isArray(env.acquis) && env.acquis.includes(portrait.id);
-  if (u.type === MACGUFFIN) return typeof env.macguffinPct === "function" && Number(env.macguffinPct(u.macguffin)) >= u.pct;
+  if (u.type === MACGUFFIN) return typeof env.macguffinPct === "function" && Number(env.macguffinPct(u.macguffin)) > u.pct;
+  if (u.type === DEFIS) return (typeof env.defisTousMax === "function" && Boolean(env.defisTousMax(u.tier)));
   return false;
 }
 

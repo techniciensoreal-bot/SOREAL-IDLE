@@ -40,6 +40,9 @@ Généré le 2026-09-26 à partir de `cloudflare/src/idle-portraits-v1.js` (fonc
 | Pirate | `portrait-pirate.webp` |
 | SEXY ! | `portrait-sexy.webp` |
 | SMART | `portrait-smart.webp` |
+| Tous les défis (Normal) | `portrait-defis-normal.webp` |
+| Tous les défis (Evil) | `portrait-defis-evil.webp` |
+| Tous les défis (Sadistic) | `portrait-defis-sadistic.webp` |
 
 ## Non renommés (décision de Norman, 2026-09-26 : « laisse comme ça, tant pis pour les noms »)
 

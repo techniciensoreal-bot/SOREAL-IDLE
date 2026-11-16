@@ -19,15 +19,18 @@
  *    Daycare Speed Boost (15 x 24 / (8 x 90 %)).
  *  - pages objets (« <Objet> will gain one level every N hours when put in the Daycare (base
  *    rate) ») : table IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 ci-dessous, extraite par script des 426
- *    pages objets du miroir (321 taux publiés ; recoupés avec le paramètre `daycare =` des modèles
- *    « Item data » : aucun écart). Les 105 autres pages n'ont pas de ligne Daycare (paramètre
+ *    pages objets du miroir (321 taux publiés, puis 87 ajoutés le 2026-11-16 depuis la table du jeu ; recoupés avec le paramètre `daycare =` des modèles
+ *    « Item data » : aucun écart ; 3 taux corrigés d après le jeu : 386, 504, 505). Les objets restants sans taux (paramètre
  *    `daycare = ?` ou absent) : ces objets sont refusés (TAUX_DAYCARE_INCONNU), jamais un taux inventé.
  *  - pages « Challenges » (Blind Normal/Evil/Sadistic, Troll Evil complétion 3), « Experience »
  *    (Adventure Special), « Perk Points » (27, 28, 86), « Fibonacci Perk », « Wishes » (27),
  *    « Gold Diggers » (Daycare Digger, calculé par diggerBonuses), « Hacks » (Daycare Hack, calculé
  *    par hackFxV1), « 4G's Sellout Shop » (Daycare Speed Boost!).
  *
- * Non modélisé (système absent de SOREAL ou magnitude non publiée) : perk « Macguffin Daycare! » (MacGuffins hors de ce module), récompense
+ * Fragments de MacGuffin (perk 56 « MacGuffin Daycare! », lu dans le jeu le 2026-11-16 : InventoryController::swapDaycare exige le niveau >= 1 du perk pour
+ * un objet de type 11 ; DaycareItemController::updateDaycareTimer / levelsAdded exemptent le type 11 du plafond de niveau 100 ; ItemNameDesc.daycareRate = 7 200 s,
+ * soit 2 h par niveau, pour les 22 fragments) : placés depuis l'inventaire des fragments (state.systems.macguffins), repris avec leurs niveaux gagnés.
+ * Non modélisé (système absent de SOREAL ou magnitude non publiée) : récompense
  * « All Equip OR Daycare » du Money Pit (répartition entre les deux cibles non documentée), objets
  * de quête (« Quest items take 48 hours », système Questing absent de l'inventaire).
  *
@@ -349,7 +352,7 @@ export const IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 = Object.freeze({
   383: 72, // An Inanimate Carbon Rod
   384: 72, // A Funky Klein Bottle
   385: 72, // Giant Alien Bug Nest
-  386: 24, // The Key
+  386: 72, // The Key (corrigé : 24 -> 72 h, level0 @2343560 daycareRate[386] = 259200 s, build 1260, 2026-11-16)
   388: 144, // Ascended x7 Pendant
   389: 144, // SUPREME INTELLIGENCE LOOTY
   390: 24, // My Rainbow Heart
@@ -371,9 +374,97 @@ export const IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1 = Object.freeze({
   447: 48, // THE EXPONENTIAL
   448: 48, // Mt. Rushmore Roosevelt's Nose
   452: 72, // Rad Mixtape
-  504: 278, // Ascended x9 Pendant
-  505: 278, // LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt
+  504: 1000000 / 3600, // Ascended x9 Pendant (level0 @2343560 : 1 000 000 s ; 278 était un arrondi)
+  505: 1000000 / 3600, // LootzLrtozlOtZlOtTlooTTLoooLLLTTTToTlOOt (level0 @2343560 : 1 000 000 s)
   506: 96, // Mysterious Grey Liquid
+  /* Taux ajoutés le 2026-11-16 (audit design/audit-code-jeu/bestiaire-portraits-daycare-ygg.md §4.2) : source = jeu, ItemNameDesc.daycareRate[id] / 3600 (level0 @2343560, build 1260). */
+  391: 24, // stillBeatingHeart
+  392: 96, // bread:head
+  393: 96, // bread:chest
+  394: 96, // bread:legs
+  395: 96, // bread:boots
+  396: 96, // bread:baguette
+  397: 96, // bread:creamPie
+  398: 96, // bread:yeast
+  399: 96, // bread:weapon
+  400: 96, // disco:head
+  401: 96, // disco:chest
+  402: 96, // disco:legs
+  403: 96, // disco:boots
+  404: 96, // disco:weapon
+  405: 96, // disco:whitePowder
+  406: 96, // disco:rollingPaper
+  407: 96, // disco:vinylShard
+  408: 96, // halloweenie:head
+  409: 96, // halloweenie:chest
+  410: 96, // halloweenie:legs
+  411: 96, // halloweenie:boots
+  412: 96, // halloweenie:apple
+  413: 96, // halloweenie:toiletPaper
+  414: 96, // halloweenie:pandora
+  415: 96, // halloweenie:weapon
+  416: 96, // rock:head
+  417: 96, // rock:chest
+  418: 96, // rock:legs
+  419: 96, // rock:boots
+  420: 96, // rock:rocket
+  421: 96, // rock:petRock
+  422: 96, // rock:rollingStone
+  423: 96, // rock:weapon
+  424: 96, // skippingStone
+  425: 96, // bedRock
+  426: 96, // rockCandy
+  427: 96, // brokenScissors
+  428: 96, // portableStairway
+  429: 96, // amplifier
+  445: 24, // edgyMagicite
+  446: 24, // creepyDoll
+  449: 48, // throOdignslug
+  450: 48, // linkCable
+  451: 72, // handCursor
+  453: 120, // construction:head
+  454: 120, // construction:chest
+  455: 120, // construction:legs
+  456: 120, // construction:boots
+  457: 120, // construction:hammer
+  458: 120, // construction:toolbox
+  459: 120, // construction:levelLevel
+  460: 120, // construction:weapon
+  461: 120, // dutch:head
+  462: 120, // dutch:chest
+  463: 120, // dutch:legs
+  464: 120, // dutch:boots
+  465: 120, // dutch:tulip
+  466: 120, // dutch:netherlands
+  467: 120, // dutch:cheese
+  468: 120, // dutch:weapon
+  469: 120, // amalgamate:head
+  470: 120, // amalgamate:chest
+  471: 120, // amalgamate:legs
+  472: 120, // amalgamate:boots
+  473: 120, // amalgamate:deathstick
+  474: 120, // amalgamate:corruptedLeaf
+  475: 120, // amalgamate:glued
+  476: 120, // amalgamate:weapon
+  477: 120, // rawSlabOfWood
+  478: 120, // tieOfApathy
+  479: 120, // titanEffigy
+  496: 120, // duck:head
+  497: 120, // duck:chest
+  498: 120, // duck:legs
+  499: 120, // duck:boots
+  500: 120, // duck:shotgun
+  501: 120, // duck:ducktTape
+  502: 120, // duck:duckCaller
+  503: 120, // duck:weapon
+  507: 96, // pirate:head
+  508: 96, // pirate:chest
+  509: 96, // pirate:legs
+  510: 96, // pirate:boots
+  511: 96, // pirate:cutlass
+  512: 96, // pirate:eyepatch
+  513: 96, // pirate:compass
+  514: 96, // pirate:weapon
 });
 
 const num = numV1;   /* outil commun (corps identique) */
@@ -383,7 +474,15 @@ const clone = (v) => JSON.parse(JSON.stringify(v));
 /* Tolérance flottante : 360 / (8 x 0,9) doit donner 50 niveaux, pas 49. */
 const EPS = 1e-9;
 
+/* Fragments de MacGuffin : 2 h par niveau (level0 @2343560 daycareRate[198..211, 228, 250, 289..291, 298..300] = 7 200 s, build 1260, 2026-11-16), sans plafond de niveau 100. */
+export const IDLE_DAYCARE_FRAGMENT_HOURS_V1 = 2;
+export const IDLE_DAYCARE_PERK_FRAGMENTS_V1 = 56;
+const FRAGMENT_NIVEAU_MAX_V1 = Number.MAX_SAFE_INTEGER;
+const estFragmentV1 = (item) => Boolean(item) && item.kind === "macguffin";
+const niveauMaxV1 = (item) => (estFragmentV1(item) ? FRAGMENT_NIVEAU_MAX_V1 : IDLE_DAYCARE_MAX_LEVEL_V1);
+
 export function idleDaycareBaseHoursV1(item) {
+  if (estFragmentV1(item)) return IDLE_DAYCARE_FRAGMENT_HOURS_V1;
   const id = int(item && item.wikiItemId, 0);
   const h = IDLE_DAYCARE_BASE_HOURS_BY_WIKI_ID_V1[id];
   return Number.isFinite(h) && h > 0 ? h : null;
@@ -447,7 +546,7 @@ function cleanDaycareItemV1(raw) {
   o.definitionId = String(o.definitionId || "");
   if (!o.id || !o.definitionId) return null;
   o.wikiItemId = Math.max(0, int(o.wikiItemId, 0));
-  o.level = clamp(int(o.level, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1);
+  o.level = clamp(int(o.level, 0), 0, niveauMaxV1(o));
   o.locked = Boolean(o.locked);
   return o;
 }
@@ -481,10 +580,11 @@ function hoursPerLevelV1(entry, factors) {
 
 function levelFromHoursV1(entry, factors) {
   const perLevel = hoursPerLevelV1(entry, factors);
-  const start = clamp(int(entry.levelAtEntry, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1);
+  const max = niveauMaxV1(entry.item);
+  const start = clamp(int(entry.levelAtEntry, 0), 0, max);
   if (perLevel == null) return Math.max(start, int(entry.item.level, 0));
   const gained = Math.floor(Math.max(0, num(entry.hours, 0)) / perLevel + EPS);
-  return Math.max(int(entry.item.level, 0), Math.min(IDLE_DAYCARE_MAX_LEVEL_V1, start + gained));
+  return Math.max(int(entry.item.level, 0), Math.min(max, start + gained));
 }
 
 /* Avance tous les slots de `seconds` (en ligne comme hors ligne : même chemin). */
@@ -496,9 +596,10 @@ export function advanceIdleDaycareV1(data, seconds, factors) {
     const perLevel = hoursPerLevelV1(entry, factors);
     if (perLevel == null) continue;
     const before = int(entry.item.level, 0);
-    if (before >= IDLE_DAYCARE_MAX_LEVEL_V1) continue;
-    /* Au-delà du niveau 100, le temps n'est plus compté (niveau plafonné). */
-    const maxHours = (IDLE_DAYCARE_MAX_LEVEL_V1 - clamp(int(entry.levelAtEntry, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1)) * perLevel;
+    const max = niveauMaxV1(entry.item);
+    if (before >= max) continue;
+    /* Au-delà du niveau 100, le temps n'est plus compté (niveau plafonné) ; pas pour un fragment de MacGuffin (type 11 du jeu). */
+    const maxHours = estFragmentV1(entry.item) ? Infinity : (max - clamp(int(entry.levelAtEntry, 0), 0, max)) * perLevel;
     const current = Math.max(0, num(entry.hours, 0));
     entry.hours = Math.max(current, Math.min(maxHours, current + (secs / 3600) * speed));
     entry.item.level = levelFromHoursV1(entry, factors);
@@ -524,13 +625,43 @@ export function idleDaycareEligibilityV1(item) {
 }
 
 /* Place un objet de l'inventaire dans un slot libre. */
-export function idleDaycarePlaceV1(adventure, data, itemId, factors) {
+/*
+ * ext (facultatif) : { fragments: tableau d'inventaire des fragments de MacGuffin (state.systems.macguffins.data.inventory, modifié sur place),
+ * perkFragments: niveau du perk 56, nomDe(type) } ; sans lui, seuls les objets d'Aventure sont plaçables.
+ */
+function fragmentsDeV1(ext) {
+  return ext && Array.isArray(ext.fragments) ? ext.fragments : [];
+}
+
+function idleDaycarePlaceFragmentV1(data, itemId, ext, maintenant) {
+  const liste = fragmentsDeV1(ext);
+  const idx = liste.findIndex((f) => f && String(f.uid) === String(itemId));
+  if (idx < 0) return null;
+  /* Lu dans le jeu (InventoryController::swapDaycare, type 11) : sans le perk 56 « MacGuffin Daycare! », le fragment est refusé. */
+  if (int(ext.perkFragments, 0) < 1) throw new Error("PERK_MACGUFFIN_DAYCARE_REQUIS");
+  const f = liste[idx];
+  const definitionId = "macguffin:" + String(f.type);
+  if (data.slots.some((e) => e.item.definitionId === definitionId)) throw new Error("DAYCARE_OBJET_DEJA_PRESENT");
+  liste.splice(idx, 1);
+  const level = Math.max(0, int(f.level, 0));
+  const nom = typeof ext.nomDe === "function" ? String(ext.nomDe(f.type) || f.type) : String(f.type);
+  const item = { id: String(f.uid), definitionId, kind: "macguffin", fragmentType: String(f.type), name: nom, wikiItemId: 0, level, locked: false };
+  data.slots.push({ item, levelAtEntry: level, hours: 0, placedAt: maintenant });
+  return { id: item.id, definitionId, level };
+}
+
+export function idleDaycarePlaceV1(adventure, data, itemId, factors, ext) {
+  const maintenant = Date.now();
   if (!adventure || !Array.isArray(adventure.inventory)) throw new Error("OBJET_INTROUVABLE");
   const slots = Math.max(0, int(factors && factors.slots, 0));
   if (slots <= 0) throw new Error("SYSTEME_VERROUILLE");
   if (data.slots.length >= slots) throw new Error("DAYCARE_PLEIN");
   const idx = adventure.inventory.findIndex((x) => x && String(x.id) === String(itemId));
-  if (idx < 0) throw new Error("OBJET_INTROUVABLE");
+  if (idx < 0) {
+    const place = idleDaycarePlaceFragmentV1(data, itemId, ext, maintenant);
+    if (place) return place;
+    throw new Error("OBJET_INTROUVABLE");
+  }
   const item = adventure.inventory[idx];
   if (equippedIdsV1(adventure).has(String(item.id))) throw new Error("OBJET_EQUIPE");
   const refus = idleDaycareEligibilityV1(item);
@@ -538,18 +669,25 @@ export function idleDaycarePlaceV1(adventure, data, itemId, factors) {
   if (data.slots.some((e) => e.item.definitionId === item.definitionId)) throw new Error("DAYCARE_OBJET_DEJA_PRESENT");
   adventure.inventory.splice(idx, 1);
   const level = clamp(int(item.level, 0), 0, IDLE_DAYCARE_MAX_LEVEL_V1);
-  data.slots.push({ item: clone(item), levelAtEntry: level, hours: 0, placedAt: Date.now() });
+  data.slots.push({ item: clone(item), levelAtEntry: level, hours: 0, placedAt: maintenant });
   /* Le client n'accepte un inventaire serveur que si sa révision avance (protegerJoueurServeurInventaireIdleV208_). */
   adventure.revision = Math.max(0, int(adventure.revision, 0)) + 1;
   return { id: String(item.id), definitionId: item.definitionId, level };
 }
 
 /* Rend l'objet à l'inventaire avec son niveau acquis (enregistré dans la Collection par add()). */
-export function idleDaycareRemoveV1(adventure, data, itemId, factors) {
+export function idleDaycareRemoveV1(adventure, data, itemId, factors, ext) {
   const idx = data.slots.findIndex((e) => String(e.item.id) === String(itemId));
   if (idx < 0) throw new Error("OBJET_INTROUVABLE");
   const entry = data.slots[idx];
   entry.item.level = levelFromHoursV1(entry, factors);
+  if (estFragmentV1(entry.item)) {
+    /* Le fragment retrouve l'inventaire des fragments avec son niveau acquis (il alimente le gain de bonus à chaque Rebirth). */
+    if (!ext || !Array.isArray(ext.fragments)) throw new Error("OBJET_INTROUVABLE");
+    ext.fragments.push({ uid: String(entry.item.id), type: String(entry.item.fragmentType), level: entry.item.level });
+    data.slots.splice(idx, 1);
+    return { id: String(entry.item.id), level: entry.item.level, levelsGained: entry.item.level - entry.levelAtEntry };
+  }
   const added = idleAdventureAddItemV1(adventure, clone(entry.item));
   if (!added) throw new Error("SAC_PLEIN");
   data.slots.splice(idx, 1);
@@ -561,7 +699,7 @@ function secondsV1(hours, speed) {
   return speed > 0 ? (hours / speed) * 3600 : null;
 }
 
-export function idleDaycareSnapshotV1(data, adventure, factors) {
+export function idleDaycareSnapshotV1(data, adventure, factors, ext) {
   const f = factors || idleDaycareFactorsV1({});
   const speed = Math.max(0, num(f.speedMultiplier, 1));
   const inDaycare = new Set();
@@ -570,10 +708,10 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
     const base = idleDaycareBaseHoursV1(entry.item);
     const perLevel = hoursPerLevelV1(entry, f);
     const level = levelFromHoursV1(entry, f);
-    const maxed = level >= IDLE_DAYCARE_MAX_LEVEL_V1;
+    const maxed = level >= niveauMaxV1(entry.item);
     const done = perLevel ? Math.max(0, num(entry.hours, 0)) / perLevel : 0;
     const progress = maxed || !perLevel ? (maxed ? 1 : 0) : Math.max(0, Math.min(1, done - Math.floor(done + EPS)));
-    const restLevels = maxed || !perLevel ? 0 : IDLE_DAYCARE_MAX_LEVEL_V1 - level - progress;
+    const restLevels = maxed || !perLevel ? 0 : (estFragmentV1(entry.item) ? 0 : IDLE_DAYCARE_MAX_LEVEL_V1 - level - progress);
     return {
       item: Object.assign(clone(entry.item), { level }),
       levelAtEntry: entry.levelAtEntry,
@@ -586,7 +724,7 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
       progress,
       maxed,
       secondsToNextLevel: maxed || !perLevel ? null : secondsV1((1 - progress) * perLevel, speed),
-      secondsToMax: maxed || !perLevel ? null : secondsV1(restLevels * perLevel, speed)
+      secondsToMax: maxed || !perLevel || estFragmentV1(entry.item) ? null : secondsV1(restLevels * perLevel, speed)
     };
   });
   const equipped = equippedIdsV1(adventure);
@@ -601,6 +739,19 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
       baseHours: idleDaycareBaseHoursV1(o),
       alreadyInDaycare: inDaycare.has(String(o.definitionId || ""))
     }));
+  /* Fragments de MacGuffin plaçables : seulement avec le perk 56 (jamais d'indice sur ce qui n'est pas acquis : liste vide sinon). */
+  const fragments = int(ext && ext.perkFragments, 0) >= 1
+    ? fragmentsDeV1(ext).filter((x) => x && !inDaycare.has("macguffin:" + String(x.type))).map((x) => ({
+      id: String(x.uid),
+      definitionId: "macguffin:" + String(x.type),
+      wikiItemId: 0,
+      name: typeof ext.nomDe === "function" ? String(ext.nomDe(x.type) || x.type) : String(x.type),
+      level: int(x.level, 0),
+      baseHours: IDLE_DAYCARE_FRAGMENT_HOURS_V1,
+      alreadyInDaycare: false,
+      fragment: true
+    }))
+    : [];
   return {
     slots: f.slots,
     slotSources: clone(f.slotSources || {}),
@@ -609,6 +760,6 @@ export function idleDaycareSnapshotV1(data, adventure, factors) {
     speedMultiplier: f.speedMultiplier,
     speedParts: clone(f.speedParts || {}),
     items: slots,
-    inventory: eligible
+    inventory: eligible.concat(fragments)
   };
 }

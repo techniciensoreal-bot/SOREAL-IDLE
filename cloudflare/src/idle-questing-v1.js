@@ -256,16 +256,16 @@ export function idleQuestBankCapV1(state) {
  *  - AP : base x2 si active, x bonus AP généraux (env.apEarningsMultiplier), arrondi inférieur
  *    ("the final AP value is rounded down", page Arbitrary Points ; 10 AP pour une Minor idle).
  */
-export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
+/*
+ * Facteur de QP commun à toutes les sources (quêtes ET titans), lu dans le jeu (BeastQuestController::questRewardFactor, build 1260, 2026-11-16) :
+ * set Godmother (x1,15, ici « mobster »), 1,02 ^ objets de quête au niveau 100, atouts ITOPOD (totalQPBonus), hack QP, souhait 47, cartes QP,
+ * Orange Heart (x1,2), atout Fibonacci 233 (x1,1). Le Beast Butter se multiplie à part (butterFactor de idleQuestRewardV1).
+ */
+export function idleQuestQpMultiplierV1(state, env) {
   const bonus = idleQuestBonusTotalsV1(state);
-  const base = major
-    ? IDLE_QUEST_BASE_REWARD_MAJOR_V1 + bonus.majorBaseBonus
-    : IDLE_QUEST_BASE_REWARD_MINOR_V1 + bonus.minorBaseBonus;
-  const activeFactor = usedIdle ? 1 : IDLE_QUEST_ACTIVE_REWARD_FACTOR_V1;
-  const activeWish = usedIdle ? 1 : bonus.activeRewardMultiplier;
   const data = state?.systems?.questing?.data || {};
   const maxedCount = IDLE_QUEST_ITEMS_V1.filter(x => data.maxedItems && data.maxedItems[x.zone]).length;
-  const qpMultiplier =
+  return (
     Math.max(0, N(env?.qpEarningsMultiplier, 1)) *
     (1 + bonus.questQpPct) *
     (state?.adventure?.completedSets?.mobster ? 1 + IDLE_QUEST_MOBSTER_SET_QP_PCT_V1 : 1) *
@@ -277,7 +277,18 @@ export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
      * QP Hacks, QP Cards ». Même traitement que le QP Hack (facteur multiplicatif, facteur
      * multiplicatif, lu dans le jeu), calculé par idle-cards-v1.js (cardsQpGainMultiplier).
      */
-    Math.max(0, N(env?.qpCardMultiplier, 1));
+    Math.max(0, N(env?.qpCardMultiplier, 1))
+  );
+}
+
+export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
+  const bonus = idleQuestBonusTotalsV1(state);
+  const base = major
+    ? IDLE_QUEST_BASE_REWARD_MAJOR_V1 + bonus.majorBaseBonus
+    : IDLE_QUEST_BASE_REWARD_MINOR_V1 + bonus.minorBaseBonus;
+  const activeFactor = usedIdle ? 1 : IDLE_QUEST_ACTIVE_REWARD_FACTOR_V1;
+  const activeWish = usedIdle ? 1 : bonus.activeRewardMultiplier;
+  const qpMultiplier = idleQuestQpMultiplierV1(state, env);
   /* Beast Butter : x2, x2,2 avec le Blue Heart (set) ("All consumable give 10% better effects"). */
   const butterFactor = butter ? IDLE_QUEST_BUTTER_FACTOR_V1 * idleHeartsConsumableFactorV1(state) : 1;
   const qp = Math.floor(base * activeFactor * activeWish * qpMultiplier * butterFactor);

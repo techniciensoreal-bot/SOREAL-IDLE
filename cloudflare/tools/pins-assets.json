@@ -248,8 +248,8 @@
   "sha": "399a2a0e6645d7732d0811df4a7b5a8a10c37877"
  },
  "/modules/daycare-page-v1.js": {
-  "pin": 58,
-  "sha": "479d3de1e75d12aa3430204d7267cd5502aae6e1"
+  "pin": 59,
+  "sha": "ec9a28773b2bc672cf6f4ce154c1c5b85d43868e"
  },
  "/modules/daycare-skin-popup-v1.js": {
   "pin": 4,
@@ -552,8 +552,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 286,
-  "sha": "af8deaadc4474035d6c3802cc44aedb0f10de92a"
+  "pin": 287,
+  "sha": "3406d294655c0198de5942e9a39ce84c77814034"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -668,12 +668,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 364,
-  "sha": "f6c8532d766791db1932cd9e62edfa3edcebc5b1"
+  "pin": 365,
+  "sha": "f89757f790732b1c4d4232fd6cae12de888f719f"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1010,
-  "sha": "4b44b16a60f5164661071916baf812a5a6dd2141"
+  "pin": 1011,
+  "sha": "2b0db0ae2a5ca275ab9d2405992dc2e2b80a800d"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 1,
@@ -768,12 +768,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1049,
-  "sha": "df8742f73ee396aa4e417c3cc3d34bce999c292d"
+  "pin": 1050,
+  "sha": "d77e7d33a42c26cbb6c656baffe2ea7b0fcf4df1"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 870,
-  "sha": "3303963ce60514efeced01bbf32e062dc3d90506"
+  "pin": 871,
+  "sha": "d6754c9fdfbe85727e8eb9d2d6817b083d0108ed"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
