@@ -11,7 +11,7 @@ import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, nombreSorealIdle_ } from "
 import { appliquerProgressionEnergieSorealIdle_ } from "./idle-runtime-progression.js";
 import { marquerRencontreBossPrincipalUneFoisParRunV207_, parserJsonSorealIdle_, statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
 import { bossCatalogueSorealIdle_ } from "./idle-runtime-catalogue.js";
-import { attaqueBossSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, enregistrerBossJamaisVaincuSorealIdle_, highestBossJamaisAtteintSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, xpBonusPremiereFoisSorealIdle_ } from "./idle-runtime-boss.js";
+import { attaqueBossSorealIdle_, bossFinDesBossAtteinteSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, enregistrerBossJamaisVaincuSorealIdle_, highestBossJamaisAtteintSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, xpBonusPremiereFoisSorealIdle_ } from "./idle-runtime-boss.js";
 import { ajouterCoutsEntrainementEtatSorealIdle_, construireEtatJoueurSorealIdle_ } from "./idle-runtime-etat.js";
 
 /*
@@ -319,6 +319,11 @@ export function definirCombatBossSorealIdle(
         bossIndex + 1;
 
       stats.bossRespawnJusqua = 0;
+
+      /* BossController::beginFight : bossID > 300 => isFighting = false, aucun combat (audit 2026-11-16, E3). */
+      if (bossFinDesBossAtteinteSorealIdle_(bossIndex)) {
+        return {ok:true,actif:false,ignore:true,finDesBoss:true,bossSelection:bossIndex+1};
+      }
 
       const niveauRequis =
         niveauRequisBossSorealIdle_(
@@ -727,6 +732,8 @@ export function nukerBossSorealIdle(
       if (bossBloqueRenaissanceNuke) {
         break;
       }
+
+      if (bossFinDesBossAtteinteSorealIdle_(bossVaincus)) break;   /* BossController::nukeBosses : stop si bossID > 300 (audit 2026-11-16, E3) */
 
       if (nukeArretBossInedit_(stats, bossVaincus, bossDepartNukeV1)) break;   /* BossController::nukeBosses (audit 2026-11-16, E2) */
 
