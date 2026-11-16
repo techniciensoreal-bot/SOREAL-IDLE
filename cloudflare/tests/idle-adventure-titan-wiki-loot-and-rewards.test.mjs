@@ -197,8 +197,9 @@ function combat(id, { etat, ctx, difficulty, valeur }) {
   }
   assert.equal(r.result.experience, 975, "750 EXP x 1,3 (souhait 3 niveau 3, Brutal)");
   assert.equal(r.result.ppProgress, 325000, "250 000 x 1,3");
-  assert.ok(Math.abs(r.result.qp - 1.3) < 1e-9, "1 QP de base x 1,3");
-  assert.ok(Math.abs(r.state.currencies.qp - 1.3) < 1e-9, "QP créditée");
+  /* Lu dans le jeu (LootDrop::zoneNDrop) : (long)((long)(1 x facteur de quête 1) x 1,3) = 1 (audit souhaits n°2, 2026-11-16). */
+  assert.equal(r.result.qp, 1, "1 QP de base x 1,3 tronqué à 1");
+  assert.equal(r.state.currencies.qp, 1, "QP créditée");
   assert.equal(r.state.currencies.experience, 975);
 }
 {

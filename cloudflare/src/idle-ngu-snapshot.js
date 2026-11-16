@@ -18,7 +18,7 @@ import { systemesPerkOuvertsV1 } from "./idle-perks-systemes-v1.js";
 import { idleWishByIdV1 } from "./idle-wishes-v1.js";
 import { idleDaycareSnapshotV1 } from "./idle-daycare-v1.js";
 import { idleInventoryAutoSnapshotV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1 } from "./idle-inventory-auto-v1.js";
-import { idleQuestingSnapshotV1 } from "./idle-questing-v1.js";
+import { idleQuestingSnapshotV1, idleQuestQpMultiplierV1 } from "./idle-questing-v1.js";
 import { idleLoginCalendarSnapshotV1 } from "./idle-login-calendar-v1.js";
 import { idsPortraitsDeChaineV1, idlePortraitsSnapshotV1 } from "./idle-portraits-v1.js";
 import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
@@ -1476,7 +1476,8 @@ export function crediterRecompensesAventure(state, avant) {
    * chaque événement -- le moteur d'Aventure ne transmet qu'un delta cumulé.
    */
   state.currencies.ap += apWithBonusV1(state, gain("ap"));
-  state.currencies.qp += gain("qp") * perksGain.qpEarningsMultiplier;
+  /* QP des titans : le facteur de quête (atouts ITOPOD, Fibonacci 233...) est déjà dans creditTitanRewardsV1 (questRewardFactor, comme le jeu) : ne pas le repasser ici. */
+  state.currencies.qp += gain("qp");
   /* Poop d'Icarus Proudbottom (The Sky, rollKill) : ajoutée au stock de Poop d'Yggdrasil. */
   const poop = Math.floor(gain("poop"));
   if (poop > 0) idleSelloutApplyEffectV1(state, "poop", poop);
@@ -1585,6 +1586,15 @@ export function questingEnvV1(state, context) {
 }
 
 /*
+ * Facteur de QP des titans (BeastQuestController::questRewardFactor, lu dans le jeu, build 1260, 2026-11-16) : le même que pour les quêtes, plancher 1.
+ * LIMITE connue : le jeu multiplie aussi par butterModifier quand le Beast Butter est actif (usedButter) ; ici le beurre n'est consommé que par une quête
+ * (idle-questing-v1.js), donc il n'est jamais compté pour un titan.
+ */
+export function questRewardFactorTitansV1(state, context) {
+  return Math.max(1, idleQuestQpMultiplierV1(state, questingEnvV1(state, context)));
+}
+
+/*
  * Marque filtered:true sur chaque entrée de result.drops dont l'id est listé dans filteredIds
  * (idleInventoryProcessNewDropsV1) -- le drop reste dans le journal du client (Norman veut le
  * voir, marqué "(filtré)"), il n'est simplement jamais resté dans l'inventaire réel.
@@ -1618,6 +1628,7 @@ export function titanFight(state, context, now) {
     },
     Object.assign({},context,{
       wishLevels:wishLevelsMapV1(state),
+      questRewardFactor:questRewardFactorTitansV1(state,context),
       titanExpBonusKills:perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct:challengePermanentBonuses(state).bossExpPct,
       goldMultiplier:Math.max(0,num(idleNguBonusesLectureV1(state).adventureGoldMultiplier,1)),

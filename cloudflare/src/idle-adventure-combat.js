@@ -309,7 +309,11 @@ function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0){
   out.ap=I(r.ap,0);
   out.ppProgress=Math.round(I(r.ppProgress,0)*rewardMult);
   const qpDef=TITAN_QP_V1[id];
-  if(qpDef&&I(wishes[qpDef.wish])>0)out.qp=qpDef.qp*rewardMult;
+  /* Lu dans le jeu (LootDrop::zoneNDrop, build 1260, 2026-11-16) : qp = (long)((long)(base x questRewardFactor) x higherVFactor). */
+  if(qpDef&&I(wishes[qpDef.wish])>0){
+    const facteurQp=Math.max(1,N(ctx&&ctx.questRewardFactor,1));
+    out.qp=Math.floor(Math.floor(qpDef.qp*facteurQp+1e-9)*rewardMult+1e-9);
+  }
   s.permanent.gold=N(s.permanent.gold)+out.gold;
   s.permanent.experience=N(s.permanent.experience)+out.experience;
   s.permanent.ap=N(s.permanent.ap)+out.ap;
