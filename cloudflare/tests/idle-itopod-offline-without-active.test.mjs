@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { IDLE_NGU_META_VERSION, IDLE_NGU_SAVE_SCHEMA, advanceIdleNguState } from "../src/idle-ngu-progression.js";
+import { IDLE_NGU_META_VERSION, IDLE_NGU_SAVE_SCHEMA, advanceIdleNguState, normalizeIdleNguState } from "../src/idle-ngu-progression.js";
 import { macguffinOnItopodKillsV1 } from "../src/idle-macguffins-v1.js";
 
 /*
@@ -15,7 +15,7 @@ function baseState() {
     version: IDLE_NGU_META_VERSION,
     saveSchema: IDLE_NGU_SAVE_SCHEMA,
     systems: {
-      tower: { unlocked: true, active: false, data: { floor: 0, killsOnFloor: 0, kills: 0, ppProgress: 0 } }
+      tower: { unlocked: true, active: false, data: { floor: 0, killsOnFloor: 0, kills: 0, ppProgress: 0, highestFloor: 5000 } }
     },
     currencies: { pp: 0, experience: 0, ap: 0 }
   };
@@ -65,6 +65,22 @@ function baseState() {
   state.systems.perks = { unlocked: true, data: { levels: { 68: 1 } } };
   const drops = macguffinOnItopodKillsV1(state, 5000, () => 0);
   assert.equal(drops.length, 1, "5000 kills = 1 MacGuffin (perk 68, sans amélioration)");
+}
+
+// Hors ligne (audit du code du jeu 2026-11-16, hors-ligne.md E2) : UN SEUL étage, jamais au-dessus de l'étage le plus haut déjà atteint, plages du joueur ignorées, aucun boost sans le filtre cube.
+{
+  const ctx = { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 };
+  const s = baseState();
+  s.systems.tower.data.highestFloor = 3;
+  s.systems.tower.data.startFloor = 0;
+  s.systems.tower.data.endFloor = 2;
+  const boostsAvant = normalizeIdleNguState(s, ctx, Date.now()).adventure.inventory.filter(i => i.kind === "boost").length;
+  const after = advanceIdleNguState(s, 3600, ctx, Date.now());
+  const d = after.systems.tower.data;
+  assert.equal(d.floor, 3, "plafonné à l'étage le plus haut déjà atteint, plages ignorées");
+  assert.equal(d.highestFloor, 3, "aucun nouvel étage hors ligne");
+  assert.ok(d.kills > 0);
+  assert.equal(after.adventure.inventory.filter(i => i.kind === "boost").length, boostsAvant, "pas de boost hors ligne sans le filtre cube");
 }
 
 console.log("idle-itopod-offline-without-active: OK");

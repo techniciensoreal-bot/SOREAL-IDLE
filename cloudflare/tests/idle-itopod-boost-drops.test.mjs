@@ -8,7 +8,7 @@ s.systems.tower.unlocked = true;
 s.systems.tower.active = true;
 s.adventure.inventory = s.adventure.inventory.filter(i => i.kind !== "boost");
 const avant = s.adventure.inventory.length;
-s = advanceIdleNguState(s, 5 * 100, ctx, 2_000_000); // 100 kills à 5 s
+for (let i = 0; i < 5; i++) s = advanceIdleNguState(s, 100, ctx, 2_000_000 + i * 100_000); // 100 kills à 5 s, en synchros en ligne (hors ligne, le jeu ne donne aucun boost sans le filtre cube)
 const boosts = s.adventure.inventory.filter(i => i.kind === "boost");
 assert.equal(s.systems.tower.data.kills, 100);
 assert.equal(boosts.length, 14, "100 kills x 14 % = 14 boosts");

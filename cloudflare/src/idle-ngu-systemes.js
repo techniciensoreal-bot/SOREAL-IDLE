@@ -912,7 +912,16 @@ function advanceTowerV1(state, seconds, context) {
   let end = d.endFloor == null ? null : clamp(int(d.endFloor, 0), start ?? 0, TOWER_MAX_FLOOR_V1);
   let auto = start === null || end === null;
   /* Lazy ITOPOD Floor Shifter acheté (wiki : « check your optimal floor after each kill, and adjust it ») et mode Auto choisi : les étages suivent l'étage optimal à chaque tour. */
-  const shifter = Boolean(state.selloutShop?.purchases?.lazyItopodFloorShifter) && d.autoOptimal === true;
+  let shifter = Boolean(state.selloutShop?.purchases?.lazyItopodFloorShifter) && d.autoOptimal === true;
+  /* Hors ligne (audit du code du jeu, 2026-11-16, design/audit-code-jeu/hors-ligne.md E2, Character::addOfflineProgress 2240) : le jeu ne tient compte NI des étages de départ et de fin du joueur NI du Floor Shifter ; il joue UN SEUL étage, le meilleur étage calculé, plafonné à l'étage le plus haut déjà atteint (jamais de nouvel étage ni de PP de première atteinte). */
+  const horsLigneItopod = seconds >= TOWER_COMBAT_MAX_SECONDS_V1;
+  if (horsLigneItopod) {
+    const etageUnique = Math.max(0, Math.min(optimal, d.highestFloor));
+    start = etageUnique;
+    end = etageUnique;
+    auto = false;
+    shifter = false;
+  }
   d.optimalFloor = optimal;
   d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);
   d.respawnS = respawn;
@@ -940,7 +949,10 @@ function advanceTowerV1(state, seconds, context) {
     d.kills += n;
     d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
     const boosts = Math.floor(d.boostProgress);
-    if (boosts > 0) {
+    /* Hors ligne le jeu ne donne des boosts qu'avec le filtre « Filter Boosts into Infinity Cube » (hasCubeFilter) : sans lui, aucun objet de boost (le gain direct en puissance du cube n'est pas repris : formule non vérifiée, voir le rapport). */
+    const boostsPermis = !horsLigneItopod || inventoryAutoEnvV1(state).filterBoostsIntoCube;
+    if (boosts > 0 && !boostsPermis) d.boostProgress -= boosts;
+    if (boosts > 0 && boostsPermis) {
       d.boostProgress -= boosts;
       const types = ["power", "toughness", "special"];
       const forceBoost = towerBoostStrengthV1(tier);

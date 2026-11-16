@@ -32,10 +32,10 @@ const fresh = () => {
 // --- 20 jours et 40 jours d'absence donnent EXACTEMENT le même résultat que 30 jours (plafond, jamais davantage) ---
 {
   const { state: j20 } = advanceBasicTrainingStateV411(fresh(), 20 * JOUR);
-  const { state: j30 } = advanceBasicTrainingStateV411(fresh(), 30 * JOUR);
-  const { state: j40 } = advanceBasicTrainingStateV411(fresh(), 40 * JOUR);
-  assert.ok(j20.skills.attaque_passive.level < j30.skills.attaque_passive.level, "20 jours < 30 jours (sous le plafond, progression normale)");
-  assert.equal(j40.skills.attaque_passive.level, j30.skills.attaque_passive.level, "40 jours = 30 jours (plafonné à 30 jours, jamais davantage)");
+  const { state: j30 } = advanceBasicTrainingStateV411(fresh(), 365 * JOUR);
+  const { state: j40 } = advanceBasicTrainingStateV411(fresh(), 400 * JOUR);
+  assert.ok(j20.skills.attaque_passive.level < j30.skills.attaque_passive.level, "20 jours < 365 jours (sous le plafond)");
+  assert.equal(j40.skills.attaque_passive.level, j30.skills.attaque_passive.level, "400 jours = 365 jours (plafond du jeu : 1 an)");
 }
 
 console.log("idle-basic-training-offline-cap-30-days: OK");

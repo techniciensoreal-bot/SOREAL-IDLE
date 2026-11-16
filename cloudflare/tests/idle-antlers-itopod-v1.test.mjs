@@ -62,7 +62,7 @@ assert.equal(idleExileItopodChanceV1(0), 0);
     let s = normalizeIdleNguState({}, ctx, 1_000_000);
     s.systems.tower.unlocked = true;
     s.systems.tower.active = true;
-    Object.assign(s.systems.tower.data, { floor: 999, killsOnFloor: 0, highestFloor: 1000, startFloor: 999, endFloor: 999, kills: 0 });
+    Object.assign(s.systems.tower.data, { floor: 999, killsOnFloor: 0, highestFloor: 999, startFloor: 999, endFloor: 999, kills: 0 });
     if (vu) s.adventure.itemList.faceExile = { maxLevel: 0, seen: true };
     const orig = Math.random;
     Math.random = () => 0.5;
