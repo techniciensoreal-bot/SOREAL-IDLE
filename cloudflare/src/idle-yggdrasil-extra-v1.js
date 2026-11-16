@@ -65,7 +65,8 @@ export function idleYggPoopCountV1(state) {
 
 /* 1,5 ; x1,1 avec le Blue Heart (set) (« All consumable give 10% better effects » -> 1,65). */
 export function idleYggPoopFactorV1(state) {
-  return IDLE_YGG_POOP_FACTOR_V1 * idleHeartsConsumableFactorV1(state);
+  /* Jeu : poopModifier borné à [1 ; 1,65]. */
+  return Math.min(1.65, Math.max(1, IDLE_YGG_POOP_FACTOR_V1 * idleHeartsConsumableFactorV1(state)));
 }
 
 export function idleYggBrownHeartActiveV1(state) {
@@ -76,12 +77,16 @@ export function idleYggBrownHeartActiveV1(state) {
  * Utilise une Poop sur le fruit mangé/récolté (appelé seulement après toutes
  * les validations du fruit). Brown Heart (set) : le compteur poopUsed compte
  * chaque Poop utilisée ; chaque 10e n'est pas consommée si le set est complété.
+ * Lu dans le jeu (FruitController::usePoop, build 1260, 2026-11-16) : avec le Brown Heart maxé, le test `poopUsed % 10 == 0` se fait AVANT l'incrément
+ * (la 1re, la 11e, la 21e... utilisation est gratuite), et cette utilisation gratuite marche MÊME SANS Poop en stock ; sinon une Poop est consommée.
  */
 export function idleYggUsePoopV1(state) {
   const fx = state.selloutEffects;
-  if (!fx || typeof fx !== "object" || idleYggPoopCountV1(state) < 1) throw new Error("POOP_INSUFFISANTE");
-  fx.poopUsed = Math.max(0, I(fx.poopUsed, 0)) + 1;
-  const free = idleYggBrownHeartActiveV1(state) && fx.poopUsed % IDLE_YGG_BROWN_HEART_EVERY_V1 === 0;
+  if (!fx || typeof fx !== "object") throw new Error("POOP_INSUFFISANTE");
+  const dejaUtilisees = Math.max(0, I(fx.poopUsed, 0));
+  const free = idleYggBrownHeartActiveV1(state) && dejaUtilisees % IDLE_YGG_BROWN_HEART_EVERY_V1 === 0;
+  if (!free && idleYggPoopCountV1(state) < 1) throw new Error("POOP_INSUFFISANTE");
+  fx.poopUsed = dejaUtilisees + 1;
   if (!free) fx.poop = idleYggPoopCountV1(state) - 1;
   return { factor: idleYggPoopFactorV1(state), consumed: !free, free, remaining: idleYggPoopCountV1(state) };
 }
