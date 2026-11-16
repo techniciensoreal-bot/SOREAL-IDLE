@@ -4,18 +4,18 @@ import * as M from "../src/idle-migrations-v1.js";
 import { normalizeIdleNguState, rebirthIdleNguState, syncIdleNguState } from "../src/idle-ngu-progression.js";
 
 /*
- * Migration 53 -> 54 (chaîne secrète de la Bête) : toute partie qui avait la Bête par l'ancienne règle (boss 132 atteint) ou qui l'avait déjà combattue garde son accès ; les autres doivent trouver le secret.
+ * Migration 54 -> 55 (chaîne secrète de la Bête) : toute partie qui avait la Bête par l'ancienne règle (boss 132 atteint) ou qui l'avait déjà combattue garde son accès ; les autres doivent trouver le secret.
  * Puis le Rebirth qui pose titan6Unlocked (Rebirth::checkSpecial) de bout en bout par le vrai moteur.
  */
 const cp = o => JSON.parse(JSON.stringify(o));
 const T0 = 1.76e12;
-const m = M.MIGRATIONS.find(x => x.de === 53);
-assert.equal(m.vers, 54);
-assert.equal(M.ETAT_VERSION_COURANTE, 54);
+const m = M.MIGRATIONS.find(x => x.de === 54);
+assert.equal(m.vers, 55);
+assert.equal(M.ETAT_VERSION_COURANTE, 55);
 
 function ancien(modif = {}) {
   const e = cp(lireReference(1));
-  e.etatVersion = 53;
+  e.etatVersion = 54;
   e.adventure = e.adventure || {};
   e.adventure.unlockFlags = Object.assign({}, e.adventure.unlockFlags);
   delete e.adventure.unlockFlags.titan6Unlocked;
@@ -29,7 +29,7 @@ const migrer = (e, jeu = {}) => M.appliquerMigrationV1(m, e, { now: T0, jeu });
 
 {
   const e = migrer(ancien());
-  assert.equal(e.etatVersion, 54);
+  assert.equal(e.etatVersion, 55);
   assert.ok(!e.adventure.unlockFlags.titan6Unlocked, "boss 50 : le secret reste à trouver");
 }
 {
@@ -57,18 +57,18 @@ const migrer = (e, jeu = {}) => M.appliquerMigrationV1(m, e, { now: T0, jeu });
   const e = migrer(ancien({ records: Object.assign({}, lireReference(1).records, { highestBoss: 200 }) }));
   const deux = migrer(cp(e));
   assert.equal(JSON.stringify(deux), JSON.stringify(e), "idempotente");
-  const hors = ancien(); hors.etatVersion = 54;
+  const hors = ancien(); hors.etatVersion = 55;
   assert.ok(!M.appliquerMigrationV1(m, hors, { now: T0, jeu: {} }).adventure.unlockFlags.titan6Unlocked, "hors de sa version : sans effet");
 }
-/* Par la vraie normalisation : une sauvegarde à la version 53 avec le boss 132 atteint garde la Bête ; un nouveau joueur non. */
+/* Par la vraie normalisation : une sauvegarde à la version 54 avec le boss 132 atteint garde la Bête ; un nouveau joueur non. */
 {
   const e = ancien(); e.records.highestBoss = 140;
   const n = normalizeIdleNguState(e, { bosses: 0 }, T0);
   assert.equal(n.adventure.unlockFlags.titan6Unlocked, true);
-  assert.equal(n.etatVersion, 54);
+  assert.equal(n.etatVersion, 55);
   const neuf = normalizeIdleNguState({}, { bosses: 0 }, T0);
   assert.ok(!neuf.adventure.unlockFlags.titan6Unlocked, "nouvelle partie : le secret reste à trouver");
-  assert.equal(neuf.etatVersion, 54);
+  assert.equal(neuf.etatVersion, 55);
 }
 
 /* Rebirth de bout en bout : 4 indices faits + 2600 s de partie : titan6Unlocked ; 2000 s : non. */
