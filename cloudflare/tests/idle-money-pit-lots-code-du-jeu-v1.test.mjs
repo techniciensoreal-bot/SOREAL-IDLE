@@ -1,13 +1,13 @@
 import assert from "node:assert/strict";
 import { normalizeIdleNguState, applyIdleNguAction } from "../src/idle-ngu-progression.js";
-import { IDLE_MONEY_PIT_REWARDS_V1 } from "../src/idle-ngu-snapshot.js";
+import { IDLE_MONEY_PIT_REWARDS_V1, moneyPitSnapshotV1 } from "../src/idle-ngu-snapshot.js";
 
 /* Lu dans le code du jeu (PitController::tier1Reward à tier11Reward, build 1260, 2026-11-16) : un entier uniforme, un lot par cas. */
-assert.deepEqual(IDLE_MONEY_PIT_REWARDS_V1.map((t) => t.length), [0, 8, 9, 9, 9, 10, 11, 12, 12, 12, 12, 12], "nombre de cas par palier (Random.Range - 1)");
+assert.deepEqual(IDLE_MONEY_PIT_REWARDS_V1.map((t) => t.length), [0, 8, 9, 9, 9, 10, 11, 12, 12, 12, 12, 12, 5, 5, 5, 5, 5], "nombre de cas par palier (Random.Range - 1)");
 for (const [i, lots] of IDLE_MONEY_PIT_REWARDS_V1.entries()) {
   for (const lot of lots) {
     assert.ok(!("adventureStats" in lot), "Puissance et Endurance sont deux lots distincts (palier " + i + ")");
-    const effets = Object.keys(lot).filter((k) => !["wandoosMax", "type"].includes(k));
+    const effets = Object.keys(lot).filter((k) => !["wandoosMax", "type", "parJets"].includes(k));
     assert.equal(effets.length, 1, "un lot = un seul effet (palier " + i + ")");
   }
 }
@@ -49,5 +49,44 @@ function jeter(s, or, alea) {
   const r = jeter(partie(), 1e5, 7.5 / 8);
   assert.equal(r.result.tier, 1);
   assert.deepEqual(Object.keys(r.result.reward).filter((k) => k !== "ap"), []);
+}
+{
+  // paliers 12 à 16 : seulement avec le souhait n°4 ; sans lui tout reste au palier 11
+  const sans = partie();
+  assert.equal(moneyPitSnapshotV1(Object.assign(sans, { currencies: { ...sans.currencies, gold: 1e55 } })).tier, 11, "sans le souhait n°4 : palier 11");
+  const avec = partie();
+  avec.currencies.gold = 1e55;
+  avec.systems.wishes = avec.systems.wishes || {};
+  const origine = avec.systems.wishes;
+  const wishes = origine.data && origine.data.tracks ? origine.data.tracks : null;
+  assert.ok(wishes && wishes[4], "le souhait n°4 existe dans l état");
+  avec.difficulty = "difficile";   /* le souhait n°4 n existe qu en Evil et au-dela */
+  wishes[4].level = 1;
+  const sn = moneyPitSnapshotV1(avec, ctx);
+  assert.equal(sn.tier, 13, "1E55 avec le souhait n°4 : palier 13 (< 1E60)");
+  assert.equal(sn.min, 1e55);
+  assert.equal(sn.suivant, 1e60);
+  /* 5 cas ; EXP 3000 x (jets du run + 1) ; le palier 13 : fractions 0,25 / 0,025 */
+  const exp = sn.lots.find((l) => l.experience);
+  assert.equal(exp.experience, 3000, "premier jet du run : facteur 1");
+  /* lots concrets : graines de grenade (Yggdrasil débloqué) > 0 ; pilule absente tant que Blood Magic n'est pas débloquée */
+  assert.ok(sn.lots.find((l) => l.seeds).seeds > 0, "graines de grenade : valeur concrète");
+  avec.systems.bloodMagic.unlocked = false;
+  assert.ok(!moneyPitSnapshotV1(avec, ctx).lots.some((l) => l.pilule !== undefined), "pas de pilule sans Blood Magic");
+  avec.systems.bloodMagic.unlocked = true;
+  const avecSang = moneyPitSnapshotV1(avec, ctx).lots;
+  assert.ok(avecSang.some((l) => l.pilule !== undefined), "la pilule apparaît avec Blood Magic");
+  /* tirage de bout en bout : l'EXP du palier 13 (3e des 5 cas) */
+  {
+    avec.systems.moneyPit.unlocked = true;
+    avec.currencies.gold = 1e55;
+    const r = jeter(avec, 1e55, 2.5 / avecSang.length);
+    assert.equal(r.result.tier, 13);
+    assert.equal(r.result.reward.experience, 3000, "EXP 3000 x 1 (premier jet)");
+  }
+  avec.systems.moneyPit.data.tossesThisRun = 4;
+  assert.equal(moneyPitSnapshotV1(avec, ctx).lots.find((l) => l.experience).experience, 15000, "5e jet : facteur 5");
+  avec.systems.moneyPit.data.tossesThisRun = 40;
+  assert.equal(moneyPitSnapshotV1(avec, ctx).lots.find((l) => l.experience).experience, 30000, "facteur plafonné à 10");
 }
 console.log("idle-money-pit-lots-code-du-jeu-v1 OK");

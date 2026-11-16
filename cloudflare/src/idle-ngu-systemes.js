@@ -393,6 +393,39 @@ function yggSeedGain(def,tier,harvest,seedYieldMultiplier=1,bonus=1,eaten=false)
   return Math.ceil(unit*Math.max(1,def.baseSeeds)*(harvest?2:1)*seedYieldMultiplier*bonus);
 }
 
+/*
+ * Money Pit, paliers 12 à 16 (lu dans le jeu, build 1260, 2026-11-16 : PitController::tier12Reward…tier16Reward).
+ * Sang par seconde : somme sur les rituels de (remplissages par seconde x sang par complétion), sans tenir compte de l'Or (AllBloodMagicController::totalBloodGainedPerSecond).
+ */
+export function bloodParSecondeV1(state, context) {
+  const s = state.systems.bloodMagic;
+  if (!s || !s.unlocked) return 0;
+  bloodMigrerAllocationV1(s);
+  const power = Math.max(1, idleNguEffectiveResourceStatV1(state, "magic", "power"));
+  const difficultyDivider = idleNguDifficultySpeedDividerV1(state, "bloodMagic");
+  const dutch = 1 + Math.max(0, num(state.adventure?.setRewards?.bloodMagicSpeedPct, 0));
+  let total = 0;
+  for (const ritual of IDLE_NGU_BLOOD_RITUALS) {
+    if (!ritualUnlocked(ritual, context, state)) continue;
+    const magic = bloodRitualMagicV1(s, ritual.id);
+    if (magic <= 0) continue;
+    const secondes = dureeNiveauEnTicksV1(ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutch);
+    const gain = ritual.blood * quirkBonusesV1(idleQuirkNiveauxV1(state)).bloodGainMultiplier * hackFxV1(state).bloodGain * diggerBonuses(state).blood * macguffinEffectMultiplierV1(state, "blood");
+    if (Number.isFinite(secondes) && secondes > 0) total += gain / secondes;
+  }
+  return total;
+}
+
+/* Graines d'une « grenade » du Money Pit : (long)(graines d'une récolte de Pomegranate au palier 24 x fraction) (FruitController::awardPartialPomegranate). */
+export function pitGrainesGrenadeV1(state, fraction) {
+  const def = IDLE_NGU_YGG_FRUITS.find((x) => x.id === "pomegranate");
+  if (!def) return 0;
+  const perkBonuses = perkBonusesV1(idlePerkNiveauxV1(state));
+  const quirkBonuses = quirkBonusesV1(idleQuirkNiveauxV1(state));
+  const mult = perkBonuses.seedYieldMultiplier * quirkBonuses.seedYieldMultiplier * nguFxV1(state).yggdrasil * gearPctV1(gearSpecialsV1(state), "seedGainPct");
+  return Math.floor(yggSeedGain(def, 24, true, mult, 1, false) * fraction);
+}
+
 export function useYggFruit(state,fruitId,mode="eat",options={}){
   const s=state.systems.yggdrasil;
   if(!s?.unlocked)throw new Error("SYSTEME_VERROUILLE");

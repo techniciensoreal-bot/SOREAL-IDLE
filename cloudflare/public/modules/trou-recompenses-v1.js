@@ -36,6 +36,7 @@
   /* Un lot du moteur -> { icon, name }. Les noms sont ceux du reste de la page (libelleRecompenseMetaV206_). */
   function decrire(l){
     if(l.adventureStats)return {icon:'stats',name:'+'+nb(l.adventureStats)+' Puissance et Endurance d’Aventure'};
+    if(l.pilule!==undefined)return {icon:'stats',name:'+'+nb(l.pilule,2)+' aux stats d’Aventure (pilule de fer)'};
     if(l.adventurePower)return {icon:'stats',name:'+'+nb(l.adventurePower)+' Puissance d’Aventure'};
     if(l.adventureToughness)return {icon:'stats',name:'+'+nb(l.adventureToughness)+' Endurance d’Aventure'};
     if(l.levelUpRandom)return {icon:'xp',name:'+1 niveau sur un équipement porté (au hasard)'+(l.levelUpRandom>1?', '+nb(l.levelUpRandom)+' fois':'')};

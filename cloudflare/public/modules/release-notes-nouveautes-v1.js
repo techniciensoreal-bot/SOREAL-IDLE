@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Money Pit, d’après le code du jeu : chaque lot est un tirage distinct (Puissance et Endurance séparées, trois boosts, un cas « rien » au premier palier) et de nouveaux lots font monter d’un niveau l’équipement porté."
+    "Money Pit, d’après le code du jeu : chaque lot est un tirage distinct (Puissance et Endurance séparées, trois boosts, un cas « rien » au premier palier), de nouveaux lots font monter d’un niveau l’équipement porté, et les paliers les plus hauts (pilule de fer, graines, EXP selon le nombre de jets) sont ajoutés."
   ] };
 })();

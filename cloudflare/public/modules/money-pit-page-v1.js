@@ -134,6 +134,7 @@
         if(n('adventurePower'))lignes.push('⚔️ +'+f(n('adventurePower'))+' Puissance d’Aventure');
         if(n('adventureToughness'))lignes.push('🛡️ +'+f(n('adventureToughness'))+' Endurance d’Aventure');
         if(n('levelUps'))lignes.push('📈 +'+f(n('levelUps'))+' niveau(x) d’équipement');
+        if(n('pilule'))lignes.push('💊 +'+f(n('pilule'),2)+' aux stats d’Aventure (pilule)');
         if(n('adventureHp'))lignes.push('❤️ +'+f(n('adventureHp'))+' PV max d’Aventure');
         if(n('adventureRegen'))lignes.push('🩹 +'+f(n('adventureRegen'),2)+' Regen PV d’Aventure');
         if(n('cubePower')||n('cubeToughness')||n('cubeBoth')){
@@ -204,6 +205,7 @@
         }
         if(reward.adventurePower)morceaux.push('+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.adventurePower)+' Puissance Aventure');
         if(reward.adventureToughness)morceaux.push('+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.adventureToughness)+' Endurance Aventure');
+        if(reward.pilule)morceaux.push('+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.pilule,2)+' aux stats d’Aventure (pilule)');
         if(reward.levelUps)morceaux.push('+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.levelUps)+' niveau(x) d’équipement');
         if(reward.adventureHp){
           morceaux.push('+'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(reward.adventureHp)+' PV max Aventure');
@@ -249,6 +251,7 @@
         if(reward.adventureStats)return choisir('Le Trou rote un grand coup et vous voilà plus costaud : +'+nb(reward.adventureStats)+' Puissance et Endurance !','Le Trou vous crache de la force brute sur les bottes : +'+nb(reward.adventureStats)+' Puissance et Endurance !');
         if(reward.adventurePower)return choisir('Le Trou rote un grand coup et vous voilà plus costaud : +'+nb(reward.adventurePower)+' Puissance !','Le Trou vous crache de la force brute sur les bottes : +'+nb(reward.adventurePower)+' Puissance !');
         if(reward.adventureToughness)return choisir('Le Trou vous tapote le dos et votre peau durcit : +'+nb(reward.adventureToughness)+' Endurance !','Le Trou rote un nuage de pierre : +'+nb(reward.adventureToughness)+' Endurance !');
+        if(reward.pilule)return choisir('Une petite pilule de fer apparaît devant vous. Vous l’avalez : +'+nb(reward.pilule,2)+' à vos stats d’Aventure !','Le Trou crache une pilule de fer, vous l’avalez sans réfléchir : +'+nb(reward.pilule,2)+' à vos stats d’Aventure !');
         if(reward.levelUps)return choisir('Le Trou envoie une onde d’énergie : votre équipement gagne en puissance (+'+nb(reward.levelUps)+' niveau(x)) !','Une onde d’énergie traverse vos objets : +'+nb(reward.levelUps)+' niveau(x) d’équipement !');
         if(reward.adventureHp)return choisir('Le Trou gargouille et vous gonfle les muscles : +'+nb(reward.adventureHp)+' PV max !','Le Trou hoquette et vous voilà bien plus solide : +'+nb(reward.adventureHp)+' PV max !');
         if(reward.adventureRegen)return choisir('Le Trou soupire un air tiède qui referme vos petits bobos : +'+nb(reward.adventureRegen,2)+' de régénération !','Le Trou tousse un nuage réparateur : +'+nb(reward.adventureRegen,2)+' de régénération !');

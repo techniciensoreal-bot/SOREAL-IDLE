@@ -12,7 +12,7 @@ import { idleCardsSnapshotV1, idleCardsGrantChallengeMayoV1 } from "./idle-cards
 import { idleYggIsMayoFruitV1, idleYggFruitUnlockedV1, idleYggExtraSnapshotV1 } from "./idle-yggdrasil-extra-v1.js";
 import { macguffinSnapshotV1, macguffinPermanentPctV1 } from "./idle-macguffins-v1.js";
 import { IDLE_PERKS_CATALOG_V1, perkBonusesV1, idlePerkByIdV1, idlePerkNextCostV1 } from "./idle-perks-v1.js";
-import { idleDifficulteSuffisanteV1, IDLE_PERK_DIFFICULTE_V1, IDLE_QUIRK_DIFFICULTE_V1, idleWishAccessibleV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
+import { idleDifficulteSuffisanteV1, IDLE_PERK_DIFFICULTE_V1, IDLE_QUIRK_DIFFICULTE_V1, idleWishAccessibleV1, idlePerkNiveauxV1, idleWishTracksActifsV1, idleRangDifficulteV1 } from "./idle-difficulty-gates-v1.js";
 import { IDLE_QUIRKS_CATALOG_V1, idleQuirkByIdV1, idleQuirkNextCostV1 } from "./idle-quirks-v1.js";
 import { systemesPerkOuvertsV1 } from "./idle-perks-systemes-v1.js";
 import { idleWishByIdV1 } from "./idle-wishes-v1.js";
@@ -29,7 +29,7 @@ import { augmentationGoldCost, augmentationSecondsForNextLevel, augmentationSeco
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, ressourceDecouverteV1, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAutoEnvV1, resourceInfoV1 } from "./idle-ngu-actions.js";
 import { IDLE_AT_ORDRE_V1, beardActiveIdsV1, beardSlotsV1, beardTrackUnlocked, bloodMagicViewV1, finiOuNullV1, timeMachineViewV1, wandoosViewV1, wishSlotCountV1, wishSlotsSnapshotV1 } from "./idle-ngu-pistes.js";
-import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, castBloodSpell, createTrollStateV1, diggerLaboVisibleV1, diggerViewV1, ritualUnlocked, yggMaxTier, yggTierUpgradeCost, apercuYggFruitV1 } from "./idle-ngu-systemes.js";
+import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, castBloodSpell, createTrollStateV1, diggerLaboVisibleV1, diggerViewV1, ritualUnlocked, bloodParSecondeV1, pitGrainesGrenadeV1, yggMaxTier, yggTierUpgradeCost, apercuYggFruitV1 } from "./idle-ngu-systemes.js";
 import { IDLE_WANDOOS_OS_V1, RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, idleTheEndFinalHackSnapshotV1 } from "./idle-ngu-etat.js";
 /* Fruit à découvrir (anti-spoil, règle n°2) : les fruits de Mayo (système Cards) et le Fruit of Numbers (5e complétion du défi Troll) n'apparaissent qu'une fois obtenus, même Yggdrasil découvert. */const yggFruitSecretV1 = (id) => idleYggIsMayoFruitV1(id) || id === "numbers";
 
@@ -379,7 +379,7 @@ function construireSnapshotNguV1(state, context, now) {
     /* Roue journalière : palier courant et table des récompenses (affichage de la roue, jamais utilisée pour tirer côté client). */
     roueJournaliere: dailySpinSnapshotV1(state),
     /* Trou sans fond : lots possibles du palier de l'Or en stock (affichage, jamais utilisé pour tirer). */
-    puitRecompenses: moneyPitSnapshotV1(state),
+    puitRecompenses: moneyPitSnapshotV1(state, context),
     loginCalendar: state.systems.moneyPit?.unlocked ? idleLoginCalendarSnapshotV1(state.records.loginCalendar, nowMs(now)) : null,
     /* Player Portraits : portraits débloqués, choix courant, Special Prize (idle-portraits-v1.js). */
     portraits: idlePortraitsSnapshotV1(state.records.portrait, portraitEnvV1(state), num(state.records.specialPrizeClaimed, 0) > 0, num(state.records.specialPrizeChoice, 0), num(state.records.portraitManuel, 0) > 0, state.records.portraitsVus),
@@ -612,7 +612,16 @@ export function selectRitual(state, ritualId, context) {
   s.data.activeRitual = ritualId;
 }
 
-function moneyPitTierV48_(gold) {
+/* Lu dans le jeu (PitController::oneTossReward) : au-delà de 1E30, les paliers 12 à 16 (1E50, 1E55, 1E60, 1E65, 1E70) n'existent qu'avec le souhait n°4 ; sans lui, tout reste au palier 11. */
+export const IDLE_MONEY_PIT_SEUILS_HAUTS_V1 = Object.freeze([1e50, 1e55, 1e60, 1e65, 1e70]);
+function moneyPitTierV48_(gold, state) {
+  let tier = moneyPitTierBasV48_(gold);
+  if (tier >= 11 && state && wishLevelV1(state, 4) >= 1) {
+    for (const seuil of IDLE_MONEY_PIT_SEUILS_HAUTS_V1) { if (gold >= seuil) tier += 1; else break; }
+  }
+  return tier;
+}
+function moneyPitTierBasV48_(gold) {
   const thresholds=[1e5,1e7,1e9,1e11,1e13,1e15,1e18,1e21,1e24,1e27,1e30];
   let tier=0;
   for(let i=0;i<thresholds.length;i+=1){
@@ -676,7 +685,7 @@ function applyMoneyPitOneTimeBonusesV1(state) {
  * nous a apportés depuis le début »). L'historique ne garde que 20 jets : les totaux sont cumulés à part (data.rewardsTotal) ; pour une sauvegarde
  * d'avant, ils partent de l'historique disponible.
  */
-const MONEY_PIT_TOTAL_KEYS_V1 = Object.freeze(["adventureStats", "adventurePower", "adventureToughness", "levelUps", "adventureHp", "adventureRegen", "cubePower", "cubeToughness", "cubeBoth", "experience", "seeds", "wandoosLevels", "ap", "boosts", "energyBars", "magicBars"]);
+const MONEY_PIT_TOTAL_KEYS_V1 = Object.freeze(["adventureStats", "adventurePower", "adventureToughness", "pilule", "levelUps", "adventureHp", "adventureRegen", "cubePower", "cubeToughness", "cubeBoth", "experience", "seeds", "wandoosLevels", "ap", "boosts", "energyBars", "magicBars"]);
 
 function moneyPitTotalsVideV1() {
   const t = {};
@@ -760,8 +769,24 @@ export const IDLE_MONEY_PIT_REWARDS_V1 = [
   [...cube_(50, 50, 25), { levelUpAll: 1 }, { experience: 200 }, { seeds: 200 }, { adventurePower: 150 }, { adventureToughness: 150 }, { adventureHp: 450 }, { adventureRegen: 5 }, { wandoos: 2, wandoosMax: 100 }, { levelUpDaycare: 1 }],
   [...cube_(100, 100, 50), { levelUpAll: 1 }, { experience: 300 }, { seeds: 300 }, { adventurePower: 200 }, { adventureToughness: 200 }, { adventureHp: 700 }, { adventureRegen: 6 }, { wandoos: 2, wandoosMax: 100 }, { levelUpDaycare: 1 }],
   [...cube_(150, 150, 75), { levelUpAll: 1 }, { experience: 400 }, { seeds: 500 }, { adventurePower: 250 }, { adventureToughness: 250 }, { adventureHp: 750 }, { adventureRegen: 7.5 }, { wandoos: 2, wandoosMax: 100 }, { levelUpDaycare: 1 }],
-  [...cube_(200, 200, 100), { levelUpAll: 1 }, { experience: 500 }, { seeds: 700 }, { adventurePower: 300 }, { adventureToughness: 300 }, { adventureHp: 900 }, { adventureRegen: 9 }, { wandoos: 3, wandoosMax: 100 }, { levelUpDaycare: 1 }]
+  [...cube_(200, 200, 100), { levelUpAll: 1 }, { experience: 500 }, { seeds: 700 }, { adventurePower: 300 }, { adventureToughness: 300 }, { adventureHp: 900 }, { adventureRegen: 9 }, { wandoos: 3, wandoosMax: 100 }, { levelUpDaycare: 1 }],
+  /* Paliers 12 à 16 : 5 cas ; pilule de fer (fraction de (sang par heure)^0,25), niveaux, EXP, graines de grenade, niveaux de garderie ; EXP, graines et pilule x min(10, jets du run + 1). */
+  ...[[0.2, 2500, 0.02], [0.25, 3000, 0.025], [0.3, 3500, 0.03], [0.35, 4000, 0.035], [0.4, 5000, 0.04]].map(([pilule, exp, graines]) => [{ pilule }, { levelUpAll: 1 }, { experience: exp, parJets: 1 }, { seedsPit: graines }, { levelUpDaycare: 1 }])
 ];
+
+/* Lot concret d'un jet : pilule et graines de grenade se calculent sur l'état ; EXP des paliers 12+ multipliée par le facteur de jets (PitController::tossFactor). */
+export function moneyPitLotConcretV1(state, context, lot, jetsAvant) {
+  const facteur = Math.max(1, Math.min(10, int(jetsAvant, 0) + 1));
+  if (lot.pilule !== undefined) {
+    let base = Math.floor(Math.pow(bloodParSecondeV1(state, context) * 3600, 0.25));
+    if (idleRangDifficulteV1(state.difficulty) >= 1) base *= perkBonusesV1(idlePerkNiveauxV1(state)).ironPillMultiplier;
+    base = Math.max(0, Math.min(1e8, base));
+    return { pilule: base * lot.pilule * facteur };
+  }
+  if (lot.seedsPit !== undefined) return { seeds: pitGrainesGrenadeV1(state, lot.seedsPit) * Math.floor(facteur) };
+  if (lot.parJets) return { experience: Math.floor(lot.experience * facteur) };
+  return lot;
+}
 
 /* Lots tirables au palier `tier` : ceux dont le syst�me est d�bloqu� (cube, Wandoos, Yggdrasil) ; utilis� par le tirage ET par la liste annonc�e au joueur : le % affich� est donc la vraie chance (1 / nombre de lots). */
 export function moneyPitLotsDisponiblesV1(state, tier) {
@@ -771,6 +796,8 @@ export function moneyPitLotsDisponiblesV1(state, tier) {
     if (choix.wandoos && !sys("wandoos")) return false;
     if (choix.seeds && !sys("yggdrasil")) return false;
     if (choix.levelUpDaycare && !sys("daycare")) return false;
+    if (choix.seedsPit !== undefined && !sys("yggdrasil")) return false;
+    if (choix.pilule !== undefined && !sys("bloodMagic")) return false;
     return true;
   });
 }
@@ -815,7 +842,7 @@ function moneyPitMonterNiveauxV1(state, mode, fois) {
   return n;
 }
 
-export function tossMoneyPit(state, now) {
+export function tossMoneyPit(state, now, context) {
   const s = state.systems.moneyPit;
   if (!s.unlocked) throw new Error("SYSTEME_VERROUILLE");
   if (now < num(s.data.nextAt, 0)) throw new Error("PUITS_EN_RECHARGE");
@@ -840,7 +867,7 @@ export function tossMoneyPit(state, now) {
     if (ap > 0) state.currencies.ap = Math.max(0, num(state.currencies.ap, 0)) + ap;
     return { rien: true, orPerdu: cost, ap };
   }
-  const tier = moneyPitTierV48_(cost);
+  const tier = moneyPitTierV48_(cost, state);
   const tosses = Math.max(0, int(s.data.tossesThisRun, 0));
 
   state.currencies.gold = 0;
@@ -890,7 +917,8 @@ export function tossMoneyPit(state, now) {
    */
   /* Wiki : � It's a random chance between all available rewards � : le tirage se fait parmi les lots DISPONIBLES (syst�mes d�bloqu�s), les m�mes que ceux annonc�s au joueur (moneyPitLotsDisponiblesV1) : chacun a donc 1 chance sur N, N = nombre de lots annonc�s (Norman, 2026-11-03 : afficher le % de chance). */
   const candidats = moneyPitLotsDisponiblesV1(state, tier);
-  const choix = candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : {};
+  const choixBrut = candidats.length ? candidats[Math.floor(Math.random() * candidats.length)] : {};
+  const choix = moneyPitLotConcretV1(state, context, choixBrut, tosses);
 
   const reward = {};
   let boostGrant = null;
@@ -907,6 +935,14 @@ export function tossMoneyPit(state, now) {
     } else if (k === "adventurePower" || k === "adventureToughness") {
       state.adventure.permanent[k] = Math.max(0, num(state.adventure.permanent[k], 0)) + v;
       reward[k] = (reward[k] || 0) + v;
+    } else if (k === "pilule") {
+      /* Lu dans le jeu (RebirthPowerSpell::givePartialAdventureSpell) : Puissance, Endurance, PV x3 et régénération x0,03, permanents. */
+      const p = state.adventure.permanent;
+      p.adventurePower = Math.max(0, num(p.adventurePower, 0)) + v;
+      p.adventureToughness = Math.max(0, num(p.adventureToughness, 0)) + v;
+      p.adventureHp = Math.max(0, num(p.adventureHp, 0)) + v * 3;
+      p.adventureRegen = Math.max(0, num(p.adventureRegen, 0)) + v * 0.03;
+      reward.pilule = (reward.pilule || 0) + v;
     } else if (k === "levelUpRandom" || k === "levelUpAll" || k === "levelUpDaycare") {
       const n = moneyPitMonterNiveauxV1(state, k, v);
       reward.levelUps = (reward.levelUps || 0) + n;
@@ -1009,17 +1045,17 @@ export const IDLE_MONEY_PIT_SEUILS_V1 = Object.freeze([1e5, 1e7, 1e9, 1e11, 1e13
  * Anti-spoil (règle n°2) : un lot n'est envoyé que si le système auquel il se rapporte est déjà débloqué (Cube de l'Infini, Wandoos, Yggdrasil) ; l'Aventure, l'EXP et l'AP sont toujours connus.
  * `min` / `suivant` ne servent qu'au client pour redemander une synchro quand l'Or franchit un palier (jamais affichés).
  */
-export function moneyPitSnapshotV1(state) {
+export function moneyPitSnapshotV1(state, context) {
   const s = state.systems.moneyPit;
   if (!s || !s.unlocked) return null;
   const or = Math.floor(Math.max(0, num(state.currencies.gold, 0)));
-  const tier = moneyPitTierV48_(or);
+  const tier = moneyPitTierV48_(or, state);
   const sys = (id) => Boolean(state.systems[id] && state.systems[id].unlocked);
   const xp = Math.max(0, num(idleNguBonusesLectureV1(state).xpMultiplier, 1));
   const lots = [];
   if (tier > 0) {
     for (const choix of moneyPitLotsDisponiblesV1(state, tier)) {
-      const lot = Object.assign({}, choix);
+      const lot = Object.assign({}, moneyPitLotConcretV1(state, context, choix, int(s.data.tossesThisRun, 0)));
       /* Wiki : « EXP rewards are affected by EXP bonus » : on montre ce que le tirage donnerait vraiment. */
       if (lot.experience) lot.experience = lot.experience * xp;
       lots.push(lot);
@@ -1027,8 +1063,8 @@ export function moneyPitSnapshotV1(state) {
   }
   return {
     tier,
-    min: tier > 0 ? IDLE_MONEY_PIT_SEUILS_V1[tier - 1] : 0,
-    suivant: tier < IDLE_MONEY_PIT_SEUILS_V1.length ? IDLE_MONEY_PIT_SEUILS_V1[tier] : 0,
+    min: tier > IDLE_MONEY_PIT_SEUILS_V1.length ? IDLE_MONEY_PIT_SEUILS_HAUTS_V1[tier - IDLE_MONEY_PIT_SEUILS_V1.length - 1] : (tier > 0 ? IDLE_MONEY_PIT_SEUILS_V1[tier - 1] : 0),
+    suivant: tier < IDLE_MONEY_PIT_SEUILS_V1.length ? IDLE_MONEY_PIT_SEUILS_V1[tier] : (wishLevelV1(state, 4) >= 1 && tier - IDLE_MONEY_PIT_SEUILS_V1.length < IDLE_MONEY_PIT_SEUILS_HAUTS_V1.length ? IDLE_MONEY_PIT_SEUILS_HAUTS_V1[tier - IDLE_MONEY_PIT_SEUILS_V1.length] : 0),
     lots,
     /* Wiki : « The pit also rewards AP using the formula log10(gold) » (en plus du lot, avec le bonus AP commun). */
     ap: tier > 0 ? apWithBonusV1(state, Math.floor(Math.log10(Math.max(1, or)))) : 0

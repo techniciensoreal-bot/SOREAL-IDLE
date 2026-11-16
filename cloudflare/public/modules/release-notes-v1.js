@@ -34,7 +34,7 @@
             'Les cœurs Rouge et Jaune complets remplacent le bonus de l’objet équipé (EXP et AP) au lieu de prendre le plus grand des deux, comme dans le vrai jeu.'
           ]},
           {menu:'moneyPit', titre:'Money Pit', points:[
-            'Money Pit, d’après le code du jeu : chaque lot est un tirage distinct (Puissance et Endurance séparées, trois boosts, un cas « rien » au premier palier) et de nouveaux lots font monter d’un niveau l’équipement porté.'
+            'Money Pit, d’après le code du jeu : chaque lot est un tirage distinct (Puissance et Endurance séparées, trois boosts, un cas « rien » au premier palier), de nouveaux lots font monter d’un niveau l’équipement porté, et les paliers les plus hauts (pilule de fer, graines, EXP selon le nombre de jets) sont ajoutés.'
           ]}
         ]
       },

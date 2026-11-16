@@ -80,6 +80,6 @@ for (let tier = 1; tier <= 11; tier += 1) {
 
 // 5. la pièce d'état est bien dans la réponse du moteur
 const snap = readFileSync("cloudflare/src/idle-ngu-snapshot.js", "utf8");
-assert.ok(snap.includes("puitRecompenses: moneyPitSnapshotV1(state),"), "champ de réponse ajouté (non cassant : rien n'est renommé ni retiré)");
+assert.ok(snap.includes("puitRecompenses: moneyPitSnapshotV1(state, context),"), "champ de réponse ajouté (non cassant : rien n'est renommé ni retiré)");
 
 console.log("idle-trou-recompenses-possibles-v1 : OK");

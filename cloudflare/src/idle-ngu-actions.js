@@ -454,7 +454,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       if (unlockSatisfied(def, context, state)) state.systems[def.id].unlocked = true;
     }
   } else if (action === "moneyPit") {
-    result = tossMoneyPit(state, t);
+    result = tossMoneyPit(state, t, context);
   } else if (action === "loginCalendar") {
     if (!state.systems.moneyPit?.unlocked) throw new Error("SYSTEME_VERROUILLE");
     result = idleLoginCalendarReclamerV1(state, t);
