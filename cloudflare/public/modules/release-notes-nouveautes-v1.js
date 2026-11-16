@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "L’achat qui place de l’énergie dans l’entraînement au Rebirth met toujours 6 en attaque et 6 en défense, comme dans le jeu (plus de condition d’achat supplémentaire)."
+    "Tour : les ennemis attaquent maintenant comme dans le jeu (16 ennemis aux comportements variés), tu peux y perdre ta vie et retomber à l’étage de départ, et l’étage optimal se calcule comme dans le jeu."
   ] };
 })();
