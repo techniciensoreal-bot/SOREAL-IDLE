@@ -23,7 +23,7 @@ import {
 const gates=Object.fromEntries(IDLE_ADVENTURE_ZONES.map(z=>[z.id,z.boss]));
 assert.deepEqual([gates.tutorial,gates.sewers,gates.forest,gates.cave,gates.sky,gates.hsb,gates.clock,gates["2d"],gates.ancient,gates.avsp,gates.mega],[4,7,17,37,48,58,66,74,82,90,100]);
 // Titans 1-7 historiques + Greasy Nerd (4,5 h), Godmother (5 h), IT HUNGERS (6,5 h), ROCK LOBSTER (7 h), AMALGAMATE (433,33 min) ajoutés le 2026-09-23
-assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.cooldown/3600000),[1,1,2,2,3,3.5,5.5,4.5,5,6.5,7,(433+1/3)/60,1,1]); // + TIPPI et THE TRAITOR (2026-09-25, plancher de 60 min)
+assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.cooldown/3600000),[1,1,2,2,3,3.5,5.5,4.5,5,6.5,7,7.5,1,1]); // + TIPPI et THE TRAITOR (2026-09-25, plancher de 60 min) /* AMALGAMATE : 27 000 s lus dans le jeu (AdventureController::boss12SpawnTime), audit 2026-11-16 ; le wiki disait 433 min 20 s */
 assert.deepEqual(IDLE_ADVENTURE_ZONES.map(x=>x.avatarLevel),[1,1,1,2,2,3,3,4,4,5,5,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6]);
 assert.deepEqual(IDLE_ADVENTURE_TITANS.map(x=>x.avatarLevel),[3,4,5,6,6,6,6,6,6,6,6,6,6,6]);
 assert.deepEqual(IDLE_ADVENTURE_TITANS.slice(1).map(x=>[x.requiresTitan,x.requiresKills,x.requiresUnlock]),[

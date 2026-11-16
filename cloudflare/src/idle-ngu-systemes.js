@@ -32,7 +32,7 @@ import { advanceAugmentations, advanceGeneratedResources, externalResourceAlloca
 import { advanceWandoos, applyYggQuickActivationV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState } from "./idle-ngu-etat.js";
 import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { achievementMetricsV1, advanceNgusV1, apWithBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
-import { advanceTimeMachine, advanceTrackSystem, idleNguTimeMachineGrossGoldPerSecond } from "./idle-ngu-pistes.js";
+import { advanceTimeMachine, advanceTrackSystem, barbesTempsPleinV1, crediterOrHorsLigneV1, idleNguTimeMachineGrossGoldPerSecond, tmAbsenceHorsLigneV1 } from "./idle-ngu-pistes.js";
 import { daycareFactorsV1, expShopPurchasedV1, inventoryAutoEnvV1 } from "./idle-ngu-actions.js";
 
 export function ritualUnlocked(ritual, context, state) {
@@ -1216,7 +1216,7 @@ function advanceLateSystems(state, seconds, context, now) {
       dropMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).dropMultiplier, 1)),
       dropMultiplierIncludesGear: true,
       titanLootLevelBonus: titanChallengeBonuses.titanLootLevelBonus,
-      stats: { power: combatAventure.power, toughness: combatAventure.toughness },
+      stats: { power: combatAventure.power, toughness: combatAventure.toughness, regen: combatAventure.regen },
       wishLevels: wishLevelsMapV1(state),
       titanExpBonusKills: perkBonusesV1(idlePerkNiveauxV1(state)).titanExpBonusKills,
       titanExpChallengePct: challengePermanentBonuses(state).bossExpPct,
@@ -1430,16 +1430,31 @@ export function trollNguOffV1(state) { return Boolean(trollFlagsV1(state).ngu); 
  * copie et vérifie que l'état est strictement identique (toute la suite de tests y passe avant chaque livraison).
  */
 function passesDuTempsSeulV1(state, secs, context, now) {
+  /*
+   * Lu dans le jeu (audit hors ligne 2026-11-16, E1) : pour une absence longue, l'Or de la Time Machine (niveaux d'AVANT l'absence) est crédité en TÊTE, puis l'Or est dépensé dans l'ordre
+   * Augmentations, Blood Magic, Time Machine. En ligne (fenêtres courtes) l'ordre historique est conservé.
+   */
+  /* Absence longue (même seuil de 5 minutes que le reste du hors ligne) : barbes (secondes barre pleine), Entraînement avancé (cible) et hack final (demi-vitesse) suivent le jeu. */
+  const horsLigne = secs >= 5 * 60;
+  const tempsPleinBarbes = horsLigne ? barbesTempsPleinV1(state, secs) : null;   /* mesuré AVANT la production de l'absence */
+  const tmActive = num(context.bosses, 0) >= 30;
+  const orEnTete = tmActive && tmAbsenceHorsLigneV1(secs) && state.systems.timeMachine.unlocked;
+  if (orEnTete) span("avance:orHorsLigne", () => crediterOrHorsLigneV1(state, secs));
   span("avance:ressources", () => advanceGeneratedResources(state, secs, context));
   span("avance:augmentations", () => advanceAugmentations(state, secs, context));
-  span("avance:entrainementAvance", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs));
-  if (num(context.bosses, 0) >= 30) span("avance:machineTemporelle", () => advanceTimeMachine(state, secs));
-  if (num(context.bosses, 0) >= 37) span("avance:bloodMagic", () => advanceBloodMagic(state, secs, context));
+  span("avance:entrainementAvance", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "advancedTraining"), secs, horsLigne ? {} : null));
+  if (orEnTete) {
+    if (num(context.bosses, 0) >= 37) span("avance:bloodMagic", () => advanceBloodMagic(state, secs, context));
+    span("avance:machineTemporelle", () => advanceTimeMachine(state, secs, true));
+  } else {
+    if (tmActive) span("avance:machineTemporelle", () => advanceTimeMachine(state, secs));
+    if (num(context.bosses, 0) >= 37) span("avance:bloodMagic", () => advanceBloodMagic(state, secs, context));
+  }
   span("avance:yggdrasil", () => advanceYggdrasil(state, secs, nowMs(now)));
   span("avance:wandoos", () => advanceWandoos(state, secs, context, now));
   span("avance:ngus", () => advanceNgusV1(state, secs));
-  span("avance:barbes", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs));
-  span("avance:hacks", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs));
+  span("avance:barbes", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "beards"), secs, tempsPleinBarbes ? { tempsPlein: tempsPleinBarbes } : null));
+  span("avance:hacks", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "hacks"), secs, horsLigne ? {} : null));
   span("avance:souhaits", () => advanceTrackSystem(state, IDLE_NGU_SYSTEMS.find(x => x.id === "wishes"), secs));
 }
 

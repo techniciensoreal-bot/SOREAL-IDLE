@@ -21,8 +21,12 @@ const lire = (p) => readFileSync(p, "utf8");
   let etat = normalizeIdleNguState(null, ctx, 1000);
   etat.difficulty = "extreme";
   const dix = 10 * 24 * 3600;
-  const sans = advanceIdleNguState(etat, dix, ctx, 1000 + dix * 1000);
-  assert.ok(!sans.adventure.titans.t1 || sans.adventure.titans.t1.kills === 0, "case non cochée : aucun auto-kill");
+  /* En ligne (synchros courtes) : la case décide ; hors ligne le jeu ne lit aucune case (audit hors ligne 2026-11-16). */
+  const enLigne = (e, secondes) => { for (let i = 0; i < secondes / 60; i++) e = advanceIdleNguState(e, 60, ctx, 1000 + (i + 1) * 60000); return e; };
+  const sans = enLigne(structuredClone(etat), 3 * 3600);
+  assert.ok(!sans.adventure.titans.t1 || sans.adventure.titans.t1.kills === 0, "case non cochée, en ligne : aucun auto-kill");
+  const horsLigne = advanceIdleNguState(structuredClone(etat), dix, ctx, 1000 + dix * 1000);
+  assert.ok(horsLigne.adventure.titans.t1.kills >= 200, "hors ligne : les seuils suffisent, sans case");
   etat = applyIdleNguAction(etat, { action: "adventure", adventure: { action: "setAutoKillTitan", id: "t1", enabled: true } }, ctx, 1000).state;
   assert.equal(etat.adventure.titans.t1.autoKill, true);
   const avec = advanceIdleNguState(etat, dix, ctx, 1000 + dix * 1000);
@@ -32,7 +36,9 @@ const lire = (p) => readFileSync(p, "utf8");
   const decoche = applyIdleNguAction(avec, { action: "adventure", adventure: { action: "setAutoKillTitan", id: "t1", enabled: false } }, ctx, 1000 + dix * 1000).state;
   assert.equal(decoche.adventure.titans.t1.autoKill, false);
   const avant = decoche.adventure.titans.t1.kills;
-  const encore = advanceIdleNguState(decoche, dix, ctx, 1000 + 2 * dix * 1000);
+  const t0 = 1000 + dix * 1000;
+  let encore = decoche;
+  for (let i = 1; i <= 180; i++) encore = advanceIdleNguState(encore, 60, ctx, t0 + i * 60000);   /* 3 h en synchros courtes (en ligne) : la case décochée compte */
   assert.equal(encore.adventure.titans.t1.kills, avant, "case décochée : plus d'auto-kill");
   assert.throws(() => applyIdleNguAction(etat, { action: "adventure", adventure: { action: "setAutoKillTitan", id: "nimporte", enabled: true } }, ctx, 1000), /TITAN_INCONNU/);
 }

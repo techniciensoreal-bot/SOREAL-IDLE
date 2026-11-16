@@ -108,9 +108,9 @@ function avecRandom(valeur, fn) {
   assert.equal(vu.seconds, 0);
   s = advanceIdleNguState(s, 100000, ctx, 1_100_000);
   const mi = idleNguSnapshot(s, ctx, 1_100_000).systems.find((x) => x.id === "hacks").finalHack;
-  assert.ok(Math.abs(mi.seconds - 100000) < 1, "1 seconde par seconde");
+  assert.ok(Math.abs(mi.seconds - 50000) < 1, "hors ligne : demi-vitesse (Character::addOfflineProgress, audit hors ligne 2026-11-16)");
   assert.equal(has(s, 488), false);
-  s = advanceIdleNguState(s, 100000, ctx, 1_200_000);
+  s = advanceIdleNguState(s, 300000, ctx, 1_200_000);
   assert.equal(has(s, 488), true);
 }
 

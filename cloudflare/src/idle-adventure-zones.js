@@ -534,7 +534,7 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
 {id:"t1",name:"GRB",boss:58,cooldown:H,p:1300,t:1300,idleP:2300,idleT:2100,autoKillP:3000,autoKillT:2500,drop:"aNumber",unlock:"ngu",avatarLevel:3},
 {id:"t2",name:"Grand Corrupted Tree",boss:66,cooldown:H,p:5000,t:4000,idleP:6000,idleT:5000,autoKillP:9000,autoKillT:7000,drop:"giantSeed",unlock:"yggdrasil",avatarLevel:4,requiresTitan:"t1",requiresKills:24,requiresUnlock:"ngu"},
 {id:"t3",name:"Jake From Accounting",boss:82,cooldown:2*H,p:14000,t:12000,idleP:22000,idleT:14000,autoKillP:25000,autoKillT:15000,drop:"scrapPaper",unlock:"diggers",avatarLevel:5,requiresTitan:"t2",requiresKills:24,requiresUnlock:"yggdrasil"},
-{id:"t4",name:"UUG",boss:100,cooldown:2*H,p:400000,t:300000,idleP:600000,idleT:400000,autoKillP:800000,autoKillT:400000,drop:"uugHair",unlock:"beards",flag:"ringOfApathyMaxed",avatarLevel:6,requiresTitan:"t3",requiresKills:28,requiresUnlock:"diggers"},
+{id:"t4",name:"UUG",boss:100,cooldown:2*H,p:400000,t:300000,idleP:600000,idleT:400000,autoKillP:800000,autoKillT:400000,autoKillR:14000,drop:"uugHair",unlock:"beards",flag:"ringOfApathyMaxed",avatarLevel:6,requiresTitan:"t3",requiresKills:28,requiresUnlock:"diggers"},
 /*
  * V144 — Norman (2026-09-11) : "pas le choix", suite du monde Normal
  * après les 4 zones simples. Manual P/T (Form 1 pour Walderp, 4 paliers
@@ -589,19 +589,23 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * demandée ; le garantir à la place reste honnête : plus dur = strictement
  * plus de butin, jamais moins).
  */
+/*
+ * Seuils de Health Regen de l'Auto-Kill (autoKillR) : lus dans le jeu (build 1260, audit hors ligne 2026-11-16) : AdventureController::autokillTitanNVxAchieved (ids 183-186 et 204-227) et
+ * Character::adventureOfflineProgress (id 2239) pour UUG (14 000) et Walderp (150 000). Titans 6 à 12 : tableau par palier (V1 à V4).
+ */
 {id:"t5",name:"Walderp",boss:116,cooldown:3*H,drop:"wanderersCane",avatarLevel:6,hideCycleMs:180000,forms:[
   {p:800000,t:400000},
   {p:1600000,t:800000},
   {p:2400000,t:1500000},
   {p:3200000,t:2300000},
   /* wiki Walderp, infobox « autokill5 » : « 13M Power, 7M Toughness, 150k Health Regen, 3 kills on Walderp's final form ». Ici autoKillKills s'AJOUTE aux stats (ce n'est pas une alternative comme pour les titans à difficultés). */
-  {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000,autoKillKills:3}
+  {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000,autoKillR:150000,autoKillKills:3}
 ]},
 {id:"t6",name:"The Beast",boss:132,cooldown:3.5*H,drop:"heroicSigil",avatarLevel:6,difficulties:{
-  easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8,autoKillP:2.5e9,autoKillT:1.6e9},
-  normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9,autoKillP:2.5e10,autoKillT:1.6e10},
-  hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10,autoKillP:2.5e11,autoKillT:1.6e11},
-  brutal:{p:700000000000,t:500000000000,idleP:1e12,idleT:7e11,autoKillP:2.5e12,autoKillT:1.6e12}
+  easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8,autoKillP:2.5e9,autoKillT:1.6e9,autoKillR:2.5e7},
+  normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9,autoKillP:2.5e10,autoKillT:1.6e10,autoKillR:2.5e8},
+  hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10,autoKillP:2.5e11,autoKillT:1.6e11,autoKillR:2.5e9},
+  brutal:{p:700000000000,t:500000000000,idleP:1e12,idleT:7e11,autoKillP:2.5e12,autoKillT:1.6e12,autoKillR:2.5e10}
 }},
 /*
  * The Exile (2026-09-18, Norman : "il faut tout faire" -- prérequis
@@ -623,10 +627,10 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * condition de déblocage Sadistic ; le butin sera une passe séparée.
  */
 {id:"t7",name:"The Exile",boss:190,evilOnly:true,cooldown:5.5*H,drop:"stillBeatingHeart",avatarLevel:6,difficulties:{
-  easy:{p:2.3e22,t:1.2e22,autoKillP:1e23,autoKillT:5e22,autoKillKills:24},
-  normal:{p:3.72e23,t:1.56e23,autoKillP:2e24,autoKillT:1e24,autoKillKills:24},
-  hard:{p:7.45e24,t:3.55e24,autoKillP:4e25,autoKillT:2e25,autoKillKills:24},
-  brutal:{p:2.2e26,t:1.0e26,autoKillP:7.5e26,autoKillT:3.7e26,autoKillKills:24}
+  easy:{p:2.3e22,t:1.2e22,autoKillP:1e23,autoKillT:5e22,autoKillR:1e21,autoKillKills:24},
+  normal:{p:3.72e23,t:1.56e23,autoKillP:2e24,autoKillT:1e24,autoKillR:2e22,autoKillKills:24},
+  hard:{p:7.45e24,t:3.55e24,autoKillP:4e25,autoKillT:2e25,autoKillR:4e23,autoKillKills:24},
+  brutal:{p:2.2e26,t:1.0e26,autoKillP:7.5e26,autoKillT:3.7e26,autoKillR:7.5e24,autoKillKills:24}
 }},
 /*
  * 2026-09-23 (audit, page Titans + page de chaque titan) : Greasy Nerd (7e), The Godmother
@@ -639,34 +643,34 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * le Ring of Apathy (AMALGAMATE Brutal), TIPPI et THE TRAITOR (respawn/EXP/or/butin non publiés).
  */
 {id:"nerd",name:"Greasy Nerd",boss:125,evilOnly:true,cooldown:4.5*H,drop:"incriminatingEvidence",avatarLevel:6,difficulties:{
-  easy:{p:1.37e14,t:8.9e13,idleP:3e14,idleT:2e14,autoKillP:5e14,autoKillT:2.5e14},
-  normal:{p:3.2e15,t:1.6e15,idleP:6e15,idleT:4e15,autoKillP:1e16,autoKillT:5e15},
-  hard:{p:5.5e16,t:3.5e16,idleP:1.2e17,idleT:8e16,autoKillP:2e17,autoKillT:1e17},
-  brutal:{p:1.3e18,t:7.5e17,idleP:2.5e18,idleT:1.5e18,autoKillP:5e18,autoKillT:2.5e18}
+  easy:{p:1.37e14,t:8.9e13,idleP:3e14,idleT:2e14,autoKillP:5e14,autoKillT:2.5e14,autoKillR:5e12},
+  normal:{p:3.2e15,t:1.6e15,idleP:6e15,idleT:4e15,autoKillP:1e16,autoKillT:5e15,autoKillR:1e14},
+  hard:{p:5.5e16,t:3.5e16,idleP:1.2e17,idleT:8e16,autoKillP:2e17,autoKillT:1e17,autoKillR:2e15},
+  brutal:{p:1.3e18,t:7.5e17,idleP:2.5e18,idleT:1.5e18,autoKillP:5e18,autoKillT:2.5e18,autoKillR:5e16}
 }},
 {id:"godmother",name:"The Godmother",boss:166,evilOnly:true,cooldown:5*H,drop:"severedUnicornHead",avatarLevel:6,difficulties:{
-  easy:{p:1.7e18,t:7e17,autoKillP:5e18,autoKillT:2.5e18},
-  normal:{p:3.9e19,t:1.5e19,autoKillP:1e20,autoKillT:5e19},
-  hard:{p:6.6e20,t:3.5e20,autoKillP:2e21,autoKillT:1e21},
-  brutal:{p:1.5e22,t:6.4e21,autoKillP:5e22,autoKillT:2.5e22}
+  easy:{p:1.7e18,t:7e17,autoKillP:5e18,autoKillT:2.5e18,autoKillR:5e16},
+  normal:{p:3.9e19,t:1.5e19,autoKillP:1e20,autoKillT:5e19,autoKillR:1e18},
+  hard:{p:6.6e20,t:3.5e20,autoKillP:2e21,autoKillT:1e21,autoKillR:2e19},
+  brutal:{p:1.5e22,t:6.4e21,autoKillP:5e22,autoKillT:2.5e22,autoKillR:5e20}
 }},
 {id:"hungers",name:"IT HUNGERS",boss:175,sadisticOnly:true,cooldown:6.5*H,drop:"",avatarLevel:6,difficulties:{
-  easy:{p:1.55e28,t:3e27,autoKillP:4e28,autoKillT:2e28,autoKillKills:5},
-  normal:{p:1.3e29,t:3.6e28,autoKillP:3.2e29,autoKillT:1.6e29,autoKillKills:5},
-  hard:{p:7.83e29,t:1.61e29,autoKillP:2e30,autoKillT:1e30,autoKillKills:5},
-  brutal:{p:3.95e30,t:9e29,autoKillP:1e31,autoKillT:5e30,autoKillKills:5}
+  easy:{p:1.55e28,t:3e27,autoKillP:4e28,autoKillT:2e28,autoKillR:4e26,autoKillKills:5},
+  normal:{p:1.3e29,t:3.6e28,autoKillP:3.2e29,autoKillT:1.6e29,autoKillR:1.6e27,autoKillKills:5},
+  hard:{p:7.83e29,t:1.61e29,autoKillP:2e30,autoKillT:1e30,autoKillR:1e28,autoKillKills:5},
+  brutal:{p:3.95e30,t:9e29,autoKillP:1e31,autoKillT:5e30,autoKillR:5e28,autoKillKills:5}
 }},
 {id:"lobster",name:"ROCK LOBSTER",boss:224,sadisticOnly:true,cooldown:7*H,drop:"",avatarLevel:6,difficulties:{
-  easy:{p:1.1e31,t:4e30,autoKillP:1.8e31,autoKillT:6e30,autoKillKills:5},
-  normal:{p:6e31,t:1.8e31,autoKillP:9e31,autoKillT:3e31,autoKillKills:5},
-  hard:{p:2.4e32,t:8.6e31,autoKillP:3.6e32,autoKillT:1.2e32,autoKillKills:5},
-  brutal:{p:7.5e32,t:2.5e32,autoKillP:1.1e33,autoKillT:3.6e32,autoKillKills:5}
+  easy:{p:1.1e31,t:4e30,autoKillP:1.8e31,autoKillT:6e30,autoKillR:1.2e29,autoKillKills:5},
+  normal:{p:6e31,t:1.8e31,autoKillP:9e31,autoKillT:3e31,autoKillR:6e29,autoKillKills:5},
+  hard:{p:2.4e32,t:8.6e31,autoKillP:3.6e32,autoKillT:1.2e32,autoKillR:2.5e30,autoKillKills:5},
+  brutal:{p:7.5e32,t:2.5e32,autoKillP:1.1e33,autoKillT:3.6e32,autoKillR:7.5e30,autoKillKills:5}
 }},
-{id:"amalgamate",name:"AMALGAMATE",boss:248,sadisticOnly:true,cooldown:(433+1/3)/60*H,drop:"",avatarLevel:6,difficulties:{
-  easy:{p:1.47e33,t:4.7e32,autoKillP:3e33,autoKillT:1e33,autoKillKills:5},
-  normal:{p:5.6e33,t:2.1e33,autoKillP:1.2e34,autoKillT:4e33,autoKillKills:5},
-  hard:{p:2.13e34,t:6.11e33,autoKillP:3.6e34,autoKillT:1.2e34,autoKillKills:5},
-  brutal:{p:4.12e34,t:1e34,autoKillP:7.2e34,autoKillT:2.4e34,autoKillKills:5}
+{id:"amalgamate",name:"AMALGAMATE",boss:248,sadisticOnly:true,cooldown:7.5*H,/* lu dans le jeu (Character::adventureOfflineProgress, audit hors ligne 2026-11-16) : 27 000 s de respawn */drop:"",avatarLevel:6,difficulties:{
+  easy:{p:1.47e33,t:4.7e32,autoKillP:3e33,autoKillT:1e33,autoKillR:2e31,autoKillKills:5},
+  normal:{p:5.6e33,t:2.1e33,autoKillP:1.2e34,autoKillT:4e33,autoKillR:8e31,autoKillKills:5},
+  hard:{p:2.13e34,t:6.11e33,autoKillP:3.6e34,autoKillT:1.2e34,autoKillR:2.4e32,autoKillKills:5},
+  brutal:{p:4.12e34,t:1e34,autoKillP:7.2e34,autoKillT:2.4e34,autoKillR:4.8e32,autoKillKills:5}
 }},
 /*
  * 2026-09-25 : 13e et 14e titans (Sadistic). Pages « TIPPI THE TUTORIAL MOUSE » et « THE TRAITOR (titan) » du wiki + tableau de la page Titans.

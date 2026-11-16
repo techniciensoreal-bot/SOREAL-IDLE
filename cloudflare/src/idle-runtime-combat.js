@@ -502,6 +502,17 @@ export function facteurExpBossPerkSorealIdle_(bonus, indexBoss) {
   return ((exacte + (c >= 1 ? 1 : 0)) * (1 + 0.02 * c) / entiere) * perk;
 }
 
+/*
+ * Lu dans le jeu (BossController::nukeBosses, build 1260, audit 2026-11-16, E2) : le NUKE s'arrête quand bossID >= highestBoss ET bossID < 124 ; highestBoss est le record en difficulté NORMAL
+ * (nombre de boss vaincus). Il ne passe donc un boss d'index < 124 que s'il a déjà été vaincu en Normal ; dès l'index 124 il peut tuer de nouveaux boss.
+ */
+function nukeArretBossInedit_(stats, bossVaincus, bossDepart) {
+  if (bossVaincus >= 124) return false;
+  const meta = stats.metaNgu || {};
+  const record = Math.max(0, Math.floor(nombreSorealIdle_(meta.difficultyPeaks && meta.difficultyPeaks.normal, 0)), meta.difficulty === 'normal' ? bossDepart : 0);
+  return bossVaincus >= record;
+}
+
 export function nukerBossSorealIdle(
   sessionToken
 ) {
@@ -717,21 +728,7 @@ export function nukerBossSorealIdle(
         break;
       }
 
-      /*
-       * Lu dans le jeu (BossController::nukeBosses, build 1260, audit 2026-11-16, E2) : le NUKE s'arrête quand bossID >= highestBoss ET bossID < 124 ;
-       * highestBoss est le record en difficulté NORMAL (nombre de boss vaincus). Il ne passe donc un boss d'index < 124 que si ce boss a déjà été vaincu
-       * en Normal ; à partir de l'index 124, il peut tuer de nouveaux boss. (Le record local suit les boss déjà tombés pendant cet appel en Normal.)
-       */
-      if (
-        bossVaincus < 124 &&
-        bossVaincus >= Math.max(
-          0,
-          Math.floor(nombreSorealIdle_(stats.metaNgu && stats.metaNgu.difficultyPeaks && stats.metaNgu.difficultyPeaks.normal, 0)),
-          (stats.metaNgu && stats.metaNgu.difficulty) === 'normal' ? bossDepartNukeV1 : 0
-        )
-      ) {
-        break;
-      }
+      if (nukeArretBossInedit_(stats, bossVaincus, bossDepartNukeV1)) break;   /* BossController::nukeBosses (audit 2026-11-16, E2) */
 
       if (
         niveauNuke <
@@ -784,26 +781,10 @@ export function nukerBossSorealIdle(
       );
 
       /* Bonus « 1re fois » : il REMPLACE l'EXP de base, arrondi vers le bas (BossController::rewardExp, audit 2026-11-16, E7). */
-      const estPremiereFoisJamaisNuke =
-        bossIndexNuke >= highestBossJamaisAtteintNuke;
-      const bonusPremiereFoisBrutNuke =
-        estPremiereFoisJamaisNuke
-          ? xpBonusPremiereFoisSorealIdle_(bossIndexNuke)
-          : 0;
-
-      const xpReelleNuke =
-        bonusPremiereFoisBrutNuke > 0 ? 0 :
-        Math.max(
-          0,
-          Math.floor(
-              recompenseXpBossNiveauSorealIdle_(
-              bossIndexNuke,
-              niveauNuke
-            ) *
-            xpMultiplierNuke *
-            facteurExpBossPerkSorealIdle_(bonusNguNuke, bossIndexNuke)
-          )
-        );
+      const estPremiereFoisJamaisNuke = bossIndexNuke >= highestBossJamaisAtteintNuke;
+      const bonusPremiereFoisBrutNuke = estPremiereFoisJamaisNuke ? xpBonusPremiereFoisSorealIdle_(bossIndexNuke) : 0;
+      const perkExpNuke = facteurExpBossPerkSorealIdle_(bonusNguNuke, bossIndexNuke);
+      const xpReelleNuke = bonusPremiereFoisBrutNuke > 0 ? 0 : Math.max(0, Math.floor(recompenseXpBossNiveauSorealIdle_(bossIndexNuke, niveauNuke) * xpMultiplierNuke * perkExpNuke));
 
       if (xpReelleNuke > 0) {
         stats.metaNgu.currencies.experience =
@@ -819,17 +800,7 @@ export function nukerBossSorealIdle(
         xpGagnee += xpReelleNuke;
       }
 
-      const bonusPremiereFoisNuke =
-        bonusPremiereFoisBrutNuke > 0
-          ? Math.max(
-              0,
-              Math.floor(
-                bonusPremiereFoisBrutNuke *
-                xpMultiplierNuke *
-                facteurExpBossPerkSorealIdle_(bonusNguNuke, bossIndexNuke)
-              )
-            )
-          : 0;
+      const bonusPremiereFoisNuke = bonusPremiereFoisBrutNuke > 0 ? Math.max(0, Math.floor(bonusPremiereFoisBrutNuke * xpMultiplierNuke * perkExpNuke)) : 0;
 
       if (bonusPremiereFoisNuke > 0) {
         stats.metaNgu.currencies.experience =

@@ -39,7 +39,7 @@ import { applyRebirthResetV56_ } from "../src/idle-ngu-actions.js";
 /* E2, E7 : câblage dans le moteur (lecture de source, la partie de référence couvre le reste). */
 {
   const combat = fs.readFileSync(new URL("../src/idle-runtime-combat.js", import.meta.url), "utf8");
-  assert.ok(/bossVaincus < 124 &&/.test(combat) && combat.includes("difficultyPeaks.normal"), "NUKE : s'arrête sur un boss d'index < 124 jamais vaincu en Normal");
+  assert.ok(combat.includes("nukeArretBossInedit_(stats, bossVaincus, bossDepartNukeV1)) break") && combat.includes("bossVaincus >= 124) return false"), "NUKE : s'arrête sur un boss d'index < 124 jamais vaincu en Normal");
   const ngu = fs.readFileSync(new URL("../src/idle-ngu-etat.js", import.meta.url), "utf8");
   assert.ok(ngu.includes("difficultyPeaks?.extreme, 0) >= 301) idleTheEndGrantV1(adv, 487"), "objet 487 : après le 301e boss en Sadistic");
 }

@@ -55,7 +55,7 @@ assert.deepEqual(
     {p:3200000,t:2300000},
     /* AutoKill (2026-09-27, correctif docs/HORS-LIGNE.md point 1) : seule la forme finale (répétable) en a un publié (wiki, page Walderp : "forms 1-4 cannot autokill"). */
     /* 2026-11-13 : « 3 kills on Walderp's final form » (infobox autokill5), en plus des stats. */
-    {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000,autoKillKills:3}
+    {p:4000000,t:3000000,autoKillP:13000000,autoKillT:7000000,autoKillR:150000,autoKillKills:3}
   ],
   "Les 5 formes doivent être les vrais seuils Manual (+ AutoKill sur la finale) du wiki, jamais inventés."
 );

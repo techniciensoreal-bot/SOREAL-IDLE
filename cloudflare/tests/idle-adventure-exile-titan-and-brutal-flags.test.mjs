@@ -24,10 +24,10 @@ assert.equal(t7.cooldown / 3600000, 5.5, "Respawn wiki : 330 minutes = 5.5h.");
 assert.deepEqual(
   t7.difficulties,
   {
-    easy: { p: 2.3e22, t: 1.2e22, autoKillP: 1e23, autoKillT: 5e22, autoKillKills: 24 },
-    normal: { p: 3.72e23, t: 1.56e23, autoKillP: 2e24, autoKillT: 1e24, autoKillKills: 24 },
-    hard: { p: 7.45e24, t: 3.55e24, autoKillP: 4e25, autoKillT: 2e25, autoKillKills: 24 },
-    brutal: { p: 2.2e26, t: 1.0e26, autoKillP: 7.5e26, autoKillT: 3.7e26, autoKillKills: 24 }
+    easy: { p: 2.3e22, t: 1.2e22, autoKillP: 1e23, autoKillT: 5e22, autoKillR: 1e21, autoKillKills: 24 },
+    normal: { p: 3.72e23, t: 1.56e23, autoKillP: 2e24, autoKillT: 1e24, autoKillR: 2e22, autoKillKills: 24 },
+    hard: { p: 7.45e24, t: 3.55e24, autoKillP: 4e25, autoKillT: 2e25, autoKillR: 4e23, autoKillKills: 24 },
+    brutal: { p: 2.2e26, t: 1.0e26, autoKillP: 7.5e26, autoKillT: 3.7e26, autoKillR: 7.5e24, autoKillKills: 24 }
   },
   /*
    * Manual : stats "recommandées" du wiki (inchangé). AutoKill (2026-09-27, correctif docs/HORS-LIGNE.md point 1,

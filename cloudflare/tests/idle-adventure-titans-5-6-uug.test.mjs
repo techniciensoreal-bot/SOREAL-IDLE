@@ -49,10 +49,10 @@ assert.deepEqual(
   t6.difficulties,
   {
     /* AutoKill (2026-09-27, correctif docs/HORS-LIGNE.md point 1) : memes pages, ligne "AutoKill". */
-    easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8,autoKillP:2.5e9,autoKillT:1.6e9},
-    normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9,autoKillP:2.5e10,autoKillT:1.6e10},
-    hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10,autoKillP:2.5e11,autoKillT:1.6e11},
-    brutal:{p:700000000000,t:500000000000,idleP:1e12,idleT:7e11,autoKillP:2.5e12,autoKillT:1.6e12}
+    easy:{p:700000000,t:500000000,idleP:1e9,idleT:7e8,autoKillP:2.5e9,autoKillT:1.6e9,autoKillR:2.5e7},
+    normal:{p:7000000000,t:5000000000,idleP:1e10,idleT:7e9,autoKillP:2.5e10,autoKillT:1.6e10,autoKillR:2.5e8},
+    hard:{p:70000000000,t:50000000000,idleP:1e11,idleT:7e10,autoKillP:2.5e11,autoKillT:1.6e11,autoKillR:2.5e9},
+    brutal:{p:700000000000,t:500000000000,idleP:1e12,idleT:7e11,autoKillP:2.5e12,autoKillT:1.6e12,autoKillR:2.5e10}
   },
   "Les 4 paliers doivent etre les vrais seuils Manual + AutoKill du wiki (x10 a chaque palier), avec leur Idle P/T publie."
 );
