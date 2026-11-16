@@ -517,8 +517,8 @@ function mergeAllOfType(data, typeId) {
 
 /* ---------- Drops ---------- */
 
-function addDrop(state, data, typeId, fromSource, out) {
-  const frag = newFragment(data, typeId, macguffinDropLevelV1(state));
+function addDrop(state, data, typeId, fromSource, out, niveauSupplementaire = 0) {
+  const frag = newFragment(data, typeId, macguffinDropLevelV1(state) + Math.max(0, I(niveauSupplementaire, 0)));
   data.inventory.push(frag);
   if (fromSource) data.sourceDropped[typeId] = true;
   data.lastDrops = [frag, ...(data.lastDrops || [])].slice(0, 20).map(f => ({ ...f }));
@@ -535,10 +535,19 @@ export function macguffinRandomPoolV1(state) {
   return pool;
 }
 
-function dropRandom(state, data, rng, out) {
+function dropRandom(state, data, rng, out, niveauSupplementaire = 0) {
   const pool = macguffinRandomPoolV1(state);
   const pick = pool[Math.min(pool.length - 1, Math.floor(N(rng(), 0) * pool.length))];
-  return addDrop(state, data, pick, false, out);
+  return addDrop(state, data, pick, false, out, niveauSupplementaire);
+}
+
+/*
+ * Lu dans le jeu (LootDrop::titanLevelBonus, build 1260, 2026-11-16) : +1 niveau pour le MacGuffin ALÉATOIRE lâché par un titan
+ * (dropRandomMacguffin(nom, titanLevelBonus())) si le No Rebirth Challenge a été complété au moins une fois ; ni le MacGuffin de zone,
+ * ni celui du Nerd (dropMacguffin(291, 0)), ni les R3 de la Godmother. Même condition que titanLootLevelBonus de l'équipement.
+ */
+function titanLevelBonusV1(state) {
+  return Math.max(0, I(state?.challenge?.completions?.noRebirth, 0)) > 0 ? 1 : 0;
 }
 
 /* Type de fragment de zone lâché par une zone d'Aventure (null si aucun ou verrouillé). */
@@ -594,7 +603,7 @@ export function macguffinOnTitanKillV1(state, titanId, tierKey, dropMultiplier =
   const out = [];
   if (!data || !macguffinUnlockedV1(state)) return out;
   if (titanId === "nerd") addDrop(state, data, "adventure", true, out);
-  if (IDLE_MACGUFFIN_TITAN_RANDOM_V1.includes(titanId)) dropRandom(state, data, rng, out);
+  if (IDLE_MACGUFFIN_TITAN_RANDOM_V1.includes(titanId)) dropRandom(state, data, rng, out, titanLevelBonusV1(state));
   if (titanId === "godmother") {
     const tier = ["easy", "normal", "hard", "brutal"].includes(tierKey) ? tierKey : "easy";
     const mult = Math.max(0.1, N(dropMultiplier, 1));
