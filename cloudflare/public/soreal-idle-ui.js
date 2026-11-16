@@ -1530,7 +1530,7 @@
         {id:'regular',label:'Attaque',icon:'⚔️',btIndex:1,cooldown:1000,multiplier:1.5},
         {id:'strong',label:'Forte',icon:'💥',btIndex:2,cooldown:4000,multiplier:2},
         {id:'parry',label:'Parade',icon:'🛡️',btIndex:3,cooldown:15000,multiplier:1},
-        {id:'piercing',label:'Perçante',icon:'🗡️',btIndex:4,cooldown:8000,multiplier:2,pierce:.33},
+        {id:'piercing',label:'Perçante',icon:'🗡️',btIndex:4,cooldown:8000,multiplier:2,pierce:1/3}, /* PlayerController::pierceAttack : baseDamage(3) = attaque - defense ennemie / 3, x strongAttackMulti (2, scène AdventureController) ; 1 - 1/3 puis /2 dans degatsJoueur = defense / 3 exactement */
         {id:'ultimate',label:'Ultime',icon:'☄️',btIndex:5,cooldown:15000,multiplier:2}
       ]);
       const IDLE_ADVENTURE_MANUAL_DEFENSE_V3=Object.freeze([

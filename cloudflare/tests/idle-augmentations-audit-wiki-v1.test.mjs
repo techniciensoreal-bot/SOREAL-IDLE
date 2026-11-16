@@ -27,8 +27,8 @@ const WIKI = [
   ["cannon", "Cannon Implant", 625, 4e6, 115600, 20, "Missile Launcher", 2.5e10, 57600, 44],
   ["minigun", "Shoulder Mounted Minigun", 15625, 8e7, 1965200, 24, "Actual Ammunition", 1.25e12, 691200, 46],
   ["buster", "Energy Buster", 390625, 1.6e9, 33408400, 28, "Charge Shot", 6.25e13, 8294400, 48],
-  ["exoskeleton", "Advanced Exoskeleton", 976563000, 1.8e16, 46771760000, 56, "Energy Shield", 3.125e18, 6635520000, 56],
-  ["laserSword", "Laser Sword", 2441000000000, 2.3e19, 65480464000000, 68, "Quadruple Sided Laser Sword", 1.5625e23, 5308416000000, 68]
+  ["exoskeleton", "Advanced Exoskeleton", 976562500, 1.8e16, 46771760000, 56, "Energy Shield", 3.125e18, 6635520000, 56],
+  ["laserSword", "Laser Sword", 2441406250000, 2.3e19, 65480464000000, 68, "Quadruple Sided Laser Sword", 1.5625e23, 5308416000000, 68]
 ];
 assert.equal(IDLE_NGU_AUGMENTATIONS.length, 7, "7 Augments, 7 Upgrades");
 WIKI.forEach((w, i) => {

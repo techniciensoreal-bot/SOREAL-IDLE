@@ -496,7 +496,7 @@ export const IDLE_NGU_AUGMENTATIONS = Object.freeze([
     id: "exoskeleton",
     name: "Advanced Exoskeleton",
     unlockBoss: 56,
-    baseMultiplier: 976563000,
+    baseMultiplier: 976562500, /* scène level0, AugmentController id 5, champ baseBoost (entier 64 bits exact) ; le wiki arrondit à 976563000 (2026-11-16) */
     exponent: 1.5,
     baseGold: 1.8e16,
     baseSeconds: 46771760000,
@@ -512,7 +512,7 @@ export const IDLE_NGU_AUGMENTATIONS = Object.freeze([
     id: "laserSword",
     name: "Laser Sword",
     unlockBoss: 68,
-    baseMultiplier: 2.441e12,
+    baseMultiplier: 2441406250000, /* scène level0, AugmentController id 6, champ baseBoost (entier 64 bits exact) ; le wiki arrondit à 2,441e12 (2026-11-16) */
     exponent: 1.6,
     baseGold: 2.3e19,
     baseSeconds: 65480464000000,
