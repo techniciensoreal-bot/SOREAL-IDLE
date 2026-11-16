@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les valeurs de base de l’entraînement de base et la réduction du facteur de buff de défense sur les dégâts reçus suivent maintenant les valeurs lues dans le code du jeu."
+    "Les valeurs de base de l’entraînement de base et la réduction du facteur de buff de défense sur les dégâts reçus suivent maintenant les valeurs lues dans le code du jeu.",
+    "Les cœurs Rouge et Jaune complets remplacent le bonus de l’objet équipé (EXP et AP) au lieu de prendre le plus grand des deux, comme dans le vrai jeu."
   ] };
 })();
