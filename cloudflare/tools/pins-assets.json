@@ -331,6 +331,10 @@
   "pin": 3,
   "sha": "f65c9b0a746af9e9a42862c46540f97365af59fb"
  },
+ "/modules/exile-glop-v1.js": {
+  "pin": 2,
+  "sha": "56cf34618b2afedc38082a7965368e00fa381df2"
+ },
  "/modules/fade-notice-v1.js": {
   "pin": 4,
   "sha": "9d9c5647d9d6d12d6f23fa09910198fe372d8c48"
@@ -1026,6 +1030,10 @@
  "/soreal-idle-entrainement-puissance-v1.css": {
   "pin": 23,
   "sha": "9d048156fb59791eff3b410985504a578deefa14"
+ },
+ "/soreal-idle-fiche-desc-v1.css": {
+  "pin": 1,
+  "sha": "5ef57c6ff8e7d704299802d3c3e4ffb50cf7491e"
  },
  "/soreal-idle-inv-configs-v1.css": {
   "pin": 9,
