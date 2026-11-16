@@ -1197,11 +1197,23 @@
         const buff=multiplicateurToughnessManuelAdventureIdleV3_(maintenant)*fDef;
         const toughness=Math.max(0,idleNombre_(a&&a.stats&&a.stats.toughness))*buff;
         const avant=idleNombre_(fight.playerHp);
-        let degats=fixes!=null?Math.floor(Math.max(0,idleNombre_(fixes))/Math.max(1e-9,buff)):degatsEnnemiAdventureIdleV2_(fight.mobPower,toughness,facteurAleatoireDegatsAdventureIdleV2_(),buff,mult);
-        if(REG.idleAdventureManualStateV3.blockUntil>maintenant){
-          degats=Math.max(0,Math.round(degats*(1-Math.max(0,Math.min(.99,REG.idleAdventureManualStateV3.blockReduction)))));
+        let degats;
+        if(fixes!=null){
+          /*
+           * Dégâts FIXES (réflexion de The Beast : EnemyAI::reflectDamage = PlayerController::takeDamage(dégâts du joueur / 50)) : takeDamage applique, dans CET ordre et sans arrondi intermédiaire, le blocage (division par le bonus de Block),
+           * le Beast Mode (x3), puis la division par les facteurs de défense (buff / débuff) et un SEUL Mathf.Floor ; la Robustesse du joueur n'entre pas dans ce calcul (audit 2026-11-16).
+           */
+          let brut=Math.max(0,idleNombre_(fixes));
+          if(REG.idleAdventureManualStateV3.blockUntil>maintenant)brut*=1-Math.max(0,Math.min(.99,REG.idleAdventureManualStateV3.blockReduction));
+          if(beastModeActifAdventureIdleV4_(a))brut*=3;
+          degats=Math.floor(brut/Math.max(1e-9,buff));
+        }else{
+          degats=degatsEnnemiAdventureIdleV2_(fight.mobPower,toughness,facteurAleatoireDegatsAdventureIdleV2_(),buff,mult);
+          if(REG.idleAdventureManualStateV3.blockUntil>maintenant){
+            degats=Math.max(0,Math.round(degats*(1-Math.max(0,Math.min(.99,REG.idleAdventureManualStateV3.blockReduction)))));
+          }
+          if(beastModeActifAdventureIdleV4_(a))degats=Math.max(0,Math.round(degats*3));
         }
-        if(beastModeActifAdventureIdleV4_(a))degats=Math.max(0,Math.round(degats*3));
         degats=Math.min(avant,degats);
         fight.playerHp=Math.max(0,avant-degats);
         fxIdleV1_('joueur',fixes!=null?'degats':'puissante',degats>0?'-'+idleEntier_(degats):'');
@@ -1427,13 +1439,21 @@
           REG.idleAdventureFightNextPlayerHitV2+=subieParalysie;
           ajouterLogAventureIdleV1_('system','Tu peux de nouveau bouger.');
         }
-        /* Cooldowns plus lents sous l'effet d'un titan (PlayerController::timeDilation : aura 4 de The Beast x2, genou brisé de The Godmother x3) : chaque seconde écoulée ne compte que pour 1/x. */
+        /*
+         * Cooldowns plus lents sous l'effet d'un titan (PlayerController::timeDilation, build 1260 : aura 4 de The Beast dt/2, genou brisé de The Godmother dt/3) : chaque compteur de capacité (Block, Heal, Regular Attack...)
+         * avance de `dt / x` au lieu de `dt` (audit 2026-11-16 : l'ancienne rallonge `ecoule*(x-1)` figeait le compteur à x = 2 au lieu de le ralentir de moitié).
+         * Le temps restant R (secondes de cooldown) à l'instant précédent se termine donc à prec + R*x s'il tient dans l'intervalle, sinon il reste R - ecoule/x à l'instant présent.
+         */
         if(REG.idleTitanEtatV1){
           const dilatation=window.SorealTitanComportementsV1.dilatationCooldowns(REG.idleTitanEtatV1);
-          const ecoule=REG.idleTitanTickPrecV1?maintenantTick-REG.idleTitanTickPrecV1:0;
+          const precTick=REG.idleTitanTickPrecV1||0;
+          const ecoule=precTick?maintenantTick-precTick:0;
           if(dilatation>1&&ecoule>0&&ecoule<5000&&!titanJoueurParalyseIdleV1_(maintenantTick)){
             Object.keys(REG.idleAdventureManualStateV3.cooldownUntil).forEach(function(k){
-              if(REG.idleAdventureManualStateV3.cooldownUntil[k]>maintenantTick)REG.idleAdventureManualStateV3.cooldownUntil[k]+=ecoule*(dilatation-1);
+              const fin=REG.idleAdventureManualStateV3.cooldownUntil[k];
+              if(!(fin>precTick))return;
+              const restant=fin-precTick;
+              REG.idleAdventureManualStateV3.cooldownUntil[k]=restant*dilatation<=ecoule?precTick+restant*dilatation:maintenantTick+restant-ecoule/dilatation;
             });
           }
           REG.idleTitanTickPrecV1=maintenantTick;
