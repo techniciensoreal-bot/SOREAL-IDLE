@@ -693,7 +693,7 @@ function castBloodMacguffin(state, spell, now, rng) {
   /* Lu dans le jeu (RebirthPowerSpell::castMacguffin2Spell, build 1260, 2026-11-16) : le sort β exige la difficulté Evil ou plus (« You can only cast this spell in Evil difficulty or greater! »). */
   if (spell === "beta" && idleRangDifficulteV1(state?.difficulty) < 1) throw new Error("DIFFICULTE_VERROUILLEE");
   const data = mgData(state);
-  if (!data.equipped.length) throw new Error("AUCUN_MACGUFFIN_EQUIPE");
+  /* Lu dans le jeu (InventoryController::levelRandomMacguffin / levelFirstMacguffin / levelAllMacguffins, build 1260, 2026-11-16) : sans MacGuffin équipé le sort « fizzle » (« Your spell fizzled and did nothing - you had no MacGuffin equipped!! ») ; RebirthPowerSpell::castMacguffin1Spell / castMacguffin2Spell remettent quand même le sang à 0 et relancent la recharge. Plus aucun refus ici : levels = 0, touched = []. */
   const readyKey = spell === "alpha" ? "bloodAlphaReadyAt" : "bloodBetaReadyAt";
   if (now > 0 && now < N(data[readyKey], 0)) throw new Error("SORT_EN_RECHARGE");
   const blood = Math.floor(N(state.currencies?.blood, 0));

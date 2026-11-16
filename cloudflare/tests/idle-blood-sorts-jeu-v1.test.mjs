@@ -55,4 +55,23 @@ const lancer = (s, spell) => applyIdleNguAction(s, { action: "castBloodSpell", s
   applyIdleNguAction(s, { action: "macguffin", op: "bloodBeta" }, ctx, 1_000_000);
 }
 
+{
+  /* Sans MacGuffin équipé le sort « fizzle » mais le jeu remet le sang à 0 et relance la recharge (castMacguffin1Spell / castMacguffin2Spell, build 1260, 2026-11-16). */
+  const s = neuf("difficile");
+  s.adventure.unlockFlags.walderpFinalDefeated = true;
+  s.systems.macguffins.unlocked = true;
+  s.systems.perks.data.levels = { 66: 1, 72: 1, 73: 1 };
+  s.currencies.blood = 1e10;
+  const T0 = 1_000_000;
+  const a = applyIdleNguAction(s, { action: "macguffin", op: "bloodAlpha" }, ctx, T0);
+  assert.equal(a.result.levels > 0, true, "le niveau calculé reste celui du sang");
+  assert.deepEqual(a.result.touched, [], "aucun MacGuffin touché");
+  assert.equal(a.state.currencies.blood, 0, "le sang est consommé");
+  a.state.currencies.blood = 1e10;
+  assert.throws(() => applyIdleNguAction(a.state, { action: "macguffin", op: "bloodAlpha" }, ctx, T0 + 1000), /SORT_EN_RECHARGE/, "la recharge est relancée");
+  const b = applyIdleNguAction(a.state, { action: "macguffin", op: "bloodBeta" }, ctx, T0 + 1000);
+  assert.deepEqual(b.result.touched, []);
+  assert.equal(b.state.currencies.blood, 0);
+}
+
 console.log("idle-blood-sorts-jeu-v1: OK");
