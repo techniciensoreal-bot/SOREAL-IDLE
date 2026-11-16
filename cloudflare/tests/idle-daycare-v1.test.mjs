@@ -35,7 +35,8 @@ const near = (a, b, msg, eps = 1e-9) => assert.ok(Math.abs(a - b) < eps, `${msg}
   /* +13 le 2026-09-23 : 10 cœurs, Wandoos XL, Triple Flubber, Heroic Sigil (A Still-Beating Heart : pas de ligne "Daycare"). */
   /* +1 le 2026-09-24 : A Giant Seed (Id 92, « one level every 24.0 hours ») devient un objet du dépôt. */
   /* +4 le 2026-09-24 : Ascended x8 / x9 Pendant (216 h / 278 h), GRAND DEMON LOOTZIFER (216 h), LootzL...OOt (278 h), obtenus par ascension. */
-  assert.equal(ids.filter((id) => t[id] != null).length, 319, "319 objets du dépôt ont un taux publié (les autres : daycare = ?).");
+  /* +2 le 2026-11-16 : Blue Eyes Ultimate Chestplate (342 : 168 h) et GLOP (372 : 24 h) deviennent des objets du dépôt (leur taux était déjà dans la table du jeu). */
+  assert.equal(ids.filter((id) => t[id] != null).length, 321, "321 objets du dépôt ont un taux publié (les autres : daycare = ?).");
   assert.deepEqual([t[430], t[504], t[431], t[505]], [216, 278, 216, 278]);
   assert.equal(t[92], 24, "A Giant Seed : 24 h.");
 }

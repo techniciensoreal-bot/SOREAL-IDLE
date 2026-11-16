@@ -15,7 +15,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - mortsNouvelles : **5**
 - effetsReglables : **4**
 - sonsEffets : **82**
-- dossiersDeRessources : **22**
+- dossiersDeRessources : **24**
 
 ## Menus
 Basic Training (`entrainement`) · Fight Boss (`combat`) · Adventure (`aventure`) · Rebirth (`renaissance`) · Augmentations (`augmentations`) · Advanced Training (`avance`) · Time Machine (`machine`) · Blood Magic (`sang`) · ITOPOD (`tower`) · Item Daycare (`daycare`) · Challenges (`challenges`) · Titans (`titans`) · NGU (`ngu`) · Wandoos (`wandoos`) · Yggdrasil (`yggdrasil`) · Gold Diggers (`diggers`) · Beards (`beards`) · MacGuffins (`macguffins`) · Hacks (`hacks`) · Questing (`questing`) · Quirks (`quirks`) · Wishes (`wishes`) · Cards (`cards`) · Cooking (`cooking`) · Boutique (`shop`) · Chroniques (`chroniques`) · Chat (`chat`) · Settings (`parametres`) · Admin (`admin`)
@@ -56,6 +56,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `img/mineurs/fonds` : 1
 - `img/mineurs/labos` : 17
 - `intro` : 16
+- `items` : 1
 - `machine-v2` : 3
 - `machine-v3` : 9
 - `magic/boss` : 299
@@ -63,6 +64,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 - `magic/safe` : 32
 - `perks` : 173
 - `shop` : 74
+- `titans` : 1
 - `trou` : 2
 - `voice-en` : 16
 - `wandoos` : 1

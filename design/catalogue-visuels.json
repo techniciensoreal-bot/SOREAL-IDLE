@@ -13,7 +13,7 @@
   "mortsNouvelles": 5,
   "effetsReglables": 4,
   "sonsEffets": 82,
-  "dossiersDeRessources": 22
+  "dossiersDeRessources": 24
  },
  "menus": [
   {
@@ -4815,6 +4815,7 @@
   "img/mineurs/fonds": 1,
   "img/mineurs/labos": 17,
   "intro": 16,
+  "items": 1,
   "machine-v2": 3,
   "machine-v3": 9,
   "magic/boss": 299,
@@ -4822,6 +4823,7 @@
   "magic/safe": 32,
   "perks": 173,
   "shop": 74,
+  "titans": 1,
   "trou": 2,
   "voice-en": 16,
   "wandoos": 1
