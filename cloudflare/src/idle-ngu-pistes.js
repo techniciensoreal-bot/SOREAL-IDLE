@@ -3,6 +3,7 @@
  * Code extrait tel quel ; les fichiers voisins se référencent par import (les fonctions étant hissées, les imports circulaires entre ces fichiers sont sans danger :
  * aucun n'appelle les autres au chargement).
  */
+import { macguffinEffectMultiplierV1 } from "./idle-macguffins-v1.js";
 import { idleHeartsPinkCompleteV1 } from "./idle-hearts-v1.js";
 import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1, niveauxEnTicksV1 } from "./idle-tick-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
@@ -227,6 +228,8 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
     Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "bars")) *
     Math.sqrt(Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"))) *
     diggerSpeed *
+    /* Lu dans le jeu (AllBeardsController::energyBeardSpeedFactor / magicBeardSpeedFactor, build 1260, 2026-11-16) : macguffinBonuses[8] (SEXY) pour l'énergie, [9] (SMART) pour la magie. */
+    macguffinEffectMultiplierV1(state, resource === "magic" ? "magicBeard" : "energyBeard") *
     beardSpeedFromItems *
     beardSpeedFromSets *
     quirkBonusesV1(idleQuirkNiveauxV1(state)).beardSpeedMultiplier /

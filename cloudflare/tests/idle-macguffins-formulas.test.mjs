@@ -38,9 +38,9 @@ assert.deepEqual(IDLE_MACGUFFIN_RANDOM_BASE_POOL_V1.slice().sort(),
   ["dropChance", "energyBar", "energyCap", "energyNgu", "energyPower", "magicBar", "magicCap", "magicNgu", "magicPower", "sexy", "smart"],
   "Tirage aléatoire : Energy/Magic Cap/Pow/Bars/NGU/SEXY/SMART + Drop.");
 assert.equal(IDLE_MACGUFFIN_MAX_SLOTS_V1, 22);
-for (const id of ["sexy", "smart"]) {
-  assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === id).effect, null, `${id} : aucun effet branché.`);
-}
+/* Lu dans le jeu (AllBeardsController, indices 8 et 9, 2026-11-16) : SEXY / SMART = vitesse des barbes Energy / Magic. */
+assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === "sexy").effect, "energyBeard");
+assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === "smart").effect, "magicBeard");
 
 assert.equal(IDLE_MACGUFFIN_TYPES_V1.find(t => t.id === "golden").effect, "goldDrops", "Golden : Gold Drops (source tierce, 2026-09-25).");
 

@@ -92,8 +92,8 @@ export const IDLE_MACGUFFIN_TYPES_V1 = Object.freeze([
   { id: "magicNgu", item: 203, name: "Magic NGU MacGuffin Fragment", nom: "Fragment MacGuffin Magic NGU", zone: "clock", formula: "standard", effect: "magicNgu", effet: "Vitesse des NGU Magic" },
   { id: "energyBar", item: 204, name: "Energy Bar MacGuffin Fragment", nom: "Fragment MacGuffin Energy Bar", zone: "2d", formula: "standard", effect: "energyBars", effet: "Energy Bars" },
   { id: "magicBar", item: 205, name: "Magic Bar MacGuffin Fragment", nom: "Fragment MacGuffin Magic Bar", zone: "ancient", formula: "standard", effect: "magicBars", effet: "Magic Bars" },
-  { id: "sexy", item: 206, name: "SEXY MacGuffin Fragment", nom: "Fragment MacGuffin SEXY (ex-Energy Beard)", zone: "avsp", formula: "standard", effect: null, effet: "Aucun effet (portrait à 250 %)" },
-  { id: "smart", item: 207, name: "SMART MacGuffin Fragment", nom: "Fragment MacGuffin SMART (ex-Magic Beard)", zone: "mega", formula: "standard", effect: null, effet: "Aucun effet (portrait à 250 %)" },
+  { id: "sexy", item: 206, name: "SEXY MacGuffin Fragment", nom: "Fragment MacGuffin SEXY (ex-Energy Beard)", zone: "avsp", formula: "standard", effect: "energyBeard", effet: "Vitesse des barbes Energy" },
+  { id: "smart", item: 207, name: "SMART MacGuffin Fragment", nom: "Fragment MacGuffin SMART (ex-Magic Beard)", zone: "mega", formula: "standard", effect: "magicBeard", effet: "Vitesse des barbes Magic" },
   { id: "dropChance", item: 208, name: "Drop Chance MacGuffin Fragment", nom: "Fragment MacGuffin Drop Chance", zone: "beardverse", formula: "standard", effect: "dropChance", effet: "Drop Chance" },
   { id: "golden", item: 209, name: "Golden MacGuffin Fragment", nom: "Fragment MacGuffin Golden", zone: "badly", formula: "golden", effect: "goldDrops", effet: "Gold Drops (or des drops d'Aventure ; source tierce)" },
   { id: "augment", item: 210, name: "Augment MacGuffin Fragment", nom: "Fragment MacGuffin Augment", zone: "boring", formula: "augment", effect: "augmentSpeed", effet: "Vitesse des Augments" },
@@ -381,7 +381,7 @@ export function macguffinEffectMultipliersV1(state) {
   const out = {
     energyPower: 1, magicPower: 1, energyCap: 1, magicCap: 1, energyBars: 1, magicBars: 1,
     energyNgu: 1, magicNgu: 1, energyWandoos: 1, magicWandoos: 1, dropChance: 1, goldDrops: 1,
-    augmentSpeed: 1, stat: 1, adventure: 1, number: 1, blood: 1, r3Power: 1, r3Cap: 1, r3Bars: 1
+    augmentSpeed: 1, stat: 1, adventure: 1, energyBeard: 1, magicBeard: 1, number: 1, blood: 1, r3Power: 1, r3Cap: 1, r3Bars: 1
   };
   const perm = state?.systems?.macguffins?.data?.permanent;
   if (!perm) return out;
