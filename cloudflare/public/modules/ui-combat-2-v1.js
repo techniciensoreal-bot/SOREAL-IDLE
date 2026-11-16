@@ -1172,13 +1172,14 @@
 
       /*
        * Ennemi explosif (mobs-types-v1.js, Norman 2026-11-14) : son « Attack Rate » publié par le wiki (5 à 14 s, contre ~1,1 s pour tous les autres) est le compte à rebours de son explosion ; à cet instant (le moment de sa première attaque) il explose :
-       * son coup, doublé (valeur SOREAL), te frappe, puis il disparaît (victoire). Le tuer AVANT n'inflige rien (wiki : « enough Power to kill any exploder »). `degatsCoup` : ses dégâts ordinaires à cet instant.
-       * Renvoie 'mort' (le joueur est tombé), 'survie' (explosion survécue : succès « Survive an attack from an exploder enemy ») ou '' (pas d'explosion).
+       * EnemyAI::explode = attack(1000) et RIEN d'autre (lu dans le jeu, 2026-11-16 : aucun appel à suicide) : l'ennemi NE disparaît PAS, il rappelle explode à chaque `attackRate`. Le tuer AVANT n'inflige rien (wiki : « enough Power to kill any exploder »).
+       * `degatsCoup` : les dégâts du coup DÉJÀ multipliés par 1000 avant l'arrondi (C9 : floor( max x aléa x 1000 / buff / débuff )).
+       * Renvoie 'mort' (le joueur est tombé), 'survie' (explosion survécue : succès « Survive an attack from an exploder enemy » ; le combat continue) ou '' (pas d'explosion).
        */
       function explosionEnnemiAdventureIdleV1_(fight,degatsCoup){
         const mt=window.SorealMobTypesV1;
         if(!mt||!fight||fight.titanId)return '';
-        const degats=mt.explosion(fight,degatsCoup);
+        const degats=mt.explosion(fight,degatsCoup,true);
         if(!(degats>0))return '';
         const avant=idleNombre_(fight.playerHp);
         const subis=Math.min(avant,degats);
@@ -1186,6 +1187,103 @@
         fxIdleV1_('mob','explosion');fxIdleV1_('joueur','degats','-'+idleEntier_(subis));jouerEffetAudioIdleV199_('skill_mobExplosion');
         ajouterLogAventureIdleV1_('enemy','💥 '+libelleEnnemiAdventureIdleV1_(fight)+' explose : '+idleEntier_(subis)+' dégâts !');
         return fight.playerHp<=0?'mort':'survie';
+      }
+
+      /* Dégâts subis directement par le joueur hors du rythme de l'ennemi (explosion de Walderp, réflexion de The Beast) : Robustesse et buffs manuels, blocage, Beast Mode ; jamais la parade (non simulée ici). `mult` : multiplicateur du coup (1000 pour l'explosion) ; `fixes` : dégâts déjà calculés (réflexion), sans Puissance de l'ennemi. */
+      function titanCoupDirectSurJoueurIdleV1_(a,fight,maintenant,mult,fixes){
+        if(!fight||!fight.active)return 0;
+        const api=window.SorealTitanComportementsV1;
+        const fDef=api&&REG.idleTitanEtatV1?api.facteurDefenseJoueur(fight.titanId,REG.idleTitanEtatV1,maintenant):1;
+        const buff=multiplicateurToughnessManuelAdventureIdleV3_(maintenant)*fDef;
+        const toughness=Math.max(0,idleNombre_(a&&a.stats&&a.stats.toughness))*buff;
+        const avant=idleNombre_(fight.playerHp);
+        let degats=fixes!=null?Math.floor(Math.max(0,idleNombre_(fixes))/Math.max(1e-9,buff)):degatsEnnemiAdventureIdleV2_(fight.mobPower,toughness,facteurAleatoireDegatsAdventureIdleV2_(),buff,mult);
+        if(REG.idleAdventureManualStateV3.blockUntil>maintenant){
+          degats=Math.max(0,Math.round(degats*(1-Math.max(0,Math.min(.99,REG.idleAdventureManualStateV3.blockReduction)))));
+        }
+        if(beastModeActifAdventureIdleV4_(a))degats=Math.max(0,Math.round(degats*3));
+        degats=Math.min(avant,degats);
+        fight.playerHp=Math.max(0,avant-degats);
+        fxIdleV1_('joueur',fixes!=null?'degats':'puissante',degats>0?'-'+idleEntier_(degats):'');
+        if(fight.playerHp<=0)terminerCombatAdventureLocalV2_(fight,false);
+        return degats;
+      }
+
+      /*
+       * Après chaque coup du joueur sur un titan (attaqueId : 1 Idle, 2 riposte de Parade, 3 Attaque, 4 Forte, 5 Perçante, 6 Ultime ; ceux de PlayerController::lastAttackID) : réflexion de The Beast (dégâts/50 sur toi), piratage du Nerd annulé par l'Ultime,
+       * bouclier du Traître consommé, et explosion de Walderp quand le coup n'est pas celui que sa consigne demandait (EnemyAI::takeDamage -> didCorrectWaldoMove).
+       */
+      function titanApresCoupJoueurIdleV1_(fight,attaqueId,degats,maintenant){
+        const api=window.SorealTitanComportementsV1;
+        const e=REG.idleTitanEtatV1;
+        if(!api||!e||!fight||!fight.titanId||!fight.active)return;
+        const a=aventureMetaIdleV47_(REG.idleEtat);
+        const out=api.apresCoupJoueur(fight.titanId,e,attaqueId,degats);
+        if(out.nerdAnnule)ajouterLogAventureIdleV1_('enemy','Le Greasy Nerd vacille : ton attaque ultime a annulé son dernier piratage !');
+        if(out.reflete>0){
+          const subis=titanCoupDirectSurJoueurIdleV1_(a,fight,maintenant,1,out.reflete);
+          ajouterLogAventureIdleV1_('enemy','Ton attaque rebondit sur la peau caoutchouteuse de THE BEAST : tu te blesses pour '+idleEntier_(subis)+' dégâts !');
+          if(!fight.active)return;
+        }
+        if(out.explosion){
+          ajouterLogAventureIdleV1_('enemy',out.dit?'Walderp ricane : « TU N’AS PAS FAIT CE QUE WALDERP A DIT ! » Il appuie sur un gros bouton rouge.':'Walderp ricane : « JE N’AI PAS DIT WALDERP DIT ! » Il appuie sur un gros bouton rouge.');
+          fxIdleV1_('mob','explosion');
+          const subis=titanCoupDirectSurJoueurIdleV1_(a,fight,maintenant,out.mult);
+          ajouterLogAventureIdleV1_('enemy',libelleEnnemiAdventureIdleV1_(fight)+' explose : '+idleEntier_(subis)+' dégâts !');
+        }
+      }
+
+      /* Journal et effets du tour d'un titan (messages du jeu, traduits) : renvoie le type d'effet de l'attaque sur la barre de vie du joueur ('' = effet ordinaire). */
+      function journalCapaciteTitanIdleV1_(fight,att){
+        const L=function(t){ajouterLogAventureIdleV1_('enemy',t);};
+        const nom=libelleEnnemiAdventureIdleV1_(fight);
+        const api=window.SorealTitanComportementsV1;
+        const CONSIGNES={3:'une attaque normale',4:'une attaque forte',5:'une attaque perçante',6:'une attaque ultime'};
+        let fx='';
+        if(att.type==='puissante'){L('💥 Attaque puissante !');fx='puissante';}
+        if(att.powerSmash){L('💥 '+nom+' lance un POWER SMASH !');fx='puissante';}
+        if(att.type==='super'){L('💥 SUPER attaque !');fx='puissante';}
+        if(att.type==='gantPuissant'){L('🥊 Gant de puissance : coup ×5 !');fx='puissante';}
+        if(att.type==='explosion'){L('💣 '+nom+' appuie sur un gros bouton rouge : tu n’as pas bouclé la boucle de Walderp !');fxIdleV1_('mob','explosion');fx='puissante';}
+        if(att.type==='walderpDit'){L((att.dit?'🗣️ WALDERP DIT : ':'🗣️ ')+'frappe-moi avec '+(CONSIGNES[att.consigne]||'une attaque')+' !');}
+        if(att.type==='aura'){
+          const AURAS={0:'',1:'🔥 '+nom+' lance sa HYPER AURA ROUGE : il se soigne à toute vitesse !',2:'💥 '+nom+' équipe le badge POWER SMASH : ça va faire mal !',3:'🪨 '+nom+' se roule dans de la bouillie grise : il se recouvre d’une armure de métal !',4:'⏰ '+nom+' avale un réveil : tu te sens plus lent !',5:'🫧 '+nom+' se couvre de gelée caoutchouteuse : attention à tes attaques !',6:'☁️ '+nom+' lâche un nuage puant : il ronge ta santé !'};
+          if(AURAS[att.aura])L(AURAS[att.aura]);
+          if(att.aura>0)fxIdleV1_('joueur','aura');
+        }
+        if(att.type==='piratage')L('💻 '+nom+' pirate le système : +8 % de puissance !');
+        if(att.type==='genou')L('🦵 '+nom+' te brise la rotule : tes capacités se rechargent 3 fois plus lentement !');
+        if(att.type==='explosionsDebut')L('💥 '+nom+' arme ses explosifs : quatre explosions arrivent !');
+        if(att.explosionRapide){L('💥 Explosion !');fx='puissante';}
+        if(att.type==='tirBras'){L('🔫 Le canon-bras de '+nom+' libère un tir chargé !');fx='puissante';}
+        if(att.type==='brasCharge')L('🔫 '+nom+' charge son canon-bras : BAISSE-TOI !');
+        if(att.type==='exileSaignement')L('🦌 '+nom+' t’encorne : tu saignes abondamment, ta régénération s’inverse !');
+        if(att.type==='exileParalysie')L('🧠 '+nom+' prend le contrôle de ton esprit : tu ne peux plus bouger !');
+        if(att.type==='succion')L('🐙 '+nom+' enroule un tentacule autour de toi et aspire ta vie !');
+        if(att.type==='devore'&&!att.invincibleDebut)L('🕳️ '+nom+' dévore tout sur son passage !');
+        if(att.type==='affaiblit')L('🥵 Tes bras s’alourdissent : tes dégâts manuels chutent pendant 12 s !');
+        if(att.type==='rats')L('🐀 '+nom+' invoque une nuée de rats furieux : ils arrivent !');
+        if(att.type==='ratsDebut')L('🐀 La nuée de rats se rue sur toi : 10 attaques rapides !');
+        if(att.type==='reductionPV')L('🩸 '+nom+' te vide de ta vie : tes PV tombent à 20 % !');
+        if(att.type==='bouclier')L('🛡️ '+nom+' renforce son bouclier : il annulera tes '+att.bouclier+' prochains coups !');
+        if(att.type==='accelere')L('📈 La puissance de '+nom+' s’accélère pour de bon !');
+        if(att.invincibleDebut)L('🛡️ '+nom+' devient invincible : tes coups ne le touchent plus !');
+        if(att.type==='sauterelles')L('🦗 Les sauterelles se ruent sur toi : 10 attaques rapides !');
+        if(att.rafale)fx='sauterelle';
+        if(att.type==='chemise'){
+          fx='chemise';
+          const defDes=att.desactive?definitionCompetenceAdventureIdleV3_(att.desactive):null;
+          const sujet=fight.titanId==='t3'?'Jake agite sa chemise':nom+' agite la main';
+          L(att.nouvelle&&defDes?'👔 '+sujet+' : « '+defDes.label+' » est désactivée jusqu’à la fin du combat !':'👔 '+sujet+'… sans effet de plus.');
+        }
+        if(att.saigne)L('🩸 Tu saignes ! Ta régénération baisse de '+idleEntier_(api.regenRetireeSaignement(fight.titanId,REG.idleTitanEtatV1))+' PV/s.');
+        if(att.paralyse){
+          fxIdleV1_('joueur','eclair');
+          L('⚡ Tu es paralysé : plus de capacités ni d’Idle pendant '+Math.round((att.paralyseMs||4000)/1000)+' s !');
+        }
+        if(att.spores){fxIdleV1_('joueur','spore');L('🍄 « Tes bras deviennent soudain lourds » : tes dégâts manuels tombent aux 2/3 pendant 15 s.');}
+        if(att.draine){fxIdleV1_('joueur','spore');L('🍄 « Tu sens l’énergie se vider de ton corps » : ta Robustesse tombe aux 2/3 et tu subis ×1,5 de dégâts pendant 15 s.');}
+        return fx;
       }
 
       function fxEtatsIdleV1_(fight,maintenant){
@@ -1298,8 +1396,9 @@
           REG.idleAdventureFightLastRegenAtV2=maintenantTick;
           REG.idleTitanAttaquesV1=0;REG.idleExploderSurvivedV1=false;   /* succès « sans coup » et « explosif survécu » : compteurs de CE combat */
           try{if(window.SorealMobTypesV1)window.SorealMobTypesV1.reinit(maintenantTick);}catch(_e){}   /* types d'ennemis (mobs-types-v1.js) : poison et paralysie repartent de zéro */
-          REG.idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf():null;
-          if(REG.idleTitanEtatV1)REG.idleTitanEtatV1.id=fight.titanId;
+          REG.idleTitanEtatV1=titanComportementsIdleV1_(fight)?window.SorealTitanComportementsV1.neuf(fight.titanId,window.SorealTitanComportementsV1.niveauDeDifficulte(fight.titanTier)):null;
+          if(REG.idleTitanEtatV1){REG.idleTitanEtatV1.id=fight.titanId;REG.idleTitanEtatV1.cadenceMs=intervalleAttaqueEnnemiAdventureIdleV2_(fight);}
+          REG.idleTitanTickPrecV1=0;
           /*
            * Norman (2026-10-13) : « quand on active le mode manuel du combat, les CD de chacune des attaques doivent être en cours : si une a un CD de 20 s, elle ne sera disponible que 20 s après le début du combat. »
            * Au départ d'un combat de TITAN, tous les raccourcis (attaques, défenses, compétences avancées) entrent en recharge pour leur durée complète (Move 69, qui n'est pas une attaque de combat, n'est pas concerné) ;
@@ -1313,17 +1412,31 @@
             });
           }
         }
-        if(REG.idleTitanEtatV1&&fight.titanId==='t4')REG.idleTitanEtatV1.anneau=niveauAnneauApathieIdleV1_(a);
-        /* Fin d'une paralysie du titan : les cooldowns étaient en pause, on les repousse de la durée subie ; l'Idle Mode reprend un coup plus tard. */
+        if(REG.idleTitanEtatV1&&(fight.titanId==='t4'||fight.titanId==='amalgamate'))REG.idleTitanEtatV1.anneau=niveauAnneauApathieIdleV1_(a);   /* InventoryController::apathyCheck : UUG et AMALGAMATE de dernier niveau */
+        /*
+         * Fin d'une paralysie (d'un titan OU d'un ennemi paralysant) : tant qu'elle dure, le jeu ne décompte que la paralysie (PlayerController::Update rend la main) et le minuteur de l'Idle ne bouge pas (moveCheck faux). On repousse donc les cooldowns
+         * ET le prochain coup Idle de la durée subie : le reste du minuteur est conservé (audit 2026-11-16, C10).
+         */
+        let subieParalysie=0;
+        if(REG.idleTitanEtatV1)subieParalysie+=window.SorealTitanComportementsV1.finParalysie(REG.idleTitanEtatV1,maintenantTick);
+        if(window.SorealMobTypesV1&&!fight.titanId)subieParalysie+=window.SorealMobTypesV1.finParalysie(maintenantTick);
+        if(subieParalysie>0){
+          Object.keys(REG.idleAdventureManualStateV3.cooldownUntil).forEach(function(k){
+            if(REG.idleAdventureManualStateV3.cooldownUntil[k]>maintenantTick-subieParalysie)REG.idleAdventureManualStateV3.cooldownUntil[k]+=subieParalysie;
+          });
+          REG.idleAdventureFightNextPlayerHitV2+=subieParalysie;
+          ajouterLogAventureIdleV1_('system','Tu peux de nouveau bouger.');
+        }
+        /* Cooldowns plus lents sous l'effet d'un titan (PlayerController::timeDilation : aura 4 de The Beast x2, genou brisé de The Godmother x3) : chaque seconde écoulée ne compte que pour 1/x. */
         if(REG.idleTitanEtatV1){
-          const subie=window.SorealTitanComportementsV1.finParalysie(REG.idleTitanEtatV1,maintenantTick);
-          if(subie>0){
+          const dilatation=window.SorealTitanComportementsV1.dilatationCooldowns(REG.idleTitanEtatV1);
+          const ecoule=REG.idleTitanTickPrecV1?maintenantTick-REG.idleTitanTickPrecV1:0;
+          if(dilatation>1&&ecoule>0&&ecoule<5000&&!titanJoueurParalyseIdleV1_(maintenantTick)){
             Object.keys(REG.idleAdventureManualStateV3.cooldownUntil).forEach(function(k){
-              if(REG.idleAdventureManualStateV3.cooldownUntil[k]>maintenantTick-subie)REG.idleAdventureManualStateV3.cooldownUntil[k]+=subie;
+              if(REG.idleAdventureManualStateV3.cooldownUntil[k]>maintenantTick)REG.idleAdventureManualStateV3.cooldownUntil[k]+=ecoule*(dilatation-1);
             });
-            REG.idleAdventureFightNextPlayerHitV2=Math.max(REG.idleAdventureFightNextPlayerHitV2,maintenantTick+intervalleIdleAttackAdventureIdleV4_(a));
-            ajouterLogAventureIdleV1_('system','Tu peux de nouveau bouger.');
           }
+          REG.idleTitanTickPrecV1=maintenantTick;
         }
 
         let evenements=0;
@@ -1365,23 +1478,25 @@
 
           if(joueurPremier){
             REG.idleAdventureFightNextPlayerHitV2+=
-              intervalleIdleAttackAdventureIdleV4_(a);
+              intervalleIdleAttackAdventureIdleV4_(a)*(REG.idleTitanEtatV1?window.SorealTitanComportementsV1.facteurIntervalleIdle(REG.idleTitanEtatV1):1);   /* aura 4 de The Beast : le minuteur de l'Idle avance à moitié vitesse */
 
             const avant=idleNombre_(fight.monsterHp);
+            /* le coup de l'Idle Mode ignore les facteurs d'attaque posés par le titan (bras lourds : PlayerController::idleAttack ne lit pas offenseDebuffFactor) ; titanMultDegatsJoueurIdleV1_(fight,momentEvenement,true) */
+            const multTitanIdle=titanMultDegatsJoueurIdleV1_(fight,momentEvenement,true);
             const degats=Math.min(
               avant,
               degatsJoueurAdventureIdleV2_(
                 Math.max(0,idleNombre_(a&&a.stats&&a.stats.power))*
-                  multiplicateurPowerManuelAdventureIdleV3_(momentEvenement,a),
+                  multiplicateurPowerManuelAdventureIdleV3_(momentEvenement,a,true),
                 fight.mobToughness,
-                multiplicateurIdleAttackAdventureIdleV2_(a)*titanMultDegatsJoueurIdleV1_(fight,momentEvenement),
+                multiplicateurIdleAttackAdventureIdleV2_(a)*multTitanIdle,
                 facteurAleatoireDegatsAdventureIdleV2_()
               )
             );
             fight.monsterHp=Math.max(0,avant-degats);
 
             impactMonstreAdventureIdleV1_();
-            fxIdleV1_('mob',titanMultDegatsJoueurIdleV1_(fight,momentEvenement)===0?'invincible':'coup',idleEntier_(degats));
+            fxIdleV1_('mob',multTitanIdle===0?'invincible':'coup',idleEntier_(degats));
             ajouterLogAventureIdleV1_(
               'player',
               'Vous frappez '+libelleEnnemiAdventureIdleV1_(fight)+
@@ -1392,8 +1507,12 @@
 
             /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-206 */
             if(fight.monsterHp<=0){
-              terminerCombatAdventureLocalV2_(fight,true);   /* l'explosion d'un ennemi explosif est gérée à la fin du combat (explosionEnnemiAdventureIdleV1_) : tous les chemins de victoire */
+              terminerCombatAdventureLocalV2_(fight,true);   /* tuer un explosif AVANT son explosion ne lui laisse pas le temps d'exploser */
               return;
+            }
+            if(fight.titanId){
+              titanApresCoupJoueurIdleV1_(fight,1,degats,momentEvenement);   /* Idle : lastAttackID 1 (réflexion de The Beast, consigne de Walderp...) */
+              if(!fight.active)return;
             }
             continue;
           }
@@ -1403,24 +1522,22 @@
           if(fight.titanId)REG.idleTitanAttaquesV1=(REG.idleTitanAttaquesV1||0)+1;   /* une attaque du titan a eu lieu : plus de succès « avant qu'il attaque » pour ce combat */
 
           const avant=idleNombre_(fight.playerHp);
+          /* Facteur de défense posé par un titan (nuage d'énergie, debuffDefense) : le MÊME facteur réduit la Robustesse effective ET multiplie le dégât reçu (EnemyAI::baseDamage puis PlayerController::takeDamage). */
+          const facteurDefenseTitan=REG.idleTitanEtatV1?window.SorealTitanComportementsV1.facteurDefenseJoueur(fight.titanId,REG.idleTitanEtatV1,momentEvenement):1;
+          const buffDefenseCoup=multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)*facteurDefenseTitan;
           const toughnessEffectif=
             Math.max(0,idleNombre_(a&&a.stats&&a.stats.toughness))*
-            multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement);
+            buffDefenseCoup;
           const facteurAleaDegats=facteurAleatoireDegatsAdventureIdleV2_();
-          let degats=Math.min(
-            avant,
-            degatsEnnemiAdventureIdleV2_(
-              fight.mobPower,
-              toughnessEffectif,
-              facteurAleaDegats,
-              multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)
-            )
-          );
-          /* Ennemi explosif : au moment de son attaque (son « Attack Rate » est son compte à rebours) il EXPLOSE : son coup ordinaire x1000 (lu dans le jeu), puis il disparaît (mobs-types-v1.js). */
+          /* Le multiplicateur du coup (puissante, croissance, explosion...) entre AVANT l'arrondi : floor( max x aléa x mult / buff / débuff ) (C9). */
+          const degatsAvecMult=function(mult){return Math.min(avant,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,facteurAleaDegats,buffDefenseCoup,mult));};
+          let degats=degatsAvecMult(1);
+          let fxTypeAttaque='degats';
+          /* Ennemi explosif : au moment de son attaque (son « Attack Rate » est son compte à rebours) il EXPLOSE : EnemyAI::explode = attack(1000) (lu dans le jeu), à chaque attackRate : il ne disparaît pas (mobs-types-v1.js). */
           if(window.SorealMobTypesV1&&!fight.titanId&&window.SorealMobTypesV1.types(fight).exploder){
-            const issueExplosion=explosionEnnemiAdventureIdleV1_(fight,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,facteurAleaDegats,multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)));
+            const issueExplosion=explosionEnnemiAdventureIdleV1_(fight,degatsEnnemiAdventureIdleV2_(fight.mobPower,toughnessEffectif,facteurAleaDegats,buffDefenseCoup,window.SorealMobTypesV1.constantes.explosionMult));
             if(issueExplosion==='mort'){terminerCombatAdventureLocalV2_(fight,false);return;}
-            if(issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;terminerCombatAdventureLocalV2_(fight,true);return;}
+            if(issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;modifie=true;evenements+=1;continue;}   /* il survit à son explosion et recommence au prochain attackRate */
           }
           /* Types d'ennemis (mobs-types-v1.js) : cycles lus dans le jeu (poison, chargeur, paralysie, rapide, grandisseur) ; certains tours l'ennemi n'attaque pas. */
           let tourMob=null;
@@ -1432,45 +1549,25 @@
             if(tourMob.rapideDebut)ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' fonce et attaque à toute vitesse !');
             if(tourMob.rapideFin)ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' semble s’être calmé.');
             if(tourMob.saute){modifie=true;evenements+=1;continue;}
-            if(tourMob.mult!==1)degats=Math.min(avant,Math.round(degats*tourMob.mult));
+            if(tourMob.mult!==1)degats=degatsAvecMult(tourMob.mult);
             if(tourMob.charge){fxTypeAttaque='puissante';ajouterLogAventureIdleV1_('enemy','💥 Attaque massive !');}
             else if(tourMob.croit)ajouterLogAventureIdleV1_('enemy','📈 '+libelleEnnemiAdventureIdleV1_(fight)+' gonfle à vue d’œil !');
           }
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
-          let fxTypeAttaque='degats';
           let attTitan=null;
           if(REG.idleTitanEtatV1){
+            REG.idleTitanEtatV1.pv={cur:avant,max:idleNombre_(fight.playerHpMax)};   /* la réduction de PV du Traître en a besoin */
             const att=window.SorealTitanComportementsV1.attaqueTitan(fight.titanId,REG.idleTitanEtatV1,momentEvenement,Math.random());
             attTitan=att;
             /*
-             * Wiki « Titans » : « All titans grow in strength by 1% per attack, which can make them much harder to defeat with the bare minimum power/toughness compared to even slightly higher stats ». C'est la PUISSANCE du titan qui
-             * grandit (cumulée, 1,01 puissance n) AVANT la réduction par ta Robustesse : dégâts = max(10 % de sa puissance, puissance - Robustesse / 2). Appliquée seulement au résultat final (après la réduction), la croissance
-             * ne comptait presque pas (Norman, 2026-10-12 : « son attaque ne montait pas beaucoup, plus le combat dure plus il est supposé taper fort, ça se stack »).
+             * Wiki « Titans » : « All titans grow in strength by 1% per attack, which can make them much harder to defeat with the bare minimum power/toughness compared to even slightly higher stats ».
+             * Lu dans le jeu : la croissance est ADDITIVE (1 + growCount/100) et fait partie du multiplicateur du coup, appliqué avant l'arrondi, après la réduction par la Robustesse (att.multDegats).
              */
-            if(att.croissanceTitan>1)degats=Math.min(avant,degatsEnnemiAdventureIdleV2_(fight.mobPower*att.croissanceTitan,toughnessEffectif,facteurAleaDegats,multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)));
-            if(att.multDegats!==1)degats=Math.min(avant,Math.round(degats*att.multDegats));
-            if(att.type==='puissante'){
-              ajouterLogAventureIdleV1_('enemy','💥 Attaque puissante !');
-              fxTypeAttaque='puissante';
-            }
-            if(att.invincibleDebut)ajouterLogAventureIdleV1_('enemy','🛡️ UUG devient invincible : tes coups ne le touchent plus !');
-            if(att.type==='sauterelles')ajouterLogAventureIdleV1_('enemy','🦗 Les sauterelles se ruent sur toi : 10 attaques rapides !');
-            if(att.rafale)fxTypeAttaque='sauterelle';
+            if(att.multDegats!==1)degats=degatsAvecMult(att.multDegats);
+            fxTypeAttaque=journalCapaciteTitanIdleV1_(fight,att,attTitan)||fxTypeAttaque;
             if(att.suite)REG.idleAdventureFightNextEnemyHitV2=momentEvenement+att.intervalleMs;
-            if(att.type==='chemise'){
-              fxTypeAttaque='chemise';
-              const defDes=att.desactive?definitionCompetenceAdventureIdleV3_(att.desactive):null;
-              ajouterLogAventureIdleV1_('enemy',att.nouvelle&&defDes?'👔 Jake agite sa chemise : « '+defDes.label+' » est désactivée jusqu’à la fin du combat !':'👔 Jake agite sa chemise… sans effet de plus.');
-            }
-            if(att.saigne){
-              const apiT=window.SorealTitanComportementsV1;
-              ajouterLogAventureIdleV1_('enemy','🩸 Tu saignes ! Ta régénération baisse de '+idleEntier_(apiT.regenRetireeSaignement(fight.titanId,REG.idleTitanEtatV1))+' PV/s.');
-            }
-            if(att.paralyse)fxIdleV1_('joueur','eclair');
-            if(att.spores)fxIdleV1_('joueur','spore');
-            if(att.spores)ajouterLogAventureIdleV1_('enemy','🍄 « Tes bras deviennent soudain lourds » : tes dégâts tombent aux 2/3 pendant 15 s.');
-            if(att.draine){fxIdleV1_('joueur','spore');ajouterLogAventureIdleV1_('enemy','🍄 « Tu sens l’énergie se vider de ton corps » : tu subis ×1,5 de dégâts pendant 15 s.');}
-            if(att.paralyse)ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 4 s !');
+            if(att.pvJoueurFraction){fight.playerHp=Math.min(idleNombre_(fight.playerHp),idleNombre_(fight.playerHpMax)*att.pvJoueurFraction);fxIdleV1_('joueur','degats','');}
+            if(att.sansAttaque){modifie=true;evenements+=1;continue;}   /* ce tour-là le titan n'attaque pas (paralysie, nuage, lancement des sauterelles, aura...) : ni blocage ni parade consommés */
           }
           if(REG.idleAdventureManualStateV3.blockUntil>momentEvenement){
             const avantBlocage=degats;
@@ -1502,6 +1599,10 @@
           degats=Math.min(avant,degats);
           fight.playerHp=Math.max(0,avant-degats);
           fxIdleV1_('joueur',fxTypeAttaque,degats>0?'-'+idleEntier_(degats):'');
+          if(attTitan&&attTitan.soinEnnemi>0){   /* EnemyAI::heal(0,1) : 10 % des PV max de l'ennemi */
+            fight.monsterHp=Math.min(idleNombre_(fight.monsterHpMax),idleNombre_(fight.monsterHp)+idleNombre_(fight.monsterHpMax)*attTitan.soinEnnemi);
+            ajouterLogAventureIdleV1_('enemy',libelleEnnemiAdventureIdleV1_(fight)+' se soigne de '+idleEntier_(attTitan.soinEnnemi*100)+' % de ses PV !');
+          }
 
           if(!(attTitan&&attTitan.type==='chemise'))ajouterLogAventureIdleV1_(
             'enemy',
@@ -1919,6 +2020,7 @@
     ouvrirBossCollectionIdleV1_:ouvrirBossCollectionIdleV1_,
     lireHistoireCompleteBossIdleV206_:lireHistoireCompleteBossIdleV206_,
     arreterCombatTitanIdleV1_:arreterCombatTitanIdleV1_,
+    titanApresCoupJoueurIdleV1_:titanApresCoupJoueurIdleV1_,
     progresserZoneFightLocalIdleV1_:progresserZoneFightLocalIdleV1_,
     htmlReglagesMusiqueTitanIdleV1_:htmlReglagesMusiqueTitanIdleV1_,
     markupImageCombatIdleV61_:markupImageCombatIdleV61_,

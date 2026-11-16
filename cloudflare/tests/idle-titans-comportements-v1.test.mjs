@@ -11,7 +11,7 @@ const ctx = { window: undefined }; ctx.globalThis = ctx; vm.createContext(ctx);
 vm.runInContext(readFileSync("cloudflare/public/modules/titans-comportements-v1.js", "utf8"), ctx);
 const api = ctx.SorealTitanComportementsV1;
 const ui = lireUiComplet();
-assert.ok(api.possede("t1") && api.possede("t2") && api.possede("t3") && api.possede("t4") && !api.possede("t5"));
+assert.ok(api.possede("t1") && api.possede("t2") && api.possede("t3") && api.possede("t4") && api.possede("t5") && !api.possede("inconnu"));
 
 // Tirage : [0,1) paralysie, [1,3) saignement, [3,5) puissante, le reste base (sur 7).
 let e = api.neuf();
@@ -20,6 +20,7 @@ for (let i = 0; i < 9; i++) api.attaqueTitan("t1", e, 1000, 6.5 / 7);
 assert.equal(e.depuisParalysie, 10);
 let r = api.attaqueTitan("t1", e, 20000, 0.5 / 7);
 assert.equal(r.type, "paralysie"); assert.ok(r.paralyse);
+assert.ok(r.sansAttaque && r.multDegats === 0, "lu dans le jeu (theButcherAI) : le tour de la paralysie n'attaque pas");
 assert.ok(api.joueurParalyse(e, 21000) && api.joueurParalyse(e, 23999) && !api.joueurParalyse(e, 24000), "4 s");
 assert.equal(e.depuisParalysie, 0);
 
@@ -43,25 +44,35 @@ assert.equal(api.regenRetireeSaignement("t1", api.neuf()), 0, "sans saignement :
 assert.equal(api.regenRetireeSaignement("t1", e), 4, "2 cumuls : -4 PV/s (lu dans le jeu : 2 PV/s par cumul)");
 e.saignements = 4; assert.equal(api.regenRetireeSaignement("t1", e), 8, "4 cumuls : -8 PV/s (mesuré dans le vrai jeu : pente de 38,0 à 27,8 /s soit environ -2,6 par cumul avec le facteur d'affichage)");
 assert.equal(api.regenRetireeSaignement("t2", api.neuf()), 0, "pas de saignement pour les autres titans");
-assert.ok(ui.includes("regenRetireeSaignement(fight.titanId,idleTitanEtatV1)") && ui.includes("}else if(regenJoueur<0){"));
+assert.ok(ui.includes("regenRetireeSaignement(fight.titanId,etatTitanRegen)") && ui.includes("}else if(regenJoueur<0){"));
+// C2 (audit 2026-11-16) : (régénération - saignement) x durée, PUIS x5 de l'Hyper Regen (signe quelconque), PUIS x1,2 de l'Idle Mode ; aura 6 : valeur inversée, sans multiplicateur.
+assert.ok(ui.includes("regenNette*(idleAdventureIdleModeV3?1.2:1)*(secondes+hyperSecondes*4)") && ui.includes("?-(regenNette*secondes)"), "régénération : ordre des multiplicateurs du jeu");
 
 // Grand Corrupted Tree : spores des bras (1/7, si pas déjà appliquées) -> dégâts x2/3 pendant 15 s ; puissante (2/7) x1,5 ; spores d'énergie non simulées.
 e = api.neuf();
 assert.equal(api.multDegatsJoueur("t2", e, 0), 1);
 r = api.attaqueTitan("t2", e, 1000, 0.5 / 7); assert.equal(r.type, "sporesBras"); assert.ok(r.spores);
+assert.ok(r.sansAttaque && r.multDegats === 0, "lu dans le jeu (corruptedTreeAI) : le tour du nuage n'attaque pas");
 assert.equal(api.multDegatsJoueur("t2", e, 15999), 2 / 3); assert.equal(api.multDegatsJoueur("t2", e, 16000), 1);
-assert.equal(api.attaqueTitan("t2", e, 2000, 0.5 / 7).type, "base", "déjà appliqué : pas de nouveau nuage");
-const e3 = api.neuf(); // nuage d'énergie (1/7, si pas déjà appliqué) : dégâts subis x2,5 pendant 15 s (valeur choisie par SOREAL, le wiki hésite entre 1,5 et 4)
+{ const eC = api.neuf(); api.attaqueTitan("t2", eC, 1000, 0.5 / 7);
+  assert.equal(api.multDegatsJoueur("t2", eC, 2000, true), 1, "C4 : le coup de l'Idle Mode ignore le nuage des bras (idleAttack ne lit pas offenseDebuffFactor)");
+  assert.ok(api.multDegatsJoueur("t2", eC, 2000) < 1, "mais les capacités manuelles le subissent");
+  assert.equal(api.attaqueTitan("t2", eC, 2000, 0.5 / 7).type, "base", "déjà appliqué : pas de nouveau nuage"); }
+const e3 = api.neuf(); // nuage d'énergie (1/7, si pas déjà appliqué) : debuffDefense(1,5 ; 15) : Robustesse x 2/3 ET dégâts subis x 1,5 (le facteur sert deux fois), lu dans le jeu
 r = api.attaqueTitan("t2", e3, 2000, 1.5 / 7); assert.equal(r.type, "sporesEnergie"); assert.ok(r.draine);
-proche(basique(api.attaqueTitan("t2", e3, 3000, 5.5 / 7), e3), 1.5, "pendant 15 s : dégâts subis x1,5 (lu dans le jeu)");
-proche(basique(api.attaqueTitan("t2", e3, 16999, 5.5 / 7), e3), 1.5, "encore actif juste avant la fin");
-proche(basique(api.attaqueTitan("t2", e3, 17000, 5.5 / 7), e3), 1, "fini au bout de 15 s");
+assert.ok(r.sansAttaque && r.multDegats === 0, "le tour du nuage n'attaque pas non plus");
+proche(api.facteurDefenseJoueur("t2", e3, 3000), 2 / 3, "pendant 15 s : facteur de défense 2/3 (Robustesse x 2/3 et dégâts / (2/3))");
+proche(api.facteurDefenseJoueur("t2", e3, 16999), 2 / 3, "encore actif juste avant la fin");
+proche(api.facteurDefenseJoueur("t2", e3, 17000), 1, "fini au bout de 15 s");
+proche(basique(api.attaqueTitan("t2", e3, 17100, 5.5 / 7), e3), 1, "plus aucun x1,5 enfoui dans le multiplicateur du coup (il passe par le facteur de défense)");
 assert.equal(api.attaqueTitan("t2", e3, 17500, 1.5 / 7).type, "sporesEnergie", "nouveau nuage possible une fois le premier fini");
 assert.equal(api.attaqueTitan("t2", e3, 18000, 1.5 / 7).type, "base", "déjà appliqué : pas de nouveau nuage");
+assert.ok(ui.includes("buffDefenseCoup=multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)*facteurDefenseTitan") && ui.includes("toughnessEffectif=\n            Math.max(0,idleNombre_(a&&a.stats&&a.stats.toughness))*\n            buffDefenseCoup;"), "C3 : le facteur de défense réduit la Robustesse effective ET divise le dégât");
 proche(basique(api.attaqueTitan("t2", e, 2000, 2.5 / 7), e), 1.5, "puissante x1,5");
 proche(basique(api.attaqueTitan("t2", e, 2000, 5.5 / 7), e), 1, "base");
 assert.equal(api.multDegatsJoueur("t1", api.neuf(), 0), 1);
-assert.ok(ui.includes("titanMultDegatsJoueurIdleV1_(fight,maintenant)") && ui.includes("titanMultDegatsJoueurIdleV1_(fight,momentEvenement)"));
+assert.ok(ui.includes("titanMultDegatsJoueurIdleV1_(fight,maintenant)") && ui.includes("titanMultDegatsJoueurIdleV1_(fight,momentEvenement,true)"), "Idle : ignore les facteurs d'attaque du titan ; capacités manuelles : les subissent");
+assert.ok(ui.includes("multiplicateurPowerManuelAdventureIdleV3_(momentEvenement,a,true)") && ui.includes("function multiplicateurPowerManuelAdventureIdleV3_(maintenant,a,idle){") && ui.includes("if(!idle){\n          if(REG.idleAdventureManualStateV3.offensiveBuffUntil") || ui.includes("if(!idle){\n          if(idleAdventureManualStateV3.offensiveBuffUntil"), "C4 : les buffs offensifs manuels ne s'appliquent pas au coup Idle");
 // Jake : 1re attaque = battement de chemise (remplace l'attaque, désactive Ultimate), puis toutes les 20 ; ordre du wiki ; sauterelles 1/5 si 10 attaques d'écart ; puissante 2/5 x1,5.
 e = api.neuf();
 r = api.attaqueTitan("t3", e, 0, 0.5);
@@ -82,10 +93,11 @@ r = api.attaqueTitan("t3", e, 5, 4.5 / 5); assert.equal(r.type, "chemise"); asse
 e = api.neuf(); api.attaqueTitan("t3", e, 0, 0.5);
 for (let i = 0; i < 10; i++) api.attaqueTitan("t3", e, 1, 4.5 / 5);
 r = api.attaqueTitan("t3", e, 2, 0.5 / 5);
-assert.equal(r.type, "sauterelles"); proche(r.multDegats, 0.5 * (1 + e.attaques / 100), "sauterelles : demi-dégâts x (1 + n/100)"); assert.ok(r.suite); assert.equal(r.intervalleMs, 300, "0,30 s (attackRate x 0,15, lu dans le jeu)");
-let coups = 1;
-while (true) { const x = api.attaqueTitan("t3", e, 3, 0.9); assert.equal(x.type, "sauterelle"); proche(x.multDegats, 0.5 * (1 + e.attaques / 100)); coups++; if (!x.suite) break; }
+assert.equal(r.type, "sauterelles"); assert.ok(r.sansAttaque && r.multDegats === 0, "lu dans le jeu (jakeAI, skipturn) : le tour du lancement n'attaque pas"); assert.ok(r.suite); assert.equal(r.intervalleMs, 300, "0,30 s (attackRate x 0,15, lu dans le jeu)");
+let coups = 0;
+while (true) { const x = api.attaqueTitan("t3", e, 3, 0.9); assert.equal(x.type, "sauterelle"); proche(x.multDegats, 0.5 * (1 + e.attaques / 100), "sauterelles : demi-dégâts x (1 + n/100)"); coups++; if (!x.suite) break; assert.equal(x.intervalleMs, 300); }
 assert.equal(coups, 10, "10 attaques rapides");
+{ const e4 = api.neuf(); e4.cadenceMs = 1000; api.attaqueTitan("t3", e4, 0, 0.5); for (let i = 0; i < 10; i++) api.attaqueTitan("t3", e4, 1, 4.5 / 5); assert.equal(api.attaqueTitan("t3", e4, 2, 0.5 / 5).intervalleMs, 150, "C5 : attackRate x 0,15 suit la cadence du combat"); }
 assert.equal(api.attaqueTitan("t3", e, 4, 0.5 / 5).type, "base", "pas de nouvelles sauterelles avant 10 attaques");
 assert.ok(ui.includes("titanCompetenceDesactiveeIdleV1_(id)") && ui.includes("btn.classList.toggle('titan-off',desactivee)") && ui.includes("idleAdventureFightNextEnemyHitV2=momentEvenement+att.intervalleMs"));
 // UUG (lu dans le jeu) : puissante x1,5 une fois sur deux (tirage 1 à 4) ; croissance 1 + n/100, n monte de 1 par attaque ; sans anneau : invincible dès la 1re attaque et n = (n + 400) x 2 ensuite.
@@ -117,11 +129,13 @@ console.log("idle-titans-comportements-v1: OK");
 // Tous les titans gagnent 1 % de force par attaque : croissance ADDITIVE 1 + n/100 appliquée au coup APRÈS la réduction par la Robustesse (lu dans le jeu, 2026-11-15).
 {
   const e2 = api.neuf();
-  const r1 = api.attaqueTitan("t5", e2, 0, 0.9);
+  const r1 = api.attaqueTitan("lobster", e2, 0, 0.1);
   proche(r1.multDegats, 1.01, "1re attaque : 1 + 1/100"); assert.equal(r1.croissanceTitan, 1, "plus de croissance appliquée à la puissance avant la réduction");
   let rN = null;
-  for (let i = 1; i < 50; i += 1) rN = api.attaqueTitan("t5", e2, i * 2000, 0.9);
+  for (let i = 1; i < 50; i += 1) rN = api.attaqueTitan("lobster", e2, i * 2000, 0.1);
   proche(rN.multDegats, 1.5, "50e attaque : 1 + 50/100 (additif ; le cumulé 1,01^50 donnerait 1,64)");
-  assert.ok(ui.includes("if(att.multDegats!==1)degats=Math.min(avant,Math.round(degats*att.multDegats));"), "la croissance (dans multDegats) s'applique après la réduction par la Robustesse");
+  assert.ok(ui.includes("if(att.multDegats!==1)degats=degatsAvecMult(att.multDegats);"), "la croissance (dans multDegats) s'applique après la réduction par la Robustesse, avant l'arrondi (C9)");
+  const inconnu = api.attaqueTitan("t99", api.neuf(), 0, 0.5);
+  proche(inconnu.multDegats, 1.01, "titan inconnu : la croissance de 1 % s'applique quand même");
 }
 console.log("idle-titans-comportements-v1: OK");

@@ -82,7 +82,18 @@ assert.equal(M.explosion(mob("exploder", { titanId: "t1", mobPower: 33 }), 3.3),
 const combat = readFileSync(new URL("../public/modules/ui-combat-2-v1.js", import.meta.url), "utf8");
 const aventure = readFileSync(new URL("../public/modules/ui-aventure-1-v1.js", import.meta.url), "utf8");
 assert.ok(combat.includes("window.SorealMobTypesV1.reinit(maintenantTick)") && combat.includes("window.SorealMobTypesV1.tourEnnemi(fight,Math.random(),momentEvenement)") && combat.includes("if(tourMob.saute){modifie=true;evenements+=1;continue;}") && !combat.includes("tickPoison") && !combat.includes("apresCoupEnnemi"), "combat branché sur les cycles lus dans le jeu");
-assert.ok(combat.includes("mt.explosion(fight,degatsCoup);") && combat.includes("function explosionEnnemiAdventureIdleV1_(fight,degatsCoup)") && combat.includes("facteurAleaDegats,multiplicateurToughnessManuelAdventureIdleV3_(momentEvenement)));") && !aventure.includes("const explosion=explosionEnnemiAdventureIdleV1_(fight);"), "explosion au compte à rebours : coup ordinaire x1000");
+assert.ok(combat.includes("mt.explosion(fight,degatsCoup,true);") && combat.includes("function explosionEnnemiAdventureIdleV1_(fight,degatsCoup)") && combat.includes("buffDefenseCoup,window.SorealMobTypesV1.constantes.explosionMult));") && !aventure.includes("const explosion=explosionEnnemiAdventureIdleV1_(fight);"), "explosion au compte à rebours : coup ordinaire x1000 appliqué avant l'arrondi (C9)");
+// Audit 2026-11-16 (C8) : EnemyAI::explode = attack(1000) et rien d'autre : l'ennemi survivant NE disparaît PAS, le combat continue (aucune victoire automatique).
+assert.ok(combat.includes("if(issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;modifie=true;evenements+=1;continue;}") && !combat.includes("if(issueExplosion==='survie'){REG.idleExploderSurvivedV1=true;terminerCombatAdventureLocalV2_(fight,true)"), "explosif : il survit à son explosion et recommence");
+assert.equal(M.explosion(mob("exploder", { mobPower: 33 }), 33400, true), 33400, "coup déjà multiplié avant l'arrondi : aucun x1000 de plus");
+// Audit 2026-11-16 (C10) : fin de paralysie d'un ennemi paralysant : durée subie rendue une seule fois (cooldowns et minuteur de l'Idle repoussés d'autant).
+{
+  M.reinit(); M.tourEnnemi(mob("paralyze"), 0.5, 0); M.tourEnnemi(mob("paralyze"), 0.5, 1000); M.tourEnnemi(mob("paralyze"), 0.5, 2000);
+  assert.equal(M.finParalysie(3000), 0, "tant que ça dure : rien");
+  assert.equal(M.finParalysie(4000), 2000, "durée subie : 2 s");
+  assert.equal(M.finParalysie(4001), 0, "une seule fois");
+  assert.ok(combat.includes("window.SorealMobTypesV1.finParalysie(maintenantTick)") && combat.includes("REG.idleAdventureFightNextPlayerHitV2+=subieParalysie"), "branché pour les ennemis ET les titans, le minuteur de l'Idle garde son reste");
+}
 assert.ok(aventure.includes("intervalleEnnemiMs(fight,base,Date.now())") && combat.includes("window.SorealMobTypesV1.types(fight).exploder") && combat.includes("issueExplosion==='mort'"), "intervalle du rapide et mort explosive");
 assert.ok(aventure.includes("window.SorealMobTypesV1.paralyse(maintenant))return true;"), "la paralysie d'un ennemi coupe compétences et Idle comme celle d'un titan");
 const fx = readFileSync(new URL("../public/modules/combat-effets-v1.js", import.meta.url), "utf8");

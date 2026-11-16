@@ -40,6 +40,7 @@
             'Les cœurs Rouge et Jaune complets remplacent le bonus de l’objet équipé (EXP et AP) au lieu de prendre le plus grand des deux, comme dans le vrai jeu.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Une longue chaîne d’objets cachés du jeu a été ajoutée côté moteur (l’interface pour l’assembler arrive ensuite).',
             'Le premier coup d’un ennemi arrive à 1,5 × son intervalle d’attaque, comme dans le jeu, et le défi de 24 h demande un temps de base strictement inférieur à 24 h.',
             'Aventure, d’après le code du jeu : l’or de la première zone, plusieurs taux de drop, l’EXP des boss (base du Challenge de 24 h, +2 % par complétion, atout séparé), l’exposant de la racine cubique du drop, le temps de recharge de Oh Shit et quelques valeurs d’objets ont été corrigés.'
           ]},
@@ -54,6 +55,7 @@
             'Le cap d’énergie de ce système se calcule comme dans le jeu : la part entière de l’énergie nécessaire, plus un.'
           ]},
           {menu:'titans', titre:'Titans', points:[
+            'Titans : les capacités des titans suivants (Walderp, la Bête, le Nerd, la Marraine, l’Exilé, IT HUNGERS, le Homard, l’Amalgame, Tippi, le Traître) suivent maintenant le jeu, et la régénération, les nuages, les explosifs et les paralysies sont corrigés d’après le code du jeu.',
             'Titans : la cachette de Walderp (opacités), sa cadence d’attaque, les sauterelles, les paralysies et les statistiques de Rock Lobster suivent les valeurs lues dans le jeu.',
             'Récompenses de titan, d’après le code du jeu : le facteur du défi d’EXP s’applique avant les autres, et le bonus d’EXP des premières victoires porte sur une victoire de moins par niveau (3 × niveau − 1), comme dans le vrai jeu.'
           ]},

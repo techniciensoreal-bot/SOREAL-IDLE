@@ -9,7 +9,7 @@
  *   - paralysie, cycle de 12 tours : tour 1 il n'attaque pas ; tour 2 coup ordinaire avec avertissement (« tu ralentis ») ; tour 3 coup ordinaire PLUS paralysie du joueur 2 s ; tours 4 à 12 : coups ordinaires ;
  *   - rapide, cycle de 14 tours : 4 coups ordinaires ; au 5e il s'agite (annonce, pas de coup) ; tours 6 et 7 : pas de coup ; au 8e il fonce : coup ordinaire et son intervalle d'attaque tombe à 30 % de l'intervalle normal pendant 6 coups ; au 14e le coup ramène la fin de la fureur et le cycle recommence ;
  *   - grandisseur : coup x (1 + floor(n / 2) / 5), n = nombre de coups depuis le début du combat (+20 % tous les 2 coups, sans plafond), annoncé tous les 2 coups ;
- *   - explosif : à son premier tour (son « Attack Rate » est son compte à rebours) il explose : coup ordinaire x1000 (Fairy, Puissance 33 : plus de 3 300 sans Robustesse, le wiki dit « around 2500 ») ; l'explosion ne l'épargne pas : il disparaît.
+ *   - explosif : à son premier tour (son « Attack Rate » est son compte à rebours) il explose : coup ordinaire x1000 appliqué avant l'arrondi (Fairy, Puissance 33 : plus de 3 300 sans Robustesse, le wiki dit « around 2500 ») ; EnemyAI::explode = attack(1000) et rien d'autre : il NE disparaît PAS et rappelle explode à chaque attackRate (lu dans le jeu, 2026-11-16).
  * Jamais pour un titan (leurs capacités sont dans titans-comportements-v1.js). Un ennemi « poison/paralyze » (un seul boss du bestiaire) suit le cycle du poison. Aucune image : des émojis et des dégradés (combat-effets-v1.js), des sons synthétisés (audio-effects-v199.js).
  * API : window.SorealMobTypesV1 = { types, reinit, tourEnnemi, explosion, intervalleEnnemiMs, paralyse, poisonActif, constantes }.
  */
@@ -19,7 +19,7 @@ if(typeof window==='undefined'||window.SorealMobTypesV1)return;
 
 var C={poisonFraction:.2,poisonTicks:3,paralysieMs:2000,explosionMult:1000,chargeurMult:4,rapideIntervalle:.3,croissancePas:.2};
 var etat=neuf();
-function neuf(){return {paralyseJusqua:0,poisonE:0,chargeE:0,paralysieE:0,rapideE:0,rapide:false,croiss:0};}
+function neuf(){return {paralyseJusqua:0,paralyseDebut:0,poisonE:0,chargeE:0,paralysieE:0,rapideE:0,rapide:false,croiss:0};}
 
 /* `maintenant` : conservé pour la compatibilité des appels (le début du combat n'a plus d'effet : plus aucun effet ne dépend de la durée du combat). */
 function reinit(maintenant){etat=neuf();}
@@ -34,6 +34,11 @@ function types(fight){
 }
 
 function paralyse(maintenant){return etat.paralyseJusqua>maintenant;}
+/* Fin de paralysie : durée réellement subie, une seule fois (pour repousser les cooldowns et le minuteur de l'Idle d'autant : le jeu les gèle, C10). 0 tant qu'elle dure ou s'il n'y en a pas. */
+function finParalysie(maintenant){
+  if(!etat.paralyseDebut||etat.paralyseJusqua>maintenant)return 0;
+  var duree=Math.max(0,etat.paralyseJusqua-etat.paralyseDebut);etat.paralyseDebut=0;return duree;
+}
 /* Poison en cours : entre l'empoisonnement (tour 1) et la dissipation (tour 5). */
 function poisonActif(maintenant){return etat.poisonE>=1&&etat.poisonE<=7;}
 
@@ -61,7 +66,7 @@ function tourEnnemi(fight,hasard,maintenant){
     if(etat.paralysieE<0){/* coup ordinaire */}
     else if(etat.paralysieE===0){r.saute=true;}
     else if(etat.paralysieE===1){r.avertit=true;}
-    else if(etat.paralysieE===2){r.paralyse=true;etat.paralyseJusqua=(Number(maintenant)||0)+C.paralysieMs;etat.paralysieE=-10;}
+    else if(etat.paralysieE===2){r.paralyse=true;etat.paralyseDebut=Number(maintenant)||0;etat.paralyseJusqua=etat.paralyseDebut+C.paralysieMs;etat.paralysieE=-10;}
     etat.paralysieE+=1;
   }else if(t.rapid){
     etat.rapideE+=1;
@@ -79,10 +84,10 @@ function tourEnnemi(fight,hasard,maintenant){
   return r;
 }
 
-/* Dégâts de l'explosion : le coup ordinaire (aléa compris, `degatsCoup`) multiplié par 1000 ; 0 s'il n'est pas explosif. */
-function explosion(fight,degatsCoup){
+/* Dégâts de l'explosion : le coup ordinaire (aléa compris, `degatsCoup`) multiplié par 1000 ; 0 s'il n'est pas explosif. `dejaMultiplie` : `degatsCoup` contient déjà le x1000, appliqué AVANT l'arrondi (EnemyAI::attack(1000), audit 2026-11-16 C9). */
+function explosion(fight,degatsCoup,dejaMultiplie){
   if(!types(fight).exploder)return 0;
-  return Math.max(1,Math.round(Math.max(0,Number(degatsCoup)||0)*C.explosionMult));
+  return Math.max(1,Math.round(Math.max(0,Number(degatsCoup)||0)*(dejaMultiplie?1:C.explosionMult)));
 }
 
 /* Intervalle entre deux attaques de l'ennemi : un ennemi rapide en fureur attaque à 30 % de son intervalle normal. */
@@ -91,5 +96,5 @@ function intervalleEnnemiMs(fight,baseMs,maintenant){
   return Math.max(100,Math.round(baseMs*C.rapideIntervalle));
 }
 
-window.SorealMobTypesV1={types:types,reinit:reinit,tourEnnemi:tourEnnemi,explosion:explosion,intervalleEnnemiMs:intervalleEnnemiMs,paralyse:paralyse,poisonActif:poisonActif,constantes:C};
+window.SorealMobTypesV1={types:types,reinit:reinit,tourEnnemi:tourEnnemi,explosion:explosion,intervalleEnnemiMs:intervalleEnnemiMs,paralyse:paralyse,finParalysie:finParalysie,poisonActif:poisonActif,constantes:C};
 })();

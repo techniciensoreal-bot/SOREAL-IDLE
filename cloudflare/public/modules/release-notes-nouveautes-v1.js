@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Tour : les ennemis attaquent maintenant comme dans le jeu (16 ennemis aux comportements variés), tu peux y perdre ta vie et retomber à l’étage de départ, et l’étage optimal se calcule comme dans le jeu."
+    "Une longue chaîne d’objets cachés du jeu a été ajoutée côté moteur (l’interface pour l’assembler arrive ensuite).",
+    "Titans : les capacités des titans suivants (Walderp, la Bête, le Nerd, la Marraine, l’Exilé, IT HUNGERS, le Homard, l’Amalgame, Tippi, le Traître) suivent maintenant le jeu, et la régénération, les nuages, les explosifs et les paralysies sont corrigés d’après le code du jeu."
   ] };
 })();
