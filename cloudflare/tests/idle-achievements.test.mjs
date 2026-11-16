@@ -97,6 +97,7 @@ assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, incon
 {
   const ctx = { bosses: 132, stats: { power: 1e13, toughness: 1e13 } };
   const adv = normalizeIdleAdventureStateV47({});
+  adv.unlockFlags.titan6Unlocked = true; /* la Bête n'existe qu'une fois le secret trouvé (titan6Unlocked, 2026-11-16) */
   const r = applyIdleAdventureActionV47(adv, { action: "titan", titan: "t6", difficulty: "normal" }, ctx, 1000);
   assert.equal(r.state.unlockFlags.beastDefeated_normal, true, "The Beast V2 = palier Normal");
   assert.equal(r.state.unlockFlags.beastDefeated_easy, undefined);

@@ -132,6 +132,7 @@ function titan(id) {
 // --- Exposition au client : le snapshot Aventure (seule source lue par SOREAL-APP) expose idleP/idleT sans transformation, comme tout autre champ de zone/titan (spread {...z}/{...t}, idle-adventure-v47.js) ---
 {
   const s = createIdleAdventureStateV47();
+  s.unlockFlags.titan6Unlocked = true; /* la Bête n'existe qu'une fois le secret trouvé (titan6Unlocked, 2026-11-16) */
   const snap = idleAdventureSnapshotV47(s, 132, "extreme", { difficile: 132, extreme: 132 });
 
   const tutoSnap = snap.zones.find((z) => z.id === "tutorial");

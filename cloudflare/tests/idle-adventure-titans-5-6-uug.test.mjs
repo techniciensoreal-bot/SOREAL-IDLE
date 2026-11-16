@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import {
   IDLE_ADVENTURE_TITANS,IDLE_ADVENTURE_SETS,
-  normalizeIdleAdventureStateV47,applyIdleAdventureActionV47,idleAdventureSnapshotV47
+  normalizeIdleAdventureStateV47 as normalizeBruteV47,applyIdleAdventureActionV47,idleAdventureSnapshotV47
 } from "../src/idle-adventure-v47.js";
+
+/* Chaîne secrète de la Bête (2026-11-16) : The Beast n'existe qu'une fois titan6Unlocked posé (Rebirth::checkSpecial) ; les parties de ce test l'ont (accès conservé, voir idle-bete-secret-v1.test.mjs). */
+function normalizeIdleAdventureStateV47(raw){const s=normalizeBruteV47(raw);s.unlockFlags.titan6Unlocked=true;return s}
+
 
 /*
  * Audit NGU 2026-09-23 : le butin des titans suit désormais les taux "base
@@ -218,7 +222,7 @@ assert.deepEqual(
   const s=normalizeIdleAdventureStateV47({});
   const snap131=idleAdventureSnapshotV47(s,131);
   const snap132=idleAdventureSnapshotV47(s,132);
-  assert.equal(snap131.titans.find(x=>x.id==="t6").progressionUnlocked,false);
+  assert.equal(snap131.titans.find(x=>x.id==="t6"),undefined,"La Bête est secrète : absente avant le boss 132 même débloquée.");
   assert.equal(snap132.titans.find(x=>x.id==="t6").progressionUnlocked,true);
 }
 

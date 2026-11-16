@@ -56,6 +56,7 @@ assert.equal(t7.drop, "stillBeatingHeart");
 // --- beastBrutalDefeated : même mécanique pour The Beast (t6), nécessaire au déblocage Evil ---
 {
   let s = normalizeIdleAdventureStateV47({});
+  s.unlockFlags.titan6Unlocked = true; /* la Bête n'existe qu'une fois le secret trouvé (titan6Unlocked, 2026-11-16) */
   const ctxNormal = { bosses: 132, stats: { power: 7000000000, toughness: 5000000000 } };
   s = applyIdleAdventureActionV47(s, { action: "titan", titan: "t6", difficulty: "normal" }, ctxNormal, 1).state;
   assert.equal(s.unlockFlags.beastBrutalDefeated, undefined, "Vaincre Normal ne doit jamais poser le flag Brutal.");

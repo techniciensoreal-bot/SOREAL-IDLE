@@ -31,6 +31,7 @@ import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGener
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
 import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
+import { beteSpecialRebirthV1 } from "./idle-bete-secret-v1.js";
 
 /* Cinématiques que l'on peut revoir : identifiant -> code (nombre, les records sont des compteurs). */
 export const IDLE_CINEMATIQUES_V1 = Object.freeze({ intro: 1 });
@@ -587,6 +588,8 @@ function applyNaturalEnergyCapGrowthOnRebirth(state){
 
 export function applyRebirthResetV56_(state,context,t,options={}) {
   const runSeconds=Math.max(0,(t-state.runStartedAt)/1000);
+  /* Rebirth::engage appelle checkSpecial en TOUT PREMIER (avant awardAP et les remises à zéro) : 4 indices faits + durée de la partie strictement entre 2585 et 2615 s -> titan6Unlocked (la Bête ; idle-bete-secret-v1.js). */
+  beteSpecialRebirthV1(state,runSeconds);
   const rb=refreshRebirthState(state,context,t);
   /* Sang dépensé dans le sort Number pendant cette partie : le multiplicateur vaut 1 + sang dépensé ; mémorisé AVANT la remise à zéro de la Renaissance. */
   const sangDepenseRun=Math.max(0,num(state.systems.bloodMagic?.data?.spells?.numberBoost,1)-1);

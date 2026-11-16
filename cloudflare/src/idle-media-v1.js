@@ -85,8 +85,8 @@ function safeZoneFileNames_(zone){
 }
 const IDLE_BOSSES_R2_PREFIX="idle/bosses/";
 const IDLE_ITEMS_R2_PREFIX="idle/items/";
-/* Icones du jeu livrees avec le frontend, par id d'objet du jeu (repli quand R2 n'a pas l'image) : 335 a 341 = Items/Clue1 ; 342 = texture Tier26Chest2 (Blue Eyes Ultimate Chestplate, version bleue de Tier26Chest = Blue Eyes White) ; 372 = texture Tier30Glop (GLOP), sharedassets0.assets, build 1260. */
-const IDLE_ITEM_ICONES_LIVREES_V1=Object.freeze({335:"clue1",336:"clue1",337:"clue1",338:"clue1",339:"clue1",340:"clue1",341:"clue1",342:"blue-eyes-ultimate",372:"glop"});
+/* Icones du jeu livrees avec le frontend, par id d'objet du jeu (repli quand R2 n'a pas l'image) : 335 a 341 et 180 (Premier indice de la Bete) = Items/Clue1 ; 342 = texture Tier26Chest2 (Blue Eyes Ultimate Chestplate, version bleue de Tier26Chest = Blue Eyes White) ; 372 = texture Tier30Glop (GLOP), sharedassets0.assets, build 1260. */
+const IDLE_ITEM_ICONES_LIVREES_V1=Object.freeze({335:"clue1",336:"clue1",337:"clue1",338:"clue1",339:"clue1",340:"clue1",341:"clue1",342:"blue-eyes-ultimate",372:"glop",180:"clue1"});
 const IDLE_ITEMS_R2_EXTENSIONS=IDLE_ADVENTURE_R2_EXTENSIONS;
 const IDLE_ITEM_SET_NAMES=Object.freeze({
   training:"Training Set",
@@ -828,9 +828,9 @@ async function dossierZoneAventureR2_(env,zone){
   return choisirDossierZoneR2_(await dossiersAventureR2_(env),zone);
 }
 /*
- * Nom d'ORIGINE du monstre tiré (Norman, 2026-11-09 : « 743 poulets furieux et Un slime métallique n'apparaissent plus en Aventure, ils sont pourtant partout ailleurs ; avant ils apparaissaient »). Depuis le 2026-11-07 le nom d'un ennemi d'Aventure porte le nouveau nom
- * d'un boss RENOMMÉ par l'administrateur (« Un slime métallique ») : le client le renvoie dans ?name=, mais ce nom ne figure dans aucune table (mobs.json), donc aucune image de boss ne portait ce nom et le serveur retombait sur le choix par index, qui ne trouve rien
- * (R2 idle/aventure/ n'a plus ces images : elles sont celles des boss). Or le NUMÉRO du monstre (?seed=) est son rang dans le bestiaire de la zone (monsterIndex, idle-adventure-combat.js) : le nom d'origine s'en déduit sans dépendre d'aucune traduction ni d'aucun renommage.
+ * Nom d'ORIGINE du monstre tirï¿½ (Norman, 2026-11-09 : ï¿½ 743 poulets furieux et Un slime mï¿½tallique n'apparaissent plus en Aventure, ils sont pourtant partout ailleurs ; avant ils apparaissaient ï¿½). Depuis le 2026-11-07 le nom d'un ennemi d'Aventure porte le nouveau nom
+ * d'un boss RENOMMï¿½ par l'administrateur (ï¿½ Un slime mï¿½tallique ï¿½) : le client le renvoie dans ?name=, mais ce nom ne figure dans aucune table (mobs.json), donc aucune image de boss ne portait ce nom et le serveur retombait sur le choix par index, qui ne trouve rien
+ * (R2 idle/aventure/ n'a plus ces images : elles sont celles des boss). Or le NUMï¿½RO du monstre (?seed=) est son rang dans le bestiaire de la zone (monsterIndex, idle-adventure-combat.js) : le nom d'origine s'en dï¿½duit sans dï¿½pendre d'aucune traduction ni d'aucun renommage.
  */
 export function nomOrigineMobV1_(zone,boss,seed){
   const def=IDLE_ADVENTURE_MOB_BESTIARY_V1[String(zone||"")];
@@ -853,7 +853,7 @@ async function adventureMob_(request,env,url){
   /* 1. L'image du BOSS de mÃªme nom (les mÃªmes images ne sont plus gardÃ©es en double). */
   const nomOrigine=nomOrigineMobV1_(zone,url.searchParams.get("boss")==="1",url.searchParams.get("seed"));
   let key=nomDemande?choisirCleBossR2ParNom_(await objetsBossR2_(env),nomDemande):"";
-  /* nom demandé introuvable (boss RENOMMÉ) : le nom d'origine, déduit du numéro, retrouve l'image ; un nom qui trouve déjà une image garde la priorité (comportement d'avant, jamais changé) */
+  /* nom demandï¿½ introuvable (boss RENOMMï¿½) : le nom d'origine, dï¿½duit du numï¿½ro, retrouve l'image ; un nom qui trouve dï¿½jï¿½ une image garde la prioritï¿½ (comportement d'avant, jamais changï¿½) */
   if(!key&&nomOrigine)key=choisirCleBossR2ParNom_(await objetsBossR2_(env),nomOrigine);
   if(!key){
     const keys=(await objetsDossierMobR2_(env,IDLE_ADVENTURE_MOBS_R2_PREFIX+folder+"/"))
@@ -1780,7 +1780,7 @@ async function carteDos_(request,env){
   return reponseObjetR2_(request,env,{key:cle});
 }
 
-/* Apparences du chat de la Garderie (2026-10-31) : idle/garderie-skins/<id>.webp, id en liste blanche (idle-daycare-skins-v1.js). Cosmétique : la possession n'est pas vérifiée ici, comme les autres médias. */
+/* Apparences du chat de la Garderie (2026-10-31) : idle/garderie-skins/<id>.webp, id en liste blanche (idle-daycare-skins-v1.js). Cosmï¿½tique : la possession n'est pas vï¿½rifiï¿½e ici, comme les autres mï¿½dias. */
 async function garderieSkin_(request,env,url){
   const id=String(url.searchParams.get("id")||"").trim();
   if(!IDLE_DAYCARE_SKIN_IDS_V1.includes(id))return new Response("Apparence introuvable",{status:404,headers:{"cache-control":"public, max-age=60"}});
