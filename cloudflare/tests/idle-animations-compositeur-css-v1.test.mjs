@@ -6,7 +6,10 @@ import { balayer } from "../tools/balayage-animations-lourdes.mjs";
 
 const lire = (f) => readFileSync("cloudflare/public/" + f, "utf8");
 const FICHIERS = ["soreal-idle-itopod.css", "soreal-idle-jeu.css", "soreal-idle-menus-boutons-v1.css", "soreal-idle-renaissance.css", "soreal-idle-barre-outils.css", "soreal-idle-entetes-a.css", "soreal-idle-entetes-miniature-v1.css"];
-for (const f of FICHIERS) assert.deepEqual(balayer(lire(f)), [], f + " : animation infinie lourde (box-shadow, filter, background-position...) : " + JSON.stringify(balayer(lire(f))));
+/* Exception (2026-11-17) : les 3 gros boutons de la borne (Stop, Fight, Nuke, ~100 px) gardent leur filtre de luminosité : le calque ::before de remplacement recouvrait mal leur reflet (rond sombre mal placé sur Fight). */
+const FILTRE_BOUTONS_BORNE = ["bnBtnOn", "bnBtnLuit", "bnFightClignote"];
+const lourdes = (f) => balayer(lire(f)).filter((a) => !FILTRE_BOUTONS_BORNE.includes(a.nom));
+for (const f of FICHIERS) assert.deepEqual(lourdes(f), [], f + " : animation infinie lourde (box-shadow, filter, background-position...) : " + JSON.stringify(lourdes(f)));
 
 /* En-têtes de page (lot A) : le calque qui défile est un ::before déplacé par transform, d'EXACTEMENT une période de sa tuile (règle n°3 : boucle parfaite). */
 const a = lire("soreal-idle-entetes-a.css");
