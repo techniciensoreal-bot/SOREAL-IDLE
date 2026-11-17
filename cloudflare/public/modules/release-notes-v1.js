@@ -30,6 +30,7 @@
         date:'2026-11-16',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Fluidité sur téléphone : les animations en boucle (lueurs, pulsations, défilements des barres, en-têtes et boutons, fruits mûrs) n’obligent plus le téléphone à tout repeindre à chaque image ; leur aspect reste très proche.',
             'Hors ligne, une absence d’un an est calculée en entier, sans plafond intermédiaire.',
             'Hors ligne, le temps compté monte à un an au maximum, et le jeu local passe de nouveau par les mêmes règles.',
             'Hors ligne, les potions, charmes et boosts consommables restent figés (seuls deux d’entre eux s’écoulent) et n’entrent plus dans la production hors ligne ; l’achat d’énergie suit le record de boss.',

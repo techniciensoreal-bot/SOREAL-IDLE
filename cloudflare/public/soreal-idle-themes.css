@@ -1330,7 +1330,7 @@ body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28.ali
   background:conic-gradient(from var(--soreal-ang-v1),transparent 0deg,transparent 250deg,var(--nav-color,#7dd3fc) 320deg,#fff 360deg);
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
   mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
-  animation:sorealAlTourneV1 1.6s linear infinite;filter:drop-shadow(0 0 5px var(--nav-color,#7dd3fc));
+  animation:sorealAlTourneV1 1.6s linear infinite;
 }
 /* Menus qui ont leur propre effet : le tour de lumière est remplacé. */
 body.soreal-idle-active-v47 .soreal-idle-nav-v28 .alimente-v1:is([data-effet-v1="entrainement"],[data-effet-v1="avance"],[data-effet-v1="machine"],[data-effet-v1="sang"],[data-effet-v1="wandoos"],[data-effet-v1="ngu"],[data-effet-v1="yggdrasil"],[data-effet-v1="diggers"],[data-effet-v1="beards"],[data-effet-v1="hacks"],[data-effet-v1="wishes"],[data-effet-v1="tower"])::before{display:none}
