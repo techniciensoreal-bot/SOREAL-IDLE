@@ -63,14 +63,14 @@ assert.equal(C.cycleS, C.teintes.length * 10, "10 s par couleur");
 assert.ok(C.teintes.length >= 4 && C.teintes.length <= 5);
 for (const c of C.teintes) { const [r, g, b] = [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)); assert.ok(!(g > r && g > b), "teinte non verte " + c); }
 const effets = RG.effets();
-assert.ok(effets.includes("@keyframes gd-noel-teintes{from{background-position:0 0,0 0,0 0,0 0}to{background-position:0 0,0 0,0 0,0 106.6667%}}"), "une tuile exactement");
-assert.ok(Math.abs(Number(C.fin) / 100 * (C.tuile - 100) - C.tuile) < 0.01, "106,6667 % de (1600 - 100) = 1600 %");
-assert.ok(effets.includes("100% 1600%") && effets.includes("repeat-y") && /gd-noel-teintes 40s linear infinite/.test(effets) && !/alternate|reverse/.test(effets), "un seul sens, linéaire");
+assert.ok(effets.includes("@keyframes gd-noel-teintes{from{transform:translateY(0)}to{transform:translateY(-50%)}}"), "une tuile exactement");
+assert.ok(Number(C.fin) === 50 && effets.includes("height:" + C.tuile * 2 + "%"), "calque de 2 tuiles de 1600 %, glissé de -50 % = exactement une tuile");
+assert.ok(effets.includes("background-size:100% 50%") && effets.includes("repeat-y") && /gd-noel-teintes 40s linear infinite/.test(effets) && !/alternate|reverse/.test(effets), "un seul sens, linéaire");
 const degrade = /linear-gradient\(180deg,(#e0303a 0%[^)]*)\)/.exec(effets)[1].split(",");
 assert.equal(degrade[0].split(" ")[0], degrade[degrade.length - 1].split(" ")[0], "première teinte = dernière");
-assert.ok(effets.includes("animation-delay:0s,var(--gd-noel-d,0s)"), "départ fixé (pas de redémarrage au redessin)");
+assert.ok(effets.includes("animation-delay:var(--gd-noel-d,0s)"), "départ fixé (pas de redémarrage au redessin)");
 assert.ok(!/setInterval|setTimeout/.test(pub("modules/garderie-bocaux-effets-v1.js")), "aucune minuterie");
-assert.ok(effets.includes('.gd-pot[data-rang="1"] .gd-liq{animation:none}'), "mouvement réduit : rouge fixe");
+assert.ok(effets.includes('.gd-pot[data-rang="1"] .gd-liq::before{animation:none}'), "mouvement réduit : rouge fixe");
 const zoom = pub("modules/garderie-zoom-v1.js");
 assert.ok(zoom.includes("gd-noel-teintes") && zoom.includes("--gd-noel-d"), "la vue zoom reprend l'instant du cycle");
 

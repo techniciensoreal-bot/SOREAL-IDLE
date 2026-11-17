@@ -231,11 +231,11 @@ function css(){
     /* écran « un titan approche » : plein écran, rouge, il tremble, le titan grossit au fil de l'attente */
     '#ttnAnnonceV1{position:fixed;top:0;bottom:0;left:0;right:0;z-index:100003;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#fff;font-family:Bangers,"Comic Sans MS",cursive;text-align:center;opacity:1;transition:opacity .6s ease}',
     '#ttnAnnonceV1.ta-sortie{opacity:0;pointer-events:none}',
-    /* Fluidité téléphone (2026-11-17) : plus de filter ni de background-position animés sur un calque plein écran. Fond : dégradé de base au brightness .8 (statique) + calque ::after au brightness 1.35 (statique) dont seule l'opacité bat (alternate, compositeur). Éclairs : calque ::before plus large qui glisse par transform de 4 périodes EXACTES du motif (50 px le long de 115°, soit 55,1698 px à l'horizontale, ×4 = 220,679 px ; règle n°3), le cadre coupe. */
+    /* Fluidité téléphone (2026-11-17) : plus de filter ni de background-position animés sur un calque plein écran. Fond : dégradé de base au brightness .8 (statique) + calque ::after au brightness 1.35 (statique) dont seule l'opacité bat (alternate, compositeur). Éclairs : calque ::before plus large qui glisse par transform de 4 périodes EXACTES du motif (50 px le long de 115°, soit 55,1689 px à l'horizontale, ×4 = 220,679 px ; règle n°3), le cadre coupe. */
     '#ttnAnnonceV1 .ta-fond{position:absolute;inset:-4%;background:radial-gradient(ellipse at 50% 55%,#560810 0%,#220307 45%,#040102 100%)}',
     '#ttnAnnonceV1 .ta-fond::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,#900d1b 0%,#39050c 45%,#070103 100%);opacity:0;animation:taAlerte 1.1s ease-in-out infinite alternate;will-change:opacity}',
     '#ttnAnnonceV1 .ta-eclair{position:absolute;inset:0;overflow:hidden}',
-    '#ttnAnnonceV1 .ta-eclair::before{content:"";position:absolute;top:0;bottom:0;left:-220.679px;right:0;background:repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,60,40,.07) 46px 50px);animation:taDefile 1.6s linear infinite;will-change:transform}',
+    '#ttnAnnonceV1 .ta-eclair::before{content:"";position:absolute;top:0;bottom:0;left:-220.6756px;right:0;background:repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,60,40,.07) 46px 50px);animation:taDefile 1.6s linear infinite;will-change:transform}',
     '#ttnAnnonceV1 >*{position:relative;z-index:1}',
     '#ttnAnnonceV1 .ta-alerte{font-size:clamp(20px,4.6vw,34px);letter-spacing:.35em;color:#ff4a4a;text-shadow:0 0 14px #ff1a1a,0 3px 0 #000;animation:taClignote .7s steps(2,end) infinite}',
     '#ttnAnnonceV1 .ta-titan{display:flex;align-items:center;justify-content:center;width:min(60vw,48vh);height:min(60vw,48vh);animation:taApproche 7s cubic-bezier(.2,.6,.3,1) forwards,taSecousse .09s linear infinite}',
@@ -245,7 +245,7 @@ function css(){
     '#ttnAnnonceV1 .ta-sous{font-family:var(--f-texte,"Russo One",sans-serif);font-size:clamp(15px,3.4vw,22px);letter-spacing:.18em;text-transform:uppercase;color:#ffd0c8;text-shadow:0 2px 0 #000}',
     '@keyframes taAlerte{from{opacity:0}to{opacity:1}}',
     '@keyframes taClignote{50%{opacity:.15}}',
-    '@keyframes taDefile{from{transform:translateX(0)}to{transform:translateX(220.679px)}}',
+    '@keyframes taDefile{from{transform:translateX(0)}to{transform:translateX(220.6756px)}}',
     '@keyframes taApproche{from{transform:scale(.18);opacity:.5}to{transform:scale(1);opacity:1}}',
     '@keyframes taSecousse{0%{translate:0 0}25%{translate:2px -2px}50%{translate:-2px 1px}75%{translate:1px 2px}100%{translate:0 0}}',
     '@media (prefers-reduced-motion:reduce){#ttnAnnonceV1 .ta-fond::after,#ttnAnnonceV1 .ta-eclair::before,#ttnAnnonceV1 .ta-alerte,#ttnAnnonceV1 .ta-nom,#ttnAnnonceV1 .ta-titan{animation:none!important}#ttnAnnonceV1 .ta-titan{transform:none}#'+ID+'.tcv-adieu .tcv-titan{animation:none!important;opacity:0}}',

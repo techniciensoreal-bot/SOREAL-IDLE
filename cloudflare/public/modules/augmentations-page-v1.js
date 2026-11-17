@@ -1656,7 +1656,6 @@
           '.soreal-idle-at-remplissage-v1{position:absolute;inset:0;transform-origin:left center;transform:scaleX(0);background:linear-gradient(90deg,#7c3aed,#c026d3 55%,#f0abfc);box-shadow:0 0 14px rgba(192,38,211,.6);will-change:transform}'+
           '.soreal-idle-at-remplissage-v1::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.14) 0 10px,transparent 10px 22px);mix-blend-mode:overlay}'+
           '.soreal-idle-at-barre-v1.pleine .soreal-idle-at-remplissage-v1{transform:scaleX(1)!important}'+
-          /* Fluidité téléphone (2026-11-17) : plus de filter animé. Le pic d'éclat (brightness 1.25) est un calque ::before clair dont seule l'opacité pulse (compositeur). */
           '.soreal-idle-at-barre-v1.pleine .soreal-idle-at-remplissage-v1::before{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.2);opacity:0;animation:sorealAtPulseV1 1.4s ease-in-out infinite;will-change:opacity}'+
           '@keyframes sorealAtPulseV1{0%,100%{opacity:0}50%{opacity:1}}'+
           '.soreal-idle-at-caca-v1{position:absolute;right:3px;bottom:1px;width:22px;height:22px;padding:0;border:0;background:none;font-size:15px;line-height:22px;cursor:pointer;transform-origin:center;opacity:.85;-webkit-tap-highlight-color:transparent}'+

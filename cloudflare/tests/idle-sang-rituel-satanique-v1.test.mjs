@@ -275,7 +275,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
   // Banque du sang : filtre de caméra de surveillance (noir et blanc, balayage, vignettage, grain, REC, horloge).
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
   assert.ok(decor.includes('class="bm-cctv"') && decor.includes("filter:grayscale(1) contrast(1.22)") && decor.includes("@keyframes bmCctvGrain") && decor.includes("@keyframes bmCctvBande") && decor.includes("bm-cctv-heure"), "filtre caméra de surveillance sur la banque du sang");
-  assert.ok(decor.includes("animation:bmCctvGrain .5s steps(5) infinite") && decor.includes("@keyframes bmCctvGrain{0%{background-position:0 0}100%{background-position:120px 120px}}") && decor.includes("0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(600%);opacity:0}"), "boucles parfaites (règle 3) : le grain glisse d'une tuile entière, la bande apparaît et disparaît en fondu");
+  assert.ok(decor.includes("animation:bmCctvGrain .5s steps(5) infinite") && decor.includes("@keyframes bmCctvGrain{0%{translate:0 0}100%{translate:120px 120px}}") && decor.includes("left:-120px;top:-120px;right:0;bottom:0") && decor.includes("0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(600%);opacity:0}"), "boucles parfaites (règle 3) : le grain glisse d'une tuile entière, la bande apparaît et disparaît en fondu");
 }
 {
   // Capacité par paliers : x10 à chaque décade de récipients terminés, sans saut (le seuil tombe pile quand un récipient vient de se terminer).
