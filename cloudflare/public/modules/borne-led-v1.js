@@ -2244,7 +2244,18 @@ Panel.prototype.draw=function(fn,t,gain,params){
   }
   this.nd=(this.nd||0)+1;
   if(nc===0&&!this.neuf&&this.nd%240!==0){P=null;return;}   /* rien n'a changé : le canvas reste tel quel (un redessin complet de sécurité toutes les 240 images) */
-  if(this.neuf||this.nd%240===0||nc*3>n){
+  /* au-delà de 40 segments à repeindre, le découpage est plus lent que tout repeindre (vague de victoire) */
+  var plein=this.neuf||this.nd%240===0||nc*3>n,dm=this.dm,sm=this.sm,k,j,cx,cy,a,b,run,iFin,yMin=HT,yMax=-1,nr=0;
+  if(!plein){/* dm = à repeindre, sm = touchées par un halo */
+    dm.fill(0);sm.fill(0);
+    for(k=0;k<nc;k++){
+      i=ch[k];cx=i%W;cy=(i/W)|0;if(cy-2<yMin)yMin=cy-2;if(cy+2>yMax)yMax=cy+2;
+      for(b=-2;b<=2;b++){y=cy+b;if(y<0||y>=HT)continue;for(a=-2;a<=2;a++){x=cx+a;if(x<0||x>=W)continue;if(a>=-1&&a<=1&&b>=-1&&b<=1)dm[y*W+x]=1;sm[y*W+x]=1;}}
+    }
+    for(y=0;y<HT&&nr<=40;y++){run=-1;for(x=0;x<=W;x++){if(x<W&&dm[y*W+x]){if(run<0){run=x;nr++;}}else run=-1;}}
+    if(nr>40)plein=true;
+  }
+  if(plein){
     this.neuf=false;
     ctx.globalCompositeOperation='source-over';ctx.drawImage(this.bgc,0,0);
     ctx.globalCompositeOperation='lighter';
@@ -2252,12 +2263,6 @@ Panel.prototype.draw=function(fn,t,gain,params){
     ctx.globalCompositeOperation='source-over';
     for(i=0;i<n;i++){v=this.v[i]*(i<ns?gain:1);if(v<=0)continue;l=Math.max(1,Math.min(8,Math.ceil(v/255*8)));if(!this.core[this.c[i]])this.mk(this.c[i]);ctx.drawImage(this.core[this.c[i]][l],(i%W)*cell,((i/W)|0)*cell);}
     P=null;return;
-  }
-  var dm=this.dm,sm=this.sm,k,j,cx,cy,a,b,run,iFin;
-  dm.fill(0);sm.fill(0);var yMin=HT,yMax=-1;
-  for(k=0;k<nc;k++){
-    i=ch[k];cx=i%W;cy=(i/W)|0;if(cy-2<yMin)yMin=cy-2;if(cy+2>yMax)yMax=cy+2;
-    for(b=-2;b<=2;b++){y=cy+b;if(y<0||y>=HT)continue;for(a=-2;a<=2;a++){x=cx+a;if(x<0||x>=W)continue;if(a>=-1&&a<=1&&b>=-1&&b<=1)dm[y*W+x]=1;sm[y*W+x]=1;}}   /* dm = cellules à repeindre (voisines comprises) ; sm = cellules dont le halo peut les toucher */
   }
   ctx.save();ctx.beginPath();
   for(y=0;y<HT;y++){
@@ -2604,10 +2609,12 @@ function dessinerMinis(now){
   }
 }
 function actif(){return Boolean(panel&&host&&host.isConnected&&onScreen&&!document.hidden);}
+var lourd=false;
 function boucle(ts){
   raf=0;
   if(!actif())return;
-  if(!mobile()||ts-lastTs>=32){lastTs=ts;try{image(performance.now());}catch(_e){}}
+  /* image lourde (> 9 ms) : 30 images par seconde */
+  if(!mobile()&&!lourd||ts-lastTs>=32){lastTs=ts;var d0=performance.now();try{image(d0);}catch(_e){}lourd=(performance.now()-d0)>9;}
   raf=requestAnimationFrame(boucle);
 }
 function relancer(){

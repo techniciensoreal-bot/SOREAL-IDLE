@@ -371,14 +371,15 @@ if(O.SC&&!O.SC.yeuxanim)O.SC.yeuxanim={fn:function(t){anim(paneau().p.id||"coeur
 /* RAS DE MARÉE (victoire ; Norman, 2026-11-11 : « la vague de victoire doit avoir l'air d'un ras de marée, pas ce truc étrange ») : un mur d'eau haut et raide qui traverse tout l'écran de gauche à droite. Face avant presque verticale, qui déferle (la lèvre de la crête se recourbe vers l'avant, mousse blanche), longue traîne d'eau agitée derrière, embruns devant la crête ; l'eau est bleue, plus claire vers le haut, striée de courants qui glissent, puis elle se retire. Dessinée seulement ici ; la scène de victoire (borne-led-v1.js) y ajoute ensuite les lettres. t : secondes ; TV : durée de la traversée. */
 function maree(t,TV){
   var P=paneau(),W=P.W,H=P.H,u=clamp(t/TV,0,1),xc=W*(-0.28+1.5*sm(u)),A=sm(t/0.3)*(1-sm((t-TV)/1.5)),Hc=(H-1)*1.0,wf=Math.max(6,W*0.09),wt=Math.max(26,W*0.56),lip=Math.max(5,Math.round(W*0.055)),
-      x,y,dd,hh,hg,r,lum,mod,j,k,yt,fr=Math.floor(t*16);
+      x,y,dd,hh,hg,r,lum,mod,j,k,yt,tq,fr=Math.floor(t*16);
   if(A<=0)return;
   for(x=0;x<W;x++){
     dd=x-xc;
     hh=dd>=0?(dd<wf?Hc*Math.pow(1-dd/wf,0.5):0):Hc*(0.38+0.62*Math.exp(-Math.pow(-dd/wt,1.2)));
     hg=Math.round(hh*A);if(hg<=0)continue;
+    tq=Math.floor((t*12+(x&3)*0.25))/12;   /* le miroitement avance par pas (12 par seconde, colonnes décalées par quatre) : seuls un quart des points changent d'une image à l'autre, le redessin reste incrémental (fluidité, 2026-11-17) */
     for(y=0;y<hg;y++){
-      r=y/Math.max(1,hg-1);lum=0.3+0.7*r;mod=0.8+0.2*Math.sin(x*0.65-t*12+y*0.95);
+      r=y/Math.max(1,hg-1);lum=0.3+0.7*r;mod=0.8+0.2*Math.sin(x*0.65-tq*12+y*0.95);
       px(x,H-1-y,r>0.88?O.BLA:O.BLE,255*lum*mod);
     }
     px(x,H-1-hg,O.BLA,255);

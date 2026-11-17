@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Répartitions d’énergie et de magie : en cliquant très vite sur + ou − (1M, etc.), aucun clic n’est plus perdu dans les menus concernés."
+    "Borne : la vague de victoire demande beaucoup moins de travail à l’écran (moins de baisse de fps, y compris sur PC)."
   ] };
 })();

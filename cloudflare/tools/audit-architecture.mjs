@@ -218,7 +218,7 @@ const GLOBALES_LUES_NON_POSEES = new Set([
 /* Fichiers JS de plus de SEUIL_OCTETS : plafond en octets par fichier (arrondi au Ko supérieur), jamais en hausse ; un nouveau fichier au-dessus du seuil fait échouer (le découper). */
 const SEUIL_OCTETS = 150 * 1024;
 const OCTETS_PAR_FICHIER = {
-  "public/modules/borne-led-v1.js": 239616,
+  "public/modules/borne-led-v1.js": 240128, /* +512 (2026-11-17) : redessin complet au-delà de 40 segments + 30 images/s en image lourde (vague de victoire) */
   "public/modules/sang-rituel-decor-v1.js": 211968,
   "public/modules/augmentations-page-v1.js": 157696,
 };
