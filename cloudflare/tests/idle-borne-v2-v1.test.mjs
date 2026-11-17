@@ -40,7 +40,7 @@ assert.equal(jouees.length, 2);
 Date.now = base;
 // CSS : boutons lumineux / éteints dans leur couleur, allumage calé, mouvement réduit.
 const b2 = css.slice(css.indexOf("Borne v2 (Norman"));
-assert.ok(b2.includes("soreal-idle-boss-control-v39:disabled{filter:brightness(.4) saturate(.9)") && b2.includes(".soreal-idle-boss-control-v39:not(:disabled){animation:bnBtnLuit"), "boutons : lumineux si disponibles, éteints sinon");
+assert.ok(b2.includes("soreal-idle-boss-control-v39:disabled{filter:brightness(.4) saturate(.9)") && b2.includes(".soreal-idle-boss-control-v39:not(:disabled)::before{display:block!important;content:\"\"") && b2.includes("opacity:0;animation:bnBtnLuit 1.6s") && !/@keyframes bn(BtnLuit|FightClignote)\{[^}]*filter/.test(b2), "boutons : lumineux si disponibles, éteints sinon");
 assert.ok(b2.includes("--tt") && b2.includes("prefers-reduced-motion:reduce"), "allumage reprenable et coupé en mouvement réduit");
 for (const k of ["bnLuitB", "bnLuitR", "bnPulse", "bnScint", "bnBtnLuit"]) assert.ok(new RegExp("@keyframes " + k + "\{0%,100%\{").test(b2), k + " : boucle sans à-coup");
 // Son : branché sur le moteur audio, chronologie calée (mêmes dates que l'animation).

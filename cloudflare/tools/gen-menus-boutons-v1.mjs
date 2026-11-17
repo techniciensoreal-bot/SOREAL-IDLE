@@ -1,3 +1,4 @@
+/* ATTENTION (2026-11-17) : ne PAS relancer ce générateur tel quel : soreal-idle-menus-boutons-v1.css (nbV1_monte de la tour : calque ::before + transform) et soreal-idle-entetes-miniature-v1.css (nbEntHalteres : gant par transform, haltère fixe) ont été édités à la main pour la fluidité téléphone, et le fichier avait déjà dérivé du générateur. */
 /* Générateur de cloudflare/public/soreal-idle-menus-boutons-v1.css (boutons de la barre de sélection des menus).
    Norman (2026-10-30) : le petit bouton montre les DEUX GRANDS DESSINS du cadre de titre de son menu (extraits par ce script des feuilles soreal-idle-entetes-*.css / itopod.css, jamais redessinés).
    Ouvert = il brille ; fermé = sombre ; il TRAVAILLE = ses deux dessins s'animent (classe travail-v1, posée par la barre). */
