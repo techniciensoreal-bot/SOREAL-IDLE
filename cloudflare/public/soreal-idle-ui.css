@@ -124,6 +124,8 @@ html,body{overflow-x:hidden}
           .soreal-idle-playerbar-v15.critical{
             background:linear-gradient(90deg,#b8283f,#e6455e,#ff7d8f);
             box-shadow:0 0 14px rgba(230,69,94,.7);
+            filter:brightness(1.18);
+            will-change:opacity;
             animation:sorealIdleBarPulseV2 1s ease-in-out infinite;
           }
 
@@ -133,9 +135,10 @@ html,body{overflow-x:hidden}
             animation:none !important;
           }
 
+          /* Fluidité téléphone (2026-11-17) : filtre FIXE (valeur moyenne) et pulsation par l'opacité (compositeur), au lieu de filter animé repeint à chaque image. */
           @keyframes sorealIdleBarPulseV2{
-            0%,100%{filter:brightness(1);}
-            50%{filter:brightness(1.35);}
+            0%,100%{opacity:.75;}
+            50%{opacity:1;}
           }
 
           .soreal-idle-bossbar-wrap-v7{
@@ -533,13 +536,14 @@ html,body{overflow-x:hidden}
           .soreal-idle-walderp-cachette-v1 img{display:block;width:100%;height:auto;image-rendering:pixelated;pointer-events:none;user-select:none}
           .soreal-idle-walderp-cachette-v1 span{display:block;font-size:34px;line-height:1}
 
-                    @keyframes sorealIdleNavGreenPulseV1{
-            0%,100%{box-shadow:0 0 10px 2px rgba(46,204,113,.30)}
-            50%{box-shadow:0 0 24px 7px rgba(46,204,113,.72)}
+          /* Fluidité téléphone (2026-11-17) : la lueur de départ est FIXE sur le bouton ; la lueur forte est portée en statique par ::after et seule son OPACITÉ pulse (compositeur), au lieu d'un box-shadow animé repeint à chaque image. */
+          @keyframes sorealIdleNavGreenPulseV1{
+            0%,100%{opacity:0}
+            50%{opacity:1}
           }
           @keyframes sorealIdleNavYellowPulseV1{
-            0%,100%{box-shadow:0 0 10px 2px rgba(241,196,15,.28)}
-            50%{box-shadow:0 0 24px 7px rgba(241,196,15,.68)}
+            0%,100%{opacity:0}
+            50%{opacity:1}
           }
           /*
            * V209 — l'alerte Money Pit reste colorée hors de l'onglet.
@@ -549,12 +553,26 @@ html,body{overflow-x:hidden}
           .soreal-idle-nav-money-green-v1{
             background:#2ecc71!important;
             color:#fff!important;
+            position:relative;
+            box-shadow:0 0 10px 2px rgba(46,204,113,.30);
+          }
+          .soreal-idle-nav-money-green-v1::after{
+            content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+            box-shadow:0 0 24px 7px rgba(46,204,113,.72);
+            opacity:0;will-change:opacity;
             animation:sorealIdleNavGreenPulseV1 1.8s ease-in-out infinite;
           }
           .soreal-idle-nav-money-yellow-v1{
             background:#f1c40f!important;
             color:#fff!important;
             text-shadow:0 1px 2px rgba(0,0,0,.34);
+            position:relative;
+            box-shadow:0 0 10px 2px rgba(241,196,15,.28);
+          }
+          .soreal-idle-nav-money-yellow-v1::after{
+            content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+            box-shadow:0 0 24px 7px rgba(241,196,15,.68);
+            opacity:0;will-change:opacity;
             animation:sorealIdleNavYellowPulseV1 1.8s ease-in-out infinite;
           }
 
@@ -583,11 +601,18 @@ html,body{overflow-x:hidden}
            * lui-même au premier clic (la classe n'est alors plus rendue,
            * voir navigationIdleV28_/idleMenuEstAcquisV1_).
            */
+          /* Fluidité téléphone (2026-11-17) : plus de box-shadow animé (repeint à chaque image) ; l'anneau est un calque (::after) dont seules l'échelle et l'opacité bougent (compositeur), comme dans soreal-idle-itopod.css qui prend la suite pour ce bouton. */
           @keyframes sorealIdleNavClignoteV1{
-            0%,100%{box-shadow:0 0 0 0 color-mix(in srgb,var(--nav-color,#9aa5bb) 65%,transparent);}
-            50%{box-shadow:0 0 0 5px color-mix(in srgb,var(--nav-color,#9aa5bb) 0%,transparent);}
+            0%,100%{opacity:.9;transform:scale(1)}
+            50%{opacity:0;transform:scale(1.1)}
           }
           .soreal-idle-nav-button-v28.soreal-idle-nav-new-v1{
+            position:relative;
+          }
+          .soreal-idle-nav-button-v28.soreal-idle-nav-new-v1::after{
+            content:"";position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;
+            box-shadow:0 0 0 4px color-mix(in srgb,var(--nav-color,#9aa5bb) 65%,transparent);
+            will-change:opacity,transform;
             animation:sorealIdleNavClignoteV1 1.3s ease-in-out infinite;
           }
           .soreal-idle-page-root-v28{
@@ -4247,10 +4272,11 @@ body.soreal-idle-active-v47 .soreal-idle-set-v25{
             box-shadow:0 4px 12px rgba(0,0,0,.25);
           }
 
+          /* Fluidité téléphone (2026-11-17) : l'éclaircissement passe par l'opacité (compositeur), non par le filtre de luminosité. */
           @keyframes sorealIdleParalysieV112{
-            0%{transform:translate(0,0);filter:brightness(1)}
-            50%{transform:translate(1px,-1px);filter:brightness(1.25)}
-            100%{transform:translate(-1px,1px);filter:brightness(1)}
+            0%{transform:translate(0,0);opacity:.85}
+            50%{transform:translate(1px,-1px);opacity:1}
+            100%{transform:translate(-1px,1px);opacity:.85}
           }
           @keyframes sorealIdleFrostV112{
             0%,100%{transform:translateY(1px);opacity:.68}

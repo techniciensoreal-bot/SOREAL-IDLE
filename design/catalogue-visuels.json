@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 441,
+  "keyframes": 440,
   "fichiersAvecWebAnimations": 21,
   "fichiersCanvas": 13,
   "pointsEntreeRejouables": 273,
@@ -3581,15 +3581,6 @@
   },
   {
    "nom": "sorealRgBatV1",
-   "definiePar": [
-    "soreal-idle-themes.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-themes.css"
-   ]
-  },
-  {
-   "nom": "sorealRgBraiseV1",
    "definiePar": [
     "soreal-idle-themes.css"
    ],
