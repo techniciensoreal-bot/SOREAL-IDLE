@@ -4,14 +4,6 @@
     {
       "fichier": "idle-questing-v1.js",
       "marqueur": "choix soreal",
-      "repere": "CHOIX SOREAL\" : ce sont des conventions de code, jamais des",
-      "description": "aisse ouverts (façon de cumuler deux bonus, ordre de remise des objets...) sont signalés \"CHOIX SOREAL\" : ce sont des conventions de code, jamais des nombres de jeu. * Heroic Sigil (set) \"+10 % Quest Drops\" et Orange Heart (set) \"+20 % QP\" : câblés le 2026-09-",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
-      "fichier": "idle-questing-v1.js",
-      "marqueur": "choix soreal",
       "repere": "CHOIX SOREAL : niveaux croissants (garde les objets montés e",
       "description": "|| {}; const bonus = idleQuestBonusTotalsV1(state); let handedIn = 0; let gained = 0; /* CHOIX SOREAL : niveaux croissants (garde les objets montés en niveau le plus longtemps possible). */ const levels = Object.keys(stock).map(Number).sort((a, b) => a - b);",
       "statut": "à valider par Norman",
@@ -24,14 +16,6 @@
       "description": "Couleurs des 7 NGU de magie (la capture d'origine ne montre que les 9 NGU d'énergie) : choix visuel de SOREAL, sans effet sur le jeu.",
       "statut": "à valider par Norman",
       "date": "2026-11-14"
-    },
-    {
-      "fichier": "idle-questing-v1.js",
-      "marqueur": "choix soreal",
-      "repere": "CHOIX SOREAL : la quête relancée est une Major si `preferMaj",
-      "description": "\"when you are in idle mode quests will be handed in and new ones started automatically\". CHOIX SOREAL : la quête relancée est une Major si `preferMajor` est actif et qu'une Major est en banque, sinon une Minor. / export function advanceIdleQuestingV1(state, s",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
     }
   ]
 }

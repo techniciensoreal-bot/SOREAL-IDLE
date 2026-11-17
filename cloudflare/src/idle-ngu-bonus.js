@@ -59,7 +59,7 @@ function achievementMetricsLectureV1(state) {
     beastV2: Boolean(flags.beastDefeated_normal),
     beastV3: Boolean(flags.beastDefeated_hard),
     beastV4: Boolean(flags.beastDefeated_brutal || flags.beastBrutalDefeated),
-    evilEntered: state.difficulty === "difficile" || state.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0,
+    evilEntered: num(state.records?.evilEntered, 0) > 0 || state.difficulty === "difficile" || state.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0,
     speedrun: num(state.records?.speedrunBonusClaimed, 0) > 0,
     cornerClicked: num(state.records?.cornerClicked, 0) > 0,
     /* Succès secrets rendus obtenables (2026-11-14) : survivre à l'explosion d'un ennemi explosif ; vaincre un titan sans qu'il ait attaqué. */
@@ -493,7 +493,15 @@ export function setNguTierV1(state, tier) {
  * unlocked by completing Basic Training" ; page Rebirths : accès perdu au Rebirth).
  */
 export function atLevelV1(state, trackId) {
-  return state.systems.advancedTraining?.unlocked ? totalTrackLevel(state.systems.advancedTraining, trackId) : 0;
+  const at = state.systems.advancedTraining;
+  if (at?.unlocked) return totalTrackLevel(at, trackId);
+  /*
+   * lu dans le jeu, build 1260, 2026-11-17 : AllAdvancedTraining::reset pose level[i] = perk ITOPOD 18 au Rebirth ; ces niveaux agissent avant le déblocage
+   * du menu, seule la banque attend (AllAdvancedTraining::Update la transfère au déblocage). Menu verrouillé : niveau du perk 18 retenu au Rebirth (startLevel).
+   */
+  const t = at?.data?.tracks?.[trackId];
+  if (!t) return 0;
+  return Math.max(0, Math.min(num(t.startLevel, 0), num(t.tempLevel, 0)));
 }
 
 function beardSoftLevel(level, exponent, scalar) {

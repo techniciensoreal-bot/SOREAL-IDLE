@@ -44,7 +44,8 @@ for (const src of sources) {
     }
   }
 }
-assert.ok(trouves.length >= 4, "le scan voit les constantes SOREAL connues (" + trouves.length + ")");
+/* 2026-11-17 : plancher abaissé de 4 à 2, deux conventions de Questing ayant été remplacées par la règle du jeu (BeastQuestController::startQuest) et retirées du registre. */
+assert.ok(trouves.length >= 2, "le scan voit les constantes SOREAL connues (" + trouves.length + ")");
 
 const nonRegistrees = trouves.filter((c) => !registre.entrees.some((e) => e.fichier === c.fichier && e.repere === c.repere));
 assert.deepEqual(

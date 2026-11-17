@@ -714,7 +714,8 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
     const r=state.resources[resource];
     if(!r)continue;
     r.current=0;
-    r.fillProgress=0;
+    /* lu dans le jeu, build 1260, 2026-11-17 : Rebirth::resetEnergy ne touche pas la progression de la barre d'énergie (contrairement à Magic::reset) : on la garde. */
+    if(resource!=="energy")r.fillProgress=0;
     r.generatedThisRun=0;
   }
 
@@ -816,7 +817,7 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
        * start of every rebirth even before it is unlocked." (2026-09-24 : effet jamais lu jusqu'ici.)
        */
       const perkStartAt=Math.max(0,int(perkBankBonuses.advancedTrainingStartBonus,0));
-      for(const [id,tr] of Object.entries(s.data.tracks))tr.tempLevel=Math.max(0,int(atBanked[id],0))+perkStartAt;
+      for(const [id,tr] of Object.entries(s.data.tracks)){tr.tempLevel=Math.max(0,int(atBanked[id],0))+perkStartAt;if(perkStartAt>0)tr.startLevel=perkStartAt;else delete tr.startLevel;} /* lu dans le jeu, build 1260, 2026-11-17 : AllAdvancedTraining::reset (level[i] = perk 18, banque à part) */
       s.tempLevel=Object.values(s.data.tracks).reduce((sum,x)=>sum+x.tempLevel,0);
       s.unlocked=false;
     }
@@ -870,6 +871,7 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
   const challengeAfter=options.challengeId!==undefined
     ?String(options.challengeId||"")
     :challengeBefore;
+  delete state.challenge.blindQuitAt;   /* abandon différé du Blind annulé par un nouveau Rebirth */
   state.challenge.active=challengeAfter;
   state.challenge.startedAt=options.challengeId!==undefined
     ?(challengeAfter?t:0)
@@ -886,6 +888,8 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
    * actuelle inchangée (jamais une réinitialisation implicite).
    */
   if(options.difficulty!==undefined)state.difficulty=String(options.difficulty);
+  /* lu dans le jeu, build 1260, 2026-11-17 : Rebirth::startHardRebirth marque le succès 152 (premier rebirth lancé en Evil), à vie, même si l'on repasse ensuite en Normal. */
+  if(options.difficulty==="difficile")state.records.evilEntered=1;
 
   state.records.totalRebirths+=1;
   state.runStartedAt=t;
@@ -964,7 +968,8 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
   const beastV4Ready = Boolean(context.beastV4Beaten);
   const bossReadySadistic = num(peaks.difficile, 0) >= 300; /* lu dans le jeu (Rebirth::setSadisticNextRebirth) : highestHardBoss >= 300 */
   const exileV4Ready = Boolean(context.exileV4Beaten);
-  const evilDejaEntre = state?.difficulty === "difficile" || state?.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0;
+  /* lu dans le jeu, build 1260, 2026-11-17 : succès 152 = Rebirth::startHardRebirth (rebirth Evil lancé au moins une fois, drapeau à vie records.evilEntered) ; les tests de difficulté ou de record Evil/Sadistic restent pour les anciennes parties. */
+  const evilDejaEntre = num(state?.records?.evilEntered, 0) > 0 || state?.difficulty === "difficile" || state?.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0;
   return {
     difficile: {
       /* lu dans le jeu, build 1260, 2026-11-17 (Rebirth::setEvilNextRebirth) : une fois le succès 152 (premier passage en Evil) obtenu, TOUS les tests Evil sont sautés. */

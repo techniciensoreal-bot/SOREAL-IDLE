@@ -43,7 +43,8 @@
             'Défis, d’après le code du jeu : conditions de déblocage, lancement (au moins un boss vaincu dans la run), échec automatique à 24 h et bonus d’or alignés.'
           ]},
           {menu:'questing', titre:'Quêtes', points:[
-            'Quêtes : les arrondis des récompenses suivent le jeu, et certains achats demandent maintenant le système correspondant.'
+            'Quêtes : les arrondis des récompenses suivent le jeu, et certains achats demandent maintenant le système correspondant.',
+            'Quêtes, d’après le code du jeu : le beurre s’utilise à la main pendant la quête (une fois par quête), et plusieurs règles de remise et de relance automatique suivent le jeu.'
           ]}
         ]
       },

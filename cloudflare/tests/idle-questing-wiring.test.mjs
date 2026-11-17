@@ -186,16 +186,23 @@ let enQuete;
   s = act(s, { action: "questHandIn" }, T0 + 2000).state;
   s.systems.questing.data.majorsBanked = 3;
   s.systems.questing.data.majorProgressSeconds = 1234;
-  s.systems.questing.data.useButter = true;   /* le beurre est opt-in (lu dans le jeu : usedButter) */
 
   const rb = rebirthIdleNguState(s, ctx, T0 + 400_000);
   const d = rb.systems.questing.data;
   assert.equal(d.quest.progress, 50, "la quête active survit au Rebirth");
   assert.equal(d.majorsBanked, 3, "les Majors en banque survivent");
   assert.deepEqual(d.items, { sewers: { 0: 10 } }, "le stock d'objets de quête survit");
-  const r = act(rb, { action: "questComplete" }, T0 + 400_000);
+  /* lu dans le jeu (BeastQuestController::tryUseButter, 2026-11-17) : le beurre se consomme à la main pendant la quête, une seule fois par quête */
+  const b1 = act(rb, { action: "questButter" }, T0 + 400_000);
+  assert.equal(b1.state.selloutEffects.beastButters, 3, "un Butter consommé au clic");
+  assert.throws(() => act(b1.state, { action: "questButter" }, T0 + 400_000), /BEURRE_DEJA_UTILISE/, "une seule fois par quête");
+  const r = act(b1.state, { action: "questComplete" }, T0 + 400_000);
   assert.equal(r.result.qp, 40, "Minor active x2, Beast Butter x2");
-  assert.equal(r.state.selloutEffects.beastButters, 3, "un Butter consommé");
+  assert.equal(r.state.selloutEffects.beastButters, 3, "pas de second Butter consommé à la remise");
+  assert.equal(r.state.systems.questing.data.idle, false, "clearQuest remet le mode idle à faux");
+  const sansBeurre = act(rb, { action: "questComplete" }, T0 + 400_000);
+  assert.equal(sansBeurre.result.qp, 20, "sans clic sur le Butter : pas de x2, et le stock reste intact");
+  assert.equal(sansBeurre.state.selloutEffects.beastButters, 4);
 }
 
 // --- Faster Questing : achetable, et accélère la banque ---

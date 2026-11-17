@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Boutique d’EXP, d’après le code du jeu : l’achat de plafond d’énergie n’est proposé qu’une fois le plafond de base gagné grâce aux Rebirths."
+    "Quêtes, d’après le code du jeu : le beurre s’utilise à la main pendant la quête (une fois par quête), et plusieurs règles de remise et de relance automatique suivent le jeu."
   ] };
 })();

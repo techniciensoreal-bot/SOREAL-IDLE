@@ -556,8 +556,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 302,
-  "sha": "4efabe3169204e6f49ac06cf757a919c6b16cbe2"
+  "pin": 304,
+  "sha": "d7ebcfaf4445af64d3a97eef6d331ae165a0830c"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -640,8 +640,8 @@
   "sha": "cad63fc380db2e72f1b20a10b181bd7b1a1a7a1c"
  },
  "/modules/questing-v1.js": {
-  "pin": 2,
-  "sha": "ea61993c5d5a2c23a485e58428fdb944f71e4e7f"
+  "pin": 3,
+  "sha": "a31d2031780598ea1b5f1be6815c9db53e1b3d6c"
  },
  "/modules/reapparitions-v1.js": {
   "pin": 8,
@@ -672,12 +672,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 377,
-  "sha": "232a9d0f0bc10a9fc06eaed8adc0c0db43b3e20c"
+  "pin": 378,
+  "sha": "9db604d9e15f79c2837686ed132650145c28f10c"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1025,
-  "sha": "d713ce7917053468640816a58fce81eab8dab6d0"
+  "pin": 1026,
+  "sha": "c54fc6c8082a0ab296aab7e20081de8cada9fdd6"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -772,12 +772,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1069,
-  "sha": "f616cfa037182f15941b5b5c1056d8d9910925a3"
+  "pin": 1070,
+  "sha": "0b0c16bc9254a6fdfd4309e380678a7a5100f3d8"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 889,
-  "sha": "1fb42fe696ce31ac89bf39f36b5a2ff943a9181f"
+  "pin": 890,
+  "sha": "b2635a6455ab9cc80acd7339fb94a39ad9e5ebbb"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

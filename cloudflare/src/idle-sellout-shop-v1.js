@@ -343,6 +343,16 @@ export function idleSelloutPotionFactorV1(state, key) {
   return key === "luck" || key === "energyBars" || key === "magicBars" ? (N(fx.remaining?.[key], 0) > 0 ? 2 * k : 1) : timed * beta;
 }
 
+/*
+ * Part MINUTÉE seule du facteur d'une potion de puissance (la bêta, « potion 2 », n'en fait pas partie).
+ * lu dans le jeu, build 1260, 2026-11-17 : Character::wishOfflineProgress ne divise que si Arbitrary.<ressource>Potion1Time > 0 (potion minutée),
+ * par AllArbitraryController::potionModifier (res3PotionModifier pour la Ressource 3) : x2 (x3), x1,1 avec Blue Heart (même facteur que ci-dessus).
+ */
+export function idleSelloutPotionMinuteeV1(state, key) {
+  const fx = state.selloutEffects || {};
+  return N(fx.remaining?.[key], 0) > 0 ? (key === "r3Power" ? 3 : 2) * idleHeartsConsumableFactorV1(state) : 1;
+}
+
 /* Applique l'effet d'un objet (achat ou récompense de la roue quotidienne) `times` fois ; une potion est rangée dans la valise au lieu de s'activer. */
 export function idleSelloutApplyEffectV1(state, itemId, times = 1) {
   if (IDLE_POTIONS_STOCK_V1.includes(itemId)) {

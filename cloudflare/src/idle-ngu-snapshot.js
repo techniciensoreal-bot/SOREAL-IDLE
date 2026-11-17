@@ -246,7 +246,7 @@ function construireSnapshotNguV1(state, context, now) {
         const base = (id === "wandoosEnergy" || id === "wandoosMagic") ? 20000 : 10000;
         pistes[id] = { baseSeconds: base, rateParEnergie: (sqrtPower * gear) / (base * 1000) };
       }
-      return { gratuit: wishLevelV1(state, 190) >= 1, racinePuissance: sqrtPower, vitesseEquipement: gear, pistes };
+      return { gratuit: wishLevelBrutV1(state, 190) >= 1, racinePuissance: sqrtPower, vitesseEquipement: gear, pistes };
     })(),
     /*
      * Audit 2026-09-13 (Norman) : "Le menu augmentation ne possède pas de
@@ -624,7 +624,7 @@ export function selectRitual(state, ritualId, context) {
 export const IDLE_MONEY_PIT_SEUILS_HAUTS_V1 = Object.freeze([1e50, 1e55, 1e60, 1e65, 1e70]);
 function moneyPitTierV48_(gold, state) {
   let tier = moneyPitTierBasV48_(gold);
-  if (tier >= 11 && state && wishLevelV1(state, 4) >= 1) {
+  if (tier >= 11 && state && wishLevelBrutV1(state, 4) >= 1) {
     for (const seuil of IDLE_MONEY_PIT_SEUILS_HAUTS_V1) { if (gold >= seuil) tier += 1; else break; }
   }
   return tier;
@@ -1072,7 +1072,7 @@ export function moneyPitSnapshotV1(state, context) {
   return {
     tier,
     min: tier > IDLE_MONEY_PIT_SEUILS_V1.length ? IDLE_MONEY_PIT_SEUILS_HAUTS_V1[tier - IDLE_MONEY_PIT_SEUILS_V1.length - 1] : (tier > 0 ? IDLE_MONEY_PIT_SEUILS_V1[tier - 1] : 0),
-    suivant: tier < IDLE_MONEY_PIT_SEUILS_V1.length ? IDLE_MONEY_PIT_SEUILS_V1[tier] : (wishLevelV1(state, 4) >= 1 && tier - IDLE_MONEY_PIT_SEUILS_V1.length < IDLE_MONEY_PIT_SEUILS_HAUTS_V1.length ? IDLE_MONEY_PIT_SEUILS_HAUTS_V1[tier - IDLE_MONEY_PIT_SEUILS_V1.length] : 0),
+    suivant: tier < IDLE_MONEY_PIT_SEUILS_V1.length ? IDLE_MONEY_PIT_SEUILS_V1[tier] : (wishLevelBrutV1(state, 4) >= 1 && tier - IDLE_MONEY_PIT_SEUILS_V1.length < IDLE_MONEY_PIT_SEUILS_HAUTS_V1.length ? IDLE_MONEY_PIT_SEUILS_HAUTS_V1[tier - IDLE_MONEY_PIT_SEUILS_V1.length] : 0),
     lots,
     /* Wiki : « The pit also rewards AP using the formula log10(gold) » (en plus du lot, avec le bonus AP commun). */
     ap: tier > 0 ? apWithBonusV1(state, Math.floor(Math.log10(Math.max(1, or)))) : 0
@@ -1329,6 +1329,11 @@ export function autoCompleteChallengeV1(state, context, now) {
     if (paire.level >= 1 && paire.upgradeLevel >= 1) state.challenge.laserUnlocked = true;
   }
   if (!active || !state.systems.challenges?.unlocked) return;
+  /* lu dans le jeu, build 1260, 2026-11-17 : AllChallengesController::quitChallenge programme delayedBlindQuit à +180 s (Invoke) ; l'échéance venue, BlindChallengeController::failedChallenge abandonne le défi. */
+  if (active === "blind" && num(state.challenge.blindQuitAt, 0) > 0 && num(now, 0) >= num(state.challenge.blindQuitAt, 0)) {
+    challengeAction(state, { mode: "stop", immediat: true }, context || {}, now);
+    return;
+  }
   const tier = challengeTierV1(state);
   const def = challengeDefinition(active, tier);
   if (!def) return;
@@ -1358,6 +1363,15 @@ export function challengeAction(state, payload, context, now) {
 
   if(mode==="stop"){
     const stopped=String(state.challenge.active||"");
+    /*
+     * lu dans le jeu, build 1260, 2026-11-17 : AllChallengesController::quitChallenge, défi Blind : « for anti-cheat purposes, the Blind Challenge will not quit instantly, but instead in about 3 minutes » :
+     * CancelInvoke puis Invoke("delayedBlindQuit", 180) ; une nouvelle demande repart de zéro. Les autres défis s'abandonnent tout de suite.
+     */
+    if(stopped==="blind"&&!payload.immediat){
+      state.challenge.blindQuitAt=num(now,0)+180000;
+      return {stopped:false,differe:true,challenge:stopped,quitteA:state.challenge.blindQuitAt};
+    }
+    delete state.challenge.blindQuitAt;
     state.challenge.active="";
     state.challenge.activeTier="normal";
     state.challenge.startedAt=0;
@@ -1411,6 +1425,7 @@ export function challengeAction(state, payload, context, now) {
       const oldBest=num(state.challenge.bestMs?.[id],Infinity);
       state.challenge.bestMs[id]=Math.min(oldBest,elapsed);
     }
+    delete state.challenge.blindQuitAt;
     state.challenge.active="";
     state.challenge.activeTier="normal";
     state.challenge.startedAt=0;
@@ -1518,9 +1533,17 @@ export function wishLevelV1(state, id) {
   return Math.max(0, int(idleWishTracksActifsV1(state)[String(id)]?.level, 0));
 }
 
+/*
+ * Niveau BRUT d'un souhait, sans porte de difficulté. lu dans le jeu, build 1260, 2026-11-17 : seul WishesController::wishEffect compare la difficulté courante à
+ * difficultyRequirement ; les lecteurs directs de Wish.level (Rebirth::minRebirthTime souhait 20, Money Pit souhait 4, Advanced Training souhait 190...) l'ignorent.
+ */
+export function wishLevelBrutV1(state, id) {
+  return Math.max(0, int(state?.systems?.wishes?.data?.tracks?.[String(id)]?.level, 0));
+}
+
 /* Souhait 20 (« I didn't have to wait 3 minutes per rebirth ») : -10 s par niveau sur les 180 s minimum. */
 export function minRebirthSecondsV1(state) {
-  return Math.max(0, MIN_REBIRTH_SECONDS - 10 * Math.min(6, wishLevelV1(state, 20)));
+  return Math.max(0, MIN_REBIRTH_SECONDS - 10 * Math.min(6, wishLevelBrutV1(state, 20)));
 }
 
 /* Conditions de déblocage des portraits de joueur (sets complétés, souhaits, fragments SEXY/SMART). */

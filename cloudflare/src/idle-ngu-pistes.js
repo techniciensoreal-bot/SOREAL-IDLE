@@ -19,8 +19,9 @@ import { expShopPurchasedV1 } from "./idle-ngu-actions.js";
 import { hackAbsorberAllocationV1, hackR3TotalV1, advanceTheEndFinalHackV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, syncWishAllocationTotalsV1, WANDOOS_INSTALL_SECONDES_V1, wandoosCalculVitessesV1, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
 import { externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, rebaserProgressionSecondesV1, setAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { bloodMigrerAllocationV1, bloodRitualMagicV1, diggerBonuses, diggerDrainTotal } from "./idle-ngu-systemes.js";
+import { idleSelloutPotionMinuteeV1 } from "./idle-sellout-shop-v1.js";
 import { setFacteurNguV1, beardBonusMultiplier, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
-import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, wishLevelV1 } from "./idle-ngu-snapshot.js";
+import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, wishLevelBrutV1 } from "./idle-ngu-snapshot.js";
 
 /*
  * Page Beards of Power : 7 slots -- 1 au déblocage, 1 Troll Normal (complétion 4), 1 boutique EXP (50 000 EXP),
@@ -375,13 +376,13 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
  * multiplicateur de vitesse partagé et temps minimum par niveau. Calculés
  * une fois par tick puis appliqués à chaque slot avec SA propre allocation.
  */
-function wishSpeedParamsV1(state, system) {
+function wishSpeedParamsV1(state, system, horsLigne = false) {
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
     const perkWish = perkBonusesV1(idlePerkNiveauxV1(state));
   const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(idleQuirkNiveauxV1(state)).wishMinTimeReductionSeconds);
   const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100 + Math.max(0, num(gearSpecialsV1(state)?.wishSpeedPct, 0)) / 100) /* equipement + cube additifs (lu dans le jeu) */ * setFacteurNguV1(state, "wishSpeedPct") * hackFxV1(state).wish
     * idleCardsMultiplierV1(state, "wishes") /* Cards WISHES */);
-  return { wishMinSeconds, speedMultiplier };
+  return { wishMinSeconds, speedMultiplier, horsLigne: Boolean(horsLigne) };
 }
 
 /*
@@ -403,7 +404,12 @@ function wishSecondsForLevelV1(state, trackDef, level, allocation, params) {
   const engPower = Math.max(1, idleNguEffectiveResourceStatV1(state, "energy", "power"));
   const magPower = Math.max(1, idleNguEffectiveResourceStatV1(state, "magic", "power"));
   const r3Power = Math.max(1, idleNguEffectiveResourceStatV1(state, "r3", "power"));
-  const numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
+  let numerator = engPower * engAlloc * magPower * magAlloc * r3Power * r3Alloc;
+  /*
+   * lu dans le jeu, build 1260, 2026-11-17 : Character::wishOfflineProgress divise la progression par potionModifier^0,17 (WishesController::energyBias / magicBias / res3Bias)
+   * pour chaque potion MINUTÉE active (énergie, magie, ressource 3) : le rattrapage d'une absence n'a pas l'effet des potions (la bêta, potion 2, reste).
+   */
+  if (params.horsLigne) numerator /= idleSelloutPotionMinuteeV1(state, "energyPower") * idleSelloutPotionMinuteeV1(state, "magicPower") * idleSelloutPotionMinuteeV1(state, "r3Power");
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
   /* Lu dans le jeu (WishesController::rawProgressPerTick / timeToLevel, build 1260, 2026-11-15) : la progression est PAR TICK ; le temps d'un niveau en secondes est 1 / progression / 50 (le diviseur du catalogue est celui du jeu, en ticks). */
   const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / params.speedMultiplier / 50;
@@ -438,7 +444,7 @@ function advanceWishTrack(state, system, trackDef, track, seconds, allocation = 
       progress = 0;
       /* Norman (2026-11-05) : le bonus d'un souhait de vitesse joue DÈS le niveau gagné (le jeu d'origine recalcule à chaque tick), pas à la synchro suivante : résultat indépendant du découpage du temps. */
       track.level = level;
-      params = wishSpeedParamsV1(state, system);
+      params = wishSpeedParamsV1(state, system, params.horsLigne);
     }
   }
 
@@ -480,7 +486,7 @@ export function atAvancerTempsV1(level, p, seconds, rate) {
 function advanceAdvancedTrainingV1(state, s, tracks, seconds, horsLigne = false) {
   const wandoosOk = Boolean(state.systems.wandoos?.unlocked);
   const wandoosTrack = id => id === "wandoosEnergy" || id === "wandoosMagic";
-  if (wishLevelV1(state, 190) >= 1) {
+  if (wishLevelBrutV1(state, 190) >= 1) {
     for (const other of tracks) {
       if (wandoosTrack(other.id) && !wandoosOk) continue;
       const ot = s.data.tracks[other.id];
@@ -669,7 +675,7 @@ export function advanceTrackSystem(state, def, seconds, horsLigne = null) {
      */
     releaseLockedWishSlotsV1(state, s);
     const count = wishSlotCountV1(state);
-    const params = wishSpeedParamsV1(state, s);
+    const params = wishSpeedParamsV1(state, s, Boolean(horsLigne));
     for (let i = 0; i < count; i++) {
       const slot = s.data.slots?.[i];
       if (!slot || !slot.wish) continue;

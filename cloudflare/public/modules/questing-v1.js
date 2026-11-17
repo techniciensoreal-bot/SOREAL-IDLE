@@ -104,7 +104,7 @@
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
           bouton(data.idle?'⏸️ Désactiver l’idle':'▶️ Activer l’idle','window.__questingIdleV1__.idle('+(!data.idle)+')',false)+
           bouton(data.preferMajor?'Relance auto : majeure d’abord':'Relance auto : mineure','window.__questingIdleV1__.prefs({preferMajor:'+(!data.preferMajor)+'})',false)+
-          bouton(data.useButter?'🧈 Butter : utilisé':'🧈 Butter : gardé','window.__questingIdleV1__.prefs({useButter:'+(!data.useButter)+'})',false)+
+          (data.quest?(data.quest.usedButter?'<span class="soreal-idle-note-v4">🧈 Butter utilisé pour cette quête</span>':(Number(data.butters)>0?bouton('🧈 Utiliser un Butter','window.__questingIdleV1__.butter()',false):'')):'')+
         '</div>'+
       '</div>'+
       '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🎁 Récompenses</div>'+
@@ -121,6 +121,7 @@
     terminer:function(){action({action:'questComplete'});},
     abandonner:function(){action({action:'questSkip'});},
     idle:function(actif){action({action:'questIdle',active:Boolean(actif)});},
+    butter:function(){action({action:'questButter'});},
     prefs:function(p){action(Object.assign({action:'questPrefs'},p||{}));},
     fusionner:function(zone,a,b){action({action:'questMerge',zone:String(zone||''),levelA:Number(a)||0,levelB:Number(b)||0});},
     allerZone:function(zone){action({action:'adventure',adventure:{action:'selectZone',zone:String(zone||'')}});}

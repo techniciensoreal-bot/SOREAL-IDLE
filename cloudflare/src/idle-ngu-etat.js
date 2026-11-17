@@ -24,7 +24,7 @@ import { normalizeIdleDaycareDataV1, idleDaycareFactorsV1 } from "./idle-daycare
 import { idleTheEndGrantV1, idleTheEndHasV1, idleTheEndDataV1, IDLE_THE_END_FINAL_HACK_SECONDS_V1 } from "./idle-the-end-v1.js";
 import { atLevelV1, beardBonusMultiplier, createNguDataV1, gearPctV1, gearSpecialsV1, nguFxV1, normalizeNguDataV1, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { CHALLENGE_TIER_KEYS_V1, IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_META_VERSION, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SAVE_SCHEMA, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, IDLE_WISH_MAX_SLOTS_V1, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, createChallengeTiersV1, int, nowMs, num } from "./idle-ngu-catalogues.js";
-import { appliquerConsommablesSetsAventureV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, moneyPitTotauxNormalisesV1, roueTotauxNormalisesV1, wishLevelV1 } from "./idle-ngu-snapshot.js";
+import { appliquerConsommablesSetsAventureV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, moneyPitTotauxNormalisesV1, roueTotauxNormalisesV1, wishLevelV1, wishLevelBrutV1 } from "./idle-ngu-snapshot.js";
 import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, createTrollStateV1, diggerBonuses, normaliserR3NomV1, trollFlagsV1 } from "./idle-ngu-systemes.js";
 import { daycareBaseInputsV1, expShopPurchasedV1 } from "./idle-ngu-actions.js";
 import { externalResourceAllocation, reconcileResourceCurrents, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
@@ -408,7 +408,7 @@ export function wandoosCalculVitessesV1(state, seconds, now) {
   const totalOsLevel = Math.min(400,
     Math.max(0, perkBonuses.wandoosOsLevelBonus) +
     /* Souhait 4 « I wish money Pit didn't suck » : « Also maxes your money pit Wandoos level » (page Wishes / Money Pit : 100). */
-    (wishLevelV1(state, 4) >= 1 ? 100 : Math.max(0, num(s.data.osLevels?.moneyPit, 0))) +
+    (wishLevelBrutV1(state, 4) >= 1 ? 100 : Math.max(0, num(s.data.osLevels?.moneyPit, 0))) +
     Math.max(0, num(s.data.osLevels?.consumed98, 0)) +
     Math.max(0, num(s.data.osLevels?.consumedXl, 0))
   );
@@ -906,6 +906,7 @@ function normalizeTracks(def, rawData) {
     /* Advanced Training : énergie propre et Target de chaque compétence (voir advanceAdvancedTrainingV1). */
     if (def.id === "advancedTraining") {
       out.tracks[track.id].energy = Math.max(0, num(src.energy, 0));
+      if (num(src.startLevel, 0) > 0) out.tracks[track.id].startLevel = Math.floor(num(src.startLevel, 0)); /* niveau du perk 18 retenu au Rebirth (E8) */
       { const c = Math.floor(num(src.target, 0)); out.tracks[track.id].target = c < 0 ? -1 : c; }
     }
   }

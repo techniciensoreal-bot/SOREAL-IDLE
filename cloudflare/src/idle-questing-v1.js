@@ -14,10 +14,9 @@
  * "Arbitrary Points", "Fibonacci Perk", "Respawn", "Mobster (set)",
  * "Fad (set)" et les pages de zone (ligne "<objet> - if on quest").
  * Règle n°1 d'AGENTS.md : aucune valeur n'est inventée ; chaque constante
- * ci-dessous cite sa phrase source. Les points que le wiki laisse ouverts
- * (façon de cumuler deux bonus, ordre de remise des objets...) sont
- * signalés "CHOIX SOREAL" : ce sont des conventions de code, jamais des
- * nombres de jeu.
+ * ci-dessous cite sa phrase source. Les points que le wiki laissait ouverts
+ * ont été relus dans le code du jeu (build 1260, 2026-11-17 : BeastQuestController) ;
+ * il ne reste qu'une convention de code, jamais un nombre de jeu (ordre de la remise de tous les objets, plus bas).
  *
  * Heroic Sigil (set) "+10 % Quest Drops" et Orange Heart (set) "+20 % QP" :
  * câblés le 2026-09-23 (le Sigil et le cœur sont désormais de vrais objets
@@ -284,7 +283,7 @@ export function idleQuestQpMultiplierV1(state, env) {
 /* Beurre « en cours » (BeastQuest.usedButter du jeu) : une quête est en cours, la case beurre est cochée et il en reste ; facteur butterModifier (x2, x2,2 avec le Blue Heart), sinon 1. Sert aux titans 6 et Nerd (boss6QP, boss7QP). */
 export function idleQuestButterEnCoursV1(state) {
   const d = state?.systems?.questing?.data;
-  if (!d || !d.quest || d.useButter !== true || buttersV1(state) <= 0) return 1;
+  if (!d || !d.quest || d.quest.usedButter !== true) return 1;
   return IDLE_QUEST_BUTTER_FACTOR_V1 * idleHeartsConsumableFactorV1(state);
 }
 
@@ -324,6 +323,8 @@ function normalizeQuestV1(raw) {
     progress: Math.max(0, Math.min(required, I(raw.progress))),
     idleBar: Math.max(0, Math.min(0.999999999999, N(raw.idleBar))),
     usedIdle: Boolean(raw.usedIdle),
+    /* lu dans le jeu, build 1260, 2026-11-17 : BeastQuest.usedButter (BeastQuestController::tryUseButter, remis à faux par clearQuest). */
+    usedButter: raw.usedButter === true,
     startedAt: Math.max(0, N(raw.startedAt))
   };
 }
@@ -350,8 +351,6 @@ export function normalizeIdleQuestingDataV1(raw) {
     quest: normalizeQuestV1(src.quest),
     idle: Boolean(src.idle),
     preferMajor: src.preferMajor !== false,
-    /* Lu dans le jeu (BeastQuest.usedButter) : le beurre est actif seulement quand le joueur l'utilise ; par défaut il n'est plus consommé automatiquement. */
-    useButter: src.useButter === true,
     /* Lu dans le jeu (BeastQuest::.ctor) : 3 Major en banque au départ. */
     majorsBanked: src.majorsBanked === undefined ? 3 : Math.max(0, I(src.majorsBanked)),
     majorProgressSeconds: Math.max(0, N(src.majorProgressSeconds)),
@@ -403,7 +402,7 @@ function startQuestV1(state, d, major, now, rng) {
     ? IDLE_QUEST_ITEMS_MIN_V1
     : IDLE_QUEST_ITEMS_MIN_V1 + Math.min(IDLE_QUEST_ITEMS_SPREAD_V1 - 1, Math.floor(rng() * IDLE_QUEST_ITEMS_SPREAD_V1));
   if (major) d.majorsBanked -= 1;
-  d.quest = { major: Boolean(major), zone, required, progress: 0, idleBar: 0, usedIdle: false, startedAt: N(now) };
+  d.quest = { major: Boolean(major), zone, required, progress: 0, idleBar: 0, usedIdle: false, usedButter: false, startedAt: N(now) };
   return { started: true, major: Boolean(major), zone, required, itemName: idleQuestItemByZoneV1(zone).name };
 }
 
@@ -411,9 +410,9 @@ function completeQuestV1(state, d, env, auto) {
   const q = d.quest;
   if (!q) throw new Error("AUCUNE_QUETE_ACTIVE");
   if (q.progress < q.required) throw new Error("QUETE_INCOMPLETE");
-  const butter = d.useButter && buttersV1(state) > 0;
+  /* lu dans le jeu, build 1260, 2026-11-17 : le beurre se consomme à la main PENDANT la quête (BeastQuestController::tryUseButter, une fois par quête) ; questRewardFactor le lit à la remise. */
+  const butter = q.usedButter === true;
   const reward = idleQuestRewardV1(state, env, { major: q.major, usedIdle: q.usedIdle, butter });
-  if (butter) state.selloutEffects.beastButters = buttersV1(state) - 1;
   state.currencies.qp = Math.max(0, N(state.currencies.qp)) + reward.qp;
   state.currencies.ap = Math.max(0, N(state.currencies.ap)) + reward.ap;
   if (q.major) d.stats.majorCompleted += 1;
@@ -424,6 +423,8 @@ function completeQuestV1(state, d, env, auto) {
   /* BeastQuestController::giveRewardsAndClear (build 1260) : quête rendue à la main, aucun objet venu de l'idle, jauge idle entre 90 % et 100 %, Tentacule (337) vu : Bois de l'Exilé (338). Avant la remise à zéro de la quête (clearQuest). */
   const indiceExile = exileIndiceBeteV1(state.adventure, d.idle, q);
   d.quest = null;
+  /* lu dans le jeu, build 1260, 2026-11-17 : BeastQuestController::clearQuest remet idleMode à faux (l'enchaînement automatique le rallume : autoStartV1). */
+  d.idle = false;
   return { completed: true, ...d.lastReward, ...(indiceExile ? { indiceExile: true } : {}) };
 }
 
@@ -435,11 +436,13 @@ function handInV1(state, d) {
   const bonus = idleQuestBonusTotalsV1(state);
   let handedIn = 0;
   let gained = 0;
-  /* CHOIX SOREAL : niveaux croissants (garde les objets montés en niveau le plus longtemps possible). */
+  const perk145 = I(idlePerkNiveauxV1(state)[145]) > 0;
+  /* CHOIX SOREAL : niveaux croissants (garde les objets montés en niveau le plus longtemps possible). Le jeu (InventoryController::dumpAllIntoQuest) suit l'ordre des emplacements de l'inventaire, que le stock de quête de SOREAL (rangé par niveau) ne conserve pas. */
   const levels = Object.keys(stock).map(Number).sort((a, b) => a - b);
   for (const level of levels) {
     while (stock[level] > 0 && q.progress < q.required) {
-      const value = idleQuestHandInValueV1(level, bonus.handInBonusLevel);
+      /* lu dans le jeu, build 1260, 2026-11-17 : ItemController (clic sur un objet de quête) n'utilise la remise avec niveau (checkItemConsumed(id, niveau)) que si l'atout ITOPOD 145 est possédé ; sinon chaque objet compte 1. */
+      const value = perk145 ? idleQuestHandInValueV1(level, bonus.handInBonusLevel) : 1;
       q.progress = Math.min(q.required, q.progress + value);
       gained += value;
       stock[level] -= 1;
@@ -477,6 +480,8 @@ function mergeItemsV1(d, zone, levelA, levelB) {
 function autoStartV1(state, d, now, rng) {
   if (d.quest || !idleQuestEligibleZonesV1(state).length) return false;
   startQuestV1(state, d, d.preferMajor && d.majorsBanked > 0, now, rng);
+  /* lu dans le jeu, build 1260, 2026-11-17 : BeastQuestController::updateIdleQuest enchaîne giveRewardsAndClear, startQuest puis toggleIdleMode (le mode idle est rallumé). */
+  d.idle = true;
   return true;
 }
 
@@ -485,8 +490,8 @@ function autoStartV1(state, d, now, rng) {
 /*
  * Tick : Major Quests gagnées avec le temps (jusqu'au plafond de la banque), set Fad, et
  * progression d'idle. "Truly Idle Questing" (Perk 104) : "when you are in idle mode quests will be
- * handed in and new ones started automatically". CHOIX SOREAL : la quête relancée est une Major si
- * `preferMajor` est actif et qu'une Major est en banque, sinon une Minor.
+ * handed in and new ones started automatically". lu dans le jeu, build 1260, 2026-11-17 : BeastQuestController::startQuest : la quête relancée est une Major si
+ * le réglage useMajorQuests (`preferMajor`) est actif et qu'une Major est en banque, sinon une Minor (reducedRewards).
  */
 export function advanceIdleQuestingV1(state, seconds, env = {}, now = Date.now(), rng = Math.random) {
   if (!state?.systems?.questing?.unlocked) return;
@@ -574,6 +579,7 @@ export function applyIdleQuestingActionV1(state, action, payload = {}, env = {},
       if (!d.quest) throw new Error("AUCUNE_QUETE_ACTIVE");
       const skipped = { major: d.quest.major, zone: d.quest.zone };
       d.quest = null;
+      d.idle = false;   /* lu dans le jeu, build 1260, 2026-11-17 : BeastQuestController::skipQuest -> clearQuest (idleMode = faux, beurre perdu) */
       return { skipped };
     }
     case "questHandIn":
@@ -585,10 +591,18 @@ export function applyIdleQuestingActionV1(state, action, payload = {}, env = {},
       return { idle: d.idle };
     case "questMerge":
       return mergeItemsV1(d, payload.zone, payload.levelA, payload.levelB);
+    case "questButter": {
+      /* lu dans le jeu, build 1260, 2026-11-17 : BeastQuestController::tryUseButter : refus si le beurre est déjà utilisé, s'il n'y en a plus ou si aucune quête n'est en cours ; sinon -1 beurre et usedButter. */
+      if (!d.quest) throw new Error("AUCUNE_QUETE_ACTIVE");
+      if (d.quest.usedButter) throw new Error("BEURRE_DEJA_UTILISE");
+      if (buttersV1(state) <= 0) throw new Error("BEURRE_ABSENT");
+      state.selloutEffects.beastButters = buttersV1(state) - 1;
+      d.quest.usedButter = true;
+      return { usedButter: true, butters: buttersV1(state) };
+    }
     case "questPrefs":
       if (payload.preferMajor !== undefined) d.preferMajor = Boolean(payload.preferMajor);
-      if (payload.useButter !== undefined) d.useButter = Boolean(payload.useButter);
-      return { preferMajor: d.preferMajor, useButter: d.useButter };
+      return { preferMajor: d.preferMajor };
     default:
       throw new Error("ACTION_QUETE_INCONNUE");
   }
@@ -614,7 +628,6 @@ export function idleQuestingSnapshotV1(state, env = {}) {
     unlocked: true,
     idle: d.idle,
     preferMajor: d.preferMajor,
-    useButter: d.useButter,
     butters: buttersV1(state),
     majorsBanked: d.majorsBanked,
     bankCap: cap,
