@@ -1,0 +1,29 @@
+/* Téléphone : rien d'utile ne doit être coupé, masqué ou hors écran (audit de visibilité de Norman, 2026-11-17).
+ * Règles propres au téléphone (max-width), le rendu PC ne change pas : HUD du haut, menu, Entraînement de base, notes de version. Le chat a la sienne dans modules/chat-v1.js. */
+
+/* Menu du haut : le texte du bouton disposait de 40 px (124 px de bouton - 2 x 36 px de marge) : « Aventure & Titans » et « Trou sans fond » étaient coupés en « Aventure &… » / « Trou sans… ». */
+@media (max-width:700px){
+  html body.soreal-idle-active-v47 .soreal-idle-nav-v28 .soreal-idle-nav-button-v28 .soreal-idle-nav-texte-v2{padding:0 24px 0 0}
+}
+
+/* Bandeau du haut : un grand nombre entier « 123.456.789.012.345.680 / … » tient dans la barre sans passer sous « +1/s » ni sous la coche. */
+@media (max-width:400px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-energybar-overlay-v1{font-size:11px;letter-spacing:-.01em}
+}
+/* Bandeau du haut, téléphone étroit : « 9.99Nod » tient dans une tuile de 54 px sans « … » (la tuile du temps garde sa propre taille). */
+@media (max-width:380px){
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28{--tf:12px}
+}
+
+/* Entraînement de base : la pastille « ÉNERGIE n ⚡ » n'avait que 76 px à gauche des 4 boutons (+ − Cap 0) et passait SOUS eux : le nombre d'énergie placée était caché. Elle a sa propre ligne, les boutons la leur (alignés à droite). */
+@media (max-width:480px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120:is(.attack,.defense) .soreal-idle-bt-row-v120:not(.verrouille){grid-template-areas:"emb nom niveau" "emb barre barre" "emb info info" "poids poids poids" "actions actions actions"}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120:is(.attack,.defense) .soreal-idle-bt-row-v120:not(.verrouille) .soreal-idle-bt-allocation-v120{max-width:100%;box-sizing:border-box}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="entrainement"] .soreal-idle-bt-panel-v120:is(.attack,.defense) .soreal-idle-bt-row-v120:not(.verrouille) .soreal-idle-bt-actions-v120{justify-self:end}
+}
+
+/* Réglages > Infos > Notes de mise à jour : « 1 / 53 » ne se coupe plus sur deux lignes. */
+@media (max-width:480px){
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-notes-maj-pages-v1 span{white-space:nowrap;flex:0 0 auto;font-size:15px;letter-spacing:.04em}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-notes-maj-pages-v1 button{padding:7px 8px;font-size:15px}
+}

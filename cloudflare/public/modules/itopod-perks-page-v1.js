@@ -94,7 +94,7 @@ function pageQuirksIdleV1_(j){
             const auMax=niveau>=cap;
             const cout=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(quirk.cost||0);
             return '<div class="soreal-idle-section-v8" style="margin:0">'+
-              '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(emojiNomIdleV1_('quirks',quirk.id,quirk.name||('Quirk '+quirk.id)))+'</b><span>'+niveau+' / '+cap+'</span></div>'+
+              '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(emojiNomIdleV1_('quirks',quirk.id,quirk.name||('Quirk '+quirk.id)))+'</b><span style="white-space:nowrap;flex:none">'+niveau+' / '+cap+'</span></div>'+
               '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(quirk.effect||'')+'</div>'+
               '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
                 (auMax

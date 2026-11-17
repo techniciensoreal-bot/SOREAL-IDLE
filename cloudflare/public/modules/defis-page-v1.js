@@ -34,7 +34,7 @@ function pageChallengesIdleV1_(j){
               :'✅ Prêt';
             const peutDemarrer=Boolean(def.unlocked)&&Boolean(def.implemented)&&!actif;
             return '<div class="soreal-idle-section-v8" style="margin:0">'+
-              '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span>'+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.completion||0)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.max||0)+'</span></div>'+
+              '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(def.name||def.id)+'</b><span style="white-space:nowrap;flex:none">'+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.completion||0)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.max||0)+'</span></div>'+
               '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+statut+
                 (def.targetBoss?' · Objectif boss '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(def.targetBoss):'')+
                 ' · Récompense '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.reward&&def.reward.experience||0)+' EXP / '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(def.reward&&def.reward.ap||0)+' AP'+

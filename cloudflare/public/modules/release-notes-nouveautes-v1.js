@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Défilement sur téléphone : la page ne revient plus en arrière toutes les 4 secondes pendant que tu la fais défiler."
+    "Affichage sur téléphone : de nombreux textes et chiffres coupés ou cachés sont corrigés dans la plupart des menus, au bandeau du haut et dans les fenêtres."
   ] };
 })();

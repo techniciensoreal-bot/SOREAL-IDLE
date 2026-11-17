@@ -1,0 +1,23 @@
+/* Audit de visibilité téléphone (Norman, 2026-11-17) : Chroniques (collection, classement), album des boss, grande carte de boss. Aucune règle hors @media : le rendu PC ne change pas. */
+@media (max-width:620px){
+  /* Chroniques > Collection > Équipement : « ÉQUIPEMENT » + sa puce dépassaient le bouton de 5 px à 375 px. */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-puce{min-width:18px;padding:1px 3px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-bouton{gap:3px;font-size:clamp(11.5px,3.6vw,14px);letter-spacing:.01em;padding:6px 2px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .chr-sous-ico .chr-ico{width:15px;height:15px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-sous .chr-sous-bouton{flex:1 1 40%}
+  /* Classement : un long nom de joueur passe à la ligne au lieu d'être coupé par « … », le temps/score reste lisible à côté. */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-nom{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-ligne .cl-valeur{max-width:40vw}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28 .chr-v1 .cl-ligne .cl-valeur b{font-size:clamp(14px,4.2vw,18px);white-space:normal}
+}
+@media (max-width:640px){
+  /* Grande carte de boss : un nom long (« Michelangelo, Leonardo, Raphael et Donatello ») était coupé par « … » ; il passe à la ligne (la carte réduite de l'album garde une ligne, le nom complet se lit sur la grande carte). */
+  html body.soreal-idle-active-v47 .mtg-modal-v1 .mtg-nom,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"]>.soreal-idle-boss-lore-v142.ouverte .mtg-nom{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.1;overflow-wrap:anywhere}
+}
+@media (max-width:480px){
+  /* Album : « Page 2 / 8 » passait sur deux lignes entre les six flèches ; une seule ligne, flèches un peu plus étroites sous 400 px. */
+  .alb-nav-zone .alb-numero{white-space:nowrap;min-width:0;font-size:13px;letter-spacing:.5px}
+}
+@media (max-width:400px){
+  .alb-nav-zone .alb-bouton{width:40px;height:42px}
+}

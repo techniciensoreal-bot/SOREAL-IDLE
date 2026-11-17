@@ -82,7 +82,7 @@
     const blocEquipes='<h3 style="margin:16px 0 8px">Équipés</h3>'+(equipes.length?'<div style="display:grid;gap:10px">'+equipes.map(function(f,i){
       const copies=inventaire.filter(function(x){return x.type===f.type;}).length;
       return '<div class="soreal-idle-section-v8" style="margin:0">'+
-        '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(i+1)+'. '+html(nomType(f.type))+'</b><span>Niveau '+grand(f.level)+'</span></div>'+
+        '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+(i+1)+'. '+html(nomType(f.type))+'</b><span style="white-space:nowrap;flex:none">Niveau '+grand(f.level)+'</span></div>'+
         '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+html(effetType(f.type))+' · au prochain Rebirth : <b>+'+pct(f.nextGainPct)+'</b> · total permanent : <b>+'+pct(snap.permanent&&snap.permanent[f.type])+'</b></div>'+
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
           bouton('Retirer','window.__macguffinRetirerV1__(\''+html(f.uid)+'\')')+
@@ -95,7 +95,7 @@
     const blocInventaire='<h3 style="margin:16px 0 8px">Inventaire</h3>'+(inventaire.length?'<div style="display:grid;gap:10px">'+Object.keys(groupes).map(function(type){
       const liste=groupes[type].slice().sort(function(a,b){return nombre(b.level)-nombre(a.level);});
       return '<div class="soreal-idle-section-v8" style="margin:0">'+
-        '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+html(nomType(type))+'</b><span>'+liste.length+' fragment(s)</span></div>'+
+        '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+html(nomType(type))+'</b><span style="white-space:nowrap;flex:none">'+liste.length+' fragment(s)</span></div>'+
         '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+html(effetType(type))+'</div>'+
         (liste.length>1||typesEquipes[type]?'<div style="margin-top:7px">'+bouton(typesEquipes[type]?'Tout fusionner dans l’équipé':'Tout fusionner','window.__macguffinFusionnerTypeV1__(\''+html(type)+'\')')+'</div>':'')+
         '<div style="display:grid;gap:6px;margin-top:8px">'+liste.map(function(f){
@@ -132,7 +132,7 @@
       if(!s.unlocked)return '';/* ANTI-SPOIL : un sort encore indisponible n'apparaît pas (ni nom, ni condition). */
       const attente=Math.max(0,nombre(s.readyAt)-maintenant);
       const pret=attente<=0&&entier(s.levelsPreview)>0&&equipes.length>0;
-      return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+nom+'</b><span>+'+entier(s.levelsPreview)+' niveau(x)</span></div>'+
+      return '<div class="soreal-idle-section-v8" style="margin:0"><div style="display:flex;justify-content:space-between;gap:8px"><b>'+nom+'</b><span style="white-space:nowrap;flex:none">+'+entier(s.levelsPreview)+' niveau(x)</span></div>'+
         '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+texte+' Minimum '+grand(s.minimum)+' Blood ; consomme tout le Blood.'+(attente>0?' Recharge : '+duree(attente/1000)+'.':'')+'</div>'+
         '<div style="margin-top:9px">'+bouton('Lancer','window.__macguffinSortV1__(\''+cle+'\')',pret)+'</div></div>';
     };

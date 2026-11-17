@@ -1,0 +1,15 @@
+/* Audit de visibilité téléphone (Norman, 2026-11-17) : Augmentations, Tour, Trou sans fond. Aucune règle hors @media (max-width:480px) : le rendu PC ne change pas. */
+@media (max-width:480px){
+  /* Augmentations : un long nom (« Minigun monté sur l'épaule ») passe à la ligne au lieu d'être coupé par « … » */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="augmentations"] .aug-piste-v2 .aug-nom-piste-v2{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;letter-spacing:.06em}
+  /* Trou sans fond : le titre « Trou sans fond & Roue journalière » tient sur une ligne */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .soreal-idle-page-head-v28[data-entete-menu] .soreal-idle-page-title-v28{font-size:clamp(14px,4.4vw,19px);letter-spacing:.3px}
+  /* Tour : l'explication (PPP, PP, étages) est lue en entier au lieu d'être tronquée à 2 lignes ; l'en-tête grandit au besoin */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="tower"] .soreal-idle-page-head-v28[data-entete-menu]{height:auto;min-height:calc(var(--hud-4barres-v1,131px) - var(--vide-haut-v1,14px));padding-block:8px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="tower"] .soreal-idle-page-head-v28[data-entete-menu] .soreal-idle-page-sub-v28{display:block;-webkit-line-clamp:unset;overflow:visible}
+  /* Calendrier des récompenses de connexion : cases (43 px) trop basses, le numéro du jour recouvrait l'icône et le montant était rogné */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-case-v1:not(.dernier){aspect-ratio:auto;min-height:50px;justify-content:flex-end;padding-bottom:2px}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-case-v1:not(.dernier) .cal-jour-v1{top:2px;left:3px;font-size:10px!important}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-case-v1:not(.dernier) .cal-icone-v1{margin-top:0}
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .cal-v1 .cal-case-v1:not(.dernier) .cal-ap-v1{font-size:11px}
+}

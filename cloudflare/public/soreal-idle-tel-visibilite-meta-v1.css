@@ -1,0 +1,8 @@
+/* Audit de visibilité téléphone (Norman, 2026-11-17) : menus NGU, Wandoos, Yggdrasil, Labos, Barbes, MacGuffins, Hacks, Questing, Manies, Souhaits, Cartes. Aucune règle hors @media : le rendu PC ne change pas. Aucune priorité forcée : les règles de base lisent des variables (--tl dans soreal-idle-themes.css, --bt-ws dans soreal-idle-barre-outils.css) que cette feuille ne fait que poser. */
+@media (max-width:700px){
+  /* Bandeau du haut : avec 6 tuiles (Temps affiché) sur 360 à 412 px, « Attaque » et « Défense » étaient coupés (« ATTAQL », « DÉFENS »). Le libellé rétrécit avec l'écran ; les nombres ne bougent pas. */
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28:has(>.soreal-idle-summary-v28:nth-child(6)) .soreal-idle-summary-v28{--tl:min(11px,2.45vw);letter-spacing:0}
+  body.soreal-idle-active-v47 .soreal-idle-native-v4 .soreal-idle-hud-v2 .soreal-idle-summary-grid-v28:has(>.soreal-idle-summary-v28:nth-child(6)) .soreal-idle-summary-v28[data-tuile]:not([data-tuile="rebirth"]){--tp:2px}
+  /* Boutons des barres d'outils (NGU, Wandoos, Yggdrasil, Labos, Barbes, Hacks, Souhaits) : « Tout reprendre » était coupé en « TOUT REPREND… » dans une case de 2 colonnes. Le libellé passe à la ligne au lieu d'être tronqué. */
+  html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu]:where(:not([data-menu="entrainement"])) :is(.nl-barre-outils .nl-ligne,.soreal-idle-bt-toolbar-v120 .soreal-idle-bt-presets-v120:not(.soreal-idle-bt-total-v1))>button:not(#_):not(#_):not(#_):not(#_){--bt-ws:normal;text-overflow:clip;line-height:1.1;overflow-wrap:anywhere}
+}

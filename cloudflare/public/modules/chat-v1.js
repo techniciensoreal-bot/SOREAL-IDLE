@@ -244,6 +244,8 @@
       '#sorealIdleChatV1 .sic-activite{margin-left:auto;font-size:14px;color:var(--th-dim,#9fb0cf);text-align:right}'+
       '#sorealIdleChatV1 .sic-admin{margin-left:6px;padding:1px 6px;border-radius:6px;background:#7c3aed;color:#fff;font-size:12px;font-weight:900}'+
       '#sorealIdleChatV1 .sic-note{font-size:13px;color:var(--th-dim,#8b93ab);margin:0 0 8px}'+
+      /* Téléphone (audit de visibilité 2026-11-17) : un nom long ou une activité longue passent à la ligne au lieu de sortir de l'écran. */
+      '@media(max-width:600px){#sorealIdleChatV1 .sic-ligne{flex-wrap:wrap;row-gap:2px}#sorealIdleChatV1 .sic-ligne>span:nth-child(2){flex:1 1 0;min-width:0;overflow-wrap:anywhere}#sorealIdleChatV1 .sic-activite{flex:1 1 100%;margin-left:18px;text-align:left;overflow-wrap:anywhere}}'+
       /* Grand écran : la liste des joueurs en ligne reste affichée à droite de la conversation. */
       '@media(min-width:900px){#sorealIdleChatV1 .sic-corps{flex-direction:row}#sorealIdleChatV1 .sic-liste{flex:1}#sorealIdleChatV1 .sic-presence{position:static;inset:auto;flex:0 0 280px;border-left:1px solid var(--th-line,rgba(255,255,255,.1))}#sorealIdleChatV1 .sic-presence[hidden]{display:block}#sorealIdleChatV1 .sic-btn-presence{display:none}}';
     document.head.appendChild(st);

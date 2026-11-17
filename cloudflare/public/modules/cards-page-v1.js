@@ -52,7 +52,7 @@
         const blocMayo=mayos.map(function(m){
           const p=Math.max(0,Math.min(100,H.idleNombre_(m.progress)*100));
           return '<div class="soreal-idle-section-v8" style="margin:0">'+
-            '<div style="display:flex;justify-content:space-between;gap:8px"><b>🥫 '+H.idleHtml_(m.nom)+'</b><span>'+H.formatGrandNombreIdleV70_(H.idleEntier_(m.stored))+'</span></div>'+
+            '<div style="display:flex;justify-content:space-between;gap:8px"><b>🥫 '+H.idleHtml_(m.nom)+'</b><span style="white-space:nowrap;flex:none">'+H.formatGrandNombreIdleV70_(H.idleEntier_(m.stored))+'</span></div>'+
             '<div class="soreal-idle-bt-track-v120"><div class="soreal-idle-bt-fill-v120" style="width:100%;transform:scaleX('+(p/100)+');transform-origin:left center;background:#eab308;transition:none"></div></div>'+
             '<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:6px">'+
               '<button type="button" class="soreal-idle-expand-button-v25" onclick="'+act({mode:'toggleGenerator',mayo:m.id})+'">'+(m.active?'⏸️ Arrêter le générateur':'▶️ Lancer un générateur')+'</button>'+

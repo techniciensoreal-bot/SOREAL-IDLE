@@ -240,7 +240,7 @@
       '.wd-pave{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1.2cqw;}',
       '.wd-effacer small{display:block;}',
       '.wd-touche.wd-enfoncee{transform:translateY(.7cqw);box-shadow:0 .1cqw 0 #8b836a,0 .2cqw .3cqw rgba(0,0,0,.5),inset 0 .15cqw 0 rgba(255,255,255,.5);}',
-      '@container (max-width:560px){.wd-rang-boot{grid-template-columns:1fr auto;}.wd-rang-boot .wd-lib{grid-column:1/-1;}.wd-logo{font-size:1.5em;}}',
+      '@container (max-width:560px){.wd-rang-boot{grid-template-columns:1fr auto;}.wd-rang-boot .wd-lib{grid-column:1/-1;}.wd-logo{font-size:1.5em;}.wd-invite-centre{font-size:1em;}.wd-eteint{font-size:1.1em;}}',
       /* Chargement de l'OS : ambre fixe (quelle que soit la couleur de l'écran), cadre pointillé et rayures qui défilent : on voit tout de suite que ce n'est PAS une barre à remplir. */
       '.wd-chargement{margin:.3em 0 .35em;padding:.25em .5em;border:2px solid #ffb000;background:rgba(255,176,0,.08);color:#ffb000;text-shadow:0 0 .4em rgba(255,176,0,.55);}',
       '.wd-rangee-os{display:flex;align-items:center;gap:.7em;white-space:nowrap;}',
