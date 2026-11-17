@@ -353,3 +353,6 @@ Toutes les colonnes ont été rapprochées de SOREAL par script (voir 2) ; la se
 | 228 | I wish I didn't have WIMPY Cards III | 2 | 3.500e+26 | 1 | Sadistic |
 | 229 | I wish my chonkers were CHONKIER | 5 | 3.400e+26 | 1 | Sadistic |
 | 230 | I wish my chonkers were LESS NOT CHONKIER | 5 | 3.700e+26 | 1 | Sadistic |
+
+
+Mise a jour 2026-11-17 : corrige le 2026-11-17 : n°5 (seuil 1e-8 par tick, idle-ngu-pistes.js), n°7 (double arme, idle-ngu-etat.js), n°8 (pieces THE END 482/486/487/490 seulement en Sadistic courant). Les n°1, n°2, n°3 etaient deja corriges.

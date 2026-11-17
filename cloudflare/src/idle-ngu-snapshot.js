@@ -25,7 +25,7 @@ import { idsPortraitsDeChaineV1, idlePortraitsSnapshotV1 } from "./idle-portrait
 import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
 import { idleCookingSystemSnapshotV1 } from "./idle-cooking-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
-import { achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
+import { nguNormalLevelSumsV1, achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
 import { augmentationGoldCost, augmentationSecondsForNextLevel, augmentationSecondsBrutNextLevel, externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceBudget, totalAllocated } from "./idle-ngu-ressources.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, ressourceDecouverteV1, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAutoEnvV1, resourceInfoV1 } from "./idle-ngu-actions.js";
@@ -453,6 +453,7 @@ function resourcePurchaseUnlocked(purchase, context, state, resource) {
   /* Lu dans le jeu (EnergyPurchases / MagicPurchases / Resource3Purchases, 2026-11-16) : la magie et la ressource 3 n'ont aucun verrou de boss ;
      l'énergie utilise le RECORD permanent de boss (jamais remis à zéro par un Rebirth). */
   if (resource && resource !== "energy") return true;
+  /* Vérifié 2026-11-17 : « You need to hit a cap of 100K energy first! » (capEnergy >= 100000) ne garde que le champ d'achat PERSONNALISÉ (tryCustomEnergyCap / « tout »), jamais les boutons +10K/+100K/+1M (garde : record de boss 17, « Reach boss 17 for more purchases here! ») ; non appliqué ici, SOREAL n'a pas de champ personnalisé distinct (décision de Norman du 2026-10-03 : on peut acheter du cap avant 100K). */
   const boss = Math.max(num(context?.bosses, 0), num(state?.records?.highestBoss, 0));
   return needed <= 0 || boss >= needed;
 }
@@ -1257,13 +1258,12 @@ function challengeDefinition(id, tier = "normal") {
 
 function challengeUnlocked(def,state,context={}) {
   if(!def||!state.systems.challenges?.unlocked)return false;
-  /* Wiki : les défis Evil/Sadistic sont débloqués en entrant dans la difficulté. */
-  if(def.tier&&def.tier!=="normal")return true;
+  /* Lu dans le jeu (les unlocked() des contrôleurs de défi, build 1260, 2026-11-17) : la condition ne dépend jamais de la difficulté ; les mêmes règles valent pour Evil et Sadistic. */
   const highestBoss=Math.max(0,int(state.records.highestBoss,context.bosses||0));
   if(def.id==="basic")return highestBoss>=58;
   if(def.id==="noAugmentations")return highestBoss>=75;
   if(def.id==="twentyFourHours")return num(state.challenge.bestMs?.basic,Infinity)<24*3600000;
-  if(def.id==="hundredLevels")return challengeNguLevels(state)>=10;
+  if(def.id==="hundredLevels")return nguNormalLevelSumsV1(state).energy>=10;   /* lu dans le jeu (AllNGUController::unlocked100LevelChallenge) */
   /* Wiki Challenges : « Discover (NOT complete) every piece of the GRB set » -- les 7 pièces vues au moins une fois. */
   if(def.id==="noEquipment"){
     const grbVues=["head","chest","legs","boots","weapon","necklace","meat"].every(slot=>Boolean(state.adventure?.itemList?.["grb:"+slot]?.seen));
@@ -1271,9 +1271,9 @@ function challengeUnlocked(def,state,context={}) {
   }
   if(def.id==="troll")return int(state.adventure?.titans?.t2?.kills,0)>0;
   if(def.id==="noRebirth")return int(state.adventure?.titans?.t3?.kills,0)>0;
-  if(def.id==="laserSword")return laserSwordPair(state).level>=1&&laserSwordPair(state).upgradeLevel>=1;
+  if(def.id==="laserSword")return Boolean(state.challenge.laserUnlocked)||(laserSwordPair(state).level>=1&&laserSwordPair(state).upgradeLevel>=1);
   if(def.id==="blind")return int(state.adventure?.titans?.t4?.kills,0)>0;
-  if(def.id==="noNgu")return challengeNguLevels(state)>=10000;
+  if(def.id==="noNgu"){const n=nguNormalLevelSumsV1(state);return n.energy>=10000||n.magic>=10000;}   /* lu dans le jeu (AllNGUController::nguChallengeUnlocked) */
   if(def.id==="noTimeMachine")return Boolean(state.systems.diggers?.unlocked);
   return false;
 }
@@ -1321,10 +1321,20 @@ function challengeSnapshotDefinitions(state,context={}) {
  */
 export function autoCompleteChallengeV1(state, context, now) {
   const active = String(state.challenge?.active || "");
+  /* Lu dans le jeu (LaserSwordChallengeController::Update, build 1260, 2026-11-17) : le défi est débloqué une fois que l'Augment 6 a niveau >= 1 et amélioration >= 1, et le reste ensuite (drapeau jamais retiré, même après un Rebirth). */
+  if (state.systems.challenges?.unlocked && !state.challenge?.laserUnlocked) {
+    const paire = laserSwordPair(state);
+    if (paire.level >= 1 && paire.upgradeLevel >= 1) state.challenge.laserUnlocked = true;
+  }
   if (!active || !state.systems.challenges?.unlocked) return;
   const tier = challengeTierV1(state);
   const def = challengeDefinition(active, tier);
   if (!def) return;
+  /* Lu dans le jeu (Hour24ChallengeController::Update + challengeFailed, build 1260, 2026-11-17) : à 86400 s de défi (>=) il échoue tout seul, sans récompense. */
+  if (active === "twentyFourHours" && num(state.challenge.startedAt, 0) > 0 && num(now, 0) - num(state.challenge.startedAt, 0) >= 24 * 3600000) {
+    challengeAction(state, { mode: "stop" }, context || {}, now);
+    return;
+  }
   const done = Math.max(0, int(challengeCompletionsV1(state, tier)?.[active], 0));
   if (active === "laserSword") {
     const need = 2 + done;
@@ -1369,7 +1379,7 @@ export function challengeAction(state, payload, context, now) {
     const before=Math.max(0,int(completions[id],0));
     const target=challengeTargetBoss(def,before);
     if(target>0&&num(context.bosses,0)<target)throw new Error("OBJECTIF_NON_ATTEINT");
-    if(id==="twentyFourHours"&&now-num(state.challenge.startedAt,now)>24*3600000)throw new Error("DEFI_ECHOUE_TEMPS");
+    if(id==="twentyFourHours"&&now-num(state.challenge.startedAt,now)>=24*3600000)throw new Error("DEFI_ECHOUE_TEMPS");
     if(id==="laserSword"){
       // Wiki : "Make a (2/2 + 1/1 per completion) Laser Sword" — palier 2/2 à la 1re, +1/+1 par completion suivante.
       const requiredLevel=2+before;
@@ -1383,6 +1393,8 @@ export function challengeAction(state, payload, context, now) {
     const rewardScale=def.reward?.scaleByNumber?before+1:1;
     const rewardExperience=Math.max(0,num(def.reward?.experience,0))*rewardScale;
     const rewardAp=Math.max(0,num(def.reward?.ap,0))*rewardScale;
+    /* Lu dans le jeu (BasicChallengeController::complete / Character::totalRecycleBonus, build 1260, 2026-11-17) : le compteur brut curCompletions continue de monter au-delà du max et le recyclage vaut 0,1 x ce compteur brut. */
+    if(id==="basic"&&tier==="normal")state.challenge.basicCompletionsRaw=Math.max(0,int(state.challenge.basicCompletionsRaw,0),before)+1;
     if(rewarded){
       completions[id]=before+1;
       /* Lu dans le jeu (récompense de défi -> Character::addExp) : tous les bonus d'EXP s'appliquent, puis arrondi inférieur. */
@@ -1416,6 +1428,8 @@ export function challengeAction(state, payload, context, now) {
   if(state.challenge.active)throw new Error("DEFI_DEJA_ACTIF");
   if(!challengeUnlocked(def,state,context))throw new Error("DEFI_VERROUILLE");
   if(!def.implemented)throw new Error("DEFI_EN_PREPARATION");
+  /* Lu dans le jeu (Rebirth::verifyChallengeStatus, build 1260, 2026-11-17) : « You must defeat the first Boss in order to start any Challenge! » (bossID > 0 dans la run). */
+  if(!(num(context?.bosses,0)>0))throw new Error("DEFI_SANS_BOSS");
   state.challenge.activeTier=tier;
 
   // Wiki : "Starting ANY challenge resets NUMBER to 1 and empties banks —
@@ -1739,6 +1753,10 @@ export function buyQuirkV1(state, quirkId) {
   const quirk = idleQuirkByIdV1(int(quirkId, -1));
   if (!quirk) throw new Error("QUIRK_INTROUVABLE");
   if (!idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, quirk.id, state.difficulty)) throw new Error("DIFFICULTE_REQUISE");
+  /* Lu dans le jeu (build 1260, 2026-11-17 : BeastQuestPerkController::tryLevelUp, types de la scène) : type 20 (quirks 47-49, 67-69, 86-88) refusé sans Resource 3 ; type 21 (54, 56) sans Wishes ; type 23 (99-169) sans Cartes. */
+  const idQuirk = quirk.id;
+  const r3 = [47, 48, 49, 67, 68, 69, 86, 87, 88].includes(idQuirk);
+  if ((r3 && !state.systems.hacks?.unlocked) || ((idQuirk === 54 || idQuirk === 56) && !state.systems.wishes?.unlocked) || (idQuirk >= 99 && idQuirk <= 169 && !state.systems.cards?.unlocked)) throw new Error("SYSTEME_VERROUILLE");
   const levels = s.data && typeof s.data === "object" ? s.data.levels : null;
   const currentLevel = Math.max(0, int(levels?.[quirk.id], 0));
   const cost = idleQuirkNextCostV1(quirk, currentLevel);

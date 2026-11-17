@@ -192,3 +192,6 @@ Types des quirks (scène, liste `quirkType`) pour le point 11 : 20 = ids 47-49, 
 - **Respawn** (`AdventureController::respawnTime`) : utilisé par le temps d'idle ; non relu (groupe Aventure).
 - **`bonuses[43]`, `bonuses[25]`, `Character.addAP` ajouts d'équipement** : seuls le plancher et le x1,2 / x1,02 d'`addAP` (2225) sont lus ; le groupe Boutiques/AP les couvre.
 - **Interface de Questing** (zone « Go to quest » conditionnée par l'achat) : hors gameplay.
+
+
+Mise a jour 2026-11-17 : corrige le 2026-11-17 : arrondis QP/AP en deux troncatures float32 (idle-questing-v1.js), garde d achat des quirks R3/Souhaits/Cartes (idle-ngu-snapshot.js buyQuirkV1). Les points P1 1, 2, 3, 4, 6, 7, 12, 13 etaient deja corriges.

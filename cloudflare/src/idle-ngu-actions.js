@@ -425,7 +425,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
         createItem: idleAdventureSpecialItemV1,
         addItem: idleAdventureAddItemV1,
         nextCost: (id) => idleSelloutShopNextCostV1(idleSelloutShopItemV1(id), state.selloutShop?.purchases?.[id]),
-        r3Unlocked: Boolean(state.systems.hacks?.unlocked)
+        r3Unlocked: Boolean(state.systems.hacks?.unlocked), wishesUnlocked: Boolean(state.systems.wishes?.unlocked), cardsUnlocked: Boolean(state.systems.cards?.unlocked)
       });
     } else {
       result = idleSelloutShopBuyV1(state, payload.itemId);
@@ -964,9 +964,11 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
   const beastV4Ready = Boolean(context.beastV4Beaten);
   const bossReadySadistic = num(peaks.difficile, 0) >= 300; /* lu dans le jeu (Rebirth::setSadisticNextRebirth) : highestHardBoss >= 300 */
   const exileV4Ready = Boolean(context.exileV4Beaten);
+  const evilDejaEntre = state?.difficulty === "difficile" || state?.difficulty === "extreme" || num(peaks.difficile, 0) > 0 || num(peaks.extreme, 0) > 0;
   return {
     difficile: {
-      met: bossReadyEvil && richJerksReady && beastV4Ready,
+      /* lu dans le jeu, build 1260, 2026-11-17 (Rebirth::setEvilNextRebirth) : une fois le succès 152 (premier passage en Evil) obtenu, TOUS les tests Evil sont sautés. */
+      met: evilDejaEntre || (bossReadyEvil && richJerksReady && beastV4Ready),
       bossReady: bossReadyEvil,
       richJerksReady,
       richJerksItopodBonusPct,
@@ -1132,6 +1134,11 @@ function buyExpShopV1(state, payload) {
   /* Auto-Activate Yggdrasil : « Your total Energy or Magic cap must be 10x greater than the fruit's activation cost ». */
   /* Auto-Activate d'un fruit de Mayo : seulement une fois le fruit disponible (système Cards). */
   if (def.yggFruit && idleYggIsMayoFruitV1(def.yggFruit) && !idleYggFruitUnlockedV1(state, def.yggFruit)) throw new Error("ACHAT_VERROUILLE");
+  /* lu dans le jeu, build 1260, 2026-11-17 : AdventurePurchases::buyDaycareSlot2/3 (« You have to buy the daycare first ») exigent hasDaycare ; buyInvMergeSlot exige hasAutoMerge. */
+  if ((id === "daycareSlot2" || id === "daycareSlot3") && expShopPurchasedV1(state, "daycareSlot1") < 1) throw new Error("ACHAT_VERROUILLE");
+  if (id === "inventoryMergeSlot" && expShopPurchasedV1(state, "autoMerge") < 1) throw new Error("ACHAT_VERROUILLE");
+  /* lu dans le jeu (YggdrasilEXPPurchases::buyFruit) : le fruit doit déjà être débloqué (Fruit.maxTier > 0) ; un fruit secret non débloqué est refusé. */
+  if (def.yggFruit && !idleYggFruitUnlockedV1(state, def.yggFruit) && num(state.systems.yggdrasil?.data?.fruits?.[def.yggFruit]?.tier, 0) <= 0) throw new Error("ACHAT_VERROUILLE");
   if (def.requiredCap && !(expShopPurchasedV1(state, id) >= num(def.max, Infinity)) && idleNguEffectiveResourceStatV1(state, def.resource, "cap") < def.requiredCap) throw new Error("CAP_RESSOURCE_INSUFFISANT");
   const wanted = clamp(int(payload.quantity, 1), 1, 1000000);
   let bought = 0;

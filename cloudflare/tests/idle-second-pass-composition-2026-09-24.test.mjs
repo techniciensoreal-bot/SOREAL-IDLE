@@ -67,7 +67,7 @@ function etatAvecFib89() {
   /* Défi Basic (2 500 AP) : x1,02 (Fibonacci 89) arrondi à l'inférieur = 2 550. */
   const s0 = etatAvecFib89();
   s0.systems.challenges.unlocked = true;
-  const demarre = applyIdleNguAction(s0, { action: "challenge", mode: "start", challenge: "basic" }, { bosses: 0 }, T0 + 500).state;
+  const demarre = applyIdleNguAction(s0, { action: "challenge", mode: "start", challenge: "basic" }, { bosses: 1 }, T0 + 500).state;
   const ap0 = demarre.currencies.ap;
   const r = applyIdleNguAction(demarre, { action: "challenge", mode: "complete", challenge: "basic" }, { bosses: 58 }, T0 + 1000).state;
   /* 2026-09-24 (fusion avec main) : le bonus AP commun inclut aussi les succès (BP/10000) -> facteur relu sur l état obtenu. */
@@ -141,13 +141,13 @@ function etatAvecFib89() {
     s.systems.bloodMagic.unlocked = true;
     for (const k of ["energy", "magic", "r3"]) {
       s.resources[k].power = 1;
-      s.resources[k].cap = 1e6;
-      s.resources[k].current = 1e6;
+      s.resources[k].cap = 1e15;
+      s.resources[k].current = 1e15;
     }
     if (niveauPerkEnergie) s.systems.perks.data.levels = { 6: niveauPerkEnergie }; // Generic Energy Power Perk I : +1 %/niveau
     s = normalizeIdleNguState(s, ctx, T0);
     s = act(s, { action: "setWishSlot", slot: 0, wish: "1" });
-    for (const r of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlot", slot: 0, resource: r, value: 100 });
+    for (const r of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlot", slot: 0, resource: r, value: 1e15 });
     const apres = advanceIdleNguState(s, 1000, ctx, T0 + 1000);
     return apres.systems.wishes.data.tracks["1"].progress;
   }

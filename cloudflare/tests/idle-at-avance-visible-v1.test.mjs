@@ -15,5 +15,5 @@ assert.ok(s.includes("const caseAvance=document.querySelector('.soreal-idle-at-a
 assert.ok(s.includes("tSync-(el.__atSyncT||0)>3000") && s.includes("Rg.synchroniserJeuIdleV7_(true)"), "au plus une synchro toutes les 3 s par ligne");
 // le moteur : avec la case cochée l'énergie passe à la suivante (une cible -1 n'est jamais une destination) ; sans, elle est rendue
 const moteur = fs.readFileSync("cloudflare/src/idle-ngu-pistes.js", "utf8");
-assert.ok(moteur.includes("s.data.advanceEnergy\n      ? IDLE_AT_ORDRE_V1.slice(index + 1).find(n => pistes[n]") && moteur.includes("!atTargetIgnoreV1(pistes[n]) && !atTargetAtteintV1(pistes[n])"), "moteur : prochaine ligne débloquée, ni à -1 ni déjà au Target");
+assert.ok(moteur.includes("s.data.advanceEnergy\n      ? [...IDLE_AT_ORDRE_V1.slice(index + 1), ...IDLE_AT_ORDRE_V1.slice(0, index)].find(n => pistes[n]") && moteur.includes("!atTargetIgnoreV1(pistes[n]) && !atTargetAtteintV1(pistes[n])"), "moteur : prochaine ligne débloquée, ni à -1 ni déjà au Target");
 console.log("idle-at-avance-visible-v1: OK");

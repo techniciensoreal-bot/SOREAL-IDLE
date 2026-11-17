@@ -179,3 +179,7 @@ Evil/Sadistic (`CHALLENGE_TIER_ROWS_V1`, lignes 274-287) : EXP = base x10 / x100
 - **Effets des trolls au détail** : `trollBox`, `trollMenus`, `trollKitty` (affichage), ancre `trollMenuSwap` (75 % de menu aléatoire) : purement client, non audités. Les montants exacts des dialogues sont de l'UI.
 - **MacGuffins / Cartes / Wishes** liés aux défis (Troll Sadistic 2, cartes Sadistic 5/6, slot de souhait Evil 7) : consommateurs lus côté jeu (`macGuffinBonusTimeFactor`, `curWishSlots`, `wishLocked`) et retrouvés dans SOREAL (`idle-macguffins-v1.js:287`, `idle-ngu-pistes.js:60`, `idle-difficulty-gates-v1.js:98`), mais leurs formules propres relèvent des groupes MacGuffins / Wishes.
 - Le fichier `cache.json` du lecteur d'IL (cwd du dossier scratchpad) a servi aux recherches croisées (`g.mjs`) ; aucune modification du dépôt hors de ce rapport.
+
+## Suite 2026-11-17
+
+Corrigé le 2026-11-17 : or du No Time Machine (GPS = 1 + complétions Normal ; x2 sur l or global au 1er Evil), Auto Boost toutes difficultés, 24 Hour échoue seul à 86400 s, Laser Sword débloqué à vie (`challenge.laserUnlocked`), déblocages Evil/Sadistic = mêmes conditions que Normal, No NGU (énergie OU magie >= 10000, niveaux Normal) et 100 Levels (énergie >= 10), compteur brut Basic pour le recyclage (`challenge.basicCompletionsRaw`), lancement refusé sans boss vaincu. Non corrigé : plafond x3 des NGU (non modélisé), blocage Blind 180 s, PARALYZE.

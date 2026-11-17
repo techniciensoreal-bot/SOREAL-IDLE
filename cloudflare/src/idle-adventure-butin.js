@@ -202,7 +202,8 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       boosts:[{strength:1,chance:.15,requiresUnlockedSet:"training"}]
     },
     boss:{
-      equipment:[{chance:1,definitions:["training:head","training:chest","training:legs","training:boots"],level:10}]
+      /* lu dans le jeu, build 1260, 2026-11-17 : LootDrop::zone0Drop : la première pièce Training pas encore tombée, dans l'ordre 62 casque, 65 bottes, 64 jambières, 63 plastron ; ensuite tirage uniforme sur les 4 */
+      equipment:[{chance:1,definitions:["training:head","training:chest","training:legs","training:boots"],orderedFirst:["training:head","training:boots","training:legs","training:chest"],level:10}]
     }
   },
   sewers:{
@@ -391,6 +392,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
       equipment:[{chance:.00055,cap:.12,set:"choco",level:1}],
       specials:[
         {ids:["energyBarBarAccessory","magicBarBarAccessory"],chance:.00018,cap:.12,level:1,requiresCompletedSet:"choco"}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",flat:.001,chance:1e-9,cap:.01,level:0}, /* lu dans le jeu, build 1260, 2026-11-17 : LootDrop::zone20Drop (objet 142, makeLevelledLoot niveau 0) ; wiki « 0.1% + 0.0000001% » */
         {id:"candyCornNecklace",chance:.00008,cap:.016,level:1}
       ]
     }
@@ -406,7 +408,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
    * zone (Evil Bonus Accs), les Ascended Pendants et les Looties sont désormais
    * tirés avec les taux/plafonds/niveaux de la section Loot. Lignes volontairement
    * NON tirées (jamais de valeur de repli, règle n°1 AGENTS.md) :
-   * - Chocolate World / The Evilverse / Pretty Pink Princess Land : "Ascended
+   * - (2026-11-17 : tirées désormais, valeurs lues dans le jeu, terme fixe `flat` + chance x facteur de butin) Chocolate World / The Evilverse / Pretty Pink Princess Land : "Ascended
    *   Ascended Ascended Pendant (0.1% + 0.0000001% / 0.15% + 0.00000001% /
    *   0.15% + 0.000000002% base chance)" -- notation "+" que le wiki n'explique
    *   nulle part ;
@@ -424,7 +426,10 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
         {chance:0.00021,cap:0.12,definitions:["edgy:head","edgy:chest","edgy:legs","edgy:weapon","edgy:amulet","edgyboots:left","edgyboots:right"],level:1},
         {chance:0.000018,cap:0.12,definitions:["bothedgy:boots"],level:1,requiresCompletedSet:"edgyboots"}
       ],
-      specials:[{id:"edgyMagicite",chance:0.00002,cap:0.011,level:1}] /* wiki, section Loot > Boss (audit 2026-09-23) */
+      specials:[
+        {id:"edgyMagicite",chance:0.00002,cap:0.011,level:1}, /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",flat:.0015,chance:1e-10,cap:.015,level:1} /* lu dans le jeu, build 1260, 2026-11-17 : LootDrop::zone21Drop (objet 142, niveau 1) ; wiki « 0.15% + 0.00000001% » */
+      ]
     }
   },
   pinkprincess:{
@@ -436,6 +441,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
     boss:{
       equipment:[{chance:0.0001,cap:0.12,set:"pinkprincess",level:1}],
       specials:[ /* wiki, section Loot > Boss (audit 2026-09-23) */
+        {id:"ascendedX3Pendant",flat:.0015,chance:2e-11,cap:.02,level:2}, /* lu dans le jeu, build 1260, 2026-11-17 : LootDrop::zone22Drop (objet 142, niveau 2) ; wiki « 0.15% + 0.000000002% » */
         {id:"creepyDoll",chance:0.000012,cap:0.013,level:1}
       ]
     }
@@ -656,10 +662,11 @@ function zoneUsesCubeRootDropV2(z){
   return Boolean(z&&(z.id==="chocolate"||z.requiredDifficulty));
 }
 
-export function idleAdventureDropChanceV2(baseChance,cap,dropMultiplier,zone){
+export function idleAdventureDropChanceV2(baseChance,cap,dropMultiplier,zone,flatChance){
   const mult=Math.max(0,N(dropMultiplier,1));
   const effectif=zoneUsesCubeRootDropV2(zone)?Math.pow(mult,0.3333333134651184):mult;/* exposant float32 du jeu (Character::lootFactorRooted) */
-  return C(N(baseChance)*effectif,0,cap==null?1:N(cap));
+  /* flatChance : terme FIXE ajouté avant le plafond, non multiplié par le facteur de butin (lu dans le jeu, build 1260, 2026-11-17 : LootDrop::zone20Drop/zone21Drop/zone22Drop, « 0,001 + 1e-9 x lootFactorRooted ») */
+  return C(N(flatChance)+N(baseChance)*effectif,0,cap==null?1:N(cap));
 }
 
 function dropLevelAdventureV2(s,baseLevel){
@@ -686,7 +693,7 @@ function rollEquipmentAdventureV2(s,z,pool,dropMult,info){
   const defs=definitionsEquipmentPoolAdventureV2(pool);
   if(!defs.length)return null;
   if(pool.requiresCompletedSet&&!s.completedSets[String(pool.requiresCompletedSet)])return null;
-  const firstId=String(pool.firstGuaranteed||"");
+  const firstId=String(pool.firstGuaranteed||(Array.isArray(pool.orderedFirst)?pool.orderedFirst.find(x=>!s.itemList[x]?.seen)||"":"")); /* orderedFirst : premier de la liste jamais vu */
   const guaranteed=Boolean(firstId&&!s.itemList[firstId]?.seen);
   if(!guaranteed&&Math.random()>=idleAdventureDropChanceV2(pool.chance,pool.cap,dropMult,z))return null;
 
@@ -751,7 +758,7 @@ function rollSpecialAdventureV2(s,z,def,dropMult,mobName){
   if(ids.includes("tutorialCube")&&s.unlockFlags?.tutorialCubeMaxed)return null;
 
   const firstGuaranteed=Boolean(ids.length===1&&def.firstGuaranteed&&!s.itemList[ids[0]]?.seen);
-  if(!firstGuaranteed&&Math.random()>=idleAdventureDropChanceV2(def.chance,def.cap,dropMult,z))return null;
+  if(!firstGuaranteed&&Math.random()>=idleAdventureDropChanceV2(def.chance,def.cap,dropMult,z,def.flat))return null;
 
   const id=ids.length===1?ids[0]:ids[I(Math.random()*ids.length)];
   const source=SPECIALS[id];
@@ -860,7 +867,7 @@ export function rollKill(s,ctx){
 
   if(z.id==="tutorial"){
     const flubberBoss=I(ctx.bosses);
-    if(flubberBoss>=59&&Math.random()<C(.0082+.0041*(flubberBoss-59),0,1)){
+    if(flubberBoss>=59&&Math.random()<C((Math.min(flubberBoss,300)-57)/243,0,1)){ /* lu dans le jeu, build 1260, 2026-11-17 : LootDrop::zone0Drop, bossID > 58 et Random.Range(58,301) <= bossID, soit (min(bossID,300)-57)/243 */
       const flubber=add(s,special("flubber",SPECIALS.flubber.dropLevel||0));
       if(flubber)out.push(flubber);
     }

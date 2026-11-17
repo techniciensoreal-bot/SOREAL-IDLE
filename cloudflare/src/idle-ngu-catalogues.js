@@ -354,7 +354,7 @@ export function challengePermanentBonuses(state){
     /* Basic : +5 % par complétion (+10 % la première) en Normal, +10 % par complétion en Evil. */
     /* Lu dans le jeu (AllChallengesController::adventureBonus, 2026-11-16) : (1 + 0,05 c + 0,1 si c >= 1) x (1 + 0,1 x complétions Evil). */
     adventureStatsMultiplier:(1+basic*0.05+(basic>0?0.10:0))*(1+k(e,"basic")*0.10),
-    boostRecycleChance:clamp(basic*0.10,0,1),
+    boostRecycleChance:clamp(Math.max(basic,k(state?.challenge||{},"basicCompletionsRaw"))*0.10,0,1),
     augmentationPowerMultiplier:1+noAugs*0.25,
     /* No Augs : +10 % (1re, Normal), Evil +5 % par complétion et +25 % supplémentaires à la dernière. */
     /* Lu dans le jeu (getAugProgressPerTick) : les trois facteurs se MULTIPLIENT. */
@@ -369,7 +369,8 @@ export function challengePermanentBonuses(state){
     laserSwordExponentStep:laserSwordStepV1(k(c,"laserSword")),
     /* No Equipment : +8 slots par complétion (+10 à la dernière, 50 au total) en Normal ; Evil : +3 par complétion et +9 à la dernière (24 au total, page Inventory). */
     inventorySlots:noEquipment*8+(noEquipment>=5?10:0)+k(e,"noEquipment")*3+(k(e,"noEquipment")>=5?9:0),
-    autoBoost:noEquipment>0,
+    /* Lu dans le jeu (NoEquipmentChallengeController::complete, build 1260, 2026-11-17) : hasAutoBoost = 1 à chaque complétion, toute difficulté. */
+    autoBoost:noEquipment>0||k(e,"noEquipment")>0||noEquipmentSadistic>0,
     autoMergeTimeMultiplier:Math.max(0.5,1-noEquipment*0.10),
     /* No Rebirth : -15 min de respawn par complétion pour les titans à partir de Jake (Normal), du Greasy Nerd (Evil), d'IT HUNGERS (Sadistic). */
     titanRespawnReductionMs:noRebirth*15*60*1000,
@@ -380,11 +381,12 @@ export function challengePermanentBonuses(state){
     /* Troll : Normal 1re = Magic NGU x3 ; Sadistic 1re = Energy NGU x3. */
     nguSpeedMagicChallengeMultiplier:trollNormal>=1?3:1,
     nguSpeedEnergyChallengeMultiplier:trollSadistic>=1?3:1,
-    /* Page Broken Time Machine : « les 10 No TM normaux et le 1er No TM Evil donnent +100 % chacun, 1100 % au total ». */
-    timeMachineGoldMultiplier:1+noTimeMachine+(noTimeMachineEvil>=1?1:0),
+    /* (la page Broken Time Machine du wiki place le 1er No TM Evil dans le GPS ; le code du jeu le place sur l'or global : le code gagne) */
+    /* Lu dans le jeu (TimeMachineChallengeController::totalGPSbonus, build 1260, 2026-11-17) : GPS de la Time Machine x (1 + completions Normal) ; le 1er Evil double le bonus d'or GLOBAL (Character::totalGoldbonus), voir goldDropChallengeMultiplier. */
+    timeMachineGoldMultiplier:1+noTimeMachine,
     /* No Time Machine Evil : +10 % de vitesse de la Time Machine par complétion ; 1re = +100 % de gains d'or. */
     timeMachineSpeedMultiplier:1+noTimeMachineEvil*0.10,
-    goldDropChallengeMultiplier:1,
+    goldDropChallengeMultiplier:noTimeMachineEvil>=1?2:1,
     diggerGlobalMultiplier:noTimeMachine>0?1.05:1,
     diggerSlotBonus:noTimeMachine>=5?1:0,
     /* No NGU Evil : +20 % de vitesse des Hacks par complétion ; Troll Evil 5e : +25 % de vitesse des Hacks. */

@@ -41,15 +41,15 @@ function base() {
   const ancienne = JSON.parse(JSON.stringify(base()));
   delete ancienne.systems.wishes.data.slots;
   ancienne.systems.wishes.data.activeTrack = "5";
-  ancienne.systems.wishes.allocation = { energy: 30, magic: 20, r3: 10 };
+  ancienne.systems.wishes.allocation = { energy: 1e16, magic: 1e16, r3: 1e16 };
   ancienne.systems.wishes.data.tracks["5"].progress = 0.25;
   const s = normalizeIdleNguState(ancienne, ctx, 1_000_000);
   const w = s.systems.wishes;
   assert.equal(w.data.slots[0].wish, "5");
-  assert.deepEqual(w.data.slots[0].allocation, { energy: 30, magic: 20, r3: 10 });
+  assert.deepEqual(w.data.slots[0].allocation, { energy: 1e16, magic: 1e16, r3: 1e16 });
   assert.deepEqual(w.data.slots.slice(1).map(x => x.wish), ["", "", ""]);
   assert.deepEqual(w.data.slots.slice(1).map(x => x.allocation), [zero, zero, zero]);
-  assert.deepEqual(w.allocation, { energy: 30, magic: 20, r3: 10 }, "la quantité allouée ne change pas");
+  assert.deepEqual(w.allocation, { energy: 1e16, magic: 1e16, r3: 1e16 }, "la quantité allouée ne change pas");
   assert.equal(w.data.tracks["5"].progress, 0.25, "progression conservée");
   // Idempotent.
   assert.deepEqual(normalizeIdleNguState(s, ctx, 1_000_000).systems.wishes.data.slots, w.data.slots);

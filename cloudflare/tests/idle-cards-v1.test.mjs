@@ -323,7 +323,7 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   let t = base();
   t.difficulty = "extreme";
   t.systems.challenges.unlocked = true;
-  t = applyIdleNguAction(t, { action: "challenge", mode: "start", challenge: "basic" }, { bosses: 0 }, 1_000_000).state;
+  t = applyIdleNguAction(t, { action: "challenge", mode: "start", challenge: "basic" }, { bosses: 1 }, 1_000_000).state;
   t = applyIdleNguAction(t, { action: "challenge", mode: "complete", challenge: "basic" }, { bosses: 58 }, 1_000_000).state;
   assert.equal(t.systems.cards.data.mayo.angry, 1, "1re complétion Sadistic : +1 Angry");
 }

@@ -407,6 +407,8 @@ function wishSecondsForLevelV1(state, trackDef, level, allocation, params) {
   const divider = Math.max(1, num(trackDef.speedDivider, 1e15));
   /* Lu dans le jeu (WishesController::rawProgressPerTick / timeToLevel, build 1260, 2026-11-15) : la progression est PAR TICK ; le temps d'un niveau en secondes est 1 / progression / 50 (le diviseur du catalogue est celui du jeu, en ticks). */
   const rawSeconds = (divider * (level + 1)) / Math.pow(numerator, 0.17) / params.speedMultiplier / 50;
+  /* Lu dans le jeu (build 1260, 2026-11-17 : WishesController::progressPerTick) : sous 1e-8 de progression par tick (soit plus de 2 000 000 s par niveau) le souhait ne bouge plus (« INFINITY TIME »). */
+  if (rawSeconds > 1 / (1e-8 * 50)) return Infinity;
   /* Durée quantifiée sur les ticks (lu dans le jeu : une barre repart de 0 à chaque niveau, au plus un niveau par tick). */
   return Number.isFinite(rawSeconds) ? dureeNiveauEnTicksV1(Math.max(params.wishMinSeconds, rawSeconds)) : Infinity;
 }
@@ -552,8 +554,9 @@ export function atApplyTargetsV1(state) {
     const t = pistes[id];
     /* Cible -1 + « Faire suivre l'énergie » (Norman, 2026-11-07 : « quand une cible est à -1 elle doit juste faire passer à la ligne suivante l'énergie ») : une ligne à -1 n'est jamais une destination ET fait passer tout de suite son énergie à la ligne suivante, comme une ligne qui a atteint sa cible ; sans suivante, l'énergie est rendue. Sans « Faire suivre l'énergie », -1 ne change rien. */
     if (!t || !(atTargetAtteintV1(t) || (s.data.advanceEnergy && atTargetIgnoreV1(t))) || atTrackEnergyV1(s, id) <= 0) return;
+    /* Lu dans le jeu (AllAdvancedTraining::advanceEnergy, build 1260, 2026-11-17) : le parcours est CIRCULAIRE (après la dernière compétence, retour à la première). */
     const suivante = s.data.advanceEnergy
-      ? IDLE_AT_ORDRE_V1.slice(index + 1).find(n => pistes[n] && (wandoosOk || !(n === "wandoosEnergy" || n === "wandoosMagic")) && !atTargetIgnoreV1(pistes[n]) && !atTargetAtteintV1(pistes[n]))
+      ? [...IDLE_AT_ORDRE_V1.slice(index + 1), ...IDLE_AT_ORDRE_V1.slice(0, index)].find(n => pistes[n] && (wandoosOk || !(n === "wandoosEnergy" || n === "wandoosMagic")) && !atTargetIgnoreV1(pistes[n]) && !atTargetAtteintV1(pistes[n]))
       : "";
     if (suivante) {
       pistes[suivante].energy = atTrackEnergyV1(s, suivante) + atTrackEnergyV1(s, id);

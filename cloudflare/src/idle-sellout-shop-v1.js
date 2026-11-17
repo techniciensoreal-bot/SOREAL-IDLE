@@ -350,6 +350,8 @@ export function idleSelloutApplyEffectV1(state, itemId, times = 1) {
     state.selloutEffects.stock[itemId] = I(state.selloutEffects.stock[itemId], 0) + Math.max(0, I(times, 1));
     return;
   }
+  /* lu dans le jeu, build 1260, 2026-11-17 : ArbitraryController::buyAdvAdvancerAP pose Adventure.didAdvAdvance = 1 : pas de saut de zone avant le Rebirth suivant. */
+  if (itemId === "adventureAdvancer" && state.adventure && typeof state.adventure === "object") state.adventure.advancerRun = Math.max(0, N(state.runStartedAt, 0));
   appliquerEffetDirectV1(state, itemId, times);
 }
 

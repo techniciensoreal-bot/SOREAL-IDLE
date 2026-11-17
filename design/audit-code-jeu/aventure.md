@@ -194,3 +194,7 @@ Priorité 3 : à décider avec Norman (choix de conception, pas de correction au
 ## 4. Fichiers produits (scratchpad, hors dépôt)
 
 Extracteurs réutilisables dans `C:\Users\n0rma\AppData\Local\Temp\claude\b883b574b5088a80\b4066ebc-7bf5-4a09-82c0-4bc51651386e\scratchpad\` : `ptable.mjs` (table d'ennemis), `pitems.mjs` (515 objets), `loot.mjs` + `lootparse.mjs` (tables de butin en données), `cmpmob.mjs`, `cmpitems.mjs`, `cmpspec2.mjs`, `cmpcur.mjs`, `cmploot.mjs`, `cmpgold.mjs`, `cmpboss.mjs` (comparaisons), et leurs sorties (`zones-jeu.json`, `items-jeu.json`, `lootjeu.json`).
+
+## Suivi 2026-11-17
+
+Corrige le 2026-11-17 : Pendant 142 en boss de Chocolate / Evilverse / Pink Princess (formule du jeu : terme FIXE 0,001 / 0,0015 / 0,0015 + chance x lootFactorRooted, `flat` dans `idle-adventure-butin.js`) ; Lonely Flubber `(min(bossID,300)-57)/243` ; pieces Training du boss du Tutorial dans l ordre 62,65,64,63 (`orderedFirst`) ; reduction de cooldown des objets `base/(1+pct/100)` (Character::totalCooldownBonus, sans plafond). Les autres ecarts de ce rapport etaient deja corriges. Non corrige : farm de zone hors ligne (decision de design), respawn de ce farm.

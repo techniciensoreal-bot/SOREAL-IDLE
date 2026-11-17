@@ -42,8 +42,8 @@ export const IDLE_HEARTS_V1 = Object.freeze([
   Object.freeze({ id: "heartOrange", wikiId: 293, name: "My Orange Heart" }),
   /* "My Grey Heart is unlocked by Resource 3 unlocked" ; "You cannot get this heart before unlocking Resource 3". */
   Object.freeze({ id: "heartGrey", wikiId: 297, name: "My Grey Heart", requiresR3: true }),
-  Object.freeze({ id: "heartPink", wikiId: 344, name: "My Pink Heart" }),
-  Object.freeze({ id: "heartRainbow", wikiId: 390, name: "My Rainbow Heart" })
+  Object.freeze({ id: "heartPink", wikiId: 344, name: "My Pink Heart", requiresR3: true, requiresWishes: true /* lu dans le jeu, build 1260, 2026-11-17 : ArbitraryController::startHeartPinkAP exige res3On ET wishesOn */ }),
+  Object.freeze({ id: "heartRainbow", wikiId: 390, name: "My Rainbow Heart", requiresCards: true /* lu dans le jeu, build 1260, 2026-11-17 : ArbitraryController::startHeartRainbowAP exige cardsOn */ })
 ]);
 
 export function idleHeartV1(id) {
@@ -118,6 +118,8 @@ export function idleHeartsBuyV1(state, itemId, deps) {
   const heart = idleHeartV1(itemId);
   if (!heart) throw new Error("COEUR_INTROUVABLE");
   if (heart.requiresR3 && !deps.r3Unlocked) throw new Error("R3_VERROUILLEE");
+  if (heart.requiresWishes && !deps.wishesUnlocked) throw new Error("SOUHAITS_VERROUILLES");
+  if (heart.requiresCards && !deps.cardsUnlocked) throw new Error("CARTES_VERROUILLEES");
   const cost = deps.nextCost(heart.id);
   if (cost == null) throw new Error("OBJET_AU_MAXIMUM");
   if (N(state.currencies?.ap, 0) < cost) throw new Error("AP_INSUFFISANT");

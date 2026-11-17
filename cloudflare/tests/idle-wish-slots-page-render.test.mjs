@@ -59,10 +59,10 @@ s.systems.bloodMagic.unlocked = true;
 for (const id of Object.keys(s.systems)) if (s.systems[id] && typeof s.systems[id] === "object") s.systems[id].unlocked = true;
 s.records.highestBoss = 400;
 s.systems.quirks.data.levels = { 56: 1 };
-for (const k of ["energy", "magic", "r3"]) { s.resources[k].cap = 1000; s.resources[k].current = 1000; }
+for (const k of ["energy", "magic", "r3"]) { s.resources[k].cap = 1e16; s.resources[k].current = 1e16; }
 s = act(s, { action: "setWishSlot", slot: 0, wish: "1" });
 s = act(s, { action: "setWishSlot", slot: 1, wish: "9" });
-for (const k of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlot", slot: 0, resource: k, value: 100 });
+for (const k of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlot", slot: 0, resource: k, value: 1e15 });
 
 {
   const html = page({ systemes: idleNguSnapshot(s, ctx, 1_000_000) }, "wishes", "Wishes");
@@ -82,7 +82,7 @@ for (const k of ["energy", "magic", "r3"]) s = act(s, { action: "allocateWishSlo
   assert.ok(selects[0].includes('<option value="1" selected>'));
   assert.ok(!selects[1].includes('<option value="1"'), "souhait déjà dans un autre slot");
   // 100 % du slot 2 = cap - 100 (déjà alloué au slot 1).
-  assert.ok(html.includes("ajusterVoeu(1,'energy','max',0,900)"), "Max du slot 2 : tout ce qui reste (1000 - 100 déjà au slot 1)");
+  assert.ok(html.includes("ajusterVoeu(1,'energy','max',0,9000000000000000)"), "Max du slot 2 : tout ce qui reste (1e16 - 1e15 déjà au slot 1)");
   assert.ok(html.includes("Tous les souhaits (229)"), "231 souhaits moins Dual Wielding I et II, qui exigent les Troll Challenges Evil 4 et 6 (page Wishes)");
 }
 

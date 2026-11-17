@@ -241,6 +241,17 @@ export function nguNumberRebirthV1(state, timeFactor) {
   return out;
 }
 
+/*
+ * Lu dans le jeu (AllNGUController::nguChallengeUnlocked et unlocked100LevelChallenge, build 1260, 2026-11-17) : les conditions des défis No NGU et 100 Levels
+ * comptent les niveaux de BASE (palier Normal) des NGU d'Énergie et des NGU de Magie séparément (No NGU : l'une OU l'autre somme >= 10000 ; 100 Levels : somme Énergie >= 10).
+ */
+export function nguNormalLevelSumsV1(state) {
+  const map = nguLevelsMapV1(state);
+  const sums = { energy: 0, magic: 0 };
+  for (const def of IDLE_NGU_CATALOG_V1) sums[def.resource === "magic" ? "magic" : "energy"] += map.normal[def.id] || 0;
+  return sums;
+}
+
 export function nguTotalLevelsV1(state) {
   const map = nguLevelsMapV1(state);
   let total = 0;

@@ -22,8 +22,8 @@ assert.ok(
   "The Lonely Flubber doit exister dans SPECIALS (zone tutorial, accessoire, set:training pour l'image R2 partagée)."
 );
 assert.ok(
-  /flubberBoss\s*>=\s*59\s*&&\s*Math\.random\(\)\s*<\s*C\(\.0082\s*\+\s*\.0041\s*\*\s*\(flubberBoss\s*-\s*59\)\s*,\s*0\s*,\s*1\s*\)/.test(source),
-  "La formule exacte du wiki (0.82% dès boss 59, +0.41%/boss, plafonnée à 100%) doit être utilisée, indépendamment du formatage du code."
+  /flubberBoss\s*>=\s*59\s*&&\s*Math\.random\(\)\s*<\s*C\(\(Math\.min\(flubberBoss,\s*300\)\s*-\s*57\)\s*\/\s*243\s*,\s*0\s*,\s*1\s*\)/.test(source),
+  "La formule exacte du jeu (build 1260, LootDrop::zone0Drop : (min(boss,300)-57)/243, soit 0,82 % au boss 59, +0,41 %/boss, 100 % au 300 ; le wiki arrondit) doit être utilisée, indépendamment du formatage du code."
 );
 assert.ok(
   !/flubber.*dropMult/.test(source.slice(source.indexOf('if(z.id==="tutorial"){const flubberBoss'), source.indexOf('if(z.id==="tutorial"){const flubberBoss') + 300)),

@@ -1205,6 +1205,8 @@ function advanceAdventureAdvancerV1(state, context, now) {
   if (adv.advancerRun === run) return;
   if ((now - run) / 1000 < 20) return;
   adv.advancerRun = run;
+  /* lu dans le jeu, build 1260, 2026-11-17 : AdventureController::Update ne saute que si rebirthTime est entre 20 s et 30 s (une seule fois par Rebirth, didAdvAdvance) ; passé 30 s, la fenêtre est perdue. */
+  if ((now - run) / 1000 > 30) return;
   if (adv.fight && adv.fight.active) return;
   if (String(adv.selectedZone || "safe") !== "safe") return;
   const zone = zoneNormalePlusAvanceeV1(num(context.bosses, 0), state.difficulty, state.difficultyPeaks);

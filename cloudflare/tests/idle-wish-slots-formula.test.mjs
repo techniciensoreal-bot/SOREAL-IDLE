@@ -15,7 +15,7 @@ import { IDLE_WISHES_CATALOG_V1 } from "../src/idle-wishes-v1.js";
  * vitesse sont partagés.
  */
 const ctx = { bosses: 300 };
-const near = (a, b, msg, eps = 1e-9) => assert.ok(Math.abs(a / b - 1) < eps, `${msg} (obtenu ${a}, attendu ${b})`);
+const near = (a, b, msg, eps = 1e-6) => assert.ok(Math.abs(a / b - 1) < eps, `${msg} (obtenu ${a}, attendu ${b})`);
 const act = (s, payload) => applyIdleNguAction(s, payload, ctx, 1_000_000).state;
 
 function base({ slots = 2, power = 1, stock = 1e6 } = {}) {
@@ -43,9 +43,10 @@ function secondesAttendues(id, level, e, m, r, power, params) {
   return Math.max(params.minSecondsPerLevel, brut);
 }
 
+// Puissance 1e15 : sous 1e-8 de progression par tick le jeu arrête le souhait (WishesController::progressPerTick, lu 2026-11-17), donc les petites allocations ne progressent plus.
 // --- Deux slots, deux souhaits, deux allocations : chacun suit la formule avec SA propre allocation ---
 {
-  let s = base();
+  let s = base({ power: 1e15, stock: 1e15 });
   s = act(s, { action: "setWishSlot", slot: 0, wish: "1" });
   s = act(s, { action: "setWishSlot", slot: 1, wish: "5" });
   s = allouer(s, 0, 100, 100, 100);
@@ -54,11 +55,11 @@ function secondesAttendues(id, level, e, m, r, power, params) {
   assert.equal(params.slotCount, 2);
   const apres = advanceIdleNguState(s, 1000, ctx, 1_001_000);
   const t = apres.systems.wishes.data.tracks;
-  near(t["1"].progress, 1000 / secondesAttendues(1, 0, 100, 100, 100, 1, params), "slot 1 : formule du wiki avec son allocation");
-  near(t["5"].progress, 1000 / secondesAttendues(5, 0, 400, 200, 50, 1, params), "slot 2 : formule du wiki avec son allocation");
+  near(t["1"].progress, 1000 / secondesAttendues(1, 0, 100, 100, 100, 1e15, params), "slot 1 : formule du wiki avec son allocation");
+  near(t["5"].progress, 1000 / secondesAttendues(5, 0, 400, 200, 50, 1e15, params), "slot 2 : formule du wiki avec son allocation");
 
   // Indépendance : le slot 1 progresse exactement comme s'il était seul.
-  let seul = base();
+  let seul = base({ power: 1e15, stock: 1e15 });
   seul = act(seul, { action: "setWishSlot", slot: 0, wish: "1" });
   seul = allouer(seul, 0, 100, 100, 100);
   const seulApres = advanceIdleNguState(seul, 1000, ctx, 1_001_000);
@@ -66,17 +67,17 @@ function secondesAttendues(id, level, e, m, r, power, params) {
 
   // Snapshot : durée du niveau en cours par slot.
   const snap = idleNguSnapshot(s, ctx, 1_000_000).wishSlots;
-  near(snap.slots[0].secondsPerLevel, secondesAttendues(1, 0, 100, 100, 100, 1, params), "snapshot slot 1");
-  near(snap.slots[1].secondsPerLevel, secondesAttendues(5, 0, 400, 200, 50, 1, params), "snapshot slot 2");
+  near(snap.slots[0].secondsPerLevel, secondesAttendues(1, 0, 100, 100, 100, 1e15, params), "snapshot slot 1");
+  near(snap.slots[1].secondsPerLevel, secondesAttendues(5, 0, 400, 200, 50, 1e15, params), "snapshot slot 2");
   assert.equal(snap.slots[2], undefined, "anti-spoil : le slot non obtenu n'est pas envoyé");
 }
 
 // --- Répartir est plus efficace (exposant 0,17) : 2 x 100 contre 1 x 200 ---
 {
-  let un = base();
+  let un = base({ power: 3e15, stock: 3e15 });
   un = act(un, { action: "setWishSlot", slot: 0, wish: "1" });
   un = allouer(un, 0, 200, 200, 200);
-  let deux = base();
+  let deux = base({ power: 3e15, stock: 3e15 });
   deux = act(deux, { action: "setWishSlot", slot: 0, wish: "1" });
   deux = act(deux, { action: "setWishSlot", slot: 1, wish: "21" });
   deux = allouer(deux, 0, 100, 100, 100);

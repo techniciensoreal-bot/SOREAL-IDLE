@@ -46,7 +46,7 @@ for (const [id, cd] of [["paralyze", 15000], ["hyperRegen", 35000], ["beastMode"
 /* --- Cooldowns : Build Move Cooldowns oui, Red Liquid NON (global cooldown uniquement) --- */
 const cooldownDuree = fonction("cooldownDureeAdventureIdleV4_", { idleNombre_ });
 const ring = { cooldown: 15000, id: "heal" };
-assert.equal(cooldownDuree(ring, { stats: { specials: { moveCooldownPct: 20 } } }), 12000, "Move Cooldowns équipement : -20 %");
+assert.equal(cooldownDuree(ring, { stats: { specials: { moveCooldownPct: 20 } } }), 12500, "Move Cooldowns équipement : 1 / (1 + 20 %) (Character::totalCooldownBonus, build 1260)");
 assert.equal(
   cooldownDuree(ring, { unlockFlags: { redLiquidMaxed: true }, stats: { specials: {} } }),
   15000,

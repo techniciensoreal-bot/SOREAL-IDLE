@@ -1251,7 +1251,9 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     state.adventure.bonusDropLevelChance = Math.min(1, perks.lootLevelChance + perks.lootGoblinChance);
     state.adventure.idleAttackBonus = Math.max(0, num(challengePermanentBonuses(state).idleAttackBonus, 0));
     /* Dual Wielding : ratio de la seconde arme = 0,05 x (niveau du souhait 28 + niveau du souhait 45), maximum 1 (wiki Wishes ; source tierce player.ts). */
-    state.adventure.dualWieldRatio = Math.min(1, 0.05 * (Math.max(0, wishLevelV1(state, 28)) + Math.max(0, wishLevelV1(state, 45))));
+    /* Lu dans le jeu (build 1260, 2026-11-17 : InventoryController::weapon2Factor / weapon2Unlocked) : facteur 0 tant que le souhait 28 est au niveau 0 (le 45 seul ne donne rien), sinon min(1 ; 28 x 0,05 + 45 x 0,05). */
+    const niveauSouhait28 = Math.max(0, wishLevelV1(state, 28));
+    state.adventure.dualWieldRatio = niveauSouhait28 > 0 ? Math.min(1, 0.05 * (niveauSouhait28 + Math.max(0, wishLevelV1(state, 45)))) : 0;
     /* Boss effectif du jeu (Character::effectiveBossID, 2237) : boss tués dans le Rebirth en cours (context.bosses, remis à 0 à chaque Rebirth) + 301 en Evil + 301 de plus en Sadistic. Mise à l'échelle bossRequired des objets (idle-adventure-boss-requis-v1.js). */
     state.adventure.bossEffectif = Math.max(0, int(context.bosses, 0)) + 301 * (state.difficulty === "extreme" ? 2 : state.difficulty === "difficile" ? 1 : 0);
     /* Resource3.res3On (jeu) : condition du versement du set Incriminating Evidence ; Resource 3 vit avec les Hacks dans ce moteur (idle-ngu-ressources.js). */
@@ -1350,12 +1352,14 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
 function idleTheEndSyncV1(state, now) {
   const adv = state.adventure;
   if (!adv || typeof adv !== "object") return;
-  if (int(state.systems.perks?.data?.levels?.[231], 0) > 0) idleTheEndGrantV1(adv, 482, now);
-  if (int(state.systems.quirks?.data?.levels?.[176], 0) > 0) idleTheEndGrantV1(adv, 486, now);
-  if (int(state.systems.wishes?.data?.tracks?.["203"]?.level, 0) >= 1) idleTheEndGrantV1(adv, 490, now);
+  /* Lu dans le jeu (build 1260, 2026-11-17 : InventoryController::runEndItemChecker, appelée par Update) : toute la fonction sort tant que la difficulté courante est < Sadistic (482, 486, 487, 488, 490). */
+  const sadistiqueCourant = state.difficulty === "extreme";
+  if (sadistiqueCourant && int(state.systems.perks?.data?.levels?.[231], 0) > 0) idleTheEndGrantV1(adv, 482, now);
+  if (sadistiqueCourant && int(state.systems.quirks?.data?.levels?.[176], 0) > 0) idleTheEndGrantV1(adv, 486, now);
+  if (sadistiqueCourant && int(state.systems.wishes?.data?.tracks?.["203"]?.level, 0) >= 1) idleTheEndGrantV1(adv, 490, now);
   if (adv.skillState?.endPiece481) idleTheEndGrantV1(adv, 481, now);
   if (adv.unlockFlags?.traitorDefeated) idleTheEndGrantV1(adv, 495, now);
-  if (num(state.difficultyPeaks?.extreme, 0) >= 301) idleTheEndGrantV1(adv, 487, now); /* lu dans le jeu (BossController::advanceBoss, audit 2026-11-16) : bossID > 300 après le 301e boss en Sadistic */
+  if (sadistiqueCourant && num(state.difficultyPeaks?.extreme, 0) >= 301) idleTheEndGrantV1(adv, 487, now); /* lu dans le jeu (BossController::advanceBoss, audit 2026-11-16) : bossID > 300 après le 301e boss en Sadistic */
 }
 
 /*

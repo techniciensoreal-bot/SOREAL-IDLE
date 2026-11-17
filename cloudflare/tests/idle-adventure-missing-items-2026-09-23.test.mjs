@@ -124,7 +124,8 @@ assert.deepEqual(ligne("westworld", "normal", "beretta9mm"), { id: "beretta9mm",
 assert.deepEqual(ligne("halloweenies", "boss", "emperorLooty"), { id: "emperorLooty", chance: 6e-8, cap: 0.12, level: 40 });
 assert.deepEqual(ligne("netherregions", "boss", "galacticHeraldLooty"), { id: "galacticHeraldLooty", chance: 2.4e-8, cap: 0.12, level: 8 });
 // lignes au taux non publié / inexpliqué : jamais tirées
-assert.equal(ligne("chocolate", "boss", "ascendedX3Pendant"), undefined, "\"0.1% + 0.0000001% base chance\" : notation inexpliquée");
+/* Lu dans le jeu (LootDrop::zone20Drop, build 1260, 2026-11-17) : « 0.1% + 0.0000001% » = 0,001 fixe + 1e-9 x facteur de butin, plafonné à 0,01 : le terme fixe (flat) explique la notation. */
+assert.deepEqual(ligne("chocolate", "boss", "ascendedX3Pendant"), { id: "ascendedX3Pendant", chance: 1e-9, flat: 0.001, cap: 0.01, level: 0 });
 assert.deepEqual(P.aethereansea.boss.specials, [{ id: "ascendedX6Pendant", chance: 4e-8, cap: 0.12, level: 16 }, { id: "galacticHeraldLooty", chance: 1.8e-8, cap: 0.12, level: 16 }], "Aethereal Sea : taux lus dans le code du jeu (2026-11-16)");
 for (const [zone, profil] of Object.entries(P)) for (const pool of ["normal", "boss"]) for (const d of profil[pool]?.specials || []) {
   for (const id of d.ids || [d.id]) assert.ok(S[id], `${zone}.${pool} : ${id} défini`);

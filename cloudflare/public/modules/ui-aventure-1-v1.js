@@ -1569,9 +1569,9 @@
         const base=Math.max(0,idleNombre_(def&&def.cooldown));
         if(!def||def.id==='move69')return base;
         /* Specials « Move Cooldowns » de l'équipement (Ring of Might, Sands of Time, Infinity Charm : 50 % max). */
-        /* Wiki « Red Liquid (set) » : le -20 % porte sur le « global cooldown timer » (délai entre deux moves différents) et la vitesse d'Idle Attack, PAS sur le cooldown propre de chaque move. Le délai global est simulé à part (appliquerDelaiGlobalAdventureIdleV1_) : 1 s, 0,8 s avec ce set. */
-        const equipement=Math.max(0,Math.min(95,idleNombre_(a&&a.stats&&a.stats.specials&&a.stats.specials.moveCooldownPct)));
-        return base*(1-equipement/100);
+        /* Wiki « Red Liquid (set) » : le -20 % porte sur le « global cooldown timer » (délai entre deux moves différents) et la vitesse d'Idle Attack, PAS sur le cooldown propre de chaque move. Le délai global est simulé à part (appliquerDelaiGlobalAdventureIdleV1_) : 1 s, 0,8 s avec ce set. Lu dans le jeu, build 1260, 2026-11-17 : Character::totalCooldownBonus = 1 / (1 + bonuses[14]) ; bonuses[14] = points / 10 000 (InventoryController::getBonusFactor), soit pct / 100 : +50 % donne x 0,667 et non x 0,5, sans plafond. */
+        const equipement=Math.max(0,idleNombre_(a&&a.stats&&a.stats.specials&&a.stats.specials.moveCooldownPct));
+        return base/(1+equipement/100);
       }
 
       /*

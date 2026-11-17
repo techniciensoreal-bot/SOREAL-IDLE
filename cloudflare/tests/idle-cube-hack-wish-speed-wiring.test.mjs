@@ -78,7 +78,7 @@ function stateWithCubeTier10(context, unlockedSystem) {
     let state = normalizeIdleNguState({ difficulty: "extreme" }, context, 1_000_000);
     state.systems.wishes.unlocked = true;
     state.systems.wishes.data.activeTrack = "1"; // wish id 1, "I Wish that wishes weren't so slow :c" -- speedDivider 1e15, 10 niveaux
-    state.systems.wishes.allocation = { energy: 1, magic: 1, r3: 1 };
+    state.systems.wishes.allocation = { energy: 1e15, magic: 1e15, r3: 1e15 }; // assez pour rester sous le seuil du jeu (progression par tick < 1e-8 = arrêt, WishesController::progressPerTick)
     if (withCube) { state.adventure.cube.power = 1e11; state.adventure.cube.toughness = 0; }
     return state;
   }

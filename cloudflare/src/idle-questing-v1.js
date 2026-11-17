@@ -298,10 +298,15 @@ export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
   const qpMultiplier = idleQuestQpMultiplierV1(state, env);
   /* Beast Butter : x2, x2,2 avec le Blue Heart (set) ("All consumable give 10% better effects"). */
   const butterFactor = butter ? IDLE_QUEST_BUTTER_FACTOR_V1 * idleHeartsConsumableFactorV1(state) : 1;
-  const qp = Math.floor(base * activeFactor * activeWish * qpMultiplier * butterFactor);
+  /* Lu dans le jeu (build 1260, 2026-11-17 : BeastQuestController::giveRewardsAndClear) : QP = (long)((float)base x questRewardFactor), puis, en quête non idle (allActive), (long)((float)QP x allActiveModifier) : deux troncatures en float32. */
+  const modActif = Math.fround(activeFactor * activeWish);
+  let qp = Math.trunc(Math.fround(Math.fround(base) * Math.fround(qpMultiplier * butterFactor)));
+  if (usedIdle !== true) qp = Math.trunc(Math.fround(Math.fround(qp) * modActif));
   /* Lu dans le jeu (majorQuestAPReward = 50 ; minorQuestAPReward = 10, +2 avec l'atout 87, plafonné à 13) : les bonus de base du QP (souhaits 101/102, atouts 147/148) ne comptent pas pour les AP. */
   const apBase = major ? 50 : Math.min(13, 10 + bonus.minorApBonus);
-  const ap = Math.floor(apBase * activeFactor * activeWish * Math.max(0, N(env?.apEarningsMultiplier, 1)));
+  /* AP : (long)((float)AP x allActiveModifier) puis Character.addAP (arrondi inférieur de AP x bonus). */
+  const apActif = usedIdle !== true ? Math.trunc(Math.fround(Math.fround(apBase) * modActif)) : apBase;
+  const ap = Math.floor(apActif * Math.max(0, N(env?.apEarningsMultiplier, 1)));
   return { qp, ap, base, activeFactor, activeWish, qpMultiplier, butter: Boolean(butter) };
 }
 
