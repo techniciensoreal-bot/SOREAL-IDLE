@@ -66,6 +66,7 @@
 
   /* « Tout retirer » : rend à la réserve tout ce que ce menu a reçu pour cette ressource. */
   function vider(res,systeme){
+    VISEE={};   /* tout est rendu : les valeurs visées d'avant ne comptent plus */
     if(systeme==='wishes'){
       var j=etat_();
       var slots=j&&j.systemes&&j.systemes.wishSlots&&Array.isArray(j.systemes.wishSlots.slots)?j.systemes.wishSlots.slots:[];
@@ -158,27 +159,34 @@
       'onblur="window.__resoudreFractionInputIdleV1__&&window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__&&window.__saisirMontantAugmentIdleV1__(this.value)"></div></div>';
   }
 
+  /* Clics rapides (Norman, 2026-11-17 : « si je mets ou retire rapidement des 1M, des clics sont annulés ») : la valeur visée est CALCULÉE depuis la page, qui ne change qu'à la réponse du moteur ; deux clics rapprochés partaient donc avec la MÊME valeur (le second était écrasé ou écarté comme doublon). On garde la dernière valeur visée 3 s : le clic suivant s'y ajoute, comme dans Wandoos et NGU. */
+  var VISEE={};
+  function viseeDe_(cle,etat){var v=VISEE[cle];return v&&Date.now()-v.at<3000?v.v:etat;}
+  function viser_(cle,valeur){VISEE[cle]={v:valeur,at:Date.now()};return valeur;}
+
   /* + / − / MAX d'une ressource d'un système générique : valeurs ABSOLUES (le serveur borne au maximum et à ce qui est libre). */
   function ajuster(systeme,res,mode){
     var h=H_(),j=etat_();
     if(!h||!j)return;
     var liste=j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
     var sys=liste.filter(function(x){return x&&x.id===systeme;})[0]||null;
-    var courant=entier_(sys&&sys.state&&sys.state.allocation&&sys.state.allocation[res]);
+    var cleV=systeme+'|'+res;
+    var courant=viseeDe_(cleV,entier_(sys&&sys.state&&sys.state.allocation&&sys.state.allocation[res]));
     var libre=ressource_(j,res).libre;
     var champ=document.getElementById('sorealIdleGenInputV1');
     var pas=champ&&Number.isFinite(Math.floor(Number(champ.value)))&&Math.floor(Number(champ.value))>=1?Math.floor(Number(champ.value)):montant_();
     /* MAX : la quantité SOUHAITÉE (tout, jusqu'au plafond de la ressource), jamais courant + libre lu dans la dernière synchro : la ressource libre de la page (r3 des Hacks, rien ne la fait avancer entre deux synchros) est périmée et laissait un reliquat ; le moteur borne à précédent + libre réel. */
     var valeur=mode==='max'?Math.max(courant+libre,ressource_(j,res).cap):(mode==='moins'?Math.max(0,courant-pas):courant+pas);
-    action_({action:'allocate',system:systeme,resource:res,value:valeur});
+    action_({action:'allocate',system:systeme,resource:res,value:viser_(cleV,valeur)});
   }
 
   /* Idem pour un emplacement de Wishes (allocation propre à chaque souhait). */
   function ajusterVoeu(slot,res,mode,courant,libre){
     var pas=montant_();
-    var c=entier_(courant),l=entier_(libre);
+    var cleV='voeu|'+slot+'|'+res;
+    var c=viseeDe_(cleV,entier_(courant)),l=entier_(libre);
     var valeur=mode==='zero'?0:mode==='max'?l:(mode==='moins'?Math.max(0,c-pas):Math.min(l,c+pas));
-    action_({action:'allocateWishSlot',slot:slot,resource:res,value:valeur});
+    action_({action:'allocateWishSlot',slot:slot,resource:res,value:viser_(cleV,valeur)});
   }
 
   window.__SOREAL_IDLE_ALLOC_V1__={compteur:compteur,total:total_,cadres:cadres,entree:entree,preset:preset,saisir:ecrireMontant_,vider:vider,ajuster:ajuster,ajusterVoeu:ajusterVoeu,titres:TITRES};

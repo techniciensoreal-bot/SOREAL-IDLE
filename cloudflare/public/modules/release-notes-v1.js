@@ -31,7 +31,8 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Défilement sur téléphone : la page ne revient plus en arrière toutes les 4 secondes pendant que tu la fais défiler.',
-            'Affichage sur téléphone : de nombreux textes et chiffres coupés ou cachés sont corrigés dans la plupart des menus, au bandeau du haut et dans les fenêtres.'
+            'Affichage sur téléphone : de nombreux textes et chiffres coupés ou cachés sont corrigés dans la plupart des menus, au bandeau du haut et dans les fenêtres.',
+            'Répartitions d’énergie et de magie : en cliquant très vite sur + ou − (1M, etc.), aucun clic n’est plus perdu dans les menus concernés.'
           ]}
         ]
       },

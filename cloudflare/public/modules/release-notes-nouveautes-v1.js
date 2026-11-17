@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Affichage sur téléphone : de nombreux textes et chiffres coupés ou cachés sont corrigés dans la plupart des menus, au bandeau du haut et dans les fenêtres."
+    "Répartitions d’énergie et de magie : en cliquant très vite sur + ou − (1M, etc.), aucun clic n’est plus perdu dans les menus concernés."
   ] };
 })();

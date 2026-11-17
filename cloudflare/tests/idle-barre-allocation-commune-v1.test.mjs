@@ -53,6 +53,8 @@ const w2 = { __actionMetaIdleV130__: (p) => envois.push(p), __lireMontantAugment
 const doc = { getElementById: (id) => (id === "sorealIdleGenInputV1" ? champ : null), querySelector: () => null };
 const m2 = new Function("window", "document", mod + "\nreturn window.__SOREAL_IDLE_ALLOC_V1__;")(w2, doc);
 m2.ajuster("beards", "energy", "plus");  assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 80 });
+/* Clics rapides (2026-11-17) : la page ne change qu'à la réponse du moteur ; le clic suivant part de la dernière valeur VISÉE (80), pas de la valeur périmée de la page (50). */
+m2.ajuster("beards", "energy", "moins"); assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 50 });
 m2.ajuster("beards", "energy", "moins"); assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 20 });
 m2.ajuster("beards", "energy", "max");   assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 1000 });   /* Max = le plafond de la ressource (valeur SOUHAITÉE) : la libre lue dans la synchro (400) est périmée, le moteur borne à précédent + libre réel */
 m2.vider("energy", "beards");            assert.deepEqual(envois.pop(), { action: "allocate", system: "beards", resource: "energy", value: 0 });
