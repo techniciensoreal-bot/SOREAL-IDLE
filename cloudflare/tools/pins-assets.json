@@ -1080,12 +1080,12 @@
   "sha": "fa0684de0cf6982eb3c259f00649e72cb08091a6"
  },
  "/soreal-idle-themes.css": {
-  "pin": 165,
-  "sha": "ac888ed7122dd8db80cf0c5e747777cbba94f61a"
+  "pin": 167,
+  "sha": "eb83c6693df57cb8443e8cfa7493932d8642e7f7"
  },
  "/soreal-idle-ui.css": {
-  "pin": 83,
-  "sha": "c31dec3569c83b7017f0e3ce59f1b1843b47c1fb"
+  "pin": 84,
+  "sha": "6298cd03124afcedb31633b090e88b347cba918a"
  },
  "/soreal-idle-ui.js": {
   "pin": 665,

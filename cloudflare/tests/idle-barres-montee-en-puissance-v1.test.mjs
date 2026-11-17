@@ -33,8 +33,9 @@ assert.ok(h.every(Number.isFinite), "hauteurs : " + h);
 assert.deepEqual(h, [...h].sort((a, b) => a - b), "la barre grandit avec le rang");
 assert.ok(new Set(h).size === 5, "chaque rang a sa hauteur : " + h);
 assert.ok(css.includes("#000 0%,var(--rg-dark) 7%"), "départ noir de la barre");
-assert.ok(css.includes("@keyframes sorealRgFluxV1") && css.includes("@keyframes sorealRgBatV1") && css.includes("@keyframes sorealRgBraiseV1"), "reflets, battement, braise");
-assert.ok(css.includes("@media (prefers-reduced-motion:reduce)") && css.includes("sorealRgBraiseV1"), "mouvement réduit respecté");
+// Fluidité téléphone (2026-11-17) : reflet = calque glissé par transform, battement = voile dont seule l'opacité varie ; la braise (ombre animée de la carte de rang 5, déjà coupée par le module des rituels) n'existe plus.
+assert.ok(css.includes("@keyframes sorealRgFluxV1") && css.includes("@keyframes sorealRgBatV1") && !css.includes("sorealRgBraiseV1"), "reflets, battement");
+assert.ok(/@media \(max-width:700px\),\(prefers-reduced-motion:reduce\)\{[^}]*bt-fill-v120::after[^}]*bt-track-v120::before[^}]*\{animation:none\}\}/.test(css), "mouvement réduit respecté (reflet et voile immobiles)");
 
 let d = 0; for (const c of css) { if (c === "{") d++; if (c === "}") d--; }
 assert.equal(d, 0, "accolades CSS équilibrées");

@@ -57,7 +57,12 @@ for (const k of ["sorealTmOrV1", "sorealTmOrRapideV1"]) assert.ok(css.includes("
 // --- Glow : vérification du menu une fois par minute, glow intérieur (jamais rogné par le défilement du menu) ---
 assert.ok(ui.includes("if(maintenantVerif-idleDispoMoneyPitVerifieV1<60000)return;"), "une vérification par minute");
 assert.ok(ui.includes("function idleDisponibiliteMoneyPitV1_(j)") && ui.includes("if(cal&&cal.reclamable)return 'calendrier';"), "Money Pit, roue et bonus AP");
-assert.ok(css.includes("@keyframes sorealNavDispoV1") && css.includes("inset 0 0 24px 8px var(--dispo-lueur)"), "lueur intérieure forte");
+assert.ok(css.includes("@keyframes sorealNavDispoV1") && css.includes("inset 0 0 18px 6px var(--dispo-lueur)"), "lueur intérieure forte (fixe)");
+// Fluidité téléphone (2026-11-17) : la pulsation ne passe que par transform ; la lueur est fixe sur le bouton.
+for (const nom of ["sorealNavDispoV1", "sorealBoutonDispoV1"]) {
+  const k = css.match(new RegExp("@keyframes " + nom + "\\{((?:[^{}]|\\{[^{}]*\\})*)\\}"))[1];
+  assert.ok(/transform:scale\(/.test(k) && !/filter|box-shadow/.test(k), nom + " : transform seul (aucun repeint)");
+}
 assert.ok(css.includes(".soreal-idle-nav-money-orange-v1"), "couleur du bonus AP");
 assert.ok((meta.match(/glow-dispo-v1/g) || []).length >= 3, "les trois boutons prêts de la page brillent");
 assert.ok(css.includes("@keyframes sorealBoutonDispoV1"));
