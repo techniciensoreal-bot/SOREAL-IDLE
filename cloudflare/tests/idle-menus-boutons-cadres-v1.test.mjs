@@ -31,7 +31,9 @@ for (const id of MENUS) {
     assert.ok(m && m[1].length > 10, `${id} : dessin ${c} absent`);
     assert.ok(!/inventé/.test(m[1]));
   }
-  assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_`), `${id} : dessin gauche non animé au travail`);
+  /* tower (2026-11-17) : la texture glisse sur un calque ::before par transform (compositeur), plus par background-position */
+  if (id === "tower") assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g::before{content:"";`) && sansCom.includes("animation:nbV1_monte 2.4s linear infinite") && sansCom.includes("@keyframes nbV1_monte{0%{transform:translateY(0)}100%{transform:translateY(25%)}}"), "tower : tour qui monte sur un calque transformé");
+  else assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-g{animation:nbV1_`), `${id} : dessin gauche non animé au travail`);
   /* Aventure (Norman, 2026-10-31) : le dessin de droite est un SVG animé (SMIL : pointillés un à un, croix qui pivote), pas un mouvement CSS */
   if (id === "aventure") assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{background-image:url("data:image/svg+xml,`) && !sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:`), `${id} : dessin droit animé par son propre SVG, sans mouvement CSS`);
   else assert.ok(sansCom.includes(`${P}[data-menu-id-v1="${id}"].travail-v1 .soreal-idle-nav-deco-v1 .nb-d{animation:nbV1_`), `${id} : dessin droit non animé au travail`);
@@ -124,11 +126,11 @@ for (const line of sansCom.split("\n").filter((l) => l.startsWith("@keyframes"))
   /* Battement de cœur du pentacle (2026-11-02) : opacité seule, 0 au début et à la fin du cycle */
   if (m[1] === "nbV1_battement") { assert.ok(/^0%\{opacity:0\}(\d+%\{opacity:[\d.]+\})+100%\{opacity:0\}$/.test(c), "battement : opacité seule, 0 à 0 % et à 100 %"); continue; }
   /* ITOPOD : la tour monte à l'infini : la texture glisse d'EXACTEMENT un étage (le tiers de la hauteur = la période du motif) par cycle, vitesse constante */
-  if (m[1] === "nbV1_monte") { assert.equal(c, "0%{background-position:0 0}100%{background-position:0 33.3333cqh}", "monte : un étage exactement"); continue; }
+  if (m[1] === "nbV1_monte") { assert.equal(c, "0%{transform:translateY(0)}100%{transform:translateY(25%)}", "monte : un étage exactement (25 % du calque de 4 étages = 33,3333 % du bouton)"); continue; }
   assert.ok(/^0%,100%\{[^}]*\}50%\{[^}]*\}$/.test(c) || c === "from{transform:rotate(0)}to{transform:rotate(360deg)}", `${m[1]} : n'est pas une boucle parfaite : ${c.slice(0, 60)}`);
 }
 assert.ok(noms.length >= 4 && kfs.length >= 0);
-assert.ok(/\[data-menu-id-v1="tower"\]\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-g\{animation:nbV1_monte 2\.4s linear infinite\}/.test(sansCom) && /\.nb-g\{[^}]*repeat-y/.test(sansCom.slice(sansCom.indexOf('[data-menu-id-v1="tower"] .soreal-idle-nav-deco-v1 .nb-g{'))), "ITOPOD : la tour de gauche monte à l'infini (texture répétée, un étage par cycle)");
+assert.ok(/\[data-menu-id-v1="tower"\]\.travail-v1 \.soreal-idle-nav-deco-v1 \.nb-g::before\{[^}]*repeat-y;animation:nbV1_monte 2\.4s linear infinite;will-change:transform\}/.test(sansCom) && /\.nb-g\{[^}]*repeat-y/.test(sansCom.slice(sansCom.indexOf('[data-menu-id-v1="tower"] .soreal-idle-nav-deco-v1 .nb-g{'))), "ITOPOD : la tour de gauche monte à l'infini (texture répétée, un étage par cycle)");
 for (const m of sansCom.matchAll(/animation:(nbV1_[a-z]+) ([\d.]+)s (linear|ease-in-out) infinite/g)) {
   assert.ok(noms.includes(m[1]), `${m[1]} : keyframes absent`);
   if (m[1] === "nbV1_spin") assert.equal(m[3], "linear", "la rotation complète est linéaire (aucun à-coup)");
@@ -234,22 +236,18 @@ for (const id of MENUS) for (const c of ["nb-g", "nb-d"]) {
   const gros = readFileSync("cloudflare/public/soreal-idle-entetes-miniature-v1.css", "utf8");
   const pc = gros.match(/@media \(min-width:561px\)\{[^\n]*data-menu="entrainement"[^\n]*\}\}/)[0];
   assert.ok(/calc\(var\(--ent-h\) \* -0\.55\) 46%\/auto 62% no-repeat/.test(pc), "haltère de gauche collée au bord gauche et coupée par lui");
-  assert.ok(/url\("data:image\/svg\+xml,[^"]*"\) calc\(100% \+ var\(--ent-h\) \* 0\.125\) 50%\/auto 62% no-repeat/.test(pc) && pc.includes('id%3D%22gant%22') && pc.includes("%23d62828"), "gant de boxe rouge à droite, légèrement coupé par le bord droit");
+  /* Fluidité (2026-11-17) : le gant est porté par un calque ::before déplacé par transform (compositeur) ; l'haltère reste à sa position moyenne sur le fond du cadre (plus de va-et-vient vertical : un seul calque animé possible) */
+  assert.ok(pc.includes('right center/auto 100% no-repeat') && pc.includes('id%3D%22gant%22') && pc.includes("%23d62828"), "gant de boxe rouge à droite, légèrement coupé par le bord droit");
   assert.ok(pc.includes("animation:nbEntHalteres 7.2s linear infinite"), "une animation de 7,2 s");
   const kf = gros.match(/@keyframes nbEntHalteres\{(.*)\}\n/)[1];
-  const cadres = [...kf.matchAll(/([\d.]+)%\{background-position:([^}]*)\}/g)].map((m) => [Number(m[1]), m[2].split(/,(?![^(]*\))/).map((x) => x.trim())]);
+  const cadres = [...kf.matchAll(/([\d.]+)%\{transform:translateX\(calc\(var\(--ent-h\) \* (-?[\d.]+)\)\)\}/g)].map((m) => [Number(m[1]), Number(m[2])]);
   assert.equal(cadres.length, 73, "73 images clés (toutes les 0,1 s)");
-  assert.ok(cadres.every(([, l]) => l.length === 8), "une position par couche (8 couches)");
   assert.equal(cadres[0][0], 0); assert.equal(cadres[72][0], 100);
-  assert.deepEqual(cadres[0][1], cadres[72][1], "boucle parfaite : départ = arrivée");
-  const bouge = new Set();
-  for (const [, l] of cadres) l.forEach((x, i) => { if (x !== cadres[0][1][i]) bouge.add(i); });
-  assert.deepEqual([...bouge].sort(), [1, 2], "seules l'haltère (couche 1) et le gant (couche 2) bougent");
-  /* haltère : même position à 2,4 s qu'à 0 ; gant : même position à 1,8 s qu'à 0 (cycles désynchronisés dans la même boucle) */
-  assert.equal(cadres[24][1][1], cadres[0][1][1], "haltère : cycle de 2,4 s");
-  assert.equal(cadres[18][1][2], cadres[0][1][2], "gant : un coup toutes les 1,8 s");
-  assert.notEqual(cadres[8][1][1], cadres[0][1][1], "la barre bouge");
-  const gant = cadres.slice(0, 19).map(([, l]) => Number(l[2].match(/\* (-?[\d.]+)\) 50%/)[1]));
+  assert.equal(cadres[0][1], cadres[72][1], "boucle parfaite : départ = arrivée");
+  assert.ok(!/nbEntHalteres\{[^@]*background-position/.test(gros), "plus de background-position animé");
+  /* gant : même position à 1,8 s qu'à 0 */
+  assert.equal(cadres[18][1], cadres[0][1], "gant : un coup toutes les 1,8 s");
+  const gant = cadres.slice(0, 19).map(([, x]) => x);
   assert.ok(Math.min(...gant) < gant[0] - 0.4, "le gant avance vers la gauche (coup)");
   assert.ok(gant.slice(0, 3).every((x, i, a) => i === 0 || x < a[i - 1]) && gant.indexOf(Math.min(...gant)) <= 3, "coup rapide (en 0,2 s)");
   assert.ok(gant.slice(-10).every((x) => x === gant[0]), "pause avant le coup suivant");

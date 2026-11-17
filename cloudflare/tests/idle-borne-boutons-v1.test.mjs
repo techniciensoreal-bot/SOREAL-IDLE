@@ -11,12 +11,13 @@ const js = readFileSync(new URL("../public/modules/ui-combat-2-v1.js", import.me
 const regle = (sel) => { const i = css.indexOf(sel); assert.ok(i >= 0, "règle : " + sel); return css.slice(i, css.indexOf("}", i) + 1); };
 
 // Clignotement : 0 % et 100 % identiques (boucle parfaite), lent (2,8 s), sur le bouton et sa bague.
-assert.match(css, /@keyframes bnFightClignote\{0%,100%\{filter:brightness\(1\.4\) saturate\(1\.3\)\}50%\{filter:brightness\(\.45\) saturate\(\.8\)\}\}/);
+/* Fluidité (2026-11-17) : plus de filter animé ; le bouton garde brightness(1.4) fixe et un voile noir ::before bat en opacité (0 aux deux bouts, .68 au milieu = brightness .45) */
+assert.match(css, /@keyframes bnFightClignote\{0%,100%\{opacity:0\}50%\{opacity:\.68\}\}/);
 assert.match(css, /@keyframes bnFightBague\{0%,100%\{opacity:1;transform:scale\(1\.1\)\}50%\{opacity:\.06;transform:scale\(\.94\)\}\}/);
-assert.ok(/boss-control-v39\.start:not\(:disabled\)\{animation:bnFightClignote 2\.8s ease-in-out infinite\}/.test(css), "Fight actif clignote");
+assert.ok(/boss-control-v39\.start:not\(:disabled\)\{filter:brightness\(1\.4\) saturate\(1\.3\)\}/.test(css) && /boss-control-v39\.start:not\(:disabled\)::before\{background:#000;animation:bnFightClignote 2\.8s ease-in-out infinite\}/.test(css), "Fight actif clignote (voile noir en opacité)");
 assert.ok(/boss-control-v39\.start:not\(:disabled\)::after\{animation:bnFightBague 2\.8s ease-in-out infinite\}/.test(css), "la bague clignote avec lui");
 assert.ok(/bnFightClignote 2\.8s ease-in-out calc\(2\.65s/.test(css), "après l'allumage de la borne aussi");
-assert.ok(/prefers-reduced-motion:reduce\)\{\s*[^{]*start:not\(:disabled\)[^{]*\{animation:none\}/.test(css), "mouvement réduit : pas de clignotement");
+assert.ok(/prefers-reduced-motion:reduce\)\{\s*[^{]*start:not\(:disabled\)[^{]*\{animation:none\}/.test(css) && /start:not\(:disabled\)::before\{animation:none\}/.test(css), "mouvement réduit : pas de clignotement");
 // Rien ne coupe l'animation de Fight, ni sur téléphone, ni par un filtre imposé.
 assert.ok(!/@media \(max-width:700px\)\{[^@]*button\.soreal-idle-boss-control-v39\.start,\.soreal-idle-duel-v41::before[^@]*animation:none!important/.test(css.replace(/\n/g, " ")), "plus d'animation coupée sur téléphone");
 assert.ok(!/boss-control-v39\.start:disabled\{[^}]*filter:none[^}]*\}\s*$/.test(ui.split(".soreal-idle-boss-control-v39.start,")[1] ? ui.split(".soreal-idle-boss-control-v39.start,")[1].split("}")[0] + "}" : ""), "le filtre n'est plus imposé au bouton actif");

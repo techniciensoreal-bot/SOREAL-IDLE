@@ -13,11 +13,11 @@ assert.ok(nav.includes("classeRenaissancePositif") && nav.includes("' renaissanc
 assert.ok(rb.includes("var(--nav-color)") && rb.includes("animation:none}") && !/rb2Halo|rb2Balayage|rb2Etoile/.test(rb), "couleur du menu, aucun halo permanent, ni balayage ni étoile");
 assert.ok(rb.includes(".positif:not(:disabled)::before") && rb.includes("rb2Lueurs"), "lueurs qui montent sur la page");
 {
-  assert.ok(/background-repeat:repeat;/.test(rb) && /-webkit-mask-image:linear-gradient\(180deg,transparent 0,#000 30%,#000 70%,transparent 100%\)/.test(rb), "page : tuiles répétées, masque haut/bas : boucle sans à-coup");
+  assert.ok(/background-repeat:repeat;/.test(rb) && /bottom:-64px/.test(rb) && /will-change:transform/.test(rb) && !/rb2Lueurs\{[^}]*background-position/.test(rb), "page : tuiles répétées sur un calque 64 px plus haut, glissé par transform : boucle sans à-coup");
 }
 // règle n°3 : les couches ont la même taille de tuile et le glissement vaut exactement une tuile
-const tuileP = rb.match(/background-size:((?:120px 64px(?:,)?){4})/), glissP = rb.match(/to\{background-position:((?:0 -64px(?:,)?){4})\}/);
-assert.ok(tuileP && glissP, "page : 4 couches de 120x64, glissement de 64 px");
+const tuileP = rb.match(/background-size:((?:120px 64px(?:,)?){4})/), glissP = rb.match(/@keyframes rb2Lueurs\{from\{transform:translateY\(0\)\}to\{transform:translateY\(-64px\)\}\}/);
+assert.ok(tuileP && glissP, "page : 4 couches de 120x64, glissement de 64 px (une tuile)");
 /* Menu (Norman, 2026-10-19) : plus de points jaunes qui remontent ; quatorze étoiles qui scintillent sur place, chacune à son rythme. */
 assert.ok(!it.includes("rbNavLueurs"), "menu : plus de lueurs qui montent");
 assert.ok(nav.includes("ETOILES_BOUTON_RENAISSANCE_V1") && nav.includes("${classeRenaissancePositif?ETOILES_BOUTON_RENAISSANCE_V1:''}"), "menu : le calque d'étoiles est dans le gabarit du bouton");

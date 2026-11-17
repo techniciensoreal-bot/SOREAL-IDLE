@@ -191,7 +191,7 @@ assert.ok(roueJs.includes("moneyPit") && /rafraichirMenuRacineIdleV28_/.test(rou
 // ---------- 5. Règle n°3 et mouvement réduit (CSS) ----------
 assert.ok(/@keyframes rbHalo\{0%,100%\{opacity:\.25\}50%\{opacity:1\}\}/.test(css), "halo : mêmes valeurs à 0 % et 100 %");
 assert.ok(/@keyframes rbAmp\{0%,100%\{opacity:1\}50%\{opacity:\.35\}\}/.test(css), "ampoules : boucle parfaite");
-assert.ok(/prefers-reduced-motion:reduce\)\{\.rb-svg \.rb-gagne \.rb-halo,\.rb-svg \.rb-ampoule,\.rb-bouton\.rb-dispo\{animation:none\}\.rb-svg \.rb-gagne \.rb-halo\{opacity:1\}/.test(css), "mouvement réduit : halo fixe");
+assert.ok(/prefers-reduced-motion:reduce\)\{\.rb-svg \.rb-gagne \.rb-halo,\.rb-svg \.rb-ampoule,\.rb-bouton\.rb-dispo::after\{animation:none\}\.rb-svg \.rb-gagne \.rb-halo\{opacity:1\}/.test(css), "mouvement réduit : halo fixe");
 assert.ok(css.includes(".mp-col-roue-v1") && page.includes("mp-col-roue-v1"), "sur PC la roue est dans sa propre colonne, à droite de l'image du trou (mêmes largeurs)");
 assert.ok(css.includes("--mp2-titre") && css.includes(".rb-titre{font-family:var(--mp2-titre"), "polices du jeu");
 // le Trou sans fond n'est pas touché

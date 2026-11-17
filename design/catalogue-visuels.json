@@ -3,7 +3,7 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 441,
+  "keyframes": 431,
   "fichiersAvecWebAnimations": 21,
   "fichiersCanvas": 13,
   "pointsEntreeRejouables": 273,
@@ -176,33 +176,6 @@
    ],
    "utilisePar": [
     "modules/valise-accident-v1.js"
-   ]
-  },
-  {
-   "nom": "arcadeBalayageV1",
-   "definiePar": [
-    "soreal-idle-itopod.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-itopod.css"
-   ]
-  },
-  {
-   "nom": "arcadeFightV1",
-   "definiePar": [
-    "soreal-idle-itopod.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-itopod.css"
-   ]
-  },
-  {
-   "nom": "arcadeMarqueeV1",
-   "definiePar": [
-    "soreal-idle-itopod.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-itopod.css"
    ]
   },
   {
@@ -1441,7 +1414,7 @@
    ]
   },
   {
-   "nom": "enteteA_augmentations",
+   "nom": "enteteB_avance",
    "definiePar": [
     "soreal-idle-entetes-a.css"
    ],
@@ -1450,7 +1423,7 @@
    ]
   },
   {
-   "nom": "enteteA_augmentations_m",
+   "nom": "enteteB_hacks",
    "definiePar": [
     "soreal-idle-entetes-a.css"
    ],
@@ -1459,7 +1432,7 @@
    ]
   },
   {
-   "nom": "enteteA_avance",
+   "nom": "enteteB_machine",
    "definiePar": [
     "soreal-idle-entetes-a.css"
    ],
@@ -1468,61 +1441,7 @@
    ]
   },
   {
-   "nom": "enteteA_avance_m",
-   "definiePar": [
-    "soreal-idle-entetes-a.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-entetes-a.css"
-   ]
-  },
-  {
-   "nom": "enteteA_hacks",
-   "definiePar": [
-    "soreal-idle-entetes-a.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-entetes-a.css"
-   ]
-  },
-  {
-   "nom": "enteteA_hacks_m",
-   "definiePar": [
-    "soreal-idle-entetes-a.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-entetes-a.css"
-   ]
-  },
-  {
-   "nom": "enteteA_machine",
-   "definiePar": [
-    "soreal-idle-entetes-a.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-entetes-a.css"
-   ]
-  },
-  {
-   "nom": "enteteA_machine_m",
-   "definiePar": [
-    "soreal-idle-entetes-a.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-entetes-a.css"
-   ]
-  },
-  {
-   "nom": "enteteA_wishes",
-   "definiePar": [
-    "soreal-idle-entetes-a.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-entetes-a.css"
-   ]
-  },
-  {
-   "nom": "enteteA_wishes_m",
+   "nom": "enteteB_wishes",
    "definiePar": [
     "soreal-idle-entetes-a.css"
    ],
@@ -2683,15 +2602,6 @@
     "soreal-idle-itopod.css"
    ],
    "utilisePar": []
-  },
-  {
-   "nom": "rgSheenV1",
-   "definiePar": [
-    "soreal-idle-itopod.css"
-   ],
-   "utilisePar": [
-    "soreal-idle-itopod.css"
-   ]
   },
   {
    "nom": "rnBouton",

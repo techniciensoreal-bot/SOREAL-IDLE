@@ -980,8 +980,8 @@
   "sha": "4c92d869c01294b08a2a3591b0471b32593f0cd3"
  },
  "/soreal-idle-barre-outils.css": {
-  "pin": 14,
-  "sha": "1f79de11864d9ae85900cd80854d84748bc36b93"
+  "pin": 16,
+  "sha": "6522c51e5c32aae9052b306129dfc4411af7473c"
  },
  "/soreal-idle-blood-entete-tel-v1.css": {
   "pin": 1,
@@ -1004,8 +1004,8 @@
   "sha": "3c944e712d479ec9f4a4c05a85c24b055acad97b"
  },
  "/soreal-idle-entetes-a.css": {
-  "pin": 5,
-  "sha": "72b2e2c86ecda8252410141e1ee6f7221fe8435d"
+  "pin": 6,
+  "sha": "90efee756f77f6407af48f2c379e51c66af933ea"
  },
  "/soreal-idle-entetes-b.css": {
   "pin": 3,
@@ -1024,8 +1024,8 @@
   "sha": "42035916967fd43a17e56312131185fa8eb23d9b"
  },
  "/soreal-idle-entetes-miniature-v1.css": {
-  "pin": 7,
-  "sha": "5b9cd07112d52f66ca2b23a8ca2cb2dc630022ab"
+  "pin": 9,
+  "sha": "321c1135363cf579f9e0e139ba6e0a8cae657ade"
  },
  "/soreal-idle-entrainement-puissance-v1.css": {
   "pin": 23,
@@ -1040,12 +1040,12 @@
   "sha": "409e74ca0ecf7d7452a3e3641710a8d9ce185733"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 357,
-  "sha": "97ac636d6841ae3578a7f1d1b1ce570d2b0184c5"
+  "pin": 360,
+  "sha": "22c264ed3685eeba7452e542d21765392a4a9a91"
  },
  "/soreal-idle-jeu.css": {
-  "pin": 9,
-  "sha": "d973d18828cf2c25d9e12e07614d279bc73b88ac"
+  "pin": 11,
+  "sha": "51cb2211c0736014da2cc7fea75c2ca3ba4207a0"
  },
  "/soreal-idle-labos-habillage-v1.css": {
   "pin": 1,
@@ -1060,16 +1060,16 @@
   "sha": "ea8af771b552f406e097d31623d10091adbad610"
  },
  "/soreal-idle-menus-boutons-v1.css": {
-  "pin": 61,
-  "sha": "4317fd306bab4e7fec68385d3fc2b75622e15e1a"
+  "pin": 63,
+  "sha": "5aeeeb531e21af62e5cfc66aff37fe74886bccbe"
  },
  "/soreal-idle-reglages-v1.css": {
   "pin": 13,
   "sha": "7a4ab3e40155f51af74e82d3279511c765f004f0"
  },
  "/soreal-idle-renaissance.css": {
-  "pin": 3,
-  "sha": "752ff460c6ca15621e699062eebc4e9b181f4129"
+  "pin": 5,
+  "sha": "a5842ac2de89e3be4f477314dc8002e382f93062"
  },
  "/soreal-idle-stabilite-v1.css": {
   "pin": 2,
