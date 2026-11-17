@@ -16,7 +16,7 @@
  * Règle n°1 d'AGENTS.md : aucune valeur n'est inventée ; chaque constante
  * ci-dessous cite sa phrase source. Les points que le wiki laissait ouverts
  * ont été relus dans le code du jeu (build 1260, 2026-11-17 : BeastQuestController) ;
- * il ne reste qu'une convention de code, jamais un nombre de jeu (ordre de la remise de tous les objets, plus bas).
+ * la remise de tous les objets suit l'ordre des emplacements du sac (InventoryController::dumpAllIntoQuest).
  *
  * Heroic Sigil (set) "+10 % Quest Drops" et Orange Heart (set) "+20 % QP" :
  * câblés le 2026-09-23 (le Sigil et le cœur sont désormais de vrais objets
@@ -38,7 +38,7 @@ import { exileIndiceBeteV1 } from "./idle-antlers-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { IDLE_QUIRKS_CATALOG_V1 } from "./idle-quirks-v1.js";
 import { IDLE_WISHES_CATALOG_V1 } from "./idle-wishes-v1.js";
-import { IDLE_ADVENTURE_ZONES, idleAdventureMergeLevelV47 } from "./idle-adventure-v47.js";
+import { IDLE_ADVENTURE_ZONES, idleAdventureAddItemV1, idleAdventureMergeItemsV1, idleAdventureSyncInventorySlotsV1 } from "./idle-adventure-v47.js";
 import { idleHeartsQpMultiplierV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 
 import { nombreV1, entierV1 } from "./idle-outils-v1.js";   /* outils communs (identiques aux anciennes définitions locales) */
@@ -263,7 +263,7 @@ export function idleQuestBankCapV1(state) {
 export function idleQuestQpMultiplierV1(state, env) {
   const bonus = idleQuestBonusTotalsV1(state);
   const data = state?.systems?.questing?.data || {};
-  const maxedCount = IDLE_QUEST_ITEMS_V1.filter(x => data.maxedItems && data.maxedItems[x.zone]).length;
+  const maxedCount = idleQuestMaxedZonesV1(state).length;
   return (
     Math.max(0, N(env?.qpEarningsMultiplier, 1)) *
     (1 + bonus.questQpPct) *
@@ -309,6 +309,91 @@ export function idleQuestRewardV1(state, env, { major, usedIdle, butter }) {
   return { qp, ap, base, activeFactor, activeWish, qpMultiplier, butter: Boolean(butter) };
 }
 
+/* ---------- Objets de quête dans le sac d'Aventure ---------- */
+
+/*
+ * Lu dans le jeu, build 1260, 2026-11-17 : un objet de quête est un Equipment ordinaire de l'inventaire (ids 278 à 287, BeastQuestController::isQuestItem) :
+ * ItemNameDesc::makeLoot / addLoot le range dans la PREMIÈRE case libre à partir des emplacements d'automerge (aucune case libre : l'objet est perdu, rien
+ * n'est empilé), il se fusionne comme tout objet (InventoryController::mergeable : même id, niveau a + b + 1, 100 au plus ; au niveau 100 il est marqué
+ * itemMaxxed, ce que questItemsMaxxed compte), peut être verrouillé (Equipment.removable = faux : jamais remis à la Bête). Ici : objet du sac de genre "quest",
+ * definitionId "quest:<zone>", wikiItemId = l'id du jeu (278 à 287).
+ */
+export function idleQuestItemObjectV1(zone, level = 0) {
+  const def = idleQuestItemByZoneV1(zone);
+  if (!def) return null;
+  return {
+    id: "", definitionId: "quest:" + def.zone, wikiItemId: def.wikiId, name: def.name, kind: "quest", zone: def.zone, set: "", slot: "quest",
+    level: Math.max(0, Math.min(IDLE_QUEST_ITEM_MAX_LEVEL_V1, I(level))), power: 0, toughness: 0, hp: 0, regen: 0, special: 0, locked: false, consumable: false
+  };
+}
+
+/* Objets de quête du sac dans l'ORDRE DES EMPLACEMENTS (comme la boucle de InventoryController::dumpAllIntoQuest sur Inventory.inventory). */
+export function idleQuestBagItemsV1(adventure, zone, ordonne = true) {
+  if (!adventure || !Array.isArray(adventure.inventory)) return [];
+  /* ordonne = faux : lecture seule (snapshot, portée de bonus), sans toucher aux emplacements. */
+  if (!ordonne) return adventure.inventory.filter(o => o && o.kind === "quest" && (!zone || o.zone === zone));
+  const slots = idleAdventureSyncInventorySlotsV1(adventure);
+  const byId = new Map();
+  for (const o of adventure.inventory) if (o && o.kind === "quest") byId.set(String(o.id), o);
+  const out = [];
+  for (const id of slots) {
+    const o = id ? byId.get(String(id)) : null;
+    if (o && (!zone || o.zone === zone)) out.push(o);
+  }
+  return out;
+}
+
+function bumpAdventureRevisionV1(adventure) {
+  if (adventure) adventure.revision = Math.max(0, I(adventure.revision)) + 1;
+}
+
+/* Zones dont l'objet de quête a atteint le niveau 100 (au moins une fois) : liste de la Quête (maxedItems) + fusions du sac (adventure.questMaxed). */
+export function idleQuestMaxedZonesV1(state) {
+  const d = state?.systems?.questing?.data || {};
+  const a = state?.adventure?.questMaxed || {};
+  return IDLE_QUEST_ITEMS_V1.filter(x => (d.maxedItems && d.maxedItems[x.zone]) || a[x.zone]).map(x => x.zone);
+}
+
+/*
+ * Objets d'une sauvegarde d'avant le sac (migration 56 -> 57) qui n'ont pas encore trouvé de place : d.attente = { zone: { niveau: nombre } }.
+ * Décision de Norman (2026-11-17 : aucune perte pour les parties existantes ; le jeu, lui, perd l'objet quand le sac est plein ; ce n'est pas une valeur du jeu) : ils entrent
+ * dans le sac, plus haut niveau d'abord, dès qu'une case se libère (flux de chaque tick et de chaque action de quête).
+ */
+function viderAttenteV1(state, d) {
+  const adv = state?.adventure;
+  if (!adv || !Array.isArray(adv.inventory) || !d.attente || !Object.keys(d.attente).length) return 0;
+  const lignes = [];
+  IDLE_QUEST_ITEMS_V1.forEach((def, rang) => {
+    for (const [lv, n] of Object.entries(d.attente[def.zone] || {})) lignes.push({ def, rang, level: I(lv), n: I(n) });
+  });
+  lignes.sort((a, b) => b.level - a.level || a.rang - b.rang);
+  let places = 0;
+  let plein = false;
+  for (const l of lignes) {
+    while (l.n > 0 && !plein) {
+      if (!idleAdventureAddItemV1(adv, idleQuestItemObjectV1(l.def.zone, l.level))) { plein = true; break; }
+      l.n -= 1;
+      places += 1;
+    }
+    const reste = d.attente[l.def.zone];
+    if (l.n > 0) reste[String(l.level)] = l.n;
+    else delete reste[String(l.level)];
+    if (!Object.keys(reste).length) delete d.attente[l.def.zone];
+    if (plein) break;
+  }
+  if (places) {
+    idleAdventureSyncInventorySlotsV1(adv);
+    bumpAdventureRevisionV1(adv);
+  }
+  return places;
+}
+
+function attenteTotaleV1(d) {
+  let n = 0;
+  for (const par of Object.values(d.attente || {})) for (const c of Object.values(par)) n += I(c);
+  return n;
+}
+
 /* ---------- État ---------- */
 
 function normalizeQuestV1(raw) {
@@ -331,18 +416,21 @@ function normalizeQuestV1(raw) {
 
 export function normalizeIdleQuestingDataV1(raw) {
   const src = raw && typeof raw === "object" ? raw : {};
-  const items = {};
+  /* Objets en attente de place dans le sac (voir viderAttenteV1) ; l'ancien stock `items` (avant la migration 56 -> 57) est repris ici, jamais perdu. */
+  const attente = {};
   for (const def of IDLE_QUEST_ITEMS_V1) {
-    const byLevel = src.items && typeof src.items === "object" ? src.items[def.zone] : null;
-    if (!byLevel || typeof byLevel !== "object") continue;
     const clean = {};
-    for (const [lv, n] of Object.entries(byLevel)) {
-      const level = I(lv, -1);
-      const count = Math.max(0, I(n));
-      if (level < 0 || level > IDLE_QUEST_ITEM_MAX_LEVEL_V1 || count <= 0) continue;
-      clean[String(level)] = count;
+    for (const source of [src.attente, src.items]) {
+      const byLevel = source && typeof source === "object" ? source[def.zone] : null;
+      if (!byLevel || typeof byLevel !== "object") continue;
+      for (const [lv, n] of Object.entries(byLevel)) {
+        const level = I(lv, -1);
+        const count = Math.max(0, I(n));
+        if (level < 0 || level > IDLE_QUEST_ITEM_MAX_LEVEL_V1 || count <= 0) continue;
+        clean[String(level)] = (clean[String(level)] || 0) + count;
+      }
     }
-    if (Object.keys(clean).length) items[def.zone] = clean;
+    if (Object.keys(clean).length) attente[def.zone] = clean;
   }
   const maxedItems = {};
   for (const def of IDLE_QUEST_ITEMS_V1) if (src.maxedItems && src.maxedItems[def.zone]) maxedItems[def.zone] = true;
@@ -354,7 +442,7 @@ export function normalizeIdleQuestingDataV1(raw) {
     /* Lu dans le jeu (BeastQuest::.ctor) : 3 Major en banque au départ. */
     majorsBanked: src.majorsBanked === undefined ? 3 : Math.max(0, I(src.majorsBanked)),
     majorProgressSeconds: Math.max(0, N(src.majorProgressSeconds)),
-    items,
+    attente,
     maxedItems,
     fadButtersGranted: Boolean(src.fadButtersGranted),
     stats: {
@@ -428,53 +516,69 @@ function completeQuestV1(state, d, env, auto) {
   return { completed: true, ...d.lastReward, ...(indiceExile ? { indiceExile: true } : {}) };
 }
 
-/* Remise : "turn in all items that match your current quest" ; le surplus reste en stock. */
-function handInV1(state, d) {
+/*
+ * Remise : "turn in all items that match your current quest".
+ * Sans itemId : clic droit sur un objet de la quête = InventoryController::dumpAllIntoQuest (lu dans le jeu, build 1260, 2026-11-17) : parcourt TOUS les emplacements
+ * du sac DANS L'ORDRE ; pour chaque objet amovible (non verrouillé), checkItemConsumed (avec le niveau si l'atout ITOPOD 66 est acquis, 1 par objet sinon : le jeu teste 66
+ * ici et non 145, vraisemblable coquille reproduite), puis Inventory::deleteItem (la case reste vide, aucun décalage). Elle s'arrête de consommer dès que la quête est
+ * pleine. Avec itemId : ctrl + clic = ItemController::consumeItem, UN seul objet, valeur selon l'atout 145.
+ * Le jeu DÉTRUIT l'objet quand on le remet hors quête, pour une autre quête ou une quête déjà pleine ("eats your offering anyways") ; SOREAL refuse l'action et garde l'objet.
+ */
+function handInV1(state, d, payload = {}) {
   const q = d.quest;
   if (!q) throw new Error("AUCUNE_QUETE_ACTIVE");
-  const stock = d.items[q.zone] || {};
+  const adv = state.adventure;
   const bonus = idleQuestBonusTotalsV1(state);
-  let handedIn = 0;
+  const niveaux = idlePerkNiveauxV1(state);
+  const retirer = new Set();
   let gained = 0;
-  const perk145 = I(idlePerkNiveauxV1(state)[145]) > 0;
-  /* CHOIX SOREAL : niveaux croissants (garde les objets montés en niveau le plus longtemps possible). Le jeu (InventoryController::dumpAllIntoQuest) suit l'ordre des emplacements de l'inventaire, que le stock de quête de SOREAL (rangé par niveau) ne conserve pas. */
-  const levels = Object.keys(stock).map(Number).sort((a, b) => a - b);
-  for (const level of levels) {
-    while (stock[level] > 0 && q.progress < q.required) {
-      /* lu dans le jeu, build 1260, 2026-11-17 : ItemController (clic sur un objet de quête) n'utilise la remise avec niveau (checkItemConsumed(id, niveau)) que si l'atout ITOPOD 145 est possédé ; sinon chaque objet compte 1. */
-      const value = perk145 ? idleQuestHandInValueV1(level, bonus.handInBonusLevel) : 1;
+  if (payload.itemId !== undefined && payload.itemId !== null && payload.itemId !== "") {
+    const o = idleQuestBagItemsV1(adv).find(x => String(x.id) === String(payload.itemId));
+    if (!o) throw new Error("OBJET_QUETE_ABSENT");
+    if (o.locked) throw new Error("OBJET_VERROUILLE");
+    if (o.zone !== q.zone) throw new Error("OBJET_QUETE_AUTRE_QUETE");
+    if (q.progress >= q.required) throw new Error("QUETE_DEJA_REMPLIE");
+    const value = I(niveaux[145]) > 0 ? idleQuestHandInValueV1(o.level, bonus.handInBonusLevel) : 1;
+    q.progress = Math.min(q.required, q.progress + value);
+    gained += value;
+    retirer.add(o);
+  } else {
+    const perk66 = I(niveaux[66]) > 0;
+    for (const o of idleQuestBagItemsV1(adv, q.zone)) {
+      if (q.progress >= q.required) break;
+      if (o.locked) continue;
+      const value = perk66 ? idleQuestHandInValueV1(o.level, bonus.handInBonusLevel) : 1;
       q.progress = Math.min(q.required, q.progress + value);
       gained += value;
-      stock[level] -= 1;
-      handedIn += 1;
+      retirer.add(o);
     }
-    if (stock[level] <= 0) delete stock[level];
   }
-  if (Object.keys(stock).length) d.items[q.zone] = stock;
-  else delete d.items[q.zone];
-  return { handedIn, progress: q.progress, required: q.required, gained };
+  if (retirer.size) {
+    adv.inventory = adv.inventory.filter(x => !retirer.has(x));
+    idleAdventureSyncInventorySlotsV1(adv);
+    bumpAdventureRevisionV1(adv);
+    viderAttenteV1(state, d);
+  }
+  return { handedIn: retirer.size, progress: q.progress, required: q.required, gained };
 }
 
-/* Fusion de deux objets de quête du même type : même règle que l'équipement (niveau a + b + 1, max 100). */
-function mergeItemsV1(d, zone, levelA, levelB) {
+/* Fusion de deux objets de quête du même type du sac : même règle que l'équipement (niveau a + b + 1, max 100), faite par le moteur du sac (merge). */
+function mergeItemsV1(state, d, zone, levelA, levelB) {
   const def = idleQuestItemByZoneV1(zone);
   if (!def) throw new Error("OBJET_QUETE_INVALIDE");
   const a = I(levelA, -1);
   const b = I(levelB, -1);
-  const stock = d.items[def.zone] || {};
-  const need = {};
-  need[a] = (need[a] || 0) + 1;
-  need[b] = (need[b] || 0) + 1;
-  for (const [lv, n] of Object.entries(need)) if (I(stock[lv]) < n) throw new Error("OBJET_QUETE_ABSENT");
+  const adv = state.adventure;
+  const objets = idleQuestBagItemsV1(adv, def.zone);
+  const A = objets.find(o => o.level === a);
+  const B = objets.find(o => o.level === b && o !== A && !o.locked);
+  if (!A || !B) throw new Error("OBJET_QUETE_ABSENT");
   if (a >= IDLE_QUEST_ITEM_MAX_LEVEL_V1) throw new Error("OBJET_QUETE_DEJA_MAX");
-  stock[a] -= 1;
-  stock[b] -= 1;
-  const level = idleAdventureMergeLevelV47(a, b);
-  stock[level] = I(stock[level]) + 1;
-  for (const lv of Object.keys(stock)) if (stock[lv] <= 0) delete stock[lv];
-  d.items[def.zone] = stock;
-  if (level >= IDLE_QUEST_ITEM_MAX_LEVEL_V1) d.maxedItems[def.zone] = true;
-  return { zone: def.zone, level, maxed: level >= IDLE_QUEST_ITEM_MAX_LEVEL_V1 };
+  const fusionne = idleAdventureMergeItemsV1(adv, A.id, B.id);
+  idleAdventureSyncInventorySlotsV1(adv);
+  bumpAdventureRevisionV1(adv);
+  viderAttenteV1(state, d);
+  return { zone: def.zone, level: fusionne.level, maxed: fusionne.level >= IDLE_QUEST_ITEM_MAX_LEVEL_V1 };
 }
 
 function autoStartV1(state, d, now, rng) {
@@ -497,6 +601,7 @@ export function advanceIdleQuestingV1(state, seconds, env = {}, now = Date.now()
   if (!state?.systems?.questing?.unlocked) return;
   const d = questingDataV1(state);
   const secs = Math.max(0, N(seconds));
+  viderAttenteV1(state, d);
 
   if (state.adventure?.completedSets?.fad && !d.fadButtersGranted) {
     addButtersV1(state, IDLE_QUEST_FAD_SET_BUTTERS_V1);
@@ -552,8 +657,8 @@ export function advanceIdleQuestingV1(state, seconds, env = {}, now = Date.now()
 /*
  * Kill de zone (zoneKill / resolveZoneFight) : "Quest items only drop when you are on a quest and
  * are adventuring in the zone where your current quest item is found" ; l'idle "will also disable
- * non idle quest item drops while idle mode is active". Les objets restent dans le stock de quête
- * (pas dans le sac d'Aventure), niveau 0.
+ * non idle quest item drops while idle mode is active". L'objet (niveau 0) tombe dans le sac d'Aventure
+ * (idleQuestItemObjectV1), perdu si le sac est plein.
  */
 export function idleQuestingOnZoneKillV1(state, zoneId, env = {}, rng = Math.random) {
   if (!state?.systems?.questing?.unlocked) return null;
@@ -561,16 +666,21 @@ export function idleQuestingOnZoneKillV1(state, zoneId, env = {}, rng = Math.ran
   if (!d.quest || d.idle || d.quest.zone !== String(zoneId || "")) return null;
   const chance = Math.min(1, IDLE_QUEST_BASE_DROP_CHANCE_V1 * idleQuestDropMultiplierV1(idleQuestBonusTotalsV1(state), env));
   if (!(rng() < chance)) return null;
-  const stock = d.items[d.quest.zone] || {};
-  stock["0"] = I(stock["0"]) + 1;
-  d.items[d.quest.zone] = stock;
   const def = idleQuestItemByZoneV1(d.quest.zone);
-  return { zone: def.zone, name: def.name, level: 0 };
+  /* Lu dans le jeu, build 1260, 2026-11-17 (ItemNameDesc::addLoot) : première case libre, sinon l'objet est perdu (aucun empilement). */
+  const adv = state.adventure;
+  const range = adv && Array.isArray(adv.inventory) ? idleAdventureAddItemV1(adv, idleQuestItemObjectV1(def.zone, 0)) : null;
+  if (range) {
+    idleAdventureSyncInventorySlotsV1(adv);
+    bumpAdventureRevisionV1(adv);
+  }
+  return { zone: def.zone, name: def.name, level: 0, ...(range ? {} : { perdu: true }) };
 }
 
 export function applyIdleQuestingActionV1(state, action, payload = {}, env = {}, now = Date.now(), rng = Math.random) {
   if (!state?.systems?.questing?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const d = questingDataV1(state);
+  viderAttenteV1(state, d);
   switch (action) {
     case "questStart":
       return startQuestV1(state, d, Boolean(payload.major), now, rng);
@@ -583,14 +693,14 @@ export function applyIdleQuestingActionV1(state, action, payload = {}, env = {},
       return { skipped };
     }
     case "questHandIn":
-      return handInV1(state, d);
+      return handInV1(state, d, payload);
     case "questComplete":
       return completeQuestV1(state, d, env, false);
     case "questIdle":
       d.idle = payload.active === undefined ? !d.idle : Boolean(payload.active);
       return { idle: d.idle };
     case "questMerge":
-      return mergeItemsV1(d, payload.zone, payload.levelA, payload.levelB);
+      return mergeItemsV1(state, d, payload.zone, payload.levelA, payload.levelB);
     case "questButter": {
       /* lu dans le jeu, build 1260, 2026-11-17 : BeastQuestController::tryUseButter : refus si le beurre est déjà utilisé, s'il n'y en a plus ou si aucune quête n'est en cours ; sinon -1 beurre et usedButter. */
       if (!d.quest) throw new Error("AUCUNE_QUETE_ACTIVE");
@@ -624,6 +734,12 @@ export function idleQuestingSnapshotV1(state, env = {}) {
   });
   const q = d.quest;
   const questDef = q ? idleQuestItemByZoneV1(q.zone) : null;
+  const bagPar = {};
+  for (const o of idleQuestBagItemsV1(state.adventure, undefined, false)) {
+    const par = bagPar[o.zone] || (bagPar[o.zone] = {});
+    par[String(o.level)] = (par[String(o.level)] || 0) + 1;
+  }
+  const maxedZones = new Set(idleQuestMaxedZonesV1(state));
   return {
     unlocked: true,
     idle: d.idle,
@@ -641,15 +757,17 @@ export function idleQuestingSnapshotV1(state, env = {}) {
       idleEtaSeconds: Math.max(0, (q.required - q.progress - q.idleBar) * perItem)
     } : null,
     eligibleZones: idleQuestEligibleZonesV1(state).map(zone => ({ zone, zoneName: zoneNameV1(zone), itemName: idleQuestItemByZoneV1(zone).name })),
-    items: IDLE_QUEST_ITEMS_V1.filter(def => d.items[def.zone] || d.maxedItems[def.zone]).map(def => ({
+    /* Objets de quête RANGÉS DANS LE SAC d'Aventure (ils y occupent des emplacements) ; `enAttente` : ceux d'une ancienne sauvegarde qui n'ont pas encore trouvé de place. */
+    items: IDLE_QUEST_ITEMS_V1.filter(def => bagPar[def.zone] || d.attente[def.zone] || maxedZones.has(def.zone)).map(def => ({
       zone: def.zone,
       zoneName: zoneNameV1(def.zone),
       itemName: def.name,
-      maxed: Boolean(d.maxedItems[def.zone]),
-      levels: Object.entries(d.items[def.zone] || {})
+      maxed: maxedZones.has(def.zone),
+      levels: Object.entries(bagPar[def.zone] || {})
         .map(([lv, count]) => ({ level: I(lv), count, handInValue: idleQuestHandInValueV1(I(lv), bonus.handInBonusLevel) }))
         .sort((a, b) => a.level - b.level)
     })),
+    enAttente: attenteTotaleV1(d),
     dropChance: Math.min(1, IDLE_QUEST_BASE_DROP_CHANCE_V1 * dropMultiplier),
     dropMultiplier,
     idleDivider: divider,

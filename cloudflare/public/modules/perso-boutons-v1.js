@@ -41,6 +41,8 @@
   function pourcentage(slot){var v=bornes_(lire_()[slot]);return v==null?DEFAUT:v;}
   function definir(slot,valeur){var v=bornes_(valeur);if(v==null||(!SLOTS[slot]&&slot!=='nguCap'))return false;var o=lire_();o[slot]=v;ecrire_(o);return true;}
   function pourcentNgu_(){var v=bornes_(lire_().nguCap);return v==null?100:v;}
+  /* Pourcentage du plafond que place le bouton Cap d'un NGU (PlayerSettings.nguCapModifier) : 100 tant que le NGU Cap Modifier n'est pas acheté. */
+  function pourcentNguEffectif(){return possede_(NGU_ACHAT)?pourcentNgu_():100;}
   function etat_(){var h=window.__SOREAL_IDLE_META_HOST_V130__;return h&&h.getIdleEtat?h.getIdleEtat():null;}
   function possede_(achat){
     var j=etat_(),c=j&&j.systemes&&j.systemes.selloutShop&&Array.isArray(j.systemes.selloutShop.catalog)?j.systemes.selloutShop.catalog:[];
@@ -140,7 +142,7 @@
 
   function editer(slot){
     var cible=slot==='nguCap'?pourcentNgu_():pourcentage(slot);
-    demander_({icone:'%',titre:slot==='nguCap'?'Max des NGU':'Pourcentage du bouton',aide:slot==='nguCap'?'Pourcentage du plafond placé par le bouton Max des NGU (1 à 100).':'Part placée par ce bouton (1 à 100 %).',valeur:String(cible).replace('.',','),
+    demander_({icone:'%',titre:slot==='nguCap'?'Cap des NGU':'Pourcentage du bouton',aide:slot==='nguCap'?'Pourcentage du plafond placé par les boutons Cap et Cap all des NGU (1 à 100).':'Part placée par ce bouton (1 à 100 %).',valeur:String(cible).replace('.',','),
       valider:function(rep){return definir(slot,rep);},erreur:'Entre un nombre entre 1 et 100.',apres:function(){decorer(true);}});
   }
 
@@ -202,7 +204,7 @@
     Array.prototype.forEach.call(cadre.querySelectorAll('.perso-duo-v1,[data-perso-pct-v1],[data-perso-ngu-v1]'),function(b){if(b.parentNode)b.parentNode.removeChild(b);});
     var html=boutonsHtml_(res,source);
     if(ngu&&source==='cap'&&possede_(NGU_ACHAT)){
-      html+='<button type="button" class="perso-pct-edit-v1" data-perso-ngu-v1="1" title="Réglage du bouton Max des NGU : pourcentage du plafond placé" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editer(\'nguCap\')">⚙ Max = '+texte_(pourcentNgu_())+'</button>';
+      html+='<button type="button" class="perso-pct-edit-v1" data-perso-ngu-v1="1" title="Réglage des boutons Cap des NGU : pourcentage du plafond placé" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editer(\'nguCap\')">⚙ Cap = '+texte_(pourcentNgu_())+'</button>';
     }
     if(html){
       var tampon=document.createElement('span');
@@ -247,20 +249,9 @@
     /* setTimeout et non requestAnimationFrame : l'onglet caché ne rejoue pas les images d'animation, le suivi ne doit jamais rester bloqué. */
     setTimeout(function(){enCours=false;decorer(false);},80);
   }
-  /* Le bouton Max des NGU applique le pourcentage choisi (NGU Cap Modifier) : le clic est repris avant le menu. */
+  /* Lu dans le jeu, build 1260, 2026-11-17 : PlayerSettings.nguCapModifier n'est lu que par AllNGUController::energyNGUCapAmount / magicNGUCapAmount (bouton Cap de chaque NGU et Cap all) et par le champ qui le règle
+     (AllNGUController::updateCapMods / parseNGUModInput). Le bouton Max (toute l'énergie libre d'un NGU, ou 100 % du plafond d'énergie dans la barre d'outils) ne le lit PAS : il n'est plus repris ici. */
   if(typeof document!=='undefined'&&document.addEventListener){
-    document.addEventListener('click',function(ev){
-      var b=ev.target&&ev.target.closest?ev.target.closest('.nl-ligne button'):null;
-      if(!b||b.getAttribute('data-perso-pct-v1')||b.getAttribute('data-perso-ngu-v1'))return;
-      var onclick=String(b.getAttribute('onclick')||'');
-      if(onclick.indexOf("preset('cap',1)")===-1&&onclick.indexOf('preset(\\\'cap\\\',1)')===-1)return;
-      if(!possede_(NGU_ACHAT))return;
-      var ngu=window.__SOREAL_IDLE_NGU_LABO_V1__;
-      if(!ngu||typeof ngu.preset!=='function')return;
-      ev.preventDefault();
-      ev.stopPropagation();
-      ngu.preset('cap',pourcentNgu_()/100);
-    },true);
     if(typeof MutationObserver==='function'&&document.body){
       new MutationObserver(planifier_).observe(document.body,{childList:true,subtree:true});
     }
@@ -314,7 +305,7 @@
     if(typeof f==='function')f({action:'setR3NomAleatoire',enabled:Boolean(actif)});
   }
 
-  window.__SOREAL_IDLE_PERSO_PCT_V1__={nomR3:nomR3,blocReglageR3:blocReglageR3,reglerNomR3:reglerNomR3,valeurInput:valeurInput,definirInput:definirInput,editerInput:editerInput,appliquerInput:appliquerInput,pourcentage:pourcentage,definir:definir,editer:editer,appliquer:appliquer,decorer:decorer,pourcentNgu:pourcentNgu_,
+  window.__SOREAL_IDLE_PERSO_PCT_V1__={pourcentNguEffectif:pourcentNguEffectif,nomR3:nomR3,blocReglageR3:blocReglageR3,reglerNomR3:reglerNomR3,valeurInput:valeurInput,definirInput:definirInput,editerInput:editerInput,appliquerInput:appliquerInput,pourcentage:pourcentage,definir:definir,editer:editer,appliquer:appliquer,decorer:decorer,pourcentNgu:pourcentNgu_,
     /* Outils de test */
     slots:SLOTS,decorerCadre:decorerCadre_};
   planifier_();

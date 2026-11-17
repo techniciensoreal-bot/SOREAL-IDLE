@@ -134,6 +134,13 @@ function pageItopodIdleV1_(j){
             '<input id="'+id+'" class="itp-saisie" type="number" inputmode="numeric" min="0" max="1600" value="'+valeur+'" oninput="window.__itopodBrouillonIdleV1__()" onchange="window.__itopodBrouillonIdleV1__()">'+
             '<button type="button" class="itp-pas-bouton" aria-label="Plus" onclick="window.__itopodPasIdleV1__(this,1)">+</button></div></div>';
         };
+        /* Little Blue Pill (lu dans le jeu, build 1260, 2026-11-17 : AdventureController::togglePill / updatePillUI « Enable Little Blue Pill (N kills left) ») : bouton visible seulement si le joueur possède déjà des pilules (ou a le réglage actif) ; réglage lié au compte (état du jeu côté serveur, règle n°6). */
+        const conso=(j&&j.systemes&&j.systemes.consommables)||{};
+        const pilulesRestantes=Math.max(0,Math.floor(Number(conso.reserve&&conso.reserve.bluePills)||0));
+        const pilulesActives=Boolean(conso.pilulesActives);
+        const boutonPilule=(pilulesRestantes>0||pilulesActives)
+          ?'<button type="button" class="itp-bouton itp-bouton-pilule" style="flex:none;width:100%;margin-top:8px;font-size:14px;background:'+(pilulesActives?'linear-gradient(180deg,#64748b,#334155)':'linear-gradient(180deg,#3b82f6,#1e40af)')+'" aria-pressed="'+(pilulesActives?'true':'false')+'" title="Chaque pilule double les PPP d’un kill dans l’ITOPOD (une pilule par kill, seulement tant que le réglage est actif)." onclick="window.__itopodPiluleIdleV1__()">💊 '+(pilulesActives?'Désactiver la petite pilule bleue':'Activer la petite pilule bleue')+' ('+H.idleEntier_(pilulesRestantes)+' kills restants)</button>'
+          :'';
         const tuile=function(icone,libelle,valeur){return '<div class="itp-tuile"><span class="itp-tuile-icone">'+icone+'</span><span class="itp-tuile-libelle">'+libelle+'</span><b>'+valeur+'</b></div>';};
         const atouts=systemeMetaParIdIdleV130_(j,'perks');
         const atoutsOuverts=Boolean(atouts&&atouts.state&&atouts.state.unlocked);
@@ -148,6 +155,7 @@ function pageItopodIdleV1_(j){
           (window.__SOREAL_IDLE_ITOPOD_SCENE_V1__?window.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html(Object.assign({},d,{actif:Boolean(s.state.active)})):'')+
           '<section class="itp-panneau itp-entree">'+
             '<button type="button" class="itp-bouton itp-bouton-entrer'+(s.state.active?' itp-en-cours':'')+'" onclick="window.__itopodBasculerIdleV1__()">'+(s.state.active?'🚪 Quitter l’ITOPOD':'⚔️ Entrer dans l’ITOPOD')+'</button>'+
+            boutonPilule+
             '<div class="itp-mode">'+(s.state.active?'Tu combats les ennemis à la chaîne.':'Entre dans la tour pour combattre les ennemis à la chaîne.')+'</div>'+
             (d.hitsParKill===0?'<div class="itp-mode itp-alerte">Tu n’es pas encore assez fort pour avancer dans la tour : monte ta Puissance d’Aventure.</div>':'')+
           '</section>'+
@@ -257,6 +265,11 @@ function itopodEtagesIdleV1_(){
         actionMetaIdleV130_({action:'towerFloors',start:Number(debut&&debut.value)||0,end:Number(fin&&fin.value)||0});
       }
       window.__itopodEtagesIdleV1__=itopodEtagesIdleV1_;
+
+function itopodPiluleIdleV1_(){
+        actionMetaIdleV130_({action:'towerTogglePill'});
+      }
+      window.__itopodPiluleIdleV1__=itopodPiluleIdleV1_;
 
 function itopodAutoIdleV1_(){
         effacerBrouillonItopodIdleV1_();

@@ -193,6 +193,8 @@ export function merge(s,a,b){
   A.special=Math.max(N(A.special),N(B.special));
   if(Array.isArray(A.specialExtra)||Array.isArray(B.specialExtra)){const n=Math.max(A.specialExtra?.length||0,B.specialExtra?.length||0);A.specialExtra=Array.from({length:n},(_,i)=>Math.max(N(A.specialExtra?.[i]),N(B.specialExtra?.[i])))}
   s.inventory=s.inventory.filter(x=>x.id!==B.id);
+  /* Objet de quête (lu dans le jeu, build 1260, 2026-11-17 : InventoryController::checkItemTransform -> markItemAsMaxxed dès le niveau 100, ItemList.itemMaxxed[278..287] que BeastQuestController::questItemsMaxxed compte pour le bonus de QP). */
+  if(A.kind==="quest"&&I(A.level)>=MAX&&A.zone){if(!s.questMaxed||typeof s.questMaxed!=="object")s.questMaxed={};s.questMaxed[A.zone]=true}
   record(s,A);
   return A;
 }
@@ -205,7 +207,7 @@ export function merge(s,a,b){
  * plus bas) — cette garde reste une sécurité défensive, pas le mécanisme
  * principal.
  */
-export function equip(s,id,slot){const o=s.inventory.find(x=>x.id===id);if(!o||o.kind==="boost"||o.consumable||(o.kind==="cube"&&s.cube.unlocked))throw Error("EQUIPEMENT_INVALIDE");if(slot==="accessory"){if(IDLE_SECOND_WEAPON_SLOTS_V1.includes(o.slot))throw Error("SLOT_INVALIDE");if(!s.equipment.accessories.includes(id)){
+export function equip(s,id,slot){const o=s.inventory.find(x=>x.id===id);if(!o||o.kind==="boost"||o.kind==="quest"||o.consumable||(o.kind==="cube"&&s.cube.unlocked))throw Error("EQUIPEMENT_INVALIDE");if(slot==="accessory"){if(IDLE_SECOND_WEAPON_SLOTS_V1.includes(o.slot))throw Error("SLOT_INVALIDE");if(!s.equipment.accessories.includes(id)){
   /*
    * UUG's Rings (set) reste l'exception déjà documentée plus haut (V144) :
    * ses 5 anneaux sont COÉQUIPABLES simultanément et ne consomment jamais
@@ -364,7 +366,7 @@ function boostEffectivenessFactorV1(s){
 
 export function applyBoost(s,boostId,targetId,ctx){
   const b=s.inventory.find(x=>x.id===boostId),o=s.inventory.find(x=>x.id===targetId);
-  if(!b||b.kind!=="boost"||!o||o.kind==="boost")throw Error("BOOST_INVALIDE");
+  if(!b||b.kind!=="boost"||!o||o.kind==="boost"||o.kind==="quest")throw Error("BOOST_INVALIDE");
   const type=b.boostType;
   /*
    * Norman (2026-09-16) : "Sébastien a toujours le boost spécial qui est

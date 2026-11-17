@@ -8,6 +8,8 @@ import {
   rebirthIdleNguState,
   idleNguSnapshot
 } from "../src/idle-ngu-progression.js";
+import { idleQuestItemObjectV1, idleQuestBagItemsV1 } from "../src/idle-questing-v1.js";
+import { idleAdventureAddItemV1, idleAdventureSyncInventorySlotsV1 } from "../src/idle-adventure-v47.js";
 
 /*
  * Questing (2026-09-23) : câblage de bout en bout (idle-questing-v1.js + crochets de
@@ -21,6 +23,13 @@ const avecAleatoire = (valeur, fn) => {
   Math.random = () => valeur;
   try { return fn(); } finally { Math.random = orig; }
 };
+
+/* Les objets de quête vivent dans le sac d'Aventure (2026-11-17) : `poser` en range dans les cases libres, `dansLeSac` liste leurs niveaux. */
+const poser = (s, liste) => {
+  for (const [lv, n] of liste) for (let i = 0; i < n; i++) assert.ok(idleAdventureAddItemV1(s.adventure, idleQuestItemObjectV1("sewers", lv)), "place dans le sac");
+  idleAdventureSyncInventorySlotsV1(s.adventure);
+};
+const dansLeSac = (s) => idleQuestBagItemsV1(s.adventure, "sewers", false).map(o => o.level).sort((a, b) => a - b);
 
 function base(sets = { sewers: true }) {
   let s = normalizeIdleNguState({ difficulty: "extreme" }, ctx, T0);
@@ -82,7 +91,9 @@ let enQuete;
   s.adventure.selectedZone = "sewers";
   const kill = avecAleatoire(0, () => act(s, { action: "adventure", adventure: { action: "zoneKill" } }));
   assert.deepEqual(kill.result.questDrop, { zone: "sewers", name: "Bits of String", level: 0 });
-  assert.deepEqual(kill.state.systems.questing.data.items, { sewers: { 0: 1 } });
+  assert.deepEqual(dansLeSac(kill.state), [0], "l'objet tombe DANS LE SAC d'Aventure");
+  { const o = idleQuestBagItemsV1(kill.state.adventure, "sewers")[0]; assert.equal(o.kind, "quest"); assert.equal(o.wikiItemId, 278); assert.equal(o.name, "Bits of String"); assert.ok(kill.state.adventure.inventorySlots.includes(o.id), "il occupe une case"); }
+  assert.equal(kill.state.systems.questing.data.items, undefined, "plus de stock à part");
   const rate = avecAleatoire(0.05, () => act(kill.state, { action: "adventure", adventure: { action: "zoneKill" } }));
   assert.equal(rate.result.questDrop, undefined, "5 % : un tirage à 0,05 ne donne rien");
   const ailleurs = kill.state;
@@ -97,15 +108,21 @@ let enQuete;
 // --- Remise, fusion, complétion active (x2) et QP -> Quirks ---
 {
   let s = enQuete;
-  s.systems.questing.data.items = { sewers: { 0: 55 } };
+  poser(s, [[0, 18]]);
+  s.systems.questing.data.quest.required = 15;
   let r = act(s, { action: "questMerge", zone: "sewers", levelA: 0, levelB: 0 });
   assert.deepEqual(r.result, { zone: "sewers", level: 1, maxed: false }, "fusion : 0 + 0 + 1");
   s = r.state;
   assert.throws(() => act(s, { action: "questComplete" }), /QUETE_INCOMPLETE/);
+  const avantRemise = idleQuestBagItemsV1(s.adventure, "sewers").map(o => o.id);
+  const caseDuDernier = s.adventure.inventorySlots.indexOf(avantRemise[avantRemise.length - 1]);
   r = act(s, { action: "questHandIn" });
-  assert.equal(r.result.progress, 50);
-  assert.equal(r.result.handedIn, 50);
-  assert.deepEqual(r.state.systems.questing.data.items, { sewers: { 0: 3, 1: 1 } }, "le surplus reste en stock");
+  assert.equal(r.result.progress, 15);
+  assert.equal(r.result.handedIn, 15);
+  /* lu dans le jeu (dumpAllIntoQuest) : les cases sont parcourues DANS L'ORDRE, la quête pleine arrête la remise ; Inventory::deleteItem laisse la case vide (aucun décalage). */
+  assert.deepEqual(idleQuestBagItemsV1(r.state.adventure, "sewers").map(o => o.id), avantRemise.slice(15), "les 15 premières cases ont été vidées, les dernières restent");
+  assert.equal(r.state.adventure.inventorySlots.indexOf(avantRemise[avantRemise.length - 1]), caseDuDernier, "aucun décalage des cases");
+  assert.deepEqual(dansLeSac(r.state), [0, 0, 0], "le surplus reste dans le sac");
   const qpAvant = r.state.currencies.qp;
   const apAvant = r.state.currencies.ap;
   r = act(r.state, { action: "questComplete" });
@@ -123,10 +140,22 @@ let enQuete;
 {
   let s = avecAleatoire(0, () => act(base(), { action: "questStart" })).state;
   s.systems.perks.unlocked = true;
-  s.systems.perks.data = { levels: { 145: 1 } };
-  s.systems.questing.data.items = { sewers: { 20: 1, 0: 1 } };
+  s.systems.perks.data = { levels: { 66: 1, 145: 1 } };
+  poser(s, [[20, 1], [0, 1]]);
   const r = act(s, { action: "questHandIn" });
   assert.equal(r.result.progress, 1 + 3, "niv. 0 -> 1, niv. 20 -> 1 + 2");
+  /* lu dans le jeu (dumpAllIntoQuest) : « tout remettre » teste le Perk 66, pas le 145 */
+  s.systems.perks.data = { levels: { 145: 1 } };
+  let s2 = avecAleatoire(0, () => act(base(), { action: "questStart" })).state;
+  s2.systems.perks.unlocked = true;
+  s2.systems.perks.data = { levels: { 145: 1 } };
+  poser(s2, [[20, 1], [0, 1]]);
+  assert.equal(act(s2, { action: "questHandIn" }).result.progress, 2, "sans Perk 66 : 1 par objet");
+  /* ctrl + clic (ItemController::consumeItem) : UN objet, valeur selon le Perk 145 */
+  const un = act(s2, { action: "questHandIn", itemId: idleQuestBagItemsV1(s2.adventure, "sewers")[0].id });
+  assert.equal(un.result.handedIn, 1);
+  assert.equal(un.result.progress, 3, "Perk 145 : le niveau 20 vaut 1 + 2");
+  assert.deepEqual(dansLeSac(un.state), [0]);
 }
 
 // --- Idle : 800 s par objet (diviseur 8, respawn 4 s, speed 1 s), récompense non doublée ---
@@ -182,16 +211,17 @@ let enQuete;
   s.selloutShop.unlockedEver = true;
   s = act(s, { action: "sellShopBuy", itemId: "beastButter1" }, T0 + 2000).state;
   assert.equal(s.selloutEffects.beastButters, 4);
-  s.systems.questing.data.items = { sewers: { 0: 60 } };
+  poser(s, [[0, 15]]);
+  s.systems.questing.data.quest.required = 10;
   s = act(s, { action: "questHandIn" }, T0 + 2000).state;
   s.systems.questing.data.majorsBanked = 3;
   s.systems.questing.data.majorProgressSeconds = 1234;
 
   const rb = rebirthIdleNguState(s, ctx, T0 + 400_000);
   const d = rb.systems.questing.data;
-  assert.equal(d.quest.progress, 50, "la quête active survit au Rebirth");
+  assert.equal(d.quest.progress, 10, "la quête active survit au Rebirth");
   assert.equal(d.majorsBanked, 3, "les Majors en banque survivent");
-  assert.deepEqual(d.items, { sewers: { 0: 10 } }, "le stock d'objets de quête survit");
+  assert.deepEqual(dansLeSac(rb), [0, 0, 0, 0, 0], "les objets de quête du sac survivent");
   /* lu dans le jeu (BeastQuestController::tryUseButter, 2026-11-17) : le beurre se consomme à la main pendant la quête, une seule fois par quête */
   const b1 = act(rb, { action: "questButter" }, T0 + 400_000);
   assert.equal(b1.state.selloutEffects.beastButters, 3, "un Butter consommé au clic");
@@ -236,7 +266,7 @@ let enQuete;
   };
   vm.runInNewContext(readFileSync("cloudflare/public/modules/questing-v1.js", "utf8"), { window });
   let s = avecAleatoire(0, () => act(base(), { action: "questStart" })).state;
-  s.systems.questing.data.items = { sewers: { 0: 2 } };
+  poser(s, [[0, 2]]);
   const j = { systemes: idleNguSnapshot(s, ctx, T0) };
   const html = window.__SOREAL_IDLE_QUESTING_V1__.page(j);
   assert.match(html, /Quête en cours/);

@@ -57,5 +57,5 @@ for (const [id, cout] of [["customInput1", 50], ["customInput2", 100], ["customI
 
 const idx = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(idx.includes("/modules/perso-boutons-v1.js?v=") && idx.indexOf("barre-allocation-v1.js") < idx.indexOf("perso-boutons-v1.js"), "module chargé après la barre d'allocation");
-assert.ok(src.includes("nguCapModifier") && src.includes("preset('cap',1)"), "NGU Cap Modifier : le bouton Max des NGU applique le pourcentage choisi");
+assert.ok(src.includes("nguCapModifier") && src.includes("pourcentNguEffectif") && !src.includes("ngu.preset('cap',pourcentNgu_()"), "NGU Cap Modifier : réservé aux boutons Cap / Cap all (lu dans le jeu), le bouton Max n'est plus modifié");
 console.log("idle-boutique-ap-boutons-pourcentage-v1: OK");

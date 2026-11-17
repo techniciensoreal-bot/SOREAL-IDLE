@@ -25,7 +25,7 @@ import { idsPortraitsDeChaineV1, idlePortraitsSnapshotV1 } from "./idle-portrait
 import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
 import { idleCookingSystemSnapshotV1 } from "./idle-cooking-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
-import { nguNormalLevelSumsV1, achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
+import { nguNormalLevelSumsV1, achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, setNguAllocationV1, applyNguTargetsV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
 import { augmentationGoldCost, augmentationSecondsForNextLevel, augmentationSecondsBrutNextLevel, externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceBudget, totalAllocated } from "./idle-ngu-ressources.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, ressourceDecouverteV1, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAutoEnvV1, resourceInfoV1 } from "./idle-ngu-actions.js";
@@ -39,6 +39,8 @@ function nguSnapshotV1(state, context) {
   const active = nguActiveTiersV1(state.difficulty);
   const speeds = { energy: nguSpeedMultiplierV1(state, "energy"), magic: nguSpeedMultiplierV1(state, "magic") };
   const tiers = {};
+  /* Lu dans le jeu, build 1260, 2026-11-17 : NGUController::updateCapButton : le bouton Cap n'existe que si PlayerSettings.beastOn (posé par ItemController::consumeItem quand on consomme le Heroic Sigil, id 292 = Questing débloqué). */
+  const capVisible = Boolean(state.systems.questing?.unlocked);
   /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : jamais un palier de difficulté inactif dans la réponse (Evil/Sadistic), ni la liste des NGU tant que le système n'est pas découvert. */
   for (const tier of IDLE_NGU_TIERS_V1) {
     if (!active.includes(tier)) continue;
@@ -61,7 +63,9 @@ function nguSnapshotV1(state, context) {
         progress: n.level >= IDLE_NGU_MAX_LEVEL_V1 ? 0 : Math.max(0, Math.min(1, n.work / (n.level + 1))),
         effectPct: nguEffectPctV1(tier, def.id, n.level),
         secondsPerLevel: rate > 0 ? perLevel / rate : null,
-        baseCost: params.baseCost
+        baseCost: params.baseCost,
+        /* Plafond d'allocation (bouton « Cap » de chaque NGU, visible une fois Questing débloqué) : calculé ICI, le client ne refait aucune formule. */
+        ...(capVisible ? { plafond: nguPlafondAllocationV1(params.baseCost, n.level, power, speeds[def.resource]) } : {})
       };
     });
   }
@@ -101,13 +105,70 @@ function consommablesSnapshotV1(state) {
     const n = Math.floor(num(v, 0));
     if (n > 0) potions[k] = n;
   }
-  return { restant, beta, reserve, potions };
+  /* Little Blue Pill : réglage buffedKillsOn (lu dans le jeu, build 1260, 2026-11-17), champ présent seulement quand actif. */
+  return fx.buffedKillsOn === true ? { restant, beta, reserve, potions, pilulesActives: true } : { restant, beta, reserve, potions };
 }
 
 /* Un système est « ouvert » quand il est découvert ; la ressource 3 par ressourceDecouverteV1. */
 function systemeOuvertPerkV1(state) {
   /* La magie (Blood Magic) et la ressource 3 se découvrent « une fois pour toutes » (ressourceDecouverteV1) : leurs atouts ne disparaissent pas après un Rebirth qui remet le drapeau du système à zéro. */
   return (id) => (id === "r3" ? ressourceDecouverteV1(state, "r3") : id === "bloodMagic" ? ressourceDecouverteV1(state, "magic") : Boolean(state.systems && state.systems[id] && state.systems[id].unlocked));
+}
+
+/*
+ * Plafond d'allocation d'un NGU (lu dans le jeu, build 1260, 2026-11-17 : AllNGUController::energyNGUCapAmount / magicNGUCapAmount) : l'énergie (ou la magie) qui fait gagner UN niveau par tick (50 par seconde) :
+ * diviseur x (niveau + 1) / (puissance x vitesse totale). Dans le jeu le diviseur par tick est baseCost x 50 (ici baseCost est en secondes) et la vitesse totale contient déjà le x3 du défi Troll (Sadistic pour
+ * l'énergie, normal pour la magie : nguSpeedMultiplierV1) : le « bonus Troll » du plafond n'est donc pas une constante à part, il vient de cette vitesse. Plafonné à Character::hardCap (9e18), au moins 1.
+ * Le pourcentage du NGU Cap Modifier (PlayerSettings.nguCapModifier, réglage du joueur) s'applique côté client avant ce plafond (voir ngu-labo-v1.js).
+ */
+export function nguPlafondAllocationV1(baseCost, level, power, speed) {
+  const brut = (50 * baseCost * (Math.max(0, level) + 1)) / (power * speed);
+  if (!(brut < 9e18)) return 9e18;
+  return brut <= 1 ? 1 : Math.floor(brut);
+}
+
+/*
+ * « Cap all » énergie / magie (Norman, 2026-11-17). Lu dans le jeu, build 1260, 2026-11-17 : AllNGUController::capAllEnergy / capAllMagic : (1) NGUController::removeAll sur TOUS les NGU de la ressource (leur allocation
+ * revient au libre) ; (2) dans l'ordre de la liste, pour chaque NGU dont AllNGUController::reachedTarget est faux (palier actif : Target -1 = ignoré, Target 0 = jamais atteint, niveau >= Target = atteint), NGUController::cap
+ * avec l'énergie restante. NGUController::cap : n = ceil(plafond / libre) ; part = plafond / n (division entière) ; montant = (long)(float(part) x 1,0000020265579224), +1 si pas de dépassement, borné au libre.
+ * Plafond = AllNGUController::energyNGUCapAmount x PlayerSettings.nguCapModifier (réglage du joueur, passé par le client : `modifier`, 0 à 1), borné à Character::hardCap (9e18) et au moins 1.
+ * Boutons visibles seulement si PlayerSettings.beastOn (Questing débloqué), comme le bouton Cap de chaque NGU : AllNGUController::updateCapMods.
+ */
+export function nguPlafondBrutV1(baseCost, level, power, speed) {
+  return (50 * baseCost * (Math.max(0, level) + 1)) / (power * speed);
+}
+export function nguMontantCapV1(brut, modifier, libre) {
+  let pl = brut * modifier;
+  pl = !(pl < 9e18) ? 9e18 : pl <= 1 ? 1 : Math.floor(pl);
+  if (!(libre > 0)) return 0;
+  const parts = Math.ceil(pl / libre);
+  const part = Math.floor(pl / parts);
+  const m = Math.floor(Math.fround(Math.fround(part) * Math.fround(1.0000020265579224))) + 1;
+  return Math.max(0, Math.min(m, libre));
+}
+export function capAllNguV1(state, resource, modifierBrut, context = {}) {
+  const s = state.systems.ngu;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (resource !== "energy" && resource !== "magic") throw new Error("RESSOURCE_INVALIDE");
+  if (resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (!state.systems.questing?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const modifier = Number.isFinite(Number(modifierBrut)) ? Math.max(0.01, Math.min(1, Number(modifierBrut))) : 1;
+  const tier = s.data.tier;
+  const defs = IDLE_NGU_CATALOG_V1.filter(d => d.resource === resource);
+  for (const def of defs) setNguAllocationV1(state, def.id, 0, context);
+  const power = Math.max(1, idleNguEffectiveResourceStatV1(state, resource, "power"));
+  const speed = nguSpeedMultiplierV1(state, resource);
+  const placed = {};
+  for (const def of defs) {
+    const n = s.data.ngus[tier][def.id];
+    const cible = Math.floor(Number(n.target) || 0);
+    if (cible < 0 || (cible !== 0 && n.level >= cible)) continue;
+    const libre = Math.floor(Math.max(0, Number(state.resources[resource].current) || 0));
+    const montant = nguMontantCapV1(nguPlafondBrutV1(nguParamsV1(tier, def.id).baseCost, n.level, power, speed), modifier, libre);
+    if (montant > 0) placed[def.id] = setNguAllocationV1(state, def.id, montant, context, tier).allocation;
+  }
+  applyNguTargetsV1(state);
+  return { resource, placed };
 }
 
 export function idleNguSnapshot(raw, context = {}, now = Date.now()) {

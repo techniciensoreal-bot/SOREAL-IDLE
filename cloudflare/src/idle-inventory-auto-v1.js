@@ -518,7 +518,7 @@ export function idleInventoryTransformBoostV1(s, itemId, type, env) {
  * consommables et objets de déblocage (slot « special ») n'ont pas de type : jamais filtrés ainsi.
  */
 function basicFilterTypeV1(o) {
-  if (!o || o.kind === "boost" || o.consumable) return "";
+  if (!o || o.kind === "boost" || o.kind === "quest" || o.consumable) return "";   /* objet de quête : « objets divers » (jamais filtré par type) */
   if (CORE_SLOTS.includes(o.slot)) return o.slot;
   /* Les secondes armes des sets tardifs sont de type Weapon sur le wiki. */
   if (IDLE_SECOND_WEAPON_SLOTS_V1.includes(o.slot)) return "weapon";

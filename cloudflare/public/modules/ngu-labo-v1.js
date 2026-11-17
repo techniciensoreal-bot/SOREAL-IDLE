@@ -427,6 +427,8 @@ function barreHtml_(n,ancre,rang){
         '<button type="button" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'plus\')">+</button>'+
         '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
         '<button type="button" class="max" title="Placer toute l’énergie ou la magie libre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'max\')">Max</button>'+
+        /* Bouton Cap (lu dans le jeu, build 1260, 2026-11-17 : NGUController::cap / updateCapButton) : présent seulement quand le moteur envoie le plafond (Questing débloqué, comme le jeu : PlayerSettings.beastOn). */
+        (n.plafond!=null?'<button type="button" class="max cap" title="Placer le plafond de ce NGU : l’énergie ou la magie qui fait gagner un niveau par tick" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'cap\')">Cap</button>':'')+
         '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'zero\')">0</button>'+
       '</div>'+
     '</div>'+
@@ -718,6 +720,20 @@ function totauxHtml_(j){
   return '<div class="nl-ligne nl-totaux">'+AL.compteur('energy','ngu')+(ng&&ng.magicUnlocked?AL.compteur('magic','ngu'):'')+'</div>';
 }
 
+/* « Cap all » (lu dans le jeu, build 1260, 2026-11-17 : AllNGUController::capAllEnergy / capAllMagic ; visible seulement si PlayerSettings.beastOn, AllNGUController::updateCapMods) : présent seulement quand le moteur envoie le plafond des NGU (Questing débloqué). Partie du HTML de la page : aucun bloc ajouté après coup (règle n°4). */
+function capToutHtml_(j){
+  var l=listeCourante_(j),vu=false,i;
+  for(i=0;i<l.length;i+=1)if(l[i].plafond!=null){vu=true;break;}
+  return vu?'<button type="button" class="nl-large" title="Retirer toute l’énergie ou la magie des NGU, puis placer à chacun son plafond (ceux dont la cible est atteinte sont ignorés)" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.capTout()">Cap all</button>':'';
+}
+function capTout(){
+  var H=H_(),P=window.__SOREAL_IDLE_PERSO_PCT_V1__;
+  var mod=P&&P.pourcentNguEffectif?P.pourcentNguEffectif()/100:1;
+  if(H&&H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_('btPlus');
+  /* Le moteur fait tout (retrait de toutes les allocations puis plafonds dans l'ordre) : la page se met à jour avec sa réponse. */
+  envoyer_({action:'capAllNgu',resource:onglet==='magic'?'magic':'energy',modifier:mod});
+}
+
 function barreOutilsHtml_(j){
   var el=document.getElementById('sorealIdleAugInputV1');
   /* Le texte déjà dans le champ n'est repris que s'il appartient à CETTE page (redessin des NGU) : arrivant d'un autre menu, le champ encore présent est celui de l'autre page, et son nombre prenait la place de celui des NGU (Norman, 2026-11-01). */
@@ -728,7 +744,7 @@ function barreOutilsHtml_(j){
       '<span data-nl-libre-label>'+(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(lib)+'</b> '+(onglet==='magic'?'✨':'⚡')+'</span></div></div>'+
     '<div class="soreal-idle-bt-groupe-v1" data-bt-groupe-v1="'+(onglet==='magic'?'magic':'energy')+'">'+
     '<div class="nl-ligne" data-nl-plafond="1"><span>'+(onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie')+'</span>'+
-      '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',1)">Max</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.25)">1/4</button></div>'+
+      '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',1)">Max</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.25)">1/4</button>'+capToutHtml_(j)+'</div>'+
     '<div class="nl-ligne">'+
       '<span>💤 Idle</span><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.25)">1/4</button>'+
       '<button type="button" class="nl-large" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.vider(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant())">Tout reprendre</button></div>'+
@@ -968,7 +984,20 @@ function ajuster(id,mode){
   var res=n.resource;
   var courant=Math.max(0,Math.floor(nombre_(n.allocation)));
   var lib=libre_(j,res);
-  var valeur=mode==='zero'?0:mode==='max'?courant+Math.floor(lib):(mode==='plus'?courant+Math.min(pas_(),Math.floor(lib)):Math.max(0,courant-pas_()));
+  /* Cap : lu dans le jeu, build 1260, 2026-11-17 : NGUController::cap. L'allocation du NGU revient d'abord au libre ; plafond = montant calculé par le moteur (n.plafond) x pourcentage du NGU Cap Modifier ;
+     n = ceil(plafond / libre), part = plafond / n (division entière), montant = (long)(float(part) x 1,0000020265579224) + 1, borné au libre ; rien n'est placé si le libre est nul. */
+  var valeur;
+  if(mode==='cap'){
+    var P=window.__SOREAL_IDLE_PERSO_PCT_V1__,mod=P&&P.pourcentNguEffectif?P.pourcentNguEffectif()/100:1;
+    var libreTotal=Math.floor(lib)+courant,pl=Math.min(9e18,Math.max(0,nombre_(n.plafond))*mod);
+    pl=pl<=1?1:Math.floor(pl);
+    if(libreTotal<=0)valeur=0;
+    else{
+      var parts=Math.ceil(pl/libreTotal);
+      valeur=Math.floor(Math.fround(Math.fround(Math.floor(pl/parts))*Math.fround(1.0000020265579224)))+1;
+      valeur=Math.max(0,Math.min(valeur,libreTotal));
+    }
+  }else valeur=mode==='zero'?0:mode==='max'?courant+Math.floor(lib):(mode==='plus'?courant+Math.min(pas_(),Math.floor(lib)):Math.max(0,courant-pas_()));
   var delta=valeur-courant;
   if(delta===0)return;
   if(H.jouerEffetAudioIdleV199_)H.jouerEffetAudioIdleV199_((mode==='moins'||mode==='zero')?'btMinus':'btPlus');
@@ -1077,7 +1106,7 @@ window.__SOREAL_IDLE_NGU_LABO_V1__={
   page:page,
   couleurs:COULEURS,
   aide:function(){var el=document.getElementById('sorealIdleNguAideV1');if(el){el.hidden=!el.hidden;aideOuverte=!el.hidden;}},
-  ajuster:ajuster,cible:cible,avance:avance,onglet:changerOnglet,vider:vider,preset:preset,
+  ajuster:ajuster,capTout:capTout,cible:cible,avance:avance,onglet:changerOnglet,vider:vider,preset:preset,
   ongletCourant:function(){return onglet;},
   /* Pour les tests : la progression d'un tuyau à un instant donné (mêmes formules que tick_). */
   progression:function(p,spl,n0,ecouleSecondes){

@@ -31,7 +31,7 @@ import { createTrollStateV1, normaliserR3NomV1 } from "./idle-ngu-systemes.js";
 import { externalResourceAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { baseState, normalizeResource } from "./idle-ngu-etat.js";
 
-export const ETAT_VERSION_COURANTE = 56;
+export const ETAT_VERSION_COURANTE = 57;
 
 function migrateLegacyTrackV47_(target, raw) {
   if (!target || !raw || typeof raw !== "object") return;
@@ -362,6 +362,33 @@ export const MIGRATIONS = Object.freeze([
       const sert = Boolean(w.unlocked) || num(w.data.dumpEnergyLevel, 0) > 0 || num(w.data.dumpMagicLevel, 0) > 0
         || num(os.moneyPit, 0) > 0 || num(os.consumed98, 0) > 0 || num(os.consumedXl, 0) > 0;
       w.data.installSeconds = sert ? 86400 : 0;
+      return etat;
+    }
+  }),
+  Object.freeze({
+    de: 56, vers: 57, nom: "objets-de-quete-dans-le-sac-v57", phase: "normalise",
+    /*
+     * Objets de quête dans le sac d'Aventure (2026-11-17, décision de Norman ; lu dans le jeu, build 1260 : un objet de quête est un objet de l'inventaire qui occupe un emplacement). Avant, le stock vivait à part
+     * (systems.questing.data.items = { zone: { niveau: nombre } }). AUCUNE PERTE : le stock devient la liste d'attente (data.attente, même forme) ; le moteur range ces objets dans le sac, plus haut niveau d'abord, dans
+     * les cases libres, dès le premier tick (idle-questing-v1.js, viderAttenteV1), et le surplus attend qu'une case se libère (le jeu, lui, perd un objet quand le sac est plein). Pure : ne lit que l'état.
+     */
+    appliquer(etat) {
+      const q = etat && etat.systems && etat.systems.questing;
+      if (!estObjet(q) || !estObjet(q.data)) return etat;
+      const items = q.data.items;
+      if (!estObjet(items)) { delete q.data.items; return etat; }
+      const attente = estObjet(q.data.attente) ? q.data.attente : {};
+      for (const [zone, parNiveau] of Object.entries(items)) {
+        if (!estObjet(parNiveau)) continue;
+        const cible = estObjet(attente[zone]) ? attente[zone] : {};
+        for (const [niveau, n] of Object.entries(parNiveau)) {
+          const nb = Math.floor(num(n, 0));
+          if (nb > 0) cible[niveau] = Math.floor(num(cible[niveau], 0)) + nb;
+        }
+        if (Object.keys(cible).length) attente[zone] = cible;
+      }
+      q.data.attente = attente;
+      delete q.data.items;
       return etat;
     }
   })

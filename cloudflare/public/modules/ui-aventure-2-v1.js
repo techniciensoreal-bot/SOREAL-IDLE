@@ -347,10 +347,8 @@
           emojiRepliObjetIdleV1_(iconeSlotAdventureIdleV138_(item.slot));
       }
 
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-235 */
       function idleRareteClasseObjetAdventureIdleV1_(item){const a=window.__SOREAL_IDLE_INVENTORY_PRESENTATION_V1__;return a&&a.rarete?a.rarete(item):'';}
 
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-236 */
       function rendreSlotPaperdollAdventureIdleV138_(slotKey,titre,item){
         /* Défi sans équipement : les pièces portées sont grisées (marqueur posé sur la page, lu par le CSS) ; remis à chaque rendu de l'équipement. */
         try{if(document.body)document.body.toggleAttribute('data-defi-sans-equip-v1',Boolean(REG.equipementBloqueParDefiIdleV1_&&REG.equipementBloqueParDefiIdleV1_()));}catch(_e){}
@@ -376,7 +374,6 @@
           '</div>';
       }
 
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-237 */
       function rendreEmplacementAccessoireAdventureIdleV138_(item,classeSupplementaire){
         const nomComplet=item
           ?idleHtml_(item.name||item.nom||'')+(idleEntier_(item.level)>0?' · Niv. '+idleEntier_(item.level)+'/100':'')
@@ -399,11 +396,9 @@
           contenu+'</div>';
       }
 
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-238 */
       function rendreAccessoiresAdventureIdleV138_(equipment,itemById,capacite){
         const ids=Array.isArray(equipment&&equipment.accessories)?equipment.accessories:[];
         const objetsPortes=ids.map(function(id){return itemById.get(String(id));}).filter(Boolean);
-        /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-239 */
         const vides=Math.max(0,idleEntier_(capacite,2)-objetsPortes.length);
         const tousLesSlots=objetsPortes.concat(Array(vides).fill(null));
 
@@ -425,7 +420,6 @@
         return {enGrille:enGrille,debordement:debordementHtml};
       }
 
-      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-240 */
       function rendreCarteSacAdventureIdleV138_(item,slotIndex){
         const id=idleHtml_(item.id);
         const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(item);
@@ -1738,7 +1732,7 @@
        * de pièces (règle n°2) : seulement la récompense, jamais « x / y pièces ».
        */
       const COULEURS_RARETE_FICHE_IDLE_V1={'idle-rarity-0':'#c9d1dd','idle-rarity-1':'#4ade80','idle-rarity-2':'#60a5fa','idle-rarity-3':'#c084fc','idle-rarity-4':'#fb923c','idle-rarity-5':'#f87171','idle-rarity-6':'#facc15'};
-      const EMPLACEMENTS_FICHE_IDLE_V1={head:'Tête',chest:'Torse',legs:'Jambes',boots:'Bottes',weapon:'Arme',weapon2:'Arme secondaire',ring:'Anneau',amulet:'Amulette',pendant:'Pendentif',combat:'Combat',accessory:'Accessoire',special:'Objet spécial'};
+      const EMPLACEMENTS_FICHE_IDLE_V1={head:'Tête',chest:'Torse',legs:'Jambes',boots:'Bottes',weapon:'Arme',weapon2:'Arme secondaire',ring:'Anneau',amulet:'Amulette',pendant:'Pendentif',combat:'Combat',accessory:'Accessoire',special:'Objet spécial',quest:'Objet de quête'};
 
       function couleurRareteFicheObjetIdleV1_(item){
         if(item&&item.kind==='boost'){
@@ -1816,7 +1810,7 @@
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-271 */
         const estEquipable=
           !estEquipe&&
-          item.kind!=='boost'&&
+          item.kind!=='boost'&&item.kind!=='quest'&&
           !item.consumable;
         const boutonEquiper=estEquipable
           ?'<button type="button" class="idle-fiche-bouton-v1" onclick="window.__equiperParIdAdventureIdleV138__(\''+idleHtml_(id)+'\');window.__fermerDetailsObjetAdventureIdleV1__();">⚔️ Équiper</button>'
@@ -1868,7 +1862,7 @@
           '>🗑️ Supprimer</button>';
         const actionsObjetHtml=
           '<div class="soreal-idle-item-popup-actions-v165">'+
-            (boutonEquiper||boutonDesequiper)+
+            (boutonEquiper||boutonDesequiper)+(window.__SOREAL_IDLE_QUESTING_V1__?window.__SOREAL_IDLE_QUESTING_V1__.boutonsFiche(REG.idleEtat,item):'')+
             boutonVerrouiller+(window.__SOREAL_IDLE_DAYCARE_PAGE_V1__?window.__SOREAL_IDLE_DAYCARE_PAGE_V1__.boutonFiche(REG.idleEtat,id,item):'')+ /* Garderie (daycare-page-v1.js) : absent si verrouillée (règle n°2) */
             boutonDebloquer+
             boutonConsommer+(window.__SOREAL_IDLE_EXILE_GLOP_V1__?window.__SOREAL_IDLE_EXILE_GLOP_V1__.boutonsFiche(item):'')+ /* pièces de l'Exilé, ingrédients de la GLOP (exile-glop-v1.js) */

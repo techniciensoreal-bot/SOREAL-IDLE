@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 const ui = lireUiComplet();
 const css = readFileSync("cloudflare/public/soreal-idle-ui.css", "utf8");
 const debut = ui.indexOf("      function rendreAccessoiresAdventureIdleV138_(equipment,itemById,capacite){");
-const fin = ui.indexOf("      /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-240 */", debut);
+const fin = ui.indexOf("      function rendreCarteSacAdventureIdleV138_(", debut);
 assert.ok(debut > 0 && fin > debut);
 const rendre = new Function("idleEntier_", "rendreEmplacementAccessoireAdventureIdleV138_", ui.slice(debut, fin) + "\nreturn rendreAccessoiresAdventureIdleV138_;")(
   (v, d) => { const n = Math.floor(Number(v)); return Number.isFinite(n) ? n : (d || 0); },

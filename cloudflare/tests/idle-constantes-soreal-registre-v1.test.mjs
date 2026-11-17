@@ -44,8 +44,8 @@ for (const src of sources) {
     }
   }
 }
-/* 2026-11-17 : plancher abaissé de 4 à 2, deux conventions de Questing ayant été remplacées par la règle du jeu (BeastQuestController::startQuest) et retirées du registre. */
-assert.ok(trouves.length >= 2, "le scan voit les constantes SOREAL connues (" + trouves.length + ")");
+/* 2026-11-17 : plancher abaissé de 4 à 2 (deux conventions de Questing remplacées par la règle du jeu, BeastQuestController::startQuest), puis à 1 (ordre de la remise « tout » : les objets de quête sont rangés dans les emplacements du sac et la remise suit l'ordre des cases, InventoryController::dumpAllIntoQuest). */
+assert.ok(trouves.length >= 1, "le scan voit les constantes SOREAL connues (" + trouves.length + ")");
 
 const nonRegistrees = trouves.filter((c) => !registre.entrees.some((e) => e.fichier === c.fichier && e.repere === c.repere));
 assert.deepEqual(

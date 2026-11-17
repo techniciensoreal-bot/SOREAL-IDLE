@@ -416,8 +416,8 @@
   "sha": "6e3414a87decedbd5d73449e285d6a5b56b01e32"
  },
  "/modules/inventory-presentation-v1.js": {
-  "pin": 1,
-  "sha": "9ea1d2760e49d1c892a043cd983861b2ece88828"
+  "pin": 2,
+  "sha": "e38a5bddda43062afd21a502e22c632742605538"
  },
  "/modules/item-difficulte-v1.js": {
   "pin": 2,
@@ -452,8 +452,8 @@
   "sha": "8c6d9b1e555610fb3a107fb501eece956b956f79"
  },
  "/modules/itopod-perks-page-v1.js": {
-  "pin": 5,
-  "sha": "deac1f973a2bff1ad419e6ad3f7d65b2a1c3fe03"
+  "pin": 7,
+  "sha": "7a42707ba4a3224c326e608d8c9297fc86c0904d"
  },
  "/modules/itopod-scene-v1.js": {
   "pin": 14,
@@ -556,8 +556,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 304,
-  "sha": "d7ebcfaf4445af64d3a97eef6d331ae165a0830c"
+  "pin": 308,
+  "sha": "cd46dd0f00f46a7432e753eb2cd1a778f07d6c35"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -568,8 +568,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 110,
-  "sha": "e39013d99563c65ff3a866423516efa568ce57a2"
+  "pin": 112,
+  "sha": "d37083e2a51f594df75f92e9c487271fd8f7bde4"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 7,
@@ -600,8 +600,8 @@
   "sha": "25872a549af6da0a037b02ed5bcbcd6d60905c27"
  },
  "/modules/perso-boutons-v1.js": {
-  "pin": 20,
-  "sha": "fefd36c9fba0163d253c80c083f3551b7492e3a1"
+  "pin": 22,
+  "sha": "5596830cac8f786e3fab39deade20030e179b943"
  },
  "/modules/phrases-coffre-valise-v1.js": {
   "pin": 8,
@@ -640,8 +640,8 @@
   "sha": "cad63fc380db2e72f1b20a10b181bd7b1a1a7a1c"
  },
  "/modules/questing-v1.js": {
-  "pin": 3,
-  "sha": "a31d2031780598ea1b5f1be6815c9db53e1b3d6c"
+  "pin": 6,
+  "sha": "89f40ad59c78a6fffaaeac346b3e574a882afc74"
  },
  "/modules/reapparitions-v1.js": {
   "pin": 8,
@@ -672,12 +672,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 378,
-  "sha": "9db604d9e15f79c2837686ed132650145c28f10c"
+  "pin": 379,
+  "sha": "b7db08b5b8120abf2880a2f6b8dd5121ba20b9a6"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1026,
-  "sha": "c54fc6c8082a0ab296aab7e20081de8cada9fdd6"
+  "pin": 1027,
+  "sha": "e728d43cda325e719c8839ed7062c012f38e6239"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -772,12 +772,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1070,
-  "sha": "0b0c16bc9254a6fdfd4309e380678a7a5100f3d8"
+  "pin": 1075,
+  "sha": "04bd6cc20ade059719632fe3c0d5cec6b16d3de5"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 890,
-  "sha": "b2635a6455ab9cc80acd7339fb94a39ad9e5ebbb"
+  "pin": 895,
+  "sha": "866cecf9ab01c759fbfaa75387e628c94896f772"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -824,8 +824,8 @@
   "sha": "3ce490b26bb4e5ebec11f831c57166296bd21d35"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 64,
-  "sha": "d6631ad36d65235070e9735a5553b7c002de9f50"
+  "pin": 66,
+  "sha": "ad47aa12e62516efc683fc8e49032cb3684b940c"
  },
  "/modules/ui-boucle-v1.js": {
   "pin": 40,
@@ -1044,7 +1044,7 @@
   "sha": "a1d147d7712af785256be53b5cbfc825ce6a740e"
  },
  "/soreal-idle-jeu.css": {
-  "pin": 9,
+  "pin": 12,
   "sha": "51cb2211c0736014da2cc7fea75c2ca3ba4207a0"
  },
  "/soreal-idle-labos-habillage-v1.css": {

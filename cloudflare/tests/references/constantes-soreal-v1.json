@@ -2,14 +2,6 @@
   "_doc": "Registre des constantes « choix SOREAL » (AGENTS.md règle n°1, exception de Norman du 2026-10-04 : si aucune source ne publie l'ampleur, une constante modérée est permise, signalée par un commentaire). Une entrée par commentaire repéré par idle-constantes-soreal-registre-v1.test.mjs ; repere = début exact du commentaire (espaces normalisés). Statut « à valider par Norman » tant qu'il n'a pas confirmé la valeur ; ne jamais ajouter de constante sans entrée ici.",
   "entrees": [
     {
-      "fichier": "idle-questing-v1.js",
-      "marqueur": "choix soreal",
-      "repere": "CHOIX SOREAL : niveaux croissants (garde les objets montés e",
-      "description": "|| {}; const bonus = idleQuestBonusTotalsV1(state); let handedIn = 0; let gained = 0; /* CHOIX SOREAL : niveaux croissants (garde les objets montés en niveau le plus longtemps possible). */ const levels = Object.keys(stock).map(Number).sort((a, b) => a - b);",
-      "statut": "à valider par Norman",
-      "date": "2026-11-09"
-    },
-    {
       "fichier": "modules/ngu-labo-v1.js",
       "marqueur": "choix de soreal",
       "repere": "choix de SOREAL, dans le même esprit. Contrôles, comme dans",

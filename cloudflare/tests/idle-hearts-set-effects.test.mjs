@@ -59,7 +59,7 @@ for (const id of ["heartRed", "heartYellow", "heartBrown", "heartGreen", "heartB
   const tourUnKill = (s, pills = 0) => {
     s.difficulty = "normal";
     s.systems.tower = { unlocked: true, active: true, data: { floor: 0, killProgress: 0, kills: 0, ppProgress: 0 } };
-    s.selloutEffects = Object.assign({}, s.selloutEffects, { bluePills: pills });
+    s.selloutEffects = Object.assign({}, s.selloutEffects, { bluePills: pills, buffedKillsOn: pills > 0 });   /* réglage « pilule activée » (jeu : PlayerSettings.buffedKillsOn, faux par défaut) */
     return advanceIdleNguState(s, 6, { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 }, Date.now()).systems.tower.data.ppProgress;
   };
   const temoin = tourUnKill(avecCoeur("heartGreen", 99));

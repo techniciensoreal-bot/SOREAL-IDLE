@@ -6,8 +6,8 @@ import vm from "node:vm";
 const lire = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 const snap = lire("src/idle-ngu-snapshot.js");
 assert.ok(snap.includes("consommables: consommablesSnapshotV1(state)"), "le moteur envoie les consommables");
-const f = snap.slice(snap.indexOf("function consommablesSnapshotV1"), snap.indexOf("function consommablesSnapshotV1") + 1200);
-assert.ok(f.includes("if (v > 0) restant[k]") && f.includes("if (fx.beta && fx.beta[k]) beta[k] = true") && f.includes("if (v > 0) reserve[k] = v") && f.includes("return { restant, beta, reserve, potions }"), "seulement ce qui est en effet ou en réserve (anti-spoil)");
+const f = snap.slice(snap.indexOf("function consommablesSnapshotV1"), snap.indexOf("function consommablesSnapshotV1") + 1800);
+assert.ok(f.includes("if (v > 0) restant[k]") && f.includes("if (fx.beta && fx.beta[k]) beta[k] = true") && f.includes("if (v > 0) reserve[k] = v") && f.includes("{ restant, beta, reserve, potions"), "seulement ce qui est en effet ou en réserve (anti-spoil)");
 
 // Moteur : acheter / gagner une potion la range, l'utiliser l'active.
 const shop = lire("src/idle-sellout-shop-v1.js");

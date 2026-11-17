@@ -59,8 +59,10 @@
       '</div>';
   }
 
-  function blocObjets(items){
-    if(!Array.isArray(items)||!items.length)return '<div class="soreal-idle-note-v4">Aucun objet de quête en stock.</div>';
+  function blocObjets(items,enAttente){
+    /* Les objets de quête sont rangés dans le sac d'Aventure (ils y occupent des emplacements) ; `enAttente` : objets d'une ancienne sauvegarde qui attendent une case libre. */
+    const attente=ent(enAttente)>0?'<div class="soreal-idle-note-v4" style="margin-top:6px">Objets de quête en attente d’une case libre dans ton sac d’Aventure : '+ent(enAttente)+' (ils y entreront dès qu’une place se libère).</div>':'';
+    if(!Array.isArray(items)||!items.length)return '<div class="soreal-idle-note-v4">Aucun objet de quête dans ton sac d’Aventure.</div>'+attente;
     return items.map(function(it){
       const niveaux=(it.levels||[]).map(function(l){
         return '<span class="soreal-idle-note-v4" style="display:inline-block;margin:2px 6px 2px 0">niv. '+ent(l.level)+' × '+ent(l.count)+' (vaut '+ent(l.handInValue)+')</span>';
@@ -72,7 +74,7 @@
         ?'<div style="margin-top:6px">'+bouton('🔀 Fusionner niv. '+pile[0]+' + niv. '+pile[1],'window.__questingIdleV1__.fusionner(\''+esc(it.zone)+'\','+pile[0]+','+pile[1]+')',false)+'</div>'
         :'';
       return '<div class="soreal-idle-section-v8" style="margin:0 0 8px"><b>'+esc(it.itemName)+'</b> — '+esc(it.zoneName)+(it.maxed?' · ✔ niveau 100 atteint (+2 % QP)':'')+'<div style="margin-top:5px">'+(niveaux||'—')+'</div>'+fusion+'</div>';
-    }).join('');
+    }).join('')+attente;
   }
 
   function page(j){
@@ -112,7 +114,7 @@
         '<div class="soreal-idle-note-v4" style="margin-top:5px">Chance d’objet de quête par ennemi : '+pct(data.dropChance,2)+(data.fixedItems?' · quêtes fixées à 50 objets':' · 50 à 59 objets par quête')+(data.handInDivider?' · remise : 1 + niveau / '+ent(data.handInDivider):'')+'</div>'+
         (data.lastReward?'<div class="soreal-idle-note-v4" style="margin-top:5px">Dernière quête : +'+ent(data.lastReward.qp)+' QP, +'+ent(data.lastReward.ap)+' AP'+(data.lastReward.butter?' (Beast Butter)':'')+'</div>':'')+
       '</div>'+
-      '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">📦 Objets de quête</div>'+blocObjets(data.items)+'</div>';
+      '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">📦 Objets de quête</div>'+blocObjets(data.items,data.enAttente)+'</div>';
   }
 
   window.__questingIdleV1__={
@@ -126,5 +128,17 @@
     fusionner:function(zone,a,b){action({action:'questMerge',zone:String(zone||''),levelA:Number(a)||0,levelB:Number(b)||0});},
     allerZone:function(zone){action({action:'adventure',adventure:{action:'selectZone',zone:String(zone||'')}});}
   };
-  window.__SOREAL_IDLE_QUESTING_V1__={page:page};
+  /*
+   * Boutons de la fiche d'un objet de quête du sac (afficherDetailsObjetAdventureIdleV138_, ui-aventure-2-v1.js). Remise à la Bête SEULEMENT si une quête est en cours pour CET objet,
+   * qu'il n'est pas verrouillé et que la quête n'est pas pleine (aucun indice sinon, règle n°2). Lu dans le jeu, build 1260, 2026-11-17 : ctrl + clic = UN objet
+   * (ItemController::consumeItem), clic droit = tous ceux de la quête, cases dans l'ordre (InventoryController::dumpAllIntoQuest).
+   */
+  function boutonsFiche(etat,item){
+    const q=item&&item.kind==='quest'&&etat&&etat.systemes&&etat.systemes.questing&&etat.systemes.questing.unlocked?etat.systemes.questing.quest:null;
+    if(!q||q.zone!==item.zone||item.locked||ent(q.progress)>=ent(q.required))return '';
+    const id=esc(String(item.id||''));
+    return '<button type="button" class="idle-fiche-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'questHandIn\',itemId:\''+id+'\'});window.__fermerDetailsObjetAdventureIdleV1__();">📜 Remettre à la quête</button>'+
+      '<button type="button" class="idle-fiche-bouton-v1" onclick="window.__actionMetaIdleV130__({action:\'questHandIn\'});window.__fermerDetailsObjetAdventureIdleV1__();">📦 Tout remettre</button>';
+  }
+  window.__SOREAL_IDLE_QUESTING_V1__={page:page,boutonsFiche:boutonsFiche};
 })();

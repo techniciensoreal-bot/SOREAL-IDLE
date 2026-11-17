@@ -622,7 +622,7 @@ function equippedIdsV1(adventure) {
 /* Un objet peut aller en garderie s'il a un taux publié et n'est ni un Boost ni un consommable. */
 export function idleDaycareEligibilityV1(item) {
   if (!item || typeof item !== "object") return "OBJET_INTROUVABLE";
-  if (item.kind === "boost" || item.consumable) return "OBJET_NON_ELIGIBLE_DAYCARE";
+  if (item.kind === "boost" || item.kind === "quest" || item.consumable) return "OBJET_NON_ELIGIBLE_DAYCARE"; /* objets de quête : la montée de niveau en Garderie n'est pas modélisée (idle-questing-v1.js) */
   if (idleDaycareBaseHoursV1(item) == null) return "TAUX_DAYCARE_INCONNU";
   return "";
 }
@@ -732,7 +732,7 @@ export function idleDaycareSnapshotV1(data, adventure, factors, ext) {
   });
   const equipped = equippedIdsV1(adventure);
   const eligible = (adventure && Array.isArray(adventure.inventory) ? adventure.inventory : [])
-    .filter((o) => o && !equipped.has(String(o.id)) && o.kind !== "boost" && !o.consumable)
+    .filter((o) => o && !equipped.has(String(o.id)) && o.kind !== "boost" && o.kind !== "quest" && !o.consumable)
     .map((o) => ({
       id: String(o.id),
       definitionId: String(o.definitionId || ""),

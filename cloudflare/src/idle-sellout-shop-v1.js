@@ -318,6 +318,8 @@ export function createSelloutEffectsV1(raw) {
     armed,
     stock,
     bluePills: Math.max(0, I(src.bluePills, 0)),
+    /* Little Blue Pill : lu dans le jeu, build 1260, 2026-11-17 : PlayerSettings::buffedKillsOn (faux par défaut ; AdventureController::togglePill). Champ ajouté seulement quand il est actif : aucune partie existante n'est modifiée. */
+    ...(src.buffedKillsOn === true ? { buffedKillsOn: true } : {}),
     beastButters: Math.max(0, I(src.beastButters, 0)),
     /* Regular Black Pens restants : +2 tiers sur chacune des prochaines cartes (idle-cards-v1.js). */
     blackPens: Math.max(0, I(src.blackPens, 0)),

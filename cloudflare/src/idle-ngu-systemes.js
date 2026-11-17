@@ -1037,9 +1037,10 @@ function advanceTowerV1(state, seconds, context) {
         if (!idleInventoryReceiveDropV1(state.adventure, item, invEnv)) break;
       }
     }
-    /* Little Blue Pill : PPP doublés pour les n premiers kills couverts par le stock de pilules. */
+    /* Little Blue Pill : PPP doublés (AllArbitraryController::pillModifier, ItopodPerkController::totalPPBonus) pour les n premiers kills couverts par le stock de pilules, réglage actif. */
     const fx = state.selloutEffects;
-    const pills = fx ? Math.min(n, Math.max(0, int(fx.bluePills, 0))) : 0;
+    /* Lu dans le jeu, build 1260, 2026-11-17 : AdventureController::enemyDeath (1 pilule par kill ITOPOD SEULEMENT si PlayerSettings.buffedKillsOn) et Character::adventureOfflineProgress (kills buffés = min(kills, pilules) si actif, sinon 0). Réglage faux par défaut : sans lui, aucune pilule n'est consommée ni ne double les PPP. */
+    const pills = fx && fx.buffedKillsOn === true ? Math.min(n, Math.max(0, int(fx.bluePills, 0))) : 0;
     if (pills > 0) fx.bluePills -= pills;
     /* Little Blue Pill : x2 (x2,2 avec le Blue Heart (set), idle-hearts-v1.js) pour chaque kill couvert. */
     const pillFactor = 2 * idleHeartsConsumableFactorV1(state);
@@ -1243,6 +1244,16 @@ export function setR3NomAleatoireV1(state, payload) {
   r.actif = payload?.enabled === true;
   if (!r.actif) { r.nom = ""; r.run = 0; } else advanceR3NomV1(state);
   return { actif: r.actif, nom: r.nom };
+}
+
+/* Bascule « Little Blue Pill » (lu dans le jeu, build 1260, 2026-11-17 : AdventureController::togglePill inverse PlayerSettings.buffedKillsOn). Réservé à qui possède déjà des pilules ou a le réglage actif (règle n°2). */
+export function towerTogglePillV1(state) {
+  const tower = state.systems.tower;
+  if (!tower || !tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const fx = state.selloutEffects && typeof state.selloutEffects === "object" ? state.selloutEffects : (state.selloutEffects = { remaining: {}, beta: {}, bluePills: 0 });
+  if (fx.buffedKillsOn !== true && !(int(fx.bluePills, 0) > 0)) throw new Error("AUCUNE_PILULE");
+  if (fx.buffedKillsOn === true) delete fx.buffedKillsOn; else fx.buffedKillsOn = true;
+  return { buffedKillsOn: fx.buffedKillsOn === true, pilules: Math.max(0, int(fx.bluePills, 0)) };
 }
 
 export function towerSetFloorsV1(state, payload) {

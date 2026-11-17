@@ -4,6 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Quêtes, d’après le code du jeu : le beurre s’utilise à la main pendant la quête (une fois par quête), et plusieurs règles de remise et de relance automatique suivent le jeu."
+    "Quêtes : les objets de quête se rangent maintenant dans les emplacements du sac d’Aventure, comme dans le jeu (ils prennent de la place) ; la remise « tout » suit l’ordre des cases, et ton stock actuel est converti sans perte.",
+    "NGU, d’après le code du jeu : boutons Cap et Cap all, et le bouton Max n’est plus modifié par le réglage du plafond.",
+    "La petite pilule bleue se règle maintenant par un bouton, comme dans le jeu."
   ] };
 })();
