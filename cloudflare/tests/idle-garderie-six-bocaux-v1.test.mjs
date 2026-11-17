@@ -55,7 +55,7 @@ const css = F.css();
 for (const id of skins) for (let r = 2; r <= 6; r += 1) {
   assert.ok(css.includes('.gd-etagere[data-skin="' + id + '"] .gd-pot[data-rang="' + r + '"] .gd-verre{'), id + " rang " + r + " : règle de vitre");
 }
-assert.ok(!/\.gd-liq\s*\{[^}]*transform/.test(css) && !css.includes("translateY"), "le calcul du liquide (transform) n'est pas modifié");
+assert.ok(!/\.gd-liq(?!::)[^{}]*\{[^}]*(transform|translateY)/.test(css), "le calcul du liquide (transform) n'est pas modifié (le défilement des teintes de Noël, hors liquide, peut utiliser translateY)");
 assert.ok(!/filter\s*:|drop-shadow|blur\(/.test(css), "aucun filtre coûteux");
 /* les animations n'existent que dans les effets (boule de Noël, globe à neige) : les formes elles-mêmes n'en ont aucune */
 assert.ok(!/animation|@keyframes/.test(css.slice(0, css.indexOf('.gd-etagere[data-skin="matrix"] .gd-pot[data-rang="1"]{--gd-liq'))), "aucune animation hors effets");
