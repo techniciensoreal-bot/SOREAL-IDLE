@@ -87,7 +87,7 @@
       '</div>';
     /* boule de Noël : la copie reprend l'instant du cycle de couleurs de l'original (purement visuel) */
     try{
-      const lq=orig.querySelector('.gd-liq'),an=lq&&lq.getAnimations?lq.getAnimations().filter(function(a){return a.animationName==='gd-noel-teintes';})[0]:null;
+      const lq=orig.querySelector('.gd-liq'),an=lq&&lq.getAnimations?lq.getAnimations({subtree:true}).filter(function(a){return a.animationName==='gd-noel-teintes';})[0]:null;
       if(an&&an.currentTime!=null)d.querySelector('.gdz-etagere').style.setProperty('--gd-noel-d','-'+(Number(an.currentTime)/1000).toFixed(2)+'s');
     }catch(_e){}
     d.querySelector('.gdz-nom').textContent=nom;

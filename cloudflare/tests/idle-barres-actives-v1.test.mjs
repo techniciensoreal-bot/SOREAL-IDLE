@@ -40,7 +40,7 @@ console.log("idle-barres-actives-v1: OK");
   assert.ok(!src.includes("ngu:{alloc") && !src.includes("pvOrbe"), "NGU n'a plus l'aura commune");
   const ngu = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
   assert.ok(ngu.includes(".nl-tuyau::before{content:none}") && !/box-shadow:0 0 12px color-mix\(in srgb,var\(--nl-c\)/.test(ngu), "plus aucun halo ni lueur hors du tuyau");
-  assert.ok(ngu.includes("@keyframes nlAurore{from{background-position:0 0}to{background-position:92px 0}}") && ngu.includes("background-size:92px 100%"), "aurore : la bande glisse d'une tuile exacte (boucle sans à-coup, règle n°3)");
+  assert.ok(ngu.includes("@keyframes nlAurore{from{transform:translateX(0)}to{transform:translateX(92px)}}") && ngu.includes("background-size:92px 100%") && ngu.includes("left:-92px;right:0;animation:nlAurore") && !/nlAurore\{[^}]*background-position/.test(ngu), "aurore : la bande glisse d'une tuile exacte par transform (compositeur, boucle sans à-coup, règle n°3)");
   const css = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
   assert.ok(css.includes(".soreal-idle-summary-v28[data-tuile]::after{display:none!important;animation:none!important}"), "plus de reflet sur les tuiles Attaque, Défense, Or…");
 }

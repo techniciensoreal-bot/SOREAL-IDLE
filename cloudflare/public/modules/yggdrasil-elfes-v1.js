@@ -272,9 +272,12 @@
       '.ygg-carte[data-fruit] .ygg-barre.vide i{background:#7a2d2d}',
       /* Lueur du cadre (Norman, 2026-10-29 : « trop fortes ; seulement quand un fruit a atteint son maximum, 10/10, 11/11… ; de la couleur du fruit ») : palier maximum seulement, douce. Boucle sans à-coup : mêmes valeurs à 0 % et 100 %. */
       '.ygg-carte.ygg-max{z-index:1}',
-      '.ygg-carte.ygg-max .ygg-vitre{animation:yggBrilleMax 2.8s ease-in-out infinite}',
-      '@keyframes yggBrilleMax{0%,100%{box-shadow:inset 0 0 14px rgba(0,0,0,.55),0 0 6px 1px rgba(var(--lueur),.34)}50%{box-shadow:inset 0 0 14px rgba(0,0,0,.55),0 0 12px 3px rgba(var(--lueur),.52)}}',
-      '@media (prefers-reduced-motion:reduce){.ygg-btn{transition:none}.ygg-carte.ygg-max .ygg-vitre{animation:none;box-shadow:inset 0 0 14px rgba(0,0,0,.55),0 0 9px 2px rgba(var(--lueur),.42)}}'
+      /* Fluidité téléphone (2026-11-17) : plus de box-shadow animé sur la vitre. La vitre garde l'ombre de repos STATIQUE (rayon 6 px) ; la vitre coupe (overflow:hidden), donc le pic du halo (12 px, 3 px d'étalement) vit sur un calque ::after du cadre .ygg-halo-max (enveloppe de la vitre posée seulement au palier maximum), à l'ombre statique, dont seule l'opacité pulse (compositeur). Boucle parfaite : opacité 0 à 0 % et 100 %. */
+      '.ygg-carte.ygg-max .ygg-vitre{box-shadow:inset 0 0 14px rgba(0,0,0,.55),0 0 6px 1px rgba(var(--lueur),.34)}',
+      '.ygg-halo-max{position:relative}',
+      '.ygg-halo-max::after{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;box-shadow:0 0 12px 3px rgba(var(--lueur),.52);opacity:0;animation:yggBrilleMax 2.8s ease-in-out infinite;will-change:opacity}',
+      '@keyframes yggBrilleMax{0%,100%{opacity:0}50%{opacity:1}}',
+      '@media (prefers-reduced-motion:reduce){.ygg-btn{transition:none}.ygg-halo-max::after{animation:none;opacity:.5}}'
     ].join('\n');
     document.head.appendChild(s);
   }
@@ -551,7 +554,7 @@
     var porteHtml=porteDe_(id,Boolean(v.active));
     return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+(alerte?' ygg-alerte':'')+'" data-fruit="'+html_(id)+'" style="'+styleCouleursPorte_(id)+(v.tier>0&&v.tier>=d.maxTier||alerte?'--lueur:'+rvb_(AURAS_[id])+';':'')+'">'+
       '<div class="ygg-nom">'+nom+(v.tier>0?' <span>('+fruitsPrets_(v)+'/'+v.tier+')</span>':'')+'</div>'+
-      '<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+apercuHtml_(d,v,c)+'</div>'+
+      (v.tier>0&&v.tier>=d.maxTier?'<div class="ygg-halo-max">':'')+'<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+apercuHtml_(d,v,c)+'</div>'+(v.tier>0&&v.tier>=d.maxTier?'</div>':'')+
       '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
       '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
       '<div class="ygg-actions">'+principal+amelio+'</div>'+

@@ -1655,8 +1655,9 @@
           '.soreal-idle-at-barre-v1{position:relative;overflow:hidden;min-height:44px;border-radius:12px;border:2px solid rgba(231,198,255,.7);background:linear-gradient(180deg,rgba(60,28,92,.85),rgba(34,14,56,.92));box-shadow:inset 0 2px 6px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.4)}'+
           '.soreal-idle-at-remplissage-v1{position:absolute;inset:0;transform-origin:left center;transform:scaleX(0);background:linear-gradient(90deg,#7c3aed,#c026d3 55%,#f0abfc);box-shadow:0 0 14px rgba(192,38,211,.6);will-change:transform}'+
           '.soreal-idle-at-remplissage-v1::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(255,255,255,.14) 0 10px,transparent 10px 22px);mix-blend-mode:overlay}'+
-          '.soreal-idle-at-barre-v1.pleine .soreal-idle-at-remplissage-v1{transform:scaleX(1)!important;animation:sorealAtPulseV1 1.4s ease-in-out infinite}'+
-          '@keyframes sorealAtPulseV1{50%{filter:brightness(1.25)}}'+
+          '.soreal-idle-at-barre-v1.pleine .soreal-idle-at-remplissage-v1{transform:scaleX(1)!important}'+
+          '.soreal-idle-at-barre-v1.pleine .soreal-idle-at-remplissage-v1::before{content:"";position:absolute;inset:0;pointer-events:none;background:rgba(255,255,255,.2);opacity:0;animation:sorealAtPulseV1 1.4s ease-in-out infinite;will-change:opacity}'+
+          '@keyframes sorealAtPulseV1{0%,100%{opacity:0}50%{opacity:1}}'+
           '.soreal-idle-at-caca-v1{position:absolute;right:3px;bottom:1px;width:22px;height:22px;padding:0;border:0;background:none;font-size:15px;line-height:22px;cursor:pointer;transform-origin:center;opacity:.85;-webkit-tap-highlight-color:transparent}'+
           '.soreal-idle-at-caca-v1.parti{pointer-events:none;opacity:0;transition:opacity .12s}'+
           '.soreal-idle-at-titre-v1{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;min-height:44px;padding:4px 10px;font-weight:900;font-size:16px;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.6)}'+

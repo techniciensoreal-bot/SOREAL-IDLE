@@ -64,11 +64,16 @@
       /* ---- Effets qui durent ---- */
       '.cfx-croix{position:fixed;font:900 24px/1 system-ui,sans-serif;color:#3be86a;text-shadow:0 0 8px #0f0,0 0 2px #063;animation:cfxCroix 1.5s ease-out forwards}',
       '.cfx-goutte{position:fixed;width:7px;height:11px;border-radius:50% 50% 55% 55%/35% 35% 65% 65%;background:linear-gradient(#c40000,#6d0000);box-shadow:0 0 3px rgba(120,0,0,.8);animation:cfxGoutte .95s cubic-bezier(.4,0,1,1) forwards}',
-      '.cfx-saigne{filter:hue-rotate(-150deg) saturate(1.8) brightness(.8);box-shadow:0 0 0 2px rgba(150,0,0,.85),0 0 14px rgba(200,0,0,.7)!important;animation:cfxPouls 1.1s ease-in-out infinite}',
+      /* Fluidité téléphone (2026-11-17) : plus de box-shadow/filter animés (repeinte à chaque image). L'ombre de base est STATIQUE sur la barre ; le pic de la pulsation est un calque ::before (ombre statique) dont seule l'opacité bouge (compositeur). */
+      '.cfx-saigne,.cfx-empoisonne{position:relative}',
+      '.cfx-saigne::before,.cfx-empoisonne::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;will-change:opacity}',
+      '.cfx-saigne{filter:hue-rotate(-150deg) saturate(1.8) brightness(.8);box-shadow:0 0 0 2px rgba(150,0,0,.85),0 0 8px rgba(200,0,0,.5)!important}',
+      '.cfx-saigne::before{box-shadow:0 0 0 2px rgba(220,0,0,1),0 0 20px rgba(255,0,0,.9);animation:cfxPouls 1.1s ease-in-out infinite}',
       '.cfx-paralyse{box-shadow:0 0 0 2px #ee0,0 0 16px #fd0!important;animation:cfxVibre .12s linear infinite}',
       '.cfx-spores{box-shadow:0 0 0 2px #6b3,0 0 14px rgba(120,220,60,.7)!important}',
-      '.cfx-empoisonne{animation:cfxPoison 1s ease-in-out infinite}',
-      '@keyframes cfxPoison{0%,100%{filter:hue-rotate(60deg) saturate(1.3) brightness(.95);box-shadow:0 0 0 2px #7d2,0 0 10px rgba(110,255,50,.55)}50%{filter:hue-rotate(70deg) saturate(2) brightness(1.1);box-shadow:0 0 0 2px #9f3,0 0 20px rgba(130,255,60,.95)}}',
+      '.cfx-empoisonne{filter:hue-rotate(65deg) saturate(1.65) brightness(1.02);box-shadow:0 0 0 2px #7d2,0 0 10px rgba(110,255,50,.55)}',
+      '.cfx-empoisonne::before{box-shadow:0 0 0 2px #9f3,0 0 20px rgba(130,255,60,.95);animation:cfxPoison 1s ease-in-out infinite}',
+      '@keyframes cfxPoison{0%,100%{opacity:0}50%{opacity:1}}',
       '.cfx-mob-para{filter:drop-shadow(0 0 10px #ee0) saturate(1.5)!important;animation:cfxVibre .14s linear infinite}',
       '@keyframes cfxTrait{0%{transform:rotate(-32deg) scaleX(0);opacity:1}60%{transform:rotate(-32deg) scaleX(1);opacity:1}100%{transform:rotate(-32deg) scaleX(1.1);opacity:0}}',
       '@keyframes cfxBoum{0%{transform:scale(.2);opacity:0}30%{opacity:1}100%{transform:scale(1.35);opacity:0}}',
@@ -81,9 +86,9 @@
       '@keyframes cfxNombre{0%{transform:translateY(0) scale(.7);opacity:0}15%{transform:translateY(-8px) scale(1.15);opacity:1}100%{transform:translateY(-46px) scale(1);opacity:0}}',
       '@keyframes cfxCroix{0%{transform:translateY(0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translateY(-64px) scale(1.15) rotate(12deg);opacity:0}}',
       '@keyframes cfxGoutte{0%{transform:translateY(0) scaleY(.4);opacity:0}12%{opacity:1;transform:translateY(2px) scaleY(1)}100%{transform:translateY(54px) scaleY(1.5);opacity:0}}',
-      '@keyframes cfxPouls{0%,100%{box-shadow:0 0 0 2px rgba(150,0,0,.85),0 0 8px rgba(200,0,0,.5)}50%{box-shadow:0 0 0 2px rgba(220,0,0,1),0 0 20px rgba(255,0,0,.9)}}',
+      '@keyframes cfxPouls{0%,100%{opacity:0}50%{opacity:1}}',
       '@keyframes cfxVibre{0%{transform:translateX(-1.5px)}50%{transform:translateX(1.5px)}100%{transform:translateX(-1.5px)}}',
-      '@media (prefers-reduced-motion:reduce){.cfx-croix,.cfx-goutte,.cfx-saigne,.cfx-paralyse,.cfx-mob-para,.cfx-empoisonne{animation:none!important}}'
+      '@media (prefers-reduced-motion:reduce){.cfx-croix,.cfx-goutte,.cfx-paralyse,.cfx-mob-para,.cfx-saigne::before,.cfx-empoisonne::before{animation:none!important}}'
     ].join('\n');
     document.head.appendChild(s);
   }

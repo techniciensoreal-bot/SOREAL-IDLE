@@ -88,8 +88,8 @@
   "sha": "171dea1e1f4b302d065032efc1e8dabcb96dae89"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 71,
-  "sha": "5f7c66f02ebee166e03262b822efb47ea70163ee"
+  "pin": 74,
+  "sha": "0911ef0b9183abf8375622b31d256eabfec71d00"
  },
  "/modules/barre-allocation-v1.js": {
   "pin": 13,
@@ -200,8 +200,8 @@
   "sha": "e54a8d211416e73d171577b86e46afab7b08463a"
  },
  "/modules/combat-effets-v1.js": {
-  "pin": 7,
-  "sha": "a4665548b3a4c0a22c995c63acb45ae572c28625"
+  "pin": 8,
+  "sha": "cedefcc9774dfc2d32309d0295310c9a9e28a3c5"
  },
  "/modules/combat-vie-modele-v1.js": {
   "pin": 3,
@@ -356,8 +356,8 @@
   "sha": "7b270240a48856d458ad84bdfb73b69318286b63"
  },
  "/modules/garderie-bocaux-effets-v1.js": {
-  "pin": 1,
-  "sha": "dc1f51f8e77243cf34d2351962156f5993dac05b"
+  "pin": 2,
+  "sha": "44d455e54d98e8dd88c76cadefb02dbefa8043ec"
  },
  "/modules/garderie-bocaux-formes-a-v1.js": {
   "pin": 2,
@@ -380,8 +380,8 @@
   "sha": "854aae65527be05721ed12de2824795e8791ddc5"
  },
  "/modules/garderie-zoom-v1.js": {
-  "pin": 5,
-  "sha": "86aeb5f97d6260a706cc13b632ba73aaa8e9ac4c"
+  "pin": 6,
+  "sha": "cb288c1ccb3cabbd1e0a0f41147579cdc278844c"
  },
  "/modules/hud-haut-v2.js": {
   "pin": 41,
@@ -400,8 +400,8 @@
   "sha": "9628ba262a28543b2714ae60baa82197faffd843"
  },
  "/modules/intro-diaporama-v1.js": {
-  "pin": 15,
-  "sha": "b5e229564db978791592f9ef32b4c2a7bcb26438"
+  "pin": 16,
+  "sha": "293109aac28bbb4090587ca780d2b62a32a47868"
  },
  "/modules/inventaire-volet-v1.js": {
   "pin": 12,
@@ -568,8 +568,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 107,
-  "sha": "e2f605685242fa170a030ce0582bb2a78713f0b9"
+  "pin": 108,
+  "sha": "e39013d99563c65ff3a866423516efa568ce57a2"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 7,
@@ -588,8 +588,8 @@
   "sha": "1cb08c893170d9cef1c29400521319c8cc3406f9"
  },
  "/modules/orage-v1.js": {
-  "pin": 19,
-  "sha": "c6f4145752e99d4bbdf8028edd00e00ace71efdd"
+  "pin": 20,
+  "sha": "2b21bd4e8d34faa4eef4d562d9e591f10ec65d59"
  },
  "/modules/page-chroniques-v1.js": {
   "pin": 6,
@@ -680,8 +680,8 @@
   "sha": "22838cb97bdf3b172eb8c91f7a0af48f0f2a88c4"
  },
  "/modules/renaissance-fenetre-v1.js": {
-  "pin": 1,
-  "sha": "4edb34720f9bcb94c6da0d12085f239776fb22fb"
+  "pin": 2,
+  "sha": "86c6c192151a1e0b4ca7a0e79e1ee603b21c4ee4"
  },
  "/modules/roue-journaliere-v1.js": {
   "pin": 3,
@@ -692,8 +692,8 @@
   "sha": "c34e602f716b3e1dd88f17906c9a100e890b0eb7"
  },
  "/modules/sang-rituel-decor-v1.js": {
-  "pin": 239,
-  "sha": "8da452aff33f5fe4e539a0b0822baf58a2c98e11"
+  "pin": 242,
+  "sha": "d08aa892ac30afd5f193c53a4b378ed4b4d37b79"
  },
  "/modules/sans-bulles-v1.js": {
   "pin": 2,
@@ -752,8 +752,8 @@
   "sha": "8b1943a4002d3e5db7912a15b1d60c3375a48225"
  },
  "/modules/titans-combat-ecran-v1.js": {
-  "pin": 18,
-  "sha": "af7023e6e01931c03174729554bd25b27f04936b"
+  "pin": 20,
+  "sha": "98c8948609046c00554cb58430b3c079f3fe57eb"
  },
  "/modules/titans-comportements-v1.js": {
   "pin": 14,
@@ -796,16 +796,16 @@
   "sha": "faaba7e0a9d0bb2cced1d9e9828d0aedcf641dc0"
  },
  "/modules/tutorial-hint-v1.js": {
-  "pin": 5,
-  "sha": "7fd2aaa641d011c657b204703be977762f6721ec"
+  "pin": 6,
+  "sha": "b7978ead4ffb4f4283b55a690f7960d84e7b1133"
  },
  "/modules/tutorial-tts-v202.js": {
   "pin": 276,
   "sha": "f8b3d289afb3b67ce0259c2d2fd75de66f62397c"
  },
  "/modules/tutoriel-v1.js": {
-  "pin": 47,
-  "sha": "3d11d529fe7cc0be193bf4669dde2b0e420de655"
+  "pin": 48,
+  "sha": "15498c251a39722295c131e377721a0730d368bf"
  },
  "/modules/ui-actions-rapides-v1.js": {
   "pin": 3,
@@ -932,8 +932,8 @@
   "sha": "813c8eb9bc917c96321cae6100b339e54c10c1fa"
  },
  "/modules/wandoos-retro-v1.js": {
-  "pin": 84,
-  "sha": "657c03eb46b680fce97085904d9c3080de504443"
+  "pin": 85,
+  "sha": "f6c6c524f9f193d113891eb76b4912a11c081d00"
  },
  "/modules/wishes-page-v1.js": {
   "pin": 2,
@@ -944,8 +944,8 @@
   "sha": "2d7181e2cd05767307369f9008ad0d6e6bb76aa1"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 100,
-  "sha": "b7d4e1f2537685c1ca8b4524cbb842f951412445"
+  "pin": 101,
+  "sha": "47857e65c567e6e03f61d998b8298a014771c402"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 19,

@@ -266,9 +266,11 @@
       '.wd-bios-titre{font-weight:700;border-bottom:1px dashed var(--wd-c2);padding-bottom:.35em;margin-bottom:.3em;}',
       '.wd-bios-bas{margin-top:auto;}',
       '.wd-chargeur{position:relative;height:1em;margin:0;border:1px dashed #ffb000;background:#060301;overflow:hidden;}',
-      '.wd-chargeur i{display:block;height:100%;background:repeating-linear-gradient(135deg,#ffb000 0 .5em,#6b4500 .5em 1em);--p:1.41421356em;background-size:var(--p) 100%;animation:wd-defile 1s linear infinite;}',
-      '@keyframes wd-defile{from{background-position:0 0}to{background-position:var(--p) 0}}',
-      '@media (prefers-reduced-motion:reduce){.wd-chargeur i{animation:none;}}',
+      /* Fluidité téléphone (2026-11-17) : les rayures défilent par transform (compositeur) d'un calque ::before plus large d'UNE période (--p, règle n°3), plus par background-position ; le remplissage coupe l'excédent. */
+      '.wd-chargeur i{display:block;position:relative;overflow:hidden;height:100%;--p:1.41421356em;}',
+      '.wd-chargeur i::before{content:"";position:absolute;top:0;bottom:0;left:calc(var(--p) * -1);right:0;background:repeating-linear-gradient(135deg,#ffb000 0 .5em,#6b4500 .5em 1em);background-size:var(--p) 100%;animation:wd-defile 1s linear infinite;will-change:transform;}',
+      '@keyframes wd-defile{from{transform:translateX(0)}to{transform:translateX(var(--p))}}',
+      '@media (prefers-reduced-motion:reduce){.wd-chargeur i::before{animation:none;}}',
       '.wd-poste[data-phase="eteint"] .wd-ecran{background:#000;box-shadow:inset 0 0 3cqw rgba(0,0,0,.95);}',
       '@media (prefers-reduced-motion:reduce){.wd-ecran::after,.wd-curseur{animation:none;}}'
     ].join('\n');

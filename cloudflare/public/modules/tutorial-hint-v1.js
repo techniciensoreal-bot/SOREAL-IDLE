@@ -29,21 +29,22 @@ function installerStyle(){
   var s=document.createElement('style');
   s.id='sorealIdleTutoIndiceStyleV1';
   s.textContent=
+    /* Fluidité téléphone (2026-11-17) : la cible est un élément quelconque du jeu (bouton, case, barre) ; plus de box-shadow / filter / background-color animés (repeinte à chaque image sur toute la page de jeu). Halo STATIQUE (valeur moyenne de l'ancienne pulsation, peint une fois) et seul `transform: scale` (compositeur) pulse. */
     '@keyframes sorealIdleTutoIndiceV1{'+
-      '0%,100%{box-shadow:0 0 0 0 rgba(255,214,90,0);transform:scale(1);filter:brightness(1)}'+
-      '50%{box-shadow:0 0 0 5px rgba(255,214,90,.7),0 0 18px 6px rgba(255,214,90,.8);transform:scale(1.18);filter:brightness(1.4)}'+
+      '0%,100%{transform:scale(1)}'+
+      '50%{transform:scale(1.18)}'+
     '}'+
     '@keyframes sorealIdleTutoIndiceCaseV1{'+
-      '0%,100%{box-shadow:0 0 0 0 rgba(255,214,90,0);transform:scale(1);background-color:#f6f8fb}'+
-      '50%{box-shadow:0 0 0 4px rgba(255,214,90,.85),0 0 16px 4px rgba(255,214,90,.7);transform:scale(1.05);background-color:#fff4c7}'+
+      '0%,100%{transform:scale(1)}'+
+      '50%{transform:scale(1.05)}'+
     '}'+
-    '.'+CLASSE+'{animation:sorealIdleTutoIndiceV1 .9s ease-in-out infinite;position:relative;z-index:2;border-color:#ffd65a!important}'+
+    '.'+CLASSE+'{animation:sorealIdleTutoIndiceV1 .9s ease-in-out infinite;position:relative;z-index:2;border-color:#ffd65a!important;box-shadow:0 0 0 3px rgba(255,214,90,.45),0 0 14px 4px rgba(255,214,90,.55);will-change:transform}'+
     '@keyframes sorealIdleTutoIndiceBarreV1{'+
-      '0%,100%{box-shadow:0 0 0 0 rgba(255,214,90,0);filter:brightness(1)}'+
-      '50%{box-shadow:0 0 0 4px rgba(255,214,90,.9),0 0 22px 6px rgba(255,214,90,.75);filter:brightness(1.35)}'+
+      '0%,100%{transform:scale(1)}'+
+      '50%{transform:scale(1.02)}'+
     '}'+
-    '.soreal-idle-summary-v28.'+CLASSE+'{animation-name:sorealIdleTutoIndiceCaseV1}'+
-    '.soreal-idle-energybar-wrap-v11.'+CLASSE+'{animation-name:sorealIdleTutoIndiceBarreV1;border-radius:14px}'+
+    '.soreal-idle-summary-v28.'+CLASSE+'{animation-name:sorealIdleTutoIndiceCaseV1;background-color:#fff9de;box-shadow:0 0 0 2px rgba(255,214,90,.6),0 0 10px 3px rgba(255,214,90,.5)}'+
+    '.soreal-idle-energybar-wrap-v11.'+CLASSE+'{animation-name:sorealIdleTutoIndiceBarreV1;border-radius:14px;box-shadow:0 0 0 3px rgba(255,214,90,.55),0 0 14px 4px rgba(255,214,90,.5)}'+
     '@media (prefers-reduced-motion:reduce){.'+CLASSE+'{animation:none}}';   /* règle n°3 : « réduire les animations » coupe la pulsation (audit 2026-11-14) */
   document.head.appendChild(s);
 }

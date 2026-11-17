@@ -318,7 +318,7 @@ assert.ok(src.includes("/api/idle/media/banner?name=wandoos.webp"), "l'écran es
 assert.ok(!/fetch\(|XMLHttpRequest|sendBeacon/.test(src), "rien n'est envoyé");
 assert.ok(!src.includes("__ajusterAllocationMetaIdleV130__"), "plus d'allocation en pourcentage (bornée à 100)");
 assert.ok(src.includes(".wd-chargeur i{") && src.includes("#ffb000") && src.includes("wd-defile"), "cadre de chargement ambre à rayures qui défilent, différent des barres à blocs");
-assert.ok(src.includes("prefers-reduced-motion:reduce){.wd-chargeur i{animation:none;}"), "rayures immobiles si l'appareil demande moins d'animations");
+assert.ok(src.includes("prefers-reduced-motion:reduce){.wd-chargeur i::before{animation:none;}"), "rayures immobiles si l'appareil demande moins d'animations");
 assert.ok(src.includes(".wd-crt::after{") && /\.wd-crt::after\{[^}]*pointer-events:none[^}]*border-image:url/.test(src) && !/\.wd-crt\{[^}]*border-image/.test(src), "l'image du moniteur est posée PAR-DESSUS l'écran, sans intercepter un clic");
 assert.ok(src.includes(".wd-ecran{position:relative;z-index:1;"), "l'écran est sous l'image");
 assert.ok(src.includes(".wd-titre{margin-top:2.2cqw;"), "le titre (Wandoos 98 / EN MARCHE) est descendu pour ne pas passer sous le bord de l'écran");

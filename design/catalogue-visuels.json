@@ -1681,8 +1681,7 @@
     "modules/daycare-page-v1.js"
    ],
    "utilisePar": [
-    "modules/daycare-page-v1.js",
-    "modules/garderie-bocaux-effets-v1.js"
+    "modules/daycare-page-v1.js"
    ]
   },
   {

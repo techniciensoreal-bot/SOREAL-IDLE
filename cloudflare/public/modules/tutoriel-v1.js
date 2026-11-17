@@ -79,8 +79,9 @@ function installerStyle_(){
     '#'+ID+' .tu-cth{position:absolute;left:8px;top:-118px;width:130px;height:130px;pointer-events:none}'+
     '#'+ID+' .tu-cth .cth-v1{width:130px;height:130px}'+
     /* Cthulhu en grand (arrive / grand / repart) : plein cadre, centré en haut, tout entier visible avec son visage ; la fenêtre de texte se cale en bas (Norman, 2026-11-04 : « il est coupé, on ne voit pas son visage »). */
-    '.tu-anneau{position:fixed;z-index:99990;pointer-events:none;box-sizing:border-box;border:3px solid #ffe27a;animation:tuClignote 1s ease-in-out infinite}'+
-    '@keyframes tuClignote{0%,100%{box-shadow:0 0 0 0 rgba(255,226,122,0);opacity:.25}50%{box-shadow:0 0 18px 6px rgba(255,226,122,.95);opacity:1}}'+
+    '.tu-anneau{position:fixed;z-index:99990;pointer-events:none;box-sizing:border-box;border:3px solid #ffe27a;box-shadow:0 0 18px 6px rgba(255,226,122,.95);animation:tuClignote 1s ease-in-out infinite;will-change:opacity}'+
+    /* Fluidité téléphone (2026-11-17) : le halo est STATIQUE (peint une fois), seule l'opacité clignote (compositeur) ; plus de box-shadow animé. */
+    '@keyframes tuClignote{0%,100%{opacity:.25}50%{opacity:1}}'+
     '@media (prefers-reduced-motion:reduce){.tu-anneau{animation:none;box-shadow:0 0 14px 5px rgba(255,226,122,.95)}}'+
     '#'+ID+'{--tu-B:min(66vh,96vw)}'+
     /* bulle de dialogue de Lhu (Norman, 2026-11-07 : « je veux des bulles de dialogues ») : fond clair, queue qui pointe vers lui (placer_ pose data-queue et --qx) */
@@ -116,10 +117,12 @@ function installerStyle_(){
     '#sorealLhuNoirV1.fondu{opacity:0;pointer-events:none}'+
     'html.'+CLASSE_NOIR+' #sorealIdleBossChroniqueV206{visibility:hidden}'+
     '#'+ID+'.tu-verrou-voix .tu-indice{color:#ffd27a}'+
-    '#'+ID_CADRE+'{position:fixed;z-index:99999;pointer-events:none;border-radius:12px;border:3px solid #f2c94c;box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 18px 4px rgba(242,201,76,.75);animation:tuPulse 1.3s ease-in-out infinite}'+
+    '#'+ID_CADRE+'{position:fixed;z-index:99999;pointer-events:none;border-radius:12px;border:3px solid #f2c94c;box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 10px 2px rgba(242,201,76,.55)}'+
     '#'+ID_CADRE+'[hidden]{display:none}'+
-    '@keyframes tuPulse{0%,100%{box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 10px 2px rgba(242,201,76,.55)}50%{box-shadow:0 0 0 3px rgba(0,0,0,.55),0 0 22px 7px rgba(242,201,76,.95)}}'+
-    '@media (prefers-reduced-motion:reduce){#'+ID_CADRE+'{animation:none}}'+
+    /* Fluidité téléphone (2026-11-17) : ombre de repos STATIQUE sur le cadre ; le pic du halo est un calque ::after à l'ombre statique dont seule l'opacité pulse (plus de box-shadow animé). */
+    '#'+ID_CADRE+'::after{content:"";position:absolute;inset:-3px;border-radius:inherit;pointer-events:none;opacity:0;box-shadow:0 0 22px 7px rgba(242,201,76,.95);animation:tuPulse 1.3s ease-in-out infinite;will-change:opacity}'+
+    '@keyframes tuPulse{0%,100%{opacity:0}50%{opacity:1}}'+
+    '@media (prefers-reduced-motion:reduce){#'+ID_CADRE+'::after{animation:none;opacity:.6}}'+
     '#'+ID_PICKER+'{position:fixed;inset:0;z-index:100001;cursor:crosshair;background:rgba(0,0,0,.12)}'+
     '#'+ID_PICKER+' .tu-pk-bandeau{position:fixed;left:50%;top:10px;transform:translateX(-50%);max-width:92vw;padding:9px 14px;border-radius:12px;background:#0b1220;color:#fff;border:2px solid #f2c94c;font:700 15px "Comic Neue","Comic Sans MS",sans-serif;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.6);pointer-events:none}'+
     '#'+ID_PICKER+' .tu-pk-survol{position:fixed;pointer-events:none;border:3px dashed #4cd6f2;background:rgba(76,214,242,.16);border-radius:6px}';

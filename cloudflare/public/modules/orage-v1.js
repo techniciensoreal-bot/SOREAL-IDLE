@@ -231,8 +231,10 @@
     s.textContent=[
       '#soreal-orage-sort-v1{position:fixed;inset:0;z-index:100001;pointer-events:none;overflow:hidden}',
       '#soreal-orage-sort-v1 .os-rouge{position:absolute;inset:0;opacity:0;background:radial-gradient(ellipse at 50% 55%,transparent 28%,rgba(130,0,12,.6) 100%);transition:opacity .7s ease}',
-      '#soreal-orage-sort-v1 .os-rouge.pulse{animation:osPalpite 1.5s ease-in-out infinite}',
-      '@keyframes osPalpite{0%,100%{filter:brightness(.7)}50%{filter:brightness(1.25)}}',
+      /* Fluidité téléphone (2026-11-17) : plus de filter animé sur un calque plein écran. Le rouge de base est assombri une fois pour toutes (équivalent de brightness(.7)) ; le pic (équivalent de brightness(1.25)) est un calque ::after plus vif dont seule l'opacité palpite. */
+      '#soreal-orage-sort-v1 .os-rouge.pulse{background:radial-gradient(ellipse at 50% 55%,transparent 28%,rgba(91,0,8,.6) 100%)}',
+      '#soreal-orage-sort-v1 .os-rouge.pulse::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at 50% 55%,transparent 28%,rgba(190,0,18,.4) 100%);animation:osPalpite 1.5s ease-in-out infinite;will-change:opacity}',
+      '@keyframes osPalpite{0%,100%{opacity:0}50%{opacity:1}}',
       '#soreal-orage-sort-v1 .os-gouttes i{position:absolute;top:-30px;width:6px;height:16px;border-radius:50% 50% 60% 60%/30% 30% 70% 70%;background:linear-gradient(#b0001a,#5a000d);opacity:0;animation:osChute var(--d,1.6s) linear var(--delai,0s) both}',
       '@keyframes osChute{0%{transform:translateY(0);opacity:0}10%{opacity:.9}100%{transform:translateY(112vh);opacity:.9}}',
       '#soreal-orage-sort-v1 .os-pentacle{position:absolute;left:50%;top:48%;width:min(80vmin,540px);height:min(80vmin,540px);margin:calc(min(80vmin,540px) / -2) 0 0 calc(min(80vmin,540px) / -2);opacity:0;transition:opacity .9s ease;filter:drop-shadow(0 0 8px #ff2a2a) drop-shadow(0 0 22px #b00018)}',
@@ -241,7 +243,7 @@
       '#soreal-orage-sort-v1 .os-pentacle.double::after{content:"";position:absolute;inset:18%;background:var(--os-etoile) center/contain no-repeat;animation:osTourneInverse 11s linear infinite}',
       '@keyframes osTourne{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}',
       '@keyframes osTourneInverse{from{transform:rotate(360deg)}to{transform:rotate(0deg)}}',
-      '@media (prefers-reduced-motion:reduce){#soreal-orage-sort-v1 .os-pentacle svg,#soreal-orage-sort-v1 .os-pentacle.double::after,#soreal-orage-sort-v1 .os-rouge.pulse{animation:none}}'
+      '@media (prefers-reduced-motion:reduce){#soreal-orage-sort-v1 .os-pentacle svg,#soreal-orage-sort-v1 .os-pentacle.double::after,#soreal-orage-sort-v1 .os-rouge.pulse::after{animation:none;opacity:.5}}'
     ].join('\n');
     document.head.appendChild(s);
   }
