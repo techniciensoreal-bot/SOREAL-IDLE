@@ -17,7 +17,7 @@
   const FONDU_S=10;
   const CYCLE_S=TEINTES.length*FONDU_S;
   const TUILE=1600;                                            /* hauteur de la tuile du dégradé, en % de la hauteur du liquide */
-  const FIN=(TUILE/(TUILE-100)*100).toFixed(4);                /* 106,6667 % : décalage d'exactement une tuile */
+  const FIN=50;                                                 /* le calque fait 2 tuiles : -50 % de sa hauteur = exactement une tuile */
   R.cycleNoel={teintes:TEINTES,fonduS:FONDU_S,cycleS:CYCLE_S,tuile:TUILE,fin:FIN};
   /* instant de départ fixé une fois (au chargement du script) : pas de redémarrage à chaque redessin */
   const DEPART=-((Date.now()/1000)%CYCLE_S);
@@ -32,8 +32,11 @@
     /* boule de Noël : teintes qui glissent */
     const grad='linear-gradient(180deg,'+TEINTES.concat([TEINTES[0]]).map(function(c,i){return c+' '+(i*100/TEINTES.length)+'%';}).join(',')+')';
     L.push(N+'{--gd-noel-d:'+DEPART.toFixed(2)+'s}');
-    L.push(N+'.gd-pot[data-rang="1"] .gd-liq{background:radial-gradient(130% 40% at 50% 100%,rgba(255,255,255,.28),rgba(255,255,255,0) 70%),linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,0) 14%),linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(60,0,10,.3)),'+grad+';background-size:100% 100%,100% 100%,100% 100%,100% '+TUILE+'%;background-repeat:no-repeat,no-repeat,no-repeat,repeat-y;background-position:0 0,0 0,0 0,0 0;animation:gd-onde 3.2s linear infinite,gd-noel-teintes '+CYCLE_S+'s linear infinite;animation-delay:0s,var(--gd-noel-d,0s)}');
-    L.push('@keyframes gd-noel-teintes{from{background-position:0 0,0 0,0 0,0 0}to{background-position:0 0,0 0,0 0,0 '+FIN+'%}}');
+    /* Fluidité téléphone (2026-11-17) : le dégradé ne défile plus par background-position (repeinte à chaque image) mais par transform sur un calque ::before de 2 tuiles (3200 % de la hauteur du liquide, dégradé répété), glissé de EXACTEMENT une tuile (-50 % de sa hauteur = 1600 % du liquide) : boucle parfaite, un seul sens (règle n°3). Les reflets statiques passent dans ::after, au-dessus. Le liquide masque l'excédent (overflow:hidden) ; le masque d'onde reste sur le liquide. */
+    L.push(N+'.gd-pot[data-rang="1"] .gd-liq{background:none;overflow:hidden}');
+    L.push(N+'.gd-pot[data-rang="1"] .gd-liq::before{content:"";position:absolute;left:0;right:0;top:0;height:'+(TUILE*2)+'%;pointer-events:none;background:'+grad+';background-size:100% 50%;background-repeat:repeat-y;animation:gd-noel-teintes '+CYCLE_S+'s linear infinite;animation-delay:var(--gd-noel-d,0s);will-change:transform}');
+    L.push(N+'.gd-pot[data-rang="1"] .gd-liq::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 40% at 50% 100%,rgba(255,255,255,.28),rgba(255,255,255,0) 70%),linear-gradient(180deg,rgba(255,255,255,.28) 0,rgba(255,255,255,0) 14%),linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(60,0,10,.3))}');
+    L.push('@keyframes gd-noel-teintes{from{transform:translateY(0)}to{transform:translateY(-50%)}}');
     /* globe à neige : flocons derrière le liquide */
     const P=N+'.gd-pot[data-rang="6"]';
     const flocon=function(sel,gauche,haut,taille,anim,duree,delai,z){
@@ -46,7 +49,7 @@
     L.push('@keyframes gd-fl-a{0%{opacity:0;transform:translate(0,0) scale(.9)}15%{opacity:.95}80%{opacity:.8}100%{opacity:0;transform:translate(260%,1800%) scale(.5)}}');
     L.push('@keyframes gd-fl-b{0%{opacity:0;transform:translate(0,0) scale(.9)}15%{opacity:.95}80%{opacity:.8}100%{opacity:0;transform:translate(-300%,2200%) scale(.5)}}');
     L.push('@keyframes gd-fl-c{0%{opacity:0;transform:translate(0,0) scale(.9)}15%{opacity:.95}80%{opacity:.8}100%{opacity:0;transform:translate(150%,1500%) scale(.5)}}');
-    L.push('@media (prefers-reduced-motion:reduce){'+N+'.gd-pot[data-rang="1"] .gd-liq{animation:none}'+
+    L.push('@media (prefers-reduced-motion:reduce){'+N+'.gd-pot[data-rang="1"] .gd-liq::before{animation:none}'+
       [P+'::before',P+'::after',P+' .gd-bocal::after',P+' .gd-verre::before'].map(function(s,i){return s+'{animation:none;opacity:.85;transform:translate('+(i%2?-80:90)+'%,'+(500+i*300)+'%)}';}).join('')+'}');
     return L.join('\n');
   }

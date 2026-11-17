@@ -149,7 +149,10 @@ function style_(){
     '.id-points i.id-fait{background:rgba(255,255,255,.7)}'+
     '.id-points i.id-ici{background:#ffd24a;box-shadow:0 0 8px #ffd24a}'+
     /* dernière image : le gros bouton blanc est l'image elle-même, éclairée, à cliquer */
-    '.id-fin .id-cadre{cursor:pointer;animation:idPulse 1.8s ease-in-out infinite}'+
+    /* Fluidité téléphone (2026-11-17) : plus de box-shadow animé. Ombre de repos STATIQUE sur le cadre ; le pic (anneau + halo) est un calque ::after à l'ombre statique dont seule l'opacité pulse (compositeur). Le cadre ne coupe plus (overflow visible) pour laisser sortir le halo, les images gardent le même arrondi. */
+    '.id-fin .id-cadre{cursor:pointer;overflow:visible;box-shadow:0 0 0 2px rgba(255,210,74,.35),0 0 18px 2px rgba(255,230,140,.25),0 16px 40px rgba(0,0,0,.65)}'+
+    '.id-fin .id-cadre img{border-radius:7px}'+
+    '.id-fin .id-cadre::after{content:"";position:absolute;inset:-3px;border-radius:13px;pointer-events:none;opacity:0;box-shadow:0 0 0 3px rgba(255,210,74,.9),0 0 46px 12px rgba(255,230,140,.6);animation:idPulse 1.8s ease-in-out infinite;will-change:opacity}'+
     '.id-fin .id-cadre:focus-visible{outline:3px solid #ffd24a;outline-offset:3px}'+
     '.id-indice{min-height:1.4em;font:400 clamp(12px,2.6vw,15px) "Russo One",sans-serif;letter-spacing:.05em;color:#ffd24a;text-align:center;opacity:0;transition:opacity .6s}'+
     '.id-fin .id-indice{opacity:1}'+
@@ -162,8 +165,8 @@ function style_(){
     '.id-son{min-height:1.4em;font:400 clamp(13px,2.8vw,16px) "Russo One",sans-serif;letter-spacing:.04em;color:#fff;text-align:center;padding:6px 14px;border-radius:999px;background:rgba(255,210,74,.16);border:1px solid rgba(255,210,74,.6);animation:idSon 1.4s ease-in-out infinite}'+
     '.id-son[hidden]{display:none}'+
     '@keyframes idSon{0%,100%{opacity:.55}50%{opacity:1}}'+
-    '@keyframes idPulse{0%,100%{box-shadow:0 0 0 2px rgba(255,210,74,.35),0 0 18px 2px rgba(255,230,140,.25),0 16px 40px rgba(0,0,0,.65)}50%{box-shadow:0 0 0 3px rgba(255,210,74,.9),0 0 46px 12px rgba(255,230,140,.6),0 16px 40px rgba(0,0,0,.65)}}'+
-    '@media (prefers-reduced-motion:reduce){.id-son{animation:none}.id-cadre img{transition:none}.id-fin .id-cadre{animation:none;box-shadow:0 0 0 3px rgba(255,210,74,.9),0 0 30px 6px rgba(255,230,140,.5)}}';
+    '@keyframes idPulse{0%,100%{opacity:0}50%{opacity:1}}'+
+    '@media (prefers-reduced-motion:reduce){.id-son{animation:none}.id-cadre img{transition:none}.id-fin .id-cadre{box-shadow:0 0 0 3px rgba(255,210,74,.9),0 0 30px 6px rgba(255,230,140,.5)}.id-fin .id-cadre::after{animation:none;display:none}}';
   (document.head||document.documentElement).appendChild(s);
 }
 
