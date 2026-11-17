@@ -920,7 +920,7 @@
             restaurerScrollJournalAventureIdleV1_();
 
             const idleAncreClicOkV1=idleAncreClicAvantRenduV1?restaurerAncreClicIdleV1_(idleAncreClicAvantRenduV1,idleScrollXAvantRenduV1):false;
-            if(!idleAncreClicOkV1)window.scrollTo(
+            if(!idleAncreClicOkV1&&!(window.__idleDefileV1__&&window.__idleDefileV1__()))window.scrollTo(
               idleScrollXAvantRenduV1,
               idleScrollYAvantRenduV1
             );

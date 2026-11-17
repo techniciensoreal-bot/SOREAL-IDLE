@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.1',
+    courante:'6.2',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.2',
+        nom:'Défilement fluide',
+        date:'2026-11-17',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Défilement sur téléphone : la page ne revient plus en arrière toutes les 4 secondes pendant que tu la fais défiler.'
+          ]}
+        ]
+      },
       {
         version:'6.1',
         nom:'Chiffres du vrai jeu',

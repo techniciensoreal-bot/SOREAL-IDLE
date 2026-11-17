@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Fluidité sur téléphone : les animations en boucle (lueurs, pulsations, défilements des barres, en-têtes et boutons, fruits mûrs) n’obligent plus le téléphone à tout repeindre à chaque image ; leur aspect reste très proche."
+    "Défilement sur téléphone : la page ne revient plus en arrière toutes les 4 secondes pendant que tu la fais défiler."
   ] };
 })();

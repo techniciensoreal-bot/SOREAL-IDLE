@@ -64,6 +64,7 @@
         if(!ancre)return;
         let dernierY=null;
         function caler(){
+          if(window.__idleDefileV1__&&window.__idleDefileV1__())return;
           const sac=document.getElementById('soreal-idle-v138-bag-section');
           if(!sac)return;
           /* Le joueur a défilé lui-même depuis notre dernier calage : on n'y touche plus. */

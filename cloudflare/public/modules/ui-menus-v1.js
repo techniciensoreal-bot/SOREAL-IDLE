@@ -223,11 +223,24 @@
         return n&&n.tagName===ancre.tag&&String(n.textContent||'').trim().slice(0,24)===ancre.texte?n:null;
       }
 
+      /*
+       * Norman (2026-11-17, téléphone : « c'est une question de saut de page, entre deux sauts c'est fluide ») : le redessin de la page toutes les 4 s
+       * rappelait window.scrollTo(yAvant) dans l'image suivante. Pendant un défilement tactile (le doigt ou l'inertie), scrollTo ANNULE l'inertie et
+       * ramène la page là où elle était : un saut toutes les 4 s. Le calage ne se fait donc jamais pendant que le joueur défile (un événement de
+       * défilement dans les 200 dernières ms) ; la hauteur retenue du conteneur évite déjà tout déplacement de la page.
+       */
+      if(!window.__idleDefileV1__){
+        let dernierDefil=-1e9;
+        try{window.addEventListener('scroll',function(){dernierDefil=performance.now();},{passive:true,capture:true});}catch(_e){}
+        window.__idleDefileV1__=function(){return performance.now()-dernierDefil<200;};
+      }
+
       function restaurerAncreClicIdleV1_(ancre,xAvant){
         if(!ancre)return false;
         let dernierY=null;
         let trouve=false;
         function caler(){
+          if(window.__idleDefileV1__&&window.__idleDefileV1__())return;
           const el=retrouverElementClicIdleV1_(ancre);
           /* Introuvable ou devenu invisible (menu déroulant refermé, panneau replié) : on ne s appuie pas dessus. */
           if(!el||!(el.offsetWidth||el.offsetHeight||el.getClientRects().length))return;
@@ -297,7 +310,7 @@
         /* Calage immédiat (avant toute image), puis de nouveau quand la mise en page a bougé. */
         const ancre_ok=ancreClic?restaurerAncreClicIdleV1_(ancreClic,xAvant):false;
         requestAnimationFrame(function(){
-          if(!ancre_ok)window.scrollTo(xAvant,yAvant);
+          if(!ancre_ok&&!(window.__idleDefileV1__&&window.__idleDefileV1__()))window.scrollTo(xAvant,yAvant);
           restaurerAncreSacIdleV1_(ancreAvant,xAvant,yAvant);
         });
       }
