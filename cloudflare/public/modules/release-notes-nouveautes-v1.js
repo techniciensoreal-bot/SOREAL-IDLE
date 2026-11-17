@@ -4,10 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Hors ligne, une absence d’un an est calculée en entier, sans plafond intermédiaire.",
-    "Ce système commence par une installation de 24 h (en ligne, conservée au Rebirth) avant de produire, comme dans le jeu ; les parties qui l’utilisaient déjà la gardent installée.",
-    "Le temps de réapparition des ennemis de la Tour suit la formule du jeu (sans plancher inventé, plafond des objets à 80 %).",
-    "Les diviseurs de vitesse des augmentations aux difficultés élevées et les bonus de base de deux d’entre elles sont corrigés d’après les valeurs exactes du jeu.",
-    "Chaque hack a maintenant sa propre Resource 3 et tous ceux qui en ont avancent ensemble, comme dans le jeu."
+    "Fluidité sur téléphone : les animations en boucle (lueurs, pulsations, défilements des barres, en-têtes et boutons, fruits mûrs) n’obligent plus le téléphone à tout repeindre à chaque image ; leur aspect reste très proche."
   ] };
 })();
