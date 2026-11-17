@@ -558,8 +558,11 @@ const fresh=(context={}, now=1_000_000)=>
   state=applyIdleNguAction(state,{action:"buyResource",resource:"energy",stat:"power"},context,1_000_000).state;
   assert.equal(state.resources.energy.power,1.1);
   assert.equal(state.currencies.experience,983);
+  /* Lu dans le jeu (EnergyPurchases::maxEnergy10K, 2026-11-17) : l'achat de plafond d'énergie exige un plafond brut déjà >= 100 000 (gagné aux Rebirths). */
+  assert.throws(()=>applyIdleNguAction(state,{action:"buyResource",resource:"energy",stat:"cap"},context,1_000_000),/ACHAT_VERROUILLE_BOSS/);
+  state.resources.energy.cap=100000;
   state=applyIdleNguAction(state,{action:"buyResource",resource:"energy",stat:"cap"},context,1_000_000).state;
-  assert.equal(state.resources.energy.cap,10500);
+  assert.equal(state.resources.energy.cap,110000);
   assert.equal(state.currencies.experience,943);
   state=applyIdleNguAction(state,{action:"buyResource",resource:"energy",stat:"bars"},context,1_000_000).state;
   assert.equal(state.resources.energy.bars,2);

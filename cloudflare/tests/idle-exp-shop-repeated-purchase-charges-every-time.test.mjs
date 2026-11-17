@@ -55,6 +55,7 @@ function roundTrip(state) {
 for (const resource of ["energy", "magic", "r3"]) {
   for (const stat of ["speed", "power", "cap", "bars"]) {
     let state = freshState(1e9); // large EXP pool: never blocked by EXP_INSUFFISANTE mid-loop
+    if (resource === "energy" && stat === "cap") state.resources.energy.cap = 100000;   // plafond d'énergie : exige 100 000 déjà gagnés (lu dans le jeu)
     let previousExp = state.currencies.experience;
     let previousStat = state.resources[resource][stat];
     let firstCost = null;

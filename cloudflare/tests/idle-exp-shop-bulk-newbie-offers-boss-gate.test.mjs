@@ -268,7 +268,9 @@ function roundTrip(state) {
   assert.equal(snap.resourcePurchaseUnlock.energy.speed.unlocked, true, "Speed n'est jamais verrouillé par le boss.");
   assert.equal(snap.resourcePurchaseUnlock.energy.bars.unlocked, true, "Bars n'est jamais verrouillé par le boss.");
 
-  const snapUnlocked = idleNguSnapshot(roundTrip(state), { bosses: IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 }, Date.now());
+  const etatCap = roundTrip(state);
+  etatCap.resources.energy.cap = 100000;   // le plafond d'énergie exige aussi 100 000 déjà gagnés (lu dans le jeu, 2026-11-17)
+  const snapUnlocked = idleNguSnapshot(etatCap, { bosses: IDLE_NGU_RESOURCE_POWER_CAP_UNLOCK_BOSS_V1 }, Date.now());
   assert.equal(snapUnlocked.resourcePurchaseUnlock.energy.power.unlocked, true, "boss 17 atteint : Power doit être annoncé débloqué.");
   assert.equal(snapUnlocked.resourcePurchaseUnlock.energy.cap.unlocked, true);
 

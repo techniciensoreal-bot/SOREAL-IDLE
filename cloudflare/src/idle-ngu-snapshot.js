@@ -363,7 +363,7 @@ function construireSnapshotNguV1(state, context, now) {
     resourcePurchases: Object.fromEntries(Object.entries(IDLE_NGU_RESOURCE_PURCHASES).filter(([resource]) => ressourceDecouverteV1(state, resource)).map(([resource, stats]) => [
       resource,
       Object.fromEntries(Object.entries(clone(stats)).map(([stat, achat]) => {
-        if (!resourcePurchaseUnlocked(IDLE_NGU_RESOURCE_PURCHASES[resource][stat], context, state, resource)) delete achat.unlockBoss;
+        if (!resourcePurchaseUnlocked(IDLE_NGU_RESOURCE_PURCHASES[resource][stat], context, state, resource, stat)) delete achat.unlockBoss;
         return [stat, achat];
       }))
     ])),
@@ -403,7 +403,7 @@ function construireSnapshotNguV1(state, context, now) {
       Object.fromEntries(Object.keys(IDLE_NGU_RESOURCE_PURCHASES[resource]).map(stat => {
         const purchase = IDLE_NGU_RESOURCE_PURCHASES[resource][stat];
         return [stat, {
-          unlocked: resourcePurchaseUnlocked(purchase, context, state, resource)   /* neededBosses retiré (audit 2026-11-14, règle n°2) : jamais lu par le client */
+          unlocked: resourcePurchaseUnlocked(purchase, context, state, resource, stat)   /* neededBosses retiré (audit 2026-11-14, règle n°2) : jamais lu par le client */
         }];
       }))
     ])),
@@ -448,12 +448,13 @@ function construireSnapshotNguV1(state, context, now) {
  * jamais remis à 0). purchase.unlockBoss est absent (undefined) sur
  * speed/bars, donc toujours considéré débloqué pour ces deux stats.
  */
-function resourcePurchaseUnlocked(purchase, context, state, resource) {
+function resourcePurchaseUnlocked(purchase, context, state, resource, stat) {
   const needed = num(purchase?.unlockBoss, 0);
   /* Lu dans le jeu (EnergyPurchases / MagicPurchases / Resource3Purchases, 2026-11-16) : la magie et la ressource 3 n'ont aucun verrou de boss ;
      l'énergie utilise le RECORD permanent de boss (jamais remis à zéro par un Rebirth). */
   if (resource && resource !== "energy") return true;
-  /* Vérifié 2026-11-17 : « You need to hit a cap of 100K energy first! » (capEnergy >= 100000) ne garde que le champ d'achat PERSONNALISÉ (tryCustomEnergyCap / « tout »), jamais les boutons +10K/+100K/+1M (garde : record de boss 17, « Reach boss 17 for more purchases here! ») ; non appliqué ici, SOREAL n'a pas de champ personnalisé distinct (décision de Norman du 2026-10-03 : on peut acheter du cap avant 100K). */
+  /* Lu dans le jeu (EnergyPurchases::maxEnergy10K / maxEnergy100k / maxEnergy1M, build 1260, 2026-11-17 ; décision de Norman : « interdit d'acheter avant les 100K qu'on gagne avec les rebirth ») : l'achat de PLAFOND d'énergie exige un plafond brut déjà >= 100 000 (« You need to hit a cap of 100K energy first! »). L'achat reste caché (règle n°2) tant que la condition n'est pas remplie. */
+  if (stat === "cap" && num(state?.resources?.energy?.cap, 0) < 100000) return false;
   const boss = Math.max(num(context?.bosses, 0), num(state?.records?.highestBoss, 0));
   return needed <= 0 || boss >= needed;
 }
@@ -478,7 +479,7 @@ export function buyResource(state, resource, stat, quantity, context = {}) {
   if (resource === "r3" && !ressourceDecouverteV1(state, "r3")) throw new Error("R3_VERROUILLEE");
   const purchase=IDLE_NGU_RESOURCE_PURCHASES[resource]?.[stat];
   if (!purchase) throw new Error("ACHAT_RESSOURCE_INDISPONIBLE");
-  if (!resourcePurchaseUnlocked(purchase, context, state, resource)) throw new Error("ACHAT_VERROUILLE_BOSS");
+  if (!resourcePurchaseUnlocked(purchase, context, state, resource, stat)) throw new Error("ACHAT_VERROUILLE_BOSS");
   /*
    * Achat en lot (capture Norman : "+1 for 80 EXP" / "+10 for 800 EXP" /
    * "+100 for 8000 EXP", plus le montant personnalisé de droite) : une seule
@@ -513,6 +514,7 @@ export function buyNewbieOffer(state, resource, stat, offerId) {
   const id = String(offerId || "");
   const offer = (IDLE_NGU_NEWBIE_OFFERS[resource]?.[stat] || []).find(o => o.id === id);
   if (!id || !offer) throw new Error("OFFRE_INTROUVABLE");
+  if (resource === "energy" && stat === "cap" && num(state.resources?.energy?.cap, 0) < 100000) throw new Error("ACHAT_VERROUILLE_BOSS");   /* même garde que l'achat de plafond d'énergie (lu dans le jeu) */
   if (state.records.newbieOffersUsed.includes(id)) throw new Error("OFFRE_DEJA_UTILISEE");
   const hardCap = num(IDLE_NGU_RESOURCE_PURCHASES[resource]?.[stat]?.hardCap, Infinity);
   const r = state.resources[resource];

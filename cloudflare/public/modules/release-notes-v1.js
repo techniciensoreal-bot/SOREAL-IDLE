@@ -33,7 +33,8 @@
             'Défilement sur téléphone : la page ne revient plus en arrière toutes les 4 secondes pendant que tu la fais défiler.',
             'Affichage sur téléphone : de nombreux textes et chiffres coupés ou cachés sont corrigés dans la plupart des menus, au bandeau du haut et dans les fenêtres.',
             'Répartitions d’énergie et de magie : en cliquant très vite sur + ou − (1M, etc.), aucun clic n’est plus perdu dans les menus concernés.',
-            'Borne : la vague de victoire demande beaucoup moins de travail à l’écran (moins de baisse de fps, y compris sur PC).'
+            'Borne : la vague de victoire demande beaucoup moins de travail à l’écran (moins de baisse de fps, y compris sur PC).',
+            'Boutique d’EXP, d’après le code du jeu : l’achat de plafond d’énergie n’est proposé qu’une fois le plafond de base gagné grâce aux Rebirths.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Aventure, d’après le code du jeu : la réduction de recharge des objets n’a plus de plafond (délai divisé par 1 + bonus), et quelques taux de drop et pièces de départ ont été corrigés.'
