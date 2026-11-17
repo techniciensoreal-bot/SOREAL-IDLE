@@ -1500,7 +1500,7 @@
         }
         if(skillId==='hyperRegen')return Boolean(flags.hyperRegenUnlocked);
         if(skillId==='beastMode')return Boolean(flags.beastModeUnlocked);
-        if(skillId==='megaBuff')return niveauWishAdventureIdleV4_(8)>=1;
+        if(skillId==='megaBuff')return niveauWishAdventureIdleV4_(8)>=1&&competenceAdventureDebloqueeIdleV3_(definitionCompetenceAdventureIdleV3_('ultimateBuff'),'defense'); /* lu dans le jeu, build 1260, 2026-11-17 : MegaBuff::Update affiche « Locked » tant que defenseTraining[4] < 25000 (le Bonus ultime n'est pas débloqué) OU que le souhait 8 est au niveau 0 : les DEUX conditions sont requises. */
         if(skillId==='ohShit')return niveauWishAdventureIdleV4_(58)>=1;
         if(skillId==='move69')return Boolean(flags.move69Unlocked);
         return false;

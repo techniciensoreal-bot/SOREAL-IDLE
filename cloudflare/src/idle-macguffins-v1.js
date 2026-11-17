@@ -303,16 +303,19 @@ export function macguffinSadisticTroll2V1(state) {
 export function macguffinKillsRequiredV1(opts = {}) {
   if (opts.itopod) {
     let k = IDLE_MACGUFFIN_ITOPOD_KILLS_V1;
-    if (opts.perk69) k *= 0.8;
-    if (opts.perk70) k *= 0.75;
-    if (opts.perk71) k *= 0.75;
-    if (opts.purpleHeart) k *= 0.8;
-    return Math.max(1, Math.round(k));
+    // lu dans le jeu, build 1260, 2026-11-17 : LootDrop.killsPerMacguffin tronque (conv.i4) APRES CHAQUE reduction.
+    if (opts.perk69) k = Math.trunc(k * 0.8);
+    if (opts.perk70) k = Math.trunc(k * 0.75);
+    if (opts.perk71) k = Math.trunc(k * 0.75);
+    if (opts.purpleHeart) k = Math.trunc(k * 0.8);
+    return Math.max(1, k);
   }
   let k = IDLE_MACGUFFIN_ZONE_KILLS_V1;
-  if (opts.chocoSet) k *= 0.9;
-  if (opts.purpleHeart) k *= 0.8;
-  return Math.max(1, Math.round(k));
+  // lu dans le jeu, build 1260, 2026-11-17 : LootDrop.macGuffinThreshold applique d'abord le Purple Heart (x0,8) puis le
+  // Choco (x0,9), en tronquant (conv.i8) apres chaque etape ; base LootDrop.baseKillsPerMacguffin = 1000 (24 zones, level0).
+  if (opts.purpleHeart) k = Math.trunc(k * 0.8);
+  if (opts.chocoSet) k = Math.trunc(k * 0.9);
+  return Math.max(1, k);
 }
 
 /*

@@ -34,6 +34,7 @@
             'Affichage sur téléphone : de nombreux textes et chiffres coupés ou cachés sont corrigés dans la plupart des menus, au bandeau du haut et dans les fenêtres.',
             'Répartitions d’énergie et de magie : en cliquant très vite sur + ou − (1M, etc.), aucun clic n’est plus perdu dans les menus concernés.',
             'Borne : la vague de victoire demande beaucoup moins de travail à l’écran (moins de baisse de fps, y compris sur PC).',
+            'D’après le code du jeu : un arrondi en cascade et une condition d’affichage ont été corrigés, après vérification de toutes les valeurs de scène du jeu.',
             'Boutique d’EXP, d’après le code du jeu : l’achat de plafond d’énergie n’est proposé qu’une fois le plafond de base gagné grâce aux Rebirths.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
