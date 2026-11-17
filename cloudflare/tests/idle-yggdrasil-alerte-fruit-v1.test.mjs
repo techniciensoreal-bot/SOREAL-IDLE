@@ -74,8 +74,10 @@ assert.ok(src.includes("(alerte?' ygg-alerte':'')"));
 // Boucles parfaites (règle n°3).
 const lueur = src.match(/@keyframes yggFruitAlerte\{0%,100%\{[^}]*\}50%\{/);
 assert.ok(lueur, "lueur du fruit : départ = arrivée (0 % = 100 %)");
-const eclat = src.match(/@keyframes yggEclatAlerte\{0%\{background-position:0 0\}100%\{background-position:150% 0\}\}/);
-assert.ok(eclat, "éclat : glissement d'exactement une tuile (tuile de 300 % -> 150 % de décalage)");
-assert.ok(src.includes("/300% 100% repeat-x"), "une seule couche, taille de tuile explicite");
+const eclat = src.includes("@keyframes yggEclatAlerte{0%{transform:translateX(-66.7%)}100%{transform:translateX(-8.7%)}}");
+assert.ok(eclat, "éclat : bande hors de la vitre aux deux bouts (boucle parfaite), glissé par transform (aucune repeinte)");
+assert.ok(src.includes("width:300%;z-index:2") && !src.includes("yggEclatAlerte{0%{background-position"), "l'éclat n'anime plus background-position");
+assert.ok(src.includes("@keyframes yggFruitAlerte{0%,100%{scale:1;opacity:.8}50%{scale:1.1;opacity:1}}"), "pulsation du fruit : scale et opacity seulement (compositeur), départ = arrivée");
+assert.ok(!src.includes("yggFruitAlerte{0%,100%{filter"), "la lueur n'anime plus filter (téléphone)");
 assert.ok(/prefers-reduced-motion:reduce\)\{\.ygg-carte\.ygg-alerte \.ygg-vitre\.ygg-decor \.ygg-fruit\.ygg-mur\{animation:none/.test(src) && src.includes(".ygg-vitre::after{animation:none;display:none}"), "mouvement réduit : lueur fixe, plus d'éclat");
 console.log("idle-yggdrasil-alerte-fruit-v1: OK");
