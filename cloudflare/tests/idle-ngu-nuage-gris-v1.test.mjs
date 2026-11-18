@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
  * Ici : la couche grise est TOUJOURS dans le HTML de l'onglet Énergie, jamais dans celui de la Magie ; le soleil et les nuages blancs de bandeau n'existent plus que la nuit (lune, chauves-souris).
  */
 const src = readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8").split(String.fromCharCode(13)).join("");
-const m = src.match(/function veutAstres_[\s\S]*?function cielSync_[\s\S]*?\n\}\n/);
+const m = src.match(/function veutAstres_[\s\S]*?function veutGris_/);
 assert.ok(m, "fonctions du ciel présentes");
 const ctx = new Function(src.match(/function veutAstres_[^\n]*\n[^\n]*function veutGris_[^\n]*\n/)[0] + "return {a:veutAstres_,g:veutGris_};")();
 for (const niv of ["0", "1", "4"]) {
@@ -16,11 +16,12 @@ for (const niv of ["0", "1", "4"]) {
   assert.equal(ctx.a("magic", niv), true, "la nuit garde sa lune et ses chauves-souris à tout niveau");
   assert.equal(ctx.g("magic", niv), false, "la nuit n'a pas de nuage gris");
 }
-assert.ok(/function astresHtml_\(onglet,niv\)\{return '<span class="nl-arc"[^}]*veutAstres_\(onglet,niv\)\?HTML_ASTRE:''\)\+\(veutGris_\(onglet,niv\)\?HTML_SOLEIL\+HTML_GRIS:''\)/.test(src), "HTML du rendu conditionnel");
-assert.ok(src.includes("astresHtml_(onglet,nivDe_(lueurPage_))+"), "le rendu utilise le ciel conditionnel");
-assert.ok(src.includes("cielSync_(racine,true)") && src.includes("cielSync_(racine,false)"), "le tick et le changement d'onglet synchronisent le ciel");
+/* Rendu par composants Preact (2026-11-18) : le ciel est un composant (Ciel_) rendu selon l'onglet ; plus de chaînes HTML ni de synchro à la main */
+assert.ok(/function Ciel_\(onglet\)\{[\s\S]*?class:'nl-arc'[\s\S]*?nuit\?h\('span',\{class:'nl-astre'[\s\S]*?nuit\?h\('span',\{class:'nl-nuages'[\s\S]*?jour\?h\('span',\{class:'nl-soleil'[\s\S]*?jour\?h\('span',\{class:'nl-gris','data-morph-vivant'/.test(src), "rendu conditionnel du ciel");
+assert.ok(src.includes("Ciel_(vm.onglet),"), "le rendu utilise le ciel conditionnel");
+assert.ok(!src.includes("cielSync_") && /function changerOnglet\(res\)\{[\s\S]*?rendreLocal_\(\);/.test(src), "le changement d'onglet redessine le ciel par un rendu local (plus de synchro à la main)");
 // plus de fondu piloté par script : pas de retrait différé ni de classe de sortie (cause du clignotement)
-const sync = src.match(/function cielSync_[\s\S]*?\n\}\n/)[0];
+const sync = src.match(/function Ciel_[\s\S]*?\n\}\n/)[0];
 assert.ok(!/setTimeout|nl-gris-sort|nl-gris-ent/.test(sync), "aucune minuterie ni classe de sortie dans la synchro du ciel");
 // CSS : gris statique pleine page
 const css = src.match(/\.nl-v1>\.nl-gris\{[^}]*\}/)[0];

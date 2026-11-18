@@ -49,8 +49,10 @@ for (const anglais of ["Level <b", "Allocated", "<span>Target</span>", ">WTF do 
 for (const [fr, en] of [["Vers les NGU de magie", "To NGU Magic"], ["Vers les NGU d’énergie", "To NGU Energy"], ["EH, C’EST LE NOM DU JEU ORIGINAL !", "HEY, THAT’S THE NAME OF THE ORIGINAL GAME!"], ["Faire suivre la magie", "Advance Magic"], ["Magie placée", "Magic Allocated"]]) assert.equal(dico[fr], en, "dictionnaire : " + fr);
 
 // 5. Aides « Je fais quoi ? » : chaque morceau de texte (entre les balises) a sa traduction
-for (const source of [meta.slice(meta.indexOf('id="sorealIdleAtAideV1"'), meta.indexOf("toolbar+", meta.indexOf('id="sorealIdleAtAideV1"'))), ngu.slice(ngu.indexOf('id="sorealIdleNguAideV1"'), ngu.indexOf("chips+", ngu.indexOf('id="sorealIdleNguAideV1"')))]) {
-  const morceaux = [...source.matchAll(/'<(?:p|li)>(.*?)<\/(?:p|li)>'/g)].flatMap((m) => m[1].split(/<\/?b>/));
+for (const source of [meta.slice(meta.indexOf('id="sorealIdleAtAideV1"'), meta.indexOf("toolbar+", meta.indexOf('id="sorealIdleAtAideV1"'))), ngu.slice(ngu.indexOf("id:'sorealIdleNguAideV1'"), ngu.indexOf("chips,", ngu.indexOf("id:'sorealIdleNguAideV1'")))]) {
+  /* page NGU rendue par composants Preact (2026-11-18) : les morceaux de texte sont les chaînes des h('p'|'li'|'b', null, '…') ; l'aide Augmentations reste en HTML */
+  const morceaux = source.includes("h('p',null,") ? [...source.matchAll(/'((?:[^'\\]|\\.)*)'/g)].map((m) => m[1]).filter((x) => x.length > 8 && /\s/.test(x))
+    : [...source.matchAll(/'<(?:p|li)>(.*?)<\/(?:p|li)>'/g)].flatMap((m) => m[1].split(/<\/?b>/));
   assert.ok(morceaux.length >= 8);
   for (const m of morceaux.map((x) => x.trim()).filter((x) => x.length > 8 && !x.startsWith("'") && !x.includes("wandoosOk"))) assert.ok(typeof dico[m] === "string", "morceau d'aide sans traduction : " + m.slice(0, 60));
 }

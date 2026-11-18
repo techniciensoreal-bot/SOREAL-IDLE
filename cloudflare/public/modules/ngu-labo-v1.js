@@ -71,7 +71,6 @@ var ETOILES=etoilesHtml_();
  */
 function veutAstres_(onglet,niv){return onglet==='magic';}
 function veutGris_(onglet,niv){return onglet!=='magic';}
-var HTML_ASTRE='<span class="nl-astre" aria-hidden="true"></span><span class="nl-nuages" aria-hidden="true"></span>';
 /*
  * Nuages DESSINÉS (Norman, 2026-11-03 : « il y a encore des lignes droites ; ce ne sont pas des nuages, ce sont des bulles ; le ciel doit avoir le même bleu partout »). Plus aucun masque flou : le gris est un BANC DE CUMULUS en SVG (union de cercles de rayons très différents, en quatre rangées ombrées du gris clair en haut au gris sombre en bas), généré ici
  * par une suite déterministe ; le ciel derrière est UN SEUL bleu uni (--nl-ciel) et quelques petits cumulus blancs FIXES. Chaque ligne d'énergie porte son banc (pseudo-élément ::after, zéro nœud) ; quand elle est alimentée, SEULE l'opacité du banc passe de 1 à 0 en 16 s (formes fixes, aucune échelle), le ciel uni apparaît derrière.
@@ -112,9 +111,7 @@ function blancsUri_(graine){
   return 'data:image/svg+xml,'+encodeURIComponent(svg+'</svg>');
 }
 var BANC_A=bancUri_(3),BANC_B=bancUri_(2),BLANCS=blancsUri_(5);
-var HTML_GRIS='<span class="nl-gris" data-morph-vivant aria-hidden="true"></span>';
 /* Un SEUL soleil pour toute la page Énergie : un nœud posé une fois, jamais un par ligne ; derrière le banc du haut, il se révèle quand ce banc s'efface. Éclat --nl-sol (0 ; 0,7 pour une ligne ; jusqu'à 1 pour quatre lignes ou plus), lissé par @property sur 16 s. */
-var HTML_SOLEIL='<span class="nl-soleil" aria-hidden="true"></span>';
 /* Hauteur du banc du haut = du haut de la page (débord de 100 px) à 130 px sous le haut de la première ligne (son banc recouvre le bas de celui-ci). Mesurée par un ResizeObserver (taille de la page) et quand le banc vient d'être posé ; jamais par une minuterie. */
 function mesurerHaut_(racine){
   var s=racine.querySelector(':scope>.nl-gris'),b=racine.querySelector('.nl-section[data-nl-section="energy"] .nl-barre');
@@ -129,7 +126,6 @@ function attacherMesure_(racine){
   mesurerHaut_(racine);
 }
 function solDe_(nbOuvertes){return nbOuvertes>0?Math.round((0.7+0.3*Math.min(1,(nbOuvertes-1)/3))*100)/100:0;}
-function astresHtml_(onglet,niv){return '<span class="nl-arc" aria-hidden="true"></span>'+(veutAstres_(onglet,niv)?HTML_ASTRE:'')+(veutGris_(onglet,niv)?HTML_SOLEIL+HTML_GRIS:'');}
 /* Lune pleine du thème Halloween de SOREAL APP / TV (sphère jaune pâle éclairée en haut à gauche, ombre en bas à droite, trois cratères), dessinée en SVG statique ; version grise pour le niveau 0. */
 function luneUri_(p){
   var svg="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs>"+
@@ -142,25 +138,6 @@ function luneUri_(p){
 }
 var LUNE_URI=luneUri_(['#fffdf0','#fbeeb4','#e9cf86','#c9a95c','#966e28','#96733a']);
 var LUNE_GRISE_URI=luneUri_(['#eef0f5','#c4c9d4','#9097a8','#5d6376','#2a2e3c','#3a3f50']);
-/* Synchronise le ciel avec l'onglet (changement d'onglet sans redessin) : énergie = couche grise, magie = lune et chauves-souris. Idempotent, aucun fondu ici (les brèches se font en CSS, par ligne). */
-function cielSync_(racine,anime){
-  if(!racine)return;
-  var onglet=racine.getAttribute('data-nl-onglet'),niv=racine.getAttribute('data-nl-niv');
-  var arc=racine.querySelector(':scope>.nl-arc');
-  var gris=racine.querySelector(':scope>.nl-gris');
-  var astre=racine.querySelector(':scope>.nl-astre');
-  if(veutAstres_(onglet,niv)){
-    if(!astre&&arc)arc.insertAdjacentHTML('afterend',HTML_ASTRE);
-  }else if(astre){
-    Array.prototype.forEach.call(racine.querySelectorAll(':scope>.nl-astre,:scope>.nl-nuages'),function(e){e.remove();});
-  }
-  if(veutGris_(onglet,niv)){
-    if(!gris&&arc)arc.insertAdjacentHTML('afterend',HTML_SOLEIL+HTML_GRIS);
-  }else{
-    if(gris)gris.remove();
-    var sol=racine.querySelector(':scope>.nl-soleil');if(sol)sol.remove();
-  }
-}
 /*
  * Aurores boréales (Norman, 2026-10-25 : « fais mieux les aurores boréales, elles sont toutes identiques ») : deux couches SVG différentes (graine, couleurs, vagues, vitesse et sens de dérive) ; chaque couche est faite de plusieurs rubans, chacun un peloton de rayons verticaux
  * de largeur, de hauteur et d'éclat irréguliers (bord haut ondulé, dégradé vers le bas). Les vagues ont un nombre ENTIER de cycles sur 1200 px : la tuile se répète sans raccord et la dérive boucle exactement.
@@ -392,15 +369,20 @@ function fumeeEtat_(spl,p,deplace,maintenant){
 function fumeeVars_(spl,p,pleine){
   return '--nl-p:'+(pleine?1:Math.round(p*1000)/1000)+';--nl-d:'+(pleine?1:fumeeEtat_(spl,p,false,0).d);
 }
-function nuagesHtml_(spl,p,present){
-  var e=fumeeEtat_(spl,p,spl>0,spl>0&&typeof performance!=='undefined'?performance.now():0),o='',k;
-  for(k=0;k<NB_NUAGES;k++)o+='<b'+(present&&e.nuages[k]!=null?' style="left:'+(e.nuages[k]*100)+'%"':' style="left:-30%;visibility:hidden"')+'></b>';
-  return o;
-}
+/*
+ * Rendu par composants Preact (chantier de fluidité, 2026-11-18, AGENTS.md règle n°4) : la page NGU n'est plus une chaîne HTML de ~300 Ko comparée au DOM toutes les 4 s mais un arbre de composants (h(), sans JSX) rendu par modules/vdom-pont-v1.js dans un
+ * conteneur PERSISTANT. Les nœuds (tuyaux, boutons, champs, ciel) restent les mêmes d'un rendu à l'autre, seul ce qui change est touché. Les composants sont PURS : tout se décide dans preparer_(), une fois par rendu.
+ * Ce qui est ANIMÉ à chaque image (liquide, pourcentage, niveau, durée, nuages ; tick_) reste IMPÉRATIF : Preact ne compare qu'avec son propre rendu précédent, jamais avec le DOM, donc une valeur écrite à la main n'est réécrite
+ * que si la valeur du serveur a changé ; les feuilles de texte écrites à la main (pct, niveau, durée, placé) sont des dangerouslySetInnerHTML (aucun nœud de texte que Preact pourrait perdre de vue) ; la fonction `ref` d'un tuyau
+ * (synchroniserBarre_) remet les ancrages du moteur (niveau, progression, instant de départ) à chaque NOUVELLE synchro du serveur, comme le faisait le redessin, et laisse en place le ré-ancrage fait par un clic (rendu local).
+ */
+var P_=window.preact||null;
+var h=P_&&P_.h;
+var ancreCourante=0;   /* instant de réception de la dernière synchro : repère d'un rendu venu du serveur (un rendu local le réutilise) */
 
 /* ---------- un tuyau ---------- */
-/* HTML stable (Norman, 2026-11-02, redessin NGU) : l'instant de départ (data-nl-t0) n'est écrit que pour un tuyau qui progresse (spl > 0 : seul cas où le tick le lit) ; un tuyau à l'arrêt porte toujours 0, donc deux rendus d'un même état sans progression sont identiques et le morph peut ignorer le redessin. */
-function barreHtml_(n,ancre,rang){
+/* Modèle de vue d'un tuyau. L'instant de départ (data-nl-t0) n'est écrit que pour un tuyau qui progresse (spl > 0 : seul cas où le tick le lit) ; un tuyau à l'arrêt porte toujours 0 (HTML stable, Norman 2026-11-02). */
+function barreVm_(n,ancre,rang){
   var c=COULEURS[n.id]||['#9aa5bb','#111111'];
   var niveau=Math.max(0,Math.floor(nombre_(n.level)));
   var alloc=Math.max(0,Math.floor(nombre_(n.allocation)));
@@ -408,31 +390,62 @@ function barreHtml_(n,ancre,rang){
   var spl=n.secondsPerLevel!=null&&isFinite(Number(n.secondsPerLevel))&&Number(n.secondsPerLevel)>0?Number(n.secondsPerLevel):0;
   var cible=Math.max(-1,Math.floor(nombre_(n.target)));
   var pleine=spl>0&&(1/spl)>=49.99;   /* 50 niveaux par seconde : le tuyau rempli de fumée (Norman, 2026-11-04 : « jusque 49, 50 étant le tuyau rempli ») */
-  var effet=(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %';
-  var idH=esc_(n.id);
   var rempli=pleine?1:Math.round(p*1000)/1000;
-  return '<div class="nl-barre'+(alloc>0?' actif':'')+(pleine?' pleine':'')+'" data-nl-ngu="'+idH+'" data-nl-res="'+esc_(n.resource)+'" data-nl-p="'+p+'" data-nl-spl="'+spl+'" data-nl-n="'+niveau+'" data-nl-cible="'+cible+'" data-nl-t0="'+(spl>0?ancre:0)+'"'+(alloc>0||p>0?' data-nl-nuage="1"':'')+' style="--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+';--nl-r:'+(rang||0)+';'+cielVars_(n.id)+'">'+
-    '<div class="nl-tete"><div class="nl-nom">NGU '+esc_(String(n.name||n.id).toUpperCase())+'</div><div class="nl-vit" title="Niveaux gagnés par seconde">⚡ <b>'+vitesseTexte_(spl)+'</b> niv/s</div><div class="nl-niveau">Niveau <b data-nl-niv>'+format_(niveau)+'</b></div></div>'+
-    '<div class="nl-tuyau">'+
-      '<i class="nl-bride g"></i>'+
-      '<div class="nl-tube" style="'+fumeeVars_(spl,rempli,pleine)+'"><i class="nl-liq-in" data-nl-fill style="transform:scaleX('+rempli+')"></i><i class="nl-ciel" aria-hidden="true">'+nuagesHtml_(spl,rempli,alloc>0||p>0)+'</i><span class="nl-pct" data-nl-pct>'+Math.round(rempli*100)+' %</span></div>'+
-      '<i class="nl-bride d"></i>'+
-    '</div>'+
-    '<div class="nl-eta" data-nl-eta>'+etaTexte_(spl,rempli,cible>0&&niveau>=cible,n.resource)+'</div>'+
-    '<div class="nl-infos"><span>'+(n.resource==='magic'?'Magie':'Énergie')+' placée <b data-nl-alloc>'+format_(alloc)+'</b></span>'+
-      '<span class="nl-effet" title="'+esc_(n.effect)+'">'+esc_(n.effect)+' <b>'+effet+'</b></span></div>'+
-    '<div class="nl-actions">'+
-      '<label class="nl-cible"><span>Cible</span><input type="number" inputmode="numeric" min="-1" step="1" value="'+cible+'" title="Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif, -1 = fait passer son énergie au suivant, avec « Faire suivre l’énergie »)" onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.cible(\''+idH+'\',this.value)"></label>'+
-      '<div class="nl-boutons">'+
-        '<button type="button" title="Placer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'plus\')">+</button>'+
-        '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
-        '<button type="button" class="max" title="Placer toute l’énergie ou la magie libre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'max\')">Max</button>'+
-        /* Bouton Cap (lu dans le jeu, build 1260, 2026-11-17 : NGUController::cap / updateCapButton) : présent seulement quand le moteur envoie le plafond (Questing débloqué, comme le jeu : PlayerSettings.beastOn). */
-        (n.plafond!=null?'<button type="button" class="max cap" data-sans-traduction="1" title="Placer le plafond de ce NGU : l’énergie ou la magie qui fait gagner un niveau par tick" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'cap\')">Cap</button>':'')+
-        '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'zero\')">0</button>'+
-      '</div>'+
-    '</div>'+
-  '</div>';
+  var present=alloc>0||p>0;
+  var nu=fumeeEtat_(spl,rempli,spl>0,spl>0&&typeof performance!=='undefined'?performance.now():0).nuages;
+  return {id:n.id,res:n.resource,stamp:ancre,niveau:niveau,niveauTxt:format_(niveau),alloc:alloc,allocTxt:format_(alloc),p:p,spl:spl,cible:cible,pleine:pleine,rempli:rempli,pct:Math.round(rempli*100)+' %',
+    t0:spl>0?ancre:0,nuage:present,nuages:nu,
+    nom:'NGU '+String(n.name||n.id).toUpperCase(),vit:vitesseTexte_(spl),eta:etaTexte_(spl,rempli,cible>0&&niveau>=cible,n.resource),
+    effet:n.effect,effetTxt:(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %',avecCap:n.plafond!=null,
+    style:'--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+';--nl-r:'+(rang||0)+';'+cielVars_(n.id),
+    fumee:fumeeVars_(spl,rempli,pleine),saisie:String(cible)};
+}
+/* Une synchro NOUVELLE du serveur (stamp différent) remet les ancrages et les mémos du tick d'après le modèle ; un rendu local (même stamp : clic sur + / −, onglet) laisse le ré-ancrage fait à la main. */
+function synchroniserBarre_(f,b){
+  if(f.__nlStamp===b.stamp)return;
+  f.__nlStamp=b.stamp;
+  [['data-nl-n',b.niveau],['data-nl-p',b.p],['data-nl-spl',b.spl],['data-nl-cible',b.cible],['data-nl-t0',b.t0]].forEach(function(v){
+    var s=String(v[1]);
+    if(f.getAttribute(v[0])!==s)f.setAttribute(v[0],s);
+  });
+  f.__nlNuages=null;
+  var liq=f.querySelector('[data-nl-fill]'),niv=f.querySelector('[data-nl-niv]'),pct=f.querySelector('[data-nl-pct]'),tube=f.querySelector('.nl-tube');
+  if(liq)liq.removeAttribute('data-nl-v');
+  if(niv){niv.removeAttribute('data-nl-v');if(niv.textContent!==b.niveauTxt)niv.textContent=b.niveauTxt;}
+  if(pct&&pct.textContent!==b.pct)pct.textContent=b.pct;
+  if(tube)tube.__nlD=undefined;
+  Array.prototype.forEach.call(f.querySelectorAll('.nl-ciel b'),function(x){x.__nlV=undefined;});
+}
+function ajusterCmd_(id,mode){var A=window.__SOREAL_IDLE_NGU_LABO_V1__;if(A)A.ajuster(id,mode);}
+function barre_(b){
+  var id=b.id;
+  var boutons=[
+    h('button',{type:'button',title:'Placer la valeur de Input',onClick:function(){ajusterCmd_(id,'plus');}},'+'),
+    h('button',{type:'button',title:'Retirer la valeur de Input',onClick:function(){ajusterCmd_(id,'moins');}},'−'),
+    h('button',{type:'button',class:'max',title:'Placer toute l’énergie ou la magie libre',onClick:function(){ajusterCmd_(id,'max');}},'Max')
+  ];
+  /* Bouton Cap (lu dans le jeu, build 1260, 2026-11-17 : NGUController::cap / updateCapButton) : présent seulement quand le moteur envoie le plafond (Questing débloqué, comme le jeu : PlayerSettings.beastOn). */
+  if(b.avecCap)boutons.push(h('button',{type:'button',class:'max cap','data-sans-traduction':'1',title:'Placer le plafond de ce NGU : l’énergie ou la magie qui fait gagner un niveau par tick',onClick:function(){ajusterCmd_(id,'cap');}},'Cap'));
+  boutons.push(h('button',{type:'button',title:'Retirer toute l’énergie de cette barre',onClick:function(){ajusterCmd_(id,'zero');}},'0'));
+  return h('div',{class:'nl-barre'+(b.alloc>0?' actif':'')+(b.pleine?' pleine':''),'data-nl-ngu':id,'data-nl-res':b.res,'data-nl-p':b.p,'data-nl-spl':b.spl,'data-nl-n':b.niveau,'data-nl-cible':b.cible,'data-nl-t0':b.t0,'data-nl-nuage':b.nuage?'1':undefined,style:b.style,key:id,
+      ref:function(f){if(f)synchroniserBarre_(f,b);}},
+    h('div',{class:'nl-tete'},h('div',{class:'nl-nom'},b.nom),h('div',{class:'nl-vit',title:'Niveaux gagnés par seconde'},'⚡ ',h('b',null,b.vit),' niv/s'),
+      h('div',{class:'nl-niveau'},'Niveau ',h('b',{'data-nl-niv':'',dangerouslySetInnerHTML:{__html:esc_(b.niveauTxt)}}))),
+    h('div',{class:'nl-tuyau'},
+      h('i',{class:'nl-bride g'}),
+      h('div',{class:'nl-tube',style:b.fumee},
+        h('i',{class:'nl-liq-in','data-nl-fill':'',style:'transform:scaleX('+b.rempli+')'}),
+        h('i',{class:'nl-ciel','aria-hidden':'true'},b.nuages.map(function(v,k){return h('b',{key:k,style:b.nuage&&v!=null?'left:'+(v*100)+'%':'left:-30%;visibility:hidden'});})),
+        h('span',{class:'nl-pct','data-nl-pct':'',dangerouslySetInnerHTML:{__html:esc_(b.pct)}})),
+      h('i',{class:'nl-bride d'})),
+    h('div',{class:'nl-eta','data-nl-eta':'',dangerouslySetInnerHTML:{__html:b.eta}}),
+    h('div',{class:'nl-infos'},h('span',null,(b.res==='magic'?'Magie':'Énergie')+' placée ',h('b',{'data-nl-alloc':'',dangerouslySetInnerHTML:{__html:esc_(b.allocTxt)}})),
+      h('span',{class:'nl-effet',title:b.effet},b.effet+' ',h('b',null,b.effetTxt))),
+    h('div',{class:'nl-actions'},
+      h('label',{class:'nl-cible'},h('span',null,'Cible'),
+        h('input',{type:'number',inputmode:'numeric',min:'-1',step:'1',value:b.saisie,'data-nl-cible-champ':id,title:'Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif, -1 = fait passer son énergie au suivant, avec « Faire suivre l’énergie »)',
+          onChange:function(e){var A=window.__SOREAL_IDLE_NGU_LABO_V1__;if(A)A.cible(id,e.currentTarget.value);}})),
+      h('div',{class:'nl-boutons'},boutons)));
 }
 
 /* ---------- page ---------- */
@@ -712,19 +725,19 @@ var CSS=
   cielCss_()+
   '@media(max-width:700px){.nl-v1{padding:12px 8px 16px;border-radius:16px}.nl-grille{padding-left:22px;gap:14px}.nl-nom{font-size:13px}.nl-barre::before{left:-20px;width:22px;top:60px}}';
 
-/* Totaux placés dans les NGU (Norman, 2026-10-09) : un cadre pour l'énergie, un second pour la magie quand elle est débloquée. */
-function totauxHtml_(j){
+/* Totaux placés dans les NGU (Norman, 2026-10-09) : un cadre pour l'énergie, un second pour la magie quand elle est débloquée (HTML du module d'allocation, qui le tient à jour lui-même ; dangerouslySetInnerHTML : réécrit seulement s'il change). */
+function totauxInner_(j){
   var AL=window.__SOREAL_IDLE_ALLOC_V1__;
   if(!AL||typeof AL.compteur!=='function')return '';
   var ng=ngus_(j);
-  return '<div class="nl-ligne nl-totaux">'+AL.compteur('energy','ngu')+(ng&&ng.magicUnlocked?AL.compteur('magic','ngu'):'')+'</div>';
+  return AL.compteur('energy','ngu')+(ng&&ng.magicUnlocked?AL.compteur('magic','ngu'):'');
 }
 
-/* « Cap all » (lu dans le jeu, build 1260, 2026-11-17 : AllNGUController::capAllEnergy / capAllMagic ; visible seulement si PlayerSettings.beastOn, AllNGUController::updateCapMods) : présent seulement quand le moteur envoie le plafond des NGU (Questing débloqué). Partie du HTML de la page : aucun bloc ajouté après coup (règle n°4). */
-function capToutHtml_(j){
-  var l=listeCourante_(j),vu=false,i;
-  for(i=0;i<l.length;i+=1)if(l[i].plafond!=null){vu=true;break;}
-  return vu?'<button type="button" class="nl-large" data-sans-traduction="1" title="Retirer toute l’énergie ou la magie des NGU, puis placer à chacun son plafond (ceux dont la cible est atteinte sont ignorés)" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.capTout()">Cap all</button>':'';
+/* « Cap all » (lu dans le jeu, build 1260, 2026-11-17 : AllNGUController::capAllEnergy / capAllMagic ; visible seulement si PlayerSettings.beastOn, AllNGUController::updateCapMods) : présent seulement quand le moteur envoie le plafond des NGU (Questing débloqué). Partie du rendu de la page : aucun bloc ajouté après coup (règle n°4). */
+function capToutVisible_(j){
+  var l=listeCourante_(j),i;
+  for(i=0;i<l.length;i+=1)if(l[i].plafond!=null)return true;
+  return false;
 }
 function capTout(){
   var H=H_(),P=window.__SOREAL_IDLE_PERSO_PCT_V1__;
@@ -734,43 +747,48 @@ function capTout(){
   envoyer_({action:'capAllNgu',resource:onglet==='magic'?'magic':'energy',modifier:mod});
 }
 
-function barreOutilsHtml_(j){
+/* Barre d'outils : modèle de vue (le champ Input garde ce que l'on y tape : sa valeur est relue dans le DOM, jamais écrasée par un rendu). */
+function outilsVm_(j){
   var el=document.getElementById('sorealIdleAugInputV1');
   /* Le texte déjà dans le champ n'est repris que s'il appartient à CETTE page (redessin des NGU) : arrivant d'un autre menu, le champ encore présent est celui de l'autre page, et son nombre prenait la place de celui des NGU (Norman, 2026-11-01). */
   var valeur=el&&el.value&&el.closest&&el.closest('.nl-v1')?el.value:String(typeof window.__lireMontantAugmentIdleV1__==='function'?window.__lireMontantAugmentIdleV1__():125);
-  var lib=libre_(j,onglet);
-  return '<div class="nl-barre-outils">'+
-    '<div class="soreal-idle-bt-entree-v1 nl-ligne"><div class="nl-ligne-input"><label for="sorealIdleAugInputV1">🎚️ Input</label><input id="sorealIdleAugInputV1" type="text" inputmode="decimal" value="'+esc_(valeur)+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l’énergie idle libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__&amp;&amp;window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)">'+
-      '<span data-nl-libre-label>'+(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(lib)+'</b> '+(onglet==='magic'?'✨':'⚡')+'</span></div></div>'+
-    '<div class="soreal-idle-bt-groupe-v1" data-bt-groupe-v1="'+(onglet==='magic'?'magic':'energy')+'">'+
-    '<div class="nl-ligne" data-nl-plafond="1"><span>'+(onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie')+'</span>'+
-      '<button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',1)">Max</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'cap\',.25)">1/4</button>'+capToutHtml_(j)+'</div>'+
-    '<div class="nl-ligne">'+
-      '<span>💤 Idle</span><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.5)">1/2</button><button type="button" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.preset(\'idle\',.25)">1/4</button>'+
-      '<button type="button" class="nl-large" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.vider(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant())">Tout reprendre</button></div>'+
-    '</div>'+
-    totauxHtml_(j)+
-  '</div>';
+  var magie=onglet==='magic';
+  return {valeur:String(valeur),res:magie?'magic':'energy',libre:magie?'Magie libre':'Énergie libre',libreTxt:format_(libre_(j,onglet)),emoji:magie?'✨':'⚡',plafond:magie?'🔮 Plafond de magie':'⚡ Plafond d’énergie',
+    capTout:capToutVisible_(j),totaux:totauxInner_(j)};
+}
+function presetCmd_(source,fraction){var A=window.__SOREAL_IDLE_NGU_LABO_V1__;if(A)A.preset(source,fraction);}
+function Outils_(o){
+  var pre=function(source,f,txt){return h('button',{type:'button',onClick:function(){presetCmd_(source,f);}},txt);};
+  return h('div',{class:'nl-barre-outils'},
+    h('div',{class:'soreal-idle-bt-entree-v1 nl-ligne'},h('div',{class:'nl-ligne-input'},
+      h('label',{for:'sorealIdleAugInputV1'},'🎚️ Input'),
+      h('input',{id:'sorealIdleAugInputV1',type:'text',inputmode:'decimal',value:o.valeur,title:'Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l’énergie idle libre à la validation)',
+        onInput:function(e){window.__saisirMontantAugmentIdleV1__(e.currentTarget.value);},
+        onBlur:function(e){var el=e.currentTarget;if(window.__resoudreFractionInputIdleV1__)window.__resoudreFractionInputIdleV1__(el);window.__saisirMontantAugmentIdleV1__(el.value);}}),
+      h('span',{'data-nl-libre-label':''},o.libre+' : ',h('b',{id:'sorealIdleNguLibreV1',dangerouslySetInnerHTML:{__html:esc_(o.libreTxt)}}),' '+o.emoji))),
+    h('div',{class:'soreal-idle-bt-groupe-v1','data-bt-groupe-v1':o.res},
+      h('div',{class:'nl-ligne','data-nl-plafond':'1'},h('span',null,o.plafond),pre('cap',1,'Max'),pre('cap',0.5,'1/2'),pre('cap',0.25,'1/4'),
+        o.capTout?h('button',{type:'button',class:'nl-large','data-sans-traduction':'1',title:'Retirer toute l’énergie ou la magie des NGU, puis placer à chacun son plafond (ceux dont la cible est atteinte sont ignorés)',onClick:function(){var A=window.__SOREAL_IDLE_NGU_LABO_V1__;if(A)A.capTout();}},'Cap all'):null),
+      h('div',{class:'nl-ligne'},h('span',null,'💤 Idle'),pre('idle',0.5,'1/2'),pre('idle',0.25,'1/4'),
+        h('button',{type:'button',class:'nl-large',onClick:function(){var A=window.__SOREAL_IDLE_NGU_LABO_V1__;if(A)A.vider(A.ongletCourant());}},'Tout reprendre'))),
+    o.totaux?h('div',{class:'nl-ligne nl-totaux',dangerouslySetInnerHTML:{__html:o.totaux}}):null);
 }
 
-function page(j){
-  var H=H_();
+/* ---------- page ---------- */
+
+/* Modèle de vue de la page entière (null : système verrouillé, aucune page). Les effets de bord (onglet remis sur l'énergie si la magie n'est pas là) se décident ici, jamais dans les composants. */
+function preparer_(j,local){
   var sys=systemeNgu_(j);
-  if(!sys||!sys.state||!sys.state.unlocked){
-    return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
-  }
+  if(!sys||!sys.state||!sys.state.unlocked)return null;
   var ng=ngus_(j);
   var magieOk=Boolean(ng.magicUnlocked);
   if(!magieOk&&onglet==='magic')onglet='energy';
   var liste=listeCourante_(j);
-  var ancre=typeof j.__recuPerfV1==='number'?j.__recuPerfV1:(typeof performance!=='undefined'?performance.now():0);
+  if(!local)ancreCourante=typeof j.__recuPerfV1==='number'?j.__recuPerfV1:(typeof performance!=='undefined'?performance.now():0);
+  var ancre=ancreCourante;
   var nomPalier={normal:'Normal',evil:'Evil',sadistic:'Sadistic'};
   var paliers=Array.isArray(ng.activeTiers)?ng.activeTiers:['normal'];
   var courant=ng.tier||'normal';
-  var chips=paliers.length>1?'<div class="nl-paliers"><span>Palier</span>'+paliers.map(function(t){
-    var actif=t===courant;
-    return '<button type="button" class="nl-btn'+(actif?' actif':'')+'" '+(actif?'disabled':'onclick="window.__actionMetaV47__({action:\'setNguTier\',tier:\''+esc_(t)+'\'})"')+'>'+esc_(nomPalier[t]||t)+'</button>';
-  }).join('')+'</div>':'<div class="nl-paliers"><span>Palier : '+esc_(nomPalier[courant]||courant)+'</span></div>';
   var fx=ng.effects||{};
   var ratio=function(v){return 'x'+format_(Math.max(1,nombre_(v)),2);};
   /* Anti-spoil : les effets des NGU de magie (EXP, Number, Yggdrasil, Time Machine) n'apparaissent qu'une fois la magie découverte. */
@@ -778,47 +796,91 @@ function page(j){
     ['⚔️ Attack/Defense',ratio(fx.attackDefense)],['🗺️ Adventure',ratio(fx.adventure)],['🪙 Gold',ratio(fx.gold)],['🎲 Drop',ratio(fx.dropChance)],
     ['⭐ PP',ratio(fx.pp)],['🦾 Augments',ratio(fx.augments)],['💻 Wandoos',ratio(fx.wandoosSpeed)],
     ['⏳ Respawn','-'+(nombre_(fx.respawnReduction)*100).toFixed(1).replace('.',',')+' %']
-  ].concat(magieOk?[['✨ EXP',ratio(fx.exp)],['🔢 Nombre',ratio(fx.number)],['🌱 Yggdrasil',ratio(fx.yggdrasil)],['⏱️ Time Machine',ratio(fx.timeMachine)]]:[])
-  .map(function(x){return '<div>'+x[0]+'<b>'+x[1]+'</b></div>';}).join('');
+  ].concat(magieOk?[['✨ EXP',ratio(fx.exp)],['🔢 Nombre',ratio(fx.number)],['🌱 Yggdrasil',ratio(fx.yggdrasil)],['⏱️ Time Machine',ratio(fx.timeMachine)]]:[]);
   var avance=ng.advance||{};
   /* Le ciel d'un onglet ne s'éclaire que par SES machines (Norman, 2026-11-03 : « j'ai retiré toute la magie du NGU magie et pourtant les aurores boréales continuent ainsi que les étoiles ») : onglet Magie = les NGU de magie seulement ; onglet Énergie = ceux d'énergie. */
-  var lueurPage_=lueurDe_((ng.tiers&&ng.tiers[ng.tier||'normal']||[]).filter(function(n){return n.resource===onglet&&(n.resource!=='magic'||magieOk);}).map(partDe_));
+  var lueur=lueurDe_((ng.tiers&&ng.tiers[ng.tier||'normal']||[]).filter(function(n){return n.resource===onglet&&(n.resource!=='magic'||magieOk);}).map(partDe_));
+  var nbOuvertes=liste.filter(function(n){return n.resource==='energy'&&nombre_(n.allocation)>0;}).length;
+  var nbEnergie=liste.filter(function(n){return n.resource==='energy';}).length;
+  /* Le champ « Cible » qui a le focus garde ce qu'on y tape (jamais réécrit par un rendu). */
+  var actifEl=typeof document!=='undefined'?document.activeElement:null;
   function section(res){
     var duOnglet=liste.filter(function(n){return n.resource===res;});
-    var tuyaux=duOnglet.map(function(n,i){return barreHtml_(n,ancre,duOnglet.length>1?Math.round(i/(duOnglet.length-1)*1000)/1000:0);}).join('');
-    return '<div class="nl-section" data-nl-section="'+res+'"'+(onglet===res?'':' hidden')+'>'+
-      '<label class="nl-avance"><input type="checkbox" '+(avance[res]?'checked ':'')+'onchange="window.__SOREAL_IDLE_NGU_LABO_V1__.avance(\''+res+'\',this.checked)"> Faire suivre '+(res==='magic'?'la magie':'l’énergie')+'</label>'+
-      '<div class="nl-grille">'+tuyaux+'</div>'+
-    '</div>';
+    var barres=duOnglet.map(function(n,i){
+      var b=barreVm_(n,ancre,duOnglet.length>1?Math.round(i/(duOnglet.length-1)*1000)/1000:0);
+      if(actifEl&&actifEl.getAttribute&&actifEl.getAttribute('data-nl-cible-champ')===b.id)b.saisie=String(actifEl.value);
+      return b;
+    });
+    return {res:res,cache:onglet!==res,coche:Boolean(avance[res]),barres:barres};
   }
-  var nbOuvertes_=liste.filter(function(n){return n.resource==='energy'&&nombre_(n.allocation)>0;}).length;
-  var nbEnergie_=liste.filter(function(n){return n.resource==='energy';}).length;
-  var html=
-    '<style>'+CSS+'</style>'+
-    '<div class="nl-v1" data-nl-racine data-nl-onglet="'+onglet+'" data-nl-actif="'+(liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0')+'" data-nl-niv="'+nivDe_(lueurPage_)+'" data-nl-ouvert="'+(nbOuvertes_>0?'1':'0')+'" data-nl-tout="'+(nbOuvertes_>0&&nbOuvertes_===nbEnergie_?'1':'0')+'" style="--nl-lueur:'+lueurPage_.toFixed(3)+';--nl-sol:'+solDe_(nbOuvertes_)+'">'+astresHtml_(onglet,nivDe_(lueurPage_))+
-      '<div class="nl-haut">'+
-        '<button type="button" class="nl-btn" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.aide()">Je fais quoi ?</button>'+
-        (magieOk?'<button type="button" class="nl-btn" data-nl-onglet-btn onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.onglet(window.__SOREAL_IDLE_NGU_LABO_V1__.ongletCourant()===\'magic\'?\'energy\':\'magic\')">'+(onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie')+'</button>':'')+
-      '</div>'+
-      '<div class="nl-aide" id="sorealIdleNguAideV1"'+(aideOuverte?'':' hidden')+'>'+
-        '<p><b>C’est quoi ?</b> Les NGU sont des entraîneurs : tu leur confies de l’énergie (et de la magie), ils font le sport pour toi. Chaque tuyau se remplit de lumière : quand il est plein, le NGU gagne un niveau et son bonus augmente.</p>'+
-        '<ol>'+
-          '<li><b>Place de l’énergie.</b> Dans un tuyau, avec +. La quantité est celle de la case Input (Max, 1/2 et 1/4 la remplissent), et − la retire.</li>'+
-          '<li><b>Chacun son énergie.</b> Les NGU avancent en même temps, chacun avec sa propre énergie : plus tu en donnes, plus son tuyau se remplit vite.</li>'+
-          '<li><b>Cible.</b> Le niveau à atteindre. Dès qu’il est atteint, l’énergie du NGU te revient (0 = aucun objectif ; -1 = ce NGU fait passer son énergie au suivant, avec « Faire suivre l’énergie »).</li>'+
-          '<li><b>Faire suivre l’énergie.</b> Quand un NGU atteint sa cible, son énergie passe automatiquement au NGU suivant, comme un relais.</li>'+
-          '<li><b>Renaissance.</b> Les niveaux persistent à travers les Renaissances ; l’énergie et la magie placées te sont rendues à la Renaissance.</li>'+
-          (paliers.length>1?'<li><b>Paliers.</b> Un seul palier reçoit de l’énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.</li>':'')+
-        '</ol>'+
-      '</div>'+
-      chips+
-      barreOutilsHtml_(j)+
-      section('energy')+
-      (magieOk?section('magic'):'')+
-      '<details class="nl-resume"'+(resumeOuvert?' open':'')+' ontoggle="window.__SOREAL_IDLE_NGU_LABO_V1__.resume(this.open)"><summary>Effets de tous tes NGU</summary><div class="nl-resume-grille">'+resume+'</div></details>'+
-    '</div>';
+  return {onglet:onglet,magieOk:magieOk,niv:nivDe_(lueur),actif:liste.some(function(n){return nombre_(n.allocation)>0;})?'1':'0',ouvert:nbOuvertes>0?'1':'0',tout:nbOuvertes>0&&nbOuvertes===nbEnergie?'1':'0',
+    lueur:lueur.toFixed(3),sol:solDe_(nbOuvertes),aide:aideOuverte,resumeOuvert:resumeOuvert,
+    paliers:paliers.map(function(t){return {t:t,label:nomPalier[t]||t,actif:t===courant};}),palierSeul:paliers.length>1?null:(nomPalier[courant]||courant),plusieurs:paliers.length>1,
+    outils:outilsVm_(j),sections:[section('energy')].concat(magieOk?[section('magic')]:[]),resume:resume};
+}
+/* Ciel : l'arc, puis l'astre et les nuages (nuit) ou le soleil et le banc gris (jour), selon l'ONGLET seulement ; rendu par Preact, jamais ajouté ni retiré à la main. */
+function Ciel_(onglet){
+  var nuit=veutAstres_(onglet),jour=veutGris_(onglet);
+  return [h('span',{class:'nl-arc','aria-hidden':'true',key:'arc'}),
+    nuit?h('span',{class:'nl-astre','aria-hidden':'true',key:'astre'}):null,nuit?h('span',{class:'nl-nuages','aria-hidden':'true',key:'nuages'}):null,
+    jour?h('span',{class:'nl-soleil','aria-hidden':'true',key:'soleil'}):null,jour?h('span',{class:'nl-gris','data-morph-vivant':'','aria-hidden':'true',key:'gris'}):null];
+}
+function Page_(vm){
+  var Fr=P_.Fragment;
+  var chips=vm.plusieurs?h('div',{class:'nl-paliers'},h('span',null,'Palier'),vm.paliers.map(function(p){
+    return h('button',{type:'button',class:'nl-btn'+(p.actif?' actif':''),key:p.t,disabled:p.actif,onClick:p.actif?undefined:function(){window.__actionMetaV47__({action:'setNguTier',tier:p.t});}},p.label);
+  })):h('div',{class:'nl-paliers'},h('span',null,'Palier : '+vm.palierSeul));
+  return h(Fr,null,
+    h('style',{dangerouslySetInnerHTML:{__html:CSS}}),
+    h('div',{class:'nl-v1','data-nl-racine':'','data-nl-onglet':vm.onglet,'data-nl-actif':vm.actif,'data-nl-niv':String(vm.niv),'data-nl-ouvert':vm.ouvert,'data-nl-tout':vm.tout,style:'--nl-lueur:'+vm.lueur+';--nl-sol:'+vm.sol},
+      Ciel_(vm.onglet),
+      h('div',{class:'nl-haut'},
+        h('button',{type:'button',class:'nl-btn',onClick:function(){window.__SOREAL_IDLE_NGU_LABO_V1__.aide();}},'Je fais quoi ?'),
+        vm.magieOk?h('button',{type:'button',class:'nl-btn','data-nl-onglet-btn':'',onClick:function(){var A=window.__SOREAL_IDLE_NGU_LABO_V1__;A.onglet(A.ongletCourant()==='magic'?'energy':'magic');}},vm.onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie'):null),
+      h('div',{class:'nl-aide',id:'sorealIdleNguAideV1',hidden:!vm.aide},
+        h('p',null,h('b',null,'C’est quoi ?'),' Les NGU sont des entraîneurs : tu leur confies de l’énergie (et de la magie), ils font le sport pour toi. Chaque tuyau se remplit de lumière : quand il est plein, le NGU gagne un niveau et son bonus augmente.'),
+        h('ol',null,
+          h('li',null,h('b',null,'Place de l’énergie.'),' Dans un tuyau, avec +. La quantité est celle de la case Input (Max, 1/2 et 1/4 la remplissent), et − la retire.'),
+          h('li',null,h('b',null,'Chacun son énergie.'),' Les NGU avancent en même temps, chacun avec sa propre énergie : plus tu en donnes, plus son tuyau se remplit vite.'),
+          h('li',null,h('b',null,'Cible.'),' Le niveau à atteindre. Dès qu’il est atteint, l’énergie du NGU te revient (0 = aucun objectif ; -1 = ce NGU fait passer son énergie au suivant, avec « Faire suivre l’énergie »).'),
+          h('li',null,h('b',null,'Faire suivre l’énergie.'),' Quand un NGU atteint sa cible, son énergie passe automatiquement au NGU suivant, comme un relais.'),
+          h('li',null,h('b',null,'Renaissance.'),' Les niveaux persistent à travers les Renaissances ; l’énergie et la magie placées te sont rendues à la Renaissance.'),
+          vm.plusieurs?h('li',null,h('b',null,'Paliers.'),' Un seul palier reçoit de l’énergie et de la magie à la fois ; les effets des paliers débloqués se multiplient.'):null)),
+      chips,
+      h(Outils_,vm.outils),
+      vm.sections.map(function(s){
+        return h('div',{class:'nl-section','data-nl-section':s.res,hidden:s.cache,key:s.res},
+          h('label',{class:'nl-avance'},h('input',{type:'checkbox',checked:s.coche,onChange:function(e){window.__SOREAL_IDLE_NGU_LABO_V1__.avance(s.res,e.currentTarget.checked);}}),' Faire suivre '+(s.res==='magic'?'la magie':'l’énergie')),
+          h('div',{class:'nl-grille'},s.barres.map(barre_)));
+      }),
+      h('details',{class:'nl-resume',open:vm.resumeOuvert,onToggle:function(e){window.__SOREAL_IDLE_NGU_LABO_V1__.resume(e.currentTarget.open);}},
+        h('summary',null,'Effets de tous tes NGU'),h('div',{class:'nl-resume-grille'},vm.resume.map(function(x){return h('div',{key:x[0]},x[0],h('b',null,x[1]));})))));
+}
+var VIDE_='<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+/* Entrée de la page : le modèle est confié au pont, qui rend le composant dans un conteneur persistant et renvoie la chaîne STABLE à mettre dans la page. */
+function page(j){
+  var V=window.__SOREAL_IDLE_VDOM_V1__;
+  var vm=preparer_(j,false);
+  if(!vm)return VIDE_;
+  if(!h||!V)return VIDE_;
   demarrer_();
-  return html;
+  return V.monter('ngu',Page_,vm);
+}
+/* Rendu synchrone vers une chaîne HTML (tests, débogage) : jamais utilisé par la page. */
+function html(j){
+  var V=window.__SOREAL_IDLE_VDOM_V1__;
+  var vm=preparer_(j,false);
+  if(!vm)return VIDE_;
+  return h&&V?V.rendreHtml(Page_,vm):'';
+}
+/* Nouveau rendu LOCAL (clic sur + / −, onglet, aide), sans attendre le serveur ni redessiner le menu : mêmes données que la synchro en cours (ancrage conservé). Faux si la page n'est pas affichée. */
+function rerendre_(){
+  var V=window.__SOREAL_IDLE_VDOM_V1__,Hh=H_(),j=Hh&&Hh.getIdleEtat&&Hh.getIdleEtat();
+  if(!V||!h||!j||!document.querySelector('[data-vdom="ngu"]'))return false;
+  var vm=preparer_(j,true);
+  if(!vm)return false;
+  V.monter('ngu',Page_,vm);
+  return true;
 }
 
 /* ---------- vie des tuyaux : progression rejouée en direct ---------- */
@@ -885,7 +947,8 @@ function tick_(){
   var ongletCiel=racine.getAttribute('data-nl-onglet')||'energy';
   var parts=Array.prototype.map.call(racine.querySelectorAll('.nl-section[data-nl-section="'+ongletCiel+'"] [data-nl-ngu]'),function(f){return f.classList.contains('pleine')?1:(Number(f.dataset.nlSpl)>0?.5:0);});
   var lueur=lueurDe_(parts),niv=String(nivDe_(lueur));
-  if(racine.getAttribute('data-nl-niv')!==niv){racine.setAttribute('data-nl-niv',niv);cielSync_(racine,true);}
+  /* Le ciel (soleil, banc gris, lune…) suit l'ONGLET et est rendu par Preact (Ciel_) : le tick n'écrit que le niveau de lumière. */
+  if(racine.getAttribute('data-nl-niv')!==niv)racine.setAttribute('data-nl-niv',niv);
   var lv=lueur.toFixed(3);
   if(racine.style.getPropertyValue('--nl-lueur')!==lv)racine.style.setProperty('--nl-lueur',lv);
   }
@@ -1011,12 +1074,9 @@ function ajuster(id,mode){
   systemeAlloc_(j,res,delta);
   if(res==='magic'){var m=ressourceMagie_(j);if(m)m.current=Math.max(0,nombre_(m.current)-delta);}
   else j.energie=Math.max(0,nombre_(j.energie)-delta);
-  if(f){
-    reancrer_(f,splNouveau);
-    f.classList.toggle('actif',valeur>0);
-    var a=f.querySelector('[data-nl-alloc]');
-    if(a)a.textContent=format_(valeur);
-  }
+  if(f)reancrer_(f,splNouveau);
+  /* La classe « actif », le montant placé et l'Input libre viennent du rendu local (mêmes données que le serveur, jamais écrits à la main) ; ancrage et nuages sont recalés tout de suite. */
+  rendreLocal_();
   majLibre_(j);
   if(H.rafraichirEnergieEtBoutonsIdleV9_)H.rafraichirEnergieEtBoutonsIdleV9_();
   envoyer_({action:'allocateNgu',ngu:id,value:valeur});
@@ -1037,9 +1097,10 @@ function vider(res){
     if(res==='magic'){var m=ressourceMagie_(j);if(m)m.current=nombre_(m.current)+courant;}
     else j.energie=nombre_(j.energie)+courant;
     var f=document.querySelector('[data-nl-ngu="'+n.id+'"]');
-    if(f){reancrer_(f,0);f.classList.remove('actif');var a=f.querySelector('[data-nl-alloc]');if(a)a.textContent=format_(0);}
+    if(f)reancrer_(f,0);
     envoyer_({action:'allocateNgu',ngu:n.id,value:0});
   });
+  rendreLocal_();
   majLibre_(j);
   if(H&&H.rafraichirEnergieEtBoutonsIdleV9_)H.rafraichirEnergieEtBoutonsIdleV9_();
 }
@@ -1050,28 +1111,26 @@ function cible(id,valeur){
   if(d)d.target=n;
   var f=document.querySelector('[data-nl-ngu="'+id+'"]');
   if(f)f.dataset.nlCible=String(n);
+  rendreLocal_();
   envoyer_({action:'setNguTarget',ngu:id,value:n});
 }
 function avance(res,coche){
   var j=H_()&&H_().getIdleEtat?H_().getIdleEtat():null;
   var ng=ngus_(j);
   if(ng){ng.advance=Object.assign({},ng.advance,{[res]:Boolean(coche)});}
+  rendreLocal_();
   envoyer_({action:'setNguAdvance',resource:res,enabled:Boolean(coche)});
 }
 function changerOnglet(res){
   onglet=res==='magic'?'magic':'energy';
-  var racine=document.querySelector('[data-nl-racine]');
-  if(!racine)return;
-  racine.setAttribute('data-nl-onglet',onglet);
-  cielSync_(racine,false);
-  Array.prototype.forEach.call(racine.querySelectorAll('[data-nl-section]'),function(s){s.hidden=s.getAttribute('data-nl-section')!==onglet;});
-  var b=racine.querySelector('[data-nl-onglet-btn]');
-  if(b)b.textContent=onglet==='magic'?'Vers les NGU d’énergie':'Vers les NGU de magie';
-  var j=H_()&&H_().getIdleEtat?H_().getIdleEtat():null;
-  var lab=racine.querySelector('[data-nl-libre-label]');
-  if(lab)lab.innerHTML=(onglet==='magic'?'Magie libre':'Énergie libre')+' : <b id="sorealIdleNguLibreV1">'+format_(libre_(j,onglet))+'</b> '+(onglet==='magic'?'✨':'⚡');
-  var presets=racine.querySelector('.nl-barre-outils [data-nl-plafond]>span');
-  if(presets)presets.textContent=onglet==='magic'?'🔮 Plafond de magie':'⚡ Plafond d’énergie';
+  /* Section visible, bouton, ciel, libellés « libre » et « plafond » : tout vient du rendu local (changement d'onglet sans attendre le serveur, sans redessiner le menu). */
+  rendreLocal_();
+}
+/* Rendu local suivi d'un tour de la boucle d'animation (même tâche : aucune image peinte entre les deux). */
+function rendreLocal_(){
+  if(!rerendre_())return false;
+  apresRedessin_();
+  return true;
 }
 function preset(source,fraction){
   var H=H_();
@@ -1105,7 +1164,8 @@ window.__SOREAL_IDLE_NGU_LABO_V1__={
   resume:function(o){resumeOuvert=Boolean(o);},
   page:page,
   couleurs:COULEURS,
-  aide:function(){var el=document.getElementById('sorealIdleNguAideV1');if(el){el.hidden=!el.hidden;aideOuverte=!el.hidden;}},
+  aide:function(){aideOuverte=!aideOuverte;if(!rendreLocal_()){var el=document.getElementById('sorealIdleNguAideV1');if(el)el.hidden=!aideOuverte;}},
+  html:html,
   ajuster:ajuster,capTout:capTout,cible:cible,avance:avance,onglet:changerOnglet,vider:vider,preset:preset,
   ongletCourant:function(){return onglet;},
   /* Pour les tests : la progression d'un tuyau à un instant donné (mêmes formules que tick_). */

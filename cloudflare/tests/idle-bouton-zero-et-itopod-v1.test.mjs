@@ -21,7 +21,7 @@ assert.ok(meta.includes("['zero','0']") && meta.includes(":mode==='zero'?0:curre
 assert.ok(meta.includes("__ajusterTimeMachineIdleV1__(''+ressource+'','zero')") && meta.includes(":mode==='zero'?0:Math.max(current,"), "Time Machine");
 assert.ok(meta.includes("__ajusterAdvancedTrainingIdleV1__(''+idH+'','zero')") && meta.includes("mode==='zero'?0:mode==='max'?courant+libre:mode==='plus'"), "Entraînement avancé");
 assert.ok(blood.includes("__ajusterRituelBloodMagicIdleV1__(''+idHtml+'','zero')") && blood.includes(":mode==='zero'?0:current+idleAvant"), "Rituels de Blood Magic");
-assert.ok(ngu.includes("ajuster(''+idH+'','zero')") && ngu.includes("valeur=mode==='zero'?0:"), "NGU");
+assert.ok(ngu.includes("ajusterCmd_(id,'zero')") && ngu.includes("valeur=mode==='zero'?0:"), "NGU");
 assert.ok(meta.includes("ajusterVoeu('+argsVoeu+''zero''") && alloc.includes("var valeur=mode==='zero'?0:mode==='max'"), "Souhaits");
 // Entraînement de base : « 0 » ne retire que la barre touchée
 assert.ok(ui.includes("plan={a:0,b:0};"), "« 0 » ne retire que cette barre");

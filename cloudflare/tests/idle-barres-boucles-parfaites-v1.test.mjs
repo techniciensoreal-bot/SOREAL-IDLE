@@ -53,7 +53,7 @@ console.log("idle-barres-boucles-parfaites-v1: OK");
 {
   const ngu = (await import("node:fs")).readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8");
   const assertNgu = (await import("node:assert/strict")).default;
-  assertNgu.ok(ngu.includes("var NB_NUAGES=12,LARG_NUAGE=118;") && ngu.includes("function fumeeEtat_(spl,p,deplace,maintenant)") && ngu.includes("function nuagesHtml_") && ngu.includes("function majNuages_"), "nuages : une réserve fixe de nuages placés par le tick");
+  assertNgu.ok(ngu.includes("var NB_NUAGES=12,LARG_NUAGE=118;") && ngu.includes("function fumeeEtat_(spl,p,deplace,maintenant)") && ngu.includes("b.nuages.map(function(v,k){return h('b',{key:k") && ngu.includes("function majNuages_"), "nuages : une réserve fixe de nuages placés par le tick");
   assertNgu.ok(!ngu.includes("@keyframes nlFumee"), "plus de voile de fumée en boucle CSS");
   assertNgu.ok(ngu.includes("@keyframes nlScint{0%,100%{opacity:.3}50%{opacity:1}}"), "étoiles : même opacité au début et à la fin du cycle");
   assertNgu.ok(ngu.includes(".nl-barre.pleine"), "au cap : tube plein");

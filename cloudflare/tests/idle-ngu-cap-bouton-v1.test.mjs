@@ -55,8 +55,8 @@ assert.equal(nguPlafondAllocationV1(2e11, 9, 1e9, 1), 50 * 2e11 * 10 / 1e9);
 
 // Client : bouton visible seulement avec le plafond du moteur ; placement lu dans NGUController::cap.
 const src = fs.readFileSync(new URL("../public/modules/ngu-labo-v1.js", import.meta.url), "utf8");
-assert.ok(/n\.plafond!=null\?'<button[^']*class="max cap"/.test(src), "bouton Cap conditionné au plafond envoyé par le moteur");
-assert.ok(src.includes(String.raw`ajuster(\''+idH+'\',\'cap\')`));
+assert.ok(/avecCap:n\.plafond!=null/.test(src) && /if\(b\.avecCap\)boutons\.push\(h\('button',\{type:'button',class:'max cap'/.test(src), "bouton Cap conditionné au plafond envoyé par le moteur");
+assert.ok(src.includes("onClick:function(){ajusterCmd_(id,'cap');}"));
 assert.ok(src.includes("1.0000020265579224") && src.includes("Math.ceil(pl/libreTotal)"), "règle de placement du jeu");
 assert.ok(!/baseCost/.test(src), "aucune formule de vitesse dupliquée côté client");
 assert.ok(fs.readFileSync(new URL("../public/modules/perso-boutons-v1.js", import.meta.url), "utf8").includes("pourcentNguEffectif"));
@@ -97,7 +97,7 @@ assert.equal(nguMontantCapV1(1000, 1, 5000), Math.floor(Math.fround(1000 * Math.
 assert.equal(nguMontantCapV1(1000, 1, 10), 10);
 assert.equal(nguMontantCapV1(0.5, 1, 99), 2, "plafond au moins 1, puis +1");
 // Client : bouton Cap all conditionné au plafond, action du moteur ; le Max n'applique plus le NGU Cap Modifier.
-assert.ok(src.includes("capToutHtml_(j)") && src.includes("action:'capAllNgu'") && src.includes("l[i].plafond!=null"));
+assert.ok(src.includes("capToutVisible_(j)") && src.includes("action:'capAllNgu'") && src.includes("l[i].plafond!=null"));
 const perso = fs.readFileSync(new URL("../public/modules/perso-boutons-v1.js", import.meta.url), "utf8");
 assert.ok(!perso.includes("ngu.preset('cap',pourcentNgu_()/100)"), "le bouton Max n'est plus modifié par le NGU Cap Modifier");
 assert.ok(d["Cap all"]);

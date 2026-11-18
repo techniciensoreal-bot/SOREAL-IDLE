@@ -10,7 +10,7 @@ const ui = lireUiComplet(), meta = lire("modules/meta-progression-v130.js") + li
 assert.ok(bm.includes('<input id="sorealIdleBloodInputV1" type="text" inputmode="decimal" '), "Input de Blood Magic");
 assert.equal((meta.match(/<input id="sorealIdleAugInputV1" type="text" inputmode="decimal" /g) || []).length, 2, "Input des Augmentations (deux rendus)");
 assert.ok(meta.includes('<input id="sorealIdleTmInputV1" type="text" inputmode="decimal" '), "Input de la Machine temporelle");
-assert.ok(ngu.includes('<input id="sorealIdleAugInputV1" type="text" inputmode="decimal" '), "Input des NGU");
+assert.ok(ngu.includes("h('input',{id:'sorealIdleAugInputV1',type:'text',inputmode:'decimal',"), "Input des NGU");   /* rendu par composants Preact (2026-11-18) */
 assert.ok(alloc.includes('type="text" inputmode="decimal" '), "Input des barres d'allocation");
 assert.ok(/id="sorealIdleTrainingInputV120"\s+type="text"\s+inputmode="decimal"/.test(ui), "Input de Basic Training");
 assert.ok(perso.includes('type="text" inputmode="decimal"'), "fenêtre de saisie des boutons personnalisés");

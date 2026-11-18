@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { PAGES_META } from "./_meta-pages.mjs";
+import { preparerNgu, monterNgu, htmlNgu } from "./_ngu-vdom.mjs";
+import { evenement } from "./_faux-dom-vdom.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import {
@@ -31,6 +33,10 @@ const window = {
   __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v == null ? "" : v) },
   document: { getElementById() { return null; } }
 };
+/* Page NGU rendue par composants Preact (2026-11-18) : faux DOM, vrai Preact et vrai pont, préparés avant le chargement du module. */
+const actionsMeta = [];
+window.__actionMetaV47__ = (p) => actionsMeta.push(p);
+preparerNgu(window);
 /* La page NGU est celle du laboratoire (modules/ngu-labo-v1.js), appelée par la page générique. */
 vm.runInNewContext(readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8"), { window, document: window.document, setInterval: () => 1, clearInterval() {}, performance: { now: () => 5000 } });
 {
@@ -61,17 +67,35 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
 
 {
   const snap = idleNguSnapshot(state, context, 1_000_000);
-  const html = page({ systemes: snap }, "ngu", "NGU");
+  const html = htmlNgu(window, { systemes: snap });
   for (const nom of ["Augments", "Wandoos", "Respawn", "Gold", "Adventure α", "Power α", "Drop Chance", "Magic NGU", "PP",
     "Yggdrasil", "EXP", "Power β", "Number", "Time Machine", "Energy NGU", "Adventure β"]) {
     assert.ok(html.includes("NGU " + nom.toUpperCase()), "NGU manquant dans la page : " + nom);
   }
   assert.equal((html.match(/<div class="nl-barre[^"]*" data-nl-ngu="/g) || []).length, 16, "un tuyau par NGU");
-  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.ajuster\(/g) || []).length, 16 * 4, "boutons + − Max et 0 sur chaque tuyau (2026-10-09)");
-  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.cible\(/g) || []).length, 16, "un champ Target par tuyau");
-  assert.equal((html.match(/__SOREAL_IDLE_NGU_LABO_V1__\.avance\(/g) || []).length, 2, "Advance Energy et Faire suivre la magie");
+  /* Boutons et champs branchés (clic -> API du module, relue à l'exécution comme l'ancien onclick) : + − Max et 0 sur chaque tuyau (2026-10-09), un champ Target par tuyau, Advance Energy et Faire suivre la magie. */
+  monterNgu(window, { systemes: snap });
+  const API = window.__SOREAL_IDLE_NGU_LABO_V1__, doc = window.document;
+  const appels = [], reels = { ajuster: API.ajuster, cible: API.cible, avance: API.avance };
+  API.ajuster = (id, mode) => appels.push(["ajuster", id, mode]);
+  API.cible = (id, v) => appels.push(["cible", id, v]);
+  API.avance = (res, coche) => appels.push(["avance", res, coche]);
+  const boutons = doc.querySelectorAll(".nl-barre .nl-boutons button");
+  assert.equal(boutons.length, 16 * 4, "boutons + − Max et 0 sur chaque tuyau (2026-10-09)");
+  boutons.forEach((b) => evenement(b, "click"));
+  assert.equal(appels.filter((a) => a[0] === "ajuster").length, 64, "chaque bouton appelle ajuster");
+  assert.deepEqual([...new Set(appels.map((a) => a[2]))].sort(), ["max", "moins", "plus", "zero"], "les quatre modes");
+  const champs = doc.querySelectorAll(".nl-barre .nl-cible input");
+  assert.equal(champs.length, 16, "un champ Target par tuyau");
+  champs.forEach((c) => evenement(c, "change"));
+  assert.equal(appels.filter((a) => a[0] === "cible").length, 16, "chaque champ Target appelle cible");
+  const coches = doc.querySelectorAll(".nl-avance input");
+  assert.equal(coches.length, 2, "Advance Energy et Faire suivre la magie");
+  coches.forEach((c) => evenement(c, "change"));
+  assert.equal(appels.filter((a) => a[0] === "avance").map((a) => a[1]).join(), "energy,magic", "les deux cases appellent avance");
+  Object.assign(API, reels);
   assert.ok(html.includes("Vers les NGU de magie") && html.includes("Je fais quoi ?"), "boutons de l'écran d'origine");
-  assert.ok(html.includes("data-nl-niv>120<"), "niveau du NGU Power α");
+  assert.ok(html.includes('data-nl-niv="">120<'), "niveau du NGU Power α");
   assert.ok(html.includes("+600 %"), "Power α niveau 120 : 120 x 5 % = 600 %");
   assert.ok(!html.includes("setNguTier"), "en difficulté Normal, un seul palier : pas de bouton de changement");
   assert.ok(html.includes("Normal"), "le palier courant est indiqué");
@@ -87,7 +111,7 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
 {
   const snap = idleNguSnapshot(state, context, 1_000_000);
   snap.ngus.magicUnlocked = false;
-  const html = page({ systemes: snap }, "ngu", "NGU");
+  const html = htmlNgu(window, { systemes: snap });
   assert.equal((html.match(/<div class="nl-barre[^"]*" data-nl-ngu="/g) || []).length, 9, "seulement les 9 NGU d'énergie");
   assert.ok(!/YGGDRASIL|POWER Β|TIME MACHINE|ENERGY NGU|ADVENTURE Β/i.test(html.replace(/POWER Α|ADVENTURE Α/gi, "")), "aucun nom de NGU de magie");
   assert.ok(!html.includes("Vers les NGU de magie") && !html.includes("Faire suivre la magie"), "ni bouton ni case de magie");
@@ -97,8 +121,12 @@ state.systems.ngu.data.ngus.normal.powerAlpha.level = 120;
 {
   state.difficulty = "difficile";
   const snap = idleNguSnapshot(state, context, 1_000_000);
-  const html = page({ systemes: snap }, "ngu", "NGU");
-  assert.ok(html.includes("setNguTier") && html.includes("Evil"), "palier Evil sélectionnable en difficulté Evil");
+  const html = htmlNgu(window, { systemes: snap });
+  monterNgu(window, { systemes: snap });
+  const evil = window.document.querySelectorAll(".nl-paliers button").find((b) => b.textContent === "Evil");
+  assert.ok(html.includes("Evil") && evil && !evil.hasAttribute("disabled"), "palier Evil sélectionnable en difficulté Evil");
+  evenement(evil, "click");
+  assert.equal(JSON.stringify(actionsMeta.pop()), JSON.stringify({ action: "setNguTier", tier: "evil" }), "le bouton Evil envoie setNguTier");
 }
 
 console.log("idle-ngu-page-render: OK");
