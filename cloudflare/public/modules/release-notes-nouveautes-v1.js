@@ -3,7 +3,5 @@
  * FICHIER GÉNÉRÉ par `node cloudflare/tools/marquer-nouveautes-push.mjs` (à lancer avant le commit d'un push ; la liste est remplacée, jamais cumulée). Ne pas l'éditer à la main.
  */
 (function(){
-  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Changer de menu est plus rapide sur téléphone : les mesures d’affichage sont regroupées au lieu d’être refaites plusieurs fois de suite."
-  ] };
+  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [] };
 })();

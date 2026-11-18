@@ -90,7 +90,7 @@ const corps = (src, debut, fin) => { const a = src.indexOf(debut); assert.ok(a >
   const copie = corps(amor, "let cleCopiePvV1=", "window.__SOREAL_IDLE_COPIER_STYLE_PV_V1__");
   assert.ok(copie.includes("new ResizeObserver") && copie.includes("if(copieStylePvFaiteV1&&cle===cleCopiePvV1&&!tailleChangeePvV1)return;"), "ui-amorcage : la copie du style de la barre de vie n'est refaite que si la clé ou la taille change");
   const nav = corps(amor, "function planifier(){if(attente)return;", "window.__ajusterMenuHauteurIdleV1__=ajuster;");
-  assert.ok(nav.includes("push(planifier)"), "ui-amorcage : après un redessin, la mesure du menu est planifiée (image suivante), pas lue sur place");
+  assert.ok(nav.includes("nav!==navPlanifie||!nav.style.getPropertyValue('--nav-dispo'))){navPlanifie=nav;planifier();}") && !nav.includes("push(planifier)"), "ui-amorcage : après un redessin, la mesure du menu n'est planifiée (image suivante) que si le menu est neuf ou a perdu sa variable, jamais lue sur place");
   const filet = corps(amor, "window.__ajusterMenuHauteurIdleV1__=ajuster;", "}else setInterval(ajuster,1500);");
   assert.ok(filet.includes("new ResizeObserver") && !/setInterval\(ajuster/.test(filet) && filet.includes("--nav-dispo"), "ui-amorcage : menu mesuré par ResizeObserver ; le filet de 1,5 s ne lit aucune mise en page");
 

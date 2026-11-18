@@ -534,7 +534,12 @@ function __amorcer_193(){
         window.addEventListener('resize',planifier);
         /* Reflow forcé (trace Chrome du 2026-11-03) : l'appel direct après chaque redessin et le filet de 1,5 s lisaient le rectangle du menu juste après des écritures. Le haut du menu ne bouge que si la page défile, si la fenêtre change de taille ou si le
            menu / son conteneur / le document changent de taille : le défilement et resize planifient déjà la lecture (image suivante), un ResizeObserver (rappel exécuté APRÈS la mise en page : lecture gratuite) couvre les changements de taille. */
-        (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(planifier);
+        /* Après un redessin : une mesure (image suivante) SEULEMENT si le menu est neuf ou a perdu sa variable. Un redessin qui laisse le menu en place ne change pas son haut (défilement, redimensionnement et taille du menu, de son conteneur ou du document sont déjà couverts) : la lire à chaque redessin forçait une mise en page de plus par changement de menu (2026-11-18, mesuré : 8 lectures pour 6 changements). */
+        let navPlanifie=null;
+        (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){
+          const nav=document.querySelector('.soreal-idle-native-v4>.soreal-idle-nav-v28');
+          if(nav&&(nav!==navPlanifie||!nav.style.getPropertyValue('--nav-dispo'))){navPlanifie=nav;planifier();}
+        });
         window.__ajusterMenuHauteurIdleV1__=ajuster;
         if(typeof ResizeObserver==='function'){
           let navVue=null;
