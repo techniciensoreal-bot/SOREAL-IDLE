@@ -3,6 +3,8 @@ import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { preparerVdom } from "./_ygg-vdom.mjs";
+import { deplierVdom } from "./_vdom-html.mjs";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
 /*
@@ -36,16 +38,17 @@ const window = {
 const els = {};
 const elBarre = { attrs: {}, className: "", getAttribute(k) { return this.attrs[k] ?? null; }, setAttribute(k, v) { this.attrs[k] = v; if (k === "style") this.style = v; } };
 const elLegende = { textContent: "" };
-const document = { getElementById() { return null; }, querySelector: (q) => (q === "[data-tm-or-remplissage]" ? elBarre : q === "[data-tm-or-legende]" ? elLegende : q === ".soreal-idle-tm-v1" ? {} : els[q] || null), querySelectorAll: () => [] };
+const documentFaux = preparerVdom(window);   // faux DOM + VRAI Preact + VRAI pont : la Machine temporelle est rendue par composants (chantier de fluidité, 2026-11-18)
+const document = Object.assign(documentFaux, { getElementById() { return null; }, querySelector: (q) => (q === "[data-tm-or-remplissage]" ? elBarre : q === "[data-tm-or-legende]" ? elLegende : q === ".soreal-idle-tm-v1" ? {} : els[q] || null), querySelectorAll: () => [] });
 vm.runInNewContext(meta, { window, document });
 const api = window.__SOREAL_IDLE_META_V130__;
-const page = api.pageSystemeMetaIdleV130_({ systemes: idleNguSnapshot(etat, ctx, T) }, "timeMachine", "Time Machine");
+const page = deplierVdom(window, api.pageSystemeMetaIdleV130_({ systemes: idleNguSnapshot(etat, ctx, T) }, "timeMachine", "Time Machine"));
 assert.ok(page.includes('data-tm-or-remplissage="1" data-fills="1"'), "barre d'Or présente, 1 remplissage par seconde au niveau 0");
 assert.match(page, /animation-duration:1\.0000s;animation-delay:-0\.1230s/, "une seconde par cycle, phase prise sur l'heure du serveur");
 assert.ok(page.includes("+#1128400 Or à chaque remplissage · 1 remplissage par seconde"), "légende : Or par remplissage et cadence");
 // 50 remplissages par seconde (niveau 49) = le plafond : la barre reste pleine (Norman, 2026-10-13 ; avant le plafond elle tique, 2026-10-11).
 etat.systems.timeMachine.data.speedLevel = 49;
-const page50 = api.pageSystemeMetaIdleV130_({ systemes: idleNguSnapshot(etat, ctx, T) }, "timeMachine", "Time Machine");
+const page50 = deplierVdom(window, api.pageSystemeMetaIdleV130_({ systemes: idleNguSnapshot(etat, ctx, T) }, "timeMachine", "Time Machine"));
 assert.ok(page50.includes("remplissage-v1 rapide") && page50.includes('data-fills="50"') && !/animation-duration:0.0200s/.test(page50));
 // Mise à jour en place quand la cadence change.
 window.__patcherChiffresTimeMachineIdleV1__({ systemes: idleNguSnapshot(etat, ctx, T) });

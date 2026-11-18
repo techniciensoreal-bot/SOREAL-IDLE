@@ -52,7 +52,8 @@ assert.ok(src.includes("prefers-reduced-motion") && src.includes("if(calme)retur
 assert.ok(src.includes("Math.min(50,") && src.includes("tourDeReference"), "plafond de 50 tiques par seconde");
 // Page : tours Énergie (gauche) et Magie (droite), Magie seulement une fois débloquée.
 const page = readFileSync(new URL("../public/modules/augmentations-page-v1.js", import.meta.url), "utf8");
-assert.ok(page.includes("tmm-tour") && page.includes("tmm-gauche") && page.includes("tmm-droite") && page.includes("(magicOk?tour('or'"), "tour de droite seulement avec Blood Magic");
+const pageVdom = readFileSync(new URL("../public/modules/machine-page-vdom-v1.js", import.meta.url), "utf8");   // la page est rendue par composants Preact (chantier de fluidité, 2026-11-18)
+assert.ok(pageVdom.includes("tmm-tour") && pageVdom.includes("tmm-gauche") && pageVdom.includes("tmm-droite") && page.includes("magicOk?tour('or'") && pageVdom.includes("p.or?h(Tour_,p.or):null"), "tour de droite seulement avec Blood Magic");
 assert.ok(page.includes("D.maj(vue)"), "la machine suit chaque synchro");
 const idx = readFileSync(new URL("../public/index.html", import.meta.url), "utf8");
 assert.ok(/soreal-idle-machine\.css/.test(idx) && /machine-dessin-v1\.js/.test(idx) && idx.indexOf("machine-dessin-v1.js") < idx.indexOf("augmentations-page-v1.js"), "chargé avant la page");

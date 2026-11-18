@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 const mod = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
 const css = readFileSync("cloudflare/public/soreal-idle-themes.css", "utf8");
 assert.ok(mod.includes("soreal-idle-tm-hero-v1") && mod.includes("Ta machine fabrique de l’Or"), "bandeau Or");
-assert.ok(mod.includes('data-tm-hero="netGps"'), "Or par seconde en grand, mis à jour à la synchro");
+assert.ok(mod.includes("'data-tm-hero':'netGps'"), "Or par seconde en grand, mis à jour à la synchro");
 assert.ok(css.includes("TIME MACHINE : la machine d'Or"), "thème or");
 assert.ok(!css.includes("retour à l'aspect du jeu d'origine"), "ancien aspect retiré");
 let d = 0; for (const c of css) { if (c === "{") d++; if (c === "}") d--; }

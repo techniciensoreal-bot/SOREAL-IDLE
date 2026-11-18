@@ -21,7 +21,7 @@ assert.ok(/\.tmm-liq/.test(m[0]) && /style\.height/.test(m[0]), "la hauteur doit
 assert.ok(!/--fill/.test(css), "la feuille de la machine ne doit plus lire --fill");
 assert.ok(/\.tmm-liq\{[^}]*height:0%/.test(css), "hauteur de depart du liquide dans la feuille");
 
-assert.ok(/class="tmm-liq" style="height:'\+largeur\.toFixed\(2\)\+'%"/.test(pages), "la page dessine le liquide a sa hauteur (redessin sans saut)");
+assert.ok(pages.includes("h('div',{class:'tmm-liq',style:{height:t.largeur}}") && pages.includes("largeur:largeur.toFixed(2)+'%'"), "la page dessine le liquide a sa hauteur (redessin sans saut)");
 assert.ok(!/style="--fill:/.test(pages), "la tour ne porte plus --fill");
 
 console.log("idle-time-machine-tube-fluide-v1 OK");

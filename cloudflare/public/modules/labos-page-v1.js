@@ -112,14 +112,17 @@
     (document.head||document.documentElement).appendChild(s);
   }
 
-  /* ---------- la page ---------- */
-  function fioles_(places,actifs){
-    var h='';
-    for(var i=0;i<places;i++){
-      var p=i<actifs;
-      h+='<svg class="lp-fiole" viewBox="0 0 28 38" aria-hidden="true"><path d="M10 3h8v9l7 16a4 4 0 0 1-3.6 5.6H6.6A4 4 0 0 1 3 28l7-16z" fill="'+(p?'#3a2a5a':'#2a2a2a')+'" stroke="#000" stroke-width="2"/>'+(p?'<path d="M7 25h14l3 3.4a2 2 0 0 1-1.8 3H5.8a2 2 0 0 1-1.8-3z" fill="#9bff7a"/><circle cx="12" cy="22" r="1.6" fill="#d8ffc8"/><circle cx="17" cy="19" r="1.1" fill="#d8ffc8"/>':'')+'<rect x="9" y="1" width="10" height="4" rx="1.5" fill="'+(p?'#e0a21a':'#555')+'" stroke="#000" stroke-width="1.5"/></svg>';
-    }
-    return h;
+  /*
+   * ---------- la page ----------
+   * Rendu par composants Preact (chantier de fluidité, 2026-11-18, AGENTS.md règle n°4) : la page n'est plus une chaîne HTML (jusqu'à 76 Ko) comparée au DOM toutes les 4 s mais un arbre de composants (h(), sans JSX)
+   * rendu par modules/vdom-pont-v1.js dans un conteneur persistant ; les cartes, les scènes de savants (SVG animés en CSS) et les boutons gardent les mêmes nœuds d'un rendu à l'autre, seul ce qui change est touché.
+   * Rien n'a d'effet de bord ici : preparer_() calcule le modèle de vue (mêmes règles qu'avant, anti-spoil compris), les composants ne font que le dessiner. La scène d'un labo est un bloc SVG fabriqué par labos-savants-v1.js ;
+   * tant que sa chaîne ne change pas (labo au travail ou au repos, même décor), Preact ne touche pas à ce bloc : l'animation ne repart jamais à zéro.
+   */
+  var P_=window.preact||null;
+  var h=P_&&P_.h;
+  function fioleInterieur_(p){
+    return '<path d="M10 3h8v9l7 16a4 4 0 0 1-3.6 5.6H6.6A4 4 0 0 1 3 28l7-16z" fill="'+(p?'#3a2a5a':'#2a2a2a')+'" stroke="#000" stroke-width="2"/>'+(p?'<path d="M7 25h14l3 3.4a2 2 0 0 1-1.8 3H5.8a2 2 0 0 1-1.8-3z" fill="#9bff7a"/><circle cx="12" cy="22" r="1.6" fill="#d8ffc8"/><circle cx="17" cy="19" r="1.1" fill="#d8ffc8"/>':'')+'<rect x="9" y="1" width="10" height="4" rx="1.5" fill="'+(p?'#e0a21a':'#555')+'" stroke="#000" stroke-width="1.5"/>';
   }
   function nombre_(x){return H().formatGrandNombreIdleV70_(Number(x)||0);}
   function mult_(x){
@@ -127,44 +130,33 @@
     if(x>=1000)return '×'+nombre_(x);
     return '×'+x.toLocaleString('fr-FR',{maximumFractionDigits:2});
   }
-  function labo_(def,d,vue,or){
+  /* Un clic appelle le pont du jeu au moment du clic (les ponts window.__x__ restent ceux de meta-progression). */
+  function pont_(nom){var a=Array.prototype.slice.call(arguments,1);return function(){var f=window[nom];if(typeof f==='function')f.apply(null,a);};}
+
+  /* Modèle d'un labo (mêmes valeurs que l'ancien labo_()). */
+  function modeleLabo_(def,d,vue,or){
     var id=def.id,lab=(S()&&S().labos[id])||{nom:def.name||id,potion:''},effetNom=EFFETS[id]||'';
     var run=H().idleEntier_(d.runLevel||0),max=H().idleEntier_(d.maxLevel||0),on=Boolean(d.active)&&run>0;
     var v=(vue&&vue.items&&vue.items[id])||{};
-    var etat=on?'on':(max>0?'repos':'neuf');
-    var idH=H().idleHtml_(id);
-    var coutTexte=v.nextCost!=null?nombre_(v.nextCost)+' Or':'au maximum';
     var abordable=v.nextCost!=null&&or>=v.nextCost;
     var effet=on
-      ?'Maintenant : <em>'+mult_(v.multiplier)+' '+effetNom+'</em>'
-      :(max>0?'S’il brassait au niveau '+run+' : <em>'+mult_(v.multiplier)+' '+effetNom+'</em>':'Il améliorera : <em>'+effetNom+'</em>');
-    var drain=nombre_(run>0?v.drain:v.nextDrain);
-    var h='<div class="lp-labo '+etat+'" data-labo="'+idH+'"><div class="lp-poste">'+scene(id,on)+'</div>'+
-      '<div class="lp-hautb"><div class="lp-titre"><b>'+H().idleHtml_(lab.nom)+'</b><span class="lp-niv">'+(max>0?'niveau '+run+' sur '+max:'pas encore ouvert')+'<br>'+drain+' d’or/s</span></div>'+
-      (max>0&&lab.potion?'<div class="lp-potion">'+H().idleHtml_(lab.potion)+'</div>':'')+
-      '<div class="lp-effet">'+effet+'</div></div><div class="lp-basb">';
-    if(max>0){
-      h+='<div class="lp-ligne">'+
-        /* Boutons indisponibles : aria-disabled + classe lp-manque + AUCUN onclick, jamais l'attribut « disabled » (la règle globale « body… button:disabled{color:#758198!important} » rendait leur texte gris sur gris) */
-        '<button type="button" class="lp-btn carre'+(run<=0?' lp-manque':'')+'" '+(run<=0?'aria-disabled="true" ':'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.max(0,run-1)+')" ')+'aria-label="Baisser le niveau actif">−</button>'+
-        '<span class="lp-nivactif">'+run+'</span>'+
-        '<button type="button" class="lp-btn carre'+(run>=max?' lp-manque':'')+'" '+(run>=max?'aria-disabled="true" ':'onclick="window.__setDiggerIdleV47__(\''+idH+'\','+Math.min(max,run+1)+')" ')+'aria-label="Monter le niveau actif">+</button>'+
-        /* Toujours cliquable (Norman, 2026-11-09 : « ça fonctionne sauf quand c'est placé sur le niveau maximal ») : le moteur ramène le niveau demandé (le plus haut possédé) au plus haut niveau que l'or par seconde supporte (setDiggerLevel, ajuster) ; même posé sur le niveau possédé le plus haut, le clic rabaisse un niveau trop gourmand pour l'or. */
-        '<button type="button" class="lp-btn" onclick="window.__setDiggerIdleV47__(\''+idH+'\','+max+',true)">Au maximum</button></div>';
-    }
-    h+='<div class="lp-ligne">'+
-      (max>0
-        ?'<button type="button" class="lp-btn'+(on?'':' vert')+'" onclick="window.__toggleDiggerIdleV47__(\''+idH+'\','+(!on)+')">'+(on?'Mettre au repos':'Mettre au travail')+'</button>'
-        :'')+
-      /* Or manquant : grisé mais CLIQUABLE (le moteur répond). `or` vient de la dernière synchro (jusqu'à ~4 s) et l'Or arrive en continu : un bouton `disabled` resterait bloqué à tort jusqu'au redessin suivant. Seul « au maximum » (plus de prochain coût) est réellement désactivé. */
-      '<button type="button" class="lp-btn'+(max>0?'':' vert')+(v.nextCost==null||!abordable?' lp-manque':'')+'" '+(v.nextCost==null?'aria-disabled="true" ':'onclick="window.__actionMetaV47__({action:\'upgradeDigger\',digger:\''+idH+'\'})"')+'>'+(max>0?'Améliorer le labo':'Ouvrir le labo')+'<small>'+H().idleHtml_(coutTexte)+'</small></button></div>'+
-      '</div></div>';
-    return h;
+      ?['Maintenant : ',mult_(v.multiplier)+' '+effetNom]
+      :(max>0?['S’il brassait au niveau '+run+' : ',mult_(v.multiplier)+' '+effetNom]:['Il améliorera : ',effetNom]);
+    return {
+      id:id,etat:on?'on':(max>0?'repos':'neuf'),on:on,run:run,max:max,
+      nom:lab.nom,potion:(max>0&&lab.potion)?lab.potion:'',
+      niveau:max>0?'niveau '+run+' sur '+max:'pas encore ouvert',
+      drain:nombre_(run>0?v.drain:v.nextDrain)+' d’or/s',
+      effet:effet,
+      coutTexte:v.nextCost!=null?nombre_(v.nextCost)+' Or':'au maximum',
+      coutNul:v.nextCost==null,manque:v.nextCost==null||!abordable,
+      svg:scene(id,on)
+    };
   }
-  function page(j){
+  function preparer_(j){
     style_();
     var s=systemeMetaParIdIdleV130_(j,'diggers');
-    if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+    if(!s||!s.state||!s.state.unlocked)return null;
     var data=s.state.data||{};
     var diggers=data.diggers||{};
     var m=(j&&j.systemes)||{};
@@ -176,26 +168,88 @@
     var places=Math.max(1,H().idleEntier_(vue.slots||data.slots||1)),actifs=H().idleEntier_(vue.active||0);
     var brut=Number(vue.grossGps)||0,drain=Number(vue.drain)||0;
     var part=brut>0?Math.max(0,Math.min(1,drain/brut)):(drain>0?1:0);
-    var etages='';
+    var etages=[];
     var precedentOuvert=true;
     ETAGES.forEach(function(g){
       if(!precedentOuvert)return;
       var liste=g.ids.filter(function(id){return defs[id]&&ouvert_(id);});
       if(!liste.length)return;
-      etages+='<div class="lp-etage '+g.cls+'"><div class="lp-nometage">'+g.titre+'</div><div class="lp-liste">'+liste.map(function(id){return labo_(defs[id],diggers[id]||{},vue,or);}).join('')+'</div></div>';
+      etages.push({cls:g.cls,titre:g.titre,labos:liste.map(function(id){return modeleLabo_(defs[id],diggers[id]||{},vue,or);})});
       precedentOuvert=liste.some(function(id){return H().idleEntier_((diggers[id]||{}).maxLevel||0)>0;});
     });
-    var haut='<div class="lp-haut">'+
-      '<div class="lp-pan"><h3>Or par seconde</h3><div class="lp-jauge"><i class="'+(part>.85?'fort':'')+'" style="transform:scaleX('+part.toFixed(3)+')"></i></div>'+
-        '<div class="lp-petit">Tes labos consomment <b>'+nombre_(drain)+'</b> sur <b>'+nombre_(brut)+'</b> produits par seconde.</div>'+
-        '<div class="lp-petit">Il te reste <b class="ok">'+nombre_(Math.max(0,brut-drain))+'</b> par seconde.</div></div>'+
-      '<div class="lp-pan"><h3>Emplacements</h3><div class="lp-fioles">'+fioles_(places,actifs)+'</div>'+
-        '<div class="lp-petit">'+actifs+' labo'+(actifs>1?'s':'')+' au travail sur '+places+' place'+(places>1?'s':'')+'.</div>'+
-        '<div class="lp-petit">Bonus de tous leurs niveaux : <b class="ok">+'+(Number(vue.globalPct)||0).toLocaleString('fr-FR',{maximumFractionDigits:1})+' %</b> sur chaque effet.</div></div>'+
-    '</div>';
-    return H().entetePageIdleV28_('Labos','Des savants fous brassent des potions avec l’or par seconde de ta machine temporelle : chaque labo au travail améliore quelque chose. Monte leur niveau maximum, puis choisis à quel niveau ils travaillent.')+
-      '<div class="lp-page">'+haut+'<div class="lp-donjon">'+etages+'</div></div>';
+    return {
+      part:part,fort:part>.85,drain:nombre_(drain),brut:nombre_(brut),reste:nombre_(Math.max(0,brut-drain)),
+      places:places,actifs:actifs,globalPct:(Number(vue.globalPct)||0).toLocaleString('fr-FR',{maximumFractionDigits:1}),
+      etages:etages
+    };
   }
 
-  window.__SOREAL_IDLE_LABOS_PAGE_V1__={page:page,scene:scene,etages:ETAGES,effets:EFFETS,systemes:SYSTEME_DU_LABO};
+  /* ---------- composants (purs) ---------- */
+  function Fioles_(p){
+    var o=[];
+    for(var i=0;i<p.places;i++)o.push(h('svg',{key:i,class:'lp-fiole',viewBox:'0 0 28 38','aria-hidden':'true',dangerouslySetInnerHTML:{__html:fioleInterieur_(i<p.actifs)}}));
+    return h('div',{class:'lp-fioles'},o);
+  }
+  function Haut_(p){
+    return h('div',{class:'lp-haut'},
+      h('div',{class:'lp-pan'},h('h3',null,'Or par seconde'),
+        h('div',{class:'lp-jauge'},h('i',{class:p.fort?'fort':'',style:{transform:'scaleX('+p.part.toFixed(3)+')'}})),
+        h('div',{class:'lp-petit'},'Tes labos consomment ',h('b',null,p.drain),' sur ',h('b',null,p.brut),' produits par seconde.'),
+        h('div',{class:'lp-petit'},'Il te reste ',h('b',{class:'ok'},p.reste),' par seconde.')),
+      h('div',{class:'lp-pan'},h('h3',null,'Emplacements'),h(Fioles_,{places:p.places,actifs:p.actifs}),
+        h('div',{class:'lp-petit'},p.actifs+' labo'+(p.actifs>1?'s':'')+' au travail sur '+p.places+' place'+(p.places>1?'s':'')+'.'),
+        h('div',{class:'lp-petit'},'Bonus de tous leurs niveaux : ',h('b',{class:'ok'},'+'+p.globalPct+' %'),' sur chaque effet.')));
+  }
+  function Labo_(l){
+    var id=l.id,run=l.run,max=l.max,on=l.on;
+    var moins=run<=0,plus=run>=max;
+    /* Boutons indisponibles : aria-disabled + classe lp-manque + AUCUN clic, jamais l'attribut « disabled » (la règle globale « body… button:disabled{color:#758198!important} » rendait leur texte gris sur gris) */
+    var ligneNiveau=max>0?h('div',{class:'lp-ligne'},
+      h('button',{type:'button',class:'lp-btn carre'+(moins?' lp-manque':''),'aria-disabled':moins?'true':undefined,onClick:moins?undefined:pont_('__setDiggerIdleV47__',id,Math.max(0,run-1)),'aria-label':'Baisser le niveau actif'},'−'),
+      h('span',{class:'lp-nivactif'},String(run)),
+      h('button',{type:'button',class:'lp-btn carre'+(plus?' lp-manque':''),'aria-disabled':plus?'true':undefined,onClick:plus?undefined:pont_('__setDiggerIdleV47__',id,Math.min(max,run+1)),'aria-label':'Monter le niveau actif'},'+'),
+      /* Toujours cliquable (Norman, 2026-11-09 : « ça fonctionne sauf quand c'est placé sur le niveau maximal ») : le moteur ramène le niveau demandé (le plus haut possédé) au plus haut niveau que l'or par seconde supporte (setDiggerLevel, ajuster) ; même posé sur le niveau possédé le plus haut, le clic rabaisse un niveau trop gourmand pour l'or. */
+      h('button',{type:'button',class:'lp-btn',onClick:pont_('__setDiggerIdleV47__',id,max,true)},'Au maximum')):null;
+    return h('div',{class:'lp-labo '+l.etat,'data-labo':id},
+      h('div',{class:'lp-poste',dangerouslySetInnerHTML:{__html:l.svg}}),
+      h('div',{class:'lp-hautb'},
+        h('div',{class:'lp-titre'},h('b',null,l.nom),h('span',{class:'lp-niv'},l.niveau,h('br'),l.drain)),
+        l.potion?h('div',{class:'lp-potion'},l.potion):null,
+        h('div',{class:'lp-effet'},l.effet[0],h('em',null,l.effet[1]))),
+      h('div',{class:'lp-basb'},
+        ligneNiveau,
+        h('div',{class:'lp-ligne'},
+          max>0?h('button',{type:'button',class:'lp-btn'+(on?'':' vert'),onClick:pont_('__toggleDiggerIdleV47__',id,!on)},on?'Mettre au repos':'Mettre au travail'):null,
+          /* Or manquant : grisé mais CLIQUABLE (le moteur répond). `or` vient de la dernière synchro (jusqu'à ~4 s) et l'Or arrive en continu : un bouton `disabled` resterait bloqué à tort jusqu'au redessin suivant. Seul « au maximum » (plus de prochain coût) est réellement désactivé. */
+          h('button',{type:'button',class:'lp-btn'+(max>0?'':' vert')+(l.manque?' lp-manque':''),'aria-disabled':l.coutNul?'true':undefined,onClick:l.coutNul?undefined:function(){if(typeof window.__actionMetaV47__==='function')window.__actionMetaV47__({action:'upgradeDigger',digger:id});}},max>0?'Améliorer le labo':'Ouvrir le labo',h('small',null,l.coutTexte)))));
+  }
+  function Etage_(g){
+    return h('div',{class:'lp-etage '+g.cls},h('div',{class:'lp-nometage'},g.titre),
+      h('div',{class:'lp-liste'},g.labos.map(function(l){return h(Labo_,Object.assign({key:l.id},l));})));
+  }
+  function Page_(p){
+    return h(P_.Fragment,null,
+      h('div',{class:'soreal-idle-page-head-v28'},
+        h('div',{class:'soreal-idle-page-title-v28'},'Labos'),
+        h('div',{class:'soreal-idle-page-sub-v28'},'Des savants fous brassent des potions avec l’or par seconde de ta machine temporelle : chaque labo au travail améliore quelque chose. Monte leur niveau maximum, puis choisis à quel niveau ils travaillent.')),
+      h('div',{class:'lp-page'},h(Haut_,p),h('div',{class:'lp-donjon'},p.etages.map(function(g){return h(Etage_,Object.assign({key:g.cls},g));}))));
+  }
+  var VIDE_='<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+  /* Entrée de la page : le modèle est confié au pont, qui rend le composant dans un conteneur persistant et rend ici la chaîne stable à mettre dans la page. Système verrouillé : le message d'attente, comme avant. */
+  function page(j){
+    var V=window.__SOREAL_IDLE_VDOM_V1__;
+    var vm=preparer_(j);
+    if(!vm)return VIDE_;
+    if(!h||!V)return '';
+    return V.monter('labos',Page_,vm);
+  }
+  /* Rendu synchrone vers une chaîne HTML (tests, débogage) : jamais utilisé par la page. */
+  function html(j){
+    var V=window.__SOREAL_IDLE_VDOM_V1__;
+    var vm=preparer_(j);
+    if(!vm)return VIDE_;
+    return h&&V?V.rendreHtml(Page_,vm):'';
+  }
+
+  window.__SOREAL_IDLE_LABOS_PAGE_V1__={page:page,html:html,scene:scene,etages:ETAGES,effets:EFFETS,systemes:SYSTEME_DU_LABO};
 })();

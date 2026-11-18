@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, idleNguBonuses } from "../src/idle-ngu-progression.js";
 import { diggerBonuses, diggerViewV1 } from "../src/idle-ngu-systemes.js";
+import { preparerVdom } from "./_ygg-vdom.mjs";
 import { IDLE_NGU_DIGGERS } from "../src/idle-ngu-catalogues.js";
 
 /*
@@ -39,14 +40,10 @@ import { IDLE_NGU_DIGGERS } from "../src/idle-ngu-catalogues.js";
 // --- page : le vrai module dans un faux navigateur ---
 const src = readFileSync("cloudflare/public/modules/labos-page-v1.js", "utf8");
 const savants = readFileSync("cloudflare/public/modules/labos-savants-v1.js", "utf8");
-const ctx = {
-  console, Number, String, Math, Boolean, Array, Object, JSON, isFinite,
-  document: { getElementById: () => null, head: { appendChild(el) { ctx.__style = (ctx.__style || "") + (el.textContent || ""); } }, documentElement: { appendChild() {} }, createElement: () => ({}) },
-  window: {}
-};
+const ctx = { console, Number, String, Math, Boolean, Array, Object, JSON, isFinite, Date, setTimeout, clearTimeout };
+const document = preparerVdom(ctx);   // faux DOM + VRAI Preact + VRAI pont : la page est rendue par composants (chantier de fluidité, 2026-11-18)
 ctx.window.__SOREAL_IDLE_META_HOST_V130__ = {
-  idleEntier_: (x) => Math.round(Number(x) || 0), idleHtml_: (x) => String(x), formatGrandNombreIdleV70_: (x) => String(x),
-  entetePageIdleV28_: (t) => "<head>" + t + "</head>"
+  idleEntier_: (x) => Math.round(Number(x) || 0), idleHtml_: (x) => String(x), formatGrandNombreIdleV70_: (x) => String(x)
 };
 const donnees = (extra = {}) => ({ state: { unlocked: true, data: { slots: 2, diggers: Object.fromEntries(IDLE_NGU_DIGGERS.map((d) => [d.id, Object.assign({ maxLevel: 0, runLevel: 0, active: false }, extra[d.id] || {})])) } } });
 let sys = donnees();
@@ -57,7 +54,7 @@ const M = ctx.window.__SOREAL_IDLE_LABOS_PAGE_V1__;
 const joueur = { systemes: { diggerDefinitions: IDLE_NGU_DIGGERS, currencies: { gold: 1e30 }, diggerView: { slots: 2, active: 0, globalPct: 0, grossGps: 10, drain: 0, items: Object.fromEntries(IDLE_NGU_DIGGERS.map((d) => [d.id, { multiplier: 1, drain: 0, nextCost: d.unlockCost, nextDrain: d.drain }])) } } };
 
 // anti-spoil : rien ouvert -> seul le premier étage (4 labos) apparaît, sans nom ni prix des suivants
-let h = M.page(joueur);
+let h = M.html(joueur);
 assert.equal((h.match(/class="lp-labo /g) || []).length, 4, "premier étage seulement");
 assert.ok(!/barbe|NGU|EXP|sang|étoiles|garderie/i.test(h.replace(/<svg[\s\S]*?<\/svg>/g, "")), "aucun nom de labo plus profond");
 // anti-spoil : jamais l'ensemble des décors, ni les images des labos non affichés
@@ -66,7 +63,7 @@ for (const id of ["drop", "wandoos", "stats", "adventure"]) assert.ok(h.includes
 assert.ok(!h.includes("decors.webp"), "plus de grand décor commun");
 // un labo ouvert dans le premier étage ouvre le suivant
 sys = donnees({ drop: { maxLevel: 3, runLevel: 3, active: true } });
-h = M.page(joueur);
+h = M.html(joueur);
 assert.equal((h.match(/class="lp-labo /g) || []).length, 6, "l'étage suivant apparaît quand le précédent a un labo ouvert");
 assert.ok(h.includes("lp-labo on") && h.includes("lp-labo neuf"), "états : au travail / pas ouvert");
 assert.ok(h.includes("Mettre au repos") && h.includes("Ouvrir le labo") && h.includes("Améliorer le labo"), "boutons selon l'état");
@@ -74,7 +71,7 @@ assert.ok(!h.includes("niveau actif 0 sur"), "pas de niveau 0 affiché pour un l
 // seul le labo au travail porte lb-on (savant qui s'anime) ; au repos : pénombre et bras baissés
 assert.equal((h.match(/<svg class="lb lb-on"/g) || []).length, 1, "un seul savant au travail");
 assert.ok((h.match(/<svg class="lb"/g) || []).length === 5, "les autres sont au repos");
-assert.ok(h.includes("<head>Labos</head>"), "le menu s'appelle Labos");
+assert.ok(/soreal-idle-page-title-v28">Labos</.test(h), "le menu s'appelle Labos");
 assert.ok(!/Mineur|mineur|pelle|pioche/.test(h.replace(/href="[^"]*"/g, "")), "plus aucun mot de mineur dans la page");
 
 // douze scènes différentes, chacune avec son décor, son savant et sa potion
@@ -84,9 +81,10 @@ assert.equal(new Set(svgs).size, 12, "douze scènes différentes");
 ids.forEach((id, k) => { assert.ok(svgs[k].includes("decor-" + id + ".webp") && svgs[k].includes("lb-deplace"), id + " : son décor et un savant qui marche"); });
 assert.equal(M.scene(ids[0], true), M.scene(ids[0], true), "la scène est identique d'un rendu à l'autre (le redessin périodique ne la remplace pas, règle n°4)");
 assert.equal(JSON.stringify(M.etages.flatMap((g) => g.ids).sort()), JSON.stringify(ids.slice().sort()), "tous les labos du moteur sont rangés dans un étage");
+const STYLE = document.getElementById("soreal-idle-labos-style-v1").textContent;
 // le style de la page embarque celui des savants
-assert.ok((ctx.__style || "").includes("@keyframes") && (ctx.__style || "").includes(".lb-nuit"), "le style des savants est injecté avec celui de la page");
-assert.ok(/prefers-reduced-motion/.test(ctx.__style || ""), "mouvement réduit respecté");
+assert.ok(STYLE.includes("@keyframes") && STYLE.includes(".lb-nuit"), "le style des savants est injecté avec celui de la page");
+assert.ok(/prefers-reduced-motion/.test(STYLE), "mouvement réduit respecté");
 // cadre : toute la scène est le cadre du labo, nom et boutons posés par-dessus
 assert.ok(src.includes(".lp-poste{position:absolute;inset:0}") && src.includes(".lp-hautb,.lp-basb{position:absolute;") && src.includes("aspect-ratio:316/268"), "le dessin remplit le cadre (316 : 268), nom et boutons par-dessus");
 assert.ok(h.indexOf('class="lp-poste"') < h.indexOf('class="lp-hautb"') && h.indexOf('class="lp-hautb"') < h.indexOf('class="lp-basb"'), "décor dessous, nom en haut, boutons en bas");
@@ -98,16 +96,16 @@ assert.ok(src.includes("var P='html body.soreal-idle-active-v47.soreal-idle-acti
   const tout = Object.fromEntries(IDLE_NGU_DIGGERS.map((d) => [d.id, { maxLevel: 5, runLevel: 1, active: false }]));
   sys = { state: { unlocked: true, data: { slots: 2, diggers: tout } } };
   ouvertParId.wandoos = false;
-  let page = M.page(joueur);
+  let page = M.html(joueur);
   for (const id of ["wandoos", "energyNgu", "magicNgu", "energyBeard", "magicBeard", "blood", "daycare"]) assert.ok(!page.includes('data-labo="' + id + '"'), "labo " + id + " caché tant que son système est verrouillé");
   assert.ok(!/barbe|NGU|Wandoos|sang|garderie/i.test(page.replace(/<svg[\s\S]*?<\/svg>/g, "").replace(/href="[^"]*"/g, "")), "aucun mot qui nomme un système verrouillé");
   for (const id of ["drop", "stats", "adventure"]) assert.ok(page.includes('data-labo="' + id + '"'), "labo " + id + " visible");
   ouvertParId.beards = true;
-  page = M.page(joueur);
+  page = M.html(joueur);
   assert.ok(page.includes('data-labo="energyBeard"') && page.includes('data-labo="magicBeard"'), "les labos de barbes apparaissent quand les barbes sont débloquées");
   assert.ok(!page.includes('data-labo="energyNgu"'), "les NGU restent cachés tant que NGU est verrouillé");
   ouvertParId.ngu = true; ouvertParId.wandoos = true; ouvertParId.bloodMagic = true; ouvertParId.daycare = true;
-  page = M.page(joueur);
+  page = M.html(joueur);
   assert.equal((page.match(/class="lp-labo /g) || []).length, 12, "tout est visible quand tout est débloqué");
 }
 console.log("idle-labos-page-v1: OK");

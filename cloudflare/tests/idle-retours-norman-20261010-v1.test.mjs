@@ -62,8 +62,8 @@ const lire = (p) => readFileSync(p, "utf8");
   assert.ok(ui.includes('<span class="bouton-icone-sombre-v1">🗂️</span> Trier'));
   assert.ok(lire("cloudflare/public/soreal-idle-itopod.css").includes(".bouton-icone-sombre-v1{"));
   const meta = (lire("cloudflare/public/modules/meta-progression-v130.js") + lirePagesMeta());
-  assert.ok(meta.includes("function orReelParRemplissageIdleV1_(vue)") && meta.includes('data-tm-hero="orReel"') && meta.includes("Or de base par remplissage"), "Or réel par remplissage");
-  assert.ok(!meta.includes('data-tm-hero="goldPerBarFill"'));
+  assert.ok(meta.includes("function orReelParRemplissageIdleV1_(vue)") && meta.includes("'data-tm-hero':'orReel'") && meta.includes("Or de base par remplissage"), "Or réel par remplissage");
+  assert.ok(!meta.includes("'data-tm-hero':'goldPerBarFill'"));
 }
 
 // --- borne identique sur PC et téléphone ---

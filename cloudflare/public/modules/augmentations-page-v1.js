@@ -1303,112 +1303,96 @@
          * la Magie sur la tour de droite (multiplicateur d'Or). Mêmes données, mêmes boutons, mêmes champs qu'avant ; deux écrans à cristaux liquides par tour (niveau, temps restant), un tube de verre qui se remplit avec la barre.
          * Les éléments lus par le code en direct (ui-machine-temporelle-v1.js) gardent leurs attributs : data-tm-fill0, data-tm-eta-track, data-tm-eta-seconds, data-tm-niveau, #sorealIdleTmAllocV1_<piste>.
          */
+        const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;
         const tour=function(cle,titre,ressource,libelleAlloc,niveau,fill,cible,verrou,etaSecondes){
           const largeur=Math.max(0,Math.min(100,H.idleNombre_(fill)*100));
           const etaValide=Number.isFinite(Number(etaSecondes));
           const gauche=cle==='vitesse';
           const prixBrut=cle==='vitesse'?vue.speedGoldCost:vue.goldGoldCost;
           const prixNiveau=prixBrut!=null&&Number.isFinite(Number(prixBrut))?prixBrut:null;
-          const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;
-          const icone=gauche
-            ?'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M19 2 7 18h8l-2 12 12-17h-8z" fill="#7dff9f" stroke="#150c06" stroke-width="2.4" stroke-linejoin="round"/></svg>'
-            :'<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 19.5 12.5 30 16 19.5 19.5 16 30 12.5 19.5 2 16 12.5 12.5Z" fill="#9fd2ff" stroke="#150c06" stroke-width="2.2" stroke-linejoin="round"/></svg>';
           /*
            * Air qui arrive du bas de la jauge (Norman, 2026-10-21) : plein de minibulles très fines et très rapides au pied du tube, et seulement quelques-unes qui montent vraiment, en grossissant à mesure qu'elles s'éloignent. Les bulles vivent DANS le liquide (Norman, 2026-10-21 : « les bulles ne doivent jamais dépasser le liquide ») : calque rogné à la hauteur du liquide, elles
            * s'arrêtent à sa surface quel que soit son niveau ; tube vide = aucune bulle.
            */
           /* Les bulles sont dessinées dans UN canvas par tube (modules/tm-bulles-canvas-v1.js, plan C9) : 17 éléments animés = 17 couches de composition par tube. */
-          const tube='<div class="tmm-tube"><div class="tmm-liq" style="height:'+largeur.toFixed(2)+'%"><div class="tmm-bulles"><canvas class="tmm-bulles-cv" data-morph-vivant="1" data-tm-gauche="'+(gauche?'1':'0')+'"></canvas></div></div></div>';
-          const lcds='<div class="tmm-lcds">'+
-            '<div class="tmm-lcd"><i class="tmm-lcd-titre">NIVEAU</i><div class="tmm-lcd-val" data-tm-niveau="'+cle+'">'+nombre(niveau)+'</div></div>'+
-            '<div class="tmm-lcd"><i class="tmm-lcd-titre">TEMPS RESTANT</i><div class="tmm-lcd-val" data-tm-lcd-eta="'+cle+'">'+(etaValide?formaterEta(etaSecondes):'—')+'</div>'+
-              '<div class="tmm-barre"><div class="tmm-rempl" data-tm-fill0="'+(largeur/100).toFixed(6)+'" style="width:'+largeur.toFixed(2)+'%"></div></div>'+
-              (prixNiveau!=null?'<div class="tmm-prix" title="Or qu’il faut payer pour gagner le niveau suivant"><i>Niveau suivant</i><b data-tm-prix="'+cle+'">🪙 '+nombre(prixNiveau)+'</b></div>':'')+
-              '<div class="tmm-eta" data-tm-eta-track="'+cle+'" data-tm-eta-seconds="'+(etaValide?Math.max(0,H.idleNombre_(etaSecondes)):'')+'">'+
-                (etaValide?'Fin de la barre dans '+formaterEta(etaSecondes):'Alloue une ressource pour démarrer la barre')+
-              '</div>'+
-            '</div>'+
-            '<div class="tmm-boutons">'+
-              '<button type="button" title="Placer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'plus\')">+</button>'+
-              '<button type="button" title="Retirer la valeur de Input" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'moins\')">−</button>'+
-              '<button type="button" class="max" title="Placer toute la ressource libre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'max\')">Max</button>'+
-              '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__ajusterTimeMachineIdleV1__(\''+ressource+'\',\'zero\')">0</button>'+
-            '</div>'+
-            '<div class="tmm-ligne">'+
-              '<div class="tmm-case"><i class="tmm-case-titre">Cible</i><input type="number" inputmode="numeric" min="0" step="1" value="'+H.idleEntier_(cible)+'" title="Niveau cible : l\'allocation est retirée dès qu\'il est atteint (0 = aucune cible)" onchange="window.__cibleTimeMachineIdleV1__(\''+(gauche?'speed':'gold')+'\',this.value)"></div>'+
-              '<div class="tmm-case"><i class="tmm-case-titre tmm-case-icone" title="'+H.idleHtml_(libelleAlloc)+'" role="img" aria-label="'+H.idleHtml_(libelleAlloc)+'">'+icone+'</i><output class="tmm-case-val" id="sorealIdleTmAllocV1_'+cle+'" data-idle-alloc-pop-v1>'+nombre(alloue(ressource))+'</output></div>'+
-            '</div>'+
-          '</div>';
           /* allocation et durée K du niveau à 1 unité, lues par le dessin de la machine : les roues de la tour tournent selon allocation / K (arrêtées à 0) */
           const kTour=H.idleNombre_(cle==='vitesse'?vue.speedK:vue.goldK)||0;
-          return '<section class="tmm-tour '+(gauche?'tmm-gauche':'tmm-droite')+' tmm-piste '+cle+'" data-tm-alloc="'+alloue(ressource)+'" data-tm-k="'+kTour+'" aria-label="'+H.idleHtml_(titre)+'">'+
-            /* l'explication de la tour (Norman, 2026-11-06 : l'image n'a pas d'emplacement pour un texte) passe en infobulle du titre ; elle est aussi dans « À quoi ça sert ? » */
-            '<div class="tmm-tete" title="'+H.idleHtml_(SOUS_TITRES_PISTE[cle]||'')+'">'+icone+(gauche?'ÉNERGIE':'MAGIE')+'</div>'+
-            '<div class="tmm-haut">'+(D?(gauche?D.hautEnergie():D.hautMagie()):'')+'</div>'+
-            '<div class="tmm-corps">'+(gauche?tube+lcds:lcds+tube)+'</div>'+
-          '</section>';
+          return {
+            cle:cle,gauche:gauche,titre:titre,ressource:ressource,libelleAlloc:libelleAlloc,
+            sousTitre:SOUS_TITRES_PISTE[cle]||'',
+            largeur:largeur.toFixed(2)+'%',fill0:(largeur/100).toFixed(6),
+            niveau:nombre(niveau),
+            lcd:etaValide?formaterEta(etaSecondes):'—',
+            prix:prixNiveau!=null?nombre(prixNiveau):null,
+            etaSecondes:etaValide?String(Math.max(0,H.idleNombre_(etaSecondes))):'',
+            etaTexte:etaValide?'Fin de la barre dans '+formaterEta(etaSecondes):'Alloue une ressource pour démarrer la barre',
+            cible:H.idleEntier_(cible),alloue:nombre(alloue(ressource)),
+            allocBrute:String(alloue(ressource)),k:String(kTour),
+            hautHtml:D?(gauche?D.hautEnergie():D.hautMagie()):''
+          };
         };
         /* La grande machine : tour de gauche (Énergie), écran du meilleur butin au centre, tour de droite (Magie, seulement une fois Blood Magic débloqué : anti-spoil, AGENTS.md règle n°2). */
         const grandeMachine=function(){
-          const D=window.__SOREAL_IDLE_TM_DESSIN_V1__;
           const butin=H.idleNombre_(vue.goldPerBarFill)>0?'+'+nombre(vue.goldPerBarFill)+' Or':'';
           const multi='×'+nombre((H.idleNombre_(vue.goldMultiplier)||1)*(H.idleNombre_(vue.machineSpeedMultiplier)||1));
           const centre=D?D.centre({ticks:H.idleNombre_(vue.barFillsPerSecond)||1,mob:vue.bestGoldMob||null,butin:butin,multi:multi,tas:D.niveauTas(H.idleNombre_(vue.grossGps))}):'';
-          return '<div class="tmm-cadre">'+(D?D.defs():'')+'<div class="tmm-machine'+(magicOk?'':' tmm-sans-magie')+'">'+
-            tour('vitesse','⏱️ Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false,vue.speedEtaSeconds)+
-            '<section class="tmm-centre">'+centre+'</section>'+
-            (magicOk?tour('or','🪙 Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,false,vue.goldEtaSeconds):'')+
-          '</div></div>';
+          /* Définitions communes (dégradés) : le contenu de l'élément svg de D.defs(). */
+          const dm=D?/^<svg[^>]*>([\s\S]*)<\/svg>$/.exec(D.defs()):null;
+          return {
+            magicOk:magicOk,defs:dm?dm[1]:null,centreHtml:centre,
+            vitesse:tour('vitesse','⏱️ Vitesse de la machine','energy','Énergie allouée',data.speedLevel||0,vue.speedFill,vue.speedTarget,false,vue.speedEtaSeconds),
+            or:magicOk?tour('or','🪙 Multiplicateur d’or','magic','Magie allouée',data.goldLevel||0,vue.goldFill,vue.goldTarget,false,vue.goldEtaSeconds):null
+          };
         };
-        const stat=function(libelle,valeur,cle){return '<div><span>'+H.idleHtml_(libelle)+' :</span> <b'+(cle?' data-tm-stat="'+cle+'"':'')+'>'+valeur+'</b></div>';};
-        const factSansEffet=function(libelle,mult,cle){return Math.abs(H.idleNombre_(mult)-1)<1e-9?'':stat(libelle,pct(mult),cle);};
+        const stat=function(libelle,valeur,cle){return {libelle:libelle,valeur:valeur,cle:cle};};
+        const factSansEffet=function(libelle,mult,cle){return Math.abs(H.idleNombre_(mult)-1)<1e-9?null:stat(libelle,pct(mult),cle);};
         try{if(typeof requestAnimationFrame==='function'&&window.__SOREAL_IDLE_TM_DESSIN_V1__)requestAnimationFrame(function(){window.__SOREAL_IDLE_TM_DESSIN_V1__.rafraichir();});}catch(_e){}
-        return '<div class="soreal-idle-tm-v1">'+
-          '<header class="soreal-idle-tm-entete-v1"><h1>Machine à remonter le temps cassée</h1><p>(Ramasse cet or encore, et encore, et encore, et...)</p></header>'+
-          /*
-           * Bandeau d'identité (Norman, 2026-10-04 : « retravaille le menu Machine à remonter le temps cassée pour qu'il colle plus aux autres menus ; il doit avoir sa propre identité et bien nous rappeler qu'on gagne de l'OR »).
-           * Une machine de laiton qui crache des pièces : le gain d'Or par seconde en grand, la barre d'Or qui bat à chaque remplissage et ce que rapporte un remplissage.
-           */
-          '<section class="soreal-idle-tm-hero-v1">'+
-            '<div class="soreal-idle-tm-hero-pieces-v1" aria-hidden="true"><i>🪙</i><i>🪙</i><i>🪙</i><i>🪙</i><i>🪙</i></div>'+
-            '<div class="soreal-idle-tm-hero-titre-v1">💰 Ta machine fabrique de l’Or</div>'+
-            '<div class="soreal-idle-tm-hero-gps-v1"><b data-tm-hero="netGps">'+nombre(vue.netGps)+'</b><span> Or par seconde</span></div>'+
-            '<div class="soreal-idle-tm-hero-sous-v1">'+(vue.diggerDrain!=null?'Brut <b data-tm-hero="grossGps">'+nombre(vue.grossGps)+'</b> /s − Labos <b data-tm-hero="diggerDrain">'+nombre(vue.diggerDrain)+'</b> /s · ':'')+'<b data-tm-hero="orReel">'+nombre(orReelParRemplissageIdleV1_(vue))+'</b> Or à chaque remplissage de barre</div>'+
-            (function(){const b=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);return '<div class="soreal-idle-tm-or-v1"><div class="soreal-idle-tm-or-barre-v1"><div class="soreal-idle-tm-or-remplissage-v1'+(b.classe?' '+b.classe:'')+'" data-tm-or-remplissage="1" data-fills="'+H.idleNombre_(vue.barFillsPerSecond)+'" style="'+b.style+'"></div></div><div class="soreal-idle-tm-or-legende-v1" data-tm-or-legende="1">'+H.idleHtml_(legendeBarreOrTimeMachineIdleV1_(vue))+'</div></div>';})()+
-          '</section>'+
-          carteAideMenuIdleV1_('timeMachine','La Time Machine produit de l’Or toute seule (le GPS, Gold par seconde) en rejouant le meilleur drop d’Or que tu as obtenu en Adventure.',[
+        const barreOr=styleBarreOrTimeMachineIdleV1_(vue.barFillsPerSecond);
+        const brutNet=vue.diggerDrain!=null;
+        const aide={
+          cle:'timeMachine',ouvert:aideMenuOuverteIdleV1_('timeMachine'),
+          resume:'La Time Machine produit de l’Or toute seule (le GPS, Gold par seconde) en rejouant le meilleur drop d’Or que tu as obtenu en Adventure.',
+          etapes:[
             'Vitesse de la machine (Energy + Or) : elle accélère la barre. Jusqu’au niveau 50 chaque niveau la remplit plus vite ; au-delà, chaque niveau ajoute un multiplicateur d’Or.'
           ].concat(magicOk?['Multiplicateur d’or (Magic + Or) : il multiplie simplement l’Or produit.']:[]).concat([
             'Ton meilleur boss vaincu multiplie aussi l’Or produit.',
             'Le niveau N coûte N fois le prix du niveau 1, en Or et dans la ressource allouée.',
             'Les niveaux sont remis à zéro à chaque Rebirth.'
-          ]))+
-          '<div class="soreal-idle-bt-toolbar-v120">'+'<div class="soreal-idle-bt-entree-v1"><div class="soreal-idle-tm-input-v1 soreal-idle-bt-input-box-v120"><label for="sorealIdleTmInputV1">🎚️ Input</label><input id="sorealIdleTmInputV1" type="text" inputmode="decimal" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div></div><div class="soreal-idle-bt-info-v1 soreal-idle-tm-aide-v1"><b>Input</b> = quantité déplacée à chaque clic sur <b>+</b> (placer) ou <b>−</b> (retirer) ; <b>Max</b> place tout ce qui est libre. <b>Cible</b> = niveau visé : l’allocation est retirée dès qu’il est atteint (0 = pas de cible).</div>'+(window.__SOREAL_IDLE_ALLOC_V1__?window.__SOREAL_IDLE_ALLOC_V1__.cadres('energy','timeMachine')+(magicOk?window.__SOREAL_IDLE_ALLOC_V1__.cadres('magic','timeMachine'):''):'')+'</div>'+
+          ])
+        };
+        /* Barre d'outils : la chaîne est tenue par ce module et le module d'allocation ; elle est posée dans un îlot comparé par le morph (modules/machine-page-vdom-v1.js). */
+        const barreOutils='<div class="soreal-idle-bt-entree-v1"><div class="soreal-idle-tm-input-v1 soreal-idle-bt-input-box-v120"><label for="sorealIdleTmInputV1">🎚️ Input</label><input id="sorealIdleTmInputV1" type="text" inputmode="decimal" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de l\'énergie idle libre à la validation)" value="'+montantAugmentIdleV1+'" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div></div><div class="soreal-idle-bt-info-v1 soreal-idle-tm-aide-v1"><b>Input</b> = quantité déplacée à chaque clic sur <b>+</b> (placer) ou <b>−</b> (retirer) ; <b>Max</b> place tout ce qui est libre. <b>Cible</b> = niveau visé : l’allocation est retirée dès qu’il est atteint (0 = pas de cible).</div>'+(window.__SOREAL_IDLE_ALLOC_V1__?window.__SOREAL_IDLE_ALLOC_V1__.cadres('energy','timeMachine')+(magicOk?window.__SOREAL_IDLE_ALLOC_V1__.cadres('magic','timeMachine'):''):'');
+        const modele={
+          hero:{
+            net:nombre(vue.netGps),brutNet:brutNet,brut:nombre(vue.grossGps),labos:brutNet?nombre(vue.diggerDrain):'',orReel:nombre(orReelParRemplissageIdleV1_(vue)),
+            barre:{classe:barreOr.classe,style:barreOr.style,fills:String(H.idleNombre_(vue.barFillsPerSecond))},
+            legende:legendeBarreOrTimeMachineIdleV1_(vue)
+          },
+          aide:aide,
+          barreOutils:barreOutils,
           /* Anti-spoil (AGENTS.md règle n°2) : tant que Blood Magic n'est pas débloqué, la tour Magie n'apparaît pas du tout (avant : « 🔒 Magic se débloque avec Blood Magic au boss 37 »). */
-          grandeMachine()+
-          '<section class="soreal-idle-tm-stats-v1">'+
-            '<div class="soreal-idle-tm-stats-titre-v1">🧮 Comment ton GPS est calculé</div>'+
-            '<div class="soreal-idle-tm-stats-grille-v1">'+
-              '<div>'+
-                stat('🪙 Or de base par remplissage (avant multiplicateurs)',nombre(vue.goldPerBarFill),'goldPerBarFill')+
-                stat('🔁 Remplissages de barre par seconde',nombre(vue.barFillsPerSecond),'barFillsPerSecond')+
-                /* Anti-spoil : un facteur encore à 100 % (sans effet) n'est pas listé -- jamais le nom d'un système que le joueur n'a pas encore fait jouer. */
-                factSansEffet('Bonus GPS Blood Magic',vue.bloodMagicMultiplier,'bloodMagicMultiplier')+
-                factSansEffet('Multiplicateur GPS NGU',vue.nguMultiplier,'nguMultiplier')+
-                factSansEffet('Multiplicateur des défis',vue.challengeMultiplier,'challengeMultiplier')+
-              '</div>'+
-              '<div>'+
-                stat('👹 Multiplicateur du meilleur boss',nombre(vue.highestBossMultiplier),'highestBossMultiplier')+
-                stat('🪙 Multiplicateur d’or',nombre(vue.goldMultiplier),'goldMultiplier')+
-                stat('⏱️ Multiplicateur GPS de la vitesse',nombre(vue.machineSpeedMultiplier),'machineSpeedMultiplier')+
-                factSansEffet('Multiplicateur GPS de la Barbe',vue.beardMultiplier,'beardMultiplier')+
-              '</div>'+
-            '</div>'+
-            (vue.diggerDrain!=null
-              ?'<div class="soreal-idle-tm-gps-v1"><div>💰 GPS brut : <b data-tm-stat="grossGps">'+nombre(vue.grossGps)+'</b> <small>(ce que la machine fabrique)</small></div><div>🧑‍🔬 − Labos : <b data-tm-stat="diggerDrain">'+nombre(vue.diggerDrain)+'</b> <small>(l’Or que tes Labos actifs dépensent chaque seconde ; 0 si aucun n’est actif)</small></div><div>💎 GPS net : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b> <small>(ce qui entre vraiment dans ta bourse)</small></div></div>'
-              :'<div class="soreal-idle-tm-gps-v1"><div>💎 GPS : <b data-tm-stat="netGps">'+nombre(vue.netGps)+'</b></div></div>')+
-          '</section>'+
-        '</div>';
+          machine:grandeMachine(),
+          stats:{
+            colonne1:[
+              stat('🪙 Or de base par remplissage (avant multiplicateurs)',nombre(vue.goldPerBarFill),'goldPerBarFill'),
+              stat('🔁 Remplissages de barre par seconde',nombre(vue.barFillsPerSecond),'barFillsPerSecond'),
+              /* Anti-spoil : un facteur encore à 100 % (sans effet) n'est pas listé -- jamais le nom d'un système que le joueur n'a pas encore fait jouer. */
+              factSansEffet('Bonus GPS Blood Magic',vue.bloodMagicMultiplier,'bloodMagicMultiplier'),
+              factSansEffet('Multiplicateur GPS NGU',vue.nguMultiplier,'nguMultiplier'),
+              factSansEffet('Multiplicateur des défis',vue.challengeMultiplier,'challengeMultiplier')
+            ].filter(Boolean),
+            colonne2:[
+              stat('👹 Multiplicateur du meilleur boss',nombre(vue.highestBossMultiplier),'highestBossMultiplier'),
+              stat('🪙 Multiplicateur d’or',nombre(vue.goldMultiplier),'goldMultiplier'),
+              stat('⏱️ Multiplicateur GPS de la vitesse',nombre(vue.machineSpeedMultiplier),'machineSpeedMultiplier'),
+              factSansEffet('Multiplicateur GPS de la Barbe',vue.beardMultiplier,'beardMultiplier')
+            ].filter(Boolean),
+            gps:{brutNet:brutNet,brut:nombre(vue.grossGps),labos:brutNet?nombre(vue.diggerDrain):'',net:nombre(vue.netGps)}
+          }
+        };
+        const MP=window.__SOREAL_IDLE_MACHINE_PAGE_V1__;
+        return MP?MP.page(modele):'';
+        /* Rendu par composants Preact (chantier de fluidité, 2026-11-18) : modules/machine-page-vdom-v1.js ; ce qui est écrit en direct (barres, tubes, comptes à rebours, chiffres) reste impératif. */
       }
 
       /*

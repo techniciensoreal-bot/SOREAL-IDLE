@@ -10,10 +10,10 @@ assert.ok(serveur.includes("...(state.systems.diggers?.unlocked ? { diggerDrain:
 assert.ok(serveur.includes("Math.max(0,idleNguTimeMachineGrossGoldPerSecond(state)-diggerDrainTotal(state))"), "net = brut − coût des Mineurs d'or");
 
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-assert.ok(meta.includes("(vue.diggerDrain!=null") && meta.includes("<small>(ce qui entre vraiment dans ta bourse)</small>") && meta.includes("<small>(ce que la machine fabrique)</small>"), "avec les Mineurs d'or : brut, coût, net expliqués");
-assert.ok(meta.includes(":'<div class=\"soreal-idle-tm-gps-v1\"><div>💎 GPS : <b data-tm-stat=\"netGps\">"), "sans les Mineurs d'or : une seule ligne « GPS »");
+assert.ok(meta.includes("const brutNet=vue.diggerDrain!=null;") && meta.includes("h('small',null,'(ce qui entre vraiment dans ta bourse)')") && meta.includes("h('small',null,'(ce que la machine fabrique)')"), "avec les Mineurs d'or : brut, coût, net expliqués");
+assert.ok(meta.includes(":h('div',{class:'soreal-idle-tm-gps-v1'},h('div',null,'💎 GPS : ',h('b',{'data-tm-stat':'netGps'},p.gps.net)))"), "sans les Mineurs d'or : une seule ligne « GPS »");
 assert.ok(meta.includes("(vue.diggerDrain!=null)!==Boolean(document.querySelector('[data-tm-stat=\"diggerDrain\"]'))"), "le déblocage des Mineurs d'or redessine la page");
 assert.ok(meta.includes("if(cle==='diggerDrain'&&vue.diggerDrain==null)return;"), "pas de rafraîchissement d'une ligne absente");
 // Bandeau : « Brut ... − Mineurs d'or ... » seulement s'il y a de quoi comparer.
-assert.ok(meta.includes("(vue.diggerDrain!=null?'Brut <b data-tm-hero=\"grossGps\">"), "bandeau : brut et coût seulement avec les Mineurs d'or");
+assert.ok(meta.includes("p.brutNet?['Brut ',h('b',{'data-tm-hero':'grossGps'}"), "bandeau : brut et coût seulement avec les Mineurs d'or");
 console.log("idle-tm-gps-brut-net-v1: OK");
