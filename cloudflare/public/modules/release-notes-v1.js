@@ -30,7 +30,8 @@
         date:'2026-11-18',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Interface : plusieurs pages lourdes sont dessinées de façon plus fine (moins de recalcul à chaque rafraîchissement), pour plus de fluidité, surtout sur téléphone.'
+            'Interface : plusieurs pages lourdes sont dessinées de façon plus fine (moins de recalcul à chaque rafraîchissement), pour plus de fluidité, surtout sur téléphone.',
+            'Fluidité sur téléphone : certaines animations (lueurs de la borne, décors animés) ne forcent plus le téléphone à recalculer toute la page à chaque rafraîchissement ; l’aspect est identique.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'NGU : les boutons « Cap » et « Cap all » s’écrivent bien « Cap » (ils étaient traduits « Plafond » et coupés).'

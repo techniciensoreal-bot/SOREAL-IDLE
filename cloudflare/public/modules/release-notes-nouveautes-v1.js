@@ -4,8 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Interface : plusieurs pages lourdes sont dessinées de façon plus fine (moins de recalcul à chaque rafraîchissement), pour plus de fluidité, surtout sur téléphone.",
-    "Nuke automatique : il ne se lance plus que si un boss au moins peut être tué par un Nuke (fini le son toutes les minutes pour rien).",
-    "Aventure : les sons des effets (poison, explosion, paralysie, capacités) ne s’entendent plus que sur la page Aventure."
+    "Fluidité sur téléphone : certaines animations (lueurs de la borne, décors animés) ne forcent plus le téléphone à recalculer toute la page à chaque rafraîchissement ; l’aspect est identique."
   ] };
 })();

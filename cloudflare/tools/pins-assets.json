@@ -696,12 +696,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 384,
-  "sha": "3cef3a9ca21c39fba358ed4639cc1e1f89761f94"
+  "pin": 386,
+  "sha": "1e62fa6858ea52bbf6d597e6895421c82df848c3"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1033,
-  "sha": "de1b71d1cc8294c8ad983f25c4d9576434974df4"
+  "pin": 1035,
+  "sha": "f04d6f3e88388b4d03880e96e9187842fe8a567e"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -716,8 +716,8 @@
   "sha": "c34e602f716b3e1dd88f17906c9a100e890b0eb7"
  },
  "/modules/sang-rituel-decor-v1.js": {
-  "pin": 242,
-  "sha": "d08aa892ac30afd5f193c53a4b378ed4b4d37b79"
+  "pin": 246,
+  "sha": "1be3efba8b0d749ebf7e79b9fe5df0fff3a7bd32"
  },
  "/modules/sans-bulles-v1.js": {
   "pin": 2,
@@ -796,12 +796,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1080,
-  "sha": "9596cecabc81eeb6a92df2f8347622f9a9db9069"
+  "pin": 1082,
+  "sha": "ce07be511fd027a5af9631fb89bcd9a08019e3e3"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 900,
-  "sha": "4b182e8f7da1b05eb900a7f93763fd7929b74e55"
+  "pin": 902,
+  "sha": "c14b56c9ad1f5517094705fd89fcd4454c3f59a6"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -868,8 +868,8 @@
   "sha": "df71495e5381548e29eb2bb8b7a9569f2db7e4ce"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 56,
-  "sha": "ef05b8094ff117d3bdebd87d39f6061effd046f6"
+  "pin": 57,
+  "sha": "a10259e5251cca50a2c3b8da48662a6aa8212468"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
@@ -1072,8 +1072,8 @@
   "sha": "409e74ca0ecf7d7452a3e3641710a8d9ce185733"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 365,
-  "sha": "a1d147d7712af785256be53b5cbfc825ce6a740e"
+  "pin": 366,
+  "sha": "d2f9b5d4e098d4faaf6720d020e64969065aa781"
  },
  "/soreal-idle-jeu.css": {
   "pin": 12,
