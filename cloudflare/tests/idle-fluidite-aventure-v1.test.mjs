@@ -50,17 +50,15 @@ const lire = (f) => readFileSync(new URL("../public/" + f, import.meta.url), "ut
   assert.ok(requetes > r1 + 2, "relecture au plus toutes les 750 ms même sans redessin");
 }
 
-/* ---- 2. ITOPOD : le rafraîchissement en direct ne construit plus toutes les vitrines ---- */
+/* ---- 2. ITOPOD : le rafraîchissement en direct ne refabrique plus aucune chaîne HTML (composants Preact, 2026-11-18) ---- */
 {
   const src = lire("modules/itopod-perks-page-v1.js");
-  assert.ok(src.includes("if(window.__itopodLegerV1__)return '<div class=\"pk-solde\"><b>'+pp+'</b></div>';"), "pagePerksIdleV1_ : version légère (solde seul)");
   const i = src.indexOf("function rafraichirItopodIdleV1_");
   const corps = src.slice(i, src.indexOf("window.__rafraichirItopodIdleV1__=", i));
-  assert.ok(corps.includes("window.__itopodLegerV1__=true;") && /finally\{[^}]*window\.__itopodLegerV1__=false;/.test(corps), "drapeau posé puis TOUJOURS retiré (finally)");
-  /* la version légère précède la fabrication des cartes, et le rendu complet (drapeau absent) reste intact */
-  assert.ok(src.indexOf("window.__itopodLegerV1__)return") < src.indexOf("const cartes=defs.map"), "retour avant la boucle des cartes");
-  assert.ok(src.includes("'<div class=\"pk-fond\"><div class=\"pk-boutique\">'"), "page complète inchangée");
-  assert.ok(corps.includes("copier(vivant,neuf,'.itp-tuile b')") && corps.includes(".pk-solde b"), "les mêmes chiffres sont copiés (tuiles, PP, solde)");
+  /* plus de version « légère » à base de drapeau et de HTML temporaire : le rendu par composants ne touche que ce qui change */
+  assert.ok(!src.includes("__itopodLegerV1__") && !corps.includes("innerHTML"), "plus de chaîne HTML temporaire à analyser à chaque synchro");
+  assert.ok(corps.includes("preparerItopodIdleV1_(j,derniereSceneItopodIdleV1_)") && corps.includes("V.monter('itopod',C.Page,vm)"), "synchro : même modèle de vue, même conteneur");
+  assert.ok(!corps.includes("sc.html(") && !corps.includes("SCENE_V1__"), "la scène animée n'est pas recalculée");
 }
 
 /* ---- 3. animations jamais visibles retirées ---- */

@@ -3,6 +3,9 @@
  * Extrait tel quel de meta-progression-v130.js (même code, mêmes ponts window.__x__ pour les onclick inline).
  * Dépendances : window.__SOREAL_IDLE_META_V130__ et window.__SOREAL_IDLE_META_HOST_V130__, relus seulement à l'exécution
  * (l'ordre de chargement des <script> n'a pas d'importance). Expose window.__SOREAL_IDLE_ITOPOD_PERKS_PAGE_V1__.
+ *
+ * ITOPOD (tour + boutique des Atouts) : rendu par composants Preact (2026-11-18, modules/itopod-vdom-v1.js, pont modules/vdom-pont-v1.js). Ce fichier garde tout ce qui a un effet de bord (brouillon des étages,
+ * mémoire de la vue, HTML de la scène, actions) et prépare le MODÈLE DE VUE que les composants dessinent ; la scène animée (itopod-scene-v1.js) reste impérative.
  */
 (function(){
   'use strict';
@@ -13,70 +16,43 @@
       function toggleSystemeMetaIdleV130_(){return window.__SOREAL_IDLE_META_PARTAGE_V130__.toggleSystemeMetaIdleV130_.apply(null,arguments);}
       function emojiNomIdleV1_(){return window.__SOREAL_IDLE_META_PARTAGE_V130__.emojiNomIdleV1_.apply(null,arguments);}
 
-/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-303 */
-function pagePerksIdleV1_(j){
-        const s=systemeMetaParIdIdleV130_(j,'perks');
-        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+/*
+ * Modèle des vitrines du magasin des Perks (Norman, 2026-10-04) : une boutique à part, en vitrines (néon violet et rose, étagères) et non en rayons à auvent comme les boutiques EXP et AP ;
+ * une image par achat : celle du wiki NGU Idle (https://ngu-idle.fandom.com/wiki/Perk_Points), copiée dans /perks/<numéro du perk>.webp. Aucun total (anti-spoil).
+ * Dessiné par modules/itopod-vdom-v1.js (Perks_) ; ici seulement les données.
+ */
+function modelePerksIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const s=systemeMetaParIdIdleV130_(j,'perks');
+        if(!s||!s.state||!s.state.unlocked)return null;
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.perkDefinitions)?j.systemes.perkDefinitions:[];
         const pp=j&&j.systemes&&j.systemes.currencies?H.idleEntier_(j.systemes.currencies.pp||0):0;
-        /* Audit de fluidité (2026-11-02) : le rafraîchissement en direct de la page ITOPOD (à chaque synchro) ne lit que le solde de PP ; il ne fabrique plus (ni ne fait analyser) toutes les vitrines de perks. */
-        if(window.__itopodLegerV1__)return '<div class="pk-solde"><b>'+pp+'</b></div>';
-        /*
-         * Magasin des Perks (Norman, 2026-10-04) : une boutique à part, en vitrines (néon violet et rose, étagères) et non en rayons à auvent comme les boutiques EXP et AP ;
-         * une image par achat : celle du wiki NGU Idle (https://ngu-idle.fandom.com/wiki/Perk_Points), copiée dans /perks/<numéro du perk>.webp. Aucun total (anti-spoil).
-         */
         const filtre=window.__perkFiltreIdleV1__||{q:'',abordables:false};
         const q=String(filtre.q||'').trim().toLowerCase();
-        const cartes=defs.map(function(perk){
+        const cartes=[];
+        defs.forEach(function(perk){
           const niveau=H.idleEntier_(levels[perk.id]||0);
           const cap=H.idleEntier_(perk.cap||0);
           const auMax=niveau>=cap;
           const cout=H.idleEntier_(perk.cost||0);
           const abordable=!auMax&&pp>=cout;
           const nom=String(perk.name||('Perk '+perk.id));
-          if(q&&(nom+' '+String(perk.effect||'')).toLowerCase().indexOf(q)<0)return '';
-          if(filtre.abordables&&!abordable)return '';
+          if(q&&(nom+' '+String(perk.effect||'')).toLowerCase().indexOf(q)<0)return;
+          if(filtre.abordables&&!abordable)return;
           const barre=cap>0?Math.min(100,niveau*100/cap):0;
-          return '<article class="pk-vitrine'+(auMax?' pk-max':abordable?' pk-abordable':'')+(niveau>0?' pk-possede':'')+'">'+
-            '<div class="pk-socle"><img class="pk-image" src="/perks/'+H.idleEntier_(perk.id)+'.webp'+(perk.id===52||perk.id===53?'?v=2':'')+'" alt="" loading="lazy" onerror="this.hidden=true"></div>'+
-            '<div class="pk-corps">'+
-              '<div class="pk-nom">'+H.idleHtml_(nom)+'</div>'+
-              '<div class="pk-effet">'+H.idleHtml_(perk.effect||'')+'</div>'+
-              '<div class="pk-niveau"><div class="pk-jauge"><i style="width:'+barre.toFixed(1)+'%"></i></div><span>'+niveau+' / '+cap+'</span></div>'+
-            '</div>'+
-            (auMax
-              ?'<div class="pk-etiquette pk-etiquette-max">✔ Maximum</div>'
-              :'<button type="button" class="pk-acheter" onclick="window.__acheterPerkIdleV1__('+perk.id+')"><span class="pk-prix">⭐ '+cout+' PP</span><span class="pk-achat">Acheter</span></button>')+
-          '</article>';
-        }).join('');
-        return '<div class="pk-fond"><div class="pk-boutique">'+
-            '<div class="pk-enseigne"><span class="pk-ampoules"></span><div class="pk-enseigne-texte"><small>Boutique</small><b>Perk Emporium</b></div><span class="pk-ampoules"></span></div>'+
-            '<div class="pk-comptoir"><div class="pk-solde"><span>⭐ PP disponibles</span><b>'+pp+'</b></div>'+
-              '<input class="pk-recherche" type="search" placeholder="Chercher un perk…" value="'+H.idleHtml_(filtre.q||'')+'" oninput="window.__perkFiltrerIdleV1__(this.value,null)">'+
-              '<button type="button" class="pk-bascule'+(filtre.abordables?' actif':'')+'" onclick="window.__perkFiltrerIdleV1__(null,'+(filtre.abordables?'false':'true')+')">💰 Abordables</button>'+
-            '</div>'+
-            '<div class="pk-etagere">'+(cartes||'<div class="pk-vide">Aucun perk ne correspond.</div>')+'</div>'+
-          '</div></div>';
+          cartes.push({id:perk.id,nom:nom,effet:String(perk.effect||''),niveau:niveau,cap:cap,auMax:auMax,cout:cout,abordable:abordable,barre:barre.toFixed(1)+'%',
+            image:'/perks/'+H.idleEntier_(perk.id)+'.webp'+(perk.id===52||perk.id===53?'?v=2':'')});
+        });
+        return {pp:pp,q:String(filtre.q||''),abordables:Boolean(filtre.abordables),cartes:cartes,sig:pp+'|'+String(filtre.q||'')+'|'+Boolean(filtre.abordables)+'|'+JSON.stringify(cartes)};   /* sig : Perks_ ne se redessine que si elle change */
       }
 
-/* Filtre du magasin des Perks : recherche et « abordables » ; le magasin est redessiné aussitôt (la saisie garde le focus). */
+/* Filtre du magasin des Perks : recherche et « abordables » ; la page est rendue de nouveau aussitôt (le champ de recherche est le MÊME élément : il garde le focus, sans aucune manœuvre). */
 function perkFiltrerIdleV1_(q,abordables){
         const f=window.__perkFiltreIdleV1__||(window.__perkFiltreIdleV1__={q:'',abordables:false});
         if(q!=null)f.q=String(q);
         if(abordables!=null)f.abordables=Boolean(abordables);
-        const racine=document.querySelector('.pk-fond');
-        const ancien=racine&&racine.querySelector('.pk-boutique');
-        if(!ancien)return;
-        const actif=document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('pk-recherche');
-        const pos=actif?document.activeElement.selectionStart:0;
-        const tmp=document.createElement('div');
-        tmp.innerHTML=pagePerksIdleV1_(window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat());
-        const neuf=tmp.querySelector('.pk-boutique');
-        if(!neuf)return;
-        ancien.replaceWith(neuf);
-        if(actif){const champ=racine.querySelector('.pk-recherche');if(champ){champ.focus();try{champ.setSelectionRange(pos,pos);}catch(_){}}}
+        rendreDeNouveauItopodIdleV1_();
       }
       window.__perkFiltrerIdleV1__=perkFiltrerIdleV1_;
 
@@ -105,12 +81,22 @@ function pageQuirksIdleV1_(j){
           }).join('')+'</div>';
       }
 
-/* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-304 */
-function pageItopodIdleV1_(j){
+/* Données de la tour (système ITOPOD) ; null tant qu'elle n'est pas débloquée. */
+function lireItopodIdleV1_(j){
         const s=systemeMetaParIdIdleV130_(j,'tower');
-        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+        if(!s||!s.state||!s.state.unlocked)return null;
+        return {s:s,d:(s.state.data)||{}};
+      }
+
+/* Dernier HTML de la scène posé dans la page : une synchro (rafraîchissement en direct) le réutilise tel quel, seule une page redessinée en recalcule un (et réinitialise le combat de l'écran, comme avant). */
+let derniereSceneItopodIdleV1_='';
+
+/* Modèle de vue de la page entière : tout ce que les composants (modules/itopod-vdom-v1.js) dessinent. */
+function preparerItopodIdleV1_(j,sceneHtml){
+        const t=lireItopodIdleV1_(j);
+        if(!t)return null;
+        const s=t.s,d=t.d;
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const d=(s.state.data)||{};
         const etage=H.idleEntier_(d.floor);
         const kills=H.idleEntier_(d.kills);
         const versProchainEtage=d.killsOnFloor!=null?H.idleEntier_(d.killsOnFloor):kills%10;
@@ -127,99 +113,73 @@ function pageItopodIdleV1_(j){
         const ppProgress=Math.max(0,H.idleNombre_(d.ppProgress));
         const pp=H.idleEntier_((j&&j.systemes&&j.systemes.currencies&&j.systemes.currencies.pp)||0);
         const pourcent=Math.max(0,Math.min(100,ppProgress/10000));
-        /* Champ de saisie « jeu vidéo » : valeur au centre, − et + de part et d'autre. */
-        const champ=function(id,libelle,valeur){
-          return '<div class="itp-champ"><label for="'+id+'">'+libelle+'</label>'+
-            '<div class="itp-pas"><button type="button" class="itp-pas-bouton" aria-label="Moins" onclick="window.__itopodPasIdleV1__(this,-1)">−</button>'+
-            '<input id="'+id+'" class="itp-saisie" type="number" inputmode="numeric" min="0" max="1600" value="'+valeur+'" oninput="window.__itopodBrouillonIdleV1__()" onchange="window.__itopodBrouillonIdleV1__()">'+
-            '<button type="button" class="itp-pas-bouton" aria-label="Plus" onclick="window.__itopodPasIdleV1__(this,1)">+</button></div></div>';
-        };
         /* Little Blue Pill (lu dans le jeu, build 1260, 2026-11-17 : AdventureController::togglePill / updatePillUI « Enable Little Blue Pill (N kills left) ») : bouton visible seulement si le joueur possède déjà des pilules (ou a le réglage actif) ; réglage lié au compte (état du jeu côté serveur, règle n°6). */
         const conso=(j&&j.systemes&&j.systemes.consommables)||{};
         const pilulesRestantes=Math.max(0,Math.floor(Number(conso.reserve&&conso.reserve.bluePills)||0));
         const pilulesActives=Boolean(conso.pilulesActives);
-        const boutonPilule=(pilulesRestantes>0||pilulesActives)
-          ?'<button type="button" class="itp-bouton itp-bouton-pilule" style="flex:none;width:100%;margin-top:8px;font-size:14px;background:'+(pilulesActives?'linear-gradient(180deg,#64748b,#334155)':'linear-gradient(180deg,#3b82f6,#1e40af)')+'" aria-pressed="'+(pilulesActives?'true':'false')+'" title="Chaque pilule double les PPP d’un kill dans l’ITOPOD (une pilule par kill, seulement tant que le réglage est actif)." onclick="window.__itopodPiluleIdleV1__()">💊 '+(pilulesActives?'Désactiver la petite pilule bleue':'Activer la petite pilule bleue')+' ('+H.idleEntier_(pilulesRestantes)+' kills restants)</button>'
-          :'';
-        const tuile=function(icone,libelle,valeur){return '<div class="itp-tuile"><span class="itp-tuile-icone">'+icone+'</span><span class="itp-tuile-libelle">'+libelle+'</span><b>'+valeur+'</b></div>';};
         const atouts=systemeMetaParIdIdleV130_(j,'perks');
         const atoutsOuverts=Boolean(atouts&&atouts.state&&atouts.state.unlocked);
         const vueAtouts=atoutsOuverts&&window.__itopodVueIdleV1__==='atouts';
-        return H.entetePageIdleV28_(
-          '🏢 ITOPOD',
-          'Une tour sans fin : bats 10 ennemis pour monter d’un étage. Chaque ennemi vaincu te rapporte des PPP ('+(j&&j.systemes&&j.systemes.difficulty==='extreme'?2000:j&&j.systemes&&j.systemes.difficulty==='difficile'?700:200)+' + le numéro de l’étage). À 1 000 000 PPP, tu gagnes 1 PP à dépenser dans les Atouts. Tu choisis l’étage de départ et l’étage de fin : arrivé au bout, tu repars du départ.'
-        )+
-        (atoutsOuverts?'<div class="itp-vues"><button type="button" class="itp-bouton itp-bouton-atouts" onclick="window.__itopodVueIdleV1_basculer__()">'+(vueAtouts?'🏢 Retour à la tour':'⭐ Atouts')+'</button></div>':'')+
-        (atoutsOuverts?'<div class="itp-vue-atouts"'+(vueAtouts?'':' hidden')+'>'+pagePerksIdleV1_(j)+'</div>':'')+
-        '<div class="itp-page"'+(vueAtouts?' hidden':'')+'>'+
-          (window.__SOREAL_IDLE_ITOPOD_SCENE_V1__?window.__SOREAL_IDLE_ITOPOD_SCENE_V1__.html(Object.assign({},d,{actif:Boolean(s.state.active)})):'')+
-          '<section class="itp-panneau itp-entree">'+
-            '<button type="button" class="itp-bouton itp-bouton-entrer'+(s.state.active?' itp-en-cours':'')+'" onclick="window.__itopodBasculerIdleV1__()">'+(s.state.active?'🚪 Quitter l’ITOPOD':'⚔️ Entrer dans l’ITOPOD')+'</button>'+
-            boutonPilule+
-            '<div class="itp-mode">'+(s.state.active?'Tu combats les ennemis à la chaîne.':'Entre dans la tour pour combattre les ennemis à la chaîne.')+'</div>'+
-            (d.hitsParKill===0?'<div class="itp-mode itp-alerte">Tu n’es pas encore assez fort pour avancer dans la tour : monte ta Puissance d’Aventure.</div>':'')+
-          '</section>'+
-          '<section class="itp-panneau itp-montee">'+
-            '<div class="itp-titre">🪜 Étages à gravir</div>'+
-            '<div class="itp-mode">'+(auto?'Montée automatique jusqu’à l’étage optimal':(debut===fin?'Étage fixé : '+debut+(debut===optimal?' (ton meilleur étage)':''):'Départ '+debut+' → fin '+fin))+'</div>'+
-            '<div class="itp-champs">'+champ('itopodDebutV1','Départ',champDebut)+champ('itopodFinV1','Fin',champFin)+'</div>'+
-            '<div class="itp-actions">'+
-              '<button type="button" class="itp-bouton" onclick="window.__itopodEtagesIdleV1__()">Appliquer</button>'+
-              '<button type="button" class="itp-bouton itp-bouton-auto" title="Règle tes étages sur ton meilleur étage (l’étage optimal du moment). Reclique plus tard pour le remettre à jour." onclick="window.__itopodAutoIdleV1__()">Auto</button>'+
-            '</div>'+
-          '</section>'+
-          '<section class="itp-panneau">'+
-            '<div class="itp-titre">📊 Progression</div>'+
-            '<div class="itp-tuiles">'+
-              tuile('🏢','Étage',etage)+
-              tuile('⭐','PP disponibles',pp)+
-              tuile('🗡️','Ennemis vaincus',H.formatGrandNombreIdleV70_(kills))+
-              tuile('⬆️','Prochain étage',versProchainEtage+' / 10')+
-              tuile('🏔️','Étage le plus haut',plusHaut)+
-              tuile('🎯','Étage optimal',optimal)+
-            '</div>'+
-            '<div class="itp-pp"><div class="itp-pp-ligne"><span>🔷 Progression PP</span><b>'+Math.floor(ppProgress).toLocaleString('fr-FR')+' / 1 000 000</b></div>'+
-              '<div class="itp-pp-barre"><div class="itp-pp-rempli" style="width:'+pourcent.toFixed(2)+'%"></div></div></div>'+
-          '</section>'+
-        '</div>';
+        return {
+          sousTitre:'Une tour sans fin : bats 10 ennemis pour monter d’un étage. Chaque ennemi vaincu te rapporte des PPP ('+(j&&j.systemes&&j.systemes.difficulty==='extreme'?2000:j&&j.systemes&&j.systemes.difficulty==='difficile'?700:200)+' + le numéro de l’étage). À 1 000 000 PPP, tu gagnes 1 PP à dépenser dans les Atouts. Tu choisis l’étage de départ et l’étage de fin : arrivé au bout, tu repars du départ.',
+          atoutsOuverts:atoutsOuverts,vueAtouts:vueAtouts,
+          perks:atoutsOuverts?modelePerksIdleV1_(j):null,
+          sceneHtml:sceneHtml,
+          actif:Boolean(s.state.active),
+          pilule:(pilulesRestantes>0||pilulesActives)?{actives:pilulesActives,restantes:H.idleEntier_(pilulesRestantes)}:null,
+          alerte:d.hitsParKill===0,
+          modeEtages:auto?'Montée automatique jusqu’à l’étage optimal':(debut===fin?'Étage fixé : '+debut+(debut===optimal?' (ton meilleur étage)':''):'Départ '+debut+' → fin '+fin),
+          champDebut:champDebut,champFin:champFin,
+          tuiles:[['🏢','Étage',etage],['⭐','PP disponibles',pp],['🗡️','Ennemis vaincus',H.formatGrandNombreIdleV70_(kills)],['⬆️','Prochain étage',versProchainEtage+' / 10'],['🏔️','Étage le plus haut',plusHaut],['🎯','Étage optimal',optimal]],
+          ppTexte:Math.floor(ppProgress).toLocaleString('fr-FR')+' / 1 000 000',
+          ppLargeur:pourcent.toFixed(2)+'%'
+        };
       }
 
-/* Bouton « Atouts » de la page ITOPOD : bascule entre la tour et la boutique des Atouts (ancien menu à part), sans rien redessiner. */
+/* Page ITOPOD pour le menu : le modèle est confié au pont, qui rend les composants dans un conteneur persistant et renvoie ici la chaîne STABLE à mettre dans la page. Un redessin de la page recalcule le HTML de la scène. */
+function pageItopodIdleV1_(j){
+        const t=lireItopodIdleV1_(j);
+        if(!t)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+        const V=window.__SOREAL_IDLE_VDOM_V1__,C=window.__SOREAL_IDLE_ITOPOD_VDOM_V1__;
+        if(!V||!C)return '';
+        const sc=window.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
+        derniereSceneItopodIdleV1_=sc?sc.html(Object.assign({},t.d,{actif:Boolean(t.s.state.active)})):'';
+        return V.monter('itopod',C.Page,preparerItopodIdleV1_(j,derniereSceneItopodIdleV1_));
+      }
+
+/* Rendu synchrone vers une chaîne HTML (tests, débogage) : jamais utilisé par la page. */
+function htmlItopodIdleV1_(j){
+        const V=window.__SOREAL_IDLE_VDOM_V1__,C=window.__SOREAL_IDLE_ITOPOD_VDOM_V1__;
+        const t=lireItopodIdleV1_(j);
+        if(!t||!V||!C)return '';
+        const sc=window.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
+        derniereSceneItopodIdleV1_=sc?sc.html(Object.assign({},t.d,{actif:Boolean(t.s.state.active)})):'';
+        return V.rendreHtml(C.Page,preparerItopodIdleV1_(j,derniereSceneItopodIdleV1_));
+      }
+
+/* Nouveau rendu local, sans redessiner le menu : filtre des perks, bascule de vue. La scène n'est pas recalculée (son HTML reste celui de la page). */
+function rendreDeNouveauItopodIdleV1_(){
+        const V=window.__SOREAL_IDLE_VDOM_V1__,C=window.__SOREAL_IDLE_ITOPOD_VDOM_V1__;
+        const j=window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat();
+        if(!V||!C||!j||typeof document==='undefined'||!document.querySelector('.itp-page'))return;
+        const vm=preparerItopodIdleV1_(j,derniereSceneItopodIdleV1_);
+        if(vm)V.monter('itopod',C.Page,vm);
+      }
+
+/* Bouton « Atouts » de la page ITOPOD : bascule entre la tour et la boutique des Atouts (ancien menu à part), sans redessiner le menu. */
 function itopodVueIdleV1_basculer_(){
         const vers=window.__itopodVueIdleV1__==='atouts'?'tour':'atouts';
         window.__itopodVueIdleV1__=vers;
-        const a=document.querySelector('.itp-vue-atouts');
-        const t=document.querySelector('.itp-page');
-        const b=document.querySelector('.itp-bouton-atouts');
-        if(a)a.hidden=vers!=='atouts';
-        if(t)t.hidden=vers==='atouts';
-        if(b)b.textContent=vers==='atouts'?'🏢 Retour à la tour':'⭐ Atouts';
+        rendreDeNouveauItopodIdleV1_();
       }
       window.__itopodVueIdleV1_basculer__=itopodVueIdleV1_basculer_;
 
-/* Mise à jour en direct des chiffres de la page ITOPOD (étage, ennemis vaincus, PP, progression) sans toucher à la scène animée ni aux champs d'étage. */
+/* Mise à jour en direct de la page ITOPOD à chaque synchro (étage, ennemis vaincus, PP, progression, solde et vitrines) : même rendu, seul ce qui change est touché ; la scène animée (HTML de la dernière page) et les champs d'étage en cours de saisie ne sont jamais réécrits. */
 function rafraichirItopodIdleV1_(j){
-        const vivant=document.querySelector('.itp-page');
-        if(!vivant)return;
-        const tmp=document.createElement('div');
-        /* La scène animée est mise de côté pendant ce calcul : son HTML réinitialise le combat de l'écran (coups, ennemi suivant) ; sans cette précaution les ennemis ne défilaient plus (toujours le même, remis à zéro toutes les 4 s). */
-        const scene=window.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
-        window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=null;
-        window.__itopodLegerV1__=true;
-        try{tmp.innerHTML=pageItopodIdleV1_(j);}finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;window.__itopodLegerV1__=false;}
-        const neuf=tmp.querySelector('.itp-page');
-        if(!neuf)return;
-        const copier=function(racineVive,racineNeuve,sel){
-          const a=racineVive.querySelectorAll(sel),b=racineNeuve.querySelectorAll(sel);
-          a.forEach(function(e,i){if(b[i]&&e.textContent!==b[i].textContent)e.textContent=b[i].textContent;});
-        };
-        copier(vivant,neuf,'.itp-tuile b');
-        copier(vivant,neuf,'.itp-pp-ligne b');
-        const barreVive=vivant.querySelector('.itp-pp-rempli'),barreNeuve=neuf.querySelector('.itp-pp-rempli');
-        if(barreVive&&barreNeuve&&barreVive.style.width!==barreNeuve.style.width)barreVive.style.width=barreNeuve.style.width;
-        /* Solde de PP de la boutique des Atouts (même page). */
-        const soldeVif=document.querySelector('.pk-solde b'),soldeNeuf=tmp.querySelector('.pk-solde b');
-        if(soldeVif&&soldeNeuf&&soldeVif.textContent!==soldeNeuf.textContent)soldeVif.textContent=soldeNeuf.textContent;
+        const V=window.__SOREAL_IDLE_VDOM_V1__,C=window.__SOREAL_IDLE_ITOPOD_VDOM_V1__;
+        if(!V||!C||typeof document==='undefined'||!document.querySelector('.itp-page'))return;
+        const vm=preparerItopodIdleV1_(j,derniereSceneItopodIdleV1_);
+        if(vm)V.monter('itopod',C.Page,vm);
       }
       window.__rafraichirItopodIdleV1__=rafraichirItopodIdleV1_;
 
@@ -289,6 +249,7 @@ function acheterQuirkIdleV1_(quirkId){
 
   window.__SOREAL_IDLE_ITOPOD_PERKS_PAGE_V1__={
     pageQuirksIdleV1_:pageQuirksIdleV1_,
-    pageItopodIdleV1_:pageItopodIdleV1_
+    pageItopodIdleV1_:pageItopodIdleV1_,
+    htmlItopodIdleV1_:htmlItopodIdleV1_
   };
 })();

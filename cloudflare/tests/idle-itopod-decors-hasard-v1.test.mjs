@@ -53,9 +53,11 @@ assert.ok(html(5, 7).match(/itp-pip plein/g).length === 8, "pastilles : ennemi n
 
 // 3. Page : le choix des étages vient APRÈS l'arène ; champs de saisie « jeu » avec − et + ; la feuille de style existe et est chargée.
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-const page = meta.slice(meta.lastIndexOf("function pageItopodIdleV1_"), meta.lastIndexOf("function itopodEtagesIdleV1_"));
-assert.ok(page.indexOf("ITOPOD_SCENE_V1__.html(d)") < page.indexOf("itp-montee"), "arène puis choix des étages");
-assert.ok(page.includes("itopodDebutV1") && page.includes("itopodFinV1") && page.includes("itp-pas-bouton"));
+/* Depuis le rendu par composants Preact (2026-11-18) : le HTML de l'arène est calculé par pageItopodIdleV1_ (itopod-perks-page-v1.js) et posé par Scene_ ; Scene_ précède le panneau des étages dans le composant de page (itopod-vdom-v1.js). */
+const vdom = readFileSync("cloudflare/public/modules/itopod-vdom-v1.js", "utf8");
+assert.ok(meta.includes("sc.html(Object.assign({},t.d,{actif:Boolean(t.s.state.active)}))"), "le HTML de l'arène vient du module de scène");
+assert.ok(vdom.indexOf("h(Scene_,{html:p.sceneHtml})") > 0 && vdom.indexOf("h(Scene_,{html:p.sceneHtml})") < vdom.indexOf("itp-montee"), "arène puis choix des étages");
+assert.ok(vdom.includes("itopodDebutV1") && vdom.includes("itopodFinV1") && vdom.includes("itp-pas-bouton"));
 const css = readFileSync("cloudflare/public/soreal-idle-jeu.css", "utf8");
 assert.ok(css.includes(".itp-arene") && css.includes('input[type="number"]') && css.includes("select"), "style de la tour et zones de saisie");
 assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes("/soreal-idle-jeu.css?v="), "feuille chargée");
@@ -71,8 +73,10 @@ console.log("idle-itopod-decors-hasard-v1: OK");
 // 5. Magasin des Perks : vitrines à part, image du wiki par achat (/perks/<id>.webp), aucun total.
 {
   const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-  const page = meta.slice(meta.lastIndexOf("function pagePerksIdleV1_"), meta.lastIndexOf("function pageQuirksIdleV1_"));
-  assert.ok(page.includes("/perks/") && page.includes("pk-vitrine") && page.includes("Perk Emporium"));
+  const vdomPerks = readFileSync("cloudflare/public/modules/itopod-vdom-v1.js", "utf8");
+  const modele = meta.slice(meta.lastIndexOf("function modelePerksIdleV1_"), meta.lastIndexOf("function pageQuirksIdleV1_"));
+  const page = modele + vdomPerks;
+  assert.ok(modele.includes("'/perks/'") && vdomPerks.includes("pk-vitrine") && vdomPerks.includes("Perk Emporium"));
   assert.ok(!/defs\.length/.test(page), "pas de total de perks (anti-spoil)");
   const { readdirSync } = await import("node:fs");
   const ids = [...readFileSync("cloudflare/src/idle-perks-v1.js", "utf8").matchAll(/\{ id: (\d+), name/g)].map((m) => m[1]);
