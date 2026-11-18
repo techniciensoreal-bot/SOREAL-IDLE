@@ -1963,8 +1963,22 @@
         });
       };
 
+  /* Entrée : rendu Preact (augmentations-vdom-v1.js, 2026-11-18) ; sans Preact, défi « No Augmentations » ou système verrouillé : chaîne HTML historique ci-dessus. */
+  function pageAugmentationsEntreeIdleV1_(j){
+    const W=window.__SOREAL_IDLE_AUGMENTATIONS_VDOM_V1__;
+    if(W&&window.preact&&window.__SOREAL_IDLE_VDOM_V1__){const r=W.page(j);if(r)return r;}
+    return pageAugmentationsIdleV48_(j);
+  }
+
   window.__SOREAL_IDLE_AUGMENTATIONS_PAGE_V1__={
-    pageAugmentationsIdleV48_:pageAugmentationsIdleV48_,
+    pageAugmentationsIdleV48_:pageAugmentationsEntreeIdleV1_,
+    pageAugmentationsChaineIdleV1_:pageAugmentationsIdleV48_,
+    /* partagé avec le rendu Preact : mêmes fonctions et tables */
+    aides:{
+      systemeMeta:systemeMetaParIdIdleV130_,rebaserVisuel:rebaserVisuelAugmentsIdleV1_,construireVisuel:construireVisuelAugmentsIdleV1_,texteEta:texteEtaAugmentIdleV1_,formatMultiplicateur:formatMultiplicateurIdleV1_,
+      aideOuverte:aideMenuOuverteIdleV1_,NOMS:IDLE_NOMS_AUGMENTS_V1,NOMS_UPGRADES:IDLE_NOMS_UPGRADES_AUGMENTS_V1,ICONES:IDLE_ICONES_AUGMENTS_V1,ICONES_UPGRADES:IDLE_ICONES_UPGRADES_AUGMENTS_V1,
+      COULEURS_LED:COULEURS_LED_AUGMENTS_V1,COULEURS_RANG:COULEURS_RANG_AUGMENTS_V1
+    },
     pageTimeMachineIdleV48_:pageTimeMachineIdleV48_,
     exclamationOrIdleV1_:exclamationOrIdleV1_,
     pageBloodMagicIdleV48_:pageBloodMagicIdleV48_,

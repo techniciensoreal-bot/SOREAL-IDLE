@@ -27,7 +27,8 @@ assert.match(c, /Plafond d’énergie<\/span><button[^>]*>Max<\/button><button[^
 assert.match(c, /💤 Idle<\/span><button[^>]*>1\/2<\/button><button[^>]*>1\/4<\/button><button[^>]*class="clear"[^>]*>Tout reprendre<\/button>/, "deuxième cadre : IDLE 1/2 1/4 Tout retirer");
 // 2. Les menus qui avaient déjà leurs cadres utilisent les mêmes intitulés.
 assert.ok(ui.includes("<span>⚡ Plafond d’énergie</span>"), "Basic Training");
-assert.equal(meta.split("<span>⚡ Plafond d’énergie</span>").length - 1, 2, "Augmentations et Advanced Training");
+/* Augmentations (rendu en chaîne HTML de repli ET rendu Preact, augmentations-vdom-v1.js) et Advanced Training */
+assert.equal(meta.split("<span>⚡ Plafond d’énergie</span>").length - 1, 3, "Augmentations (chaîne et Preact) et Advanced Training");
 assert.ok(sang.includes("<span>🔮 Plafond de magie</span>"), "Blood Magic");
 assert.ok(ngu.includes("'🔮 Plafond de magie':'⚡ Plafond d’énergie'"), "NGU");
 assert.ok(!/<span>⚡ Energy Cap<\/span>|<span>Magic Cap<\/span>|✨ Magic Cap|⚡ Energy Cap'/.test(ui + sang + ngu + meta), "plus d'ancien intitulé de cadre");
