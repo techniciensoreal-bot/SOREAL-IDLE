@@ -129,6 +129,8 @@ if(window.__SOREAL_IDLE_MORPH_V1__)return;
       ecrireAttributIdleV1_(a,at.name,valeur);
     }
     }
+    /* Conteneur d'une page rendue par composants (modules/vdom-pont-v1.js, Preact) : seuls ses attributs sont comparés ; son contenu appartient à Preact et n'est jamais touché par le morph. */
+    if(a.hasAttribute&&a.hasAttribute('data-vdom'))return;
     const tag=a.tagName;
     if(tag==='SCRIPT'||tag==='STYLE'){
       if(a.textContent!==b.textContent)a.textContent=b.textContent;

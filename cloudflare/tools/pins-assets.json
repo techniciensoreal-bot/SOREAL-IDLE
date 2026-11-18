@@ -540,8 +540,8 @@
   "sha": "5340fb8f532e437192ec7a7268a485e8837b180e"
  },
  "/modules/morph-v1.js": {
-  "pin": 6,
-  "sha": "ea78d5be1f392056bead6346e26b5aba7f6cc651"
+  "pin": 7,
+  "sha": "4407f2605dd4f8bf988ca518afa2588f1a41fba6"
  },
  "/modules/mort-joueur-v1.js": {
   "pin": 18,
@@ -911,6 +911,14 @@
   "pin": 70,
   "sha": "06ebd7e65448d9f21e4207ddb16b9edfc3a06931"
  },
+ "/modules/vdom-pont-v1.js": {
+  "pin": 3,
+  "sha": "f4c6fb709fccc78b7d9cdec2ad9fbbf0c2f607a5"
+ },
+ "/modules/vendor/preact-10.28.4.min.js": {
+  "pin": 1,
+  "sha": "341ad619818414df90cc0ad5039ee0a8d3ff0c7e"
+ },
  "/modules/victoire-boss-arcade-v1.js": {
   "pin": 12,
   "sha": "196aebe04209861c73db01bb3bfe15b986e54707"
@@ -944,7 +952,7 @@
   "sha": "b70d0a1cc9d37c6be0bf093744c101b7cd4e3483"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 101,
+  "pin": 103,
   "sha": "47857e65c567e6e03f61d998b8298a014771c402"
  },
  "/modules/yggdrasil-sons-v1.js": {
@@ -1052,7 +1060,7 @@
   "sha": "95a1a9cadb91aaaab54e44d847a9cbf2748ff80d"
  },
  "/soreal-idle-lisibilite-v1.css": {
-  "pin": 4,
+  "pin": 6,
   "sha": "093507640a6ddd259c5b5d82e14978837c3d0729"
  },
  "/soreal-idle-machine.css": {
@@ -1110,5 +1118,9 @@
  "/standalone-bridge.js": {
   "pin": 29,
   "sha": "683494dd1b0db575a7ab897098ae936b69ec3b84"
+ },
+ "/vdom-v1.css": {
+  "pin": 1,
+  "sha": "719b2f2a16697a59a59ecab6bfc42ffaebfd545e"
  }
 }

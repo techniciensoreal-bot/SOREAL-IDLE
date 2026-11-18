@@ -1,0 +1,8 @@
+Bibliotheques tierces copiees dans le depot (le jeu doit fonctionner hors ligne : exe, APK ; jamais de CDN au execution).
+
+preact-10.28.4.min.js
+  Preact 10.28.4, licence MIT (preact-LICENSE.txt), (c) Jason Miller.
+  Source : https://registry.npmjs.org/preact/-/preact-10.28.4.tgz, fichier dist/preact.min.umd.js,
+  seul l'en-tete de commentaire est ajoute et la ligne sourceMappingURL retiree. Expose window.preact.
+  Usage : uniquement par modules/vdom-pont-v1.js (pont) et les pages migrees (h() sans JSX, sans build).
+  Mise a jour : npm pack preact@<version>, remplacer le fichier, changer son nom ET la ligne <script> d'index.html.
