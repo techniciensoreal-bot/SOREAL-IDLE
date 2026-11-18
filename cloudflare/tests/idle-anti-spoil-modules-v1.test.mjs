@@ -81,6 +81,7 @@ const LISTE_BLANCHE = [
   /* Pages extraites de soreal-idle-ui.js : « verrouille » = NOM DE CLASSE CSS de la ligne d'entraînement grisée (aucun texte affiché). */
   { fichier: "ui-*", contient: "verrouille\" data-basi", raison: "nom de classe CSS, pas un texte affiché" },
   /* Code extrait de soreal-idle-ui.js (modules ui-*-v1.js, 2026-10-16) : mêmes exceptions qu'avant, dans leur nouveau fichier. */
+  { fichier: "aventure-vdom-v1.js", exact: "???", raison: "même bouton « Titans » fermé en « ??? », rendu par le composant Preact (modules/aventure-vdom-v1.js) : exception décidée par Norman (2026-10-10), AGENTS.md règle n°2" },
   { fichier: "ui-*", contient: "soreal-idle-titans-ferme-v1", raison: "bouton « Titans » fermé en « ??? » : exception décidée par Norman (2026-10-10), AGENTS.md règle n°2" },
   { fichier: "ui-*", contient: "Déverrouiller", raison: "verrou posé par le joueur sur SON objet (bouton d'inventaire)" },
   { fichier: "ui-*", contient: "Verrouiller", raison: "verrou posé par le joueur sur SON objet (bouton d'inventaire)" },

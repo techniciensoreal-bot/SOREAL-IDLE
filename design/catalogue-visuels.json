@@ -6,7 +6,7 @@
   "keyframes": 430,
   "fichiersAvecWebAnimations": 21,
   "fichiersCanvas": 13,
-  "pointsEntreeRejouables": 273,
+  "pointsEntreeRejouables": 275,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
@@ -2572,6 +2572,7 @@
     "modules/ui-popups-v1.js",
     "modules/ui-reglages-v1.js",
     "modules/ui-renaissance-v1.js",
+    "modules/vdom-pont-v1.js",
     "modules/voix-nommees-v1.js",
     "modules/wandoos-retro-v1.js",
     "modules/wishes-page-v1.js",
@@ -2728,6 +2729,7 @@
     "soreal-idle-ui.css"
    ],
    "utilisePar": [
+    "modules/aventure-vdom-v1.js",
     "modules/ui-aventure-1-v1.js",
     "soreal-idle-ui.css"
    ]
@@ -4360,6 +4362,7 @@
   "__SOREAL_IDLE_AUDIO_VOLUME_V1__": "modules/audio-volume-v1.js",
   "__SOREAL_IDLE_AUGMENTATIONS_PAGE_V1__": "modules/augmentations-page-v1.js",
   "__SOREAL_IDLE_AUG_LED_BARRES_V1__": "modules/aug-led-barres-v1.js",
+  "__SOREAL_IDLE_AVENTURE_VDOM_V1__": "modules/aventure-vdom-v1.js",
   "__SOREAL_IDLE_BARRES_ACTIVES_V1__": "modules/barres-actives-v1.js",
   "__SOREAL_IDLE_BARRE_INFOS_V2__": "modules/ui-amorcage-v1.js",
   "__SOREAL_IDLE_BASIC_TRAINING_STABILITY_V121_TEST__": "modules/basic-training-stability-v121.js",
@@ -4594,6 +4597,7 @@
   "__SOREAL_IDLE_UI_PARTAGE_V1__": "modules/ui-amorcage-v1.js",
   "__SOREAL_IDLE_VALISE_ACCIDENT_V1__": "modules/valise-accident-v1.js",
   "__SOREAL_IDLE_VALISE_V1__": "modules/valise-v1.js",
+  "__SOREAL_IDLE_VDOM_V1__": "modules/vdom-pont-v1.js",
   "__SOREAL_IDLE_VICTOIRE_ARCADE_V1__": "modules/victoire-boss-arcade-v1.js",
   "__SOREAL_IDLE_VICTOIRE_EN_COURS__": "modules/morts-boss-nouvelles-v1.js",
   "__SOREAL_IDLE_VOIX_NOMMEES_V1__": "modules/voix-nommees-v1.js",

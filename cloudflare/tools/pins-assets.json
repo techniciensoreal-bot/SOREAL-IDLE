@@ -91,6 +91,10 @@
   "pin": 74,
   "sha": "0911ef0b9183abf8375622b31d256eabfec71d00"
  },
+ "/modules/aventure-vdom-v1.js": {
+  "pin": 3,
+  "sha": "921ed55c337f808ee3ab7ed0061e0595763bcab4"
+ },
  "/modules/barre-allocation-v1.js": {
   "pin": 14,
   "sha": "4863a1bd865131421319b3eca3037fcdcb2faa43"
@@ -820,8 +824,8 @@
   "sha": "e69258c2c016884a1b63288e00a80aa44c3837f7"
  },
  "/modules/ui-aventure-1-v1.js": {
-  "pin": 53,
-  "sha": "60059055064acf694d68ebc9041acaa95f1ffe1d"
+  "pin": 56,
+  "sha": "a4522fd916de628106b59c4634807f8a50c53518"
  },
  "/modules/ui-aventure-2-v1.js": {
   "pin": 66,

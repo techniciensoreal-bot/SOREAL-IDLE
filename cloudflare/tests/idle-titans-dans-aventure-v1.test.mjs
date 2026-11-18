@@ -14,7 +14,10 @@ assert.ok(/if\(id==='titans'\)return false;/.test(ui), "le menu Titans n'est jam
 assert.ok(/IDLE_MENU_PAR_SYSTEME_V1\.titans='aventure'/.test(ui), "le système Titans mène à Adventure");
 assert.ok(/ancien==='titans'\?'aventure'/.test(ui), "un menu mémorisé « titans » ouvre Adventure");
 assert.ok(/__SOREAL_IDLE_TITANS_V1__\.section\(j\)/.test(ui), "la page Adventure affiche la page des titans dans sa vue Titans");
-assert.ok(/const bascule=titans\.length\?/.test(ui), "bouton de bascule seulement s'il y a un titan débloqué");
+/* Page migrée vers Preact (2026-11-18) : le composant décide du bouton ; la chaîne HTML d'origine reste en repli. */
+const vdom = readFileSync("cloudflare/public/modules/aventure-vdom-v1.js", "utf8");
+assert.ok(/const bascule=vdomAv\?vdomAv\.bascule\(j,a,titans,iconeTitan,[^)]*\):titans\.length\?/.test(ui), "bouton de bascule seulement s'il y a un titan débloqué (repli en chaîne)");
+assert.ok(/function bascule_\(j,a,titans,iconeTitan,vueTitans\)\{[\s\S]*?if\(titans\.length\)\{[\s\S]*?aventure-bascule/.test(vdom), "bouton de bascule seulement s'il y a un titan débloqué (composant Preact)");
 assert.ok(ui.includes("window.__vueAventureIdleV1__=function(v)"), "changement de vue exposé");
 assert.ok(ui.indexOf("const bascule=")<ui.indexOf("🗺️ Zones</div>"), "la bascule est au-dessus de Zones");
 assert.ok(!mod.includes("__vueAventureIdleV1__('zones')")&&mod.includes('demanderPlace_(t,function(){lancerCombatTitan_(id);});'), "Affronter reste sur l'écran Titans (écran de combat de titan, plus de retour à la vue des zones)");

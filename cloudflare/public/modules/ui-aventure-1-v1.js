@@ -40,7 +40,6 @@
   function titanApresCoupJoueurIdleV1_(){return REG.titanApresCoupJoueurIdleV1_.apply(null,arguments);}
   function restPvInitialIdleV1_(){return REG.restPvInitialIdleV1_.apply(null,arguments);}
   function pageInventaireIdleV28_(){return REG.pageInventaireIdleV28_.apply(null,arguments);}
-
       function idleNombre_(v){
         const n=Number(v);
         return Number.isFinite(n)?n:0;
@@ -1284,7 +1283,7 @@
         const zones=Array.isArray(a.zones)?a.zones:[];
         const zone=zones.find(function(z){return z&&String(z.id)===selected;})||null;
         const picker=document.getElementById('idleZoneSelectCustom');
-        if(picker){
+        const vdomAv=window.__SOREAL_IDLE_AVENTURE_VDOM_V1__;if(picker&&vdomAv&&vdomAv.zonesMontees()){vdomAv.zones(zones,selected,zone,formatGrandNombreIdleV70_);picker.classList.remove('open');}else if(picker){
           const value=picker.querySelector('.team-sort-trigger-value');
           if(value)value.textContent=String((zone&&(zone.name||zone.id))||selected||'—');
           picker.classList.remove('open');
@@ -2442,9 +2441,10 @@ function pageAventureIdleV28_(j){
         });
         const deblocagesDisponibles=objetsDeblocageDisponiblesAdventureIdleV1_(a);
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-227 */
+        const vdomAv=/* composants Preact (modules/aventure-vdom-v1.js) ; chaîne HTML ci-dessous = repli si Preact n'est pas chargé */window.__SOREAL_IDLE_AVENTURE_VDOM_V1__&&window.__SOREAL_IDLE_AVENTURE_VDOM_V1__.pret()?window.__SOREAL_IDLE_AVENTURE_VDOM_V1__:null;
         /* Bascule Aventure / Titans (Norman, 2026-10-08) : plus de menu Titans, un bouton au-dessus des zones ouvre la page des titans, le bouton Aventure revient aux zones. Rien n'est affiché tant qu'aucun titan n'est débloqué. */
         const iconeTitan=titans.length&&window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.icone?window.__SOREAL_IDLE_TITANS_V1__.icone(j):'';
-        const bascule=titans.length?(
+        const bascule=vdomAv?vdomAv.bascule(j,a,titans,iconeTitan,REG.idleVueAventureV1==='titans'):titans.length?(
           '<div class="soreal-idle-bascule-aventure-v1'+(iconeTitan?' avec-icone':'')+'">'+
             '<button type="button" class="soreal-idle-expand-button-v25'+(REG.idleVueAventureV1==='titans'?'':' actif')+'" onclick="window.__vueAventureIdleV1__(\'zones\')">🗺️ Aventure</button>'+
             '<button type="button" class="soreal-idle-expand-button-v25'+(REG.idleVueAventureV1==='titans'?' actif':'')+(window.__SOREAL_IDLE_TITANS_V1__&&window.__SOREAL_IDLE_TITANS_V1__.disponible&&window.__SOREAL_IDLE_TITANS_V1__.disponible(j)?' soreal-idle-titan-brille-v1':'')+'" onclick="window.__vueAventureIdleV1__(\'titans\')">👹 Titans</button>'+iconeTitan+
@@ -2462,7 +2462,7 @@ function pageAventureIdleV28_(j){
         return bascule+''+
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-228 */
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-229 */
-          '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🗺️ Zones</div>'+
+          (vdomAv?vdomAv.zones(zones,selected,zone,formatGrandNombreIdleV70_):'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🗺️ Zones</div>'+
             '<div class="soreal-idle-zone-picker-v1">'+
               '<button type="button" class="soreal-idle-zone-arrow-v1" onclick="window.__zoneAdventurePrecedenteV1__()" aria-label="Zone précédente">◀</button>'+
               '<div class="team-sort-custom soreal-idle-zone-custom-v1" id="idleZoneSelectCustom">'+
@@ -2494,11 +2494,11 @@ function pageAventureIdleV28_(j){
               '</div>'+
               '<button type="button" class="soreal-idle-zone-arrow-v1" onclick="window.__zoneAdventureSuivanteV1__()" aria-label="Zone suivante">▶</button>'+
             '</div>'+
-          '</div>'+
+          '</div>')+
           /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-232 */
           (zone?rendreZoneCombatAdventureIdleV1_(a,j.nom):'')+
           /* Les cartes des titans ont leur propre vue dans cette page (bouton « Titans » en haut, modules/titans-v1.js). */''+
-          (deblocagesDisponibles.length?'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🎒 Un objet t’attend : ton sac est plein</div><div style="display:grid;gap:8px">'+deblocagesDisponibles.map(function(id){const d=IDLE_ADVENTURE_UNLOCK_ITEMS_V1[id];return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:12px;background:rgba(255,200,120,.08);border:1px solid rgba(255,200,120,.35)"><span><b>'+idleHtml_(d.nom)+'</b><br><small>Libère une place dans ton sac : l’objet y arrivera, puis utilise-le pour débloquer '+idleHtml_(d.systeme)+'.</small></span></div>';}).join('')+'</div></div>':'')+
+          (deblocagesDisponibles.length?(vdomAv?vdomAv.deblocages(deblocagesDisponibles.map(function(cle){const d=IDLE_ADVENTURE_UNLOCK_ITEMS_V1[cle];return {id:cle,nom:String(d.nom),systeme:String(d.systeme)};})):'<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🎒 Un objet t’attend : ton sac est plein</div><div style="display:grid;gap:8px">'+deblocagesDisponibles.map(function(id){const d=IDLE_ADVENTURE_UNLOCK_ITEMS_V1[id];return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px;border-radius:12px;background:rgba(255,200,120,.08);border:1px solid rgba(255,200,120,.35)"><span><b>'+idleHtml_(d.nom)+'</b><br><small>Libère une place dans ton sac : l’objet y arrivera, puis utilise-le pour débloquer '+idleHtml_(d.systeme)+'.</small></span></div>';}).join('')+'</div></div>'):'')+
           /* 2026-09-24 (Norman : « trop de menus sur téléphone ») : tout l'Inventory (équipement, sac, coffre, options) est maintenant sous la page Adventure. */
           (j.inventaireDebloque?pageInventaireIdleV28_(j):'');
       }
