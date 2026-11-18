@@ -19,7 +19,6 @@
   function son_(nom,option){var S=window.__SOREAL_IDLE_YGG_SONS_V1__;if(S&&S.jouer)S.jouer(nom,option);}
 
   function H_(){return window.__SOREAL_IDLE_META_HOST_V130__;}
-  function html_(t){var H=H_();return H&&H.idleHtml_?H.idleHtml_(t):String(t==null?'':t).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function nb_(v){var n=Number(v);return Number.isFinite(n)?n:0;}
   function ent_(v){return Math.max(0,Math.floor(nb_(v)));}
   function grand_(v){var H=H_();return H&&H.formatGrandNombreIdleV70_?H.formatGrandNombreIdleV70_(v):String(Math.floor(nb_(v)));}
@@ -60,16 +59,34 @@
     if(H&&typeof H.rafraichirMenuRacineIdleV28_==='function')H.rafraichirMenuRacineIdleV28_();
   }
 
+  /*
+   * Rendu par composants Preact (chantier de fluidité, 2026-11-18, AGENTS.md règle n°4) : la page n'est plus une chaîne HTML comparée au DOM toutes les 4 s mais un arbre de composants (h(), sans JSX) rendu par modules/vdom-pont-v1.js dans un
+   * conteneur persistant ; les nœuds du DOM (fruits, images, boutons) restent les mêmes d'un rendu à l'autre, seul ce qui change est touché. Les composants sont PURS : tout ce qui a un effet de bord (sons, portes, mémoire des tailles) se
+   * décide dans preparer_(), une fois par rendu, comme avant ; les composants ne font que dessiner le modèle de vue obtenu.
+   */
+  var P_=window.preact||null;
+  var h=P_&&P_.h;
+  /* Texte d'un enfant : les chaînes voisines sont FUSIONNÉES en un seul nœud de texte, comme dans l'ancien HTML (les traducteurs travaillent nœud de texte par nœud de texte). */
+  function fus_(a){
+    var o=[];
+    a.forEach(function(x){
+      if(x==null||x===false||x==='')return;
+      if(typeof x==='string'&&typeof o[o.length-1]==='string')o[o.length-1]+=x;else o.push(x);
+    });
+    return o;
+  }
   /* Image R2 d'un fruit (ou « seed », « poop ») avec dessin de secours ; une image absente n'est plus redemandée pendant la visite. */
-  function image_(nom,secours,classe,etape,srcForce){
-    var fond='<span class="ygg-secours">'+html_(secours)+'</span>';
-    if(etat.manquantes[nom])return fond;
+  /* La poop a la même image que dans la boutique AP (« Fertilizer », /shop/fertilizer.png). */
+  /* La graine a l'image de l'objet « A Giant Seed » (R2 idle/items/Item_0092_A_Giant_Seed.png, via la route des objets). */
+  function srcImage_(nom){return nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom);}
+  function Image_(p){
+    var nom=p.nom,manque=Boolean(etat.manquantes[nom]);
     /* Image déjà chargée pendant la visite : plus de dessin de secours (pas de clignotement au rafraîchissement des chiffres). */
-    /* La poop a la même image que dans la boutique AP (« Fertilizer », /shop/fertilizer.png). */
-    /* La graine a l'image de l'objet « A Giant Seed » (R2 idle/items/Item_0092_A_Giant_Seed.png, via la route des objets). */
-    var src=srcForce?srcForce:nom==='poop'?'/shop/fertilizer.png':nom==='seed'?'/api/idle/media/item?wikiItemId=92':'/api/idle/media/ygg?name='+encodeURIComponent(nom)+(etape!=null?'&etape='+etape+(nbEtapes_(nom)===24?'&sur=24':''):'');
-    return (etat.chargees[nom]?'':fond)+'<img class="ygg-img '+(classe||'')+'" src="'+src+'" alt="" loading="lazy" draggable="false" '+
-      'onload="window.__SOREAL_IDLE_YGG_V1__.imageChargee(\''+html_(nom)+'\',this)" onerror="window.__SOREAL_IDLE_YGG_V1__.imageManquante(\''+html_(nom)+'\',this)">';
+    return [
+      manque||!etat.chargees[nom]?h('span',{class:'ygg-secours'},p.secours):null,
+      manque?null:h('img',{class:'ygg-img'+(p.classe?' '+p.classe:''),src:srcImage_(nom),alt:'',loading:'lazy',draggable:false,
+        onLoad:function(e){API.imageChargee(nom,e.currentTarget);},onError:function(e){API.imageManquante(nom,e.currentTarget);}})
+    ];
   }
 
   /* ---------- Style ---------- */
@@ -371,14 +388,14 @@
   var AURAS_={gold:'#ffb21f',powerAlpha:'#ff4a2a',powerBeta:'#e8426f',powerDelta:'#ff7a1f',adventure:'#c9d63a',knowledge:'#e87848',pomegranate:'#ff3b2c',luck:'#b9d11a',arbitrariness:'#e6b834',numbers:'#79bfee',rage:'#ff4426',macguffinAlpha:'#ff9430',watermelon:'#9ccc24',macguffinBeta:'#4a7cff',quirks:'#ff8c22',angryMayo:'#ff6126',sadMayo:'#4fb0d6',moldyMayo:'#d6b13a',ayyMayo:'#c4d824',cincoMayo:'#ff9a38',prettyMayo:'#ff9c40'};
   /* « r,g,b » d'une couleur #rrggbb (pour rgba(var(--lueur),α)) */
   function rvb_(hex){var h=String(hex||'').replace('#','');if(h.length!==6)return '255,211,74';return parseInt(h.slice(0,2),16)+','+parseInt(h.slice(2,4),16)+','+parseInt(h.slice(4,6),16);}
-  function couches_(d,v,id,def){
-    if(FRUITS_24_[id]!==true||!(v.tier>0))return image_(id,emoji_(id,def.name),'',null);
-    var src='/api/idle/media/ygg?name='+encodeURIComponent(id)+'&fruit=1';
-    return fruitsArbre_(v,id).map(function(f){
-      return '<img class="ygg-img ygg-fruit'+(f[2]===1?' ygg-mur':'')+'" alt="" draggable="false" src="'+src+'" style="--ygg-x:'+f[0]+'%;--ygg-y:'+f[1]+'%;--ygg-k:'+f[2].toFixed(3)+';--ygg-r:'+f[3]+'deg;--ygg-s:'+f[4]+';--ygg-aura:'+(AURAS_[id]||'#ffd34a')+'">';
-    }).join('');
+  /* Les fruits posés sur l'arbre (voir fruitsArbre_) : une image par fruit, position et taille en variables CSS (objet de style : un rendu ne réécrit que la variable qui change, jamais le visibility posé par l'animation d'usage). */
+  function Fruits_(p){
+    var src='/api/idle/media/ygg?name='+encodeURIComponent(p.id)+'&fruit=1',aura=AURAS_[p.id]||'#ffd34a';
+    return p.fruits.map(function(f){
+      return h('img',{class:'ygg-img ygg-fruit'+(f[2]===1?' ygg-mur':''),alt:'',draggable:false,src:src,
+        style:{'--ygg-x':f[0]+'%','--ygg-y':f[1]+'%','--ygg-k':f[2].toFixed(3),'--ygg-r':f[3]+'deg','--ygg-s':String(f[4]),'--ygg-aura':aura}});
+    });
   }
-  function nbEtapes_(id){return FRUITS_24_[id]===true?24:20;}
   /* Plus d'images de croissance : la pousse est une taille (voir fruitsArbre_) ; la fonction reste pour les appels existants. */
   function etapeCroissance_(d,v){return null;}
 
@@ -398,11 +415,11 @@
    */
   /* Couleurs des cadres (Norman, 2026-11-02 : « pour chacun des cadres d'Yggdrasil, adapte les couleurs par rapport à la porte qu'il a ») : [teinte en degrés, saturation en %, et pour une porte à DEUX couleurs : teinte et saturation de la seconde] de la couleur du CHAMP de chaque porte (pas de son liseré doré). Le cadre de la carte, la plaque du nom et la barre de croissance en dérivent. */
   var PALETTES_PORTES_={gold:[42,70],powerAlpha:[2,70],powerBeta:[262,60],powerDelta:[26,80],adventure:[130,55],knowledge:[290,50],pomegranate:[0,70],luck:[100,55],arbitrariness:[28,75,184,60],numbers:[208,35],rage:[354,72],macguffinAlpha:[22,78],watermelon:[128,55],macguffinBeta:[226,60],quirks:[8,70],angryMayo:[6,70],sadMayo:[204,70],moldyMayo:[42,28],ayyMayo:[78,60],cincoMayo:[4,65],prettyMayo:[8,70]};
-  function styleCouleursPorte_(id){var p=PALETTES_PORTES_[id];return p?'--yg-h:'+p[0]+';--yg-s:'+p[1]+'%;--yg-h2:'+(p.length>2?p[2]:p[0])+';--yg-s2:'+(p.length>3?p[3]:p[1])+'%;--yg-k:'+(p.length>2?'.75':'0')+';':'';}
   var PORTES_IMAGES_={gold:true,powerAlpha:true,powerBeta:true,powerDelta:true,adventure:true,knowledge:true,pomegranate:true,luck:true,arbitrariness:true,numbers:true,rage:true,macguffinAlpha:true,watermelon:true,macguffinBeta:true,quirks:true,angryMayo:true,sadMayo:true,moldyMayo:true,ayyMayo:true,cincoMayo:true,prettyMayo:true};
-  function porte_(id,ouvre,referme){
-    var img='<img src="/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;porte=1" alt="" draggable="false">';
-    return '<div class="ygg-porte'+(ouvre?' ouvre':'')+(referme?' referme':'')+'" data-porte-img="1" style="--vit:'+reglages_().porte+'" aria-hidden="true"><i class="ygg-porte-lueur"></i><div class="ygg-porte-g">'+img+'</div><div class="ygg-porte-d">'+img+'</div></div>';
+  function Porte_(p){
+    var img=function(){return h('img',{src:'/api/idle/media/ygg?name='+encodeURIComponent(p.id)+'&porte=1',alt:'',draggable:false});};
+    return h('div',{class:'ygg-porte'+(p.ouvre?' ouvre':'')+(p.referme?' referme':''),'data-porte-img':'1',style:{'--vit':String(reglages_().porte)},'aria-hidden':'true'},
+      h('i',{class:'ygg-porte-lueur'}),h('div',{class:'ygg-porte-g'},img()),h('div',{class:'ygg-porte-d'},img()));
   }
   /* Porte à afficher pour ce fruit : close tant qu'il n'est pas actif ; ouverture (une seule fois) quand on le voit passer à actif. */
   /* Bruit de la porte : « porte » (pierre, lourde) ou « porteBois ». */
@@ -450,28 +467,28 @@
   }
   /* Les portes restent en place tant que Norman n'a pas fourni les siennes (une par arbre et fruit) : mettre PORTES_ACTIVES_ à false seulement à ce moment-là (2026-11-02 : retirées trop tôt, puis remises). */
   function porteDe_(id,actif){
-    if(PORTES_IMAGES_[id]!==true)return '';
+    if(PORTES_IMAGES_[id]!==true)return null;
     var A=etat.actif||(etat.actif={}),F=etat.referme||(etat.referme={});
     if(!actif){
       /* l'animation de manger / récolter joue sur les fruits : la porte ne se referme qu'après (animer_ redessine la page à la fin) */
-      if(etat.anim&&etat.anim[id]&&Date.now()<etat.anim[id])return '';
+      if(etat.anim&&etat.anim[id]&&Date.now()<etat.anim[id])return null;
       /* Norman (2026-10-27) : « les portes font un rollback à l'ouverture » : une réponse en retard qui annonce encore le fruit inactif juste après l'activation refermait la porte en pleine ouverture (puis elle se rouvrait). Pendant l'animation d'ouverture, on ne referme jamais : si le fruit est vraiment inactif, la fermeture se joue juste après. */
-      if(etat.ouvre&&etat.ouvre[id]&&Date.now()-etat.ouvre[id]<DUREE_OUVERTURE_*reglages_().porte)return porte_(id,true);
+      if(etat.ouvre&&etat.ouvre[id]&&Date.now()-etat.ouvre[id]<DUREE_OUVERTURE_*reglages_().porte)return {id:id,ouvre:true,referme:false};
       /* Le fruit vient d'être mangé ou récolté (il était actif, il ne l'est plus : l'auto ne l'a pas relancé) : la porte se referme, avec l'animation d'ouverture à l'envers et un son de fermeture à part. */
       if(A[id]){delete A[id];F[id]=Date.now();sonPorteUnique_('ferme',nomSonFerme_(),reglages_().porte,1200);}
       etat.fermees[id]=true;delete etat.ouvre[id];noterPorteVue_(id,false);
-      if(F[id]&&Date.now()-F[id]<DUREE_OUVERTURE_*reglages_().porte)return porte_(id,false,true);
+      if(F[id]&&Date.now()-F[id]<DUREE_OUVERTURE_*reglages_().porte)return {id:id,ouvre:false,referme:true};
       delete F[id];
-      return porte_(id,false);
+      return {id:id,ouvre:false,referme:false};
     }
     A[id]=true;delete F[id];
     if(!etat.fermees[id]&&!etat.ouvre[id]&&!porteVue_(id))etat.fermees[id]=true;   /* premiere visite depuis la renaissance : la porte s'ouvre meme si le fruit est deja actif */
     var vit=reglages_().porte;
     if(etat.fermees[id]){delete etat.fermees[id];etat.ouvre[id]=Date.now();noterPorteVue_(id,true);if(sonPorteUnique_('ouvre',nomSonPorte_(),vit,1200))coqPremiereOuverture_(vit);}
     var t=etat.ouvre[id];
-    if(t&&Date.now()-t<DUREE_OUVERTURE_*vit)return porte_(id,true);
+    if(t&&Date.now()-t<DUREE_OUVERTURE_*vit)return {id:id,ouvre:true,referme:false};
     delete etat.ouvre[id];
-    return '';
+    return null;
   }
 
   /* Réglages de la porte (Norman, 2026-10-26 : l'ancien module d'essai des animations et des sons est supprimé) : valeurs fixes, celles d'origine. */
@@ -502,17 +519,26 @@
    * Le nombre de chaque gain dans son propre élément (Norman, 2026-10-30 : « Manger : +4 graines +252Qa Or doit être plus visible, avec le code couleur du Qa comme pour le reste ») : le module des nombres en couleur (nombres-couleur-v1.js) ne traite que les textes
    * courts ; une ligne entière « Manger : +4 graines · +252Qa Or » était trop longue, le « Qa » restait de la couleur du texte.
    */
-  function nombreHtml_(t){
+  /* Un gain « +252Qa Or » : le nombre dans son propre élément (« + », <span class="ygg-n">252Qa</span>, « Or ») ; texte voisin fusionné. */
+  function nombreEnf_(t){
     var m=/^\+(\d[\d.,]*(?:[eE][+\-]?\d+|[A-Za-z]{0,4}))/.exec(t);
-    return m?'+<span class="ygg-n">'+html_(m[1])+'</span>'+html_(t.slice(m[0].length)):html_(t);
+    return m?['+',h('span',{class:'ygg-n'},m[1]),t.slice(m[0].length)]:[t];
   }
-  function apercuHtml_(d,v,c){
+  function apercuVm_(d,v,c){
     var a=v.e&&v.e.apercu;
-    if(!v.pret||!a||!a.sans)return '';
+    if(!v.pret||!a||!a.sans)return null;
     var avecPoop=Boolean(c.poop&&d.poop>0&&a.avec);
     var p=avecPoop?a.avec:a.sans;
     var manger=['+'+grand_(p.eat.seeds)+' graines'].concat((p.eat.effets||[]).map(function(e){return texteEffet_(e[0],e[1]);}).filter(Boolean));
-    return '<div class="ygg-apercu" data-ygg-apercu><div><b>Manger</b> : '+manger.map(nombreHtml_).join(' · ')+'</div><div><b>Récolter</b> : '+nombreHtml_('+'+grand_(p.harvest.seeds)+' graines')+'</div>'+(avecPoop?'<div>(avec la Poop)</div>':'')+'</div>';
+    return {manger:manger,recolte:'+'+grand_(p.harvest.seeds)+' graines',avecPoop:avecPoop};
+  }
+  function Apercu_(a){
+    var m=[];
+    a.manger.forEach(function(t,i){if(i)m.push(' · ');m=m.concat(nombreEnf_(t));});
+    return h('div',{class:'ygg-apercu','data-ygg-apercu':''},
+      h('div',null,fus_([h('b',null,'Manger'),' : '].concat(m))),
+      h('div',null,fus_([h('b',null,'Récolter'),' : '].concat(nombreEnf_(a.recolte)))),
+      a.avecPoop?h('div',null,'(avec la Poop)'):null);
   }
   /*
    * Jamais d'animation de rétrécissement (Norman, 2026-10-27 : « on voit des fruits max rétrécir jusqu'à redevenir un tas de terre : c'est du spoil »). Les images grossissent en 4 s ; mais quand une carte reçoit une pousse PLUS PETITE que celle qu'elle montrait,
@@ -525,9 +551,16 @@
   }
   /* Compteur au-dessus de l'arbre (Norman, 2026-11-04) : « 2/8 » = 2 fruits prêts sur les 8 que porte l'arbre à son niveau actuel ; 0/8 si aucun n'est mûr, 8/8 s'ils le sont tous. Plus « niveau / niveau maximum » : le maximum n'apprend rien au joueur (et révélait la suite). Un fruit est prêt quand son heure de pousse est écoulée (nombre d'heures de pousse pleines, au plus le nombre de fruits). */
   function fruitsPrets_(v){var t=Math.max(0,Math.floor(Number(v.tier)||0));return Math.max(0,Math.min(t,Math.floor((Number(v.growth)||0)+1e-9)));}
-  function carte_(d,v,pos){
+  /* Variables de couleur de la porte, en objet de style (--yg-h / --yg-s : teinte et saturation ; --yg-h2 / --yg-s2 : seconde couleur d'une porte à deux couleurs ; --yg-k : poids du dégradé). */
+  function styleCarte_(id,lueur){
+    var p=PALETTES_PORTES_[id],o={};
+    if(p){o['--yg-h']=String(p[0]);o['--yg-s']=p[1]+'%';o['--yg-h2']=String(p.length>2?p[2]:p[0]);o['--yg-s2']=(p.length>3?p[3]:p[1])+'%';o['--yg-k']=p.length>2?'.75':'0';}
+    if(lueur)o['--lueur']=rvb_(AURAS_[id]);
+    return o;
+  }
+  /* Modèle de vue d'une carte : tout ce que le composant dessine, calculé ici (avec les effets de bord d'avant : portes, sons, mémoire des tailles). */
+  function carteVm_(d,v,pos){
     var def=v.def,id=def.id,c=choix_(id);
-    var nom=html_(def.name||id);
     var alerte=Boolean(d.brille&&d.brille[id]&&v.active&&v.tier>0);/* Yggdrasil Harvest Light : le serveur ne liste que les fruits prêts ET achetés. */
     var frac=v.tier>0?Math.max(0,Math.min(1,v.growth/v.tier)):0;
     var heures=v.growth*d.tierSec/3600;
@@ -535,33 +568,68 @@
     var coutAct=v.e.activationCost!=null?v.e.activationCost:(def.activationCost||0);
     var ress=def.resource==='magic'?'Magic':'Energy';
     var principal;
-    if(v.tier<=0)principal='<button type="button" class="ygg-btn vert" disabled>Activer</button>';
+    if(v.tier<=0)principal={t:'verrou'};
     else if(!v.active){
       /* Norman (2026-10-29) : le bouton Activer reste grisé tant que l'Énergie ou la Magie nécessaire n'est pas générée ET disponible dans la barre du haut ; bleuté quand il coûte de la Magie (comme le fond de la carte). */
-      const manque=manqueActiver_(def.resource,coutAct);
-      principal='<button type="button" class="ygg-btn vert'+(def.resource==='magic'?' ygg-act-magie':'')+'" data-ygg-act="'+html_(def.resource==='magic'?'magic':'energy')+'" data-ygg-cout="'+html_(String(nb_(coutAct)))+'" '+(manque?'disabled title="'+html_(titreManque_(def.resource))+'" ':'title="Coût : '+html_(grand_(coutAct))+' '+ress+'" ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.activer(\''+html_(id)+'\')">Activer<small>'+html_(grand_(coutAct))+' '+ress+'</small></button>';
+      var manque=manqueActiver_(def.resource,coutAct);
+      principal={t:'activer',magie:def.resource==='magic',res:def.resource==='magic'?'magic':'energy',cout:String(nb_(coutAct)),coutTxt:grand_(coutAct),ress:ress,manque:manque,
+        titre:manque?titreManque_(def.resource):'Coût : '+grand_(coutAct)+' '+ress};
     }
-    else if(!v.pret)principal='<button type="button" class="ygg-btn vert" disabled>Pousse…</button>';
-    else principal='<button type="button" class="ygg-btn" onclick="window.__SOREAL_IDLE_YGG_V1__.utiliser(\''+html_(id)+'\')">'+(c.mode==='harvest'?'Récolter':'Manger')+'</button>';
+    else if(!v.pret)principal={t:'pousse'};
+    else principal={t:'utiliser',libelle:c.mode==='harvest'?'Récolter':'Manger'};
     var coutUp=v.e.nextTierCost;
-    var upLabel=v.tier<=0?'Débloquer':'Améliorer';
-    var amelio=v.max?'<button type="button" class="ygg-btn vert" disabled>Tier max</button>'
-      :'<button type="button" class="ygg-btn vert" '+(d.seeds>=nb_(coutUp)?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.ameliorer(\''+html_(id)+'\')">'+upLabel+(coutUp!=null?'<small>'+html_(grand_(coutUp))+' graines</small>':'')+'</button>';
-    var auto='';
-    if(v.e.autoActivate)auto='<div class="ygg-auto">⚡ Auto-Activate</div>';
-    else if(v.e.autoShopId)auto='<div class="ygg-auto"><button type="button" class="ygg-btn" '+(d.exp>=nb_(v.e.autoCost)?'':'disabled ')+'title="Cap '+ress+' total requis : '+html_(grand_(v.e.autoRequiredCap||0))+'" onclick="window.__acheterAutoYggIdleV1__(\''+html_(v.e.autoShopId)+'\','+(Number(v.e.autoRequiredCap)||0)+',\''+(def.resource==='magic'?'magic':'energy')+'\')">Auto-Activate<small>'+html_(grand_(v.e.autoCost||0))+' EXP</small></button></div>';
+    var amelio=v.max?{t:'max'}:{t:'ameliorer',actif:d.seeds>=nb_(coutUp),libelle:v.tier<=0?'Débloquer':'Améliorer',cout:coutUp!=null?grand_(coutUp):null};
+    var auto=null;
+    if(v.e.autoActivate)auto={t:'acquis'};
+    else if(v.e.autoShopId)auto={t:'achat',actif:d.exp>=nb_(v.e.autoCost),titre:'Cap '+ress+' total requis : '+grand_(v.e.autoRequiredCap||0),shopId:String(v.e.autoShopId),cap:Number(v.e.autoRequiredCap)||0,res:def.resource==='magic'?'magic':'energy',cout:grand_(v.e.autoCost||0)};
     /* Aucun fruit n'est jamais visible derrière une porte close (Norman, 2026-11-02) : même si l'image de la porte tarde ou manque, les fruits ne sont pas dessinés tant que le fruit n'est pas actif. */
-    var porteHtml=porteDe_(id,Boolean(v.active));
-    return '<div class="ygg-carte'+(v.pret?' pret':'')+(def.resource==='magic'?' magie':'')+(v.active&&!v.pret&&v.tier>0?' pousse':'')+(v.tier>0&&v.tier>=d.maxTier?' ygg-max':'')+(alerte?' ygg-alerte':'')+'" data-fruit="'+html_(id)+'" style="'+styleCouleursPorte_(id)+(v.tier>0&&v.tier>=d.maxTier||alerte?'--lueur:'+rvb_(AURAS_[id])+';':'')+'">'+
-      '<div class="ygg-nom">'+nom+(v.tier>0?' <span>('+fruitsPrets_(v)+'/'+v.tier+')</span>':'')+'</div>'+
-      (v.tier>0&&v.tier>=d.maxTier?'<div class="ygg-halo-max">':'')+'<div class="ygg-vitre ygg-portrait'+(FRUITS_24_[id]===true?' ygg-decor':'')+'"'+(FRUITS_24_[id]===true&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap="1"':'')+(FRUITS_24_[id]===true?' style="background-image:url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&amp;decor=1)"':'')+'>'+(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+apercuHtml_(d,v,c)+'</div>'+(v.tier>0&&v.tier>=d.maxTier?'</div>':'')+
-      '<div class="ygg-barre'+(v.tier>0?'':' vide')+'" title="Croissance"><i style="width:'+(frac*100).toFixed(1)+'%"></i></div>'+
-      '<div class="ygg-temps">'+(temps||'&nbsp;')+'</div>'+
-      '<div class="ygg-actions">'+principal+amelio+'</div>'+
-      '<button type="button" class="ygg-poop" aria-pressed="'+(c.poop&&d.poop>0)+'" '+(d.poop>0?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.poop(\''+html_(id)+'\')"><span class="ygg-mini">'+image_('poop','💩')+'</span>Poop</button>'+
-      '<div class="ygg-mode" role="group" aria-label="Manger ou récolter"><button type="button" aria-pressed="'+(c.mode!=='harvest')+'" onclick="window.__SOREAL_IDLE_YGG_V1__.mode(\''+html_(id)+'\',\'eat\')">Manger</button><button type="button" aria-pressed="'+(c.mode==='harvest')+'" onclick="window.__SOREAL_IDLE_YGG_V1__.mode(\''+html_(id)+'\',\'harvest\')">Récolter</button></div>'+
-      auto+
-    '</div>';
+    var porte=porteDe_(id,Boolean(v.active));
+    var decor=FRUITS_24_[id]===true;
+    var max=v.tier>0&&v.tier>=d.maxTier;
+    return {id:id,nom:def.name||id,tier:v.tier,prets:fruitsPrets_(v),pret:v.pret,magie:def.resource==='magic',pousse:v.active&&!v.pret&&v.tier>0,max:max,alerte:alerte,active:Boolean(v.active),
+      styleCarte:styleCarte_(id,max||alerte),decor:decor,snap:decor&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0),porte:porte,
+      arbre:decor&&v.tier>0?fruitsArbre_(v,id):null,emoji:emoji_(id,def.name),apercu:apercuVm_(d,v,c),
+      frac:frac,temps:temps,principal:principal,amelio:amelio,auto:auto,
+      poopPresse:Boolean(c.poop&&d.poop>0),poopVide:!(d.poop>0),modeRecolte:c.mode==='harvest'};
+  }
+  function Principal_(c){
+    var p=c.principal;
+    if(p.t==='verrou')return h('button',{type:'button',class:'ygg-btn vert',disabled:true},'Activer');
+    if(p.t==='activer')return h('button',{type:'button',class:'ygg-btn vert'+(p.magie?' ygg-act-magie':''),'data-ygg-act':p.res,'data-ygg-cout':p.cout,disabled:p.manque,title:p.titre,onClick:function(){API.activer(c.id);}},'Activer',h('small',null,p.coutTxt+' '+p.ress));
+    if(p.t==='pousse')return h('button',{type:'button',class:'ygg-btn vert',disabled:true},'Pousse…');
+    return h('button',{type:'button',class:'ygg-btn',onClick:function(){API.utiliser(c.id);}},p.libelle);
+  }
+  function Amelio_(c){
+    var a=c.amelio;
+    if(a.t==='max')return h('button',{type:'button',class:'ygg-btn vert',disabled:true},'Tier max');
+    return h('button',{type:'button',class:'ygg-btn vert',disabled:!a.actif,onClick:function(){API.ameliorer(c.id);}},a.libelle,a.cout!=null?h('small',null,a.cout+' graines'):null);
+  }
+  function Auto_(c){
+    var a=c.auto;
+    if(!a)return null;
+    if(a.t==='acquis')return h('div',{class:'ygg-auto'},'⚡ Auto-Activate');
+    return h('div',{class:'ygg-auto'},h('button',{type:'button',class:'ygg-btn',disabled:!a.actif,title:a.titre,onClick:function(){window.__acheterAutoYggIdleV1__(a.shopId,a.cap,a.res);}},'Auto-Activate',h('small',null,a.cout+' EXP')));
+  }
+  function Vitre_(c){
+    var id=c.id;
+    return h('div',{class:'ygg-vitre ygg-portrait'+(c.decor?' ygg-decor':''),'data-ygg-snap':c.snap?'1':undefined,style:c.decor?{backgroundImage:'url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&decor=1)'}:undefined},
+      c.porte&&!c.active?null:(c.arbre?h(Fruits_,{id:id,fruits:c.arbre}):h(Image_,{nom:id,secours:c.emoji})),
+      c.porte?h(Porte_,c.porte):null,
+      c.apercu?h(Apercu_,c.apercu):null);
+  }
+  function Carte_(c){
+    var id=c.id,vitre=h(Vitre_,c);
+    return h('div',{class:'ygg-carte'+(c.pret?' pret':'')+(c.magie?' magie':'')+(c.pousse?' pousse':'')+(c.max?' ygg-max':'')+(c.alerte?' ygg-alerte':''),'data-fruit':id,style:c.styleCarte},
+      h('div',{class:'ygg-nom'},fus_([c.nom+(c.tier>0?' ':''),c.tier>0?h('span',null,'('+c.prets+'/'+c.tier+')'):null])),
+      c.max?h('div',{class:'ygg-halo-max',key:'h'},vitre):vitre,
+      h('div',{class:'ygg-barre'+(c.tier>0?'':' vide'),title:'Croissance'},h('i',{style:{width:(c.frac*100).toFixed(1)+'%'}})),
+      h('div',{class:'ygg-temps'},c.temps||' '),
+      h('div',{class:'ygg-actions'},h(Principal_,c),h(Amelio_,c)),
+      h('button',{type:'button',class:'ygg-poop','aria-pressed':String(c.poopPresse),disabled:c.poopVide,onClick:function(){API.poop(id);}},h('span',{class:'ygg-mini'},h(Image_,{nom:'poop',secours:'💩'})),'Poop'),
+      h('div',{class:'ygg-mode',role:'group','aria-label':'Manger ou récolter'},
+        h('button',{type:'button','aria-pressed':String(!c.modeRecolte),onClick:function(){API.mode(id,'eat');}},'Manger'),
+        h('button',{type:'button','aria-pressed':String(c.modeRecolte),onClick:function(){API.mode(id,'harvest');}},'Récolter')),
+      Auto_(c));
   }
 
   function bonus_(d){
@@ -573,13 +641,14 @@
     if(ids.powerBeta)lignes.push(['Bonus Fruit de Puissance β',nb_(perm.powerBetaValue),'']);
     if(ids.powerDelta)lignes.push(['Bonus Fruit de Puissance δ',nb_(perm.powerDeltaValue),'']);
     if(ids.numbers)lignes.push(['Bonus Fruit de Nombres',nb_(perm.numbersValue),'']);
-    return lignes.filter(function(l){return l[1]>0;}).map(function(l){return html_(l[0])+' : <b>'+html_(grand_(l[1]))+l[2]+'</b>';}).join('<br>');
+    return lignes.filter(function(l){return l[1]>0;}).map(function(l){return [l[0],grand_(l[1])+l[2]];});
   }
 
-  function page(j){
+  /* Modèle de vue de la page entière (null : système verrouillé, aucune page). */
+  function preparer_(j){
     style_();
     var d=lire_(j);
-    if(!d)return '';
+    if(!d)return null;
     chargerModes_(j&&j.nom);
     var pretsIds=d.fruits.filter(function(v){return v.pret;}).map(function(v){return v.def.id;});
     if(etat.pretsVus!==null&&pretsIds.some(function(id){return etat.pretsVus.indexOf(id)===-1;}))son_('pret');
@@ -587,40 +656,61 @@
     var pages=Math.max(1,Math.ceil(d.fruits.length/PAR_PAGE));
     if(etat.page>pages)etat.page=pages;
     var debut=(etat.page-1)*PAR_PAGE;
-    var cartes=d.fruits.slice(debut,debut+PAR_PAGE).map(function(v,i){return carte_(d,v,i);}).join('');
-    var onglets='';
-    if(pages>1){
-      onglets='<div class="ygg-onglets" role="tablist">';
-      for(var p=1;p<=pages;p++)onglets+='<button type="button" role="tab" class="ygg-onglet" aria-selected="'+(p===etat.page)+'" onclick="window.__SOREAL_IDLE_YGG_V1__.aller('+p+')">Page '+p+'</button>';
-      onglets+='</div>';
-    }
-    var pretsMax=d.fruits.some(function(v){return v.pret&&v.max;});
-    var prets=d.fruits.some(function(v){return v.pret&&v.tier>=1;});
+    var cartes=d.fruits.slice(debut,debut+PAR_PAGE).map(function(v,i){return carteVm_(d,v,i);});
     var brown=d.x.brownHeart?' · Brown Heart : '+(d.x.nextFreePoopIn===1?'la prochaine est gratuite':'gratuite dans '+ent_(d.x.nextFreePoopIn)):'';
-    var b=bonus_(d);
     var poopFacteur=String(Math.round((nb_(d.x.poopFactor)||1.5)*100)/100).replace('.',',');
-    return '<div class="ygg-page"><div class="ygg-cadre">'+
-      '<div class="ygg-entete"><button type="button" class="ygg-aide-bouton" onclick="window.__SOREAL_IDLE_YGG_V1__.aide()">Que faire ici ?</button>'+
-        '<div class="ygg-titre"><i class="ygg-feu g">'+FEUILLAGE_+'</i><i class="ygg-feu d">'+FEUILLAGE_+'</i><i class="ygg-vigne">'+VIGNE_+'</i><b>Yggdrasil, l’Arbre-Monde</b><small>(et pourtant tu le fertilises avec du caca)</small></div></div>'+
-      '<div class="ygg-aide'+(etat.aide?' ouvert':'')+'">Chaque tier donne une heure de croissance de plus. <b>Active</b> un fruit, laisse-le pousser, puis <b>mange-le</b> pour son effet ou <b>récolte-le</b> pour doubler les graines. Les graines servent à <b>améliorer</b> les fruits. Une poop (+50 % avant arrondi) s’utilise sur le prochain fruit mangé ou récolté.</div>'+
+    return {pages:pages,page:etat.page,aide:etat.aide,soloMax:etat.soloMax,seeds:grand_(d.seeds),poop:grand_(d.poop),cartes:cartes,
+      pretsMax:d.fruits.some(function(v){return v.pret&&v.max;}),prets:d.fruits.some(function(v){return v.pret&&v.tier>=1;}),bonus:bonus_(d),
+      note:'Poop ×'+poopFacteur+' · tier max '+d.maxTier+brown+' · poop achetable à la boutique AP, rayon Boosts.'};
+  }
+  function Page_(p){
+    var onglets=null;
+    if(p.pages>1){
+      onglets=[];
+      for(var n=1;n<=p.pages;n++)onglets.push((function(q){return h('button',{type:'button',role:'tab',class:'ygg-onglet','aria-selected':String(q===p.page),key:q,onClick:function(){API.aller(q);}},'Page '+q);})(n));
+      onglets=h('div',{class:'ygg-onglets',role:'tablist'},onglets);
+    }
+    var bonus=[];
+    p.bonus.forEach(function(l,i){if(i)bonus.push(h('br',null));bonus.push(fus_([l[0]+' : ',h('b',null,l[1])]));});
+    return h('div',{class:'ygg-page'},h('div',{class:'ygg-cadre'},
+      h('div',{class:'ygg-entete'},h('button',{type:'button',class:'ygg-aide-bouton',onClick:function(){API.aide();}},'Que faire ici ?'),
+        h('div',{class:'ygg-titre'},h('i',{class:'ygg-feu g',dangerouslySetInnerHTML:{__html:FEUILLAGE_}}),h('i',{class:'ygg-feu d',dangerouslySetInnerHTML:{__html:FEUILLAGE_}}),h('i',{class:'ygg-vigne',dangerouslySetInnerHTML:{__html:VIGNE_}}),
+          h('b',null,'Yggdrasil, l’Arbre-Monde'),h('small',null,'(et pourtant tu le fertilises avec du caca)'))),
+      h('div',{class:'ygg-aide'+(p.aide?' ouvert':'')},fus_(['Chaque tier donne une heure de croissance de plus. ',h('b',null,'Active'),' un fruit, laisse-le pousser, puis ',h('b',null,'mange-le'),' pour son effet ou ',h('b',null,'récolte-le'),' pour doubler les graines. Les graines servent à ',h('b',null,'améliorer'),' les fruits. Une poop (+50 % avant arrondi) s’utilise sur le prochain fruit mangé ou récolté.'])),
       /* Compteurs de graines et de Poop EN HAUT de la page (Norman, 2026-10-25) */
-      '<div class="ygg-monnaies-haut"><div class="ygg-monnaies">'+
-        '<div class="ygg-monnaie"><span class="ygg-vignette">'+image_('seed','🌱')+'</span>'+html_(grand_(d.seeds))+'</div>'+
-        '<div class="ygg-monnaie"><span class="ygg-vignette">'+image_('poop','💩')+'</span>'+html_(grand_(d.poop))+'</div>'+
-      '</div></div>'+
+      h('div',{class:'ygg-monnaies-haut'},h('div',{class:'ygg-monnaies'},
+        h('div',{class:'ygg-monnaie'},h('span',{class:'ygg-vignette'},h(Image_,{nom:'seed',secours:'🌱'})),p.seeds),
+        h('div',{class:'ygg-monnaie'},h('span',{class:'ygg-vignette'},h(Image_,{nom:'poop',secours:'💩'})),p.poop))),
       /* Cadre « Manger / récolter tous les fruits » EN HAUT, sous les compteurs de graines (Norman, 2026-11-09), sur UNE seule ligne */
-      '<div class="ygg-bas">'+
-        '<div class="ygg-actions-bas">'+
-          '<button type="button" class="ygg-btn" '+(pretsMax?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.tout(\'max\')">Manger / récolter tous les fruits au tier max</button>'+
-          '<button type="button" class="ygg-btn" '+(prets?'':'disabled ')+'onclick="window.__SOREAL_IDLE_YGG_V1__.tout(\'tous\')">Manger / récolter tous les fruits ≥ tier 1</button>'+
-          '<label class="ygg-solo"><input type="checkbox" '+(etat.soloMax?'checked ':'')+'onchange="window.__SOREAL_IDLE_YGG_V1__.soloMax(this.checked)"> Poop seulement sur les fruits au tier max</label>'+
-        '</div>'+
-        (b?'<div class="ygg-bonus">'+b+'</div>':'')+
-      '</div>'+
-      onglets+
-      '<div class="ygg-grille">'+cartes+'</div>'+
-      '<div class="ygg-note">Poop ×'+html_(poopFacteur)+' · tier max '+d.maxTier+html_(brown)+' · poop achetable à la boutique AP, rayon Boosts.</div>'+
-    '</div></div>';
+      h('div',{class:'ygg-bas'},
+        h('div',{class:'ygg-actions-bas'},
+          h('button',{type:'button',class:'ygg-btn',disabled:!p.pretsMax,onClick:function(){API.tout('max');}},'Manger / récolter tous les fruits au tier max'),
+          h('button',{type:'button',class:'ygg-btn',disabled:!p.prets,onClick:function(){API.tout('tous');}},'Manger / récolter tous les fruits ≥ tier 1'),
+          h('label',{class:'ygg-solo'},h('input',{type:'checkbox',checked:p.soloMax,onChange:function(e){API.soloMax(e.currentTarget.checked);}}),' Poop seulement sur les fruits au tier max')),
+        bonus.length?h('div',{class:'ygg-bonus'},bonus):null),
+      onglets,
+      h('div',{class:'ygg-grille'},p.cartes.map(function(c){return h(Carte_,Object.assign({key:c.id},c));})),
+      h('div',{class:'ygg-note'},p.note)));
+  }
+  /* Entrée de la page : le modèle est confié au pont, qui rend le composant dans un conteneur persistant et rend ici la chaîne stable à mettre dans la page. Sans Preact ou sans pont : '' (le repli historique de meta-progression prend la main). */
+  function page(j){
+    var V=window.__SOREAL_IDLE_VDOM_V1__;
+    var vm=preparer_(j);
+    if(!vm||!h||!V)return '';
+    return V.monter('ygg',Page_,vm);
+  }
+  /* Rendu synchrone vers une chaîne HTML (tests, débogage) : jamais utilisé par la page. */
+  function html(j){
+    var V=window.__SOREAL_IDLE_VDOM_V1__;
+    var vm=preparer_(j);
+    return vm&&h&&V?V.rendreHtml(Page_,vm):'';
+  }
+  /* Nouveau rendu local, sans redessiner tout le menu (aide ouverte ou fermée). */
+  function rerendre_(){
+    var V=window.__SOREAL_IDLE_VDOM_V1__,Hh=H_(),j=Hh&&Hh.getIdleEtat&&Hh.getIdleEtat();
+    if(!V||!j)return;
+    var vm=preparer_(j);
+    if(vm)V.monter('ygg',Page_,vm);
   }
 
   /* ---------- Actions ---------- */
@@ -744,6 +834,7 @@
   }
   var API={
     page:page,
+    html:html,
     imageChargee:function(nom,img){etat.chargees[nom]=true;var f=img&&img.previousElementSibling;if(f&&f.classList&&f.classList.contains('ygg-secours'))f.style.display='none';},
     imageManquante:function(nom,img){etat.manquantes[nom]=true;if(img)img.style.display='none';},
     activer:function(id){var b=document.querySelector('.ygg-carte[data-fruit="'+id+'"] .ygg-btn[data-ygg-act]');if(b&&b.disabled)return;son_('activer');action_({action:'activateYggFruit',fruit:String(id)});},
@@ -757,7 +848,7 @@
     poop:function(id){var c=choix_(id);c.poop=!c.poop;if(c.poop)son_('poop');else son_('interrupteur',false);rafraichir_();},
     aller:function(p){if(ent_(p)!==etat.page)son_('onglet');etat.page=Math.max(1,ent_(p));rafraichir_();},
     fermerAide:function(){etat.aide=false;},
-    aide:function(){son_('aide');etat.aide=!etat.aide;var e=document.querySelector('.ygg-aide');if(e)e.classList.toggle('ouvert',etat.aide);},
+    aide:function(){son_('aide');etat.aide=!etat.aide;rerendre_();},
     soloMax:function(v){etat.soloMax=Boolean(v);try{localStorage.setItem(CLE_SOLO_,v?'1':'0');}catch(_e){}son_('interrupteur',Boolean(v));},
     /* « Manger / récolter tous… » : chaque fruit prêt reçoit son mode choisi, la poop (si cochée et en stock) selon la case « seulement au tier max ». */
     tout:function(critere){

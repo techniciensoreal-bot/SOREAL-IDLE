@@ -52,7 +52,7 @@ assert.deepEqual(C.fruitsArbre_(g(5.5)).slice(0, 5), C.fruitsArbre_(g(5)).slice(
 for (let h = 0; h < 23.9; h += 0.25) assert.ok(C.fruitsArbre_(g(h + 0.25)).length >= C.fruitsArbre_(g(h)).length, "le nombre de fruits ne baisse jamais");
 assert.ok(src.includes("&fruit=1") && src.includes("ygg-fruit") && !src.includes("ygg-terre") && !src.includes("terre=1"), "fruit sur l'arbre, plus de terre");
 assert.ok(src.includes("function etapeCroissance_(d,v){return null;}") && !src.includes("ygg-suivante") && !src.includes("fractionSuivante_") && !src.includes("DEBUT_FRUIT_"), "plus d'images intermédiaires");
-assert.ok(src.includes("--ygg-x:") && src.includes("--ygg-y:") && src.includes("--ygg-k:"), "position et taille posées sur chaque fruit");
+assert.ok(src.includes("'--ygg-x':") && src.includes("'--ygg-y':") && src.includes("'--ygg-k':"), "position et taille posées sur chaque fruit");
 /* Fruits de Puissance : dossier partagé idle/yggdrasil/puissance/ (20 images), les images propres à un fruit passent devant. */
 const puissance = Array.from({ length: 20 }, (_, i) => "idle/yggdrasil/puissance/" + (i + 1) + ".webp");
 for (const id of ["powerAlpha", "powerBeta", "powerDelta"]) {

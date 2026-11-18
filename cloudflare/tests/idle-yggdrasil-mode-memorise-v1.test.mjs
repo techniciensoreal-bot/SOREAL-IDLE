@@ -45,6 +45,6 @@ const abime = { "soreal_idle_ygg_modes_v1:X": "{pas du json" };
 a = appareil(abime); a.chargerModes_("X");
 assert.equal(a.choix_("gold").mode, "eat");
 // Branchement dans la page : lecture à l'ouverture, écriture au changement de mode.
-assert.ok(/function page\(j\)\{[\s\S]{0,120}chargerModes_\(j&&j\.nom\)/.test(src), "page() relit les choix de la partie");
+assert.ok(/function preparer_\(j\)\{[\s\S]{0,160}chargerModes_\(j&&j\.nom\)/.test(src), "la page relit les choix de la partie");
 assert.ok(src.includes("choix_(id).mode=m;sauverModes_();"), "le changement de mode est écrit");
 console.log("idle-yggdrasil-mode-memorise-v1: OK");

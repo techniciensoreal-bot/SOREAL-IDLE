@@ -8,7 +8,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - keyframes : **430**
 - fichiersAvecWebAnimations : **21**
 - fichiersCanvas : **13**
-- pointsEntreeRejouables : **273**
+- pointsEntreeRejouables : **274**
 - mortsDeBase : **3**
 - retoursJoueur : **8**
 - retoursBoss : **7**
@@ -33,7 +33,7 @@ achievement, albumDix, albumFerme, albumPage, augTic, baille, bloodCap, bloodMin
 soreal_idle_effet_decor_v1, soreal_idle_effet_feu_v1, soreal_idle_effet_nav_v1, soreal_idle_effet_orage_v1
 
 ## Points d'entrée rejouables (window.__SOREAL_IDLE_*__)
-Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 273 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
+Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 274 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
 
 ## Animations CSS orphelines (définies mais nommées nulle part ailleurs)
 `bnPulse` (soreal-idle-itopod.css) · `rgFeuV1` (soreal-idle-itopod.css) · `sorealIdleBtTickV1` (soreal-idle-ui.css)

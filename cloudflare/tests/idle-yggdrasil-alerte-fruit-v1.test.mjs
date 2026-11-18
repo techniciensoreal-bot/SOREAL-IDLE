@@ -70,7 +70,7 @@ function etat(acheter) {
 // Client : page, seuls les fruits désignés par le serveur brillent.
 const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
 assert.ok(src.includes("x.harvestLightFruits") && src.includes("d.brille&&d.brille[id]&&v.active&&v.tier>0"), "la carte ne brille que pour un fruit désigné, actif et possédé");
-assert.ok(src.includes("(alerte?' ygg-alerte':'')"));
+assert.ok(src.includes("(c.alerte?' ygg-alerte':'')"));
 // Boucles parfaites (règle n°3).
 const lueur = src.match(/@keyframes yggFruitAlerte\{0%,100%\{[^}]*\}50%\{/);
 assert.ok(lueur, "lueur du fruit : départ = arrivée (0 % = 100 %)");

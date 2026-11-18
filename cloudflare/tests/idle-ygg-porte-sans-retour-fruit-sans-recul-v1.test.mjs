@@ -8,12 +8,12 @@ import { readFileSync } from "node:fs";
  */
 const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
 const porte = src.slice(src.indexOf("function porteDe_(id,actif){"), src.indexOf("var vit=reglages_().porte;"));
-assert.ok(porte.includes("if(etat.ouvre&&etat.ouvre[id]&&Date.now()-etat.ouvre[id]<DUREE_OUVERTURE_*reglages_().porte)return porte_(id,true);"), "pas de fermeture pendant l'ouverture");
-assert.ok(porte.indexOf("return porte_(id,true);") < porte.indexOf("F[id]=Date.now()"), "la garde passe avant le déclenchement de la fermeture");
+assert.ok(porte.includes("if(etat.ouvre&&etat.ouvre[id]&&Date.now()-etat.ouvre[id]<DUREE_OUVERTURE_*reglages_().porte)return {id:id,ouvre:true,referme:false};"), "pas de fermeture pendant l'ouverture");
+assert.ok(porte.indexOf("return {id:id,ouvre:true,referme:false};") < porte.indexOf("F[id]=Date.now()"), "la garde passe avant le déclenchement de la fermeture");
 assert.ok(src.includes(".ygg-vitre[data-ygg-snap] .ygg-img{transition:none;}"), "transition coupée pour le rendu concerné");
 assert.ok(src.includes("return Boolean(o)&&(o.id!==id||s<o.s-0.0005||f<o.f-0.0005);"), "recul de la pousse ou autre fruit sur la carte = prise de taille immédiate");
-assert.ok(src.includes("snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)?' data-ygg-snap=\"1\"':''"), "l'attribut est posé sur la vitre");
-assert.ok(src.includes("map(function(v,i){return carte_(d,v,i);})"), "la position de la carte est transmise");
+assert.ok(src.includes("snap:decor&&snap_(pos,id,0,v.tier>0?heuresPousse_(v):0)") && src.includes("'data-ygg-snap':c.snap?'1':undefined"), "l'attribut est posé sur la vitre");
+assert.ok(src.includes("map(function(v,i){return carteVm_(d,v,i);})"), "la position de la carte est transmise");
 console.log("idle-ygg-porte-sans-retour-fruit-sans-recul-v1: OK");
 
 // Norman (2026-10-28) : « mini à-coups avant-arrière pendant l'ouverture » : une image clé intermédiaire à 25 % relançait la courbe d'accélération à chaque segment (arrêt puis reprise) ; deux images clés seulement, couches dédiées

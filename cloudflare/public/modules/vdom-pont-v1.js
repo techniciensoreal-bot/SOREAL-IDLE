@@ -6,7 +6,7 @@
  *
  *   window.__SOREAL_IDLE_VDOM_V1__ = {
  *     monter(cle, composant, props)   -> enregistre le composant et ses props ; le rend tout de suite si son conteneur est déjà dans la page ; renvoie la chaîne STABLE à mettre dans la page
- *                                        (<div data-vdom="cle" data-morph-vivant></div>, toujours identique : le morph ne la voit jamais changer) ;
+ *                                        (<div id="vdom-cle" data-vdom="cle" data-morph-vivant></div>, toujours identique : le morph ne la voit jamais changer ; l'id empêche le morph de la confondre avec un bloc voisin de même balise) ;
  *     appliquer()                     -> appelé après chaque redessin de la page (window.__SOREAL_IDLE_APRES_REDESSIN_V1__, règle n°4, même tâche, avant la première image) : rend dans les conteneurs
  *                                        qui viennent d'apparaître, démonte ceux qui ont disparu (changement de menu) ;
  *     rendreHtml(composant, props)    -> rendu synchrone vers une chaîne HTML, dans un élément détaché (tests, débogage) ;
@@ -27,7 +27,7 @@
   function P_(){return window.preact||null;}
 
   /* Le conteneur ne crée aucune boîte (display:contents, règle dans vdom-v1.css) : le composant se met en page comme s'il était directement dans la page. */
-  function chaine_(cle){return '<div data-vdom="'+cle+'" data-morph-vivant></div>';}
+  function chaine_(cle){return '<div id="vdom-'+cle+'" data-vdom="'+cle+'" data-morph-vivant></div>';}
   function trouver_(cle){try{return document.querySelector('[data-vdom="'+cle+'"]');}catch(_e){return null;}}
 
   function demonter_(e){

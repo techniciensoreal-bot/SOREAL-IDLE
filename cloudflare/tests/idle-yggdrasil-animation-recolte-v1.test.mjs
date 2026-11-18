@@ -10,6 +10,6 @@ assert.ok(!/lancerAnimation_|jouerImages_|precharger_|urlEtape_/.test(src), "plu
 const titre = src.match(/'\.ygg-titre\{[^\n]*/)[0];
 assert.ok(!/clip-path/.test(titre) && /border-radius:999px/.test(titre) && /repeating-linear-gradient/.test(titre) && /rgba\(132,196,84/.test(titre), "titre en branche vivante : bouts arrondis (la bordure suit le contour), écorce striée, mousse");
 assert.ok(!/filter|animation/.test(titre), "dégradés statiques seulement");
-assert.ok(src.includes('<div class="ygg-titre"><i class="ygg-feu g">') && src.includes('<i class="ygg-feu d">') && src.includes('<i class="ygg-vigne">') && /var FEUILLAGE_='<svg/.test(src) && /var VIGNE_='<svg/.test(src), "touffes de feuilles aux deux bouts et vigne");
+assert.ok(src.includes("h('div',{class:'ygg-titre'},h('i',{class:'ygg-feu g',") && src.includes("h('i',{class:'ygg-feu d',") && src.includes("h('i',{class:'ygg-vigne',") && /var FEUILLAGE_='<svg/.test(src) && /var VIGNE_='<svg/.test(src), "touffes de feuilles aux deux bouts et vigne");
 assert.ok(!/<animate|@keyframes[^']*ygg-(feu|vigne)/.test(src), "décor du titre fixe (aucune animation)");
 console.log("idle-yggdrasil-animation-recolte-v1: OK");

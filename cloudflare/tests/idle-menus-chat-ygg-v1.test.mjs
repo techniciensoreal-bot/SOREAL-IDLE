@@ -14,7 +14,7 @@ const chat = lire("chat-v1.js");
 assert.ok(chat.includes('data-sic="emojis"') && chat.includes("(hover:hover) and (pointer:fine)") && chat.includes("function insererEmoji"), "bouton émoji, sur PC seulement");
 
 const ygg = lire("yggdrasil-elfes-v1.js");
-assert.ok(ygg.includes("(def.resource==='magic'?' magie':'')") && ygg.includes(".ygg-carte.magie .ygg-vitre::after") && ygg.includes("mix-blend-mode:hue"), "fruits de Magic bleu-vert");
-assert.ok(ygg.includes("(v.active&&!v.pret&&v.tier>0?' pousse':'')") && ygg.includes("@keyframes yggBrilleMax"), "lueur du cadre : seulement au palier maximum (Norman, 2026-10-29)");
+assert.ok(ygg.includes("(c.magie?' magie':'')") && ygg.includes("magie:def.resource==='magic'") && ygg.includes(".ygg-carte.magie .ygg-vitre::after") && ygg.includes("mix-blend-mode:hue"), "fruits de Magic bleu-vert");
+assert.ok(ygg.includes("(c.pousse?' pousse':'')") && ygg.includes("pousse:v.active&&!v.pret&&v.tier>0") && ygg.includes("@keyframes yggBrilleMax"), "lueur du cadre : seulement au palier maximum (Norman, 2026-10-29)");
 assert.ok(/yggBrilleMax\{0%,100%\{/.test(ygg), "boucle sans à-coup (mêmes valeurs à 0 % et 100 %)");
 console.log("idle-menus-chat-ygg-v1: OK");
