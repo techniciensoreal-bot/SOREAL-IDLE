@@ -305,7 +305,7 @@ console.log("idle-sang-rituel-satanique-v1: OK");
 {
   // Petites têtes de mort sombres dans le sang de Blood Magic (comme les bulles des barres de vie) : fondu d'entrée et de sortie, un seul sens.
   const decor = readFileSync("cloudflare/public/modules/sang-rituel-decor-v1.js", "utf8");
-  assert.ok(decor.includes("function tetesMort(l,id)") && decor.includes("tetesMort(c.l,id)+") && decor.includes("@keyframes bmTete{0%{opacity:0;transform:translateY(0)}") && decor.includes("100%{opacity:0;transform:translateY(-11px)}}"), "têtes de mort dans le sang, boucle sans à-coup");
+  assert.ok(decor.includes("function tetesMort(l,id)") && decor.includes("tetesMort(c.l,id)+") && decor.includes("@keyframes bmTete{0%{opacity:0;transform:none}") && decor.includes("100%{opacity:0;transform:translateY(-11px)}}"), "têtes de mort dans le sang, boucle sans à-coup");
   // Profilage 2026-11-18 : la propriété « translate » sur un élément SVG ne passe pas au compositeur (style + mise en page + peinture à chaque image : Magie du sang à 15 fps sur processeur ralenti). L'animé est un <g> SANS attribut transform (transform CSS) ; la tête garde son transform d'attribut dans l'enfant.
   assert.ok(!/@keyframes bmTete\{[^}]*[^m]translate:/.test(decor), "bmTete : jamais la propriété translate sur du SVG (compositeur)");
   {
