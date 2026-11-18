@@ -4,6 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Cartes, d’après le code du jeu : la difficulté ne touche plus la taille du deck, les tags ni les paliers (seulement les vitesses), le recyclage ne garde plus le surplus du minuteur, et les Chonkers sont générés avant les cartes normales hors ligne."
+    "Interface : plusieurs pages lourdes sont dessinées de façon plus fine (moins de recalcul à chaque rafraîchissement), pour plus de fluidité, surtout sur téléphone.",
+    "Nuke automatique : il ne se lance plus que si un boss au moins peut être tué par un Nuke (fini le son toutes les minutes pour rien).",
+    "Aventure : les sons des effets (poison, explosion, paralysie, capacités) ne s’entendent plus que sur la page Aventure."
   ] };
 })();

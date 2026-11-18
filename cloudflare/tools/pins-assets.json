@@ -88,8 +88,12 @@
   "sha": "171dea1e1f4b302d065032efc1e8dabcb96dae89"
  },
  "/modules/augmentations-page-v1.js": {
-  "pin": 74,
-  "sha": "0911ef0b9183abf8375622b31d256eabfec71d00"
+  "pin": 76,
+  "sha": "06cf64a7b3de3a481284e1b3b497240c09858746"
+ },
+ "/modules/augmentations-vdom-v1.js": {
+  "pin": 1,
+  "sha": "002eb17a6391cea65a900e53097a93852e7d6f5f"
  },
  "/modules/aventure-vdom-v1.js": {
   "pin": 3,
@@ -108,8 +112,12 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 36,
-  "sha": "fce7f2ab269e1f0a4ffc6fe142cbb28d1a080d70"
+  "pin": 37,
+  "sha": "bf5ca54ca8e56647e08edb1fb9b9cca2c9ae0810"
+ },
+ "/modules/blood-magic-vdom-v1.js": {
+  "pin": 1,
+  "sha": "cdf0c88515f776a53f06a8f674f17ff44f002f9e"
  },
  "/modules/borne-bandes-sync-v1.js": {
   "pin": 1,
@@ -456,12 +464,16 @@
   "sha": "8c6d9b1e555610fb3a107fb501eece956b956f79"
  },
  "/modules/itopod-perks-page-v1.js": {
-  "pin": 7,
-  "sha": "7a42707ba4a3224c326e608d8c9297fc86c0904d"
+  "pin": 9,
+  "sha": "e0487b809bea4201af80893ad2dc284d63969923"
  },
  "/modules/itopod-scene-v1.js": {
   "pin": 14,
   "sha": "da00d417db8725f7266fe6d35d950c94a5d0e7dd"
+ },
+ "/modules/itopod-vdom-v1.js": {
+  "pin": 3,
+  "sha": "db2d312bf3b4dcb21ee176f59c8f0ba596d56d64"
  },
  "/modules/journal-attaques-v1.js": {
   "pin": 5,
@@ -472,8 +484,8 @@
   "sha": "94fab409dca29867aea6feffa466ae3437cfdda6"
  },
  "/modules/labos-page-v1.js": {
-  "pin": 10,
-  "sha": "1416171405b4d5d60df7ba4f0894a504aeebc9eb"
+  "pin": 11,
+  "sha": "f5663ed12d6076bac6f310760045d6df66b0a9ef"
  },
  "/modules/labos-savants-v1.js": {
   "pin": 1,
@@ -511,6 +523,10 @@
   "pin": 31,
   "sha": "0c6003391f2237a1e5ee02b5dc948687e87c61e9"
  },
+ "/modules/machine-page-vdom-v1.js": {
+  "pin": 1,
+  "sha": "7d9e488215bf06bb5bb491317243bcd4312fdd41"
+ },
  "/modules/machine-sons-v1.js": {
   "pin": 6,
   "sha": "09f08f1e97a0892de374d624360e0f2f7e15be8f"
@@ -536,8 +552,12 @@
   "sha": "c99f4c8293b9b3793b8a06f2d2eafd8790f6d54d"
  },
  "/modules/money-pit-page-v1.js": {
-  "pin": 33,
-  "sha": "1a9f3b9be3195bf3bc9a92ad46bbe7ca537d74ba"
+  "pin": 34,
+  "sha": "7989a909345f21e39c9b8309d06280834bffc931"
+ },
+ "/modules/money-pit-vdom-v1.js": {
+  "pin": 2,
+  "sha": "bead42c27685d862071361407777be1cd278ed98"
  },
  "/modules/moqueurs-fuite-v1.js": {
   "pin": 6,
@@ -572,8 +592,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 113,
-  "sha": "13a6f0e0f3de3440394b94fa43bd0c8ce8f82bf7"
+  "pin": 114,
+  "sha": "062c1f39c4cfb4e411bf6f5188807e3bab535e81"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 7,
@@ -676,12 +696,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 383,
-  "sha": "fb730416238b6a58d0a515b7fd299dec6084beb5"
+  "pin": 384,
+  "sha": "3cef3a9ca21c39fba358ed4639cc1e1f89761f94"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1031,
-  "sha": "e6919cdcbe40d6364dd93356e189089925bb212d"
+  "pin": 1033,
+  "sha": "de1b71d1cc8294c8ad983f25c4d9576434974df4"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -776,12 +796,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1079,
-  "sha": "f37d7c02d5993a5cdde692e2d42301f401f63ecc"
+  "pin": 1080,
+  "sha": "9596cecabc81eeb6a92df2f8347622f9a9db9069"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 899,
-  "sha": "83211247f9c004b997811a834889b72463162891"
+  "pin": 900,
+  "sha": "4b182e8f7da1b05eb900a7f93763fd7929b74e55"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -1124,7 +1144,7 @@
   "sha": "683494dd1b0db575a7ab897098ae936b69ec3b84"
  },
  "/vdom-v1.css": {
-  "pin": 1,
-  "sha": "719b2f2a16697a59a59ecab6bfc42ffaebfd545e"
+  "pin": 2,
+  "sha": "fc9aa5f9f4d4567ff844fa25b5b9da615ab3595b"
  }
 }

@@ -29,8 +29,17 @@
         nom:'Boutons Cap',
         date:'2026-11-18',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Interface : plusieurs pages lourdes sont dessinées de façon plus fine (moins de recalcul à chaque rafraîchissement), pour plus de fluidité, surtout sur téléphone.'
+          ]},
           {menu:'ngu', titre:'NGU', points:[
             'NGU : les boutons « Cap » et « Cap all » s’écrivent bien « Cap » (ils étaient traduits « Plafond » et coupés).'
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Nuke automatique : il ne se lance plus que si un boss au moins peut être tué par un Nuke (fini le son toutes les minutes pour rien).'
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Aventure : les sons des effets (poison, explosion, paralysie, capacités) ne s’entendent plus que sur la page Aventure.'
           ]},
           {menu:'cards', titre:'Cartes', points:[
             'Cartes, d’après le code du jeu : la difficulté ne touche plus la taille du deck, les tags ni les paliers (seulement les vitesses), le recyclage ne garde plus le surplus du minuteur, et les Chonkers sont générés avant les cartes normales hors ligne.'
