@@ -220,7 +220,7 @@ const SEUIL_OCTETS = 150 * 1024;
 const OCTETS_PAR_FICHIER = {
   "public/modules/borne-led-v1.js": 240128, /* +512 (2026-11-17) : redessin complet au-delà de 40 segments + 30 images/s en image lourde (vague de victoire) */
   "public/modules/sang-rituel-decor-v1.js": 211968,
-  "public/modules/augmentations-page-v1.js": 157696,
+  "public/modules/augmentations-page-v1.js": 158720, /* +1 Ko (2026-11-18) : entrée Preact et aides partagées avec augmentations-vdom-v1.js (le rendu en chaîne HTML reste le repli) */
 };
 /* Feuilles de style : plafond de lignes par feuille (taille du 2026-11-09), jamais en hausse. Une feuille absente d'ici est limitée à MAX_LIGNES_FICHIER. */
 const LIGNES_CSS_PAR_FEUILLE = {

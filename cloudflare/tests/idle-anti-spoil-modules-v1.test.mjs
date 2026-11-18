@@ -57,6 +57,9 @@ const LISTE_BLANCHE = [
      Comportement demandé par Norman et épinglé par idle-anti-spoil-augmentations-v1.test.mjs. */
   { fichier: "augmentations-page-v1.js", contient: "🔒 ???????", raison: "unique prochain Augment, sans nom ni condition (cf. Basic Training)" },
   { fichier: "augmentations-page-v1.js", contient: "pour l’obtenir.", raison: "cinquième exception de Norman (2026-11-03) : le numéro du boss de la PROCHAINE augmentation seulement, dans le cadre ????????" },
+  /* Même page rendue par composants Preact (augmentations-vdom-v1.js, 2026-11-18) : exactement les mêmes textes, aux mêmes conditions (testé par idle-augmentations-vdom-v1). */
+  { fichier: "augmentations-vdom-v1.js", contient: "🔒 ???????", raison: "unique prochain Augment, sans nom ni condition (rendu Preact de la même page)" },
+  { fichier: "augmentations-vdom-v1.js", contient: "pour l’obtenir.", raison: "cinquième exception de Norman (2026-11-03) : numéro du boss de la PROCHAINE augmentation seulement (rendu Preact)" },
   /* meta-progression-v130.js : cartes (Cards). 🔒 = icône « protégée » d'une carte que le joueur possède et a lui-même protégée ;
      rien à voir avec un déblocage. */
   /* Texte d'aide d'un défi DÉJÀ actif : règle du défi en cours (le joueur y est), pas un contenu non découvert. */
