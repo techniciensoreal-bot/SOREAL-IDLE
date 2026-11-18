@@ -52,7 +52,7 @@ assert.ok(ui.includes("idlePrevisionBossV1.actif&&joueurServeur"), "garde en tê
 
 // 3. Time Machine : MAX = tout ce qui est libre (jamais le plafond théorique), cadre en français.
 assert.ok(meta.includes("Math.max(current,Math.min(current+libre,allocationMaxMetaIdleV48_(j,'timeMachine',ressource)))"));
-assert.ok(meta.includes("<h1>Machine à remonter le temps cassée</h1>") && !meta.includes("<h1>Broken Time Machine</h1>"));
+assert.ok(meta.includes("h('h1',null,'Machine à remonter le temps cassée')") && !meta.includes("<h1>Broken Time Machine</h1>"));
 
 // 4. Résumé d'absence : pas de ligne d'énergie à 0, titans vaincus, butin court.
 assert.ok(ui.includes("if(produite>0)lignes.push(ligneResumeHorsLigneIdleV64_('⚡'"), "ligne d'énergie seulement si de l'énergie a été produite");

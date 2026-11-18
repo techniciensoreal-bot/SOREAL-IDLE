@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { lirePagesMeta } from "./_meta-pages.mjs";
+import { preparerVdom } from "./_ygg-vdom.mjs";
+import { deplierVdom } from "./_vdom-html.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { normalizeIdleNguState, applyIdleNguAction, advanceIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
@@ -67,8 +69,9 @@ const hote = {
   rendreIdleEtat_() {},
   jouerEffetAudioIdleV199_() {}
 };
-const window = { __SOREAL_IDLE_META_HOST_V130__: hote, __SOREAL_IDLE_TEXT_HELPERS_V1__: { libelleRessource: (x) => String(x) }, __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v) }, document: { getElementById: () => null } };
-vm.runInNewContext(meta, { window, document: window.document, SOREAL_SESSION: null });
+const window = { __SOREAL_IDLE_META_HOST_V130__: hote, __SOREAL_IDLE_TEXT_HELPERS_V1__: { libelleRessource: (x) => String(x) }, __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v) }, setTimeout, clearTimeout };
+const documentFaux = preparerVdom(window);   // faux DOM + VRAI Preact + VRAI pont : la Machine temporelle est rendue par composants (chantier de fluidité, 2026-11-18)
+vm.runInNewContext(meta, { window, document: documentFaux, SOREAL_SESSION: null });
 const api = window.__SOREAL_IDLE_META_V130__;
 const SPOILS = [/🔒/, /Verrouillé/i, /Bats le boss/i, /\?\?\?/, /boss\s*\d+\s*pour/i];
 const sansSpoil = (html, contexte) => { for (const re of SPOILS) assert.ok(!re.test(html), contexte + " : aucun indice de verrou (" + re + ")"); };
@@ -105,7 +108,7 @@ const sansSpoil = (html, contexte) => { for (const re of SPOILS) assert.ok(!re.t
   s.resources.energy.current = 1000;
   s.currencies.gold = 1e30;
   etatClient = { systemes: idleNguSnapshot(s, ctx30, 0), energie: 0 };
-  const html = api.pageSystemeMetaIdleV130_(etatClient, "timeMachine", "Time Machine");
+  const html = deplierVdom(window, api.pageSystemeMetaIdleV130_(etatClient, "timeMachine", "Time Machine"));
   assert.match(html, /À quoi ça sert/);
   assert.match(html, /Vitesse de la machine/);
   assert.ok(!html.includes("Multiplicateur d’or (Magic"), "l'aide ne parle pas de la piste Magic");
@@ -115,7 +118,7 @@ const sansSpoil = (html, contexte) => { for (const re of SPOILS) assert.ok(!re.t
 
   const sMagic = etat();
   etatClient = { systemes: idleNguSnapshot(sMagic, ctx, 0), energie: 0 };
-  const htmlMagic = api.pageSystemeMetaIdleV130_(etatClient, "timeMachine", "Time Machine");
+  const htmlMagic = deplierVdom(window, api.pageSystemeMetaIdleV130_(etatClient, "timeMachine", "Time Machine"));
   assert.match(htmlMagic, /tmm-piste or/, "piste Magic présente une fois Blood Magic débloqué");
   assert.match(htmlMagic, /Multiplicateur d’or \(Magic \+ Or\)/, "et expliquée dans l'aide");
   assert.ok(!/Bonus GPS Blood Magic/.test(htmlMagic), "facteur à 100 % (sans effet) non listé");

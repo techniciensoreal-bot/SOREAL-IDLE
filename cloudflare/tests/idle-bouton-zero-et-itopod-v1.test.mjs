@@ -18,7 +18,7 @@ const alloc = L("cloudflare/public/modules/barre-allocation-v1.js");
 // un bouton « 0 » dans chaque menu, branché sur son propre gestionnaire
 assert.ok(ui.includes("__ajusterBasicTrainingIdleV120__('${idleHtml_(skill.id)}','zero')") && ui.includes("if(action==='zero'){"), "Entraînement de base");
 assert.ok(meta.includes("['zero','0']") && meta.includes(":mode==='zero'?0:current+idleAvant"), "Augmentations (Augment et Upgrade)");
-assert.ok(meta.includes("__ajusterTimeMachineIdleV1__(''+ressource+'','zero')") && meta.includes(":mode==='zero'?0:Math.max(current,"), "Time Machine");
+assert.ok(meta.includes("pont_('__ajusterTimeMachineIdleV1__',t.ressource,'zero')") && meta.includes(":mode==='zero'?0:Math.max(current,"), "Time Machine");
 assert.ok(meta.includes("__ajusterAdvancedTrainingIdleV1__(''+idH+'','zero')") && meta.includes("mode==='zero'?0:mode==='max'?courant+libre:mode==='plus'"), "Entraînement avancé");
 assert.ok(blood.includes("__ajusterRituelBloodMagicIdleV1__(''+idHtml+'','zero')") && blood.includes(":mode==='zero'?0:current+idleAvant"), "Rituels de Blood Magic");
 assert.ok(ngu.includes("ajuster(''+idH+'','zero')") && ngu.includes("valeur=mode==='zero'?0:"), "NGU");

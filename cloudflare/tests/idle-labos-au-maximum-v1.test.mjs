@@ -48,13 +48,13 @@ assert.equal(bas.runLevel, 2);
 
 // le bouton de la page demande l'ajustement
 const page = fs.readFileSync("cloudflare/public/modules/labos-page-v1.js", "utf8");
-assert.ok(page.includes("'+max+',true)\"") && page.includes(">Au maximum</button>"), "bouton « Au maximum » : fit demandé");
+assert.ok(page.includes("pont_('__setDiggerIdleV47__',id,max,true)") && page.includes("'Au maximum')"), "bouton « Au maximum » : fit demandé");
 /* Boutons grisés lisibles (Norman, 2026-11-08) : jamais l'attribut disabled (la règle globale button:disabled{color:#758198!important} grise le texte sur gris) ; classe mn-manque + aria-disabled, sans onclick ; texte clair contrasté */
 assert.ok(!/'disabled /.test(page) && !page.includes("?'disabled '"), "aucun bouton de la page n'utilise l'attribut disabled");
-assert.equal((page.match(/aria-disabled="true"/g) || []).length, 3, "trois boutons peuvent être indisponibles (−, +, Améliorer) : « Au maximum » reste TOUJOURS cliquable, même posé sur le niveau maximal (Norman, 2026-11-09)");
+assert.equal((page.match(/'aria-disabled':[A-Za-z.]+\?'true':undefined/g) || []).length, 3, "trois boutons peuvent être indisponibles (−, +, Améliorer) : « Au maximum » reste TOUJOURS cliquable, même posé sur le niveau maximal (Norman, 2026-11-09)");
 {
-  const bouton = page.slice(page.indexOf("lp-btn\" onclick=\"window.__setDiggerIdleV47__"), page.indexOf(">Au maximum</button>"));
-  assert.ok(bouton.includes("'+max+',true)") && !bouton.includes("lp-manque") && !bouton.includes("aria-disabled"), "« Au maximum » : jamais grisé, toujours avec fit");
+  const bouton = page.slice(page.indexOf("h('button',{type:'button',class:'lp-btn',onClick:pont_('__setDiggerIdleV47__'"), page.indexOf("'Au maximum')"));
+  assert.ok(bouton.includes("id,max,true)") && !bouton.includes("lp-manque") && !bouton.includes("aria-disabled"), "« Au maximum » : jamais grisé, toujours avec fit");
 }
 const css = page.match(/\.lp-btn:disabled,\.lp-btn\.lp-manque\{[^}]*\}/)[0];
 const lum = (h) => { const c = [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255).map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4))); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };

@@ -3,6 +3,8 @@ import { lireUiComplet } from "./_ui-sources.mjs";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { preparerVdom } from "./_ygg-vdom.mjs";
+import { deplierVdom } from "./_vdom-html.mjs";
 import { normalizeIdleNguState, applyIdleNguAction, advanceIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 const sansClicV1 = (x) => { const o = JSON.parse(JSON.stringify(x)); delete o.clientAt; return o; }; /* l'instant du clic accompagne les allocations (idle-allocation-instant-clic-v1) */
 
@@ -130,7 +132,7 @@ const agir = (s, p) => applyIdleNguAction(s, p, ctx, NOW).state;
 
 // 7. Client : écran fidèle à la capture, actions branchées
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-const page = meta.slice(meta.indexOf("function pageTimeMachineIdleV48_(j){"), meta.indexOf("function pageBloodMagicIdleV48_(j){"));
+const page = meta.slice(meta.indexOf("function pageTimeMachineIdleV48_(j){"), meta.indexOf("function pageBloodMagicIdleV48_(j){")) + readFileSync("cloudflare/public/modules/machine-page-vdom-v1.js", "utf8");   // le modèle de vue (augmentations-page) + les composants (machine-page-vdom, chantier de fluidité 2026-11-18)
 for (const attendu of ["Machine à remonter le temps cassée", "Vitesse de la machine", "Multiplicateur d’or", "Cible", "Niveau", "GPS brut", "GPS net", "Or de base par remplissage (avant multiplicateurs)", "Remplissages de barre par seconde", "Bonus GPS Blood Magic", "Multiplicateur GPS NGU", "Multiplicateur des défis", "Multiplicateur du meilleur boss", "Multiplicateur GPS de la vitesse", "Multiplicateur GPS de la Barbe"]) {
   assert.ok(page.includes(attendu), "libellé « " + attendu + " » présent");
 }
@@ -165,7 +167,8 @@ const hote = {
   rendreIdleEtat_() {},
   jouerEffetAudioIdleV199_() {}
 };
-const window = { __SOREAL_IDLE_META_HOST_V130__: hote, __SOREAL_IDLE_TEXT_HELPERS_V1__: { libelleRessource: (x) => String(x) }, __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v) }, document: { getElementById: () => null } };
+const window = { __SOREAL_IDLE_META_HOST_V130__: hote, __SOREAL_IDLE_TEXT_HELPERS_V1__: { libelleRessource: (x) => String(x) }, __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v) }, setTimeout, clearTimeout };
+preparerVdom(window);   // faux DOM + VRAI Preact + VRAI pont : la Machine temporelle est rendue par composants (chantier de fluidité, 2026-11-18)
 const sandbox = { window, document: window.document, SOREAL_SESSION: "jeton", setTimeout, clearTimeout, performance };
 const attendreEnvoi = () => new Promise((r) => setTimeout(r, 130));
 vm.runInNewContext(meta, sandbox);
@@ -178,16 +181,16 @@ let etat = null;
   s.systems.timeMachine.data.speedTarget = 120;
   const snap = idleNguSnapshot(s, ctx, 0);
   etat = { systemes: snap };
-  const html = api.pageSystemeMetaIdleV130_(etat, "timeMachine", "Machine temporelle");
+  const html = deplierVdom(window, api.pageSystemeMetaIdleV130_(etat, "timeMachine", "Machine temporelle"));
   assert.match(html, /Machine à remonter le temps cassée/);
   assert.match(html, /value="120"/, "cible de la vitesse affichée");
   assert.ok(html.includes('data-tm-niveau="vitesse">97<'));
   assert.ok(html.includes('data-tm-niveau="or">81<'));
   assert.match(html, /tmm-piste vitesse/);
   assert.match(html, /tmm-piste or/);
-  assert.match(html, /__ajusterTimeMachineIdleV1__\('energy','plus'\)/);
-  assert.match(html, /__ajusterTimeMachineIdleV1__\('magic','moins'\)/);
-  assert.match(html, /__cibleTimeMachineIdleV1__\('speed',this\.value\)/);
+  // plus d'onclick en chaîne : les boutons sont des gestionnaires Preact vers les mêmes ponts (clics réels testés dans idle-machine-vdom-v1)
+  assert.ok(/pont_\('__ajusterTimeMachineIdleV1__',t\.ressource,'plus'\)/.test(page) && /pont_\('__ajusterTimeMachineIdleV1__',t\.ressource,'moins'\)/.test(page) && /f\(g\?'speed':'gold',e\.currentTarget\.value\)/.test(page), "boutons et cible branchés sur les ponts du jeu");
+  assert.ok(html.includes('title="Placer la valeur de Input"') && html.includes('title="Retirer la valeur de Input"'), "boutons + et − de chaque tour");
   // + / − envoient l'allocation actuelle ± Input
   window.__SOREAL_IDLE_META_HOST_V130__ = Object.assign({}, hote);
   window.document.getElementById = (id) => (id === "sorealIdleTmInputV1" ? { value: "250" } : null);

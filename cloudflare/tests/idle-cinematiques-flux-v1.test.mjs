@@ -83,7 +83,7 @@ console.log('ok lot 26');
 import vm from 'node:vm';
 const md = lire('public/modules/machine-dessin-v1.js');
 const pg = lire('public/modules/augmentations-page-v1.js');
-assert.ok(md.includes("getAttribute('data-tm-alloc')") && pg.includes('data-tm-alloc=') && pg.includes('data-tm-k=') && pg.includes('alloue(ressource)'), 'la page pose allocation et K sur chaque tour, le dessin les lit');
+assert.ok(md.includes("getAttribute('data-tm-alloc')") && lire('public/modules/machine-page-vdom-v1.js').includes("'data-tm-alloc':t.allocBrute") && lire('public/modules/machine-page-vdom-v1.js').includes("'data-tm-k':t.k") && pg.includes('alloue(ressource)'), 'la page pose allocation et K sur chaque tour, le dessin les lit');
 const f = (n) => md.match(new RegExp(String.raw`function ${n}\([^)]*\)\{[^\n]*\n`))[0];
 const rt = vm.runInNewContext(f('tourDeReference') + f('vitesseRoueTour') + f('rythmeAnneau') + '({tourDeReference,vitesseRoueTour,rythmeAnneau})');
 assert.equal(rt.vitesseRoueTour(0), 0, 'aucune allocation : roues arrêtées');

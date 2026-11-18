@@ -73,7 +73,7 @@ proche(B.etat(gde, 3.1, 100).montee, B.etat(gde, 3.1 + gde.duree * 7, 100).monte
 
 /* 3. plus aucun élément animé par bulle : un canvas par tube, protégé du redessin de la page (règle n°4) */
 assert.ok(!augm.includes("tmm-bulle mini") && !augm.includes("tmm-bulle gde"), "plus d'élément animé par bulle");
-assert.ok(augm.includes('<canvas class="tmm-bulles-cv" data-morph-vivant="1" data-tm-gauche="'), "un canvas par tube, le morph n'y touche pas");
+assert.ok(fs.readFileSync("cloudflare/public/modules/machine-page-vdom-v1.js", "utf8").includes("h('canvas',{class:'tmm-bulles-cv','data-morph-vivant':'1','data-tm-gauche':g?'1':'0'})"), "un canvas par tube, le morph n'y touche pas");
 assert.ok(!/\.tmm-bulle\s*\{|\.tmm-bulle\./.test(css), "plus de règle d'animation appliquée à des bulles");
 assert.ok(/\.tmm-bulles-cv\{position:absolute;left:0;bottom:0;width:100%/.test(css));
 assert.ok(index.indexOf("tm-bulles-canvas-v1.js") > 0 && index.indexOf("tm-bulles-canvas-v1.js") < index.indexOf("ui-machine-temporelle-v1.js"), "chargé dans index.html");
