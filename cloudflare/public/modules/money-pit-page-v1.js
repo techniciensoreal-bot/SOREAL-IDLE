@@ -41,7 +41,8 @@
           if(restantMs>0){
             const restantS=Math.ceil(restantMs/1000);
             const texte=b.getAttribute('data-idle-recharge-v1')==='pit'?libelleRechargeMoneyPitIdleV1_(restantS):libelleRechargeDailySpinIdleV1_(restantS);
-            if(b.textContent!==texte)b.textContent=texte;
+            /* Le noeud de texte du bouton est réécrit SUR PLACE (pas textContent, qui le remplacerait) : le bouton rendu par Preact (money-pit-vdom-v1.js) garde ainsi le noeud que Preact suit. */
+            if(b.childNodes.length===1&&b.firstChild.nodeType===3){if(b.firstChild.data!==texte)b.firstChild.data=texte;}else if(b.textContent!==texte)b.textContent=texte;
           }else echu=true;
         });
         if(echu){
@@ -297,6 +298,36 @@
       const IDLE_MOIS_FR_CALENDRIER_V1=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
       /* Dernière série vue : seule une case qui vient de s'allumer rejoue l'animation d'allumage (pas toutes les cases à chaque redessin de la page). */
       let calSerieVueV1=null;
+      /* Feuille de style du calendrier (partagée entre le rendu historique et le rendu Preact : money-pit-vdom-v1.js). */
+      const CSS_CALENDRIER_V1=
+            '.cal-v1{max-width:760px;margin:0 auto 14px;padding:12px;border-radius:16px;border:2px solid rgba(255,214,102,.55);background:linear-gradient(165deg,rgba(40,28,8,.92),rgba(14,10,4,.95));box-shadow:0 10px 28px rgba(0,0,0,.35),inset 0 0 40px rgba(255,190,60,.08)}'+
+            '.cal-titre-v1{font-size:17px;font-weight:950;color:#ffe9a8;text-shadow:0 2px 4px #000;text-align:center}'+
+            '.cal-sous-v1{font-size:12px;color:#e8d9b0;text-align:center;margin:3px 0 8px}'+
+            '.cal-stats-v1{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:13px;color:#ffe9a8;margin-bottom:8px}'+
+            '.cal-stats-v1 b{color:#fff}'+
+            '.cal-grille-v1{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}'+
+            '.cal-case-v1{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;aspect-ratio:1/1.12;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#1b1a22;color:#9aa0b4;overflow:hidden;transition:transform .2s}'+
+            '.cal-jour-v1{position:absolute;top:3px;left:5px;font-size:10px;font-weight:800;opacity:.85}'+
+            '.cal-icone-v1{font-size:19px;line-height:1.1;margin-top:9px}'+
+            '.cal-ap-v1{font-size:10px;font-weight:900;letter-spacing:.01em}'+
+            '.cal-case-v1.eteint{filter:grayscale(1);opacity:.5}'+
+            '.cal-case-v1.ratee{filter:grayscale(1) brightness(.7);opacity:.38;background:repeating-linear-gradient(135deg,#1b1a22 0 6px,#15141b 6px 12px)}'+
+            '.cal-case-v1.ratee .cal-icone-v1{opacity:.55}'+
+            '.cal-case-v1.allume{border-color:#ffd54a;background:radial-gradient(circle at 50% 30%,#ffe58a 0,#f2a91b 55%,#a8650a 100%);color:#3a2300;box-shadow:0 0 14px rgba(255,200,60,.75),inset 0 0 10px rgba(255,255,255,.45)}'+
+            '.cal-case-v1.allume.nouveau{animation:calAllumeV1 .6s ease-out}'+
+            '.cal-case-v1.allume .cal-icone-v1{filter:drop-shadow(0 0 5px rgba(255,255,255,.9))}'+
+            '.cal-coche-v1{position:absolute;right:3px;top:3px;font-size:9px;font-weight:1000;color:#15632a;background:rgba(255,255,255,.9);border-radius:50%;width:13px;height:13px;line-height:13px;text-align:center}'+
+            '.cal-case-v1.pret{border:2px solid #7dffa8;background:radial-gradient(circle at 50% 30%,#26543a 0,#123222 70%);color:#eafff1;box-shadow:0 0 16px rgba(110,255,160,.8);animation:calPretV1 1.1s ease-in-out infinite}'+
+            '.cal-case-v1.dernier{grid-column:1/-1;flex-direction:row;gap:12px;aspect-ratio:auto;min-height:62px;padding:8px 14px}'+
+            '.cal-case-v1.dernier .cal-jour-v1{top:5px;left:9px;font-size:12px}'+
+            '.cal-case-v1.dernier .cal-icone-v1{font-size:34px;margin-top:0}.cal-case-v1.dernier.eteint{opacity:.75}'+
+            '.cal-case-v1.dernier .cal-ap-v1{font-size:20px}'+
+            '.cal-bouton-v1{width:100%;margin-top:10px!important;white-space:normal}'+
+            '@keyframes calPretV1{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}'+
+            '@keyframes calAllumeV1{0%{transform:scale(.7);filter:brightness(2)}100%{transform:scale(1);filter:none}}'+
+            '@media(prefers-reduced-motion:reduce){.cal-case-v1.pret,.cal-case-v1.allume,.cal-case-v1.allume.nouveau{animation:none}}'+
+      '';
+
       function rendreCalendrierConnexionIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const cal=j&&j.systemes&&j.systemes.loginCalendar;
@@ -333,34 +364,7 @@
         }else{
           bouton='<button type="button" class="soreal-idle-expand-button-v25 cal-bouton-v1" disabled>✅ Récompense du jour récupérée · reviens demain pour +'+H.idleHtml_(H.formatGrandNombreIdleV70_(cal.prochainAp))+' AP</button>';
         }
-        return '<style>'+
-            '.cal-v1{max-width:760px;margin:0 auto 14px;padding:12px;border-radius:16px;border:2px solid rgba(255,214,102,.55);background:linear-gradient(165deg,rgba(40,28,8,.92),rgba(14,10,4,.95));box-shadow:0 10px 28px rgba(0,0,0,.35),inset 0 0 40px rgba(255,190,60,.08)}'+
-            '.cal-titre-v1{font-size:17px;font-weight:950;color:#ffe9a8;text-shadow:0 2px 4px #000;text-align:center}'+
-            '.cal-sous-v1{font-size:12px;color:#e8d9b0;text-align:center;margin:3px 0 8px}'+
-            '.cal-stats-v1{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-size:13px;color:#ffe9a8;margin-bottom:8px}'+
-            '.cal-stats-v1 b{color:#fff}'+
-            '.cal-grille-v1{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}'+
-            '.cal-case-v1{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;aspect-ratio:1/1.12;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#1b1a22;color:#9aa0b4;overflow:hidden;transition:transform .2s}'+
-            '.cal-jour-v1{position:absolute;top:3px;left:5px;font-size:10px;font-weight:800;opacity:.85}'+
-            '.cal-icone-v1{font-size:19px;line-height:1.1;margin-top:9px}'+
-            '.cal-ap-v1{font-size:10px;font-weight:900;letter-spacing:.01em}'+
-            '.cal-case-v1.eteint{filter:grayscale(1);opacity:.5}'+
-            '.cal-case-v1.ratee{filter:grayscale(1) brightness(.7);opacity:.38;background:repeating-linear-gradient(135deg,#1b1a22 0 6px,#15141b 6px 12px)}'+
-            '.cal-case-v1.ratee .cal-icone-v1{opacity:.55}'+
-            '.cal-case-v1.allume{border-color:#ffd54a;background:radial-gradient(circle at 50% 30%,#ffe58a 0,#f2a91b 55%,#a8650a 100%);color:#3a2300;box-shadow:0 0 14px rgba(255,200,60,.75),inset 0 0 10px rgba(255,255,255,.45)}'+
-            '.cal-case-v1.allume.nouveau{animation:calAllumeV1 .6s ease-out}'+
-            '.cal-case-v1.allume .cal-icone-v1{filter:drop-shadow(0 0 5px rgba(255,255,255,.9))}'+
-            '.cal-coche-v1{position:absolute;right:3px;top:3px;font-size:9px;font-weight:1000;color:#15632a;background:rgba(255,255,255,.9);border-radius:50%;width:13px;height:13px;line-height:13px;text-align:center}'+
-            '.cal-case-v1.pret{border:2px solid #7dffa8;background:radial-gradient(circle at 50% 30%,#26543a 0,#123222 70%);color:#eafff1;box-shadow:0 0 16px rgba(110,255,160,.8);animation:calPretV1 1.1s ease-in-out infinite}'+
-            '.cal-case-v1.dernier{grid-column:1/-1;flex-direction:row;gap:12px;aspect-ratio:auto;min-height:62px;padding:8px 14px}'+
-            '.cal-case-v1.dernier .cal-jour-v1{top:5px;left:9px;font-size:12px}'+
-            '.cal-case-v1.dernier .cal-icone-v1{font-size:34px;margin-top:0}.cal-case-v1.dernier.eteint{opacity:.75}'+
-            '.cal-case-v1.dernier .cal-ap-v1{font-size:20px}'+
-            '.cal-bouton-v1{width:100%;margin-top:10px!important;white-space:normal}'+
-            '@keyframes calPretV1{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}'+
-            '@keyframes calAllumeV1{0%{transform:scale(.7);filter:brightness(2)}100%{transform:scale(1);filter:none}}'+
-            '@media(prefers-reduced-motion:reduce){.cal-case-v1.pret,.cal-case-v1.allume,.cal-case-v1.allume.nouveau{animation:none}}'+
-          '</style>'+
+        return '<style>'+CSS_CALENDRIER_V1+'</style>'+
           '<div class="cal-v1">'+
             '<div class="cal-titre-v1">📅 Récompenses de connexion · '+H.idleHtml_(nomMois)+'</div>'+
             '<div class="cal-sous-v1">'+(cal.offert?'Reviens chaque jour pour récupérer ta case : plus le mois avance, plus l’AP est gros. Une case ratée est grisée.':'Reviens chaque jour pour récupérer ta case. Une case ratée est grisée, et chaque jour raté retire 10 % aux récompenses restantes.')+'</div>'+
@@ -454,6 +458,57 @@
         '</details>';
       }
 
+      /* Feuille de style de la page Money Pit (partagée entre le rendu historique et le rendu Preact : money-pit-vdom-v1.js). */
+      const CSS_PAGE_MONEY_PIT_V1=
+            '.soreal-idle-money-scene-v206{position:relative;max-width:760px;margin:0 auto 14px;overflow:hidden;border-radius:18px;border:2px solid #26344d;background:#102e16;box-shadow:0 15px 40px rgba(0,0,0,.3)}'+
+            /* Norman (2026-10-02) : l'image du trou était coupée à gauche et à droite (carré forcé + cover) : elle s'affiche maintenant en entier, à ses proportions. */
+            /* Norman (2026-10-08) : « l'image du trou sans fond sur PC est beaucoup trop grande » : même image entière et centrée, mais jamais plus haute que 340 px (ni que 40 % de l'écran). */
+            '.soreal-idle-money-scene-v206>img{display:block;width:auto;height:auto;max-width:100%;max-height:min(40vh,340px);margin:0 auto;object-fit:contain}'+
+            '.soreal-idle-money-actions-v206{display:flex;gap:8px;max-width:760px;margin:0 auto 14px}'+
+            '.soreal-idle-money-action-v206{flex:1 1 0;min-width:0;box-sizing:border-box;background:rgba(12,18,31,.92);border:2px solid rgba(255,255,255,.5);border-radius:12px;padding:8px;box-shadow:0 8px 22px rgba(0,0,0,.28);text-align:center}'+
+            '.soreal-idle-money-action-v206 .soreal-idle-expand-button-v25{width:100%;margin:4px 0 0!important}'+
+            '.soreal-idle-money-action-title-v206{font-size:15px;font-weight:950;color:#fff;text-shadow:0 1px 3px #000}'+
+            '.soreal-idle-money-action-note-v206{font-size:12px;color:#d5e1f5;margin-top:2px}'+
+            /* Norman (2026-10-03) : « Ton prix » était plus large que les autres cadres sur PC : même largeur maximale que la scène, les boutons et les cadres de récompenses. */
+            '.soreal-idle-money-scene-v206~.soreal-idle-offre-v1{max-width:760px;margin:0 auto 14px;box-sizing:border-box}'+
+            '.soreal-idle-prize-v206{padding:12px;border-radius:12px;background:#f4c83b;color:#19160b;border:2px solid #9c7b12;text-align:center;font-weight:950;font-size:14px}'+
+            '.soreal-idle-reward-table-v206{width:100%;border-collapse:collapse;font-size:13px}.soreal-idle-reward-table-v206 th,.soreal-idle-reward-table-v206 td{padding:7px;border:1px solid rgba(132,145,175,.28);text-align:left}.soreal-idle-reward-table-v206 th{background:rgba(97,112,147,.14)}'+
+            '@media(max-width:620px){.soreal-idle-money-action-title-v206{font-size:14px}.soreal-idle-money-action-note-v206{font-size:11px}}'+
+            '.mp-cadre-v1{max-width:760px;margin:0 auto 12px;border-radius:14px;border:2px solid rgba(255,255,255,.28);background:rgba(12,18,31,.92);overflow:hidden}'+
+            '.mp-cadre-v1>summary{cursor:pointer;padding:11px 14px;font-weight:950;font-size:15px;color:#fff;text-shadow:0 1px 3px #000;list-style:none;display:flex;gap:8px;align-items:center}'+
+            '.mp-cadre-v1>summary::-webkit-details-marker{display:none}'+
+            '.mp-cadre-v1>summary::after{content:"▾";margin-left:auto;transition:transform .2s}'+
+            '.mp-cadre-v1:not([open])>summary::after{transform:rotate(-90deg)}'+
+            '.mp-compte-v1{font-weight:700;opacity:.75;font-size:13px}'+
+            '.mp-corps-v1{padding:0 12px 12px}'+
+            '.mp-cadre-v1 .soreal-idle-reward-table-v206 th,.mp-cadre-v1 .soreal-idle-reward-table-v206 td{color:#eef3ff}'+
+            '.mp-pager-v1{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;font-size:13px;color:#d5e1f5}'+
+            '.mp-pager-v1 button{padding:6px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:#253957;color:#fff;font-weight:800}'+
+            '.mp-pager-v1 button:disabled{opacity:.4}'+
+      '';
+
+      function rangCouleurPrixIdleV1_(d,stockage,total){
+        let rang=0;
+        if(total!=null&&total>0)return ((Math.floor(total)%6)+6)%6;
+        try{
+          const cle=d?(String(d.at)+'|'+String(d.prize)):'';
+          if(cle){
+            const memo=rangCouleurMemoIdleV1[stockage];
+            let brut=null;
+            try{brut=JSON.parse(localStorage.getItem(stockage)||'null');}catch(_e2){brut=null;}
+            if(memo&&(!brut||typeof brut!=='object'||memo.n>(Number(brut.n)||0)||(memo.cle===cle&&memo.n>=(Number(brut.n)||0))))brut=memo;
+            let n=0;
+            if(brut&&typeof brut==='object'){n=brut.cle===cle?(Number(brut.n)||0):(Number(brut.n)||0)+1;}
+            if(!brut||brut.cle!==cle){
+              rangCouleurMemoIdleV1[stockage]={cle:cle,n:n};
+              try{localStorage.setItem(stockage,JSON.stringify({cle:cle,n:n}));}catch(_e3){}
+            }
+            rang=((n%6)+6)%6;
+          }
+        }catch(_e){}
+        return rang;
+      }
+
       function pageMoneyPitDailySpinIdleV206_(j){
         const pit=systemeMetaParIdIdleV130_(j,'moneyPit');
         const roueReelle=systemeMetaParIdIdleV130_(j,'dailySpin');
@@ -481,27 +536,7 @@
          * Norman (2026-10-21) : « les cadres ne changent plus de couleur, ça reste rouge ». Le compteur n'était gardé que dans le stockage de l'appareil (recopié sur le compte, parfois remis à une ancienne valeur par une réponse) :
          * il est maintenant AUSSI gardé en mémoire de page (la séquence ne recule jamais pendant la session) et, pour la roue, la couleur suit directement le nombre total de tours (aucun stockage, aucune course possible).
          */
-        const rangCouleurPrix_=function(d,stockage,total){
-          let rang=0;
-          if(total!=null&&total>0)return ((Math.floor(total)%6)+6)%6;
-          try{
-            const cle=d?(String(d.at)+'|'+String(d.prize)):'';
-            if(cle){
-              const memo=rangCouleurMemoIdleV1[stockage];
-              let brut=null;
-              try{brut=JSON.parse(localStorage.getItem(stockage)||'null');}catch(_e2){brut=null;}
-              if(memo&&(!brut||typeof brut!=='object'||memo.n>(Number(brut.n)||0)||(memo.cle===cle&&memo.n>=(Number(brut.n)||0))))brut=memo;
-              let n=0;
-              if(brut&&typeof brut==='object'){n=brut.cle===cle?(Number(brut.n)||0):(Number(brut.n)||0)+1;}
-              if(!brut||brut.cle!==cle){
-                rangCouleurMemoIdleV1[stockage]={cle:cle,n:n};
-                try{localStorage.setItem(stockage,JSON.stringify({cle:cle,n:n}));}catch(_e3){}
-              }
-              rang=((n%6)+6)%6;
-            }
-          }catch(_e){}
-          return rang;
-        };
+        const rangCouleurPrix_=rangCouleurPrixIdleV1_;
         /* Un « Ton prix » sous CHAQUE bouton (Norman, 2026-10-16) : le dernier gain du Money Pit sous « Balance ton argent », le dernier de la roue sous la roue, chacun avec son propre compteur de couleur. */
         const couleurPrix=rangCouleurPrix_(derniere,'soreal_idle_prix_couleur_v1');
         const couleurPrixRoue=rangCouleurPrix_(derniereRoue,'soreal_idle_prix_couleur_roue_v1',totalSpins);
@@ -533,33 +568,7 @@
           )+
           bandeauMoneyPitIdleV1_(pitData)+
           bandeauRoueIdleV1_(roueData)+
-          '<style>'+
-            '.soreal-idle-money-scene-v206{position:relative;max-width:760px;margin:0 auto 14px;overflow:hidden;border-radius:18px;border:2px solid #26344d;background:#102e16;box-shadow:0 15px 40px rgba(0,0,0,.3)}'+
-            /* Norman (2026-10-02) : l'image du trou était coupée à gauche et à droite (carré forcé + cover) : elle s'affiche maintenant en entier, à ses proportions. */
-            /* Norman (2026-10-08) : « l'image du trou sans fond sur PC est beaucoup trop grande » : même image entière et centrée, mais jamais plus haute que 340 px (ni que 40 % de l'écran). */
-            '.soreal-idle-money-scene-v206>img{display:block;width:auto;height:auto;max-width:100%;max-height:min(40vh,340px);margin:0 auto;object-fit:contain}'+
-            '.soreal-idle-money-actions-v206{display:flex;gap:8px;max-width:760px;margin:0 auto 14px}'+
-            '.soreal-idle-money-action-v206{flex:1 1 0;min-width:0;box-sizing:border-box;background:rgba(12,18,31,.92);border:2px solid rgba(255,255,255,.5);border-radius:12px;padding:8px;box-shadow:0 8px 22px rgba(0,0,0,.28);text-align:center}'+
-            '.soreal-idle-money-action-v206 .soreal-idle-expand-button-v25{width:100%;margin:4px 0 0!important}'+
-            '.soreal-idle-money-action-title-v206{font-size:15px;font-weight:950;color:#fff;text-shadow:0 1px 3px #000}'+
-            '.soreal-idle-money-action-note-v206{font-size:12px;color:#d5e1f5;margin-top:2px}'+
-            /* Norman (2026-10-03) : « Ton prix » était plus large que les autres cadres sur PC : même largeur maximale que la scène, les boutons et les cadres de récompenses. */
-            '.soreal-idle-money-scene-v206~.soreal-idle-offre-v1{max-width:760px;margin:0 auto 14px;box-sizing:border-box}'+
-            '.soreal-idle-prize-v206{padding:12px;border-radius:12px;background:#f4c83b;color:#19160b;border:2px solid #9c7b12;text-align:center;font-weight:950;font-size:14px}'+
-            '.soreal-idle-reward-table-v206{width:100%;border-collapse:collapse;font-size:13px}.soreal-idle-reward-table-v206 th,.soreal-idle-reward-table-v206 td{padding:7px;border:1px solid rgba(132,145,175,.28);text-align:left}.soreal-idle-reward-table-v206 th{background:rgba(97,112,147,.14)}'+
-            '@media(max-width:620px){.soreal-idle-money-action-title-v206{font-size:14px}.soreal-idle-money-action-note-v206{font-size:11px}}'+
-            '.mp-cadre-v1{max-width:760px;margin:0 auto 12px;border-radius:14px;border:2px solid rgba(255,255,255,.28);background:rgba(12,18,31,.92);overflow:hidden}'+
-            '.mp-cadre-v1>summary{cursor:pointer;padding:11px 14px;font-weight:950;font-size:15px;color:#fff;text-shadow:0 1px 3px #000;list-style:none;display:flex;gap:8px;align-items:center}'+
-            '.mp-cadre-v1>summary::-webkit-details-marker{display:none}'+
-            '.mp-cadre-v1>summary::after{content:"▾";margin-left:auto;transition:transform .2s}'+
-            '.mp-cadre-v1:not([open])>summary::after{transform:rotate(-90deg)}'+
-            '.mp-compte-v1{font-weight:700;opacity:.75;font-size:13px}'+
-            '.mp-corps-v1{padding:0 12px 12px}'+
-            '.mp-cadre-v1 .soreal-idle-reward-table-v206 th,.mp-cadre-v1 .soreal-idle-reward-table-v206 td{color:#eef3ff}'+
-            '.mp-pager-v1{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:10px;font-size:13px;color:#d5e1f5}'+
-            '.mp-pager-v1 button{padding:6px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.4);background:#253957;color:#fff;font-weight:800}'+
-            '.mp-pager-v1 button:disabled{opacity:.4}'+
-          '</style>'+
+          '<style>'+CSS_PAGE_MONEY_PIT_V1+'</style>'+
           /* Mise en page (Norman, 2026-10-10 : « beaucoup plus jolie », image entière et grande) : sur PC l'image à gauche, les actions et « Ton prix » à droite ; sur téléphone tout s'empile (CSS : soreal-idle-itopod.css, « Money Pit v2 »). */
           /* Deux colonnes indépendantes sur PC (Norman, 2026-10-31 : « équilibrer les deux colonnes, combler les espaces vides ») : à gauche le trou (image, menu, tableau de ses récompenses), à droite la roue (image, menu, tableau) ; chaque colonne se remplit vers le bas sans laisser de vide. Téléphone : les colonnes disparaissent (display:contents) et l'ordre d'avant est rétabli par la propriété order (CSS). */
           '<div class="mp2-grille-v1">'+
@@ -674,9 +683,29 @@
     c.__fin=setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},2600);
   };
 
+  /*
+   * Entrée de la page. Rendu par composants Preact (chantier de fluidité, 2026-11-18, modules/money-pit-vdom-v1.js : DOM persistant, la page n'est plus reconstruite en chaîne HTML toutes les 4 s) ;
+   * sans Preact (module absent, navigateur ancien) : repli sur le rendu historique en chaîne HTML ci-dessus, inchangé.
+   */
+  function pageEntreeMoneyPitIdleV1_(j){
+    const W=window.__SOREAL_IDLE_MONEY_PIT_VDOM_V1__;
+    if(W&&window.preact&&window.__SOREAL_IDLE_VDOM_V1__){const r=W.page(j);if(r)return r;}
+    return pageMoneyPitDailySpinIdleV206_(j);
+  }
+
   window.__SOREAL_IDLE_MONEY_PIT_V1__={
     rendreBoutonMoneyPit:rendreBoutonMoneyPitIdleV1_,
     rendreBoutonDailySpin:rendreBoutonDailySpinIdleV203_,
-    page:pageMoneyPitDailySpinIdleV206_
+    page:pageEntreeMoneyPitIdleV1_,
+    pageChaineHtml:pageMoneyPitDailySpinIdleV206_,
+    /* Aides partagées avec le rendu Preact (money-pit-vdom-v1.js) : mêmes fonctions, une seule source de vérité. */
+    aides:{
+      libelleRechargeMoneyPit:libelleRechargeMoneyPitIdleV1_,libelleRechargeDailySpin:libelleRechargeDailySpinIdleV1_,demarrerMinuteurRecharge:demarrerMinuteurRechargeIdleV1_,guetterPalierTrou:guetterPalierTrouIdleV1_,
+      libelleRecompense:libelleRecompenseMetaV206_,phrase:phraseMoneyPitIdleV1_,historique:historiqueMoneyPitIdleV206_,lignesPit:lignesMoneyPitIdleV1_,lignesRoue:lignesRoueIdleV1_,dateCourte:dateCourteMoneyPitIdleV1_,
+      rangCouleurPrix:rangCouleurPrixIdleV1_,boutonRoue:rendreBoutonDailySpinIdleV203_,calques:calquesTrouSansFondIdleV1_,
+      NOMS_OBJETS_ROUE:NOMS_OBJETS_ROUE_V1,MOIS_FR:IDLE_MOIS_FR_CALENDRIER_V1,PAR_PAGE:IDLE_MP_PAR_PAGE_V1,pages:idleMpPagesV1,
+      CSS_PAGE:CSS_PAGE_MONEY_PIT_V1,CSS_CALENDRIER:CSS_CALENDRIER_V1,systemeMeta:systemeMetaParIdIdleV130_,
+      cadreOuvert:cadreMoneyPitOuvertIdleV1_,cleOuverture:cleOuvertureCadreMoneyPitIdleV1_
+    }
   };
 })();

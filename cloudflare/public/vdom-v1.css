@@ -1,2 +1,6 @@
 /* Conteneur d'une page rendue par composants Preact (modules/vdom-pont-v1.js) : aucune boite en plus dans la mise en page. */
 [data-vdom]{display:contents}
+/* Îlot : un morceau de page dessiné en chaîne HTML par un autre module (la roue, la légende du trou), mis à jour sur place dans un conteneur sans boîte. */
+.vdom-ilot{display:contents}
+/* Les enfants de la page recevaient « box-sizing:border-box;max-width:100% » (soreal-idle-itopod.css, « .soreal-idle-page-root-v28>* ») : les blocs d'une page Preact sont les enfants du conteneur, ils reçoivent la même règle. */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28>[data-vdom]>*{box-sizing:border-box;max-width:100%;}

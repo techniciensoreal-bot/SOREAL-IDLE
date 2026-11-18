@@ -129,7 +129,7 @@ class Element extends Noeud {
   matches(sel) { return correspond(this, analyser(sel.trim()), null); }
 }
 /* Comme un vrai navigateur, onclick, onchange, onload, onerror existent (Preact en déduit le nom d'événement en minuscules). */
-for (const k of ["onclick", "onchange", "onload", "onerror"]) Element.prototype[k] = null;
+for (const k of ["onclick", "onchange", "onload", "onerror", "ontoggle", "oninput", "onblur"]) Element.prototype[k] = null;
 for (const k of REFLETS_BOOL) Object.defineProperty(Element.prototype, k, { get() { return this.hasAttribute(k); }, set(v) { if (v) this.setAttribute(k, ""); else this.removeAttribute(k); } });
 for (const k of REFLETS_TEXTE) Object.defineProperty(Element.prototype, k, { get() { return this.getAttribute(k) || ""; }, set(v) { this.setAttribute(k, v); } });
 

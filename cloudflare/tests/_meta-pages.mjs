@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
  * le module méta ET ces fichiers : on ne casse plus un test à chaque nouveau découpage.
  */
 export const PAGES_META = [
-  "money-pit-page-v1.js", "wishes-page-v1.js", "daycare-page-v1.js", "cards-page-v1.js",
+  "money-pit-page-v1.js", "money-pit-vdom-v1.js", "wishes-page-v1.js", "daycare-page-v1.js", "cards-page-v1.js",
   "yggdrasil-diggers-page-v1.js", "labos-savants-v1.js", "labos-page-v1.js", "boutique-info-i-v1.js", "boutique-exp-page-v1.js","itopod-perks-page-v1.js", "defis-page-v1.js", "augmentations-page-v1.js"
 ];
 export function lirePagesMeta() {

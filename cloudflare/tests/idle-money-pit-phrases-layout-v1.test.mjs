@@ -13,7 +13,8 @@ assert.equal(css.includes(".soreal-idle-offre-v1 .soreal-idle-note-v4,.soreal-id
 assert.ok(ui.includes("background:#f4c83b;color:#19160b"));
 
 // 2. Boutons sous l'image, une moitié de la largeur chacun
-const page = ui.slice(ui.lastIndexOf("function pageMoneyPitDailySpinIdleV206_(j){"), ui.indexOf("window.__SOREAL_IDLE_MONEY_PIT_V1__={", ui.lastIndexOf("function pageMoneyPitDailySpinIdleV206_(j){")));
+/* La feuille de style de la page (CSS_PAGE_MONEY_PIT_V1) a été sortie de la fonction de page pour être partagée avec le rendu Preact (money-pit-vdom-v1.js) : la coupe commence à elle. */
+const page = ui.slice(ui.lastIndexOf("const CSS_PAGE_MONEY_PIT_V1="), ui.indexOf("window.__SOREAL_IDLE_MONEY_PIT_V1__={", ui.lastIndexOf("function pageMoneyPitDailySpinIdleV206_(j){")));
 assert.ok(page.includes(".soreal-idle-money-actions-v206{display:flex;gap:8px;max-width:760px;margin:0 auto 14px}"));
 assert.ok(page.includes(".soreal-idle-money-action-v206{flex:1 1 0;min-width:0;"), "chaque bouton prend la moitié");
 assert.equal(/position:absolute/.test(page), false, "plus de bouton posé sur l'image");
