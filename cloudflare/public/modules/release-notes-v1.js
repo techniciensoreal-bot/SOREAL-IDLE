@@ -31,6 +31,9 @@
         groupes:[
           {menu:'ngu', titre:'NGU', points:[
             'NGU : les boutons « Cap » et « Cap all » s’écrivent bien « Cap » (ils étaient traduits « Plafond » et coupés).'
+          ]},
+          {menu:'cards', titre:'Cartes', points:[
+            'Cartes, d’après le code du jeu : la difficulté ne touche plus la taille du deck, les tags ni les paliers (seulement les vitesses), le recyclage ne garde plus le surplus du minuteur, et les Chonkers sont générés avant les cartes normales hors ligne.'
           ]}
         ]
       },

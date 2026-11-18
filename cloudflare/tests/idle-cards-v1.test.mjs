@@ -248,7 +248,9 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   assert.equal(c.protected, true);
   s.selloutShop.purchases = { extraDeckSize: 50 }; // deck de 60 : les 72 cartes normales le remplissent
   advanceIdleCardsV1(s, 72 * 3600, seeded(4));
-  assert.equal(s.systems.cards.data.deck.filter((x) => x.chonker).length, 0, "deck plein avant les 72 h : pas de Chonker");
+  /* Lu dans le jeu (Character::cardsOfflineProgress, 2026-11-17) : les Chonkers sont générés avant les cartes normales, ils prennent donc une place libre même si les 72 cartes normales du même laps de temps auraient rempli le deck. */
+  assert.equal(s.systems.cards.data.deck.filter((x) => x.chonker).length, 1, "Chonker généré avant les cartes normales");
+  assert.equal(s.systems.cards.data.deck.length, 60, "deck plein (60)");
   s.selloutShop.purchases = { extraDeckSize: 50 };
   s.systems.quirks.data.levels[146] = 5; s.systems.quirks.data.levels[147] = 5; s.systems.quirks.data.levels[148] = 5; // deck 75
   s.systems.cards.data.deck = [];
@@ -355,6 +357,31 @@ for (const [id, w] of Object.entries(IDLE_CARDS_WISH_EFFECTS_V1)) {
   assert.equal(snap.cards.mayoTypes.length, 6);
   assert.equal(snap.cards.deckSize, 10);
   near(snap.cards.secondsToNextCard, 3600, 1e-9, "prochaine carte dans 1 h");
+}
+
+// --- Lu dans le jeu (2026-11-17) : seules les VITESSES sont soumises à la difficulté ; deck, tags, tiers, générateurs lisent le niveau acheté ---
+{
+  const s = base();
+  s.difficulty = "normal";
+  s.systems.perks.data.levels[208] = 5; // Bigger Deck Size I (Evil only)
+  s.systems.perks.data.levels[212] = 10; // Better Tags I (Evil only)
+  s.systems.perks.data.levels[200] = 10; // Faster Card Generation I (Evil only)
+  s.systems.perks.data.levels[169] = 1; // Energy NGU Card Tier Up I (Evil only)
+  const m = idleCardsModifiersV1(s);
+  assert.equal(m.deckSize, 15, "deck : niveau acheté, sans test de difficulté");
+  near(m.tagEffect, 0.105, 1e-12, "tags : niveau acheté");
+  assert.equal(m.tiers.energyNgu, 2, "tier : niveau acheté");
+  near(m.cardSpeed, 1, 1e-12, "vitesse : verrouillée par la difficulté");
+}
+
+// --- Lu dans le jeu (postYeetEffect puis Update) : le minuteur avancé par le recyclage repart de 0 à l'arrivée de la carte (surplus perdu) ---
+{
+  const s = base();
+  s.systems.perks.data.levels[216] = 1;
+  s.systems.cards.data.deck = [{ id: "z", type: "energyNgu", tier: 1, rarity: 1, mayo: { angry: 1 }, bonusPct: 0.1, protected: false, chonker: false }];
+  s.systems.cards.data.spawnProgress = 0.95;
+  idleCardsActionV1(s, { mode: "yeet", cardId: "z" });
+  near(s.systems.cards.data.spawnProgress, 1, 1e-12, "minuteur plafonné à un cycle plein après recyclage");
 }
 
 console.log("idle-cards-v1: OK");

@@ -49,9 +49,9 @@
  * Choix d'implémentation (le wiki ne précise pas la loi de probabilité) :
  * rareté tirée uniformément dans [min, 1.2] ; coût total en mayo entier
  * uniforme dans [min, max] ; nombre de types uniforme dans [1, min(6, M)],
- * chaque type choisi recevant au moins 1 mayo. Deck plein : le minuteur ne
- * stocke pas de cartes en attente (seule la fraction du cycle en cours est
- * conservée).
+ * chaque type choisi recevant au moins 1 mayo. Deck plein : le minuteur reste
+ * plein (une seule carte en attente, lu dans le jeu : CardsController::Update et
+ * cardsOfflineProgress) et la carte arrive dès qu'une place se libère.
  *
  * NON implémenté (magnitude ou mécanique non exacte dans le wiki, ou système
  * absent) : cartes Foil (« ~1% », purement cosmétiques) ; carte End
@@ -457,15 +457,25 @@ function levelsOf(obj) {
 }
 
 /* Somme niveau x valeur par clé ; les vitesses sont multiplicatives d'un palier à l'autre. */
-function foldEntries(entries, levelOf, acc) {
+/*
+ * Lu dans le jeu, build 1260, 2026-11-17 : seules les VITESSES (ItopodPerkController::perkEffect, BeastQuestPerkController::quirkEffect,
+ * WishesController::wishEffect, utilisés par totalCardSpeed / totalMayoSpeed) sont soumises à la difficulté exigée par l'entrée. Tout le
+ * reste (tiers de CardsController::get*Tier, taille du deck totalDeckSizeBonus, effet des tags totalCardTagBonus, générateurs maxManaGenSize,
+ * emplacements de tags maxTagSize, bornes de coût minCardMana / maxCardMana / minChonkerMana / maxChonkerMana, unlockedChonkers, recyclage)
+ * lit directement le niveau acheté, sans test de difficulté. `gatedOf` = niveau actif (difficulté atteinte), `rawOf` = niveau acheté.
+ */
+function foldEntries(entries, gatedOf, rawOf, acc) {
   for (const e of entries) {
-    const level = Math.max(0, Math.min(N(e.cap ?? e.levels, 0), I(levelOf(e.id), 0)));
-    if (!level) continue;
+    const cap = N(e.cap ?? e.levels, 0);
+    const levelGated = Math.max(0, Math.min(cap, I(gatedOf(e.id), 0)));
+    const levelRaw = Math.max(0, Math.min(cap, I(rawOf(e.id), 0)));
+    if (!levelGated && !levelRaw) continue;
     for (const [key, per] of Object.entries(e.bonus || {})) {
-      if (key === "cardSpeedPct") acc.cardSpeed *= 1 + per * level;
-      else if (key === "mayoSpeedPct") acc.mayoSpeed *= 1 + per * level;
-      else if (key.startsWith("cardTier_")) acc.tiers[key.slice(9)] = (acc.tiers[key.slice(9)] || 0) + per * level;
-      else acc.sums[key] = (acc.sums[key] || 0) + per * level;
+      if (key === "cardSpeedPct") { if (levelGated) acc.cardSpeed *= 1 + per * levelGated; }
+      else if (key === "mayoSpeedPct") { if (levelGated) acc.mayoSpeed *= 1 + per * levelGated; }
+      else if (!levelRaw) continue;
+      else if (key.startsWith("cardTier_")) acc.tiers[key.slice(9)] = (acc.tiers[key.slice(9)] || 0) + per * levelRaw;
+      else acc.sums[key] = (acc.sums[key] || 0) + per * levelRaw;
     }
   }
 }
@@ -480,9 +490,12 @@ export function idleCardsModifiersV1(state) {
   const perkLevels = levelsOf(idlePerkNiveauxV1(state));
   const quirkLevels = levelsOf(idleQuirkNiveauxV1(state));
   const wishTracks = levelsOf(idleWishTracksActifsV1(state));
-  foldEntries(IDLE_CARDS_PERKS_V1, (id) => perkLevels[id], acc);
-  foldEntries(IDLE_CARDS_QUIRKS_V1, (id) => quirkLevels[id], acc);
-  foldEntries(Object.entries(IDLE_CARDS_WISH_EFFECTS_V1).map(([id, w]) => ({ id, levels: w.levels, bonus: w.bonus })), (id) => wishTracks[String(id)]?.level, acc);
+  const perkRaw = levelsOf(state?.systems?.perks?.data?.levels);
+  const quirkRaw = levelsOf(state?.systems?.quirks?.data?.levels);
+  const wishRaw = levelsOf(state?.systems?.wishes?.data?.tracks);
+  foldEntries(IDLE_CARDS_PERKS_V1, (id) => perkLevels[id], (id) => perkRaw[id], acc);
+  foldEntries(IDLE_CARDS_QUIRKS_V1, (id) => quirkLevels[id], (id) => quirkRaw[id], acc);
+  foldEntries(Object.entries(IDLE_CARDS_WISH_EFFECTS_V1).map(([id, w]) => ({ id, levels: w.levels, bonus: w.bonus })), (id) => wishTracks[String(id)]?.level, (id) => wishRaw[String(id)]?.level, acc);
 
   const purchases = levelsOf(state?.selloutShop?.purchases);
   const bought = (id) => Math.max(0, Math.min(IDLE_CARDS_SELLOUT_V1[id].max, I(purchases[id], 0)));
@@ -799,8 +812,9 @@ export function advanceIdleCardsV1(state, seconds, rng = Math.random) {
       if (data.deck.length >= mods.deckSize && data[key] > 1) data[key] = 1;
       else if (data[key] >= 1) data[key] -= Math.floor(data[key]);
     };
-    spawnLoop("spawnProgress", B.cardSeconds, false);
+    /* Lu dans le jeu (Character::cardsOfflineProgress, build 1260, 2026-11-17) : les Big Chonkers sont générés AVANT les cartes normales (ils prennent les places libres en premier). */
     if (mods.chonkers) spawnLoop("chonkerProgress", B.chonkerSeconds, true);
+    spawnLoop("spawnProgress", B.cardSeconds, false);
   }
   syncMayoCurrency(state, data);
 }
@@ -899,6 +913,8 @@ export function idleCardsActionV1(state, payload = {}, rng = Math.random) {
       const key = card.chonker ? "chonkerProgress" : "spawnProgress";
       const f = card.chonker ? IDLE_CARDS_BASE_V1.recycleChonkerFraction : IDLE_CARDS_BASE_V1.recycleSpawnFraction;
       data[key] = N(data[key], 0) + f;
+      /* Lu dans le jeu (CardsController::postYeetEffect puis Update, build 1260, 2026-11-17) : le minuteur avancé n'est pas plafonné, mais dès qu'il atteint son terme la carte arrive (une place vient d'être libérée) et le minuteur repart de 0 : le surplus est perdu. */
+      if (data[key] > 1) data[key] = 1;
       result.spawnAdvance = f;
     }
     if (mods.recycleMayo) {
