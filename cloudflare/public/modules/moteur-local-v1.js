@@ -149,6 +149,19 @@
 
   /* Où va le temps d'un appel ? file = attente avant le début du calcul (le Worker traite un appel à la fois), calcul = le moteur, retour = copie du résultat vers la page. Lu par le journal de fluidité ; la durée des synchros règle aussi leur cadence. */
   let emaSyncMs=0;
+  /* Coût de rendu côté page (Norman, 2026-11-18 : cadence de synchro adaptée au CPU lent ; profilage : sur un téléphone lent le callback de réponse + redessin dure 250-340 ms, bien plus que le calcul du moteur). Les suites (microtâches) de la réponse — copie, adoption de l'état, redessin synchrone — s'exécutent AVANT le prochain message du canal : la durée entre la réception et ce message est la charge réelle du fil principal. Moyenne glissante ; elle règle la cadence avec celle du calcul. */
+  let emaRenduMs=0;
+  const canalRendu=typeof MessageChannel==="function"?new MessageChannel():null;
+  let debutRendu=0;
+  if(canalRendu)canalRendu.port1.onmessage=function(){
+    if(!debutRendu)return;
+    const d=Math.max(0,performance.now()-debutRendu);debutRendu=0;
+    emaRenduMs=emaRenduMs?emaRenduMs*0.8+d*0.2:d;
+  };
+  function mesurerRendu(t0){
+    if(!canalRendu||debutRendu)return;
+    debutRendu=t0;canalRendu.port2.postMessage(0);
+  }
   function noterMesure(a,mes){
     try{
       const recu=performance.timeOrigin+performance.now();
@@ -238,6 +251,7 @@
       attentes.delete(m.id);
       if(m.ok&&m.mesure)noterMesure(a,m.mesure);
       if(m.ok)a.ok(m.resultat);else a.ko(Object.assign(new Error(m.erreur||"MOTEUR_LOCAL"),{code:m.erreur}));
+      if(m.ok&&a.op==="synchroniserSorealIdle")mesurerRendu(performance.now());
     };
     worker.onerror=function(){
       echec=true;vivant=false;
@@ -369,7 +383,8 @@
   window.__SOREAL_IDLE_DELAI_SYNC_V1__=function(ms){
     const ML=window.__SOREAL_IDLE_MOTEUR_LOCAL_V1__;
     /* Jamais plus d'une synchro toutes les 4 fois sa durée : le Worker traite un appel à la fois, des synchros trop rapprochées (172 ms chacune sur un gros compte) faisaient attendre les clics derrière elles. */
-    return(ML&&ML.actif&&ML.actif())?Math.min(ms,Math.max(150,Math.round(ms/10),Math.round(emaSyncMs*4))):ms;
+    /* Et jamais plus d'une synchro toutes les 3 fois son coût de rendu sur le fil principal : sur un appareil lent, le redessin de chaque réponse (250-340 ms mesurés à ×4) laissait la page sans répit entre deux synchros. Sur un appareil rapide (rendu de quelques ms) rien ne change : le minimum reste 150 ms. */
+    return(ML&&ML.actif&&ML.actif())?Math.min(ms,Math.max(150,Math.round(ms/10),Math.round(emaSyncMs*4),Math.round(emaRenduMs*3))):ms;
   };
 
   /*
@@ -423,7 +438,7 @@
       importPartieEnCours=false;
       return (copieOk||envoye)?{ok:true}:{ok:false,erreur:"SAUVEGARDE_IMPOSSIBLE"};
     },
-    etatDiag:function(){return {actif:actif(),capable:capable(),demarre:vivant,echec:echec,raison:raison,conflit:conflit,refus:refus,rev:rev};},
+    etatDiag:function(){return {actif:actif(),capable:capable(),demarre:vivant,echec:echec,raison:raison,conflit:conflit,refus:refus,rev:rev,syncMs:Math.round(emaSyncMs),renduMs:Math.round(emaRenduMs)};},
     actif:function(){return actif()&&!echec;},
     prend:function(operation){return Boolean(LOCALES[operation]);},
     modifieLeJoueur:function(operation){return Boolean(MODIFIENT_LE_JOUEUR[operation]);},

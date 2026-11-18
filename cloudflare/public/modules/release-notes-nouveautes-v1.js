@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Fluidité sur téléphone : certaines animations (lueurs de la borne, décors animés) ne forcent plus le téléphone à recalculer toute la page à chaque rafraîchissement ; l’aspect est identique."
+    "Sur un appareil lent, les mises à jour automatiques des menus s’espacent d’elles-mêmes quand l’affichage devient lourd, pour que le jeu reste fluide ; sur un appareil rapide, rien ne change."
   ] };
 })();
