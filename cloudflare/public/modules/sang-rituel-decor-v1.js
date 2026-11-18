@@ -525,7 +525,8 @@ function tetesMort(l,id){
   var r=Math.max(0,Object.keys(SOURCES).indexOf(id)),nb=[2,3,5,7,9][Math.min(4,r)],h='<g class="bm-tetes">';
   for(var i=0;i<nb;i++){
     var x=l*(0.12+0.76*((i*0.618+0.13)%1)),y=10+((i*37)%34),sc=(i%3===0?1+0.45*r:1)*(0.9+0.1*(i%2));
-    h+='<path class="bm-tete" style="animation-duration:'+(7+(i*3)%5)+'s;animation-delay:-'+((i*2.3)%9).toFixed(1)+'s" d="'+TETE_D+'" fill-rule="evenodd" transform="translate('+x.toFixed(1)+' '+y+') scale('+sc.toFixed(2)+')"/>';
+    /* Profilage 2026-11-18 : la propriété CSS « translate » sur un élément SVG ne peut pas tourner sur le compositeur (Chrome : SVG + propriété de transformation indépendante) ; chaque tête de mort forçait donc, à chaque image, style + mise en page + peinture + découpage en calques (le menu Magie du sang saturait le processeur ralenti). L'animation vit maintenant sur un <g> SANS attribut transform (transform CSS, compositeur) ; la tête garde son positionnement par attribut dans l'enfant. Même trajet (décalage de 11 px vers le haut dans le repère du parent), même fondu. */
+    h+='<g class="bm-tete" style="animation-duration:'+(7+(i*3)%5)+'s;animation-delay:-'+((i*2.3)%9).toFixed(1)+'s"><path d="'+TETE_D+'" fill-rule="evenodd" transform="translate('+x.toFixed(1)+' '+y+') scale('+sc.toFixed(2)+')"/></g>';
   }
   return h+'</g>';
 }
@@ -2263,7 +2264,7 @@ function css(){
     /* la goutte naît au bout du tuyau (fondu d'entrée), tombe, s'éteint dans le sang (fondu de sortie) : toujours dans le même sens */
     '@keyframes bmBacGoutte{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1;transform:translateY(2px) scale(1)}85%{opacity:1}100%{opacity:0;transform:translateY(var(--bac-chute,28px)) scale(1)}}',
     P+'.bm-tete{fill:#4a0511;opacity:0;pointer-events:none;animation:bmTete 8s linear infinite}',
-    '@keyframes bmTete{0%{opacity:0;translate:0 0}18%{opacity:.85}70%{opacity:.85}100%{opacity:0;translate:0 -11px}}',
+    '@keyframes bmTete{0%{opacity:0;transform:translateY(0)}18%{opacity:.85}70%{opacity:.85}100%{opacity:0;transform:translateY(-11px)}}',
     P+'.bm-lueur{animation:bmOeil 1.6s ease-in-out infinite}',
     P+'.bm-eta{font-family:var(--f-texte,"Russo One",sans-serif);font-size:14px;line-height:1.35;color:#f0b9c2;margin:4px 0;min-height:2.7em}',
     /* étagère des calices remplis */
