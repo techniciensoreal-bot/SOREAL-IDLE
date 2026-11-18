@@ -16,7 +16,7 @@ assert.ok(ui.includes("c.value!==c.defaultValue")&&ui.includes("c.checked!==c.de
 // ITOPOD : chiffres mis à jour sur place (jamais de redessin : scène animée, champs d'étage).
 assert.ok(ui.includes("window.__rafraichirItopodIdleV1__(idleEtat)"));
 const meta = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
-assert.ok(meta.includes("window.__rafraichirItopodIdleV1__=rafraichirItopodIdleV1_;") && meta.includes("copier(vivant,neuf,'.itp-tuile b');"));
+assert.ok(meta.includes("window.__rafraichirItopodIdleV1__=rafraichirItopodIdleV1_;") && meta.includes("h('b',null,String(p.valeur))") && meta.includes("preparerItopodIdleV1_(j,derniereSceneItopodIdleV1_)"), "ITOPOD : les chiffres (tuiles, PP, solde) sont redessinés par les composants, rien d'autre ne bouge");
 // Doigt ou souris enfoncé : pas de redessin entre l'appui et le relâchement (le clic serait perdu).
 assert.ok(ui.includes("if(idlePointeurEnfonceV1&&Date.now()-idlePointeurEnfonceV1<3000)return true;"));
 console.log("idle-menus-vivants-v1: OK");
@@ -25,7 +25,8 @@ console.log("idle-menus-vivants-v1: OK");
 {
   const m = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   const i = m.indexOf("function rafraichirItopodIdleV1_(j){");
-  const bloc = m.slice(i, i + 1400);
-  assert.ok(bloc.includes("window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=null;") && bloc.includes("finally{window.__SOREAL_IDLE_ITOPOD_SCENE_V1__=scene;window.__itopodLegerV1__=false;}"));
+  const bloc = m.slice(i, i + 900);
+  /* Rendu par composants (2026-11-18) : la synchro ne recalcule JAMAIS le HTML de la scène (elle réutilise celui de la dernière page : c'est lui qui réinitialise le combat de l'écran). */
+  assert.ok(i > 0 && bloc.includes("preparerItopodIdleV1_(j,derniereSceneItopodIdleV1_)") && !bloc.includes("SCENE_V1__") && !bloc.includes(".html("), "la synchro réutilise le HTML de scène de la page");
   console.log("idle-menus-vivants-v1 (scène ITOPOD intacte): OK");
 }

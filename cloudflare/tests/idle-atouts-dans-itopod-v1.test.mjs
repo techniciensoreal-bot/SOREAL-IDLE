@@ -17,17 +17,18 @@ assert.ok(/ancien==='perks'\?'tower'/.test(ui), "menu mémorisé perks -> tower"
 assert.ok(/IDLE_MENU_PAR_SYSTEME_V1\.perks='tower'/.test(ui));
 // Bouton d'accès : visible seulement si le système est débloqué (aucun spoil), bascule sans redessiner.
 assert.ok(/const atoutsOuverts=Boolean\(atouts&&atouts\.state&&atouts\.state\.unlocked\)/.test(meta));
-assert.ok(/atoutsOuverts\?'<div class="itp-vues">/.test(meta), "bouton conditionné au déblocage");
-assert.ok(/atoutsOuverts\?'<div class="itp-vue-atouts"/.test(meta), "vue Atouts absente si verrouillée");
+assert.ok(/p\.atoutsOuverts\?h\('div',\{class:'itp-vues'\}/.test(meta), "bouton conditionné au déblocage");
+assert.ok(/p\.atoutsOuverts\?h\('div',\{class:'itp-vue-atouts',hidden:!p\.vueAtouts\}/.test(meta), "vue Atouts absente si verrouillée");
+assert.ok(/perks:atoutsOuverts\?modelePerksIdleV1_\(j\):null/.test(meta), "aucune vitrine fabriquée si les Atouts sont verrouillés");
 assert.ok(/window\.__itopodVueIdleV1_basculer__=/.test(meta));
 // Fond de la boutique rattaché à son propre conteneur (plus à data-menu="perks").
 assert.ok(css.includes(".pk-fond{") && !css.includes('[data-menu="perks"]'));
-assert.ok(meta.includes("document.querySelector('.pk-fond')"));
+assert.ok(meta.includes("document.querySelector('.itp-page')"), "filtre et bascule : rendu local seulement si la page ITOPOD est affichée");
 console.log("idle-atouts-dans-itopod-v1: OK");
 
 // Anti-spoil : le texte de l'ITOPOD ne nomme jamais une difficulté (récompense de la difficulté en cours seulement).
 {
-  const i = meta.indexOf("'🏢 ITOPOD',");
+  const i = meta.indexOf("sousTitre:'Une tour sans fin");
   const bloc = meta.slice(i, i + 900);
   assert.ok(!/Mal[ée]fique|Sadique|Evil|Sadistic/.test(bloc), "pas de difficulté nommée dans la présentation de l'ITOPOD");
   assert.ok(bloc.includes("j.systemes.difficulty==='extreme'?2000"), "PPP de la difficulté en cours");

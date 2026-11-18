@@ -116,7 +116,7 @@ assert.match(ngu, /var valeur=el&&el\.value&&el\.closest&&el\.closest\('\.nl-v1'
   assert.equal(api.lire(), null, "Appliquer / Auto effacent le brouillon");
   assert.match(api.cle, /^soreal_idle_/, "clé liée au compte");
 }
-assert.match(itopod, /oninput="window\.__itopodBrouillonIdleV1__\(\)"/, "chaque frappe est gardée");
+assert.match(readFileSync(new URL("../public/modules/itopod-vdom-v1.js", import.meta.url), "utf8"), /onInput:function\(\)\{window\.__itopodBrouillonIdleV1__\(\);\}/, "chaque frappe est gardée");
 assert.match(itopod, /function itopodPasIdleV1_[\s\S]{0,300}ecrireBrouillonItopodIdleV1_\(\)/, "− et + aussi");
 assert.match(itopod, /function itopodEtagesIdleV1_\(\)\{[\s\S]{0,200}effacerBrouillonItopodIdleV1_\(\)/);
 assert.match(itopod, /function itopodAutoIdleV1_\(\)\{\s*effacerBrouillonItopodIdleV1_\(\)/);

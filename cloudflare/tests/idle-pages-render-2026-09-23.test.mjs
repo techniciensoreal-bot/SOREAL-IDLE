@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { lirePagesMeta } from "./_meta-pages.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { creerDocument, chargerPreact, chargerPont } from "./_faux-dom-vdom.mjs";
 import { normalizeIdleNguState, idleNguSnapshot } from "../src/idle-ngu-progression.js";
 
 /* 2026-09-23 : les pages ITOPOD, Défis et Boutique EXP se rendent à partir de vrais snapshots (étages, difficulté, achats d'aventure). */
@@ -20,9 +21,13 @@ const window = {
   },
   __SOREAL_IDLE_TEXT_HELPERS_V1__: { libelleRessource: (id) => String(id || "") },
   __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v == null ? "" : v) },
-  document: { getElementById() { return null; } }
+  document: creerDocument()
 };
-vm.runInNewContext((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()), { window, document: window.document, SOREAL_SESSION: null });
+/* Les pages migrées vers Preact (ITOPOD, 2026-11-18) se rendent avec le vrai Preact et le vrai pont sur un faux DOM : htmlItopodIdleV1_ donne la page vers une chaîne. */
+const contexte = { window, document: window.document, SOREAL_SESSION: null };
+chargerPreact(contexte);
+chargerPont(contexte);
+vm.runInNewContext((readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta()), contexte);
 const api = window.__SOREAL_IDLE_META_V130__;
 const context = { bosses: 100 };
 const state = normalizeIdleNguState({}, context, 1_000_000);
@@ -34,7 +39,7 @@ state.currencies.experience = 500;
 const snap = idleNguSnapshot(state, context, 2_000_000);
 
 {
-  const html = api.pageSystemeMetaIdleV130_({ systemes: snap }, "tower", "ITOPOD");
+  const html = window.__SOREAL_IDLE_ITOPOD_PERKS_PAGE_V1__.htmlItopodIdleV1_({ systemes: snap });
   assert.match(html, /Étage le plus haut/);
   assert.match(html, /Étage optimal/);
   assert.match(html, /itopodDebutV1/);
