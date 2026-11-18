@@ -36,7 +36,7 @@ assert.ok(media.includes('"idle/ygg-decors/"') && media.includes('url.searchPara
 const page = fs.readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
 const liste = page.match(/var FRUITS_24_=\{([^}]*)\};/)[1].split(",").map((x) => x.split(":")[0].trim());
 assert.deepEqual(liste.slice().sort(), ids.slice().sort(), "les 21 fruits aux 24 images");
-assert.ok(page.includes("'&sur=24'"), "la page demande les 24 images");
-assert.ok(page.includes("&amp;decor=1"), "la page demande le décor");
+assert.ok(page.includes("&fruit=1"), "la page demande l'image du fruit (posée 24 fois sur l'arbre, une par heure de pousse)");
+assert.ok(page.includes("&decor=1"), "la page demande le décor");
 
 console.log("idle-yggdrasil-24-images-v1: OK");

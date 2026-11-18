@@ -46,6 +46,7 @@ class Texte extends Noeud {
   set nodeValue(v) { this.data = String(v); }
   get textContent() { return this.data; }
   get html() { return esc(this.data); }
+  cloneNode() { return new Texte(this.data); }
 }
 class Brut extends Noeud {
   constructor(t) { super(); this.nodeType = 3; this.data = String(t); this.brut = true; }
@@ -95,7 +96,11 @@ class Element extends Noeud {
   get loading() { return this.getAttribute("loading") || ""; }
   set loading(v) { this.setAttribute("loading", v); }
   get innerHTML() { return this.childNodes.map(serialiserNoeud).join(""); }
-  set innerHTML(h) { this.childNodes.forEach((c) => { c.parentNode = null; }); this.childNodes = []; if (h) this.appendChild(new Brut(h)); }
+  /* <template> : le HTML est ANALYSÉ dans `content` (le morph du jeu s'en sert) ; ailleurs (dangerouslySetInnerHTML de Preact) il reste un bloc brut. */
+  set innerHTML(h) {
+    if (this.localName === "template") { this.content = new Element("fragment"); analyserHtml(String(h), this.content); return; }
+    this.childNodes.forEach((c) => { c.parentNode = null; }); this.childNodes = []; if (h) this.appendChild(new Brut(h));
+  }
   get outerHTML() { return serialiserNoeud(this); }
   addEventListener(t, f) { (this._ecouteurs[t] || (this._ecouteurs[t] = [])).push(f); }
   removeEventListener(t, f) { this._ecouteurs[t] = (this._ecouteurs[t] || []).filter((x) => x !== f); }
@@ -123,6 +128,8 @@ class Element extends Noeud {
   closest(sel) { const sels = analyser(sel.trim()); for (let n = this; n && n.nodeType === 1; n = n.parentNode) if (correspond(n, sels, null)) return n; return null; }
   matches(sel) { return correspond(this, analyser(sel.trim()), null); }
 }
+/* Comme un vrai navigateur, onclick, onchange, onload, onerror existent (Preact en déduit le nom d'événement en minuscules). */
+for (const k of ["onclick", "onchange", "onload", "onerror"]) Element.prototype[k] = null;
 for (const k of REFLETS_BOOL) Object.defineProperty(Element.prototype, k, { get() { return this.hasAttribute(k); }, set(v) { if (v) this.setAttribute(k, ""); else this.removeAttribute(k); } });
 for (const k of REFLETS_TEXTE) Object.defineProperty(Element.prototype, k, { get() { return this.getAttribute(k) || ""; }, set(v) { this.setAttribute(k, v); } });
 
@@ -150,6 +157,22 @@ function correspond(e, sels, borne) {
   return i < 0;
 }
 
+/* Analyse minimale d'un HTML bien formé (balises, attributs entre guillemets, texte) vers des nœuds. */
+function analyserHtml(html, racine) {
+  const re = /<(\/?)([a-zA-Z][\w-]*)([^>]*?)(\/?)>|([^<]+)/g;
+  const pile = [racine];
+  let m;
+  while ((m = re.exec(html))) {
+    const cur = pile[pile.length - 1];
+    if (m[5] !== undefined) { cur.appendChild(new Texte(m[5].replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">"))); continue; }
+    if (m[1]) { pile.pop(); continue; }
+    const el = new Element(m[2]);
+    for (const a of m[3].matchAll(/([\w:-]+)(?:="([^"]*)")?/g)) el.setAttribute(a[1], (a[2] || "").replace(/&amp;/g, "&").replace(/&quot;/g, '"'));
+    cur.appendChild(el);
+    if (!VIDES.has(m[2].toLowerCase()) && !m[4]) pile.push(el);
+  }
+}
+
 function serialiserNoeud(n) {
   if (n.nodeType === 3) return n.html;
   const attrs = n.attributes.map((a) => " " + a.name + '="' + escAttr(a.value) + '"').join("");
@@ -167,7 +190,7 @@ export function creerDocument() {
     getElementById: (id) => { let r = null; parcourir(document.documentElement, (e) => { if (!r && e.id === id) r = e; }); return r; },
     querySelector: (s) => document.body.querySelector(s) || document.head.querySelector(s),
     querySelectorAll: (s) => document.body.querySelectorAll(s),
-    importNode: (n) => n,
+    importNode: (n) => (n.nodeType === 3 ? new Texte(n.data) : n.cloneNode(true)),
     hidden: false
   };
   document.documentElement = new Element("html"); document.documentElement.estRacine = true;

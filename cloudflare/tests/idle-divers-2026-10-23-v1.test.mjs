@@ -282,7 +282,7 @@ for (const f of ["valise-v1", "coffre-digestion-v1", "coffre-sommeil-v1", "valis
   assert.ok(rg.includes("const REGLAGES_ONGLETS_IDLE_V1=[") && rg.includes("window.__reglagesOngletIdleV1__=") && !rg.includes("Accès à SOREAL IDLE (administrateur)</div>'+\n              '<div style"));
   assert.ok(!/Outils de test \(administrateur\)<\/div>'\+/.test(rg) && !rg.includes("htmlReglagesDiarrheesIdleV1_()+") && !rg.includes("htmlReglagesSonsDefaiteIdleV1_()+"));
   assert.ok(rn.includes("sorealIdleResetTotalSaisieV67") && rn.includes("TOUT EFFACER") && rn.includes("<button id=\"sorealIdleResetTotalConfirmV67\" type=\"button\" disabled"));
-  assert.ok(yg.includes('<div class="ygg-monnaies-haut">') && yg.indexOf("ygg-monnaies-haut\">") < yg.indexOf("'<div class=\"ygg-grille\">'"));
+  assert.ok(yg.includes("h('div',{class:'ygg-monnaies-haut'}") && yg.indexOf("class:'ygg-monnaies-haut'") < yg.indexOf("class:'ygg-grille'"));
   assert.ok(va.includes("var GRAINE_IMAGE='/api/idle/media/item?wikiItemId=92';") && va.includes("o.icone==='graine'?GRAINE_IMAGE:"));
   assert.ok(th.includes("body.soreal-idle-active-v47 .soreal-idle-native-v4>.soreal-idle-nav-v28{position:static}") && th.includes(".soreal-idle-hud-v2{position:sticky;top:0;margin:0 0 10px;padding:0 0 4px}") && th.includes("body.soreal-idle-active-v47 .soreal-idle-native-v4{padding-top:0}"));
 }

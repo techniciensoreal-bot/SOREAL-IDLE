@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
+import { preparerVdom } from "./_ygg-vdom.mjs";
 
 /*
  * Portes d'Yggdrasil (Norman, 2026-11-02) : les anciennes portes dessinées en SVG sont REMPLACÉES par des images fournies par lui (une par fruit, 1024 x 1024, R2 idle/ygg-portes/<fruit>.webp, route ?porte=1).
@@ -11,12 +12,13 @@ const src = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf
 const coupe = (re) => src.match(re)[0];
 const code = [
   "var etat={fermees:{},ouvre:{},anim:{}};",
+  "var h=this.__h;",
   "var sons=[];function son_(n){sons.push(n);}",
   coupe(/var DUREE_OUVERTURE_=\d+;\n/),
   coupe(/var REGLAGES_DEFAUT_=\{[^\n]*\n/),
   coupe(/function reglages_\(\)\{[^\n]*\n/),
   coupe(/var PORTES_IMAGES_=\{[^\n]*\n/),
-  coupe(/function porte_\(id,ouvre,referme\)\{[\s\S]*?\n {2}\}\n/),
+  coupe(/function Porte_\(p\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/var dernierSonPorte_=\{\};\n/),
   coupe(/function sonPorteUnique_\([^)]*\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function nomSonPorte_\(\)\{[^\n]*\n/),
@@ -29,27 +31,32 @@ const code = [
   coupe(/function coqPremiereOuverture_\(vit\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function noterPorteVue_\(id,vue\)\{[\s\S]*?\n {2}\}\n/),
   coupe(/function porteDe_\(id,actif\)\{[\s\S]*?\n {2}\}\n/),
-  "this.api={porteDe_:porteDe_,porte_:porte_,sons:sons,etat:etat,liste:PORTES_IMAGES_};"
+  "this.api={porteDe_:porteDe_,Porte_:Porte_,sons:sons,etat:etat,liste:PORTES_IMAGES_};"
 ].join("\n");
 function monde(stock = {}, renaissances = { n: 0 }) {
   let maintenant = 1_800_000_000_000;
-  const ctx = { Date: class extends Date { static now() { return maintenant; } }, String, Number, Boolean, Object, JSON, isFinite, Math, Array, window: { __SOREAL_IDLE_META_HOST_V130__: { getIdleEtat: () => ({ systemes: { records: { totalRebirths: renaissances.n } } }) } }, localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); } } };
+  const ctx = { __h: hPreact, Date: class extends Date { static now() { return maintenant; } }, String, Number, Boolean, Object, JSON, isFinite, Math, Array, window: { __SOREAL_IDLE_META_HOST_V130__: { getIdleEtat: () => ({ systemes: { records: { totalRebirths: renaissances.n } } }) } }, localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); } } };
   vm.runInNewContext("(function(){" + code + "}).call(this)", ctx);
   return { api: ctx.api, avancer: (ms) => { maintenant += ms; } };
 }
-const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
+const ferme = (p) => Boolean(p) && !p.ouvre && !p.referme;
+const ctxPreact = {};
+const docPreact = preparerVdom(ctxPreact);
+const { h: hPreact, render: rendrePreact } = ctxPreact.window.preact;
+/* La porte est un composant : on le rend avec le vrai Preact (faux DOM) et on lit le HTML. */
+function htmlPorte(api, p) { const el = docPreact.createElement("div"); rendrePreact(hPreact(api.Porte_, p), el); return el.innerHTML; }
 
 // 0. L'image de la porte : une par fruit, route ?porte=1 ; un fruit sans image n'a pas de porte, pas de son.
 {
   const m = monde();
-  const h = m.api.porte_("gold", false);
+  const h = htmlPorte(m.api, { id: "gold", ouvre: false, referme: false });
   assert.ok(h.includes('src="/api/idle/media/ygg?name=gold&amp;porte=1"') && h.includes('data-porte-img="1"'), "image de la porte du fruit");
   assert.ok(!/<svg|THEMES_|ygg-porte-emb/.test(h), "plus aucune ancienne porte dessinée");
   const f24 = src.match(/var FRUITS_24_={([^}]*)};/)[1].split(",").map((x) => x.split(":")[0]);
   assert.equal(f24.length, 21);
   for (const id of f24) assert.equal(m.api.liste[id], true, id + " : a sa porte");
-  assert.equal(m.api.porteDe_("inconnu", false), "", "fruit sans image de porte : pas de porte");
-  assert.equal(m.api.porteDe_("inconnu", true), "");
+  assert.equal(m.api.porteDe_("inconnu", false), null, "fruit sans image de porte : pas de porte");
+  assert.equal(m.api.porteDe_("inconnu", true), null);
   assert.equal(m.api.sons.length, 0, "ni son sans porte");
 }
 // 1. Fruit pas encore actif : porte close, aucun son, aucune classe d'animation.
@@ -58,22 +65,22 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   const h = m.api.porteDe_("gold", false);
   assert.ok(ferme(h), "porte close tant que le fruit n'est pas actif");
   assert.equal(m.api.sons.length, 0, "aucun son tant qu'elle est fermée");
-  assert.equal(m.api.porteDe_("gold", false), h, "redessin à l'identique (rien ne bouge)");
+  assert.deepEqual(m.api.porteDe_("gold", false), h, "redessin à l'identique (rien ne bouge)");
 }
 // 2. Fruit déjà actif à la PREMIÈRE visite depuis la renaissance : la porte s'ouvre quand même, avec le son ; aux visites suivantes (même renaissance), plus de porte.
 {
   const stock = {}, rb = { n: 3 };
   const m = monde(stock, rb);
-  assert.ok(m.api.porteDe_("luck", true).includes("ygg-porte ouvre"), "première visite : la porte s'ouvre même si le fruit est déjà actif");
+  assert.ok(m.api.porteDe_("luck", true).ouvre, "première visite : la porte s'ouvre même si le fruit est déjà actif");
   assert.equal(m.api.sons.join(), "herse", "avec le bruit de herse");
   m.avancer(60_000);
-  assert.equal(m.api.porteDe_("luck", true), "", "ouverture finie : plus de porte");
+  assert.equal(m.api.porteDe_("luck", true), null, "ouverture finie : plus de porte");
   const m2 = monde(stock, rb);
-  assert.equal(m2.api.porteDe_("luck", true), "");
+  assert.equal(m2.api.porteDe_("luck", true), null);
   assert.equal(m2.api.sons.length, 0, "déjà vue : ni porte ni son");
   rb.n = 4;
   const m3 = monde(stock, rb);
-  assert.ok(m3.api.porteDe_("luck", true).includes("ygg-porte ouvre"), "après une renaissance, la porte s'ouvre de nouveau à la première visite");
+  assert.ok(m3.api.porteDe_("luck", true).ouvre, "après une renaissance, la porte s'ouvre de nouveau à la première visite");
   const m4 = monde({}, { n: 4 });
   assert.ok(ferme(m4.api.porteDe_("gold", false)), "après la renaissance, un fruit inactif reste derrière sa porte close");
 }
@@ -83,19 +90,19 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   m.api.porteDe_("gold", false);
   m.avancer(300);
   const h = m.api.porteDe_("gold", true);
-  assert.ok(h.includes("ygg-porte ouvre"), "la porte s'ouvre");
+  assert.ok(h.ouvre, "la porte s'ouvre");
   assert.deepEqual(Array.from(m.api.sons), ["herse"], "le son d'ouverture est joué une seule fois");
   m.avancer(800);
-  assert.ok(m.api.porteDe_("gold", true).includes("ygg-porte ouvre"), "la porte reste en train de s'ouvrir pendant l'animation (redessin sans la relancer)");
+  assert.ok(m.api.porteDe_("gold", true).ouvre, "la porte reste en train de s'ouvrir pendant l'animation (redessin sans la relancer)");
   assert.equal(m.api.sons.length, 1, "pas de second son pendant un redessin");
   m.avancer(2000);
-  assert.equal(m.api.porteDe_("gold", true), "", "ouverture terminée : plus de porte");
+  assert.equal(m.api.porteDe_("gold", true), null, "ouverture terminée : plus de porte");
   assert.equal(m.api.sons.length, 1);
   const h2 = m.api.porteDe_("gold", false);
-  assert.ok(h2.includes("ygg-porte referme") && !h2.includes("ygg-porte ouvre"), "la porte se referme");
+  assert.ok(h2.referme && !h2.ouvre, "la porte se referme");
   assert.equal(m.api.sons.join(), "herse,herseFerme", "un son de fermeture à part, une fois");
   m.avancer(800);
-  assert.ok(m.api.porteDe_("gold", false).includes("ygg-porte referme"), "redessin pendant la fermeture : pas relancée");
+  assert.ok(m.api.porteDe_("gold", false).referme, "redessin pendant la fermeture : pas relancée");
   assert.equal(m.api.sons.length, 2);
   m.avancer(2000);
   assert.ok(ferme(m.api.porteDe_("gold", false)), "fermeture terminée : porte close fixe");
@@ -107,7 +114,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   assert.ok(src.includes("@keyframes yggHerse{0%{transform:translateY(0)}8%{transform:translateY(1.2%)}14%{transform:translateY(-.8%)}22%{transform:translateY(-2.5%)}100%{transform:translateY(-102%)}}") && src.includes("clip-path:inset(calc(6.1644% - var(--ygg-ecart,1.1cqw)) 0 0 0);}"), "la porte se relève par le haut comme une herse, coupée par le BAS DE LA PLAQUE DU TITRE (clip-path, voir idle-ygg-porte-derriere-titre-v1)");
   assert.ok(!src.includes("rotateY(-104deg)") && !src.includes("rotateY(104deg)"), "plus de volets qui pivotent");
   assert.ok(src.includes(".ygg-porte.ouvre .ygg-porte-g,.ygg-porte.ouvre .ygg-porte-d{animation:yggHerse") && src.includes(".ygg-porte.referme .ygg-porte-g,.ygg-porte.referme .ygg-porte-d{animation:yggHerse") && src.includes("both reverse;}"), "ouverture, et fermeture à l'envers");
-  const m = monde(); const h = m.api.porte_("gold", false);
+  const m = monde(); const h = htmlPorte(m.api, { id: "gold", ouvre: false, referme: false });
   assert.ok(h.includes('class="ygg-porte-g"') && h.includes('class="ygg-porte-d"') && h.split("<img ").length === 3, "deux volets, chacun avec l'image de la porte");
   assert.ok(src.includes(".ygg-porte img{position:absolute;top:0;display:block;height:100%;width:200%;") && src.includes(".ygg-porte-d img{right:0;}"), "chaque volet montre sa moitié de l'image");
   assert.ok(src.includes(".ygg-porte{position:absolute;inset:-7.03125%;z-index:9;") && src.includes("background:transparent;}") && src.includes(".ygg-vitre.ygg-decor{overflow:visible;border:0;}"), "la porte déborde du cadre, aucun fond ni bordure noirs");
@@ -116,7 +123,7 @@ const ferme = (h) => h.includes('class="ygg-porte"') && !h.includes("ouvre");
   assert.ok(!corps.includes("setInterval") && !corps.includes("setTimeout"), "aucune minuterie pour les portes");
 }
 // 5. Branchement : la porte est dans la vitre de chaque fruit, selon son état actif.
-assert.ok(src.includes("(porteHtml&&!v.active?'':couches_(d,v,id,def))+porteHtml+apercuHtml_(d,v,c)+'</div>'") && src.includes("var porteHtml=porteDe_(id,Boolean(v.active));"), "porte dans la vitre de chaque fruit ; aucun fruit dessiné derrière une porte close");
+assert.ok(src.includes("c.porte&&!c.active?null:(c.arbre?h(Fruits_,{id:id,fruits:c.arbre}):h(Image_,{nom:id,secours:c.emoji})),\n      c.porte?h(Porte_,c.porte):null,") && src.includes("var porte=porteDe_(id,Boolean(v.active));"), "porte dans la vitre de chaque fruit ; aucun fruit dessiné derrière une porte close");
 assert.ok(src.includes(".ygg-carte.magie .ygg-vitre.ygg-decor{background-size:cover;background-position:center;background-repeat:no-repeat;}"), "l'arbre des fruits de magie tient dans son cadre (le fond de .magie ne remet plus sa taille à zéro)");
 // 6. Le bruit : herse de château fort (treuil, chaîne, choc), jamais de dent de scie ; réglage pierre / bois supprimé.
 {
@@ -144,7 +151,7 @@ console.log("idle-yggdrasil-portes-v1: OK");
     assert.ok(valeurs[id][0] >= 0 && valeurs[id][0] < 360 && valeurs[id][1] > 0 && valeurs[id][1] <= 100, id + " : teinte et saturation valides");
   }
   assert.ok(new Set(Object.values(valeurs).map((v) => v.join())).size >= 14, "des couleurs variées d'une porte à l'autre");
-  assert.ok(src.includes("data-fruit=\"'+html_(id)+'\" style=\"'+styleCouleursPorte_(id)"), "la carte porte les couleurs de sa porte");
+  assert.ok(src.includes("'data-fruit':id,style:c.styleCarte") && src.includes("styleCarte:styleCarte_(id,max||alerte)"), "la carte porte les couleurs de sa porte");
   assert.ok(src.includes(".ygg-carte.magie[data-fruit]{background:linear-gradient(100deg,transparent 35%,hsl(var(--yg-h2,"), "le cadre suit la porte, même pour les fruits de magie");
   assert.ok(src.includes("arbitrariness:[28,75,184,60]"), "Arbitraire : deux couleurs (orange et turquoise)");
   assert.ok(src.includes(".ygg-vitre.ygg-decor::before{content:\"\";position:absolute;inset:0;z-index:6;") && src.includes("inset 0 0 14px 3px rgba(0,0,0,.6)"), "ombrage dans le cadre de chaque image");

@@ -40,7 +40,7 @@ assert.ok(anim.includes("if(recolte)son_('recolter')"), "récolter garde son son
 assert.ok(anim.includes("data-morph-garder") && anim.includes("img.style.visibility='hidden'"), "couche épargnée par le redessin (règle n°4) ; le fruit réel est masqué");
 assert.ok(anim.includes("prefers-reduced-motion"), "réduire les animations : seulement le son");
 assert.ok(page.includes("animer_(id,c.mode==='harvest'?'harvest':'eat');") && !/son_\(c\.mode==='harvest'\?'recolter':'manger'\)/.test(page), "le son et l'animation partent ensemble, une seule fois (manger un par un et « tout » compris)");
-assert.ok(page.includes("if(etat.anim&&etat.anim[id]&&Date.now()<etat.anim[id])return '';"), "la porte attend la fin de l'animation pour se refermer");
+assert.ok(page.includes("if(etat.anim&&etat.anim[id]&&Date.now()<etat.anim[id])return null;"), "la porte attend la fin de l'animation pour se refermer");
 assert.ok(page.includes("rafraichir_();\n    },fin*1000+160);"), "la page est redessinée à la fin (la porte se referme alors)");
 
 // 3. plein écran
@@ -63,9 +63,9 @@ console.log("idle-ygg-usage-animation-v1: OK");
 {
   const y = readFileSync("cloudflare/public/modules/yggdrasil-elfes-v1.js", "utf8");
   assert.ok(y.includes("function manqueActiver_(ressource,cout)") && y.includes("window.__SOREAL_IDLE_DISPONIBLE_V2__") && y.includes("libre<nb_(cout)"), "la disponibilité est celle de la barre du haut (énergie / magie libres)");
-  assert.ok(y.includes("(manque?'disabled title=\"'+html_(titreManque_(def.resource))+'\" '") && y.includes("data-ygg-act=") && y.includes("data-ygg-cout="), "rendu : bouton grisé (disabled) quand il manque de quoi payer");
+  assert.ok(y.includes("titre:manque?titreManque_(def.resource)") && y.includes("disabled:p.manque") && y.includes("'data-ygg-act':p.res") && y.includes("'data-ygg-cout':p.cout"), "rendu : bouton grisé (disabled) quand il manque de quoi payer");
   assert.ok(y.includes("function majActiver_()") && y.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(majActiver_)") && y.includes("setInterval(function(){if(!document.hidden&&document.querySelector('.ygg-btn[data-ygg-act]'))majActiver_();},500)"), "dégrisé / regrisé en direct (toutes les 500 ms et juste après chaque redessin), sans attendre la synchro");
   assert.ok(y.includes("if(b&&b.disabled)return;son_('activer')"), "un clic sur un bouton grisé n'envoie rien");
-  assert.ok(y.includes(".ygg-btn.vert.ygg-act-magie{") && y.includes(".ygg-btn.vert.ygg-act-magie:disabled{") && y.includes("(def.resource==='magic'?' ygg-act-magie':'')"), "Activer d'un fruit de Magic : teinte bleutée, y compris grisé");
+  assert.ok(y.includes(".ygg-btn.vert.ygg-act-magie{") && y.includes(".ygg-btn.vert.ygg-act-magie:disabled{") && y.includes("(p.magie?' ygg-act-magie':'')"), "Activer d'un fruit de Magic : teinte bleutée, y compris grisé");
   console.log("idle-ygg-usage-animation-v1 (Activer grisé, bleuté): OK");
 }

@@ -916,8 +916,8 @@
   "sha": "06ebd7e65448d9f21e4207ddb16b9edfc3a06931"
  },
  "/modules/vdom-pont-v1.js": {
-  "pin": 3,
-  "sha": "f4c6fb709fccc78b7d9cdec2ad9fbbf0c2f607a5"
+  "pin": 4,
+  "sha": "bdf78cc3b5f89f648e24f8b1ed8b7228287b2989"
  },
  "/modules/vendor/preact-10.28.4.min.js": {
   "pin": 1,
@@ -956,8 +956,8 @@
   "sha": "b70d0a1cc9d37c6be0bf093744c101b7cd4e3483"
  },
  "/modules/yggdrasil-elfes-v1.js": {
-  "pin": 103,
-  "sha": "47857e65c567e6e03f61d998b8298a014771c402"
+  "pin": 106,
+  "sha": "441be980cdcd7f648804082e9dcb0342ad9e13d3"
  },
  "/modules/yggdrasil-sons-v1.js": {
   "pin": 19,

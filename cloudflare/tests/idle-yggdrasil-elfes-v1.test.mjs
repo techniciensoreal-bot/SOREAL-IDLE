@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { choisirCleYggR2_ } from "../src/idle-media-v1.js";
+import { preparerVdom } from "./_ygg-vdom.mjs";
 
 /*
  * Page Yggdrasil « elfique » (Norman, 2026-10-06) : 9 fruits par page en grille 3 x 3, une image par fruit (R2, dossier idle/yggdrasil/), graines et poop,
@@ -23,7 +24,7 @@ const fenetre = {
 };
 fenetre.window = fenetre;
 fenetre.setTimeout = setTimeout;
-fenetre.document = { getElementById: () => null, head: { appendChild() {} }, createElement: () => ({}), querySelector: () => null };
+preparerVdom(fenetre);
 let verrouMac = false;
 let etatJoueur = null;
 fenetre.__SOREAL_IDLE_META_V130__ = {
@@ -31,7 +32,7 @@ fenetre.__SOREAL_IDLE_META_V130__ = {
 };
 vm.runInNewContext(src, fenetre, { filename: "yggdrasil-elfes-v1.js" });
 const Y = fenetre.__SOREAL_IDLE_YGG_V1__;
-assert.ok(Y && typeof Y.page === "function", "module exposé");
+assert.ok(Y && typeof Y.page === "function" && typeof Y.html === "function", "module exposé");
 
 const noms = ["gold", "powerAlpha", "adventure", "knowledge", "pomegranate", "luck", "powerBeta", "arbitrariness", "numbers", "rage", "macguffinAlpha", "powerDelta"];
 function joueur(nbVisibles, debloque = true) {
@@ -44,12 +45,12 @@ function joueur(nbVisibles, debloque = true) {
 }
 
 // Verrouillé : rien.
-assert.equal(Y.page(joueur(5, false)), "", "système verrouillé : aucune page");
+assert.equal(Y.html(joueur(5, false)), "", "système verrouillé : aucune page");
 
 // 12 fruits visibles : 9 sur la page 1, 3 sur la page 2, deux onglets.
 etatJoueur = joueur(12);
 verrouMac = false;
-let h = Y.page(etatJoueur);
+let h = Y.html(etatJoueur);
 assert.equal((h.match(/class="ygg-carte[ "]/g) || []).length, 9, "9 fruits par page");
 assert.equal((h.match(/class="ygg-onglet"/g) || []).length, 2, "deux onglets");
 assert.ok(h.includes("/api/idle/media/ygg?name=gold") && h.includes("/api/idle/media/item?wikiItemId=92") && !h.includes("name=seed") && h.includes("/shop/fertilizer.png") && !h.includes("name=poop"), "fruits : R2 ; graine : Item_0092_A_Giant_Seed ; poop : image de la boutique AP");
@@ -58,20 +59,20 @@ assert.ok(h.includes("(0/2)") && h.includes("(2/3)"), "fruits prêts / fruits de
 assert.ok(!h.includes("/10)"), "plus de niveau maximum affiché");
 assert.ok(h.includes("avec du caca)"), "sous-titre demandé");
 Y.aller(2);
-h = Y.page(etatJoueur);
+h = Y.html(etatJoueur);
 assert.equal((h.match(/class="ygg-carte[ "]/g) || []).length, 3, "3 fruits sur la page 2");
 assert.ok(rafraichi >= 1, "le changement de page redessine");
 Y.aller(1);
 
 // Anti-spoil : 5 fruits seulement = une seule page, pas d'onglets ; un fruit verrouillé n'est pas dans la page ; pas de MacGuffin sans le système.
 etatJoueur = joueur(5);
-h = Y.page(etatJoueur);
+h = Y.html(etatJoueur);
 assert.equal((h.match(/class="ygg-onglet"/g) || []).length, 0, "page 2 invisible tant qu'elle est vide");
 assert.equal((h.match(/class="ygg-carte[ "]/g) || []).length, 5, "seulement les fruits découverts");
 assert.ok(!h.includes('data-fruit="rage"') && !h.includes('data-fruit="numbers"'), "fruits verrouillés absents");
 etatJoueur = joueur(12);
 verrouMac = true;
-h = Y.page(etatJoueur);
+h = Y.html(etatJoueur);
 assert.ok(!h.includes('data-fruit="macguffinAlpha"'), "fruit de MacGuffin caché tant que le système est verrouillé");
 verrouMac = false;
 
@@ -99,7 +100,7 @@ assert.ok(actions.every((a) => a.action === "useYggFruit" && !a.poop), "aucune p
 
 // Image : manquante = plus redemandée ; route R2 : nom de fichier souple.
 Y.imageManquante("gold", null);
-assert.ok(!Y.page(etatJoueur).includes("ygg?name=gold&etape") && !Y.page(etatJoueur).includes("ygg?name=gold\""), "image absente : plus redemandée pendant la visite (le décor, lui, est un fond)");
+assert.ok(!Y.html(etatJoueur).includes("ygg?name=gold&etape") && !Y.html(etatJoueur).includes("ygg?name=gold\""), "image absente : plus redemandée pendant la visite (le décor, lui, est un fond)");
 const cles = ["idle/yggdrasil/Fruit_of_Gold.png", "idle/yggdrasil/Fruit_of_Power_α.webp", "idle/yggdrasil/seed.png", "idle/ygg/Poop.webp", "idle/yggdrasil/pomegranate.PNG", "idle/yggdrasil/notes.txt"];
 assert.equal(choisirCleYggR2_(cles, "gold"), "idle/yggdrasil/Fruit_of_Gold.png");
 assert.equal(choisirCleYggR2_(cles, "powerAlpha"), "idle/yggdrasil/Fruit_of_Power_α.webp");
