@@ -204,7 +204,7 @@
     Array.prototype.forEach.call(cadre.querySelectorAll('.perso-duo-v1,[data-perso-pct-v1],[data-perso-ngu-v1]'),function(b){if(b.parentNode)b.parentNode.removeChild(b);});
     var html=boutonsHtml_(res,source);
     if(ngu&&source==='cap'&&possede_(NGU_ACHAT)){
-      html+='<button type="button" class="perso-pct-edit-v1" data-perso-ngu-v1="1" title="Réglage des boutons Cap des NGU : pourcentage du plafond placé" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editer(\'nguCap\')">⚙ Cap = '+texte_(pourcentNgu_())+'</button>';
+      html+='<button type="button" class="perso-pct-edit-v1" data-sans-traduction="1" data-perso-ngu-v1="1" title="Réglage des boutons Cap des NGU : pourcentage du plafond placé" onclick="window.__SOREAL_IDLE_PERSO_PCT_V1__.editer(\'nguCap\')">⚙ Cap = '+texte_(pourcentNgu_())+'</button>';
     }
     if(html){
       var tampon=document.createElement('span');

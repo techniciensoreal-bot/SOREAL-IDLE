@@ -428,7 +428,7 @@ function barreHtml_(n,ancre,rang){
         '<button type="button" title="Retirer la valeur de Input" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'moins\')">−</button>'+
         '<button type="button" class="max" title="Placer toute l’énergie ou la magie libre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'max\')">Max</button>'+
         /* Bouton Cap (lu dans le jeu, build 1260, 2026-11-17 : NGUController::cap / updateCapButton) : présent seulement quand le moteur envoie le plafond (Questing débloqué, comme le jeu : PlayerSettings.beastOn). */
-        (n.plafond!=null?'<button type="button" class="max cap" title="Placer le plafond de ce NGU : l’énergie ou la magie qui fait gagner un niveau par tick" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'cap\')">Cap</button>':'')+
+        (n.plafond!=null?'<button type="button" class="max cap" data-sans-traduction="1" title="Placer le plafond de ce NGU : l’énergie ou la magie qui fait gagner un niveau par tick" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'cap\')">Cap</button>':'')+
         '<button type="button" title="Retirer toute l’énergie de cette barre" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.ajuster(\''+idH+'\',\'zero\')">0</button>'+
       '</div>'+
     '</div>'+
@@ -724,7 +724,7 @@ function totauxHtml_(j){
 function capToutHtml_(j){
   var l=listeCourante_(j),vu=false,i;
   for(i=0;i<l.length;i+=1)if(l[i].plafond!=null){vu=true;break;}
-  return vu?'<button type="button" class="nl-large" title="Retirer toute l’énergie ou la magie des NGU, puis placer à chacun son plafond (ceux dont la cible est atteinte sont ignorés)" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.capTout()">Cap all</button>':'';
+  return vu?'<button type="button" class="nl-large" data-sans-traduction="1" title="Retirer toute l’énergie ou la magie des NGU, puis placer à chacun son plafond (ceux dont la cible est atteinte sont ignorés)" onclick="window.__SOREAL_IDLE_NGU_LABO_V1__.capTout()">Cap all</button>':'';
 }
 function capTout(){
   var H=H_(),P=window.__SOREAL_IDLE_PERSO_PCT_V1__;

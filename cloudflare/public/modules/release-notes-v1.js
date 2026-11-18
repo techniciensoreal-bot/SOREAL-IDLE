@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.2',
+    courante:'6.3',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.3',
+        nom:'Boutons Cap',
+        date:'2026-11-18',
+        groupes:[
+          {menu:'ngu', titre:'NGU', points:[
+            'NGU : les boutons « Cap » et « Cap all » s’écrivent bien « Cap » (ils étaient traduits « Plafond » et coupés).'
+          ]}
+        ]
+      },
       {
         version:'6.2',
         nom:'Défilement fluide',

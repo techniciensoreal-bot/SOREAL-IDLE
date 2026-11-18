@@ -568,8 +568,8 @@
   "sha": "5f7c2621ad1fec81ee0aa0b27bc6caf41bece885"
  },
  "/modules/ngu-labo-v1.js": {
-  "pin": 112,
-  "sha": "d37083e2a51f594df75f92e9c487271fd8f7bde4"
+  "pin": 113,
+  "sha": "13a6f0e0f3de3440394b94fa43bd0c8ce8f82bf7"
  },
  "/modules/nombres-couleur-v1.js": {
   "pin": 7,
@@ -600,8 +600,8 @@
   "sha": "25872a549af6da0a037b02ed5bcbcd6d60905c27"
  },
  "/modules/perso-boutons-v1.js": {
-  "pin": 22,
-  "sha": "5596830cac8f786e3fab39deade20030e179b943"
+  "pin": 23,
+  "sha": "e52084c4806abda956cba47473258b1a09984d2e"
  },
  "/modules/phrases-coffre-valise-v1.js": {
   "pin": 8,
@@ -672,12 +672,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 380,
-  "sha": "9a1788284a110593f0b8a9e1bb2bc96fdbd6d9bd"
+  "pin": 381,
+  "sha": "09928e5ed0631f391407e6fb278edfaf9b6743e7"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1028,
-  "sha": "24a6cd782263f6f678d650a0ca38eba2f667512e"
+  "pin": 1029,
+  "sha": "cbff90724406d2335494d8b443541fe9232a45cd"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -772,12 +772,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1076,
-  "sha": "8c4c392f806ba1f1ddc57dc3c0025e1476300523"
+  "pin": 1077,
+  "sha": "6156ad8504f3e75c91f8a5756598fca6a18acf9f"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 896,
-  "sha": "7a317e4c713acd65a1c8f508672f3af37b5716b8"
+  "pin": 897,
+  "sha": "0d08e26c4fe136af5bda2affb10b53a343003cef"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

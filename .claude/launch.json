@@ -24,6 +24,14 @@
         "cloudflare/tools/apercu-morts/serveur.mjs"
       ],
       "port": 8795
+    },
+    {
+      "name": "idle-local-ngu-complet",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "cloudflare/tools/essai-local-ngu-complet.mjs"
+      ],
+      "port": 8841
     }
   ]
 }

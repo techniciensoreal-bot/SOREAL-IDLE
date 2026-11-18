@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "D’après le code du jeu : un arrondi en cascade et une condition d’affichage ont été corrigés, après vérification de toutes les valeurs de scène du jeu."
+    "NGU : les boutons « Cap » et « Cap all » s’écrivent bien « Cap » (ils étaient traduits « Plafond » et coupés)."
   ] };
 })();
