@@ -234,6 +234,69 @@ function boutonAutoSortBloodV1_(id,spells){
   return '<button type="button" class="soreal-idle-blood-auto-v1" data-sort-auto="'+id+'" aria-pressed="'+(actif?'true':'false')+'" title="Lance ce sort chaque seconde avec sa part du sang" onclick="window.__actionMetaV47__({action:\'setBloodAutoSpell\',spell:\''+id+'\'})">Automatique : '+(actif?'activé':'désactivé')+'</button>';
 }
 
+/* Sorts de Blood Magic (extrait de la page, 2026-11-18 : la page en chaînes HTML et la page Preact partagent ces définitions ; mêmes textes, mêmes seuils). Anti-spoil : seuls les sorts découverts sont listés. */
+function sortsDefinisBloodV1_(H,snap,data,blood){
+  const spells=data.spells||{};
+  const nb=function(v,d){return H.formatGrandNombreIdleV70_(v,d);};
+  const pctFr=function(v){return Number(v).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';};
+  /*
+   * Sorts (Norman, 2026-09-29 : « savoir à quoi sert chaque chose »). Descriptions, formules et recharge d'après la
+   * page wiki « Blood Magic » (section The Spells, consultée le 2026-09-29). Anti-spoil (AGENTS.md règle n°2) : un sort
+   * n'apparaît qu'une fois DÉCOUVERT -- son « Minimum Blood Required » a déjà été atteint (data.bloodPeak, mémorisé côté
+   * serveur, car chaque sort dépense tout le Blood) ou il a déjà servi. Le minimum lui-même n'est jamais affiché.
+   * Le Number Boost (minimum 1) est le sort de départ : toujours visible.
+   */
+  const bloodPeak=Math.max(blood,H.idleNombre_(data.bloodPeak));
+  const depense=function(k){return Math.max(0,H.idleNombre_(spells[k]));};
+  const pctSpaghetti=function(total){return total>=1e4?Math.log2(total/1e4)+1:0;};
+  const pctCounterfeit=function(total){return total>=1e6?Math.pow(Math.log2(total/1e6)+1,2):0;};
+  const maintenant=Date.now();
+  const prete=H.idleNombre_(spells.ironPillReadyAt);
+  const rechargeIron=prete>maintenant?prete-maintenant:0;
+  const spellDefs=[
+    {id:'numberBoost',nom:'Boost du nombre par le sang',visible:true,
+      desc:'Chaque point de sang ajoute 1 au multiplicateur du Nombre (le « Bonus de Magie du sang » de la Renaissance). Valable pour le Rebirth en cours.',
+      actuel:'Bonus actuel : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)),
+      apercu:blood>0?'En le lançant maintenant : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)+Math.floor(blood)):''},
+    {id:'ironPill',nom:'Pilule de fer',visible:bloodPeak>=100||depense('ironPill')>0,
+      desc:'Augmente pour toujours tes stats d’Adventure. Avec G = sang^0,25 : Puissance +G, Endurance +G, PV +3 × G, Regen PV +0,03 × G. Recharge de 11,5 h.',
+      actuel:'Total acquis : +'+nb(depense('ironPill'),2),
+      apercu:'',recharge:rechargeIron},
+    {id:'bloodSpaghetti',nom:'Spaghetti au sang',visible:bloodPeak>=1e4||depense('bloodSpaghettiBloodSpent')>0,
+      desc:'Augmente la Drop Chance de (log₂(sang ÷ 10 000) + 1) %, où le sang est le total sacrifié à ce sort durant ce Rebirth.',
+      actuel:'Bonus actuel : +'+pctFr(Math.max(0,(H.idleNombre_(spells.bloodSpaghetti||1)-1)*100)),
+      apercu:blood>0&&depense('bloodSpaghettiBloodSpent')+blood>=1e4?'En le lançant maintenant : +'+pctFr(pctSpaghetti(depense('bloodSpaghettiBloodSpent')+Math.floor(blood))):''},
+    {id:'counterfeitGold',nom:'Or contrefait',visible:bloodPeak>=1e6||depense('counterfeitGoldBloodSpent')>0,
+      desc:'Augmente le GPS de la Time Machine de (log₂(sang ÷ 1 000 000) + 1)² %, où le sang est le total sacrifié à ce sort durant ce Rebirth.',
+      actuel:'Bonus actuel : +'+pctFr(Math.max(0,(H.idleNombre_(spells.counterfeitGold||1)-1)*100)),
+      apercu:blood>0&&depense('counterfeitGoldBloodSpent')+blood>=1e6?'En le lançant maintenant : +'+pctFr(pctCounterfeit(depense('counterfeitGoldBloodSpent')+Math.floor(blood))):''}
+  ].filter(function(sp){return sp.visible;});
+  /* Dernier sort (THE END) : invisible sous 5e22 de sang, sauf si la pièce est déjà trouvée. */
+  const pieces494=snap.adventure&&snap.adventure.theEnd&&Array.isArray(snap.adventure.theEnd.pieces)&&snap.adventure.theEnd.pieces.some(function(p){return p.id===494;});
+  if(blood>=5e22||pieces494)spellDefs.push({id:'leeches',nom:'3%q6(;>_<,$H8e',desc:'',actuel:'',apercu:''});
+  return spellDefs;
+}
+
+/* Un repère visuel par rituel qui reçoit de la Magic (extrait de la page, 2026-11-18, partagé avec la page Preact) : un redessin sans nouvelle réponse garde le repère qui tourne déjà (jamais de retour en arrière). */
+function preparerVisuelsBloodV1_(H,bmView,ancre){
+    const etatB=H.getIdleEtat();
+    const exB=(etatB.__bloodMagicVisualV1&&typeof etatB.__bloodMagicVisualV1==='object'&&!etatB.__bloodMagicVisualV1.ritual)?etatB.__bloodMagicVisualV1:{};
+    const visuelsB={};
+    ((bmView&&bmView.rituals)||[]).forEach(function(rv){
+      if(!rv||rv.secondsPerCompletion==null)return;
+      const ex=exB[rv.id];
+      visuelsB[rv.id]=(ex&&ex.src===rv)?ex:{ritual:rv.id,secondsPerCompletion:rv.secondsPerCompletion,etaSeconds:rv.etaSeconds,at:ancre(etatB),src:rv};
+    });
+    etatB.__bloodMagicVisualV1=Object.keys(visuelsB).length?visuelsB:null;
+}
+
+/* Rituel sonore du sort (modules/audio-effects-v199.js : sortBlood), du plus modeste au plus terrifiant. Jamais bloquant. Installé à chaque dessin de la page (chaînes HTML ou Preact). */
+function installerSonSortBloodV1_(){
+  window.__sonSortBloodIdleV1__=function(id){try{const a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&a.sortBlood)a.sortBlood(String(id||''));}catch(e){}
+    /* Orage du sort (modules/orage-v1.js, Norman 2026-10-15) : ciel qui s'assombrit, éclair et tonnerre au même instant, de plus en plus fort jusqu'au dernier sort de la liste. */
+    try{const o=window.__SOREAL_IDLE_ORAGE_V1__;if(o&&typeof o.sort==='function')o.sort(String(id||''));}catch(e){}};
+}
+
 function creer(hote){
   const systemeMetaParIdIdleV130_=hote.systemeMeta;
   const envoyerAllocRapideV1_=hote.envoyerAllocRapide;
@@ -509,9 +572,14 @@ function creer(hote){
         ajusterBloodMagicIdleV1_(mode,ritualId);
       }
       /*>creer_p1*/const __r1=creer_p1(ajusterRituelBloodMagicIdleV1_, systemeMetaParIdIdleV130_);const IDLE_BLOOD_NOMS_RITUELS_V1=__r1.IDLE_BLOOD_NOMS_RITUELS_V1;const IDLE_ICONES_SORTS_V1=__r1.IDLE_ICONES_SORTS_V1;const IDLE_ICONES_RITUELS_V1=__r1.IDLE_ICONES_RITUELS_V1;/*<creer_p1*/
+      /* Aides données à la page Preact (modules/blood-magic-vdom-v1.js) : les fonctions de cette fermeture et du module dont elle a besoin ; le repli en chaînes HTML ci-dessous n'en dépend pas. */
+      const aidesVdomBloodV1_={systemeMeta:systemeMetaParIdIdleV130_,compteAffiche:compteAfficheBloodIdleV1_,etaTexte:etaRituelTexteIdleV1_,formatDuree:formatDureeAugmentIdleV1_,carteAide:carteAideMenuIdleV1_,legende:legendeAllocationIdleV1_,ancre:ancreSnapshotIdleV1_,montant:function(){return hote.montant();},noms:IDLE_BLOOD_NOMS_RITUELS_V1,gouttesHtml:SANG_GOUTTES_HTML_V1,sangAffiche:sangAfficheV1_,sortsDefinis:sortsDefinisBloodV1_,preparerVisuels:preparerVisuelsBloodV1_,installerSon:installerSonSortBloodV1_};
       function pageBloodMagicIdleV48_(j){
         const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
         if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-bloodmagic-v1"><div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div></div>';
+        /* Page rendue par composants Preact (conteneur persistant) quand Preact est chargé ; sinon la chaîne HTML ci-dessous. */
+        const vdomBlood=window.__SOREAL_IDLE_BLOOD_VDOM_V1__;
+        if(vdomBlood&&vdomBlood.disponible()){const rendu=vdomBlood.page(j,aidesVdomBloodV1_);if(rendu)return rendu;}
         const decor=window.__SOREAL_IDLE_SANG_DECOR_V1__;
         decor.css();
         const snap=j&&j.systemes||{};
@@ -523,43 +591,7 @@ function creer(hote){
         const gold=window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(snap.currencies&&snap.currencies.gold||0);
         const spells=data.spells||{};
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
-        const nb=function(v,d){return H.formatGrandNombreIdleV70_(v,d);};
-        const pctFr=function(v){return Number(v).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' %';};
-        /*
-         * Sorts (Norman, 2026-09-29 : « savoir à quoi sert chaque chose »). Descriptions, formules et recharge d'après la
-         * page wiki « Blood Magic » (section The Spells, consultée le 2026-09-29). Anti-spoil (AGENTS.md règle n°2) : un sort
-         * n'apparaît qu'une fois DÉCOUVERT -- son « Minimum Blood Required » a déjà été atteint (data.bloodPeak, mémorisé côté
-         * serveur, car chaque sort dépense tout le Blood) ou il a déjà servi. Le minimum lui-même n'est jamais affiché.
-         * Le Number Boost (minimum 1) est le sort de départ : toujours visible.
-         */
-        const bloodPeak=Math.max(blood,H.idleNombre_(data.bloodPeak));
-        const depense=function(k){return Math.max(0,H.idleNombre_(spells[k]));};
-        const pctSpaghetti=function(total){return total>=1e4?Math.log2(total/1e4)+1:0;};
-        const pctCounterfeit=function(total){return total>=1e6?Math.pow(Math.log2(total/1e6)+1,2):0;};
-        const maintenant=Date.now();
-        const prete=H.idleNombre_(spells.ironPillReadyAt);
-        const rechargeIron=prete>maintenant?prete-maintenant:0;
-        const spellDefs=[
-          {id:'numberBoost',nom:'Boost du nombre par le sang',visible:true,
-            desc:'Chaque point de sang ajoute 1 au multiplicateur du Nombre (le « Bonus de Magie du sang » de la Renaissance). Valable pour le Rebirth en cours.',
-            actuel:'Bonus actuel : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)),
-            apercu:blood>0?'En le lançant maintenant : +'+nb(Math.max(0,H.idleNombre_(spells.numberBoost||1)-1)+Math.floor(blood)):''},
-          {id:'ironPill',nom:'Pilule de fer',visible:bloodPeak>=100||depense('ironPill')>0,
-            desc:'Augmente pour toujours tes stats d’Adventure. Avec G = sang^0,25 : Puissance +G, Endurance +G, PV +3 × G, Regen PV +0,03 × G. Recharge de 11,5 h.',
-            actuel:'Total acquis : +'+nb(depense('ironPill'),2),
-            apercu:'',recharge:rechargeIron},
-          {id:'bloodSpaghetti',nom:'Spaghetti au sang',visible:bloodPeak>=1e4||depense('bloodSpaghettiBloodSpent')>0,
-            desc:'Augmente la Drop Chance de (log₂(sang ÷ 10 000) + 1) %, où le sang est le total sacrifié à ce sort durant ce Rebirth.',
-            actuel:'Bonus actuel : +'+pctFr(Math.max(0,(H.idleNombre_(spells.bloodSpaghetti||1)-1)*100)),
-            apercu:blood>0&&depense('bloodSpaghettiBloodSpent')+blood>=1e4?'En le lançant maintenant : +'+pctFr(pctSpaghetti(depense('bloodSpaghettiBloodSpent')+Math.floor(blood))):''},
-          {id:'counterfeitGold',nom:'Or contrefait',visible:bloodPeak>=1e6||depense('counterfeitGoldBloodSpent')>0,
-            desc:'Augmente le GPS de la Time Machine de (log₂(sang ÷ 1 000 000) + 1)² %, où le sang est le total sacrifié à ce sort durant ce Rebirth.',
-            actuel:'Bonus actuel : +'+pctFr(Math.max(0,(H.idleNombre_(spells.counterfeitGold||1)-1)*100)),
-            apercu:blood>0&&depense('counterfeitGoldBloodSpent')+blood>=1e6?'En le lançant maintenant : +'+pctFr(pctCounterfeit(depense('counterfeitGoldBloodSpent')+Math.floor(blood))):''}
-        ].filter(function(sp){return sp.visible;});
-        /* Dernier sort (THE END) : invisible sous 5e22 de sang, sauf si la pièce est déjà trouvée. */
-        const pieces494=snap.adventure&&snap.adventure.theEnd&&Array.isArray(snap.adventure.theEnd.pieces)&&snap.adventure.theEnd.pieces.some(function(p){return p.id===494;});
-        if(blood>=5e22||pieces494)spellDefs.push({id:'leeches',nom:'3%q6(;>_<,$H8e',desc:'',actuel:'',apercu:''});
+        const spellDefs=sortsDefinisBloodV1_(H,snap,data,blood);
         const allocMagicActuelle=Math.max(0,H.idleNombre_(s.state.allocation&&s.state.allocation.magic));
         const ressourceMagie=snap.resources&&snap.resources.magic;
         const magicLibre=Math.max(0,H.idleNombre_(ressourceMagie&&ressourceMagie.current));
@@ -569,18 +601,7 @@ function creer(hote){
          * Même mécanisme que __augmentationsVisualV215 (soreal-idle-ui.js, patch ciblé à chaque tick)
          * mais pour un seul élément : seul le rituel ACTIF progresse réellement (bloodMagicViewV1).
          */
-        {
-          /* Un repère visuel par rituel qui reçoit de la Magic ; un redessin sans nouvelle réponse garde le repère qui tourne déjà (jamais de retour en arrière). */
-          const etatB=H.getIdleEtat();
-          const exB=(etatB.__bloodMagicVisualV1&&typeof etatB.__bloodMagicVisualV1==='object'&&!etatB.__bloodMagicVisualV1.ritual)?etatB.__bloodMagicVisualV1:{};
-          const visuelsB={};
-          ((bmView&&bmView.rituals)||[]).forEach(function(rv){
-            if(!rv||rv.secondsPerCompletion==null)return;
-            const ex=exB[rv.id];
-            visuelsB[rv.id]=(ex&&ex.src===rv)?ex:{ritual:rv.id,secondsPerCompletion:rv.secondsPerCompletion,etaSeconds:rv.etaSeconds,at:ancreSnapshotIdleV1_(etatB),src:rv};
-          });
-          etatB.__bloodMagicVisualV1=Object.keys(visuelsB).length?visuelsB:null;
-        }
+        preparerVisuelsBloodV1_(H,bmView,ancreSnapshotIdleV1_);
         const toolbar=legendeAllocationIdleV1_('Magic',false,true)+'<div class="soreal-idle-bt-toolbar-v120">'+
           '<div class="soreal-idle-bt-entree-v1"><div class="soreal-idle-bt-input-box-v120"><label for="sorealIdleBloodInputV1">🎚️ Input</label><input id="sorealIdleBloodInputV1" type="text" inputmode="decimal" value="'+hote.montant()+'" title="Un nombre, ou une fraction comme 1/8 (résolue en 1/8 de la Magic libre à la validation)" oninput="window.__saisirMontantAugmentIdleV1__(this.value)" onblur="window.__resoudreFractionInputIdleV1__(this);window.__saisirMontantAugmentIdleV1__(this.value)"></div></div>'+
           '<div class="soreal-idle-bt-info-v1">Magic libre : <b id="sorealIdleBloodLibreV1">'+H.formatGrandNombreIdleV70_(magicLibre)+'</b> 🔮 · Magic allouée aux rituels : <b id="sorealIdleBloodAllocV1" class="soreal-idle-bt-allocation-v120">'+H.formatGrandNombreIdleV70_(allocMagicActuelle)+'</b> 🔮</div>'+
@@ -636,10 +657,7 @@ function creer(hote){
          * « i » cliquable pour les effets ; chaque bloc dans les tons mauve-rouge ». Un bloc par sort DÉCOUVERT (anti-spoil inchangé : spellDefs
          * ne contient que les sorts découverts). L'état ouvert/fermé des « i » est gardé en mémoire (les rendus ne le referment pas).
          */
-        /* Rituel sonore du sort (modules/audio-effects-v199.js : sortBlood), du plus modeste au plus terrifiant. Jamais bloquant. */
-        window.__sonSortBloodIdleV1__=function(id){try{const a=window.__SOREAL_IDLE_AUDIO_V199__;if(a&&a.sortBlood)a.sortBlood(String(id||''));}catch(e){}
-          /* Orage du sort (modules/orage-v1.js, Norman 2026-10-15) : ciel qui s'assombrit, éclair et tonnerre au même instant, de plus en plus fort jusqu'au dernier sort de la liste. */
-          try{const o=window.__SOREAL_IDLE_ORAGE_V1__;if(o&&typeof o.sort==='function')o.sort(String(id||''));}catch(e){}};
+        installerSonSortBloodV1_();
         /* Sang minimum par sort, identique au serveur (jamais affiché) : sous ce seuil le bouton Lancer est inactif. */
         const IDLE_SANG_MINI_SORTS_V1={numberBoost:1,ironPill:100,bloodSpaghetti:1e4,counterfeitGold:1e6,leeches:5e22};
         const sortsHtml='<h3 class="soreal-idle-blood-titre-v1">Sorts <small>dépensent tout ton sang</small></h3><div class="soreal-idle-blood-sorts-v1">'+spellDefs.map(function(sp){
