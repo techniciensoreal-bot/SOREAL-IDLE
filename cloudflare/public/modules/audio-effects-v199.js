@@ -2504,11 +2504,22 @@
   DEFINITIONS.voiceDone={group:"admin-voice",priority:40,maxAgeMs:1500};
   JOUEURS.voiceDone=function(){return jouerWebAudio_(560,voixPreteConstruire_);};
 
+  function surPageAventure_(){
+    try{
+      var reg=window.__SOREAL_IDLE_REG__;
+      var m=reg&&reg.idleMenuActifV28;
+      if(!m)return true;/* menu inconnu (page isolée, test) : comportement d'avant */
+      return m==="aventure"||m==="titans";
+    }catch(_e){return true;}
+  }
+
   function demander_(name){
     name=String(name||"");
     if(SONS_FOULE_V1[name])return jouerFoule_(name);
     var def=DEFINITIONS[name];
     if(!def||typeof JOUEURS[name]!=="function")return false;
+    /* Norman (2026-11-18) : les sons des effets de l'Aventure (poison, explosion, paralysie, capacités) ne s'entendent que sur la page Aventure (ou Titans, même page) ; le combat continue en fond sur les autres menus, en silence. */
+    if(def.group==="adventure-skill"&&!surPageAventure_())return false;
 
     var cue={
       name:name,

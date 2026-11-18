@@ -18,7 +18,7 @@ import { apparencesSorealIdle_, banniereSorealIdleDriveFileId_, bossCatalogueSor
 import { classementDebloqueSorealIdle_, estAdministrateurSorealIdle_, identiteJoueurSorealIdle_, nomJeuDepuisLigneSorealIdle_ } from "./idle-runtime-joueurs.js";
 import { ameliorationsSorealIdle_, bonusAmeliorationsSorealIdle_, construireAventureSorealIdle_, coutAmeliorationSorealIdle_, niveauxParBarreEntrainementSorealIdle_ } from "./idle-runtime-aventure.js";
 import { __idleCtx, accesOuvertSorealIdle_, accesPublicSorealIdle_ } from "./idle-sqlite-runtime.js";
-import { facteurExpBossPerkSorealIdle_ } from "./idle-runtime-combat.js";
+import { facteurExpBossPerkSorealIdle_, nukeTueUnBossSorealIdle_ } from "./idle-runtime-combat.js";
 
 /* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 151 lignes. */
 function construireEtatJoueurSorealIdle__p1(feuille, ligne){
@@ -525,6 +525,18 @@ puissance:
         progression &&
         progression.bossBloqueRenaissance
       ),
+
+    /* Le prochain NUKE tuerait au moins un boss (Auto Nuker : ne se lance que dans ce cas, Norman 2026-11-18). */
+    nukePossible: nukeTueUnBossSorealIdle_(
+      { metaNgu: metaNguEtat },
+      Math.max(0, Math.floor(nombreSorealIdle_(row[c.BOSS_VAINCUS - 1], 0))),
+      Math.max(1, Math.floor(nombreSorealIdle_(row[c.NIVEAU - 1], 1))),
+      Math.max(0, nombreSorealIdle_(row[c.PUISSANCE - 1], 0)),
+      Math.max(0, nombreSorealIdle_(row[c.ENDURANCE - 1], 0)),
+      attaqueBossSelection,
+      defenseBossSelection,
+      Math.max(0, Math.floor(nombreSorealIdle_(metaNguEtat.records && metaNguEtat.records.totalRebirths, 0)))
+    ),
 
     combatBossActif:
       Boolean(

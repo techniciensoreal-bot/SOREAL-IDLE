@@ -509,11 +509,24 @@ export function facteurExpBossPerkSorealIdle_(bonus, indexBoss) {
  * Lu dans le jeu (BossController::nukeBosses, build 1260, audit 2026-11-16, E2) : le NUKE s'arrête quand bossID >= highestBoss ET bossID < 124 ; highestBoss est le record en difficulté NORMAL
  * (nombre de boss vaincus). Il ne passe donc un boss d'index < 124 que s'il a déjà été vaincu en Normal ; dès l'index 124 il peut tuer de nouveaux boss.
  */
-function nukeArretBossInedit_(stats, bossVaincus, bossDepart) {
+export function nukeArretBossInedit_(stats, bossVaincus, bossDepart) {
   if (bossVaincus >= 124) return false;
   const meta = stats.metaNgu || {};
   const record = Math.max(0, Math.floor(nombreSorealIdle_(meta.difficultyPeaks && meta.difficultyPeaks.normal, 0)), meta.difficulty === 'normal' ? bossDepart : 0);
   return bossVaincus >= record;
+}
+
+/*
+ * Le prochain NUKE tuerait-il au moins un boss ? (Norman, 2026-11-18 : l'achat « Auto Nuker » ne doit se lancer que si un boss au moins est tuable, sinon il ne sert a rien et
+ * joue un son toutes les minutes pour rien.) Memes conditions, dans le meme ordre, que la PREMIERE passe de la boucle de nukerBossSorealIdle ci-dessous (BossController::nukeBosses) :
+ * mur de Renaissance, fin des boss, boss encore jamais vaincu en Normal, niveau requis, Attack/5 > Defense du boss ET Defense/5 > Attack du boss (comparaisons strictes).
+ */
+export function nukeTueUnBossSorealIdle_(stats, bossVaincus, niveau, attaque, defense, attaqueBoss, defenseBoss, renaissances) {
+  if (bossVaincus === bossParMondeSorealIdle_() - 1 && renaissances < 1) return false;
+  if (bossFinDesBossAtteinteSorealIdle_(bossVaincus)) return false;
+  if (nukeArretBossInedit_(stats, bossVaincus, bossVaincus)) return false;
+  if (niveau < niveauRequisBossSorealIdle_(bossVaincus)) return false;
+  return attaque / 5 > defenseBoss && defense / 5 > attaqueBoss;
 }
 
 export function nukerBossSorealIdle(

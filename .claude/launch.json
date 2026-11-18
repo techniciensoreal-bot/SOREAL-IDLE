@@ -32,6 +32,24 @@
         "cloudflare/tools/essai-local-ngu-complet.mjs"
       ],
       "port": 8841
+    },
+    {
+      "name": "idle-local-ngu-complet-2",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "cloudflare/tools/essai-local-ngu-complet.mjs"
+      ],
+      "env": { "PORT": "8881" },
+      "port": 8881
+    },
+    {
+      "name": "idle-local-nuke-boss3",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "cloudflare/tools/essai-local-ngu-complet.mjs"
+      ],
+      "env": { "PORT": "8883", "PARTIE_B_OPTIONS": "{\"boss\":3,\"energieCap\":1e12,\"energie\":1e12,\"energiePuissance\":1e12,\"magieCap\":1e12,\"magie\":1e12,\"magiePuissance\":1e9,\"systemes\":true}" },
+      "port": 8883
     }
   ]
 }

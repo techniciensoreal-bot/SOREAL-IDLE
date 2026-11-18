@@ -970,6 +970,8 @@ setInterval(function(){
             REG.idleAutoNukeRunV1=debut;
             REG.idleAutoNukeDernierV1=0;
           }
+          /* Norman (2026-11-18) : l'Auto Nuker ne se lance que si le prochain NUKE tuerait au moins un boss (règle du moteur, nukePossible) ; sinon il ne sert à rien et jouait un son toutes les minutes. Rien n'est consommé : la minuterie reprend dès qu'un boss devient tuable. */
+          if(j.nukePossible!==true)return;
           const maintenant=Date.now();
           if(!autoNukeDueIdleV1_(debut,REG.idleAutoNukeDernierV1,maintenant))return;
           if(REG.idleNukeEnCoursV1||j.combatBossActif||j.bossBloqueRenaissance)return;

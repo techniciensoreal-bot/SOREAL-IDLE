@@ -76,8 +76,8 @@
   "sha": "3e1bd4179da911f0c6ffb76c5875979ff50519e1"
  },
  "/modules/audio-effects-v199.js": {
-  "pin": 281,
-  "sha": "913b91e012c66170c182d782b3229ed61ca3a778"
+  "pin": 282,
+  "sha": "3c97a09c38de3df15ee06e602b77e68e6c8d6fed"
  },
  "/modules/audio-volume-v1.js": {
   "pin": 5,
@@ -560,8 +560,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 310,
-  "sha": "7ed6f71f5f3cdc56a3f282fc4c0280c22f78c767"
+  "pin": 311,
+  "sha": "96a3ca2b3ae0b6de23b49ce4bcb502021eea7608"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -820,8 +820,8 @@
   "sha": "842f859ac3ab20f0a1ee7d6c142c959fbe6df312"
  },
  "/modules/ui-amorcage-v1.js": {
-  "pin": 19,
-  "sha": "e69258c2c016884a1b63288e00a80aa44c3837f7"
+  "pin": 20,
+  "sha": "6173a778fc813ef613a4fc2874166e902e8270c8"
  },
  "/modules/ui-aventure-1-v1.js": {
   "pin": 56,
