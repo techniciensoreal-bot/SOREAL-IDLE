@@ -34,8 +34,7 @@ const scene = document.createElement("section"); scene.className = "soreal-idle-
 const barre = document.createElement("div"); barre.id = "sorealIdleAdventureFightBarV1"; scene.appendChild(barre);
 racine.appendChild(scene);
 
-/* Le faux DOM n est pas muni de la propriété onclick : Preact y pose donc l écouteur sous le nom « Click » (dans un vrai navigateur : « click »). */
-const clic = (el) => evenement(el, "Click");
+const clic = (el) => evenement(el, "click");
 const fmt = (n) => String(n);
 const ZONES = [
   { id: "safe", name: "Zone sûre", unlocked: true, p: 0, t: 0 },
