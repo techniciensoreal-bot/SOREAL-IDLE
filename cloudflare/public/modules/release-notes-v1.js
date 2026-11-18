@@ -32,7 +32,8 @@
           {menu:'general', titre:'Général', points:[
             'Interface : plusieurs pages lourdes sont dessinées de façon plus fine (moins de recalcul à chaque rafraîchissement), pour plus de fluidité, surtout sur téléphone.',
             'Fluidité sur téléphone : certaines animations (lueurs de la borne, décors animés) ne forcent plus le téléphone à recalculer toute la page à chaque rafraîchissement ; l’aspect est identique.',
-            'Sur un appareil lent, les mises à jour automatiques des menus s’espacent d’elles-mêmes quand l’affichage devient lourd, pour que le jeu reste fluide ; sur un appareil rapide, rien ne change.'
+            'Sur un appareil lent, les mises à jour automatiques des menus s’espacent d’elles-mêmes quand l’affichage devient lourd, pour que le jeu reste fluide ; sur un appareil rapide, rien ne change.',
+            'Changer de menu est plus rapide sur téléphone : les mesures d’affichage sont regroupées au lieu d’être refaites plusieurs fois de suite.'
           ]},
           {menu:'ngu', titre:'NGU', points:[
             'NGU : les boutons « Cap » et « Cap all » s’écrivent bien « Cap » (ils étaient traduits « Plafond » et coupés).'

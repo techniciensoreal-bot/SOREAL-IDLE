@@ -15,5 +15,6 @@ const m = lire("cloudflare/public/soreal-idle-machine.css");
 assert.ok(/\[data-menu="machine"\] \.soreal-idle-bt-toolbar-v120 \.soreal-idle-bt-presets-v120\{--i-a:#0d6070;--i-b:#052b34;--bt-clear-col:span 3\}/.test(m), "Machine temporelle : « Tout reprendre » sur trois colonnes, fond plus sombre");
 // ailleurs : un bouton dont le texte dépasse prend toute la ligne (jamais coupé)
 const p = lire("cloudflare/public/modules/perso-boutons-v1.js");
-assert.ok(p.includes("function ajusterToutReprendre_()") && p.includes("b.scrollWidth>b.clientWidth+1") && p.includes("setProperty('grid-column','1 / -1','important')") && p.includes("try{ajusterToutReprendre_();}catch(_e){}"), "bouton coupé : toute la ligne, revu après chaque redessin");
+assert.ok(p.includes("function ajusterToutReprendre_()") && p.includes("b.scrollWidth>b.clientWidth+1") && p.includes("setProperty('grid-column','1 / -1','important')") && p.includes("f(function(){reprendreAttente=false;try{ajusterToutReprendre_();}catch(_e){}});") && p.includes("    planifierReprendre_();\n  }"), "bouton coupé : toute la ligne, revu après chaque redessin (dans l'image d'animation suivante, avant la peinture)");
+assert.ok(p.indexOf("aElargir.push(b)") < p.indexOf("aElargir.forEach(function(b){b.style.setProperty"), "lectures d'abord, écritures ensuite (pas de mise en page relancée par bouton)");
 console.log("idle-tout-reprendre-v1: OK");

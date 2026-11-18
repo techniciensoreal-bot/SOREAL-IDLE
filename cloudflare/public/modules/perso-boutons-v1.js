@@ -225,10 +225,21 @@
   /* « Tout reprendre » (Norman, 2026-11-07 : « il est coupé ») : plus long que « Tout retirer », il ne tenait pas dans les deux colonnes que la grille lui donne dans certains menus. Un bouton dont le texte dépasse prend alors toute la ligne de son cadre (posé en ligne, une seule fois par bouton : le bouton redessiné est revu au prochain passage, juste après le redessin de la page). */
   function ajusterToutReprendre_(){
     var bs=document.querySelectorAll('.soreal-idle-page-root-v28:not([data-menu="entrainement"]) .soreal-idle-bt-presets-v120 button.clear');
+    /* Toutes les LECTURES d'abord, les écritures ensuite : une écriture entre deux lectures relançait la mise en page pour chaque bouton (mesuré dans le navigateur : 122 ms de mise en page forcée sur 6 changements de menu). */
+    var aElargir=[];
     Array.prototype.forEach.call(bs,function(b){
       if(b.style.gridColumn)return;
-      if(b.scrollWidth>b.clientWidth+1)b.style.setProperty('grid-column','1 / -1','important');
+      if(b.scrollWidth>b.clientWidth+1)aElargir.push(b);
     });
+    aElargir.forEach(function(b){b.style.setProperty('grid-column','1 / -1','important');});
+  }
+  /* Regroupé dans UNE image d'animation (avant la peinture : rien de visible ne change, règle n°4) : la lecture partage la mise en page de l'image avec les autres mesures au lieu d'en forcer une juste après le redessin (2026-11-18, journal de Norman : 82 à 190 ms bloquants à chaque changement de menu sur téléphone). */
+  var reprendreAttente=false;
+  function planifierReprendre_(){
+    if(reprendreAttente)return;
+    reprendreAttente=true;
+    var f=typeof requestAnimationFrame==='function'?requestAnimationFrame:function(c){setTimeout(c,0);};
+    f(function(){reprendreAttente=false;try{ajusterToutReprendre_();}catch(_e){}});
   }
   var enCours=false;
   function decorer(force){
@@ -239,7 +250,7 @@
       if(c.classList.contains('soreal-idle-bt-total-v1')||c.getAttribute('data-alloc-total-v1')||c.hasAttribute('data-perso-input-rangee'))return;
       try{decorerCadre_(c,Boolean(force));}catch(_e){}
     });
-    try{ajusterToutReprendre_();}catch(_e){}
+    planifierReprendre_();
   }
   /* Après chaque redessin de la page (même tâche) : les rangées et boutons sont vérifiés tout de suite, sans attendre les 80 ms du suivi (règle n°4). */
   (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(function(){decorer(false);});

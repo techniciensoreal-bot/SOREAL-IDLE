@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Sur un appareil lent, les mises à jour automatiques des menus s’espacent d’elles-mêmes quand l’affichage devient lourd, pour que le jeu reste fluide ; sur un appareil rapide, rien ne change."
+    "Changer de menu est plus rapide sur téléphone : les mesures d’affichage sont regroupées au lieu d’être refaites plusieurs fois de suite."
   ] };
 })();
