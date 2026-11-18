@@ -96,7 +96,7 @@ const pairs = (s) => s.systems.augmentations.data.pairs;
   const ngu = fs.readFileSync(new URL("../public/modules/ngu-labo-v1.js", import.meta.url), "utf8");
   assert.ok(/aug-cible-v2"><span>Cible<\/span><input type="number" inputmode="numeric" min="-1"/.test(aug));
   assert.ok(/soreal-idle-at-col-v1 cible"><span>Cible<\/span><input type="number" inputmode="numeric" min="-1"/.test(aug));
-  assert.ok(/nl-cible"><span>Cible<\/span><input type="number" inputmode="numeric" min="-1"/.test(ngu));
+  assert.ok(/h\('label',\{class:'nl-cible'\},h\('span',null,'Cible'\),\s*h\('input',\{type:'number',inputmode:'numeric',min:'-1'/.test(ngu));
   assert.ok(/__cibleAugmentIdleV1__=function\(id,upgrade,valeur\)\{\s*const n=Math\.max\(-1,/.test(aug));
   assert.ok(/var n=Math\.max\(-1,Math\.floor\(Number\(valeur\)\|\|0\)\);\s*var j=H_\(\)/.test(ngu));
 }

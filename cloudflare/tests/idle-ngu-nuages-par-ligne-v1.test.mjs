@@ -55,18 +55,18 @@ assert.ok(src.includes('.nl-barre[data-nl-res="energy"]::after,.nl-v1[data-nl-on
 const ecart = Number(src.match(/\.nl-grille\{[^}]*gap:(\d+)px/)[1]);
 assert.ok(130 > ecart + 100, "le débord de 130 px recouvre l'écart de " + ecart + " px entre deux lignes : aucune bande de ciel nue");
 // banc du haut : un seul nœud, toujours dans le HTML de l'énergie, avec data-morph-vivant (hauteur posée par le module)
-assert.ok(src.includes("var HTML_GRIS='<span class=\"nl-gris\" data-morph-vivant aria-hidden=\"true\"></span>';"), "un seul nœud gris (banc du haut), data-morph-vivant");
+assert.ok(src.includes("jour?h('span',{class:'nl-gris','data-morph-vivant':'','aria-hidden':'true',key:'gris'})"), "un seul nœud gris (banc du haut), data-morph-vivant");
 assert.ok(!/\.nl-gris-(sort|ent)/.test(sansCommentaires), "plus de classe de sortie du gris");
 assert.ok(!/setTimeout\(retirer/.test(src), "plus de retrait différé");
 assert.ok(src.includes('.nl-v1[data-nl-ouvert="1"]>.nl-gris{opacity:0}'), "le banc du haut s'efface dès qu'une ligne d'énergie est active");
 // banc du bas (résumé) : s'efface seulement quand TOUTES les lignes sont alimentées
 assert.ok(src.includes('.nl-v1[data-nl-tout="1"] .nl-resume::before{opacity:0}') && /\.nl-resume::before\{[^}]*transition:opacity 16s ease-in-out/.test(src), "banc du bas : s'efface (opacité, 16 s) quand toutes les lignes sont actives : plus aucun gris nulle part");
-assert.ok(/data-nl-tout="'\+\(nbOuvertes_>0&&nbOuvertes_===nbEnergie_\?'1':'0'\)\+'"/.test(src), "data-nl-tout = toutes les lignes d'énergie ont une allocation (état du moteur)");
+assert.ok(/tout:nbOuvertes>0&&nbOuvertes===nbEnergie\?'1':'0'/.test(src) && src.includes("'data-nl-tout':vm.tout"), "data-nl-tout = toutes les lignes d'énergie ont une allocation (état du moteur)");
 
 // --- magie : étoiles par ligne
 assert.ok(src.includes('@property --nl-e{syntax:"<number>";inherits:true;initial-value:0}'), "--nl-e est lissée par le CSS");
 assert.ok(src.includes('.nl-barre[data-nl-res="magic"]{transition:--nl-e 16s ease-in-out}'), "extinction et allumage de 16 s");
-assert.ok(/style="--nl-c:'\+c\[0\]\+';--nl-t:'\+c\[1\]\+';--nl-e:'\+eclatLigne_\(n\)\+';--nl-r:'\+\(rang\|\|0\)\+';'\+cielVars_\(n\.id\)\+'"/.test(src), "l'éclat vient de l'état de la ligne (eclatLigne_), pas du DOM");
+assert.ok(/style:'--nl-c:'\+c\[0\]\+';--nl-t:'\+c\[1\]\+';--nl-e:'\+eclatLigne_\(n\)\+';--nl-r:'\+\(rang\|\|0\)\+';'\+cielVars_\(n\.id\)/.test(src), "l'éclat vient de l'état de la ligne (eclatLigne_), pas du DOM");
 assert.ok(/nlLigneScintA\{0%,100%\{opacity:var\(--nl-e\)\}/.test(src) && /nlLigneScintB\{0%,100%\{opacity:calc\(var\(--nl-e\)\*var\(--nl-e\)\*\.3\)\}/.test(src), "scintillement : boucle parfaite (mêmes valeurs à 0 % et 100 %)");
 assert.ok(/prefers-reduced-motion:no-preference\)\{\.nl-barre\[data-nl-res="magic"\]::after\{animation:nlLigneScintA/.test(src), "scintillement coupé si reduced-motion");
 assert.ok(/data-nl-onglet="magic"\]>\.nl-arc,\.nl-v1\[data-nl-onglet="magic"\] \.nl-etoiles\{display:none\}/.test(src), "plus de ciel étoilé ni d'aurore de bandeau sur toute la page");
@@ -94,13 +94,13 @@ for (const spl of [1e9, 1e5, 100, 1, 0.1]) assert.ok(Math.abs(e(spl) - e(spl * 1
 
 // --- UN SEUL soleil, en haut de la page, révélé quand le banc du haut s'efface (dès qu'une ligne est active)
 assert.ok(!/ffe066|fffbd0|ffb81f/.test(breche), "le banc d'une ligne ne dessine ni soleil ni halo solaire");
-assert.equal((src.match(/class="nl-soleil"/g) || []).length, 1, "un seul nœud soleil défini");
-assert.ok(/HTML_SOLEIL\+HTML_GRIS/.test(src), "le soleil est posé une fois, DERRIÈRE le banc du haut : il se révèle quand le banc s'efface");
+assert.equal((src.match(/class:'nl-soleil'/g) || []).length, 1, "un seul nœud soleil défini");
+assert.ok(/jour\?h\('span',\{class:'nl-soleil'[^\n]*jour\?h\('span',\{class:'nl-gris'/.test(src), "le soleil est posé une fois, DERRIÈRE le banc du haut : il se révèle quand le banc s'efface");
 assert.ok(!/\.nl-barre[^{]*soleil/.test(src), "aucun soleil rattaché à une barre");
 const soleil = src.match(/\.nl-v1>\.nl-soleil\{[^}]*\}/)[0];
 assert.ok(soleil.includes("opacity:var(--nl-sol)") && !/transform|scale|mask/.test(soleil), "l'éclat du soleil suit --nl-sol (lissé), forme fixe");
 assert.ok(src.includes('.nl-v1[data-nl-onglet="energy"]{transition:--nl-sol 16s ease-in-out}'), "éclat du soleil lissé 16 s");
-assert.ok(/data-nl-ouvert="'\+\(nbOuvertes_>0\?'1':'0'\)\+'"/.test(src) && /nbOuvertes_=liste\.filter\(function\(n\)\{return n\.resource==='energy'&&nombre_\(n\.allocation\)>0;\}\)\.length/.test(src), "le HTML pose data-nl-ouvert d'après les allocations de l'état");
+assert.ok(src.includes("'data-nl-ouvert':vm.ouvert") && /ouvert:nbOuvertes>0\?'1':'0'/.test(src) && /nbOuvertes=liste\.filter\(function\(n\)\{return n\.resource==='energy'&&nombre_\(n\.allocation\)>0;\}\)\.length/.test(src), "le HTML pose data-nl-ouvert d'après les allocations de l'état");
 assert.ok(/new ResizeObserver\(/.test(src) && !/setInterval\(/.test(src.slice(src.indexOf("function mesurerHaut_"), src.indexOf("function attacherMesure_") + 400)), "hauteur du banc du haut mesurée par ResizeObserver, sans minuterie");
 const sol = new Function("return " + src.match(/function solDe_\(nbOuvertes\)\{[^\n]*\}/)[0].replace("function solDe_", "function"))();
 assert.equal(sol(0), 0, "aucune ligne ouverte : pas de soleil");

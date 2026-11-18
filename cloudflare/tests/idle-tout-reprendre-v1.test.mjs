@@ -7,7 +7,7 @@ import fs from "node:fs";
 const lire = (f) => fs.readFileSync(f, "utf8");
 for (const f of ["augmentations-page-v1", "barre-allocation-v1", "blood-magic-v1", "ngu-labo-v1", "ui-entrainement-v1"]) {
   const s = lire("cloudflare/public/modules/" + f + ".js");
-  assert.ok(s.includes(">Tout reprendre<") && !s.includes(">Tout retirer<"), "bouton renommé : " + f);
+  assert.ok((s.includes(">Tout reprendre<") || s.includes("'Tout reprendre')")) && !s.includes(">Tout retirer<") && !s.includes("'Tout retirer')"), "bouton renommé : " + f);   /* ngu-labo : rendu par composants Preact (2026-11-18) */
 }
 assert.equal(JSON.parse(lire("cloudflare/public/modules/traduction-anglais-dict-v1.json"))["Tout reprendre"], "Take all back", "traduction anglaise");
 // Machine temporelle : trois colonnes pour le bouton, fond turquoise foncé

@@ -14,7 +14,7 @@ const ui = lireUiComplet();
 assert.ok(meta.includes("Conseil : n’achète ceci qu’une fois que tu as acheté tout le reste."), "Rich Jerks : conseil");
 assert.ok(ngu.includes("function etaTexte_(spl,fraction,cibleAtteinte,ressource)") && ngu.includes("data-nl-eta") && ngu.includes("Niveau suivant dans"), "NGU : minuteur");
 assert.ok(ngu.includes("eta.innerHTML=texteEta"), "le minuteur est mis à jour en direct");
-assert.ok(ngu.includes("var resumeOuvert=false;") && ngu.includes("(resumeOuvert?' open':'')") && ngu.includes("resume:function(o){resumeOuvert=Boolean(o);}"), "volet Effets : état conservé");
+assert.ok(ngu.includes("var resumeOuvert=false;") && ngu.includes("open:vm.resumeOuvert") && ngu.includes("resume:function(o){resumeOuvert=Boolean(o);}"), "volet Effets : état conservé");
 
 assert.ok(ui.includes("if(!Object.keys(niveaux).length)return;"), "hors page Augmentations : aucun changement");
 assert.ok(ui.includes("if(!(base.additif>0))return;"), "sans niveau de départ : on attend la synchro");
@@ -28,7 +28,7 @@ assert.equal(dureeTexte(7380), "2 h 3 min");
 // NGU : étoiles qui scintillent seulement quand de l'énergie / de la magie est placée ; « Je fais quoi ? » reste ouvert.
 assert.ok(ngu.includes('.nl-v1 .nl-etoiles b{animation:nlEtoile') && ngu.includes('.nl-etoiles{position:absolute;inset:0;pointer-events:none;z-index:0;contain:strict;display:block;') && ngu.includes('.nl-etoiles u{position:absolute;inset:0;opacity:0;transition:opacity 2s ease'), "étoiles : cachées (couches à 0) tant qu'aucune machine n'est en route, puis apparaissent en fondu et scintillent");
 assert.ok(ngu.includes("racine.setAttribute('data-nl-actif',actif)"), "étoiles : mise à jour en direct");
-assert.ok(ngu.includes("var aideOuverte=false;") && ngu.includes("aideOuverte=!el.hidden;") && ngu.includes("(aideOuverte?'':' hidden')"), "aide : état conservé");
+assert.ok(ngu.includes("var aideOuverte=false;") && ngu.includes("aideOuverte=!aideOuverte;") && ngu.includes("hidden:!vm.aide"), "aide : état conservé");
 // Borne : stick et boutons rapprochés, groupe centré (milieu entre 0,355 et 0,675 ≈ 0,515).
 const itopod = readFileSync("cloudflare/public/soreal-idle-itopod.css", "utf8");
 assert.ok(itopod.includes("* .355 -") && itopod.includes("* 0.495 -") && itopod.includes("* 0.585 -") && itopod.includes("* 0.675 -") && !itopod.includes("* .24 -"), "borne : stick et boutons rapprochés");

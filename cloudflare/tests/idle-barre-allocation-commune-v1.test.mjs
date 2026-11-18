@@ -29,10 +29,10 @@ assert.match(c, /💤 Idle<\/span><button[^>]*>1\/2<\/button><button[^>]*>1\/4<\
 assert.ok(ui.includes("<span>⚡ Plafond d’énergie</span>"), "Basic Training");
 assert.equal(meta.split("<span>⚡ Plafond d’énergie</span>").length - 1, 2, "Augmentations et Advanced Training");
 assert.ok(sang.includes("<span>🔮 Plafond de magie</span>"), "Blood Magic");
-assert.ok(ngu.includes("'🔮 Plafond de magie':'⚡ Plafond d’énergie'"), "NGU");
+assert.ok(ngu.includes("'🔮 Plafond de magie':'⚡ Plafond d’énergie'"), "NGU");   /* rendu par composants Preact (2026-11-18) : le libellé vient du modèle de vue outilsVm_ */
 assert.ok(!/<span>⚡ Energy Cap<\/span>|<span>Magic Cap<\/span>|✨ Magic Cap|⚡ Energy Cap'/.test(ui + sang + ngu + meta), "plus d'ancien intitulé de cadre");
 // NGU : deux cadres distincts
-assert.match(ngu, /Plafond de magie':'⚡ Plafond d’énergie'\)\+'<\/span>'\+[\s\S]*?<\/div>'\+\s*'<div class="nl-ligne">'\+\s*'<span>💤 Idle<\/span>/, "NGU : deux cadres");
+assert.match(ngu, /h\('div',\{class:'nl-ligne','data-nl-plafond':'1'\},h\('span',null,o\.plafond\)[\s\S]*?h\('div',\{class:'nl-ligne'\},h\('span',null,'💤 Idle'\)/, "NGU : deux cadres");
 // 3. Time Machine, Wandoos, Wishes et systèmes génériques (Barbes, Hacks…) reçoivent les cadres.
 assert.ok(meta.includes("cadres('energy','timeMachine')") && meta.includes("cadres('magic','timeMachine')"), "Time Machine");
 assert.ok(meta.includes("cadres(r,s.id)"), "systèmes génériques (Barbes, Hacks)");
@@ -41,7 +41,7 @@ assert.ok(!wd.includes("AL.cadres(") && wd.includes("saisir:majSaisie_"), "Wando
 // 4. + − MAX sur chaque ligne : systèmes génériques, Wishes, tuyaux NGU.
 for (const mode of ["moins", "plus", "max"]) {
   assert.ok(meta.includes("ALLOC_V1__.ajuster(\\'\'+sid+\'\\',\\'\'+rid+\'\\',") && meta.includes("ajusterVoeu(\'+argsVoeu+\'\\'" + mode + "\\'\'"), "ligne " + mode);
-  assert.ok(ngu.includes("ajuster(\\'\'+idH+\'\\',\\'" + mode + "\\')"), "tuyau NGU " + mode);
+  assert.ok(ngu.includes("onClick:function(){ajusterCmd_(id,'" + mode + "');}"), "tuyau NGU " + mode);
 }
 assert.ok(!meta.includes("−10 %</button>"), "plus de boutons ±10 % bornés à 100");
 

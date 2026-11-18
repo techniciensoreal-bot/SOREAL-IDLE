@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { PAGES_META } from "./_meta-pages.mjs";
+import { preparerNgu, htmlNgu } from "./_ngu-vdom.mjs";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import {
@@ -32,6 +33,8 @@ const window = {
   __SOREAL_IDLE_TEXT_TRANSFORMS_V1__: { attr: (v) => String(v == null ? "" : v) },
   document: { getElementById() { return null; } }
 };
+/* Page NGU rendue par composants Preact (2026-11-18) : faux DOM, vrai Preact et vrai pont, préparés avant le chargement du module. */
+preparerNgu(window);
 /* La page NGU est celle du laboratoire (modules/ngu-labo-v1.js), appelée par la page générique. */
 vm.runInNewContext(readFileSync("cloudflare/public/modules/ngu-labo-v1.js", "utf8"), { window, document: window.document, setInterval: () => 1, clearInterval() {}, performance: { now: () => horloge.t } });
 {
@@ -52,9 +55,9 @@ state = applyIdleNguAction(state, { action: "adventure", adventure: { mode: "con
 {
   const snap = idleNguSnapshot(state, context, 1_000_000);
   horloge.t = 5000;
-  const a = page({ systemes: snap }, "ngu", "NGU");
+  const a = htmlNgu(window, { systemes: snap });
   horloge.t = 9137.5;
-  const b = page({ systemes: snap }, "ngu", "NGU");
+  const b = htmlNgu(window, { systemes: snap });
   assert.ok(a.includes("data-nl-ngu="), "la page est rendue");
   assert.equal(a, b, "deux rendus d'un état sans progression : HTML identique");
   assert.ok(!/data-nl-t0="(?!0")/.test(a), "tuyaux à l'arrêt : data-nl-t0 vaut 0");
@@ -67,9 +70,9 @@ state = applyIdleNguAction(state, { action: "allocateNgu", ngu: "powerAlpha", va
   const snap = idleNguSnapshot(state, context, 1_000_000);
   const j = { systemes: snap, __recuPerfV1: 7000 };
   horloge.t = 7100;
-  const a = page(j, "ngu", "NGU");
+  const a = htmlNgu(window, j);
   horloge.t = 9100;
-  const b = page(j, "ngu", "NGU");
+  const b = htmlNgu(window, j);
   assert.equal(a, b, "tuyau actif : l'instant de départ vient de l'état reçu, pas de l'heure du rendu");
   assert.ok(a.includes('data-nl-t0="7000"'), "le tuyau qui progresse garde son instant de départ");
   assert.equal((a.match(/data-nl-t0="7000"/g) || []).length, 1, "un seul tuyau actif");
