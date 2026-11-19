@@ -41,7 +41,25 @@ export const IDLE_NETTOYAGE_AP_MAX_V1 = 100;
 export const IDLE_NETTOYAGE_CHANCE_RARE_V1 = 0.0005;
 export const IDLE_NETTOYAGE_AP_RARE_V1 = 5000;
 export const IDLE_NETTOYAGE_ESPACEMENT_MS_V1 = 20000;
-export const IDLE_NETTOYAGE_MAX_PAR_JOUR_V1 = 150;
+export const IDLE_NETTOYAGE_MAX_PAR_JOUR_V1 = 20;
+/*
+ * PALIERS du nettoyage (Norman, 2026-11-19 : « un système de palier comme pour la roue ou le money pit : plus on frotte et plus on monte de paliers, de manière exponentielle ; les récompenses en AP plus nombreuses, sans que ça devienne abusé »).
+ * Le palier suit le nombre de nettoyages TERMINÉS (records.nettoyagesAP, Coffre et Valise ensemble) ; les seuils grandissent presque au double, comme ceux de la roue (0, 7, 14, 30, 60, 120, 180, 365) et du Money Pit (x100 d'Or par palier).
+ * Gain ordinaire : de 1 au maximum du palier, tiré au hasard (au palier 0 : de 1 à 100, comme avant). Maximums calibrés sur la roue : à environ deux nettoyages par jour (un accident du Coffre et un de la Valise), le gain moyen par jour reste du même ordre que
+ * celui de la roue au même palier. Garde-fous : au plus IDLE_NETTOYAGE_MAX_PAR_JOUR_V1 nettoyages par jour (avant : 150) et un budget d'AP par jour de IDLE_NETTOYAGE_BUDGET_JOUR_FACTEUR_V1 fois le maximum du palier (le gain exceptionnel de 5 000 AP en est exclu).
+ * Valeurs propres à SOREAL (fonction secrète voulue par Norman, aucune source NGU) : à valider par Norman.
+ */
+export const IDLE_NETTOYAGE_PALIERS_V1 = Object.freeze([
+  { seuil: 0, apMax: 100 }, { seuil: 7, apMax: 150 }, { seuil: 20, apMax: 250 }, { seuil: 45, apMax: 400 },
+  { seuil: 100, apMax: 650 }, { seuil: 200, apMax: 1000 }, { seuil: 400, apMax: 1600 }, { seuil: 800, apMax: 2500 }
+]);
+export const IDLE_NETTOYAGE_BUDGET_JOUR_FACTEUR_V1 = 4;
+export function idleNettoyagePalierV1(nettoyages) {
+  const n = Math.max(0, Math.floor(Number(nettoyages) || 0));
+  let palier = 0;
+  for (let i = 0; i < IDLE_NETTOYAGE_PALIERS_V1.length; i += 1) { if (n >= IDLE_NETTOYAGE_PALIERS_V1[i].seuil) palier = i; else break; }
+  return palier;
+}
 
 /*
  * Coffre et garderie (Norman, 2026-10-30) : un objet NON maxé posé dans le Coffre n'est accepté que s'il reste un emplacement de garderie libre ; il part alors dans un
@@ -83,6 +101,42 @@ function instantClicAllocationV1(action, payload, raw, t) {
   const derniere = Number(raw && raw.updatedAt);
   if (!Number.isFinite(demande) || demande > t || t - demande > FENETRE_INSTANT_CLIC_MS_V1) return t;
   return Number.isFinite(derniere) ? Math.max(demande, Math.min(derniere, t)) : demande;
+}
+
+/* Nettoyer le Coffre ou la Valise (action « cleanMess ») : extrait de applyIdleNguAction (audit d'architecture : fonction ≤ 450 lignes), comportement inchangé. */
+function nettoyerMessV1(state, payload, t, context) {
+  /*
+   * Nettoyer le Coffre après l'accident (caca) ou la Valise après le vomi (Norman, 2026-10-29) : de 1 à 100 AP au hasard, et très très rarement (0,05 % de chance) 5 000 AP. Les AP sont versés TELS QUELS, hors bonus d'AP, pour que le « +N AP » vu s'envoler du
+   * Coffre ou de la Valise soit exactement ce qui est gagné. L'accident, lui, est tiré et suivi dans la page : le moteur ne peut pas le vérifier, il limite donc la cadence (un nettoyage au plus toutes les 20 s, un vrai demande bien plus : cinq allers-retours du doigt).
+   */
+  const lieu = payload.lieu === "valise" ? "valise" : "coffre";
+  /* Cadence PAR LIEU (nettoyer le Coffre puis la Valise de suite est normal : tout peut être sale d'un coup) ; une valeur postérieure à l'instant présent (import de partie, décalage d'horloge) est ignorée au lieu de bloquer la récompense. */
+  const cleLieu = lieu === "valise" ? "nettoyageAtValise" : "nettoyageAtCoffre";
+  let dernierNettoyage = num(state.records[cleLieu], 0);
+  if (dernierNettoyage > t) dernierNettoyage = 0;
+  if (dernierNettoyage > 0 && t - dernierNettoyage < IDLE_NETTOYAGE_ESPACEMENT_MS_V1) throw new Error("NETTOYAGE_TROP_RAPIDE");
+  /* Plafond par jour (un client modifié ne peut pas encaisser des AP toutes les 20 s toute la journée : l'accident, lui, n'est vérifiable que dans la page). */
+  const jour = Math.floor(t / 86400000);
+  let faitsAujourdhui = num(state.records.nettoyageJour, 0) === jour ? Math.max(0, num(state.records.nettoyageJourN, 0)) : 0;
+  if (faitsAujourdhui >= IDLE_NETTOYAGE_MAX_PAR_JOUR_V1) throw new Error("NETTOYAGE_LIMITE_JOUR");
+  /* générateur injectable par le contexte (essais seulement) ; en jeu : Math.random */
+  const alea = typeof context.alea === "function" ? context.alea : Math.random;
+  const rare = alea() < IDLE_NETTOYAGE_CHANCE_RARE_V1;
+  /* palier du nettoyage (voir IDLE_NETTOYAGE_PALIERS_V1) : le maximum du gain ordinaire monte avec le nombre de nettoyages déjà terminés ; budget d'AP par jour */
+  const palier = idleNettoyagePalierV1(state.records.nettoyagesAP);
+  const apMax = IDLE_NETTOYAGE_PALIERS_V1[palier].apMax;
+  const dejaAP = num(state.records.nettoyageJour, 0) === jour ? Math.max(0, num(state.records.nettoyageJourAP, 0)) : 0;
+  const budget = apMax * IDLE_NETTOYAGE_BUDGET_JOUR_FACTEUR_V1;
+  if (!rare && dejaAP >= budget) throw new Error("NETTOYAGE_LIMITE_JOUR");
+  const ap = rare ? IDLE_NETTOYAGE_AP_RARE_V1 : Math.min(1 + Math.floor(alea() * apMax), budget - dejaAP);
+  state.currencies.ap += ap;
+  state.records.nettoyageJourAP = rare ? dejaAP : dejaAP + ap;
+  state.records.nettoyageAt = t;
+  state.records[cleLieu] = t;
+  state.records.nettoyageJour = jour;
+  state.records.nettoyageJourN = faitsAujourdhui + 1;
+  state.records.nettoyagesAP = Math.max(0, num(state.records.nettoyagesAP, 0)) + 1;
+  return { ap, rare, lieu, palier };
 }
 
 export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.now()) {
@@ -360,31 +414,7 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     if (!state.systems.wandoos?.unlocked) throw new Error("SYSTEME_VERROUILLE");
     state.records.cornerClicked = 1;
   } else if (action === "cleanMess") {
-    /*
-     * Nettoyer le Coffre après l'accident (caca) ou la Valise après le vomi (Norman, 2026-10-29) : de 1 à 100 AP au hasard, et très très rarement (0,05 % de chance) 5 000 AP. Les AP sont versés TELS QUELS, hors bonus d'AP, pour que le « +N AP » vu s'envoler du
-     * Coffre ou de la Valise soit exactement ce qui est gagné. L'accident, lui, est tiré et suivi dans la page : le moteur ne peut pas le vérifier, il limite donc la cadence (un nettoyage au plus toutes les 20 s, un vrai demande bien plus : cinq allers-retours du doigt).
-     */
-    const lieu = payload.lieu === "valise" ? "valise" : "coffre";
-    /* Cadence PAR LIEU (nettoyer le Coffre puis la Valise de suite est normal : tout peut être sale d'un coup) ; une valeur postérieure à l'instant présent (import de partie, décalage d'horloge) est ignorée au lieu de bloquer la récompense. */
-    const cleLieu = lieu === "valise" ? "nettoyageAtValise" : "nettoyageAtCoffre";
-    let dernierNettoyage = num(state.records[cleLieu], 0);
-    if (dernierNettoyage > t) dernierNettoyage = 0;
-    if (dernierNettoyage > 0 && t - dernierNettoyage < IDLE_NETTOYAGE_ESPACEMENT_MS_V1) throw new Error("NETTOYAGE_TROP_RAPIDE");
-    /* Plafond par jour (un client modifié ne peut pas encaisser des AP toutes les 20 s toute la journée : l'accident, lui, n'est vérifiable que dans la page). */
-    const jour = Math.floor(t / 86400000);
-    let faitsAujourdhui = num(state.records.nettoyageJour, 0) === jour ? Math.max(0, num(state.records.nettoyageJourN, 0)) : 0;
-    if (faitsAujourdhui >= IDLE_NETTOYAGE_MAX_PAR_JOUR_V1) throw new Error("NETTOYAGE_LIMITE_JOUR");
-    /* générateur injectable par le contexte (essais seulement) ; en jeu : Math.random */
-    const alea = typeof context.alea === "function" ? context.alea : Math.random;
-    const rare = alea() < IDLE_NETTOYAGE_CHANCE_RARE_V1;
-    const ap = rare ? IDLE_NETTOYAGE_AP_RARE_V1 : 1 + Math.floor(alea() * IDLE_NETTOYAGE_AP_MAX_V1);
-    state.currencies.ap += ap;
-    state.records.nettoyageAt = t;
-    state.records[cleLieu] = t;
-    state.records.nettoyageJour = jour;
-    state.records.nettoyageJourN = faitsAujourdhui + 1;
-    state.records.nettoyagesAP = Math.max(0, num(state.records.nettoyagesAP, 0)) + 1;
-    result = { ap, rare, lieu };
+    result = nettoyerMessV1(state, payload, t, context);
   } else if (action === "watchCinematic") {
     /* Visionnage d'une cinématique (Chroniques > Cinématiques) : compteur et code de la dernière, lus par « En direct » (idle-flux-v1.js). Codes : intro = 1 ; les prochaines scènes prennent les numéros suivants. */
     const code = IDLE_CINEMATIQUES_V1[String(payload.id || "")];
