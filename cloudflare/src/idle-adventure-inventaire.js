@@ -4,7 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
-import { C, I, MAX, N, X } from "./idle-adventure-base.js";
+import { C, I, MAX, N, X, idleAdventurePlafondNiveauV1 } from "./idle-adventure-base.js";
 import { base, cleanItem, idleAdventureApplySpecialPointsV1, idleAdventureBaseStatsV1, idleAdventureNiveauEstMaxV1, idleAdventureObjetPleinementMaxeV1, idleAdventureSetSpecialsV1, idleAdventureSpecialBaseStatsV1, idleAdventureSpecialsCappedV1, idleAdventureSpecialsRoomPointsV1, item, rafraichirAutoPortraitSetV1, record, special } from "./idle-adventure-objets.js";
 import { IDLE_ADVENTURE_ITEM_CATALOG_V1, IDLE_ADVENTURE_SPECIAL_ORDRE_V1, NOMS_SETS_EN_V1, SET_ITEM_NAMES_EN_V1, SPECIALS_EN_V1, defById, idleAdventureSlotRankV1 } from "./idle-adventure-sets.js";
 import { fluxBoostV1 } from "./idle-adventure-combat.js";
@@ -397,7 +397,7 @@ export function applyBoost(s,boostId,targetId,ctx){
   if(type==="power"||type==="toughness"){
     const d=defById(o.definitionId);
     const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);
-    const cap=base?(type==="power"?base.baseP:base.baseT)*(1+C(N(o.level),0,MAX)/100):null;
+    const cap=base?idleAdventurePlafondNiveauV1(type==="power"?base.baseP:base.baseT,o.level):null;
     if(cap!=null&&N(o[type])>=cap-1e-9){
       throw Error("BOOST_STAT_DEJA_MAX");
     }

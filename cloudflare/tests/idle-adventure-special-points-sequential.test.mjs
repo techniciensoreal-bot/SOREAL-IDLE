@@ -56,24 +56,29 @@ assert.ok(Object.keys(IDLE_SPECIAL_POINTS_EXP_V1).length >= 370);
   assert.throws(() => boost(s, 1, apron.id), /BOOST_STAT_DEJA_MAX/);
 }
 
-// Accessoire à 3 Specials, ratios 10 / 100 / 10 : les boosts sont des points, pas des pourcents
+// Accessoire à 3 Specials, ratios 10 / 100 / 10 : les boosts sont des points, pas des pourcents.
+// ORDRE DU JEU (2026-11-19, Equipment::boostEquip, lu dans l'IL) : la table du jeu donne pour les Gaudy Epaulettes spec1 = Energy Cap (1200 points), spec2 = Energy Power (500), spec3 = Energy Bars (600) ; la liste reste dans l'ordre SOREAL.
 {
   let s = avec("gaudyShoulders", 0);
   const g = s.inventory.find((i) => i.definitionId === "gaudyShoulders");
   assert.deepEqual(liste(s, g.id).map((x) => [x.type, x.value, x.max]), [["energyBarsPct", 60, 100], ["energyCapPct", 12, 24], ["energyPowerPct", 50, 90]]);
   s = boost(s, 100, g.id);
-  near(liste(s, g.id)[0].value, 70, "100 points = 10 % d'Energy Bars");
+  near(liste(s, g.id)[1].value, 13, "100 points = 1 % d'Energy Cap (100 points = 1 %) : la 1re ligne du jeu se remplit d'abord");
+  near(liste(s, g.id)[0].value, 60, "Energy Bars (3e ligne du jeu) n'est pas touchée");
   // pièces équipées : les Specials secondaires comptent à leur valeur courante
   s = applyIdleAdventureActionV47(s, { action: "equip", id: g.id, slot: "accessory" }, ctx, 1).state;
   const st = idleAdventureEquipmentStatsV47(s).specials;
-  near(st.energyBarsPct, 70, "Special 1");
-  near(st.energyCapPct, 12, "Special 2 à sa Base value");
-  near(st.energyPowerPct, 50, "Special 3 à sa Base value");
-  // 300 points de plus (Energy Bars à 100) puis le Special 2 monte : (1200 points au maximum, 100 points = 1 %)
+  near(st.energyCapPct, 13, "Special 1 du jeu");
+  near(st.energyBarsPct, 60, "Special 3 à sa Base value");
+  near(st.energyPowerPct, 50, "Special 2 à sa Base value");
+  // 500 points de plus : encore Energy Cap (reste 1100 points), puis 1000 points : Energy Cap se remplit (600 points), le reste (400) monte Energy Power à son maximum (10 points = 1 %)
   s = boost(s, 500, g.id);
+  near(liste(s, g.id)[1].value, 13 + 500 / 100, "le Special 1 du jeu absorbe tous les points tant qu'il n'est pas plein");
+  s = boost(s, 1000, g.id);
   const l = liste(s, g.id).map((x) => x.value);
-  near(l[0], 100, "Energy Bars plein");
-  near(l[1], 12 + (500 - 300) / 100, "le reste des points va à Energy Cap (100 points = 1 %)");
+  near(l[1], 24, "Energy Cap plein");
+  near(l[2], 50 + 400 / 10, "le reste des points va à Energy Power (10 points = 1 %)");
+  near(l[0], 60, "Energy Bars en dernier");
   near(idleAdventureEquipmentStatsV47(s).specials.energyCapPct, l[1], "l'équipement lit la valeur courante");
 }
 

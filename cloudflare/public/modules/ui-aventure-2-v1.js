@@ -1393,10 +1393,10 @@
         let cap=0;
         let actuel=0;
         if(type==='power'){
-          cap=idleNombre_(cible.basePower)*q;
+          cap=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(cible.basePower),cible.level);
           actuel=idleNombre_(cible.power);
         }else if(type==='toughness'){
-          cap=idleNombre_(cible.baseToughness)*q;
+          cap=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(cible.baseToughness),cible.level);
           actuel=idleNombre_(cible.toughness);
         }else if(type==='special'){
           cap=idleNombre_(cible.baseSpecial)*q;
@@ -1649,8 +1649,8 @@
         const basePower=idleNombre_(item.basePower);
         const baseToughness=idleNombre_(item.baseToughness);
         const q=1+niveau/100;
-        const maxPower=basePower*q;
-        const maxToughness=baseToughness*q;
+        const maxPower=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(basePower,niveau);
+        const maxToughness=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(baseToughness,niveau);
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-265 */
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-266 */
         const powerMaxAtteint=basePower>0&&idleNombre_(item.power)+1e-9>=maxPower;
@@ -1661,8 +1661,8 @@
         const itemRegen=idleNombre_(item.toughness)*.03;
         const baseHp=basePower*3;
         const baseRegen=baseToughness*.03;
-        const maxHp=baseHp*q;
-        const maxRegen=baseRegen*q;
+        const maxHp=maxPower*3;
+        const maxRegen=maxToughness*.03;
         const hpMaxAtteint=baseHp>0&&itemHp+1e-9>=maxHp;
         const regenMaxAtteint=baseRegen>0&&itemRegen+1e-9>=maxRegen;
 

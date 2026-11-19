@@ -26,7 +26,7 @@
       enregistrerObjetPopupIdleV1_(cle,{
         kind:def.kind,name:def.name,definitionId:id,level:niveau,fullyMaxed:Boolean(vert),
         basePower:Number(def.basePower)||0,baseToughness:Number(def.baseToughness)||0,
-        power:(Number(def.basePower)||0)*q,toughness:(Number(def.baseToughness)||0)*q,
+        power:window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(Number(def.basePower)||0,niveau),toughness:window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(Number(def.baseToughness)||0,niveau),
         specialsAll:(Array.isArray(def.specials)?def.specials:[]).map(function(sp){return{type:sp[0],value:(Number(sp[1])||0)*q,max:(Number(sp[1])||0)*q};})
       },'collection');
     }catch(_e){return '';}

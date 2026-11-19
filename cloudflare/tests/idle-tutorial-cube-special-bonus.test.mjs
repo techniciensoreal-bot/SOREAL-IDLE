@@ -57,7 +57,7 @@ import {
  * Tutorial Cube en Cube de l'Infini débloqué (retiré de l'inventaire, cf.
  * idle-adventure-v47.js ~1200 "tutorialCubeMaxed") -- un objet discret
  * n'existe donc plus pour vérifier son plafond exactement à 100. Niveau 99
- * suffit à prouver la même formule q=1+niveau/100 (15×1.99=29.85).
+ * suffit à prouver la même formule (floor(15×1.99) = 29).
  */
 {
   let s = normalizeIdleAdventureStateV47({});
@@ -70,7 +70,7 @@ import {
   s.inventory.push({ id: boostId, definitionId: "boost:special:100", name: "Boost special 100", kind: "boost", boostType: "special", strength: 100, level: 0 });
   const boosted = applyIdleAdventureActionV47(s, { action: "boost", boostId, targetId: cubeId }, { bosses: 17 }, 1);
   const cube = boosted.state.inventory.find((i) => i.definitionId === "tutorialCube");
-  assert.equal(cube.special, 15 * 1.99, "Formule q=1+niveau/100 : 15×(1+99/100)=29.85, même doublement que Power/Toughness vers le plafond wiki de 30% à lvl 100.");
+  assert.equal(cube.special, 29, "Formule du jeu : floor(15×(1+99/100)) = floor(29,85) = 29 (le maximum est arrondi vers le bas, Equipment::maxEquipBoost ; avant le 2026-11-19 : 29,85), même doublement que Power/Toughness vers le plafond de 30 à lvl 100.");
 }
 
 console.log("idle-tutorial-cube-special-bonus: OK");

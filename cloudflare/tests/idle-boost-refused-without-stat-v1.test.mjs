@@ -30,8 +30,10 @@ function essayer(cible, typeBoost) {
   const envoyes = [];
   const toasts = [];
   const items = [{ id: "b", kind: "boost", boostType: typeBoost }, Object.assign({ id: "c" }, cible)];
-  const f = new Function("aventureMetaIdleV47_", "idleEtat", "idleNombre_", "toastIdleV5_", "actionAdventureIdleV47_",
-    src + "\nreturn boosterObjetParIdAdventureIdleV47_;")(() => ({ inventory: items }), {}, nombre, (t) => toasts.push(t), (p) => envoyes.push(p));
+  /* l'aide de plafond du jeu est posée sur window par modules/plafond-niveau-v1.js avant les autres modules */
+  const fenetre = {}; new Function("window", readFileSync(new URL("../public/modules/plafond-niveau-v1.js", import.meta.url), "utf8"))(fenetre);
+  const f = new Function("window", "aventureMetaIdleV47_", "idleEtat", "idleNombre_", "toastIdleV5_", "actionAdventureIdleV47_",
+    src + "\nreturn boosterObjetParIdAdventureIdleV47_;")(fenetre, () => ({ inventory: items }), {}, nombre, (t) => toasts.push(t), (p) => envoyes.push(p));
   f("b", "c");
   return { envoyes, toasts };
 }

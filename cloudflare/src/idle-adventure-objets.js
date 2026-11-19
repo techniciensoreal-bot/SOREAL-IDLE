@@ -4,10 +4,11 @@
  * aucun n'appelle les autres au chargement).
  */
 import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
+import { IDLE_SPECIAL_GROUPES_V1 } from "./idle-adventure-special-groupes-v1.js";
 import { idleTheEndNormalizeV1 } from "./idle-the-end-v1.js";
 import { idleSpecialPointsRatioV1 } from "./idle-adventure-special-points-v1.js";
 import { SETS, SETS_OBJETS_V1, SET_ITEM_NAMES_V1, SPECIALS, defById, idleAdventureItemStatsMaxV1, wikiItemIdAdventureV1, wikiItemIdBoostV1 } from "./idle-adventure-sets.js";
-import { BOOSTS, C, I, MAX, N, UNLOCK_PAR_OBJET_V1, X, __perfCompteursV1, unlockMap } from "./idle-adventure-base.js";
+import { BOOSTS, C, I, MAX, N, UNLOCK_PAR_OBJET_V1, X, __perfCompteursV1, idleAdventurePlafondNiveauV1, unlockMap } from "./idle-adventure-base.js";
 import { IDLE_SECOND_WEAPON_SLOTS_V1, add, applyBoost, cube, cubeDirect, equip, inventoryCapacityAdventureV1, inventoryUsedAdventureV1, merge, syncInventorySlotsAdventureV2, unequip } from "./idle-adventure-inventaire.js";
 import { IDLE_ADVENTURE_V47, __advCtx } from "./idle-adventure-v47.js";
 import { IDLE_ADVENTURE_ZONES } from "./idle-adventure-zones.js";
@@ -112,9 +113,8 @@ export function rollFreshEquipmentStatsV1(o){
    * entre 0 et le plafond (2026-09-19) n'avait aucune source wiki : retiré.
    */
   const base=idleAdventureBaseStatsV1(o.set,o.slot);
-  const q=1+C(o.level,0,MAX)/100;
-  o.power=Math.min(N(o.power),Math.max(0,N(base&&base.baseP)*q));
-  o.toughness=Math.min(N(o.toughness),Math.max(0,N(base&&base.baseT)*q));
+  o.power=Math.min(N(o.power),idleAdventurePlafondNiveauV1(N(base&&base.baseP),o.level));
+  o.toughness=Math.min(N(o.toughness),idleAdventurePlafondNiveauV1(N(base&&base.baseT),o.level));
   o.hp=o.power*3;
   o.regen=o.toughness*.03;
   return o;
@@ -216,7 +216,7 @@ export function idleAdventureBoostRoomV1(s,targetId,type){
   }
   if(type!=="power"&&type!=="toughness")return 0;
   const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);
-  const cap=base?(type==="power"?base.baseP:base.baseT)*(1+C(N(o.level),0,MAX)/100):null;
+  const cap=base?idleAdventurePlafondNiveauV1(type==="power"?base.baseP:base.baseT,o.level):null;
   return cap==null?Infinity:Math.max(0,cap-N(o[type]));
 }
 
@@ -273,9 +273,9 @@ export function createIdleAdventureStateV47(){return base()}
 export function cleanItem(o){if(!o||typeof o!=="object")return null;const z=X(o);z.id=String(z.id||"");z.definitionId=String(z.definitionId||"");z.wikiItemId=wikiItemIdAdventureV1(z.definitionId)||Number(z.wikiItemId)||0;z.level=C(z.level,0,MAX);z.power=Math.max(0,N(z.power));z.toughness=Math.max(0,N(z.toughness));z.special=Math.max(0,N(z.special));z.locked=Boolean(z.locked);const d=defById(z.definitionId);const base=d?.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):(d?.kind==="special"?idleAdventureSpecialBaseStatsV1(d.id):null);if(base){const q=1+z.level/100;
 // 2026-09-24 : jamais sous la "Base value" publiée (ITEM_BASE_VALUE_PT_V1) -- les objets créés avant ce correctif remontent à leur Base value au chargement, comme les Specials.
 const bv=itemBaseValueAdventureV1(z.definitionId);z.power=Math.max(z.power,bv[0]);z.toughness=Math.max(z.toughness,bv[1]);
-z.power=Math.min(z.power,base.baseP*q);z.toughness=Math.min(z.toughness,base.baseT*q);
+z.power=Math.min(z.power,idleAdventurePlafondNiveauV1(base.baseP,z.level));z.toughness=Math.min(z.toughness,idleAdventurePlafondNiveauV1(base.baseT,z.level));
 // PISTE 1 (2026-09-18) : même plafond que power/toughness pour le Special Bonus chiffré (baseS>0 uniquement -- ex. tutorialCube) ; les autres SPECIALS (baseS=0) restent non plafonnés, comportement inchangé.
-if(base.baseS>0)z.special=Math.min(z.special,base.baseS*q);}
+if(base.baseS>0)z.special=Math.min(z.special,plafondSpecialV1(base.baseS,idleSpecialPointsRatioV1(z.definitionId,0),z.level));}
 /*
  * Norman (2026-09-18, en direct, capture d'écran de son propre Tutorial
  * Cube) : "je vois que mon tutorial cube n'a toujours pas de stats
@@ -541,18 +541,43 @@ function idleAdventureSpecialsDefsV1(o){
   return list.map((x,i)=>({...x,ratio:idleSpecialPointsRatioV1(o.definitionId,i)}));
 }
 
+/*
+ * Plafond d'un Special au niveau L, en valeur : le jeu arrondit en POINTS (floor(cap x (1 + L/100)), float32, voir idleAdventurePlafondNiveauV1), puis la valeur = points / ratio.
+ */
+function plafondSpecialV1(max0,ratio,niveau){
+  const r=ratio>0?ratio:1,points=Math.round(N(max0)*r*1e6)/1e6;
+  return points>1e-12?idleAdventurePlafondNiveauV1(points,niveau)/r:0;
+}
+
+/*
+ * Lignes de Specials DU JEU (2026-11-19, lu dans l'IL, build 1260 ; idle-adventure-special-groupes-v1.js, généré) : un objet a au plus trois lignes, remplies DANS CET ORDRE par un Special Boost ; les types 27, 28 et 29 (Energie ET Magie)
+ * sont UNE ligne agissant sur deux effets (deux lignes jumelles chez SOREAL, qui partagent la même valeur). Renvoie [[indices SOREAL de la 1re ligne du jeu], ...] ; sans entrée (ou entrée incohérente) : l'ordre naturel, une ligne chacune.
+ */
+export function idleAdventureSpecialsGroupesV1(definitionId,n){
+  const g=IDLE_SPECIAL_GROUPES_V1[definitionId];
+  if(g){
+    const vus=new Set();let ok=true;
+    for(const grp of g)for(const i of grp){if(!(i>=0&&i<n)||vus.has(i))ok=false;vus.add(i);}
+    if(ok&&vus.size===n)return g;
+  }
+  return Array.from({length:n},(_,i)=>[i]);
+}
+
 export function idleAdventureSpecialsListV1(o){
   const defs=idleAdventureSpecialsDefsV1(o);
   if(!defs.length)return[];
-  const q=1+C(N(o.level),0,MAX)/100;
   const extra=Array.isArray(o.specialExtra)?o.specialExtra:[];
-  return defs.map((s,i)=>{
-    const cap=s.max0*q;
+  const lignes=defs.map((s,i)=>{
+    const cap=plafondSpecialV1(s.max0,s.ratio,o.level);
     let cur=i===0?N(o.special):(extra[i-1]===undefined||extra[i-1]===null?s.base:N(extra[i-1]));
     cur=Math.max(s.base,cur);
     if(cap>1e-12)cur=Math.min(cap,cur);
     return{type:s.type,value:cur,max:cap,base:s.base,ratio:s.ratio};
   });
+  /* lignes jumelles : une seule valeur pour les deux effets (la plus avancée, jamais une perte pour une ancienne sauvegarde) */
+  const groupes=idleAdventureSpecialsGroupesV1(o.definitionId,lignes.length);
+  groupes.forEach((g,k)=>{if(g.length>1){const v=Math.max(...g.map(i=>lignes[i].value));for(const i of g)lignes[i].value=v;}for(const i of g)lignes[i].groupe=k;});
+  return lignes;
 }
 
 /* Place d'un Special Boost (en points) : vrai Special chiffré ? sinon (aucune magnitude wiki) l'ancien comportement sans plafond. */
@@ -560,26 +585,28 @@ export function idleAdventureSpecialsCappedV1(o){const l=idleAdventureSpecialsLi
 
 export function idleAdventureSpecialsRoomPointsV1(o){
   if(!idleAdventureSpecialsCappedV1(o))return Infinity;
-  return idleAdventureSpecialsListV1(o).reduce((a,s)=>a+Math.max(0,s.max-s.value)*s.ratio,0);
+  const l=idleAdventureSpecialsListV1(o);
+  /* une ligne du jeu (un groupe de lignes jumelles) = UNE place, comptée une seule fois */
+  return idleAdventureSpecialsGroupesV1(o.definitionId,l.length).reduce((a,g)=>{const s=l[g[0]];return a+Math.max(0,s.max-s.value)*s.ratio},0);
 }
 
 export function idleAdventureApplySpecialPointsV1(o,points){
   const list=idleAdventureSpecialsListV1(o);
-  const extra=list.slice(1).map(s=>s.value);
+  const vals=list.map(s=>s.value);
   let p=Math.max(0,N(points));
-  let first=list[0].value;
-  for(let i=0;i<list.length&&p>1e-12;i++){
-    const s=list[i];
-    const cur=i===0?first:extra[i-1];
+  /* dans l'ORDRE DES LIGNES DU JEU (Equipment::boostEquip : spec1, spec2, spec3) ; les lignes jumelles reçoivent la même valeur */
+  for(const g of idleAdventureSpecialsGroupesV1(o.definitionId,list.length)){
+    if(!(p>1e-12))break;
+    const s=list[g[0]],cur=vals[g[0]];
     const room=Math.max(0,s.max-cur)*s.ratio;
     if(!(room>1e-12))continue;
     const take=Math.min(p,room);
     const nv=Math.min(s.max,cur+take/s.ratio);
-    if(i===0)first=nv;else extra[i-1]=nv;
+    for(const i of g)vals[i]=nv;
     p-=take;
   }
-  o.special=first;
-  if(list.length>1)o.specialExtra=extra;
+  o.special=vals[0];
+  if(list.length>1)o.specialExtra=vals.slice(1);
 }
 
 /* Normalisation d'un objet chargé : tableau specialExtra cohérent ; ancienne sauvegarde = les autres Specials des pièces de set suivaient la fraction du 1er (migration une seule fois). */
@@ -589,13 +616,17 @@ function idleAdventureNormaliserSpecialsExtraV1(z){
   const q=1+C(N(z.level),0,MAX)/100;
   let extra;
   if(Array.isArray(z.specialExtra)){
-    extra=defs.slice(1).map((s,i)=>{const v=Number(z.specialExtra[i]);const cap=s.max0*q;return Math.min(cap>1e-12?cap:Infinity,Math.max(s.base,Number.isFinite(v)?v:s.base))});
+    extra=defs.slice(1).map((s,i)=>{const v=Number(z.specialExtra[i]);const cap=plafondSpecialV1(s.max0,s.ratio,z.level);return Math.min(cap>1e-12?cap:Infinity,Math.max(s.base,Number.isFinite(v)?v:s.base))});
   }else{
     const d=defById(z.definitionId),d0=defs[0],cap0=d0.max0*q;
     const fraction=d?.kind==="set"&&cap0-d0.base>1e-12?C((N(z.special)-d0.base)/(cap0-d0.base),0,1):0;
     extra=defs.slice(1).map(s=>s.base+(s.max0*q-s.base)*fraction);
   }
   z.specialExtra=extra;
+  /* lignes jumelles (types 27 à 29 du jeu) : même valeur pour les deux effets, valeurs bornées au plafond du jeu */
+  const lst=idleAdventureSpecialsListV1(z);
+  z.special=lst[0].value;
+  z.specialExtra=lst.slice(1).map(s=>s.value);
 }
 
 export function idleAdventureBaseStatsV1(set,slot){if(!SETS[set])return{baseP:0,baseT:0,baseS:0};const{p,t}=idleAdventureItemStatsMaxV1(set,slot);const sp=idleAdventureSetSpecialsV1(set,slot);return{baseP:p/2,baseT:t/2,baseS:sp?sp[0][2]:0}}
@@ -647,10 +678,9 @@ export function idleAdventureBoostManquantV1(o){
   const d=defById(o.definitionId);
   if(!d||(d.kind!=="set"&&d.kind!=="special"))return rien;
   const base=d.kind==="set"?idleAdventureBaseStatsV1(d.set,d.slot):idleAdventureSpecialBaseStatsV1(d.id);
-  const q=1+C(N(o.level),0,MAX)/100;
   return{
-    power:N(base.baseP)>0&&N(o.power)+1e-9<N(base.baseP)*q,
-    toughness:N(base.baseT)>0&&N(o.toughness)+1e-9<N(base.baseT)*q,
+    power:N(base.baseP)>0&&N(o.power)+1e-9<idleAdventurePlafondNiveauV1(base.baseP,o.level),
+    toughness:N(base.baseT)>0&&N(o.toughness)+1e-9<idleAdventurePlafondNiveauV1(base.baseT,o.level),
     special:N(base.baseS)>0&&idleAdventureSpecialsListV1(o).some(sv=>sv.value+1e-9<sv.max)
   };
 }
@@ -664,8 +694,8 @@ export function idleAdventureObjetPleinementMaxeV1(o){
     :d.kind==="special"
       ?idleAdventureSpecialBaseStatsV1(d.id)
       :{baseP:0,baseT:0,baseS:0};
-  const pOk=!(N(base.baseP)>0)||N(o.power)+1e-9>=N(base.baseP)*2;
-  const tOk=!(N(base.baseT)>0)||N(o.toughness)+1e-9>=N(base.baseT)*2;
+  const pOk=!(N(base.baseP)>0)||N(o.power)+1e-9>=idleAdventurePlafondNiveauV1(base.baseP,MAX);
+  const tOk=!(N(base.baseT)>0)||N(o.toughness)+1e-9>=idleAdventurePlafondNiveauV1(base.baseT,MAX);
   const sOk=!(N(base.baseS)>0)||idleAdventureSpecialsListV1(o).every(sv=>sv.value+1e-9>=sv.max);
   return pOk&&tOk&&sOk;
 }

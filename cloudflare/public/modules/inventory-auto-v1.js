@@ -140,7 +140,7 @@
       if(type==='power'||type==='toughness'){
         var base=Number(type==='power'?cible.basePower:cible.baseToughness)||0;
         if(!(base>0)){r.incertains+=1;return;}
-        var marge=base*q-(Number(cible[type])||0);
+        var marge=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(base,cible.level)-(Number(cible[type])||0);
         if(marge>1e-9)r.ok.push(String(o.id));else r.pleins[type]=(r.pleins[type]||0)+1;
         return;
       }

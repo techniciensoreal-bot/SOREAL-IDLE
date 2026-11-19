@@ -36,17 +36,19 @@ const etat = {
     adventure: {
       inventorySlots: ["b0", "b1", "b2", "b3", "b4", "b5", "b6"],
       inventory: [
-        { id: "m", kind: "equipment", name: "Marteau", level: 1, power: 100, toughness: 50, basePower: 100, baseToughness: 50 }, // power au plafond 101 ? non : 100 < 101
+        { id: "m", kind: "equipment", name: "Marteau", level: 1, power: 100, toughness: 50, basePower: 100, baseToughness: 60 }, // plafond du jeu floor(x 1,01) : power 100 < 101, toughness 50 < 60 (floor(60,6))
         { id: "b0", kind: "boost", boostType: "power" },                  // case d'automerge : exclu
         { id: "b1", kind: "boost", boostType: "power", locked: true },    // verrouillé : exclu
         { id: "b2", kind: "boost", boostType: "power" },                  // marge : absorbé
-        { id: "b3", kind: "boost", boostType: "toughness" },              // 50 < 50,5 : absorbé
+        { id: "b3", kind: "boost", boostType: "toughness" },              // 50 < 60 : absorbé
         { id: "b4", kind: "boost", boostType: "special" },                // pas de Specials connus : incertain
       ],
     },
   },
 };
 const ctx = vm.createContext({ window: fenetre, document, setTimeout: (f) => { void f; return 0; }, console });
+/* aide chargée avant les autres modules dans la vraie page : plafond du jeu floor(cap x (1 + niveau/100)) */
+vm.runInContext(readFileSync(new URL("../public/modules/plafond-niveau-v1.js", import.meta.url), "utf8"), ctx);
 vm.runInContext(code, ctx);
 const API = fenetre.__SOREAL_IDLE_INVENTORY_AUTO_V1__;
 assert.ok(API && typeof API.prevoirBoosts === "function" && typeof API.expliquerAucunBoost === "function");
@@ -62,7 +64,7 @@ assert.equal(p.incertains, 1);
 
 // Plus de marge : rien ne doit être effacé, et la raison est donnée.
 etat.systemes.adventure.inventory[0].power = 101;
-etat.systemes.adventure.inventory[0].toughness = 50.5;
+etat.systemes.adventure.inventory[0].toughness = 60;
 rendu();
 await new Promise((r) => setImmediate(r));
 p = API.prevoirBoosts("m");

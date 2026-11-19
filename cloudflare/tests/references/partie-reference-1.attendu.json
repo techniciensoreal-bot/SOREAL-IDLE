@@ -62,17 +62,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "53ce88d614eb6322"
+   "empreinte": "9cb4caa8169340b2"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 5.43440107078e+46,
+   "pv": 5.43426439283e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.16329726261e+36,
-   "defense": 6.34667996064e+35,
-   "pvMax": 1.22505345239e+47
+   "attaque": 1.16324961731e+36,
+   "defense": 6.34620350763e+35,
+   "pvMax": 1.22500327773e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -85,7 +85,7 @@
    "yggdrasil": "d82d1b11cc8c9d50",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "3033e507caa2d815",
+   "tower": "b2140d690daee9e0",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -156,17 +156,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "53ce88d614eb6322"
+   "empreinte": "9cb4caa8169340b2"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 5.43440107078e+46,
+   "pv": 5.43426439283e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.16329726261e+36,
-   "defense": 6.34667996064e+35,
-   "pvMax": 1.22505345239e+47
+   "attaque": 1.16324961731e+36,
+   "defense": 6.34620350763e+35,
+   "pvMax": 1.22500327773e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -179,7 +179,7 @@
    "yggdrasil": "d82d1b11cc8c9d50",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "3033e507caa2d815",
+   "tower": "b2140d690daee9e0",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -250,17 +250,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "852b2f567b38671e"
+   "empreinte": "afc540df7f7a439e"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 5.43440107078e+46,
+   "pv": 5.43426439283e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.16329726261e+36,
-   "defense": 6.34667996064e+35,
-   "pvMax": 1.25263406096e+47
+   "attaque": 1.16324961731e+36,
+   "defense": 6.34620350763e+35,
+   "pvMax": 1.25258275668e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -273,7 +273,7 @@
    "yggdrasil": "8b52f48635a7fc47",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "e0cfe8caab718fdd",
+   "tower": "aa623987d699cbb5",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -344,17 +344,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "fad5ee342627f045"
+   "empreinte": "22fefb411c54314f"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 5.50295220297e+46,
+   "pv": 5.50281037881e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.16329726261e+36,
-   "defense": 6.34667996064e+35,
-   "pvMax": 1.26032315562e+47
+   "attaque": 1.16324961731e+36,
+   "defense": 6.34620350763e+35,
+   "pvMax": 1.26027153642e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -367,7 +367,7 @@
    "yggdrasil": "f9f0ff2c180c3dfe",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "01bb9041dfe2c7f5",
+   "tower": "d87ddddb48a1cafe",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -438,17 +438,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "a5afd7058d1f30f3"
+   "empreinte": "ac52c33860632893"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 5.85201831785e+46,
+   "pv": 5.85185028887e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.16329726261e+36,
-   "defense": 6.34667996064e+35,
-   "pvMax": 1.29894778281e+47
+   "attaque": 1.16324961731e+36,
+   "defense": 6.34620350763e+35,
+   "pvMax": 1.29889458165e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -461,7 +461,7 @@
    "yggdrasil": "ef61a8a8c64251e3",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "963a8e1892cfc417",
+   "tower": "d7edc2259e22cb7a",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -532,17 +532,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "ed5da373f97185ee"
+   "empreinte": "3ea805028e87ef2f"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 8.17314245741e+46,
+   "pv": 8.17280017881e+46,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.16329726261e+36,
-   "defense": 6.34667996064e+35,
-   "pvMax": 1.53933473527e+47
+   "attaque": 1.16324961731e+36,
+   "defense": 6.34620350763e+35,
+   "pvMax": 1.53927168856e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -555,7 +555,7 @@
    "yggdrasil": "b4561bb64ef32c88",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "81f402422b8c2186",
+   "tower": "665bbbd83480d06a",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -647,17 +647,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "3fa1f5fc98cfe2ca"
+   "empreinte": "44bb0d2a63c7d8a2"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 1.12980009857e+48,
+   "pv": 1.12971799599e+48,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.16329726261e+36,
-   "defense": 6.34667996064e+35,
-   "pvMax": 1.24233468846e+48
+   "attaque": 1.16324961731e+36,
+   "defense": 6.34620350763e+35,
+   "pvMax": 1.24228380602e+48
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -671,7 +671,7 @@
    "yggdrasil": "085c9cf65bcf3f8d",
    "moneyPit": "7ff5886ec0968f1a",
    "diggers": "b344b5012022661f",
-   "tower": "331d44e6319ea0e9",
+   "tower": "23f19ad94ea7c756",
    "perks": "02b074d24928ea68",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",

@@ -600,8 +600,8 @@
               :(def.kind==='cube'?{set:'',slot:def.slot||'special',name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'cube',level:niveau}
                 /* Objets spéciaux (accessoires comme The Tuba of Time) : leur image existe aussi (Norman, 2026-10-02 : « dans collection, des items ne montrent pas l'image »). */
                 :(def.kind==='special'?{set:'',slot:def.slot||'accessory',name:def.name,definitionId:id,wikiItemId:def.wikiItemId||0,kind:'special',level:niveau}:null));
-            const puissance=estStatBearing?Math.round(idleNombre_(def.basePower)*(1+niveau/100)):0;
-            const solidite=estStatBearing?Math.round(idleNombre_(def.baseToughness)*(1+niveau/100)):0;
+            const puissance=estStatBearing?window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(def.basePower),niveau):0;
+            const solidite=estStatBearing?window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(def.baseToughness),niveau):0;
             const rareteClasse=idleRareteClasseObjetAdventureIdleV1_(def);
             /* Fiche unifiée (Norman, 2026-10-03) : la Collection ouvre la même fiche d'objet que l'inventaire et le coffre, au niveau maximum enregistré. */
             const clePopupCollection='collection:'+String(id);
@@ -610,7 +610,7 @@
               enregistrerObjetPopupIdleV1_(clePopupCollection,{
                 kind:def.kind,name:def.name,definitionId:id,level:niveau,fullyMaxed:maxAtteint,
                 basePower:idleNombre_(def.basePower),baseToughness:idleNombre_(def.baseToughness),
-                power:idleNombre_(def.basePower)*facteurNiveau,toughness:idleNombre_(def.baseToughness)*facteurNiveau,
+                power:window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(def.basePower),niveau),toughness:window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(def.baseToughness),niveau),
                 specialsAll:(Array.isArray(def.specials)?def.specials:[]).map(function(sp){return{type:sp[0],value:idleNombre_(sp[1])*facteurNiveau,max:idleNombre_(sp[1])*facteurNiveau};})
               },'collection');
             }
@@ -1304,9 +1304,9 @@
             const type=String(boost.boostType||'');
             const q=1+Math.max(0,Math.min(100,idleNombre_(target.level)))/100;
             const cap=type==='power'
-              ?idleNombre_(target.basePower)*q
+              ?window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(target.basePower),target.level)
               :type==='toughness'
-                ?idleNombre_(target.baseToughness)*q
+                ?window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(target.baseToughness),target.level)
                 :type==='special'
                   ?idleNombre_(target.baseSpecial)*q
                   :0;

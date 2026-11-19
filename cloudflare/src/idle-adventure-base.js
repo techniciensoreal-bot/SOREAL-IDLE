@@ -6,6 +6,17 @@
 import { copieJsonV1 } from "./idle-copie-json-v1.js";
 import { nombreV1, entierV1 } from "./idle-outils-v1.js";
 export const MAX=100, H=3600000;
+/*
+ * PLAFOND D'UNE STAT AU NIVEAU L, comme le jeu (Equipment::maxEquipBoost / boostEquip / mergeItem, lu dans l'IL, build 1260) : floor(cap x (1 + L/100)), calculé en float32 (ldc.r4, conv.r4, div, add, mul, Mathf::Floor).
+ * « Each level increases an equipment's MAX stats by 1%, rounded down » (texte du jeu sur la Stick). Avant (2026-11-19) SOREAL gardait la valeur décimale (3,03 pour une Stick niveau 1 ; le jeu : 3).
+ */
+export function idleAdventurePlafondNiveauV1(plafond, niveau) {
+  const cap = Number(plafond);
+  if (!(cap > 0)) return 0;
+  const l = Math.fround(Math.max(0, Math.min(100, Math.trunc(Number(niveau) || 0))));
+  const q = Math.fround(1 + Math.fround(l / 100));
+  return Math.floor(Math.fround(Math.fround(cap) * q));
+}
 
 export const N=nombreV1,I=entierV1,C=(v,a,b)=>Math.max(a,Math.min(b,N(v,a))),X=v=>v===undefined?JSON.parse(JSON.stringify(v)):copieJsonV1(v);
 

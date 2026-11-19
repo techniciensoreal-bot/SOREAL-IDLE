@@ -20,10 +20,24 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.3',
+    courante:'6.4',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.4',
+        nom:'Objets du vrai jeu',
+        date:'2026-11-19',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Affichage : les maximums affichés suivent la même règle d’arrondi que le jeu.'
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Équipement, d’après le code du jeu : le maximum d’une statistique est arrondi vers le bas (par exemple 4 et non 4,5 pour un objet de base 3 au niveau 50), un objet tombe avec sa statistique de départ (jamais au maximum) et doit être boosté, et après une fusion il faut de nouveau le booster.',
+            'Boosts de Special, d’après le code du jeu : les bonus spéciaux d’un objet se remplissent dans l’ordre du jeu, et une ligne « Énergie et Magie » compte pour une seule ligne (avant, elle demandait deux fois plus de points de boost).'
+          ]}
+        ]
+      },
       {
         version:'6.3',
         nom:'Boutons Cap',

@@ -216,7 +216,8 @@ export const SET_ITEM_SPECIALS_V1 = Object.freeze({
   "construction:legs":[["goldDropsPct",1400000,1400000,2800000],["nguSpeedPct",3940,3940,7880],["wishSpeedPct",88.8,88.8,177.6]],
   "construction:boots":[["hackSpeedPct",88.4,88.4,176.8],["r3CapPct",93.4,93.4,186.8],["r3PowerPct",939,939,1878]],
   "construction:hammer":[["energyPowerPct",936000,936000,1872000],["magicPowerPct",936000,936000,1872000],["r3CapPct",90,90,180],["r3PowerPct",902,902,1804]],
-  "construction:toolbox":[["energyPowerPct",941000,941000,1882000],["magicPowerPct",941000,941000,1882000],["r3BarsPct",1884,1884,3768]],
+  /* Le jeu a TROIS lignes (type 48 : 941 M de points, type 27 Énergie et Magie : 941 M, type 48 : 943 M) ; le wiki additionnait les deux lignes Bars R3 en une seule (1884 %) : rétabli (2026-11-19, lu dans le jeu, build 1260). */
+  "construction:toolbox":[["r3BarsPct",941,941,1882],["energyPowerPct",941000,941000,1882000],["magicPowerPct",941000,941000,1882000],["r3BarsPct",943,943,1886]],
   "construction:levelLevel":[["energyPowerPct",923000,923000,1846000],["magicPowerPct",923000,923000,1846000],["r3CapPct",92.6,92.6,185.2],["wishSpeedPct",96.3,96.3,192.6]],
   "duck:weapon":[["energyPowerPct",1200000,1200000,2400000],["magicPowerPct",1200000,1200000,2400000],["r3PowerPct",1200,1200,2400],["wishSpeedPct",110,110,220]],
   "duck:head":[["hackSpeedPct",97.6,97.6,195.2],["r3BarsPct",1140,1140,2280],["r3PowerPct",1170,1170,2340]],

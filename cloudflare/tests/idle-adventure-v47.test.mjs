@@ -643,13 +643,14 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
    * boost "toughness" (qui, lui, a un vrai plafond non nul).
    */
   s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
-  s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:50},{bosses:7},1).state;
+  /* 2026-11-19 (comparaison avec le vrai jeu) : le plafond est floor(cap x (1 + niveau/100)) ; le casque d'entraînement (plafond 1) n'a plus de place au niveau 50 (floor(1,5) = 1, boost refusé comme dans le jeu) : on prend le plastron des Sewers (Toughness 3, plafond 5, 7 au niveau 50). */
+  s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"sewers:chest",level:50},{bosses:7},1).state;
   const cibleId=s.inventory[0].id;
-  s.inventory.push({id:"boostTest1",definitionId:"boost:toughness:1",kind:"boost",boostType:"toughness",strength:1,level:0});
+  s.inventory.push({id:"boostTest1",definitionId:"boost:toughness:5",kind:"boost",boostType:"toughness",strength:5,level:0});
 
   const avantPuissance=s.inventory[0].toughness;
   // 2026-09-24 (audit des objets) : départ = "Base value" publiée (Template:Item data Cloth Hat : toughnessvalbase = 1), plus 0 ; le plafond au niveau 50 reste 1,5.
-  assert.equal(avantPuissance,1,"Un objet fraîchement créé démarre à sa Base value (Toughness 1), jamais déjà à son plafond (1,5).");
+  assert.equal(avantPuissance,3,"Un objet fraîchement créé démarre à sa Base value (Toughness 3), jamais déjà à son plafond (7 au niveau 50).");
   assert.doesNotThrow(
     ()=>{s=applyIdleAdventureActionV47(s,{action:"boost",boostId:"boostTest1",targetId:cibleId},{bosses:7},1).state;},
     "Un objet sous le niveau max doit toujours pouvoir recevoir un boost."
@@ -657,8 +658,8 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
   const apresPuissance=s.inventory.find(x=>x.id===cibleId).toughness;
   assert.equal(
     apresPuissance,
-    1.5,
-    "Un boost de force 1 sur un objet frais (1/1.5 au niveau 50 : baseToughness=1×(1+50/100)=1.5) comble l'écart jusqu'au plafond (2026-09-24 : départ à la Base value 1)."
+    7,
+    "Un boost de force 5 sur un objet frais (3/7 au niveau 50 : floor(5×(1+50/100)) = 7, pas 7,5) comble l'écart jusqu'au plafond du jeu, sans le dépasser."
   );
   assert.ok(
     !s.inventory.some(x=>x.id==="boostTest1"),
@@ -700,8 +701,8 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
    * (niveau 100) puisque l'objet n'est pas allé jusque-là.
    */
   s=normalizeIdleAdventureStateV47({});  s.inventory=s.inventory.filter(function(i){return i.definitionId!=="tutorialCube";});  s=applyIdleAdventureActionV47(s,{action:"selectZone",zone:"sewers"},{bosses:7},1).state;
-  s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:40},{bosses:7},1).state;
-  s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"training:head",level:40},{bosses:7},1).state;
+  s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"sewers:chest",level:40},{bosses:7},1).state;
+  s=applyIdleAdventureActionV47(s,{action:"addItem",definitionId:"sewers:chest",level:40},{bosses:7},1).state;
   const idsEcart=s.inventory.map(x=>x.id);
   s=applyIdleAdventureActionV47(s,{action:"merge",a:idsEcart[0],b:idsEcart[1]},{bosses:7},1).state;
   const cibleEcartId=s.inventory[0].id;
@@ -717,9 +718,10 @@ assert.equal(t.result.nextAt,7000+60*60*1000);
    * absolu niveau 100, /2 pour la base niveau 0), la même source que
    * item() utilise en interne.
    */
-  const basePureItem=idleAdventureItemStatsMaxV1("training","head").t/2;
-  const plafondNiveauCourant=basePureItem*(1+niveauApresFusion/100);
-  const plafondAbsolu=basePureItem*2;
+  const basePureItem=idleAdventureItemStatsMaxV1("sewers","chest").t/2;
+  /* 2026-11-19 : plafond du jeu = floor(cap x (1 + niveau/100)) ; plastron des Sewers (Toughness 3, plafond 5) : le casque d'entraînement (plafond 1) n'aurait plus d'écart (floor(1,81) = 1) */
+  const plafondNiveauCourant=Math.floor(basePureItem*(1+niveauApresFusion/100));
+  const plafondAbsolu=Math.floor(basePureItem*2);
   assert.ok(
     avantEcart<plafondNiveauCourant-1e-9,
     "La fusion doit créer un vrai écart entre toughness et le plafond du NOUVEAU niveau (81) — sinon ce test ne prouve rien."

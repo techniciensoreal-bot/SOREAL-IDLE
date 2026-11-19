@@ -83,17 +83,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "a79497acd76a2bf4"
+   "empreinte": "d4ec5d46ea6aeae4"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.23040414276e+73,
+   "pv": 1.23038605214e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.24313026597e+60,
-   "defense": 6.58433358328e+59,
-   "pvMax": 2.62886302944e+73
+   "attaque": 1.24310140503e+60,
+   "defense": 6.58404497389e+59,
+   "pvMax": 2.62880199686e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -107,7 +107,7 @@
    "yggdrasil": "f0200b339c43db57",
    "moneyPit": "27e9f8eb66f97040",
    "diggers": "a5eb6d452ff8bf0b",
-   "tower": "16e0fe71c391bca9",
+   "tower": "ae9a10c2e68fdca0",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -199,17 +199,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "a79497acd76a2bf4"
+   "empreinte": "d4ec5d46ea6aeae4"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.23040414276e+73,
+   "pv": 1.23038605214e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.24313026597e+60,
-   "defense": 6.58433358328e+59,
-   "pvMax": 2.62886302944e+73
+   "attaque": 1.24310140503e+60,
+   "defense": 6.58404497389e+59,
+   "pvMax": 2.62880199686e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -223,7 +223,7 @@
    "yggdrasil": "f0200b339c43db57",
    "moneyPit": "27e9f8eb66f97040",
    "diggers": "a5eb6d452ff8bf0b",
-   "tower": "16e0fe71c391bca9",
+   "tower": "ae9a10c2e68fdca0",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -315,17 +315,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "d4a73e006df80c9b"
+   "empreinte": "c312d63f276a2727"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.23040414276e+73,
+   "pv": 1.23038605214e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.24373674228e+60,
-   "defense": 6.58754583097e+59,
-   "pvMax": 2.63771988055e+73
+   "attaque": 1.24370786726e+60,
+   "defense": 6.58725708078e+59,
+   "pvMax": 2.63765864234e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -339,7 +339,7 @@
    "yggdrasil": "d8f3e6d8004adba4",
    "moneyPit": "27e9f8eb66f97040",
    "diggers": "a5eb6d452ff8bf0b",
-   "tower": "d6c731733a280542",
+   "tower": "8bb6119ebc99a5d9",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -431,17 +431,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "8d672182e3d99183"
+   "empreinte": "b5a6b771077ccd58"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.24438226976e+73,
+   "pv": 1.24436356644e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.24388086721e+60,
-   "defense": 6.58830919956e+59,
-   "pvMax": 2.64013066402e+73
+   "attaque": 1.24385198884e+60,
+   "defense": 6.58802041591e+59,
+   "pvMax": 2.64006936984e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -455,7 +455,7 @@
    "yggdrasil": "3d67ad6da31f344c",
    "moneyPit": "27e9f8eb66f97040",
    "diggers": "a5eb6d452ff8bf0b",
-   "tower": "14f6037e82f56124",
+   "tower": "51d1726015594f94",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -547,17 +547,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "8e1b7e444909e72d"
+   "empreinte": "abf36ec213e82dc1"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.31449807178e+73,
+   "pv": 1.31447629509e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.24490818824e+60,
-   "defense": 6.59375048317e+59,
-   "pvMax": 2.65285131614e+73
+   "attaque": 1.24487928602e+60,
+   "defense": 6.59346146101e+59,
+   "pvMax": 2.65278972663e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -571,7 +571,7 @@
    "yggdrasil": "5a97a3d8b732a598",
    "moneyPit": "27e9f8eb66f97040",
    "diggers": "a5eb6d452ff8bf0b",
-   "tower": "5fdf1646816cd28e",
+   "tower": "f45d8fef74b3cefb",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -663,17 +663,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "77b2f7e7b953fbab"
+   "empreinte": "b84cf334313b1440"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 1.74306241451e+73,
+   "pv": 1.74302185667e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.25060937622e+60,
-   "defense": 6.62460381118e+59,
-   "pvMax": 2.72873595021e+73
+   "attaque": 1.25058034494e+60,
+   "defense": 6.62431349834e+59,
+   "pvMax": 2.72867260613e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -687,7 +687,7 @@
    "yggdrasil": "270630a5a9aa9bbc",
    "moneyPit": "27e9f8eb66f97040",
    "diggers": "a5eb6d452ff8bf0b",
-   "tower": "0f0338841ff91c0c",
+   "tower": "aee52f5b64ac5cbb",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",
@@ -779,17 +779,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "616fb6e497748f04"
+   "empreinte": "fe434cfe82c16e99"
   },
   "boss": {
    "actuel": "Souris Fantômes",
-   "pv": 3.53858055963e+73,
+   "pv": 3.53849841604e+73,
    "vaincus": null
   },
   "combat": {
-   "attaque": 1.30752127335e+60,
-   "defense": 6.92607186166e+59,
-   "pvMax": 3.53858055963e+73
+   "attaque": 1.30749092093e+60,
+   "defense": 6.92576833746e+59,
+   "pvMax": 3.53849841604e+73
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -803,7 +803,7 @@
    "yggdrasil": "20e7c00a8456165d",
    "moneyPit": "27e9f8eb66f97040",
    "diggers": "a5eb6d452ff8bf0b",
-   "tower": "9faf2690046758b6",
+   "tower": "e3bbb686dda79907",
    "perks": "39d41aa3b36b7220",
    "challenges": "44136fa355b3678a",
    "titans": "23f01312dc00f38b",

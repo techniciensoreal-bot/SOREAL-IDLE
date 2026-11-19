@@ -109,7 +109,7 @@ export const IDLE_SPECIAL_POINTS_EXP_V1 = Object.freeze({
   "construction:head": [7,6,6],
   "construction:legs": [3,4,7],
   "construction:levelLevel": [3,3,7,7],
-  "construction:toolbox": [3,3,6],
+  "construction:toolbox": [6,3,3,6],
   "construction:weapon": [3,3,4,6],
   "creditCard": [3,3,3,6],
   "creepyDoll": [5,3,3,3],

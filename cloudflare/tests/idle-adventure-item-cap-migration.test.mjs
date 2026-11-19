@@ -26,7 +26,7 @@ import {
 
 // --- training:head (baseP=0, baseT=1) boosté au-delà du plafond de son niveau doit être corrigé ---
 {
-  // Niveau 21 : plafond légitime = baseT×(1+21/100) = 1×1.21 = 1.21.
+  // Niveau 21 : plafond légitime = floor(baseT×(1+21/100)) = floor(1×1.21) = 1 (le jeu arrondit le maximum vers le bas, Equipment::maxEquipBoost ; avant le 2026-11-19 : 1.21).
   // Toughness=2 ne peut venir que de l'ancien bug (plafond absolu ×2).
   const raw = {
     version: IDLE_ADVENTURE_V47,
@@ -37,11 +37,11 @@ import {
   assert.ok(item, "L'objet doit survivre à la migration.");
   assert.ok(
     item.toughness < 2,
-    "Toughness=2 sur un objet niveau 21 (plafond légitime 1.21) doit être réduit — c'est exactement le \"Toughness 2/1\" signalé."
+    "Toughness=2 sur un objet niveau 21 (plafond légitime 1) doit être réduit — c'est exactement le \"Toughness 2/1\" signalé."
   );
   assert.ok(
-    Math.abs(item.toughness - 1.21) < 1e-9,
-    "Toughness doit être ramené EXACTEMENT au plafond légitime du niveau courant (1.21), jamais une valeur arbitraire."
+    item.toughness === 1,
+    "Toughness doit être ramené EXACTEMENT au plafond légitime du niveau courant (floor(1.21) = 1), jamais une valeur arbitraire."
   );
 }
 
@@ -49,7 +49,7 @@ import {
 {
   const raw = {
     version: IDLE_ADVENTURE_V47,
-    // Niveau 21 : plafond 1.21, ici toughness=1 (jamais boosté) — doit rester intact.
+    // Niveau 21 : plafond floor(1.21) = 1, ici toughness=1 (jamais boosté) — doit rester intact.
     inventory: [{ id: "i2", definitionId: "training:head", kind: "equipment", level: 21, power: 0, toughness: 1 }]
   };
   const s = normalizeIdleAdventureStateV47(raw);
@@ -77,12 +77,12 @@ import {
   // tutorialCube : p:7,t:7 -> baseP=baseT=7 (special, jamais divisé par 2 comme les sets).
   const raw = {
     version: IDLE_ADVENTURE_V47,
-    inventory: [{ id: "i4", definitionId: "tutorialCube", kind: "cube", level: 10, power: 999, toughness: 0 }]
+    inventory: [{ id: "i4", definitionId: "tutorialCube", kind: "cube", level: 100, power: 999, toughness: 0 }]
   };
   const s = normalizeIdleAdventureStateV47(raw);
   const item = s.inventory.find(x => x.id === "i4");
   assert.ok(
-    Math.abs(item.power - 7 * 1.1) < 1e-9,
+    item.power === 14,   /* niveau 100 : floor(7 x 2) = 14 (le plafond du jeu est arrondi vers le bas : au niveau 10, floor(7,7) = 7) */
     "Un accessoire (SPECIALS) boosté au-delà de son plafond de niveau doit aussi être corrigé, avec sa propre base (7), jamais celle d'un set."
   );
 }

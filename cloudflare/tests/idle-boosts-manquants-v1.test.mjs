@@ -30,8 +30,9 @@ assert.equal(v.fullyMaxed, false, "niveau 5 : pas de V vert");
 s.inventory.push({ id: "bx", definitionId: "boost:power:1", name: "Boost power", kind: "boost", boostType: "power", strength: 1, level: 0 });
 assert.deepEqual(vue(s, "bx").boostManque, { power: false, toughness: false, special: false });
 // Une armure n'a que de la Toughness (point bleu seul), comme dans NGU
-s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "training:head", level: 20 }, ctx, 1).state;
-const casque = s.inventory.find((x) => x.definitionId === "training:head");
+/* plastron des Sewers (Toughness 3, plafond 5, sans Special) : au niveau 20 le plafond du jeu vaut floor(5 x 1,2) = 6 > 3 (le casque d'entraînement, plafond 1, n'aurait plus de place : floor(1,2) = 1) */
+s = applyIdleAdventureActionV47(s, { action: "addItem", definitionId: "sewers:chest", level: 20 }, ctx, 1).state;
+const casque = s.inventory.find((x) => x.definitionId === "sewers:chest");
 assert.deepEqual(vue(s, casque.id).boostManque, { power: false, toughness: true, special: false }, "casque neuf : point bleu seulement");
 // Client : points colorés, V seulement pour fullyMaxed
 const ui = lireUiComplet();
