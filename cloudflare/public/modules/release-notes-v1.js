@@ -34,7 +34,10 @@
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Collection, d’après le code du jeu : les bonus spéciaux d’une fiche à un niveau donné sont arrondis vers le bas, comme dans le jeu.',
-            'Aventure hors ligne : la réduction du temps d’apparition des ennemis compte aussi pendant ton absence, comme en jeu.'
+            'Aventure hors ligne : la réduction du temps d’apparition des ennemis compte aussi pendant ton absence, comme en jeu.',
+            'D’après le code du jeu : le temps minimal d’un niveau n’a plus de plancher inventé, seules les réductions du jeu s’appliquent.',
+            'Cartes, d’après le code du jeu : la carte la plus rare exige une place libre dans l’inventaire pour être jouée.',
+            'Cuisine, d’après le code du jeu : chaque ligne « Cuisine % » d’un objet équipé compte pour le bonus, pas seulement l’objet.'
           ]},
           {menu:'titans', titre:'Titans', points:[
             'Titans, d’après le code du jeu : l’accès à un titan tardif suit maintenant les règles du jeu ; les parties qui y avaient déjà accès le gardent.'

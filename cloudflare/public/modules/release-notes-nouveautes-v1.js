@@ -4,6 +4,9 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Aventure hors ligne : la réduction du temps d’apparition des ennemis compte aussi pendant ton absence, comme en jeu."
+    "Aventure hors ligne : la réduction du temps d’apparition des ennemis compte aussi pendant ton absence, comme en jeu.",
+    "D’après le code du jeu : le temps minimal d’un niveau n’a plus de plancher inventé, seules les réductions du jeu s’appliquent.",
+    "Cartes, d’après le code du jeu : la carte la plus rare exige une place libre dans l’inventaire pour être jouée.",
+    "Cuisine, d’après le code du jeu : chaque ligne « Cuisine % » d’un objet équipé compte pour le bonus, pas seulement l’objet."
   ] };
 })();

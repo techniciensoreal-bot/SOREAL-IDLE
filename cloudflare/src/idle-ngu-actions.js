@@ -5,7 +5,7 @@
  */
 import { macguffinAdventureBeforeV1, macguffinAfterAdventureV1, applyMacguffinActionV1, macguffinApplyRebirthV1 } from "./idle-macguffins-v1.js";
 import { idleInventoryIdsV1, idleInventoryManualBoostBeforeV1, idleInventoryProcessNewDropsV1, idleInventoryManualBoostAfterV1, applyIdleInventoryAutoActionV1, idleInventoryBoostRecycleChanceV1, idleInventoryLoadoutSlotsV1 } from "./idle-inventory-auto-v1.js";
-import { applyIdleAdventureActionV47, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureSpecialItemV1, idleAdventureAddItemV1, idleAdventureTitanCooldownMsV1 } from "./idle-adventure-v47.js";
+import { idleAdventureInventoryUsedV1, idleAdventureInventoryCapacityV1, applyIdleAdventureActionV47, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureSpecialItemV1, idleAdventureAddItemV1, idleAdventureTitanCooldownMsV1 } from "./idle-adventure-v47.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { appliquerUiPrefsV1 } from "./idle-ui-prefs-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
@@ -546,6 +546,11 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
       : idleDaycareRemoveV1(state.adventure, state.systems.daycare.data, itemId, factors, daycareFragmentsExtV1(state));
     crediterRecompensesAventure(state, avantDaycare);
   } else if (action === "cards") {
+    /* Lu dans le jeu (CardsController::tryConsumeCard, méthode 1747, 2026-11-20) : la carte THE END (type 2) exige une place libre dans l'inventaire (« You need free inventory space to play this card! »). */
+    if (String(payload.mode || "") === "cast") {
+      const carte = (state.systems?.cards?.data?.deck || []).find((c) => c && c.id === String(payload.cardId || ""));
+      if (carte && carte.theEnd && idleAdventureInventoryUsedV1(state.adventure) >= idleAdventureInventoryCapacityV1(state.adventure)) throw new Error("INVENTAIRE_PLEIN");
+    }
     result = idleCardsActionV1(state, payload);
   } else if (action === "inventoryAuto") {
     /* Auto Merge/Auto Boost, A/D + clic, transformation de boost, loadouts, filtre de butin (idle-inventory-auto-v1.js). */

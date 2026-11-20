@@ -291,13 +291,13 @@ export function idleCookingEfficiencyV1(meal, levels, adventureOrMask) {
 
 /* ------------------------------------------------------------ équipement -- */
 
-function aUnSpecialCooking(definitionId) {
+/* Lu dans le jeu (CookingController::invCookCheck, méthode 2933, 2026-11-20) : CHAQUE ligne de Special (spec1, spec2, spec3) de type 11 « Cooking % » compte ×1,03 ; on renvoie donc le NOMBRE de lignes Cooking % de l'objet. */
+function nbSpecialsCooking(definitionId) {
   const set = SET_ITEM_SPECIALS_V1[definitionId];
-  if (Array.isArray(set)) return set.some(entry => entry[0] === "cookingPct");
+  if (Array.isArray(set)) return set.filter(entry => entry[0] === "cookingPct").length;
   const special = IDLE_ADVENTURE_SPECIALS[definitionId];
-  if (!special) return false;
-  if (special.sType === "cookingPct") return true;
-  return Array.isArray(special.sExtra) && special.sExtra.some(ex => ex.type === "cookingPct");
+  if (!special) return 0;
+  return (special.sType === "cookingPct" ? 1 : 0) + (Array.isArray(special.sExtra) ? special.sExtra.filter(ex => ex.type === "cookingPct").length : 0);
 }
 
 /*
@@ -318,8 +318,9 @@ export function idleCookingGearV1(adventure) {
     if (!id || vus.has(id)) continue;
     vus.add(id);
     const o = parId(id);
-    if (!o || !aUnSpecialCooking(String(o.definitionId || ""))) continue;
-    pieces.push({ slot, id: o.id, definitionId: o.definitionId, name: o.name || o.definitionId, count: slot === "legs" ? 2 : 1 });
+    const nb = o ? nbSpecialsCooking(String(o.definitionId || "")) : 0;
+    if (!o || nb <= 0) continue;
+    pieces.push({ slot, id: o.id, definitionId: o.definitionId, name: o.name || o.definitionId, count: nb * (slot === "legs" ? 2 : 1) });
   }
   return { pieces, count: pieces.reduce((s, p) => s + p.count, 0) };
 }

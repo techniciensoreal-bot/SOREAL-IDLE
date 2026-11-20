@@ -379,7 +379,8 @@ function advanceHackTrack(state, system, trackDef, track, seconds) {
 function wishSpeedParamsV1(state, system, horsLigne = false) {
   const cubeWishSpeedPct = Math.max(0, num(idleAdventureCubeTierV1(state.adventure?.cube).wishSpeedPct, 0));
     const perkWish = perkBonusesV1(idlePerkNiveauxV1(state));
-  const wishMinSeconds = Math.max(3600, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(idleQuirkNiveauxV1(state)).wishMinTimeReductionSeconds);
+  /* Lu dans le jeu (WishesController::minimumWishTime, méthode 4908, 2026-11-20) : 14 400 s moins les réductions, sans plancher ; le plancher de 3 600 s était une constante SOREAL, retirée. */
+  const wishMinSeconds = Math.max(1, WISH_MIN_LEVEL_SECONDS - perkWish.wishMinTimeReductionSeconds - quirkBonusesV1(idleQuirkNiveauxV1(state)).wishMinTimeReductionSeconds);
   const speedMultiplier = Math.max(1e-12, wishBonusesV1(system.data.tracks).wishSpeedMultiplier * perkWish.wishSpeedMultiplier * (state.selloutShop?.purchases?.fasterWishes ? 1.25 : 1) * (1 + cubeWishSpeedPct / 100 + Math.max(0, num(gearSpecialsV1(state)?.wishSpeedPct, 0)) / 100) /* equipement + cube additifs (lu dans le jeu) */ * setFacteurNguV1(state, "wishSpeedPct") * hackFxV1(state).wish
     * idleCardsMultiplierV1(state, "wishes") /* Cards WISHES */);
   return { wishMinSeconds, speedMultiplier, horsLigne: Boolean(horsLigne) };
