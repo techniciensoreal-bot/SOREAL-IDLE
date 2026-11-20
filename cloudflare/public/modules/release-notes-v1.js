@@ -30,22 +30,50 @@
         date:'2026-11-20',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Ressources, d’après le code du jeu : les barres sont tronquées à l’entier et les plafonds arrondis, comme dans le jeu.',
             'Affichage : les maximums des bonus spéciaux affichés sur les fiches suivent la même règle d’arrondi que le jeu.'
           ]},
+          {menu:'entrainement', titre:'Entraînement', points:[
+            'Entraînement de base, d’après le code du jeu : une compétence se débloque à plus de 5 000 niveaux (et non exactement 5 000) de la précédente, et ainsi de suite.'
+          ]},
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Combat de boss, d’après le code du jeu : il n’y a plus d’arrêt au boss 20 avant la première Renaissance.'
+          ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Aventure, d’après le code du jeu : les PV et la régénération comptent la part du Cube, et l’Or gagné additionne les bonus des objets et du Cube au lieu de les multiplier.',
             'Collection, d’après le code du jeu : les bonus spéciaux d’une fiche à un niveau donné sont arrondis vers le bas, comme dans le jeu.',
             'Aventure hors ligne : la réduction du temps d’apparition des ennemis compte aussi pendant ton absence, comme en jeu.',
             'D’après le code du jeu : le temps minimal d’un niveau n’a plus de plancher inventé, seules les réductions du jeu s’appliquent.',
             'Cartes, d’après le code du jeu : la carte la plus rare exige une place libre dans l’inventaire pour être jouée.',
             'Cuisine, d’après le code du jeu : chaque ligne « Cuisine % » d’un objet équipé compte pour le bonus, pas seulement l’objet.'
           ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'D’après le code du jeu : hors ligne, les objets rares ne tombent plus ; le bouton Auto et le Lazy Floor Shifter se placent sur l’étage optimal, au plus un étage sous le plus haut atteint.'
+          ]},
           {menu:'moneyPit', titre:'Trou sans fond', points:[
             'Le Trou sans fond affiche la météo de l’endroit où tu joues : pluie, neige, orage, brouillard… (déduite du fuseau horaire de ton appareil, sans géolocalisation ; à décocher dans Réglages, section Effets visuels).'
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Blood Magic : chaque rituel a une cible de complétions. Une fois atteinte, il s’arrête avant de prendre l’Or du niveau suivant.',
+            'Magie, d’après le code du jeu : dès le premier boss 37, elle démarre avec un plafond de 10 000 et une vitesse de 3, conservés après chaque Renaissance.'
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'NGU, d’après le code du jeu : changer de piste de niveau garde l’énergie et la magie allouées.'
+          ]},
+          {menu:'challenges', titre:'Défis', points:[
+            'Défi sans NGU, d’après le code du jeu : le déblocage additionne les niveaux d’énergie et de magie.'
+          ]},
+          {menu:'wandoos', titre:'Wandoos', points:[
+            'D’après le code du jeu : après une absence, la vitesse de démarrage atteinte à la fin s’applique à toute la période, et un plantage ne remet que les niveaux à zéro.'
           ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Sur téléphone, un « i » sur les arbres ouvre leurs informations dans une fenêtre au lieu de couvrir l’image ; sur PC, la mention de la Poop se place à droite de la ligne « Manger ».'
           ]},
+          {menu:'diggers', titre:'Labos', points:[
+            'En anglais, le menu et ses textes s’appellent maintenant « Labs ».'
+          ]},
           {menu:'titans', titre:'Titans', points:[
+            'Titans, d’après le code du jeu : délais et accès de deux titans tardifs réalignés ; un titan n’apparaît dans la liste qu’une fois atteignable.',
             'Titans, d’après le code du jeu : l’accès à un titan tardif suit maintenant les règles du jeu ; les parties qui y avaient déjà accès le gardent.'
           ]}
         ]
