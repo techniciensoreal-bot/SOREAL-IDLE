@@ -3,15 +3,15 @@
  "resume": {
   "menus": 29,
   "pages": 33,
-  "keyframes": 430,
+  "keyframes": 436,
   "fichiersAvecWebAnimations": 21,
   "fichiersCanvas": 13,
-  "pointsEntreeRejouables": 281,
+  "pointsEntreeRejouables": 282,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
   "mortsNouvelles": 5,
-  "effetsReglables": 4,
+  "effetsReglables": 5,
   "sonsEffets": 82,
   "dossiersDeRessources": 25
  },
@@ -2001,6 +2001,60 @@
    ]
   },
   {
+   "nom": "mpMBalance",
+   "definiePar": [
+    "trou-meteo-v1.css"
+   ],
+   "utilisePar": [
+    "trou-meteo-v1.css"
+   ]
+  },
+  {
+   "nom": "mpMChute",
+   "definiePar": [
+    "trou-meteo-v1.css"
+   ],
+   "utilisePar": [
+    "trou-meteo-v1.css"
+   ]
+  },
+  {
+   "nom": "mpMDerive",
+   "definiePar": [
+    "trou-meteo-v1.css"
+   ],
+   "utilisePar": [
+    "trou-meteo-v1.css"
+   ]
+  },
+  {
+   "nom": "mpMFlash",
+   "definiePar": [
+    "trou-meteo-v1.css"
+   ],
+   "utilisePar": [
+    "trou-meteo-v1.css"
+   ]
+  },
+  {
+   "nom": "mpMFoudre",
+   "definiePar": [
+    "trou-meteo-v1.css"
+   ],
+   "utilisePar": [
+    "trou-meteo-v1.css"
+   ]
+  },
+  {
+   "nom": "mpMOnde",
+   "definiePar": [
+    "trou-meteo-v1.css"
+   ],
+   "utilisePar": [
+    "trou-meteo-v1.css"
+   ]
+  },
+  {
    "nom": "navScintilleV1",
    "definiePar": [
     "soreal-idle-itopod.css"
@@ -2565,6 +2619,7 @@
     "modules/textes-admin-v1.js",
     "modules/titans-combat-ecran-v1.js",
     "modules/traduction-anglais-v1.js",
+    "modules/trou-meteo-v1.js",
     "modules/tutorial-tts-v202.js",
     "modules/tutoriel-v1.js",
     "modules/ui-amorcage-v1.js",
@@ -4596,6 +4651,7 @@
   "__SOREAL_IDLE_TRADUCTION_INTERFACE_V1__": "modules/traduction-interface-v1.js",
   "__SOREAL_IDLE_TRADUCTION_TEXTE_V1__": "modules/traduction-interface-v1.js",
   "__SOREAL_IDLE_TRAD_MEMOIRE_V1__": "modules/traduction-anglais-v1.js",
+  "__SOREAL_IDLE_TROU_METEO_V1__": "modules/trou-meteo-v1.js",
   "__SOREAL_IDLE_TROU_NUIT_V1__": "modules/trou-nuit-v1.js",
   "__SOREAL_IDLE_TROU_V1__": "modules/trou-recompenses-v1.js",
   "__SOREAL_IDLE_TUTORIAL_TTS_V202__": "modules/tutorial-tts-v202.js",
@@ -4716,6 +4772,7 @@
  "effetsReglables": [
   "soreal_idle_effet_decor_v1",
   "soreal_idle_effet_feu_v1",
+  "soreal_idle_effet_meteo_v1",
   "soreal_idle_effet_nav_v1",
   "soreal_idle_effet_orage_v1"
  ],

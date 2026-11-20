@@ -39,6 +39,9 @@
             'Cartes, d’après le code du jeu : la carte la plus rare exige une place libre dans l’inventaire pour être jouée.',
             'Cuisine, d’après le code du jeu : chaque ligne « Cuisine % » d’un objet équipé compte pour le bonus, pas seulement l’objet.'
           ]},
+          {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Le Trou sans fond affiche la météo de l’endroit où tu joues : pluie, neige, orage, brouillard… (déduite du fuseau horaire de ton appareil, sans géolocalisation ; à décocher dans Réglages, section Effets visuels).'
+          ]},
           {menu:'yggdrasil', titre:'Yggdrasil', points:[
             'Sur téléphone, un « i » sur les arbres ouvre leurs informations dans une fenêtre au lieu de couvrir l’image ; sur PC, la mention de la Poop se place à droite de la ligne « Manger ».'
           ]},

@@ -1,0 +1,20 @@
+/* Météo du Trou sans fond (modules/trou-meteo-v1.js, 2026-11-20) : seuls transform et opacity s'animent ; chaque boucle glisse d'exactement une tuile (règle n°3). */
+.mp-meteo{position:absolute;inset:0;overflow:hidden;pointer-events:none;border-radius:inherit;contain:layout paint size}
+.mp-meteo>*{position:absolute;pointer-events:none}
+.mp-m-voile{inset:0}
+.mp-m-chute{position:absolute;left:-20%;top:-100%;width:140%;height:200%;background-repeat:repeat;background-size:calc(100% / 1.4 / var(--n)) calc(50% / var(--n));will-change:transform;animation:mpMChute var(--dur) linear infinite}
+@keyframes mpMChute{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,calc(50% / var(--n)),0)}}
+.mp-m-balance{inset:0;will-change:transform;animation:mpMBalance var(--bal) ease-in-out infinite;animation-delay:var(--dl)}
+@keyframes mpMBalance{0%,100%{transform:translate3d(-4%,0,0)}50%{transform:translate3d(4%,0,0)}}
+.mp-m-derive{position:absolute;left:0;top:0;width:200%;height:100%;background-repeat:repeat-x;background-size:50% 100%;will-change:transform;animation:mpMDerive var(--dur) linear infinite;animation-delay:var(--dl)}
+@keyframes mpMDerive{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.mp-m-sol{left:0;right:0;bottom:0;height:24%;background:linear-gradient(0deg,rgba(240,246,255,.42) 0%,rgba(240,246,255,.18) 55%,rgba(240,246,255,0) 100%)}
+.mp-m-onde{aspect-ratio:3/1;margin:-1.5% 0 0 -4%;border:1.5px solid rgba(214,232,255,.75);border-radius:50%;opacity:0;will-change:transform,opacity;animation:mpMOnde 1.9s ease-out infinite;animation-delay:var(--dl)}
+@keyframes mpMOnde{0%{opacity:0;transform:scale(.2)}18%{opacity:.7}100%{opacity:0;transform:scale(1)}}
+.mp-m-flash{inset:0;background:radial-gradient(ellipse at 60% 20%,rgba(214,230,255,.9),rgba(190,210,255,.5) 55%,rgba(160,185,255,.25));opacity:0;will-change:opacity;animation:mpMFlash 7s linear infinite}
+@keyframes mpMFlash{0%,86%{opacity:0}87%{opacity:.85}88.5%{opacity:.15}90%{opacity:.6}92.5%{opacity:0}100%{opacity:0}}
+.mp-m-foudre{top:0;aspect-ratio:3/10;opacity:0;will-change:opacity;animation:mpMFoudre var(--p) linear infinite;animation-delay:var(--dl)}
+.mp-m-foudre svg{display:block;width:100%;height:100%;filter:none}
+@keyframes mpMFoudre{0%,86%{opacity:0}87%{opacity:1}88.5%{opacity:.2}90%{opacity:.9}92.5%{opacity:0}100%{opacity:0}}
+.mp-meteo.mp-m-pause *{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.mp-meteo *{animation:none}.mp-m-foudre,.mp-m-flash,.mp-m-onde{display:none}}

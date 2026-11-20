@@ -700,12 +700,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 398,
-  "sha": "e23149013de044556274805a405d5c5be9126bb7"
+  "pin": 400,
+  "sha": "3077a3cfc749fd19da340793c4a402c77cbcac04"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1046,
-  "sha": "4a06d3f85790ff288004623e1babf2fe89c5cc9c"
+  "pin": 1048,
+  "sha": "1c806f5857ea106d00129a24f9432481502ee795"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -800,16 +800,20 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1093,
-  "sha": "b24dc8e90bd458e1392a5146a7d1de758d218de6"
+  "pin": 1096,
+  "sha": "cc2daf3fc62cfc73e1cfe87614c4c3976d9ee420"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 913,
-  "sha": "e66031d77f6da45795a950750828823d8b44bc4b"
+  "pin": 916,
+  "sha": "b605ee9842de5bf09a370f438ccb2fb25779ae30"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
   "sha": "64ac1cd2fca3e8b6ddd06376d5ed429addb1d4dc"
+ },
+ "/modules/trou-meteo-v1.js": {
+  "pin": 6,
+  "sha": "2b759c9afe1d1eda7c55c84e4fb49d5bf0f56450"
  },
  "/modules/trou-nuit-v1.js": {
   "pin": 1,
@@ -1076,7 +1080,7 @@
   "sha": "409e74ca0ecf7d7452a3e3641710a8d9ce185733"
  },
  "/soreal-idle-itopod.css": {
-  "pin": 366,
+  "pin": 368,
   "sha": "d2f9b5d4e098d4faaf6720d020e64969065aa781"
  },
  "/soreal-idle-jeu.css": {
@@ -1140,12 +1144,16 @@
   "sha": "6298cd03124afcedb31633b090e88b347cba918a"
  },
  "/soreal-idle-ui.js": {
-  "pin": 665,
-  "sha": "c80e8a6443871d7b95efe5908d56a7657fdf6591"
+  "pin": 666,
+  "sha": "c82522162b833147d5eec4fa550627ae9905e6c7"
  },
  "/standalone-bridge.js": {
   "pin": 29,
   "sha": "683494dd1b0db575a7ab897098ae936b69ec3b84"
+ },
+ "/trou-meteo-v1.css": {
+  "pin": 1,
+  "sha": "941730c51f5e9647083dfa0d2050d9e07e2a270f"
  },
  "/vdom-v1.css": {
   "pin": 2,

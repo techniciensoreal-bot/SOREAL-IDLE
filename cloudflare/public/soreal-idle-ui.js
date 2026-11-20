@@ -1992,6 +1992,7 @@ let idleVueAventureV1='zones';
       UI_PARTAGE_V1.__amorcer_1105();
       /* Effets visuels (Norman, 2026-10-08) : orage (éclairs) et cheminée (lueur) peuvent être coupés pour les téléphones moins puissants ; actifs par défaut, mémorisés sur l'appareil. */
       const EFFETS_VISUELS_IDLE_V1=[
+        {id:'meteo',cle:'soreal_idle_effet_meteo_v1',libelle:'🌦️ Météo du Trou sans fond : pluie, neige, orage… comme chez toi — décoche pour alléger un téléphone lent'},
         {id:'orage',cle:'soreal_idle_effet_orage_v1',libelle:'⛈️ Orage : ciel sombre et éclairs (piste d’orage)'},
         {id:'feu',cle:'soreal_idle_effet_feu_v1',defaut:false,libelle:'🔥 Cheminée : lueur sur les bords de l’écran (piste de feu) — peut ralentir un téléphone'},
         {id:'nav',cle:'soreal_idle_effet_nav_v1',libelle:'🧭 Animations du menu du haut (cercles, battements, étoiles) — décoche pour alléger un téléphone lent'},

@@ -5,15 +5,15 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 ## Résumé
 - menus : **29**
 - pages : **33**
-- keyframes : **430**
+- keyframes : **436**
 - fichiersAvecWebAnimations : **21**
 - fichiersCanvas : **13**
-- pointsEntreeRejouables : **281**
+- pointsEntreeRejouables : **282**
 - mortsDeBase : **3**
 - retoursJoueur : **8**
 - retoursBoss : **7**
 - mortsNouvelles : **5**
-- effetsReglables : **4**
+- effetsReglables : **5**
 - sonsEffets : **82**
 - dossiersDeRessources : **25**
 
@@ -30,10 +30,10 @@ Basic Training (`entrainement`) · Fight Boss (`combat`) · Adventure (`aventure
 achievement, albumDix, albumFerme, albumPage, augTic, baille, bloodCap, bloodMinus, bloodPlus, boostAllAbsorption, boostPower, boostSpecial, boostToughness, borneAllume, borneTousse, bossAppear, btCap, btMinus, btPlus, chestClose, chestOpen, chorale, chroniqueNote, clavierApp, coffreAccident, coffreAvale, coffrePet, coffreRecrache, coffreReveil, coffreRonfle, coffreRot, dailySpin, debugState, defeat, defeatList, defeatReverse, defeatReversePrepare, dernierSonBoss, dernierSonVictoire, diarrheeList, equip, fight, flee, joueurConnecte, laugh, menu, menuNav, menuUnlock, mergeAccessory, mergeArmor, mergeWeapon, moneyPit, nuke, previewDiarrhee, purchase, purchaseGem, purchaseGold, reapparitionBip, recordPerso, rot, roueCliquets, roueTourne, setComplete, shopDoor, shopSteps, sortBlood, synth, timeMachine, tmCap, tmMinus, tmPlus, uiClick, valiseFerme, valiseOuvre, valisePotion, valiseRonfle, valiseTouche, valiseVomi, victory, voiceDone, wandoosErreur, wandoosMaj
 
 ## Effets réglables
-soreal_idle_effet_decor_v1, soreal_idle_effet_feu_v1, soreal_idle_effet_nav_v1, soreal_idle_effet_orage_v1
+soreal_idle_effet_decor_v1, soreal_idle_effet_feu_v1, soreal_idle_effet_meteo_v1, soreal_idle_effet_nav_v1, soreal_idle_effet_orage_v1
 
 ## Points d'entrée rejouables (window.__SOREAL_IDLE_*__)
-Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 281 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
+Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 282 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
 
 ## Animations CSS orphelines (définies mais nommées nulle part ailleurs)
 `bnPulse` (soreal-idle-itopod.css) · `rgFeuV1` (soreal-idle-itopod.css) · `sorealIdleBtTickV1` (soreal-idle-ui.css)

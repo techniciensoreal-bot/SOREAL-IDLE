@@ -1,5 +1,6 @@
 export { SorealIdleCoordinatorV1 } from "./index-idle-coordinator-v1.js";
 import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
+import { idleMeteoRepondreV1 } from "./idle-meteo-v1.js";
 import { planPurgeVoixStrictV1, lireCorpsPurgeV1 } from "./idle-voix-purge-v1.js";
 import { verifierJetonGoogleIdleV1 } from "./idle-google-auth-v1.js";
 
@@ -490,6 +491,11 @@ export default {
       if (idleLimiteDepasseeV1("profils-badavatar:" + adresseClient, 20, 0.5)) return idleTropDeRequetesV1();
       const r = await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-publics", { method: "POST", body: "{}" });
       return new Response(r.body, { status: r.status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=30", "access-control-allow-origin": "*" } });
+    }
+    /* Météo du Trou sans fond (idle-meteo-v1.js) : lecture publique, une catégorie seulement ; le cache de Cloudflare garde la réponse d'Open-Meteo 15 minutes par case de 0,1°. */
+    if (request.method === "GET" && url.pathname === "/api/idle/media/meteo") {
+      if (idleLimiteDepasseeV1("meteo:" + adresseClient, 30, 0.2) || idleLimiteDepasseeV1("meteo", 600, 60)) return idleTropDeRequetesV1();
+      return idleMeteoRepondreV1(url);
     }
     if (request.method === "GET" && url.pathname === "/api/idle/media/badavatar-photo") {
       if (idleLimiteDepasseeV1("badavatar-photo:" + adresseClient, 60, 20) || idleLimiteDepasseeV1("badavatar-photo", 600, 100)) return idleTropDeRequetesV1();
