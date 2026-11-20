@@ -58,7 +58,7 @@
   "or": 43063184101900,
   "energie": 0,
   "energieMax": 16724880,
-  "magie": 1259739.44,
+  "magie": 1258545.44,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
@@ -152,7 +152,7 @@
   "or": 43063184101900,
   "energie": 13224868,
   "energieMax": 16724880,
-  "magie": 3663355.44,
+  "magie": 3662161.44,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
@@ -246,7 +246,7 @@
   "or": 44055466546900,
   "energie": 13224868,
   "energieMax": 16724880,
-  "magie": 3685098.72,
+  "magie": 3683761.44,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
@@ -340,7 +340,7 @@
   "or": 44331102106100,
   "energie": 13224868,
   "energieMax": 16724880,
-  "magie": 3691138.52,
+  "magie": 3689761.44,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
@@ -434,7 +434,7 @@
   "or": 45709248582100,
   "energie": 13224868,
   "energieMax": 16724880,
-  "magie": 3721337.52,
+  "magie": 3719761.44,
   "inventaire": {
    "utilise": 0,
    "libre": 18,
@@ -528,7 +528,7 @@
   "or": 53997176656400,
   "energie": 13224868,
   "energieMax": 16724880,
-  "magie": 3902531.52,
+  "magie": 3899761.44,
   "inventaire": {
    "utilise": 0,
    "libre": 18,

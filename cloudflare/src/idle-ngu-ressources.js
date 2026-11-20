@@ -213,7 +213,20 @@ export function idleNguEffectiveResourceStat(raw, resource, stat) {
  */
 const RESOURCE_STAT_HARD_CAPS_V1 = Object.freeze({ power: 1e18, bars: 1e18, cap: 9e18 });
 
+/* Lu dans le jeu (audit IL 2026-11-20) : Character::totalEnergyBar/MagicBar/Res3Bar (2143, 2147, 2151) renvoient un Int64 par TRONCATURE (plancher 1) ; totalCap* (2144, 2148, 2152) passent par Convert.ToInt64 (arrondi au pair le plus proche, plancher 1, plafond 9e18). La puissance reste flottante. */
+function arrondiPairV1(v) {
+  const f = Math.floor(v), d = v - f;
+  return d < 0.5 ? f : d > 0.5 ? f + 1 : (f % 2 === 0 ? f : f + 1);
+}
 export function idleNguEffectiveResourceStatV1(state, resource, stat) {
+  const v = idleNguEffectiveResourceStatBorneV1(state, resource, stat);
+  if (resource !== "energy" && resource !== "magic" && resource !== "r3") return v;
+  if (stat === "bars" && Number.isFinite(v) && v < 9e15) return Math.max(1, Math.trunc(v));
+  if (stat === "cap" && Number.isFinite(v) && v < 9e15) return Math.max(1, arrondiPairV1(v));
+  return v;
+}
+
+function idleNguEffectiveResourceStatBorneV1(state, resource, stat) {
   const value = idleNguEffectiveResourceStatUncappedV1(state, resource, stat);
   const hard = RESOURCE_STAT_HARD_CAPS_V1[stat];
   if (!hard || (resource !== "energy" && resource !== "magic" && resource !== "r3")) return value;

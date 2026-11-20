@@ -30,6 +30,7 @@ import {
 function withPerk(perkId, level, context) {
   let state = normalizeIdleNguState({}, context, 1_000_000);
   state.systems.bloodMagic.unlocked = true; // ressource magic disponible
+  state.resources.energy.bars = 100; state.resources.magic.bars = 100; // les barres sont TRONQUÉES (Character::totalEnergyBar, audit IL 2026-11-20) : base de 100 pour mesurer un x1,5 exact
   if (perkId) {
     state.systems.perks.data.levels = Object.assign({}, state.systems.perks.data.levels, { [perkId]: level });
   }
