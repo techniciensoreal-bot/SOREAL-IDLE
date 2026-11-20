@@ -253,8 +253,8 @@
       }
       render(){
         var id=this.props.id;
-        return h('input',{id:'sorealIdleBloodCibleV1_'+id,type:'text',inputmode:'numeric',placeholder:'∞',ref:this.ref,style:'width:7em;min-width:0',
-          title:'Nombre de rituels à compléter : le rituel s’arrête avant que le niveau suivant ne prenne l’Or. Vide ou 0 = pas de cible.',
+        return h('input',{id:'sorealIdleBloodCibleV1_'+id,type:'text',inputmode:'numeric',placeholder:'∞',ref:this.ref,class:'bm-cible-v1',style:'width:3.6em;min-width:0;padding:0 4px;text-align:center;font:inherit;font-weight:700;color:inherit;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.25);border-radius:4px;box-sizing:border-box',
+          title:'🎯 Cible : nombre de rituels à compléter. Le rituel s’arrête avant que le niveau suivant ne prenne l’Or. Vide ou 0 = pas de cible.','aria-label':'Cible de complétions',
           onChange:function(e){appeler_('__cibleRituelBloodIdleV1__',id,e.target.value);}});
       }
     }
@@ -265,16 +265,12 @@
       return h('div',{id:'sorealIdleBloodRitualV1_'+id,class:'bm-rituel','data-rang-v1':String(r.rang),style:'margin:0'},
         h('div',{class:'bm-rituel-tete'},
           h('b',{class:'bm-rituel-nom'},r.nom,h('span',{id:'sorealIdleBloodMarkerV1_'+id},r.selectionne?' ▶':'')),
-          h('span',{class:'bm-rituel-compte'},h(Vif,{tag:'b',attrs:{id:'sorealIdleBloodCountV1_'+id,'data-n':r.compteTxt},valeur:r.compteTxt}),' complété(s)')),
+          h('span',{class:'bm-rituel-compte',style:'white-space:nowrap;display:inline-flex;align-items:center;gap:4px'},h(Vif,{tag:'b',attrs:{id:'sorealIdleBloodCountV1_'+id,'data-n':r.compteTxt},valeur:r.compteTxt}),' / ',h(SaisieCible,{id:id,cible:r.cible}),' complété(s)')),
         h('div',{class:'soreal-idle-blood-ritual-desc-v1'},'Chaque fois qu’il se termine : ',
           h('b',{class:'or-cout-v1 '+(r.coutOk?'or-ok':'or-non'),'data-cout-or':String(r.coutOr)},r.coutTxt),' → ',h('b',null,r.gainTxt)),
         h(SceneIle,{html:r.sceneHtml}),
         h('div',{class:'soreal-idle-blood-alloc-ligne-v1'},'🔮 Magic allouée : ',h(Vif,{tag:'b',attrs:{id:'sorealIdleBloodRitualAllocV1_'+id,'data-idle-alloc-pop-v1':'1'},valeur:r.magieTxt})),
         h(Vif,{tag:'div',attrs:{id:'sorealIdleBloodEtaLineV1_'+id,class:'bm-eta'},valeur:r.cibleAtteinte?'🎯 Cible atteinte : ce rituel ne paie plus de niveau.':r.etaTexte}),
-        h('div',{class:'soreal-idle-blood-cible-v1',style:'display:flex;align-items:center;gap:8px;margin-top:6px'},
-          h('label',{for:'sorealIdleBloodCibleV1_'+id,style:'font-size:.85em'},'🎯 Cible'),
-          h(SaisieCible,{id:id,cible:r.cible}),
-          h('span',{style:'font-size:.85em;opacity:.8'},'complété(s)')),
         h('div',{class:'soreal-idle-bt-actions-v120',style:'margin-top:9px'},
           h('button',{type:'button',title:'Placer la valeur de Input en Magic sur ce rituel (les autres rituels gardent la leur)','aria-label':'Placer',onClick:clic('plus')},h('span',{class:'soreal-idle-blood-croix-v1'},'✝︎')),
           h('button',{type:'button',title:'Retirer la valeur de Input',onClick:clic('moins')},'−'),

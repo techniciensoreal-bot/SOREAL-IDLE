@@ -116,8 +116,8 @@
   "sha": "1d0dfe72d304635d24a5026335e7cf0a5a90e8f2"
  },
  "/modules/blood-magic-vdom-v1.js": {
-  "pin": 2,
-  "sha": "9c90b3678c38a178e34d395b1ee75aad7d321043"
+  "pin": 3,
+  "sha": "f7df7352ea3027d4341cf9402a6ed2d1aae90d1b"
  },
  "/modules/borne-bandes-sync-v1.js": {
   "pin": 1,
@@ -704,8 +704,8 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 401,
-  "sha": "60928f516a8509c8d62e9b16c2a36b7bc1faac58"
+  "pin": 402,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 1050,
