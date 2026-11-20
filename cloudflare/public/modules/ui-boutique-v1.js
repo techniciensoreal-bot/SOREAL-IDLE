@@ -647,7 +647,7 @@
         extraAccessorySlot1:{name:'Emplacement d’accessoire supplémentaire',effect:'Ajoute 1 emplacement d’accessoire.'},
         daycareSpeedBoost:{name:'Accélération de la garderie',effect:'Les objets placés en garderie gagnent leurs niveaux 10 % plus vite.'},
         extraAccessorySlot2:{name:'Encore un emplacement d’accessoire',effect:'Ajoute encore 1 emplacement d’accessoire. Oui, encore.'},
-        diggerSlots:{name:'Emplacements Gold Digger',effect:'Ajoute 1 emplacement de Digger. Le premier coûte moins cher.'},
+        diggerSlots:{name:'Emplacements de labo',effect:'Ajoute 1 emplacement de Digger. Le premier coûte moins cher.'},
         macguffinSlot:{name:'Emplacement MacGuffin',effect:'Ajoute 1 emplacement MacGuffin. Les deux premiers coûtent moins cher.'},
         questReminder:{name:'Rappel de quête',effect:'Fait s’illuminer le menu Questing lorsqu’une quête est prête à être rendue.'},
         fasterQuesting:{name:'Quêtes plus rapides',effect:'Permet de gagner les Major Quests 20 % plus vite.'},

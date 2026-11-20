@@ -1658,7 +1658,7 @@
           case 'moneyPit':
             return pageSystemeMetaIdleV130_(j,'moneyPit','Money Pit');
           case 'diggers':
-            return pageSystemeMetaIdleV130_(j,'diggers','Gold Diggers');
+            return pageSystemeMetaIdleV130_(j,'diggers','Labos');
           case 'beards':
             return pageSystemeMetaIdleV130_(j,'beards','Beards');
           case 'tower':

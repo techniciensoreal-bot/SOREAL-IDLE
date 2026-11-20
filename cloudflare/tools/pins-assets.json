@@ -800,12 +800,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1096,
-  "sha": "cc2daf3fc62cfc73e1cfe87614c4c3976d9ee420"
+  "pin": 1097,
+  "sha": "dc380cc5e936c41c301a24e330ddc431db6defcf"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 916,
-  "sha": "b605ee9842de5bf09a370f438ccb2fb25779ae30"
+  "pin": 917,
+  "sha": "db631d12959a9e209c4b2f5d341efb18cf64f674"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -864,8 +864,8 @@
   "sha": "0ae193f0091106c35d72595961322a147530fe37"
  },
  "/modules/ui-boutique-v1.js": {
-  "pin": 5,
-  "sha": "fc89a4b70181cca7e8330d7b201babec978d3e93"
+  "pin": 6,
+  "sha": "171fd63ff4cbbc3e263f9f41bcbd2fda179ba4b9"
  },
  "/modules/ui-chroniques-v1.js": {
   "pin": 14,
@@ -900,8 +900,8 @@
   "sha": "12cad4f0c40a3d07d4de1457f3e3c85867d5fe44"
  },
  "/modules/ui-menus-v1.js": {
-  "pin": 32,
-  "sha": "24d7313354badb3fa90a7acdba7d4abb7e46ead7"
+  "pin": 33,
+  "sha": "fa836cbb25c765572a2f306c6d635cb64943f23e"
  },
  "/modules/ui-navigation-v1.js": {
   "pin": 17,
@@ -1144,8 +1144,8 @@
   "sha": "6298cd03124afcedb31633b090e88b347cba918a"
  },
  "/soreal-idle-ui.js": {
-  "pin": 666,
-  "sha": "c82522162b833147d5eec4fa550627ae9905e6c7"
+  "pin": 667,
+  "sha": "a60931c3ec36b25378f7b845aa328ac44f012042"
  },
  "/standalone-bridge.js": {
   "pin": 29,

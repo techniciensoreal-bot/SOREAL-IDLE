@@ -1141,7 +1141,7 @@
         {id:'ngu',icon:'♾️',nom:'NGU'},
         {id:'wandoos',icon:'💻',nom:'Wandoos'},
         {id:'yggdrasil',icon:'🌱',nom:'Yggdrasil'},
-        {id:'diggers',icon:'🧑‍🔬',nom:'Gold Diggers'},
+        {id:'diggers',icon:'🧑‍🔬',nom:'Labos'},
         {id:'beards',icon:'🧔',nom:'Beards'},
         {id:'macguffins',icon:'🧩',nom:'MacGuffins'},
         {id:'hacks',icon:'🧪',nom:'Hacks'},
@@ -1640,7 +1640,7 @@
 
 
       /* Objet réel du sac -> clé d'objet de déblocage -> drapeau du système (mêmes correspondances que le serveur : idle-adventure-v47.js, UNLOCK_PAR_OBJET_V1 et unlockMap). */
-      const IDLE_UNLOCK_PAR_OBJET_V1={aNumber:{cle:'aNumber',flag:'ngu',systeme:'NGU'},giantSeed:{cle:'giantSeed',flag:'yggdrasil',systeme:'Yggdrasil'},'scrap:paper':{cle:'scrapPaper',flag:'diggers',systeme:'Gold Diggers'},uugHair:{cle:'uugHair',flag:'beards',systeme:'Beards'},pissedOffKey:{cle:'pissedOffKey',flag:'tower',systeme:'ITOPOD'},wandoos98:{cle:'wandoos98',flag:'wandoos',systeme:'Wandoos'}};
+      const IDLE_UNLOCK_PAR_OBJET_V1={aNumber:{cle:'aNumber',flag:'ngu',systeme:'NGU'},giantSeed:{cle:'giantSeed',flag:'yggdrasil',systeme:'Yggdrasil'},'scrap:paper':{cle:'scrapPaper',flag:'diggers',systeme:'Labos'},uugHair:{cle:'uugHair',flag:'beards',systeme:'Beards'},pissedOffKey:{cle:'pissedOffKey',flag:'tower',systeme:'ITOPOD'},wandoos98:{cle:'wandoos98',flag:'wandoos',systeme:'Wandoos'}};
       UI_PARTAGE_V1.__amorcer_811();
 
       UI_PARTAGE_V1.__amorcer_813();
