@@ -44,7 +44,7 @@ for (const c of CIBLES) {
   const etat = (snap, id) => { const t = snap.titans.find((x) => x.id === id); return t ? t.progressionUnlocked : null; };
   const snap = v47.idleAdventureSnapshotV47(s, 170, "difficile", {});
   assert.equal(etat(snap, "consigliere"), true, "à l'écran : le Consigliere est atteignable");
-  assert.equal(etat(snap, "godmother"), false, "la Marraine n'est PAS atteignable (le serveur ne l'envoie pas au joueur tant qu'elle ne l'est pas : anti-spoil du snapshot Titans)");
+  assert.equal(etat(snap, "godmother"), null, "la Marraine est ABSENTE de la liste tant qu.elle n.est pas atteignable (secret:true, comme le Nerd : anti-spoil, ni nom ni puissance)");
   s.unlockFlags.titan8Unlocked = true;
   assert.equal(ouvert("godmother"), true); assert.equal(ouvert("consigliere"), false, "Consigliere disparu une fois la Marraine débloquée");
   const snap2 = v47.idleAdventureSnapshotV47(s, 170, "difficile", {});

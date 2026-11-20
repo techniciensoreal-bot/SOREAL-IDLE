@@ -649,7 +649,7 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
   hard:{p:5.5e16,t:3.5e16,idleP:1.2e17,idleT:8e16,autoKillP:2e17,autoKillT:1e17,autoKillR:2e15},
   brutal:{p:1.3e18,t:7.5e17,idleP:2.5e18,idleT:1.5e18,autoKillP:5e18,autoKillT:2.5e18,autoKillR:5e16}
 }},
-{id:"godmother",name:"The Godmother",boss:166,evilOnly:true,requiresUnlock:"titan8Unlocked",cooldown:5*H,drop:"severedUnicornHead",avatarLevel:6,difficulties:{
+{id:"godmother",name:"The Godmother",boss:166,evilOnly:true,secret:true,requiresUnlock:"titan8Unlocked",cooldown:5*H,drop:"severedUnicornHead",avatarLevel:6,difficulties:{
   easy:{p:1.7e18,t:7e17,autoKillP:5e18,autoKillT:2.5e18,autoKillR:5e16},
   normal:{p:3.9e19,t:1.5e19,autoKillP:1e20,autoKillT:5e19,autoKillR:1e18},
   hard:{p:6.6e20,t:3.5e20,autoKillP:2e21,autoKillT:1e21,autoKillR:2e19},
