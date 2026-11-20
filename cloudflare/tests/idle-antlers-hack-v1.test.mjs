@@ -16,6 +16,7 @@ assert.equal(IDLE_NGU_TRACKS.hacks[13].id, "hackHack", "Hack Hack est le 14e (in
 function base({ vu = true, actif = "hackHack", delta = 1 } = {}) {
   let s = normalizeIdleNguState({}, ctx, T0);
   s.systems.hacks.unlocked = true;
+  s = normalizeIdleNguState(s, ctx, T0);   /* pose les planchers de Resource3Display::unlockResource3 (cap 10 000, vitesse 3) avant de calculer le plafond */
   s.systems.hacks.data.activeTrack = actif;
   const cap = Math.floor(idleNguEffectiveResourceStatV1(s, "r3", "cap"));
   assert.ok(cap > 5, "le plafond de R3 de départ doit permettre le test (" + cap + ")");

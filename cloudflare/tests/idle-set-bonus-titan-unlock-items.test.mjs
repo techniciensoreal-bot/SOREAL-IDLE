@@ -108,7 +108,7 @@ const ajouter = (s, definitionId, level = 100) =>
 
 // ---------- Incriminating Evidence (set) : +2 / +80K / +2 de base Resource 3 ----------
 {
-  const sans = normalizeIdleNguState({}, {}, 0);
+  let sans = normalizeIdleNguState({}, {}, 0); sans.systems.hacks.unlocked = true; sans = normalizeIdleNguState(sans, {}, 0); /* même base que le compte avec le set (planchers de unlockResource3 posés à la normalisation) */
   const avecBase = normalizeIdleNguState({}, {}, 0); avecBase.systems.hacks.unlocked = true; /* jeu : le set Evidence ne verse que si Resource 3 est active (Hacks) */
   const avec = ajouter(avecBase, "incriminatingEvidence");
   assert.equal(avec.adventure.completedSets.incriminatingEvidence, true);

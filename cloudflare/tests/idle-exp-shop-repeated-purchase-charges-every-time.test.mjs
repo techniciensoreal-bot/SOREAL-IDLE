@@ -56,6 +56,7 @@ for (const resource of ["energy", "magic", "r3"]) {
   for (const stat of ["speed", "power", "cap", "bars"]) {
     let state = freshState(1e9); // large EXP pool: never blocked by EXP_INSUFFISANTE mid-loop
     if (resource === "energy" && stat === "cap") state.resources.energy.cap = 100000;   // plafond d'énergie : exige 100 000 déjà gagnés (lu dans le jeu)
+    if (resource !== "energy") { state.resources[resource].speed = 3; state.resources[resource].cap = Math.max(10000, state.resources[resource].cap); }   // planchers du jeu (Magic::unlockMagic / unlockResource3, audit IL 2026-11-20) déjà posés
     let previousExp = state.currencies.experience;
     let previousStat = state.resources[resource][stat];
     let firstCost = null;

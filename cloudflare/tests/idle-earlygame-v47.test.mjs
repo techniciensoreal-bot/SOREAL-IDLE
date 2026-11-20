@@ -568,7 +568,7 @@ const fresh=(context={}, now=1_000_000)=>
   assert.equal(state.resources.energy.bars,2);
   assert.equal(state.currencies.experience,863);
   state=applyIdleNguAction(state,{action:"buyResource",resource:"magic",stat:"speed"},context,1_000_000).state;
-  assert.equal(state.resources.magic.speed,1.1);
+  assert.equal(state.resources.magic.speed,3.1);
   assert.equal(state.currencies.experience,860);
 }
 
@@ -588,7 +588,7 @@ const fresh=(context={}, now=1_000_000)=>
 
   state.systems.hacks.unlocked=true;
   state=applyIdleNguAction(state,{action:"buyResource",resource:"r3",stat:"speed"},context,1_000_000).state;
-  assert.equal(state.resources.r3.speed,1.1);
+  assert.equal(state.resources.r3.speed,3.1);
   assert.equal(state.currencies.experience,1e7-300000);
   const capBefore=state.resources.r3.cap;
   state=applyIdleNguAction(state,{action:"buyResource",resource:"r3",stat:"cap"},context,1_000_000).state;
@@ -660,7 +660,7 @@ const fresh=(context={}, now=1_000_000)=>
   assert.equal(state.resources.magic.current,0);
   state=normalizeIdleNguState(state,{bosses:37},1_100_000);
   state=advanceIdleNguState(state,10,{bosses:37},1_110_000);
-  assert.equal(state.resources.magic.current,10);
+  assert.ok(state.resources.magic.current>=29 && state.resources.magic.current<=30, "vitesse 3 dès le boss 37 (Magic::unlockMagic), soit ~30 en 10 s");
 }
 
 {

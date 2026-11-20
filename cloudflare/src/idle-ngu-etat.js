@@ -1346,6 +1346,15 @@ export function normalizeIdleNguState(raw, context = {}, now = Date.now()) {
     .filter((x) => x && typeof x.id === "string" && x.id)
     .map((x) => ({ id: x.id.slice(0, 160), result: x.result === undefined ? null : x.result }))
     .slice(-64);
+  /* Lu dans le jeu (audit IL 2026-11-20) : Magic::unlockMagic (2618, appelée au boss 37 par BossController::advanceBoss) pose capMagic >= 10 000, magicBarSpeed >= 3, magicPerBar >= 1 ; Magic::reset n'y touche pas, ces planchers PERSISTENT donc d'un Rebirth à l'autre. Resource3Display::unlockResource3 (2764) : cap >= 10 000, vitesse >= 3. Avant : cap 100 et vitesse 1 (planchers jamais posés). Les achats ne font que monter ces valeurs. */
+  const planchers = (ressource, cap, vitesse, barres) => {
+    if (!ressource) return;
+    ressource.cap = Math.max(num(ressource.cap, 0), cap);
+    ressource.speed = Math.max(num(ressource.speed, 0), vitesse);
+    if (barres) ressource.bars = Math.max(num(ressource.bars, 0), barres);
+  };
+  if (state.records.highestBoss >= 37) planchers(state.resources?.magic, 10000, 3, 1);
+  if (state.systems?.hacks?.unlocked) planchers(state.resources?.r3, 10000, 3, 0);
   return state;
 }
 

@@ -20,7 +20,8 @@ import {
  * bien le cap acheté brut une fois le Perk possédé.
  */
 
-const context = { bosses: 200, bestGold: 1e6, adventurePower: 1e9 };
+const context = { bosses: 20, bestGold: 1e6, adventurePower: 1e9 };
+// bosses: 20 : sous le boss 37 les planchers de Magic::unlockMagic (cap 10 000, vitesse 3) ne s'appliquent pas, le test garde son cap brut de 100 (audit IL 2026-11-20).
 
 /*
  * normalizeResource() (idle-ngu-progression.js:1117) impose un plancher de
