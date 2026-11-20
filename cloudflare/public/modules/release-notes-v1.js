@@ -33,7 +33,8 @@
             'Affichage : les maximums des bonus spéciaux affichés sur les fiches suivent la même règle d’arrondi que le jeu.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Collection, d’après le code du jeu : les bonus spéciaux d’une fiche à un niveau donné sont arrondis vers le bas, comme dans le jeu.'
+            'Collection, d’après le code du jeu : les bonus spéciaux d’une fiche à un niveau donné sont arrondis vers le bas, comme dans le jeu.',
+            'Aventure hors ligne : la réduction du temps d’apparition des ennemis compte aussi pendant ton absence, comme en jeu.'
           ]},
           {menu:'titans', titre:'Titans', points:[
             'Titans, d’après le code du jeu : l’accès à un titan tardif suit maintenant les règles du jeu ; les parties qui y avaient déjà accès le gardent.'

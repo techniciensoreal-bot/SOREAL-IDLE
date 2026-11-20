@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Titans, d’après le code du jeu : l’accès à un titan tardif suit maintenant les règles du jeu ; les parties qui y avaient déjà accès le gardent."
+    "Aventure hors ligne : la réduction du temps d’apparition des ennemis compte aussi pendant ton absence, comme en jeu."
   ] };
 })();

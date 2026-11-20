@@ -1362,7 +1362,8 @@ function advanceLateSystems(state, seconds, context, now) {
       },
       dropMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).dropMultiplier, 1)),
       dropMultiplierIncludesGear: true,
-      goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1))
+      goldMultiplier: Math.max(0, num(idleNguBonusesLectureV1(state).adventureGoldMultiplier, 1)),
+      respawnReduction: Math.max(0, Math.min(1, num(idleNguBonusesLectureV1(state).respawnReduction, 0)))
     }), seconds, now));
     idleInventoryProcessNewDropsV1(state.adventure, idsAvantFarm, inventoryAutoEnvV1(state));
     /*

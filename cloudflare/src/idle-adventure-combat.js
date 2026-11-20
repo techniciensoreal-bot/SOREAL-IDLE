@@ -555,7 +555,8 @@ export function advanceAdventureZoneAutoFarmOfflineV1(s,ctx,seconds,t){
   const idleBonus=idleAttackMultiplierAdventureAutoV1(stats);
   /* Plafond de 70 % SUPPRIMÉ (Norman, 2026-10-19 : « il faut supprimer la limite de 70% de loot hors ligne. On peut remplir l'inventaire désormais. ») : le farm hors ligne remplit désormais jusqu'à 100 % de la capacité. */
    const capaciteFarm=inventoryCapacityAdventureV1(s);
-  const RESPAWN_SEC=4000/1000;
+  /* Même délai que le combat en ligne (client : 4 s x (1 - réduction), AdventureController::respawnTime) : la réduction de réapparition compte aussi hors ligne (2026-11-20). */
+  const RESPAWN_SEC=4*Math.max(0,1-Math.max(0,Math.min(1,N(ctx.respawnReduction))));
 
   const capSec=Math.min(seconds,8*60*60);
   let elapsed=0,playerHp=playerHpMax;
