@@ -198,7 +198,18 @@
       '.ygg-apercu{display:grid;gap:3px;margin-top:5px;padding:5px 7px;border:2px solid #d6b24a;border-radius:6px;background:rgba(6,20,10,.88);box-shadow:0 0 8px rgba(214,178,74,.35);color:#fff;font:700 clamp(12px,2.7cqw,15px) Georgia,serif;line-height:1.3}',
       '.ygg-apercu b{color:#ffe38a}',
       /* Aucun saut (Norman, 2026-11-09 : « la page Yggdrasil fait des sauts sur téléphone ») : l'aperçu d'un fruit mûr n'est JAMAIS dans le flux de la carte (il agrandissait la ligne de ~90 px quand le fruit mûrissait ou que la Poop changeait le texte, et tout le dessous sautait) ; il est posé SUR le bas du portrait, hors flux. */
+      /* Norman, 2026-11-20 : « un i pour les arbres : le cadre superposé cache une grosse partie de l'image sur téléphone — uniquement pour téléphone, sur PC il reste tel quel ». Sur PC (> 700 px) : le cadre reste posé sur le bas de l'image ; sur téléphone : il est masqué et un petit « i » (coin haut droit) ouvre un popup avec les mêmes informations. */
       '.ygg-vitre .ygg-apercu{position:absolute;left:0;right:0;bottom:0;margin:0;z-index:6;max-height:62%;overflow:hidden;border-width:2px 0 0;border-radius:0;padding:3px 5px;gap:1px;font-size:clamp(10px,2.3cqw,13px);box-sizing:border-box}',
+      '.ygg-apercu .ygg-ligne-manger{display:flex;justify-content:space-between;align-items:baseline;gap:8px}',
+      '.ygg-apercu .ygg-poop-note{white-space:nowrap;font-weight:400;opacity:.9}',
+      '.ygg-info-btn{position:absolute;top:4px;right:4px;z-index:7;width:26px;height:26px;padding:0;border-radius:50%;border:2px solid #d6b24a;background:rgba(6,20,10,.82);color:#ffe38a;font:700 15px/1 Georgia,serif;font-style:italic;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 4px rgba(0,0,0,.6)}',
+      '.ygg-info-btn:active{transform:scale(.92)}',
+      '.ygg-info-fond{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.55)}',
+      '.ygg-info-fond .ygg-apercu{margin:0;max-width:min(92vw,360px);width:100%;padding:10px 12px;font-size:16px;position:relative}',
+      '.ygg-info-fond .ygg-info-titre{font-size:1.1em;color:#ffe38a}',
+      '.ygg-info-fond .ygg-info-fermer{justify-self:end;margin-top:4px;min-height:34px;padding:2px 14px;border:2px solid #000;border-radius:8px;background:#17381f;color:#cfe8bf;font:700 14px Georgia,serif;cursor:pointer}',
+      '@media (min-width:701px){.ygg-info-btn{display:none}}',
+      '@media (max-width:700px){.ygg-vitre .ygg-apercu{display:none}}',
       '.ygg-apercu .ygg-n{font-size:1.12em}',
       '.ygg-mode button[aria-pressed="true"]{color:#2b1d00;background:linear-gradient(180deg,#ffe38a,#d9a62f);}',
       '.ygg-poop{display:flex;align-items:center;justify-content:center;gap:.4em;min-height:36px;border:2px solid #000;border-radius:4px;cursor:pointer;font:700 clamp(7px,1.6cqw,10.5px) var(--ygg-titres);color:#e9d9b6;background:#3a2a18;}',
@@ -532,13 +543,33 @@
     var manger=['+'+grand_(p.eat.seeds)+' graines'].concat((p.eat.effets||[]).map(function(e){return texteEffet_(e[0],e[1]);}).filter(Boolean));
     return {manger:manger,recolte:'+'+grand_(p.harvest.seeds)+' graines',avecPoop:avecPoop};
   }
+  /* Popup d'informations d'un arbre (hors de la page : jamais touché par le redessin). Contenu reconstruit à chaque rendu de la carte tant qu'il est ouvert. */
+  var apercusOuverts_={},infoOuvert_=null;
+  function remplirInfo_(boite,id){
+    var a=apercusOuverts_[id];
+    boite.textContent='';
+    function ligne(libelle,texte,note){var d=document.createElement('div');var b=document.createElement('b');b.textContent=libelle;var g=document.createElement('span');g.appendChild(b);g.appendChild(document.createTextNode(' : '+texte));d.appendChild(g);if(note){d.className='ygg-ligne-manger';var n=document.createElement('span');n.className='ygg-poop-note';n.textContent=note;d.appendChild(n);}boite.appendChild(d);}
+    var t=document.createElement('div');t.className='ygg-info-titre';t.textContent=a&&a.nom||'';boite.appendChild(t);
+    if(!a){var v=document.createElement('div');v.textContent='Rien de prêt pour le moment.';boite.appendChild(v);}
+    else{ligne('Manger',a.manger.join(' · '),a.avecPoop?'(avec la Poop)':'');ligne('Récolter',a.recolte);}
+    var f=document.createElement('button');f.type='button';f.className='ygg-info-fermer';f.textContent='Fermer';f.onclick=fermerInfo_;boite.appendChild(f);
+  }
+  function fermerInfo_(){var f=document.querySelector('.ygg-info-fond');if(f&&f.parentNode)f.parentNode.removeChild(f);infoOuvert_=null;document.removeEventListener('keydown',toucheInfo_);}
+  function toucheInfo_(e){if(e.key==='Escape')fermerInfo_();}
+  function ouvrirInfo_(id){
+    fermerInfo_();
+    var fond=document.createElement('div');fond.className='ygg-info-fond';
+    var boite=document.createElement('div');boite.className='ygg-apercu';boite.setAttribute('role','dialog');
+    fond.appendChild(boite);fond.addEventListener('click',function(e){if(e.target===fond)fermerInfo_();});
+    infoOuvert_=id;remplirInfo_(boite,id);document.body.appendChild(fond);document.addEventListener('keydown',toucheInfo_);
+  }
+  function majInfo_(id){if(infoOuvert_!==id)return;var b=document.querySelector('.ygg-info-fond .ygg-apercu');if(b)remplirInfo_(b,id);}
   function Apercu_(a){
     var m=[];
     a.manger.forEach(function(t,i){if(i)m.push(' · ');m=m.concat(nombreEnf_(t));});
     return h('div',{class:'ygg-apercu','data-ygg-apercu':''},
-      h('div',null,fus_([h('b',null,'Manger'),' : '].concat(m))),
-      h('div',null,fus_([h('b',null,'Récolter'),' : '].concat(nombreEnf_(a.recolte)))),
-      a.avecPoop?h('div',null,'(avec la Poop)'):null);
+      h('div',{class:'ygg-ligne-manger'},h('span',null,fus_([h('b',null,'Manger'),' : '].concat(m))),a.avecPoop?h('span',{class:'ygg-poop-note'},'(avec la Poop)'):null),
+      h('div',null,fus_([h('b',null,'Récolter'),' : '].concat(nombreEnf_(a.recolte)))));
   }
   /*
    * Jamais d'animation de rétrécissement (Norman, 2026-10-27 : « on voit des fruits max rétrécir jusqu'à redevenir un tas de terre : c'est du spoil »). Les images grossissent en 4 s ; mais quand une carte reçoit une pousse PLUS PETITE que celle qu'elle montrait,
@@ -612,10 +643,12 @@
   }
   function Vitre_(c){
     var id=c.id;
+    if(c.apercu){apercusOuverts_[id]=Object.assign({nom:c.nom},c.apercu);majInfo_(id);}else{delete apercusOuverts_[id];if(infoOuvert_===id)majInfo_(id);}
     return h('div',{class:'ygg-vitre ygg-portrait'+(c.decor?' ygg-decor':''),'data-ygg-snap':c.snap?'1':undefined,style:c.decor?{backgroundImage:'url(/api/idle/media/ygg?name='+encodeURIComponent(id)+'&decor=1)'}:undefined},
       c.porte&&!c.active?null:(c.arbre?h(Fruits_,{id:id,fruits:c.arbre}):h(Image_,{nom:id,secours:c.emoji})),
       c.porte?h(Porte_,c.porte):null,
-      c.apercu?h(Apercu_,c.apercu):null);
+      c.apercu?h(Apercu_,c.apercu):null,
+      c.apercu?h('button',{type:'button',class:'ygg-info-btn','aria-label':'Informations','data-ygg-info':id,onClick:function(e){if(e&&e.stopPropagation)e.stopPropagation();ouvrirInfo_(id);}},'i'):null);
   }
   function Carte_(c){
     var id=c.id,vitre=h(Vitre_,c);

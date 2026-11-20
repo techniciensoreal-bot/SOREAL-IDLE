@@ -39,6 +39,9 @@
             'Cartes, d’après le code du jeu : la carte la plus rare exige une place libre dans l’inventaire pour être jouée.',
             'Cuisine, d’après le code du jeu : chaque ligne « Cuisine % » d’un objet équipé compte pour le bonus, pas seulement l’objet.'
           ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Sur téléphone, un « i » sur les arbres ouvre leurs informations dans une fenêtre au lieu de couvrir l’image ; sur PC, la mention de la Poop se place à droite de la ligne « Manger ».'
+          ]},
           {menu:'titans', titre:'Titans', points:[
             'Titans, d’après le code du jeu : l’accès à un titan tardif suit maintenant les règles du jeu ; les parties qui y avaient déjà accès le gardent.'
           ]}
