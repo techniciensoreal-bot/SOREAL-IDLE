@@ -1182,10 +1182,11 @@ function towerBoucleCombatV1(c) {
  * sous le plus haut atteint : un seul étage, aucune boucle), sinon l'étage juste sous le plus haut atteint. Wiki ITOPOD (ngu-idle.fandom.com/wiki/ITOPOD). Renvoie false si aucun étage optimal n'est encore connu.
  */
 function towerAppliquerEtageOptimalV1(d, optimal) {
-  const opt = Math.max(0, int(optimal, 0));
-  if (!(opt > 0)) return false;
+  /* Lu dans le jeu (AdventureController::setOptimalFloor, méthode 179, audit IL 2026-11-20 ; le Lazy Floor Shifter appelle la même) : l'étage optimal est plafonné à « plus haut atteint - 1 », puis départ = fin = cet étage. Le jeu ne monte donc JAMAIS tout seul vers un nouvel étage : pour en découvrir un, le joueur règle la fin à la main. */
   const plusHaut = Math.max(0, int(d.highestFloor, 0));
-  const start = Math.min(opt, Math.max(0, plusHaut - 1));
+  const opt = Math.min(Math.max(0, int(optimal, 0)), Math.max(0, plusHaut - 1));
+  if (!(opt > 0)) return false;
+  const start = opt;
   d.startFloor = start;
   d.endFloor = opt;
   if (d.floor < start || d.floor > opt) {

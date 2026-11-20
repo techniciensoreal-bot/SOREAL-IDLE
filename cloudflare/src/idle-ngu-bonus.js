@@ -465,22 +465,19 @@ export function setNguAllocationV1(state, nguId, value, context = {}, tierArg) {
   return { ngu: nguId, tier, allocation: target };
 }
 
-/* Change de palier : l'énergie/magie allouée aux NGU du palier quitté est rendue. */
+/* Change de palier. Lu dans le jeu (AllNGUController 3974-3976, audit IL 2026-11-20) : ces méthodes ne changent que settings.nguLevelTrack ; l'allocation d'énergie / de magie est UNIQUE par NGU et alimente simplement la nouvelle piste. Elle est donc REPORTÉE sur le même NGU du palier d'arrivée (avant : rendue au stock, le joueur devait tout réallouer). */
 export function setNguTierV1(state, tier) {
   const s = state.systems.ngu;
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   if (!IDLE_NGU_TIERS_V1.includes(tier)) throw new Error("PALIER_NGU_INVALIDE");
   if (!nguActiveTiersV1(state.difficulty).includes(tier)) throw new Error("PALIER_NGU_VERROUILLE");
   if (s.data.tier === tier) return { tier };
-  for (const resource of ["energy", "magic"]) {
-    let released = 0;
-    for (const def of IDLE_NGU_CATALOG_V1) {
-      if (def.resource !== resource) continue;
-      const n = s.data.ngus[s.data.tier][def.id];
-      released += Math.max(0, num(n.allocation, 0));
-      n.allocation = 0;
-    }
-    if (released > 0) state.resources[resource].current = num(state.resources[resource].current, 0) + released;
+  for (const def of IDLE_NGU_CATALOG_V1) {
+    const ancien = s.data.ngus[s.data.tier][def.id];
+    const nouveau = s.data.ngus[tier][def.id];
+    if (!ancien || !nouveau) continue;
+    nouveau.allocation = Math.max(0, num(ancien.allocation, 0));
+    ancien.allocation = 0;
   }
   s.data.tier = tier;
   syncNguAllocationTotalsV1(s);

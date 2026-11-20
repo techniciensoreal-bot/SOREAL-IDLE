@@ -111,13 +111,13 @@ console.log("idle-itopod-floor-tracking: OK");
     etages.add(state.systems.tower.data.floor);
   }
   assert.deepEqual([...etages], [optimal], "reste sur le meilleur étage : pas de montée ni de boucle");
-  // plus haut atteint = optimal : le wiki limite le départ à un étage sous le plus haut → optimal-1 → optimal
+  // plus haut atteint = optimal : le jeu plafonne l'étage optimal à plus haut - 1 (AdventureController::setOptimalFloor 179) et met départ = fin = cet étage
   let s2 = baseState();
   s2 = advanceIdleNguState(s2, 1, ctx, Date.now());
   Object.assign(s2.systems.tower.data, { floor: 0, highestFloor: optimal, startFloor: null, endFloor: null });
   s2 = applyIdleNguAction(s2, { action: "towerFloors", auto: true }, ctx, Date.now()).state;
-  assert.equal(s2.systems.tower.data.startFloor, optimal - 1, "départ au plus un étage sous le plus haut atteint (wiki)");
-  assert.equal(s2.systems.tower.data.endFloor, optimal);
+  assert.equal(s2.systems.tower.data.startFloor, optimal - 1, "départ = étage optimal plafonné à plus haut - 1");
+  assert.equal(s2.systems.tower.data.endFloor, optimal - 1, "fin = départ : le jeu ne monte jamais seul vers un nouvel étage");
   assert.equal(s2.systems.tower.data.highestFloor, optimal, "aucun étage sauté : le plus haut ne change pas");
   // réglage manuel : le départ reste borné à un étage sous le plus haut (wiki)
   let s3 = baseState();
