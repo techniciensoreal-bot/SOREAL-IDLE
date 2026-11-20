@@ -65,8 +65,8 @@ assert.equal(idleExileItopodChanceV1(0), 0);
     Object.assign(s.systems.tower.data, { floor: 999, killsOnFloor: 0, highestFloor: 999, startFloor: 999, endFloor: 999, kills: 0 });
     if (vu) s.adventure.itemList.faceExile = { maxLevel: 0, seen: true };
     const orig = Math.random;
-    Math.random = () => 0.5;
-    try { s = advanceIdleNguState(s, 1000, ctx, 2_000_000); } finally { Math.random = orig; }
+    Math.random = () => 0.999;
+    try { for (let i = 0; i < 5; i++) s = advanceIdleNguState(s, 200, ctx, 1_000_000 + (i + 1) * 200_000); } finally { Math.random = orig; }
     return s;
   };
   assert.equal(possede(monter(false).adventure, "exileClueTentacle"), 0);

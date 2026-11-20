@@ -294,8 +294,8 @@ function creditTitanRewardsV1(s,id,ctx,tierKey,rebirthKills=0,horsLigne=false,re
   const wishes=ctx&&ctx.wishLevels&&typeof ctx.wishLevels==="object"?ctx.wishLevels:{};
   /* Hors ligne (Character::adventureOfflineProgress, audit 2026-11-16) : pas de facteur du souhait 3 (palier de récompense) ; aucun Or. */
   const rewardMult=horsLigne?1:1+.1*Math.min(Math.max(0,I(wishes[3])),TITAN_TIER_RANK_V1[tierKey]||0);
-  const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;
-  out.gold=horsLigne?0:Math.max(1,Math.round((r.gold[0]+Math.random()*(r.gold[1]-r.gold[0]))*goldDropsMult*Math.max(0,N(ctx&&ctx.goldMultiplier,1))));
+  /* Le cube est additionné aux objets dans goldMultiplier (idle-adventure-v47.js, Character::totalGoldbonus). */
+  out.gold=horsLigne?0:Math.max(1,Math.round((r.gold[0]+Math.random()*(r.gold[1]-r.gold[0]))*Math.max(0,N(ctx&&ctx.goldMultiplier,1))));
   /*
    * Perk 34 « Bonus Titan EXP! » (page Experience) : « +50% EXP from Titans. +3 kill per level that will benefit
    * from this Perk » : +50 % fixe sur les 3 x niveau premiers kills de chaque titan par Rebirth. La composition

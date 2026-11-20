@@ -58,7 +58,7 @@ while (progression) {
   progression = false;
   for (const def of BASIC_TRAINING_V411.skills) {
     if (def.prerequisite && !isBasicTrainingSkillUnlockedV411(etat, def)) {
-      etat.skills[def.prerequisite].level = def.prerequisiteLevel;
+      etat.skills[def.prerequisite].level = def.prerequisiteLevel + 1;   /* strictement plus (OffenseTraining::locked 4349) */
       progression = true;
     }
   }

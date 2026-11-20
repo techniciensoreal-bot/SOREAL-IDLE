@@ -228,7 +228,8 @@ export function isBasicTrainingSkillUnlockedV411(
 
   return Boolean(
     previous&&
-    int(previous.level,0)>=
+    /* Lu dans le jeu (OffenseTraining::locked 4349 : verrouillé tant que niveau précédent <= id x 5000) : il faut STRICTEMENT plus (audit IL 2026-11-20). */
+    int(previous.level,0)>
       int(def.prerequisiteLevel,0)
   );
 }
@@ -458,7 +459,7 @@ function advanceBasicTrainingStateAutoV411_(
       const prev=state.skills[def.prerequisite];
       const needed=int(def.prerequisiteLevel,0);
 
-      if(!p||int(prev.level,0)<needed){
+      if(!p||int(prev.level,0)<=needed){
         skill.allocation=0;
         continue;
       }

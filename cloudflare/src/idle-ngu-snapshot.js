@@ -1336,7 +1336,7 @@ function challengeUnlocked(def,state,context={}) {
   if(def.id==="noRebirth")return int(state.adventure?.titans?.t3?.kills,0)>0;
   if(def.id==="laserSword")return Boolean(state.challenge.laserUnlocked)||(laserSwordPair(state).level>=1&&laserSwordPair(state).upgradeLevel>=1);
   if(def.id==="blind")return int(state.adventure?.titans?.t4?.kills,0)>0;
-  if(def.id==="noNgu"){const n=nguNormalLevelSumsV1(state);return n.energy>=10000||n.magic>=10000;}   /* lu dans le jeu (AllNGUController::nguChallengeUnlocked) */
+  if(def.id==="noNgu"){const n=nguNormalLevelSumsV1(state);return n.energy+n.magic>=10000;}   /* lu dans le jeu (AllNGUController::nguChallengeUnlocked 3978 : la somme n'est pas remise à zéro entre la boucle Énergie et la boucle Magie, seuil 10 000 sur le cumul ; corrigé le 2026-11-20) */
   if(def.id==="noTimeMachine")return Boolean(state.systems.diggers?.unlocked);
   return false;
 }

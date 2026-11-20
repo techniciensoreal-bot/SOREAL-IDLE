@@ -591,7 +591,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
     false
   );
 
-  state.skills.attaque_passive.level=5000;
+  state.skills.attaque_passive.level=5001;
 
   snap=basicTrainingSnapshotV411(
     state,
@@ -604,7 +604,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
     true
   );
 
-  state.skills.attaque_reguliere.level=10000;
+  state.skills.attaque_reguliere.level=10001;
 
   snap=basicTrainingSnapshotV411(
     state,
@@ -622,7 +622,7 @@ console.log("SOREAL IDLE runtime calculations: OK");
 // le prochain cap, appliqué à la Renaissance.
 {
   const state=createBasicTrainingStateV411(Date.now());
-  state.skills.attaque_passive.level=10000;
+  state.skills.attaque_passive.level=10001;
 
   const before=basicTrainingSnapshotV411(
     state,

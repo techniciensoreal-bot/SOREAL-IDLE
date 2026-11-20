@@ -18,11 +18,11 @@ function titansVus(s, bosses) {
 
 // Anti-spoil : ni Tippi ni le Traitor dans la liste tant que le boss requis n'est pas battu
 {
-  const s = base(295);
-  assert.equal(titansVus(s, 295).includes("tippi"), false);
-  assert.equal(titansVus(s, 295).includes("traitor"), false);
-  assert.throws(() => combat(s, "tippi", TIPPI, 295), /TITAN_VERROUILLE/);
-  assert.equal(titansVus(base(296), 296).includes("tippi"), true, "Tippi apparaît au boss 296");
+  const s = base(294);
+  assert.equal(titansVus(s, 294).includes("tippi"), false);
+  assert.equal(titansVus(s, 294).includes("traitor"), false);
+  assert.throws(() => combat(s, "tippi", TIPPI, 294), /TITAN_VERROUILLE/);
+  assert.equal(titansVus(base(295), 295).includes("tippi"), true, "Tippi apparaît au boss 295 (ZoneForwardClick 711 : effectiveBossID >= 897)");
   assert.equal(titansVus(base(300), 300).includes("traitor"), false, "le Traitor reste caché tant que Tippi n'est pas tué");
 }
 

@@ -243,7 +243,7 @@ export function nguNumberRebirthV1(state, timeFactor) {
 
 /*
  * Lu dans le jeu (AllNGUController::nguChallengeUnlocked et unlocked100LevelChallenge, build 1260, 2026-11-17) : les conditions des défis No NGU et 100 Levels
- * comptent les niveaux de BASE (palier Normal) des NGU d'Énergie et des NGU de Magie séparément (No NGU : l'une OU l'autre somme >= 10000 ; 100 Levels : somme Énergie >= 10).
+ * comptent les niveaux de BASE (palier Normal) des NGU d'Énergie et des NGU de Magie séparément (No NGU : somme Énergie + Magie >= 10000, cumul sans remise à zéro entre les deux boucles ; 100 Levels : somme Énergie >= 10).
  */
 export function nguNormalLevelSumsV1(state) {
   const map = nguLevelsMapV1(state);
@@ -1284,8 +1284,8 @@ export function idleAdventureCombatStatsV1(gear, context, bonuses) {
   const detail = !(context && context.detailV1) ? undefined : {
     power: Object.assign(parts(baseAdventurePower, num(g.power, 0), cubeP, num(permanent.adventurePower, 0), num(flat.power, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.power), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
     toughness: Object.assign(parts(baseAdventureToughness, num(g.toughness, 0), cubeT, num(permanent.adventureToughness, 0), num(flat.toughness, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.toughness), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) }),
-    hp: Object.assign(parts(hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1, num(g.hp, 0), 0, num(permanent.adventureHp, 0), num(flat.hp, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.hp), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
-    regen: Object.assign(parts(baseAdventureRegen, num(g.regen, 0), 0, num(permanent.adventureRegen, 0), num(flat.regen, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.regen), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) })
+    hp: Object.assign(parts(hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1, num(g.hp, 0), 3 * cubeP, num(permanent.adventureHp, 0), num(flat.hp, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.hp), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
+    regen: Object.assign(parts(baseAdventureRegen, num(g.regen, 0), 0.03 * cubeT, num(permanent.adventureRegen, 0), num(flat.regen, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.regen), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) })
   };
   return Object.assign({}, g, detail ? { detailV1: detail } : {}, {
     power:

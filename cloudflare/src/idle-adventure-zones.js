@@ -683,8 +683,9 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * même chose pour le respawn du Traitor : on applique le plancher du wiki (« a minimum of 60 minutes »), rien d'inventé de plus.
  * secret : ni nom ni carte tant que le titan n'est pas accessible.
  */
-{id:"tippi",name:"TIPPI THE TUTORIAL MOUSE",boss:296,sadisticOnly:true,secret:true,cooldown:H,p:4e34,t:1.5e34,drop:"",avatarLevel:6},
-{id:"traitor",name:"THE TRAITOR",boss:300,sadisticOnly:true,secret:true,cooldown:H,p:1.5e35,t:4e34,drop:"",avatarLevel:6,requiresTitan:"tippi",requiresKills:1},
+/* Lu dans le jeu (audit IL 2026-11-20) : ZoneForwardClick::tryZoneForward (711) ouvre la zone de Tippi à effectiveBossID >= 897, soit après le boss 295 (les 44 autres seuils coïncident avec cette convention) ; respawn de base 27 000 s = 7,5 h (AdventureController::boss13SpawnTime / boss14SpawnTime, ids 99 et 100). */
+{id:"tippi",name:"TIPPI THE TUTORIAL MOUSE",boss:295,sadisticOnly:true,secret:true,cooldown:7.5*H,p:4e34,t:1.5e34,drop:"",avatarLevel:6},
+{id:"traitor",name:"THE TRAITOR",boss:300,sadisticOnly:true,secret:true,cooldown:7.5*H,p:1.5e35,t:4e34,drop:"",avatarLevel:6,requiresTitan:"tippi",requiresKills:1},
 /*
  * Prêtre d'Exilé (chaîne secrète de l'Exilé, Norman 2026-11-16 ; code du jeu build 1260, voir design/audit-code-jeu/antlers-wahwee.md §6) :
  * tant que « titan9Unlocked » est faux, la zone du 9e titan fait apparaître « PRIEST OF EXILE » à la place de l'Exilé

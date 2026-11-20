@@ -992,9 +992,10 @@
 
           if(
             precedent &&
+            /* strictement plus que id x 5000 (OffenseTraining::locked, méthode 4349 du jeu) */
             idleNombre_(
               precedent.level
-            )>=
+            )>
             idleNombre_(
               skill.prerequisiteLevel
             )
@@ -1460,7 +1461,7 @@
             <div class="soreal-idle-bt-row-v120 ${idleHtml_(skill.group||'')} verrouille" data-basic-training-skill="${idleHtml_(skill.id)}" aria-disabled="true">
               <div class="soreal-idle-bt-main-v120">
                 <div class="soreal-idle-bt-name-v120">${idleHtml_(skill.name)}</div>
-                <div class="soreal-idle-bt-prerequis-v1">Nécessite ${idleHtml_(formatGrandNombreIdleV70_(idleEntier_(skill.prerequisiteLevel)))} niveaux dans ${nomDessus?idleHtml_(nomDessus):'le menu au-dessus'}</div>
+                <div class="soreal-idle-bt-prerequis-v1">Nécessite ${idleHtml_(formatGrandNombreIdleV70_(idleEntier_(skill.prerequisiteLevel)+1))} niveaux dans ${nomDessus?idleHtml_(nomDessus):'le menu au-dessus'}</div>
               </div>
             </div>`;
         }

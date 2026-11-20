@@ -881,8 +881,8 @@ export function rollKill(s,ctx){
   if(goldRange){
     const range=boss?goldRange.boss:goldRange.normal;
     const lo=range[0],hi=range[1];
-    const goldDropsMult=1+N(idleAdventureCubeTierV1(s.cube).goldDropsPct)/100;
-    gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*goldDropsMult*Math.max(0,N(ctx.goldMultiplier,1))));
+    /* Le cube est additionné aux objets dans goldMultiplier (idle-adventure-v47.js, Character::totalGoldbonus). */
+    gold=Math.max(1,Math.round((lo+Math.random()*(hi-lo))*Math.max(0,N(ctx.goldMultiplier,1))));
     s.permanent.gold=N(s.permanent.gold)+gold;
   }
 

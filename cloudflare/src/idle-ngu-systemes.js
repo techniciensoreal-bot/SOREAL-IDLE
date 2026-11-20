@@ -1003,14 +1003,15 @@ function advanceTowerV1(state, seconds, context) {
     if (!(n > 0)) return;
     const tier = towerTierV1(floor);
     /* Pièce 491 (page THE END) : « Drop chance equal to 0.005% * (ITOPOD Level - 1449) » à chaque kill dès l'étage 1450 ; jamais deux fois. */
-    if (floor >= IDLE_THE_END_TOWER_FIRST_FLOOR_V1 && !idleTheEndHasV1(state.adventure, 491)) {
+    /* Hors ligne (Character::adventureOfflineProgress, méthode 2239 : aucun appel à itopodDrop / checkEndDrop / checkExileDrop / checkITOPODSecret) : AUCUN de ces trois tirages (audit IL 2026-11-20). */
+    if (!horsLigneItopod && floor >= IDLE_THE_END_TOWER_FIRST_FLOOR_V1 && !idleTheEndHasV1(state.adventure, 491)) {
       const p = Math.min(1, 0.00005 * (floor - (IDLE_THE_END_TOWER_FIRST_FLOOR_V1 - 1)));
       if (Math.random() < 1 - Math.pow(1 - p, n)) idleTheEndGrantV1(state.adventure, 491, Date.now());
     }
     /* Tentacule de l'Exilé (337) : LootDrop::checkExileDrop, étages 950 à 999, exige le Visage (336) déjà vu (idle-antlers-v1.js). */
-    if (floor >= 950 && floor <= 999) exileItopodV1(state.adventure, floor, n);
+    if (!horsLigneItopod && floor >= 950 && floor <= 999) exileItopodV1(state.adventure, floor, n);
     /* Dernier indice de la Bête (183) : LootDrop::checkITOPODSecret (étage 100, départ 0, premier kill de l'étage, joueur nu depuis le début de la visite ; idle-bete-secret-v1.js). d.killsOnFloor = kills déjà faits sur l'étage. */
-    if (state.adventure && state.adventure.unlockFlags && state.adventure.unlockFlags.clue3Complete) beteItopodV1(state.adventure, d, floor, n, d.killsOnFloor);
+    if (!horsLigneItopod && state.adventure && state.adventure.unlockFlags && state.adventure.unlockFlags.clue3Complete) beteItopodV1(state.adventure, d, floor, n, d.killsOnFloor);
     d.kills += n;
     /* Hors ligne (Character::adventureOfflineProgress du jeu, lu le 2026-11-16) : AUCUN objet de boost, ni tirage ; avec « Filter Boosts into Infinity Cube! » le jeu ajoute directement à la puissance et à la robustesse du cube capAttack[boost du palier] x kills / 8 x bonus des boosts / (diviseur x 2) (idleAdventureCubeDirectV1) ; sans le filtre, rien. */
     if (horsLigneItopod) {
@@ -1479,8 +1480,8 @@ export function applyTrollEffectV1(state, id) {
     if (r) { r.current = 0; r.fillProgress = 0; }
   } else if (id === "wandoos") {
     const w = state.systems.wandoos?.data;
-    /* Troll « wipeWandoos » : niveaux et barres seulement, jamais l'installation (installSeconds). */
-    if (w) { w.dumpEnergyLevel = 0; w.dumpMagicLevel = 0; w.dumpEnergyProgress = 0; w.dumpMagicProgress = 0; }
+    /* Troll « wipeWandoos » (méthode 2089) : les NIVEAUX seulement (la progression des barres reste), jamais l'installation (installSeconds). */
+    if (w) { w.dumpEnergyLevel = 0; w.dumpMagicLevel = 0; }
   }
 }
 

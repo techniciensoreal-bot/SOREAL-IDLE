@@ -134,7 +134,8 @@ function avecRandom(valeur, fn) {
     s.systems.tower.unlocked = true;
     s.systems.tower.active = true;
     Object.assign(s.systems.tower.data, { floor: etage, killsOnFloor: 0, highestFloor: etage, startFloor: etage, endFloor: etage, kills: 0 });
-    return avecRandom(0.5, () => advanceIdleNguState(s, 200_000, c, 1_100_000));
+    /* En ligne seulement (fenêtres de 200 s) : hors ligne le jeu ne tire jamais la pièce (adventureOfflineProgress, audit IL 2026-11-20). */
+    return avecRandom(0.001, () => { for (let i = 0; i < 100; i++) s = advanceIdleNguState(s, 200, c, 1_100_000 + i * 200_000); return s; });
   };
   assert.equal(has(tour(1449), 491), false, "étage 1449 : chance nulle");
   assert.equal(has(tour(1500), 491), true, "étage 1500 : 0,255 % par kill, des milliers de kills : la pièce tombe");

@@ -23,7 +23,7 @@ function lancer({ achete, skills, menu = "aventure" }) {
   return { change, envois, skills };
 }
 const base = () => [
-  { id: "attaque_passive", unlocked: true, level: 5000, allocation: 2329, cap: 89, prerequisite: null },
+  { id: "attaque_passive", unlocked: true, level: 5001, allocation: 2329, cap: 89, prerequisite: null },
   { id: "attaque_reguliere", unlocked: false, level: 0, allocation: 0, cap: 500, prerequisite: "attaque_passive", prerequisiteLevel: 5000 },
   { id: "attaque_renforcee", unlocked: false, level: 0, allocation: 0, cap: 900, prerequisite: "attaque_reguliere", prerequisiteLevel: 10000 }
 ];
@@ -40,7 +40,7 @@ const base = () => [
 }
 // Cascade : deux déblocages d'un coup font suivre le surplus.
 {
-  const s = base(); s[0].level = 12000; s[1].level = 10000;
+  const s = base(); s[0].level = 12000; s[1].level = 10001;
   const r = lancer({ achete: true, skills: s });
   assert.deepEqual(r.skills.map((x) => x.allocation), [89, 500, 1740]);
 }

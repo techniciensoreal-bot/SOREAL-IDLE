@@ -261,8 +261,9 @@ function idleAdventureEquipmentStatsCalculV47(raw){
     toughness:baseToughness+cubeToughnessContribution,
     cubePowerContribution,
     cubeToughnessContribution,
-    hp:equippedHp+N(s.setRewards.adventureHp),
-    regen:equippedRegen+N(s.setRewards.adventureRegen),
+    /* Lu dans le jeu (Character::totalAdvHP 2164 : + cubePower x 3 ; totalAdvHPRegen 2165 : + cubeToughness x 0,03), audit IL 2026-11-20. */
+    hp:equippedHp+N(s.setRewards.adventureHp)+3*cubePowerContribution,
+    regen:equippedRegen+N(s.setRewards.adventureRegen)+0.03*cubeToughnessContribution,
     special:equipped.reduce((a,x)=>a+N(x.special),0)+ratio2*N(arme2&&arme2.special),
     specialsByType,
     specials:{
@@ -286,7 +287,8 @@ function idleAdventureEquipmentStatsCalculV47(raw){
       magicPowerPct:N(specialsByType.magicPowerPct),
       magicCapPct:N(specialsByType.magicCapPct),
       magicBarsPct:N(specialsByType.magicBarsPct),
-      goldDropsPct:N(specialsByType.goldDropsPct),
+      /* Lu dans le jeu (Character::totalGoldbonus 2209) : objets (bonuses[7] et [40]) et cube s'ADDITIONNENT dans UNE parenthèse (1 + objets + cube) ; audit IL 2026-11-20 (avant : deux facteurs multipliés). */
+      goldDropsPct:N(specialsByType.goldDropsPct)+N(idleAdventureCubeTierV1(s.cube).goldDropsPct),
       beardSpeedPct:N(specialsByType.beardSpeedPct),
       nguSpeedPct:N(specialsByType.nguSpeedPct),
       seedGainPct:N(specialsByType.seedGainPct)
