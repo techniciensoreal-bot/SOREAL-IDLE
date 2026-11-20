@@ -611,7 +611,7 @@
                 kind:def.kind,name:def.name,definitionId:id,level:niveau,fullyMaxed:maxAtteint,
                 basePower:idleNombre_(def.basePower),baseToughness:idleNombre_(def.baseToughness),
                 power:window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(def.basePower),niveau),toughness:window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(idleNombre_(def.baseToughness),niveau),
-                specialsAll:(Array.isArray(def.specials)?def.specials:[]).map(function(sp){return{type:sp[0],value:idleNombre_(sp[1])*facteurNiveau,max:idleNombre_(sp[1])*facteurNiveau};})
+                specialsAll:(Array.isArray(def.specials)?def.specials:[]).map(function(sp){var r=Number(sp[2])>0?Number(sp[2]):1,m=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(Math.round(idleNombre_(sp[1])*r*1e6)/1e6,niveau)/r;return{type:sp[0],value:m,max:m};})
               },'collection');
             }
 

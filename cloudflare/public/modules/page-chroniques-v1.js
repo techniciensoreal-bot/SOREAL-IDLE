@@ -27,7 +27,7 @@
         kind:def.kind,name:def.name,definitionId:id,level:niveau,fullyMaxed:Boolean(vert),
         basePower:Number(def.basePower)||0,baseToughness:Number(def.baseToughness)||0,
         power:window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(Number(def.basePower)||0,niveau),toughness:window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(Number(def.baseToughness)||0,niveau),
-        specialsAll:(Array.isArray(def.specials)?def.specials:[]).map(function(sp){return{type:sp[0],value:(Number(sp[1])||0)*q,max:(Number(sp[1])||0)*q};})
+        specialsAll:(Array.isArray(def.specials)?def.specials:[]).map(function(sp){var r=Number(sp[2])>0?Number(sp[2]):1,m=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(Math.round((Number(sp[1])||0)*r*1e6)/1e6,niveau)/r;return{type:sp[0],value:m,max:m};})
       },'collection');
     }catch(_e){return '';}
     return ' data-sets-zoom-v1="'+idleHtml_(cle)+'" role="button" tabindex="0" onclick="window.__SOREAL_IDLE_SETS_ZOOM_V1__.ouvrir(\''+idleHtml_(cle)+'\',this)"';

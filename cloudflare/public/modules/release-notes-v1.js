@@ -20,10 +20,23 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.4',
+    courante:'6.5',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.5',
+        nom:'Fiches comme le jeu',
+        date:'2026-11-20',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Affichage : les maximums des bonus spéciaux affichés sur les fiches suivent la même règle d’arrondi que le jeu.'
+          ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Collection, d’après le code du jeu : les bonus spéciaux d’une fiche à un niveau donné sont arrondis vers le bas, comme dans le jeu.'
+          ]}
+        ]
+      },
       {
         version:'6.4',
         nom:'Objets du vrai jeu',

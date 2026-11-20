@@ -24,7 +24,7 @@ const ui = lireUiComplet();
 }
 
 // 2. Catalogue : les Specials (type + plafond au niveau 0) de chaque objet pour la fiche de la Collection.
-assert.deepEqual(IDLE_ADVENTURE_ITEM_CATALOG_V1["forest:head"].specials, [["energyPowerPct", 10], ["energySpeedPct", 12]]);
+assert.deepEqual(IDLE_ADVENTURE_ITEM_CATALOG_V1["forest:head"].specials, [["energyPowerPct", 10, 1], ["energySpeedPct", 12, 1]], "chaque ligne : [type, plafond au niveau 0, rapport points/valeur]");
 assert.ok(IDLE_ADVENTURE_ITEM_CATALOG_V1.cheeseGrater.specials.length >= 3, "objets spéciaux : leurs extras aussi");
 assert.deepEqual(IDLE_ADVENTURE_ITEM_CATALOG_V1["training:head"].specials, [], "pièce sans Special : liste vide");
 

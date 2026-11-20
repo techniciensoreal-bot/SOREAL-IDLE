@@ -5,6 +5,7 @@
  */
 import { NOMS_SETS_FR_V1, NOMS_SPECIALS_FR_V1, NOMS_SETS_OBJETS_FR_V1, NOMS_PIECES_FR_V1 } from "./idle-noms-fr-v1.js";
 import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
+import { idleSpecialPointsRatioV1 } from "./idle-adventure-special-points-v1.js";
 import { BOOSTS, N } from "./idle-adventure-base.js";
 import { base } from "./idle-adventure-objets.js";
 import { IDLE_ADVENTURE_DESCRIPTIONS_V1 } from "./idle-adventure-descriptions-v1.js";
@@ -1644,14 +1645,14 @@ export const IDLE_ADVENTURE_ITEM_CATALOG_V1=Object.freeze((()=>{
         kind:"equipment",set:setId,setName:s.name,slot,name:NOMS_PIECES_FR_V1[`${setId}:${slot}`]||`${s.name} ${slot}`,
         wikiItemId:wikiItemIdAdventureV1(`${setId}:${slot}`),
         basePower:baseP,baseToughness:baseT,baseHp:baseP*3,baseRegen:baseT*.03,
-        /* Specials (type, plafond au niveau 0) : le plafond au niveau n vaut plafond0 × (1 + n/100). Sert au popup d'objet unifié de la Collection (Norman, 2026-10-03). */
-        specials:(SET_ITEM_SPECIALS_V1[`${setId}:${slot}`]||[]).map(([type,,max0])=>[type,N(max0)]),
+        /* Specials (type, plafond au niveau 0, rapport points/valeur) : le plafond au niveau n vaut floor(plafond0 × rapport × (1 + n/100)) / rapport (le jeu arrondit le maximum en points, vers le bas). Sert au popup d'objet unifié de la Collection (Norman, 2026-10-03). */
+        specials:(SET_ITEM_SPECIALS_V1[`${setId}:${slot}`]||[]).map(([type,,max0],i)=>[type,N(max0),idleSpecialPointsRatioV1(`${setId}:${slot}`,i)]),
         evolutionTo:ITEM_EVOLUTIONS_V1[`${setId}:${slot}`]||""
       });
     }
   }
   for(const[id,d]of Object.entries(SPECIALS)){
-    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,specials:d.sType?[[d.sType,N(d.sMax)],...(d.sExtra||[]).map(e=>[e.type,N(e.max0)])]:[],evolutionTo:ITEM_EVOLUTIONS_V1[id]||"",/* itemDesc du jeu (texte anglais d'origine, traduit par le serveur) : seulement pour les objets qui en ont un (idle-adventure-descriptions-v1.js) */...(IDLE_ADVENTURE_DESCRIPTIONS_V1[id]?{desc:IDLE_ADVENTURE_DESCRIPTIONS_V1[id]}:{})});
+    catalog[id]=Object.freeze({kind:d.cube?"cube":"special",zone:d.zone||"",set:"",setName:"",slot:d.slot,name:d.name,wikiItemId:wikiItemIdAdventureV1(id),basePower:N(d.p),baseToughness:N(d.t),baseHp:N(d.p)*3,baseRegen:N(d.t)*.03,specials:d.sType?[[d.sType,N(d.sMax),idleSpecialPointsRatioV1(id,0)],...(d.sExtra||[]).map((e,i)=>[e.type,N(e.max0),idleSpecialPointsRatioV1(id,i+1)])]:[],evolutionTo:ITEM_EVOLUTIONS_V1[id]||"",/* itemDesc du jeu (texte anglais d'origine, traduit par le serveur) : seulement pour les objets qui en ont un (idle-adventure-descriptions-v1.js) */...(IDLE_ADVENTURE_DESCRIPTIONS_V1[id]?{desc:IDLE_ADVENTURE_DESCRIPTIONS_V1[id]}:{})});
   }
   return catalog;
 })());

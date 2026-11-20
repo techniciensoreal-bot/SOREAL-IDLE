@@ -100,4 +100,22 @@ const etat = () => { const s = obj.createIdleAdventureStateV47(); s.inventory = 
   assert.equal(l.advancedTrainingPct, 160, "la 2e ligne du jeu n'est pas touchée avant que la 1re soit pleine");
   assert.equal(obj.idleAdventureSpecialsRoomPointsV1(o), 1600000 + 1200000);
 }
+/* 5. fiche de Collection : le catalogue envoie le rapport points/valeur de chaque ligne de Special, et l'interface arrondit le maximum comme le jeu (en points, vers le bas) */
+{
+  const cat = sets.IDLE_ADVENTURE_ITEM_CATALOG_V1;
+  const choco = cat["choco:chest"];
+  assert.ok(choco && choco.specials.length === 5 && choco.specials.every((x) => Array.isArray(x) && x.length === 3 && x[2] > 0), "chaque ligne de Special porte son rapport points/valeur : [type, plafond niveau 0, rapport]");
+  assert.deepEqual(choco.specials.map((x) => x[2]), [1e4, 1e3, 1e3, 1e4, 1e3], "rapports de choco:chest (Cap 10 000 points = 1 %, Power / Bars 1 000)");
+  const accessoire = Object.values(cat).find((d) => d.kind === "special" && d.specials.length > 1);
+  assert.ok(accessoire.specials.every((x) => x.length === 3 && x[2] > 0), "accessoires aussi");
+  const lire = (f) => readFileSync(new URL("../public/modules/" + f, import.meta.url), "utf8");
+  for (const f of ["ui-inventaire-v1.js", "page-chroniques-v1.js"]) {
+    const src = lire(f);
+    assert.ok(src.includes("__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(Math.round(") && src.includes("*r*1e6)/1e6,niveau)/r"), f + " : maximum des Specials arrondi comme le jeu (en points)");
+    assert.ok(!/specialsAll:\(Array\.isArray\(def\.specials\)\?def\.specials:\[\]\)\.map\(function\(sp\)\{return\{type:sp\[0\],value:[^;]*\*(facteurNiveau|q)/.test(src), f + " : plus de maximum décimal");
+  }
+  /* même résultat que le moteur : maximum d'une ligne au niveau 99 = floor(points x 1,99) / rapport */
+  const f = base.idleAdventurePlafondNiveauV1;
+  assert.equal(f(15, 99), 29, "Tutorial Cube : floor(15 x 1,99) = 29, comme dans la fiche");
+}
 console.log("idle-objets-jeu-reference-v1: OK (" + comparees + " objets, " + specialsComparees + " avec Specials)");
