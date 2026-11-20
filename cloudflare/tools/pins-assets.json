@@ -112,12 +112,12 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 37,
-  "sha": "bf5ca54ca8e56647e08edb1fb9b9cca2c9ae0810"
+  "pin": 38,
+  "sha": "1d0dfe72d304635d24a5026335e7cf0a5a90e8f2"
  },
  "/modules/blood-magic-vdom-v1.js": {
-  "pin": 1,
-  "sha": "cdf0c88515f776a53f06a8f674f17ff44f002f9e"
+  "pin": 2,
+  "sha": "9c90b3678c38a178e34d395b1ee75aad7d321043"
  },
  "/modules/borne-bandes-sync-v1.js": {
   "pin": 1,
@@ -584,8 +584,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 329,
-  "sha": "d98fa8334ecb0831abf709fbebea562c5ae5dc0d"
+  "pin": 331,
+  "sha": "c7e8550f8114f8a18205325f01daeaf3a48f226e"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -864,8 +864,8 @@
   "sha": "dcd1bca28a603c3d826502bcd3216c3046c771a7"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 40,
-  "sha": "0ae193f0091106c35d72595961322a147530fe37"
+  "pin": 41,
+  "sha": "05243ea96380a01551ba987e4354997d28f6a228"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 6,

@@ -93,6 +93,8 @@ function advanceBloodMagic(state, seconds, context) {
     const magic = bloodRitualMagicV1(s, ritual.id);
     if (magic <= 0) continue;
     const rs = s.data.rituals[ritual.id];
+    /* Cible de complétions (Norman, 2026-11-20 : « il devra arrêter avant que le prochain niveau ne prenne l'or ») : au plus `quota` complétions de plus ; un niveau DÉJÀ payé (barre entamée) va toujours à son terme, mais aucun niveau suivant n'est payé une fois la cible atteinte. */
+    let quota = Math.max(0, int(rs.target, 0)) > 0 ? Math.max(0, int(rs.target, 0) - Math.max(0, int(rs.completions, 0))) : Infinity;
     /* Un rituel dure au moins un tick (50 par seconde au plus, comme le vrai jeu : idle-tick-v1.js, Norman 2026-11-05) */
     const secondsPerCompletion = dureeNiveauEnTicksV1(ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier);
     rebaserProgressionSecondesV1(rs, "progress", secondsPerCompletion);
@@ -107,19 +109,19 @@ function advanceBloodMagic(state, seconds, context) {
     if (p > 0) {
       const manque = Math.max(0, secondsPerCompletion - p);
       if (t + 1e-9 < manque) { p += t; t = 0; }
-      else if (limiteDefi >= 1) { t = Math.max(0, t - manque); p = 0; completions = 1; }
+      else if (limiteDefi >= 1) { t = Math.max(0, t - manque); p = 0; completions = 1; quota = Math.max(0, quota - 1); }
       else { p = Math.min(p + t, secondsPerCompletion); t = 0; }
     }
     if (t > 1e-9 && p <= 0) {
       const dejaFaits = completions;
       const pleins = Math.floor((t + 1e-9) / secondsPerCompletion);
       const payables = Math.floor((or + 1e-9) / ritual.gold);
-      const n = Math.max(0, Math.min(pleins, payables, limiteDefi - dejaFaits));
+      const n = Math.max(0, Math.min(pleins, payables, limiteDefi - dejaFaits, quota));
       t = Math.max(0, t - n * secondsPerCompletion);
       or -= n * ritual.gold;
       completions += n;
       p = 0;
-      if (n >= pleins && t > 1e-9 && or + 1e-9 >= ritual.gold && limiteDefi - completions >= 1) {
+      if (n >= pleins && t > 1e-9 && or + 1e-9 >= ritual.gold && limiteDefi - completions >= 1 && quota - n >= 1) {
         or -= ritual.gold;
         p = Math.min(t, secondsPerCompletion);   /* le niveau suivant démarre : payé, avec le temps restant */
         t = 0;
@@ -165,6 +167,16 @@ function bloodCollecteMigrerV1(state, s) {
     if (!r) continue;
     r.bloodCollected = poids > 0 ? sang * (Math.max(0, num(r.completions, 0)) * ritual.blood) / poids : 0;
   }
+}
+
+/* Cible de complétions d'UN rituel (0 = aucune). */
+export function setRitualTargetV1(state, ritualId, value) {
+  const s = state.systems.bloodMagic;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const rs = s.data.rituals?.[ritualId];
+  if (!rs) throw new Error("RITUEL_INVALIDE");
+  rs.target = Math.max(0, Math.min(1e9, Math.floor(num(value, 0))));
+  return { ritual: ritualId, target: rs.target };
 }
 
 /* Place (ou retire) de la Magic sur UN rituel, bornée par le plafond commun de Magic et par la Magic libre ; le total du système est la somme des rituels. */

@@ -979,6 +979,8 @@ function normalizeSystem(def, raw) {
         progress: Math.max(0, num(r.progress, 0)),
         progressRef: Math.max(0, num(r.progressRef, 0)),
         completions: Math.max(0, int(r.completions, 0)),
+        /* Cible de complétions (Norman, 2026-11-20) : 0 = aucune ; atteinte, le rituel ne paie plus le niveau suivant. */
+        ...(int(r.target, 0) > 0 ? { target: Math.min(1e9, int(r.target, 0)) } : {}),   /* absent = aucune cible (l'état d'un joueur sans cible reste identique à l'ancien) */
         magic: Math.max(0, num(r.magic, 0)),
         /* Sang collecté par CE rituel depuis la dernière dépense de sang (sort lancé, Rebirth) ; undefined = ancienne sauvegarde, répartie au premier passage (bloodCollecteMigrerV1) */
         bloodCollected: r.bloodCollected === undefined ? undefined : Math.max(0, num(r.bloodCollected, 0)),

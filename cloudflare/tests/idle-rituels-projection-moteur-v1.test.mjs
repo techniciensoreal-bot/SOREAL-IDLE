@@ -58,7 +58,7 @@ for (const morceau of [
   "const impayeB=eta0>=seconds-1e-9;",
   "if(ecoule0>=eta0-1e-9||impayeB){",
   "const plein=Math.floor((tB+1e-9)/seconds);",
-  "Math.min(plein,Math.floor((orR+1e-9)/coutOrB),1000000)",
+  "Math.min(plein,Math.floor((orR+1e-9)/coutOrB),1000000,quotaB)",   /* + cible de complétions (2026-11-20) : sans cible, quotaB = Infinity, la copie ci-dessous reste exacte */
   "if(nB>=plein&&tB>1e-9&&orR+1e-9>=coutOrB&&",
   "etaNouveau=seconds-Math.min(tB,seconds);",
   "bloodVisual.etaSeconds=Math.max(1e-6,etaNouveau);",

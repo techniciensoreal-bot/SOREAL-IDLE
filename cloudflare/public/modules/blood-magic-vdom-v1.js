@@ -93,7 +93,8 @@
         compteTxt:String(H.idleEntier_(compte)),
         coutOk:gold>=(Number(def.gold)||0),coutOr:Number(def.gold)||0,
         coutTxt:'−'+H.formatGrandNombreIdleV70_(def.gold||0)+' Gold',gainTxt:'+'+H.formatGrandNombreIdleV70_(def.blood||0)+' sang',
-        sceneHtml:sceneHtml,magieTxt:H.formatGrandNombreIdleV70_(magieR),etaTexte:etaTexte
+        sceneHtml:sceneHtml,magieTxt:H.formatGrandNombreIdleV70_(magieR),etaTexte:etaTexte,
+        cible:Math.max(0,H.idleEntier_(r.target||0)),cibleAtteinte:Boolean(rv&&rv.cibleAtteinte)
       };
     });
     return {
@@ -238,6 +239,26 @@
             m.compteurHtml?h(Html,{html:m.compteurHtml}):null)));
     }
 
+    /* Champ « Cible » d'un rituel : non contrôlé, valeur posée seulement hors focus (un redessin ne vole jamais la saisie). */
+    class SaisieCible extends Component{
+      constructor(p){super(p);this.el=null;this.dernier=undefined;var me=this;this.ref=function(el){me.el=el;};}
+      componentDidMount(){this.ecrire();}
+      componentDidUpdate(){this.ecrire();}
+      ecrire(){
+        var el=this.el,v=this.props.cible>0?String(this.props.cible):'';
+        if(!el||this.dernier===v)return;
+        this.dernier=v;
+        var actif=typeof document!=='undefined'&&document.activeElement===el;
+        if(!actif&&el.value!==v)el.value=v;
+      }
+      render(){
+        var id=this.props.id;
+        return h('input',{id:'sorealIdleBloodCibleV1_'+id,type:'text',inputmode:'numeric',placeholder:'∞',ref:this.ref,style:'width:7em;min-width:0',
+          title:'Nombre de rituels à compléter : le rituel s’arrête avant que le niveau suivant ne prenne l’Or. Vide ou 0 = pas de cible.',
+          onChange:function(e){appeler_('__cibleRituelBloodIdleV1__',id,e.target.value);}});
+      }
+    }
+
     function Rituel(p){
       var r=p.r,id=r.idHtml;
       function clic(mode){return function(){appeler_('__ajusterRituelBloodMagicIdleV1__',id,mode);};}
@@ -249,7 +270,11 @@
           h('b',{class:'or-cout-v1 '+(r.coutOk?'or-ok':'or-non'),'data-cout-or':String(r.coutOr)},r.coutTxt),' → ',h('b',null,r.gainTxt)),
         h(SceneIle,{html:r.sceneHtml}),
         h('div',{class:'soreal-idle-blood-alloc-ligne-v1'},'🔮 Magic allouée : ',h(Vif,{tag:'b',attrs:{id:'sorealIdleBloodRitualAllocV1_'+id,'data-idle-alloc-pop-v1':'1'},valeur:r.magieTxt})),
-        h(Vif,{tag:'div',attrs:{id:'sorealIdleBloodEtaLineV1_'+id,class:'bm-eta'},valeur:r.etaTexte}),
+        h(Vif,{tag:'div',attrs:{id:'sorealIdleBloodEtaLineV1_'+id,class:'bm-eta'},valeur:r.cibleAtteinte?'🎯 Cible atteinte : ce rituel ne paie plus de niveau.':r.etaTexte}),
+        h('div',{class:'soreal-idle-blood-cible-v1',style:'display:flex;align-items:center;gap:8px;margin-top:6px'},
+          h('label',{for:'sorealIdleBloodCibleV1_'+id,style:'font-size:.85em'},'🎯 Cible'),
+          h(SaisieCible,{id:id,cible:r.cible}),
+          h('span',{style:'font-size:.85em;opacity:.8'},'complété(s)')),
         h('div',{class:'soreal-idle-bt-actions-v120',style:'margin-top:9px'},
           h('button',{type:'button',title:'Placer la valeur de Input en Magic sur ce rituel (les autres rituels gardent la leur)','aria-label':'Placer',onClick:clic('plus')},h('span',{class:'soreal-idle-blood-croix-v1'},'✝︎')),
           h('button',{type:'button',title:'Retirer la valeur de Input',onClick:clic('moins')},'−'),
@@ -270,7 +295,7 @@
         h('h3',{class:'soreal-idle-blood-titre-v1'},'Rituels ',h('small',null,'produisent du sang')),
         h('div',{class:'bm-grille'},m.rituels.map(function(r){return h(Rituel,{key:r.id,r:r});})));
     }
-    C_={Vif:Vif,Html:Html,SceneIle:SceneIle,Lancer:Lancer,Sort:Sort,Saisie:Saisie,Barre:Barre,Rituel:Rituel,Page:Page};
+    C_={Vif:Vif,Html:Html,SceneIle:SceneIle,Lancer:Lancer,Sort:Sort,Saisie:Saisie,Barre:Barre,SaisieCible:SaisieCible,Rituel:Rituel,Page:Page};
     return C_;
   }
 

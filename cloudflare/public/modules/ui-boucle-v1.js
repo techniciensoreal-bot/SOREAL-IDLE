@@ -551,20 +551,24 @@
                 /* COPIE de la passe du moteur (advanceBloodMagic, idle-ngu-systemes.js). Lu dans le jeu (build 1260, 2026-11-15) : l'Or du rituel est payé AU DÉBUT (barre à 0) ; sans Or la barre ne bouge pas ; à la fin elle repart de 0 sans report. */
                 let tB=ecoule0,orR=orLiveB,dus=0,etaNouveau=seconds,debitB=0;
                 if(!impayeB){tB=Math.max(0,tB-eta0);dus=1;}
+                /* Cible de complétions du rituel (copie de advanceBloodMagic : un niveau déjà payé va à son terme, aucun niveau suivant n'est payé une fois la cible atteinte). */
+                const quotaB0=(bloodVisual.quotaLocal!=null)?bloodVisual.quotaLocal:((bloodVisual.src&&bloodVisual.src.quota!=null)?idleNombre_(bloodVisual.src.quota):Infinity);
+                const quotaB=Math.max(0,quotaB0-dus);
                 const plein=Math.floor((tB+1e-9)/seconds);
-                let nB=tB>1e-9?Math.max(0,Math.min(plein,Math.floor((orR+1e-9)/coutOrB),1000000)):0;
+                let nB=tB>1e-9?Math.max(0,Math.min(plein,Math.floor((orR+1e-9)/coutOrB),1000000,quotaB)):0;
                 /* Défi des 100 niveaux (2026-11-03) : chaque rituel rejoué sort du budget partagé ; à 0, aucun rituel de plus. */
                 const D100B=window.__SOREAL_IDLE_DEFI100_V1__;
                 const faits=D100B?D100B.accorder(dus+nB):dus+nB;
                 if(faits<dus+nB)nB=Math.max(0,faits-dus);
                 orR-=nB*coutOrB;debitB=nB*coutOrB;
                 tB=Math.max(0,tB-nB*seconds);
-                if(nB>=plein&&tB>1e-9&&orR+1e-9>=coutOrB&&(!D100B||!D100B.actif()||D100B.reste()>=1)){orR-=coutOrB;debitB+=coutOrB;etaNouveau=seconds-Math.min(tB,seconds);}   /* le rituel suivant démarre : payé, avec le temps restant */
+                if(nB>=plein&&tB>1e-9&&orR+1e-9>=coutOrB&&quotaB-nB>=1&&(!D100B||!D100B.actif()||D100B.reste()>=1)){orR-=coutOrB;debitB+=coutOrB;etaNouveau=seconds-Math.min(tB,seconds);}   /* le rituel suivant démarre : payé, avec le temps restant */
                 if(faits<=0&&debitB<=0){bloodVisual.at=maintB;bloodVisual.etaSeconds=impayeB?seconds:0;}
                 if((faits>0||debitB>0)&&REG.idleEtat.systemes&&REG.idleEtat.systemes.currencies){
                   orLiveB=Math.max(0,orLiveB-debitB);
                   REG.idleEtat.systemes.currencies.gold=orLiveB;
                   bloodVisual.ajoutLocal=(bloodVisual.ajoutLocal||0)+faits;
+                  if(isFinite(quotaB0))bloodVisual.quotaLocal=Math.max(0,quotaB0-faits);
                   /* Diagnostic (Norman, 2026-10-24 : du sang gagné en plaçant 2 s de Magie) : un rejeu local de plusieurs rituels, ou après un long écoulé, est noté avec ses chiffres dans le journal de fluidité (🐞). */
                   if(faits>=2||ecoule0>3*seconds){try{const D=window.__SOREAL_IDLE_DIAG_V1__;if(D&&typeof D.noter==='function')D.noter('rituel_rejoue',String(bloodVisual.ritual)+'#'+Math.round(maintB),{faits:faits,dus:dus,ecoule_s:Math.round(ecoule0*100)/100,eta_s:Math.round(eta0*100)/100,par_niveau_s:Math.round(seconds*1000)/1000,or_avant:Math.round(orLiveB+faits*coutOrB)});}catch(_e){}}
                   /* Chaque rituel TERMINÉ le dit à l'animation de la scène (modules/sang-rituel-decor-v1.js) : la coupure, la punaise, le jet… partent de CET événement et non d'un chiffre affiché (le compteur est borné et ne bouge pas toujours : le papier bougeait sans couper — Norman, 2026-10-15). */

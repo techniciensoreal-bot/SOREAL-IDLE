@@ -954,12 +954,19 @@ export function bloodMagicViewV1(state) {
   const vueRituel = ritual => {
     const rs = (s.data.rituals || {})[ritual.id] || { progress: 0 };
     const magic = Math.max(0, num(rs.magic, 0));
-    const secondsPerCompletion = magic > 0
+    const cible = Math.max(0, int(rs.target, 0));
+    const quota = cible > 0 ? Math.max(0, cible - Math.max(0, int(rs.completions, 0))) : null;
+    /* Cible atteinte et aucun niveau payé en cours : le rituel est arrêté (la page et le rejeu local ne le font plus avancer). */
+    const arrete = quota === 0 && !(num(rs.progress, 0) > 0);
+    const secondsPerCompletion = magic > 0 && !arrete
       ? dureeNiveauEnTicksV1(ritual.baseSeconds * 1000 * difficultyDivider / Math.max(1e-12, magic * power) / dutchSetMultiplier)
       : null;
     return {
       id: ritual.id,
       magic,
+      target: cible,
+      quota,
+      cibleAtteinte: arrete,
       secondsPerCompletion,
       etaSeconds: secondsPerCompletion != null
         ? Math.max(0, (1 - fractionProgressionSecondesV1(rs, "progress", secondsPerCompletion)) * secondsPerCompletion)

@@ -478,6 +478,25 @@ function creer(hote){
       }
       window.__ajusterBloodMagicIdleV1__=ajusterBloodMagicIdleV1_;
 
+      /* Cible de complétions d'un rituel (Norman, 2026-11-20) : 0 = aucune ; atteinte, le rituel ne paie plus le niveau suivant (moteur : advanceBloodMagic, action setRitualTarget). */
+      function cibleRituelBloodIdleV1_(ritualId,valeur){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const id=String(ritualId||'');
+        const n=Math.max(0,Math.min(1e9,Math.floor(Number(String(valeur==null?'':valeur).replace(/[^0-9]/g,''))||0)));
+        try{
+          const j=H.getIdleEtat();
+          const s=systemeMetaParIdIdleV130_(j,'bloodMagic');
+          const r=s&&s.state&&s.state.data&&s.state.data.rituals&&s.state.data.rituals[id];
+          if(r)r.target=n;
+          const bv=j&&j.systemes&&j.systemes.bloodMagicView;
+          const rv=bv&&Array.isArray(bv.rituals)?bv.rituals.find(function(x){return x&&x.id===id;}):null;
+          if(rv){rv.target=n;rv.cibleAtteinte=false;}
+        }catch(_e){}
+        envoyerAllocRapideV1_({action:'setRitualTarget',ritual:id,value:n});
+        try{window.dispatchEvent(new CustomEvent('soreal-rituel-cible',{detail:{id:id,cible:n}}));}catch(_e2){}
+      }
+      window.__cibleRituelBloodIdleV1__=cibleRituelBloodIdleV1_;
+
       function viderBloodMagicIdleV1_(){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const j=H.getIdleEtat();
