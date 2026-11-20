@@ -643,7 +643,7 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * d'objets qui n'existent pas encore, les 3 objets « paper » (ROCK LOBSTER) (la GLOP d'IT HUNGERS : idle-glop-v1.js),
  * le Ring of Apathy (AMALGAMATE Brutal), TIPPI et THE TRAITOR (respawn/EXP/or/butin non publiés).
  */
-{id:"nerd",name:"Greasy Nerd",boss:125,evilOnly:true,cooldown:4.5*H,drop:"incriminatingEvidence",avatarLevel:6,difficulties:{
+{id:"nerd",name:"Greasy Nerd",boss:125,evilOnly:true,secret:true,requiresUnlock:"titan7Unlocked",cooldown:4.5*H,drop:"incriminatingEvidence",avatarLevel:6,difficulties:{
   easy:{p:1.37e14,t:8.9e13,idleP:3e14,idleT:2e14,autoKillP:5e14,autoKillT:2.5e14,autoKillR:5e12},
   normal:{p:3.2e15,t:1.6e15,idleP:6e15,idleT:4e15,autoKillP:1e16,autoKillT:5e15,autoKillR:1e14},
   hard:{p:5.5e16,t:3.5e16,idleP:1.2e17,idleT:8e16,autoKillP:2e17,autoKillT:1e17,autoKillR:2e15},
@@ -709,5 +709,13 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * zone que la Marraine (boss 166 en Evil) : sa victoire relance le minuteur de la Marraine. Butin : la Death Note (288, niveau 100) tant que les cinq noms ne sont pas rayés, sinon le déblocage de la Marraine ; ni or ni EXP ni compteur de
  * titans. Aucun seuil de puissance : le jeu n'en a pas (le combat se résout coup par coup), donc p = t = 0. Il disparaît dès que la Marraine est débloquée (hiddenWhenFlag) ou déjà vaincue (remplacePar).
  */
-{id:"consigliere",name:"THE CONSIGLIERE",boss:166,evilOnly:true,secret:true,hiddenWhenFlag:"titan8Unlocked",remplacePar:"godmother",cooldown:5*H,p:0,t:0,drop:"",avatarLevel:6}
+{id:"consigliere",name:"THE CONSIGLIERE",boss:166,evilOnly:true,secret:true,hiddenWhenFlag:"titan8Unlocked",remplacePar:"godmother",cooldown:5*H,p:0,t:0,drop:"",avatarLevel:6},
+/*
+ * GREASY NERD'S MOM (chaîne secrète du Greasy Nerd, Norman 2026-11-20 ; code du jeu build 1260 : AdventureController::spawnEnemy, createEnemyTable, LootDrop::zone23Drop, voir idle-nerd-secret-v1.js) : tant que « titan7Unlocked »
+ * est faux, la zone du 7e titan fait apparaître GREASY NERD'S MOM (ennemi de type 14) à la place du Greasy Nerd. Cadence 3, Power 6e13, Toughness 6e13, Regen 6e12, PV 6e15 (createEnemyTable ; IDLE_TITAN_COMBAT_V1.nerdmom).
+ * Même déblocage et même minuteur de zone que le Nerd (boss 125 en Evil) : sa victoire relance le minuteur du Nerd (enemyDeath, zone 23 : boss7Spawn.reset). Butin : le message du cadenas et le début de la quête
+ * (`titan7questStarted`) ; ni or ni EXP ni compteur de titans. Aucun seuil de puissance : le jeu n'en a pas (le combat se résout coup par coup), donc p = t = 0. Elle disparaît dès que le Nerd est débloqué
+ * (hiddenWhenFlag) ou déjà vaincu (remplacePar) ; le Nerd, lui, n'est listé qu'à partir de là.
+ */
+{id:"nerdmom",name:"GREASY NERD'S MOM",boss:125,evilOnly:true,secret:true,hiddenWhenFlag:"titan7Unlocked",remplacePar:"nerd",cooldown:4.5*H,p:0,t:0,drop:"",avatarLevel:6}
 ]);

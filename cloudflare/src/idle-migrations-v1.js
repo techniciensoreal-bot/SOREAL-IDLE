@@ -31,7 +31,7 @@ import { createTrollStateV1, normaliserR3NomV1 } from "./idle-ngu-systemes.js";
 import { externalResourceAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { baseState, normalizeResource } from "./idle-ngu-etat.js";
 
-export const ETAT_VERSION_COURANTE = 58;
+export const ETAT_VERSION_COURANTE = 59;
 
 function migrateLegacyTrackV47_(target, raw) {
   if (!target || !raw || typeof raw !== "object") return;
@@ -410,6 +410,32 @@ export const MIGRATIONS = Object.freeze([
       const mere = estObjet(adv.titans) ? adv.titans.godmother : null;
       const dejaVue = estObjet(mere) && (num(mere.kills, 0) > 0 || num(mere.nextAt, 0) > 0);
       if (etaitOuverte || dejaVue) adv.unlockFlags.titan8Unlocked = true;
+      return etat;
+    }
+  }),
+  Object.freeze({
+    de: 58, vers: 59, nom: "nerd-secret-v59", phase: "normalise",
+    /*
+     * Chaîne secrète du Greasy Nerd (2026-11-20, idle-nerd-secret-v1.js) : avant, le Greasy Nerd s'ouvrait au boss 125 (Evil). Il n'existe plus qu'une fois `titan7Unlocked` posé par le cadenas à cinq lettres
+     * (Character::Update) après la mort de sa Maman (LootDrop::zone23Drop). Aucune perte : toute partie qui avait l'accès par l'ancienne règle (Evil ou Sadistic déjà atteint au boss 125 ou au-delà, par la partie en
+     * cours ou par le pic de la difficulté, ou Nerd déjà combattu) reçoit `titan7Unlocked` et `titan7questComplete` (comme le jeu à la fin du cadenas : les lettres n'ont plus d'effet) ; les autres devront la trouver.
+     * Ni `titan7questStarted` ni aucune lettre n'est posée : rien ne trahit le secret. Pure : ne lit que l'état et le contexte.
+     */
+    appliquer(etat, contexte) {
+      const adv = etat && etat.adventure;
+      if (!estObjet(adv)) return etat;
+      if (!estObjet(adv.unlockFlags)) adv.unlockFlags = {};
+      if (adv.unlockFlags.titan7Unlocked) return etat;
+      const jeu = (contexte && contexte.jeu) || {};
+      const pics = estObjet(etat.difficultyPeaks) ? [etat.difficultyPeaks.difficile, etat.difficultyPeaks.extreme].map((v) => num(v, 0)) : [];
+      const enEvil = etat.difficulty === "difficile" || etat.difficulty === "extreme";
+      const etaitOuvert = pics.some((v) => v >= 125) || (enEvil && num(jeu.bosses, 0) >= 125);
+      const nerd = estObjet(adv.titans) ? adv.titans.nerd : null;
+      const dejaVu = estObjet(nerd) && (num(nerd.kills, 0) > 0 || num(nerd.nextAt, 0) > 0);
+      if (etaitOuvert || dejaVu) {
+        adv.unlockFlags.titan7Unlocked = true;
+        adv.unlockFlags.titan7questComplete = true;
+      }
       return etat;
     }
   })

@@ -6,6 +6,7 @@ const ctx = { bosses: 300 };
 function combat(id, difficulty, stats, mutate) {
   let s = normalizeIdleNguState({}, ctx, 0);
   s.difficulty = difficulty;
+  s.adventure.unlockFlags.titan7Unlocked = true;   /* le Nerd n'existe qu'une fois le cadenas de sa Maman ouvert (2026-11-20) */
   if (mutate) mutate(s);
   const avant = Math.random;
   Math.random = () => 0.999999;

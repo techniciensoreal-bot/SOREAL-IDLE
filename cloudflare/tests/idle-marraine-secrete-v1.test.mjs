@@ -129,7 +129,7 @@ assert.equal(CIBLES[1].deja[0], "Hey genius,<b>Icarus Proudbottom</b> has alread
 /* 7. migration : les parties qui avaient l'accès à la Marraine le gardent */
 {
   const M = migr.MIGRATIONS.find((m) => m.nom === "marraine-secrete-v58");
-  assert.ok(M && M.de === 57 && M.vers === 58 && migr.ETAT_VERSION_COURANTE === 58);
+  assert.ok(M && M.de === 57 && M.vers === 58 && migr.ETAT_VERSION_COURANTE >= 58);
   const prog = await import("../src/idle-ngu-progression.js");
   /* un état « natif » (version et schéma de sauvegarde du jeu) à la version 57 : la seule condition pour que la migration soit jouée */
   const etat = (extra) => Object.assign({ version: prog.IDLE_NGU_META_VERSION, saveSchema: prog.IDLE_NGU_SAVE_SCHEMA, adventure: { unlockFlags: {}, titans: {} }, records: {}, etatVersion: 57 }, extra);

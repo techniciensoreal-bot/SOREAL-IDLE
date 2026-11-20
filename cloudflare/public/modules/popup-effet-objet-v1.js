@@ -124,6 +124,9 @@ function construire(payload,res){
   }else if(r.secretMarraine&&typeof r.secretMarraine==='object'&&Array.isArray(r.secretMarraine.messages)&&r.secretMarraine.messages.length){
     /* Chaîne secrète de la Marraine (LootDrop::zone26Drop, zone2Drop, 4, 9, 10, 15) : les messages du journal du jeu, déjà dans la langue du joueur (les balises <b> du jeu sont retirées) ; rien d'autre n'est annoncé (aucun compteur, aucune condition). */
     spec={cle:'marraine-liste',icone:'📓',img:'',titre:r.secretMarraine.debloque?'La Marraine t’attend !':(r.secretMarraine.objet?'Une liste de noms…':'La liste'),nom:'',phrase:r.secretMarraine.messages.map(function(m){return [String(m).replace(/<\/?b>/g,''),'t'];}),rows:[]};
+  }else if(r.secretNerd&&typeof r.secretNerd==='object'&&Array.isArray(r.secretNerd.messages)&&r.secretNerd.messages.length){
+    /* Chaîne secrète du Greasy Nerd (LootDrop::zone23Drop) : le message du jeu à la mort de sa Maman, déjà dans la langue du joueur ; rien d'autre n'est annoncé (aucune lettre, aucune condition). */
+    spec={cle:'nerd-cadenas',icone:'🚪',img:'',titre:'Au sous-sol…',nom:'',phrase:r.secretNerd.messages.map(function(m){return [String(m),'t'];}),rows:[]};
   }else if(r.secretBete&&typeof r.secretBete==='object'&&Array.isArray(r.secretBete.messages)&&r.secretBete.messages.length){
     /* Chaîne secrète de la Bête (LootDrop::zone19Drop, checkUUGSecret, checkTreeSecret, checkJakeSecret) : les messages du journal du jeu, déjà dans la langue du joueur ; rien d'autre n'est annoncé (aucun compteur, aucune condition). */
     spec={cle:'bete-indice',icone:'📜',img:'',titre:'Quelque chose a été laissé derrière…',nom:'',phrase:r.secretBete.messages.map(function(m){return [String(m),'t'];}),rows:[]};

@@ -323,6 +323,11 @@
                 }
               }
 
+              /* Cadenas du Greasy Nerd : le message du jeu (« COMBINATION LOCK n DISENGAGED »), déjà dans la langue du joueur ; rien n'est dit si la lettre n'a pas été acceptée. */
+              if(payload&&payload.action==='titan7Lettre'&&res.resultat&&res.resultat.titan7&&res.resultat.message){
+                try{window.__SOREAL_IDLE_META_HOST_V130__.messageFlottantIdleV32_(String(res.resultat.message));}catch(_e){}
+              }
+
               /* Coffre ou Valise nettoyé : le moteur a tiré et versé les AP, la page montre le « +N AP » qui s'envole (modules/nettoyage-ap-v1.js). */
               if(payload&&payload.action==='cleanMess'&&res.resultat&&Number(res.resultat.ap)>0){
                 try{window.dispatchEvent(new CustomEvent('soreal-nettoyage-ap',{detail:{ap:Number(res.resultat.ap),rare:Boolean(res.resultat.rare),lieu:String(res.resultat.lieu||'')}}));}catch(_e){}

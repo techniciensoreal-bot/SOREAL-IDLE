@@ -39,7 +39,8 @@ const niveauDe = (r, defId) => r.result.drops.filter((d) => d.definitionId === d
   assert.deepEqual(niveauDe(r, "uugHair"), [0], "UUG : UUG's Armpit Hair lvl 0 (guaranteed)");
 }
 {
-  const r = titan("nerd", normalizeIdleAdventureStateV47({}), { bosses: 300, difficulty: "difficile", stats: { power: 1.37e14, toughness: 8.9e13 } });
+  const sNerd = normalizeIdleAdventureStateV47({}); sNerd.unlockFlags.titan7Unlocked = true;   /* le Nerd n'existe qu'une fois le cadenas de sa Maman ouvert (2026-11-20) */
+  const r = titan("nerd", sNerd, { bosses: 300, difficulty: "difficile", stats: { power: 1.37e14, toughness: 8.9e13 } });
   assert.deepEqual(niveauDe(r, "incriminatingEvidence"), [1], "Greasy Nerd : Incriminating Evidence lvl 1 - guaranteed");
 }
 {

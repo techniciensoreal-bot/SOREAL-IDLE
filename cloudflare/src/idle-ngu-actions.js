@@ -32,6 +32,7 @@ import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentation
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, hackActionV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
 import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, toggleDigger, towerSetFloorsV1, towerTogglePillV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 import { beteSpecialRebirthV1 } from "./idle-bete-secret-v1.js";
+import { nerdLettreV1 } from "./idle-nerd-secret-v1.js";
 
 /* Cinématiques que l'on peut revoir : identifiant -> code (nombre, les records sont des compteurs). */
 export const IDLE_CINEMATIQUES_V1 = Object.freeze({ intro: 1 });
@@ -368,6 +369,11 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     if (!track) throw new Error("PISTE_INCONNUE");
     { const c = Math.floor(num(payload.value, 0)); track.target = c < 0 ? -1 : Math.min(1e9, c); }
     atApplyTargetsV1(state);
+  } else if (action === "titan7Lettre") {
+    /* Chaîne secrète du Greasy Nerd (Character::Update, idle-nerd-secret-v1.js) : une touche tapée sur la page « Combat de boss ». Acceptée par le cadenas = pas de raccourci ; sinon rien ne change. */
+    const adv = state.adventure;
+    const lettre = nerdLettreV1(adv, String(payload.lettre || ""), int(context.bosses, 0), payload.menuBoss === true);
+    result = lettre ? { titan7: true, ...lettre } : { titan7: false };
   } else if (action === "reclaimResource") {
     result=reclaimAllocatedResource(state,String(payload.resource||"energy"),context);
   } else if (action === "allocateAugment") {

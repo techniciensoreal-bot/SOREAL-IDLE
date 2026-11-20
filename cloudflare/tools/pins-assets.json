@@ -171,6 +171,10 @@
   "pin": 3,
   "sha": "7b83a779645f69df39fc1be3e74fcd92ccaa3dbe"
  },
+ "/modules/cadenas-nerd-v1.js": {
+  "pin": 1,
+  "sha": "d2f985a3ea829b203406fc159955cfc6a83b1d28"
+ },
  "/modules/cards-page-v1.js": {
   "pin": 2,
   "sha": "66e464a629e45118b0b8fc17966c5a90059b6580"
@@ -544,8 +548,8 @@
   "sha": "a5688fb34e5b915f8804f5ecf9859ca24923f0d9"
  },
  "/modules/meta-progression-v130.js": {
-  "pin": 202610182,
-  "sha": "89da3d85c0a489276d84c6dc0fa178f566526520"
+  "pin": 202610183,
+  "sha": "61230b6887ba06fe98224b439c383022235453a6"
  },
  "/modules/mobs-types-v1.js": {
   "pin": 9,
@@ -580,8 +584,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 328,
-  "sha": "55eb9eb34e998c75d6c14f64e9e4d61f5d364d9d"
+  "pin": 329,
+  "sha": "d98fa8334ecb0831abf709fbebea562c5ae5dc0d"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -640,8 +644,8 @@
   "sha": "d5ca766dd2619c822b691eb23a74518ade754d49"
  },
  "/modules/popup-effet-objet-v1.js": {
-  "pin": 7,
-  "sha": "e52afb7e982836da7a72a733b298840e1458ab74"
+  "pin": 9,
+  "sha": "c8c13cb772f48ec4276db365db838ae79c45d4e4"
  },
  "/modules/prefs-compte-v1.js": {
   "pin": 5,
@@ -800,12 +804,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1097,
-  "sha": "dc380cc5e936c41c301a24e330ddc431db6defcf"
+  "pin": 1098,
+  "sha": "6787aff020411d9d365fef8b4aec7dd6d19337ef"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 917,
-  "sha": "db631d12959a9e209c4b2f5d341efb18cf64f674"
+  "pin": 918,
+  "sha": "ee5919916f6375f347f2e1dea66624d6f800ef1e"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -856,7 +860,7 @@
   "sha": "a4522fd916de628106b59c4634807f8a50c53518"
  },
  "/modules/ui-aventure-2-v1.js": {
-  "pin": 67,
+  "pin": 69,
   "sha": "dcd1bca28a603c3d826502bcd3216c3046c771a7"
  },
  "/modules/ui-boucle-v1.js": {
