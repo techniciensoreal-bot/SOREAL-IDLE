@@ -724,10 +724,8 @@ function appliquerProgressionEnergieSorealIdle__p2(c, entrainementV41, row){
 
   statsCombat.bossRespawnJusqua = 0;
 
-  let bossBloqueRenaissance =
-    bossCombatIndex === bossVaincus &&
-    bossCombatIndex === bossParMondeSorealIdle_() - 1 &&
-    renaissanceNativeCountV54 < 1;
+  /* Mur du boss 20 retiré (Norman, 2026-11-20) : le vrai jeu n'en a pas (audit 2026-11-16, E3/E5). */
+  let bossBloqueRenaissance = false;
 
   let combatBossActif =
     Boolean(

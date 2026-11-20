@@ -1336,12 +1336,8 @@ console.log("SOREAL IDLE runtime (rebirth unlocks survive Renaissance): OK");
     "NUKE doit exiger Attack/5 > Boss Defense ET Defense/5 > Boss Attack pour chaque boss enchaîné."
   );
   assert.ok(
-    body.includes(
-      "const bossBloqueRenaissanceNuke =\n"+
-      "        bossVaincus === bossParMondeSorealIdle_() - 1 &&\n"+
-      "        renaissanceNativeCountNuke < 1;"
-    ),
-    "Le mur \"bloqué jusqu'à la Renaissance\" en fin de monde doit rester infranchissable par NUKE."
+    body.includes("const bossBloqueRenaissanceNuke = false;") && !body.includes("renaissanceNativeCountNuke < 1"),
+    "Le mur du boss 20 est retiré (Norman, 2026-11-20) : le vrai jeu n'en a pas, le NUKE ne s'arrête plus avant une Renaissance."
   );
   assert.ok(
     body.includes("stats.combatBossActif = false;"),

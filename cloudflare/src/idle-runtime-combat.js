@@ -522,7 +522,7 @@ export function nukeArretBossInedit_(stats, bossVaincus, bossDepart) {
  * mur de Renaissance, fin des boss, boss encore jamais vaincu en Normal, niveau requis, Attack/5 > Defense du boss ET Defense/5 > Attack du boss (comparaisons strictes).
  */
 export function nukeTueUnBossSorealIdle_(stats, bossVaincus, niveau, attaque, defense, attaqueBoss, defenseBoss, renaissances) {
-  if (bossVaincus === bossParMondeSorealIdle_() - 1 && renaissances < 1) return false;
+  /* Mur du boss 20 retiré (Norman, 2026-11-20) : le vrai jeu n'en a pas (audit 2026-11-16, E3/E5). */
   if (bossFinDesBossAtteinteSorealIdle_(bossVaincus)) return false;
   if (nukeArretBossInedit_(stats, bossVaincus, bossVaincus)) return false;
   if (niveau < niveauRequisBossSorealIdle_(bossVaincus)) return false;
@@ -736,9 +736,8 @@ export function nukerBossSorealIdle(
     while (iterations < 500) {
       iterations += 1;
 
-      const bossBloqueRenaissanceNuke =
-        bossVaincus === bossParMondeSorealIdle_() - 1 &&
-        renaissanceNativeCountNuke < 1;
+      /* Mur du boss 20 retiré (Norman, 2026-11-20) : le vrai jeu n'en a pas (audit 2026-11-16, E3/E5). */
+      const bossBloqueRenaissanceNuke = false;
 
       if (bossBloqueRenaissanceNuke) {
         break;
