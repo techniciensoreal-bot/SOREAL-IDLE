@@ -580,8 +580,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 320,
-  "sha": "98a17a3b496b8bc942d7152be3d0a7899c25c546"
+  "pin": 321,
+  "sha": "5a5218f620348f7e12e0bc54c00ac9efaa772638"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,

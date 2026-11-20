@@ -469,6 +469,8 @@ export function idleSelloutShopBuyV1(state, itemId, options = {}) {
   }
   /* Achat réservé à une difficulté (An Evil Accessory Slot) : Evil ou Sadistic, jamais en Normal. */
   if (item.minDifficulty && (state.difficulty || "normal") === "normal") throw new Error("DIFFICULTE_REQUISE");
+  /* ArbitraryController.buyMacguffinSlot (méthode 933 du jeu) : refusé tant que le succès 145 (MacGuffins débloqués) manque ; même condition que macguffinUnlockedV1 (copiée ici pour éviter un import circulaire). Aligné le 2026-11-20. */
+  if (item.id === "macguffinSlot" && !(state?.systems?.macguffins?.unlocked || state?.adventure?.unlockFlags?.walderpFinalDefeated)) throw new Error("MACGUFFINS_VERROUILLES");
   const shop = state.selloutShop && typeof state.selloutShop === "object" ? state.selloutShop : { purchases: {} };
   const purchases = shop.purchases && typeof shop.purchases === "object" ? shop.purchases : {};
   const already = Math.max(0, I(purchases[item.id], 0));
