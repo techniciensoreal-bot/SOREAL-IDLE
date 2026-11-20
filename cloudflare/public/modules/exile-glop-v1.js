@@ -21,11 +21,31 @@ function descriptionHtml(texte){
 }
 
 /* Description d'un objet d'après le catalogue des objets connus de la réponse. */
+/* The Death Note (288, InventoryController::itemTooltipText) : sous la description, les quatre noms visibles (grisés et en italique une fois rayés), le « trou » de la liste (le nom vide), puis le message de fin selon les noms rayés : liste complète = retour au Consigliere ; les quatre
+   noms visibles seulement = le blanc donne la chair de poule. Les drapeaux viennent de la réponse (unlockFlags) ; les phrases du jeu sont envoyées par le serveur dans la langue du joueur (itemCatalog.deathNote.textes). */
+var LISTE_DEATH_NOTE=[['skeletonWhacked','Skeleton'],['icarusWhacked','Icarus Proudbottom'],['kingCircleWhacked','King Circle'],['robBossWhacked','Rob Boss']];
+function blocDeathNote(a,entree){
+  var f=a&&a.unlockFlags&&typeof a.unlockFlags==='object'?a.unlockFlags:{};
+  var t=entree&&entree.textes&&typeof entree.textes==='object'?entree.textes:{};
+  var h='<div class="idle-death-note-v1" style="margin-top:.6em">';
+  var visibles=true;
+  LISTE_DEATH_NOTE.forEach(function(x){
+    var raye=Boolean(f[x[0]]);if(!raye)visibles=false;
+    h+=raye?'<div style="color:#555;font-style:italic">'+esc(x[1])+'</div>':'<div><b>'+esc(x[1])+'</b></div>';
+  });
+  if(t.trou)h+='<div style="margin-top:.6em">'+esc(t.trou)+'</div>';
+  if(visibles){
+    if(f.emptyNameWhacked)h+=t.retour?'<div style="margin-top:.6em"><b>'+esc(t.retour)+'</b></div>':'';
+    else h+=t.incomplete?'<div style="margin-top:.6em"><b>'+esc(t.incomplete)+'</b></div>':'';
+  }
+  return h+'</div>';
+}
+
 function descriptionFiche(a,item){
   var cat=a&&a.itemCatalog&&typeof a.itemCatalog==='object'?a.itemCatalog:{};
   var d=item&&cat[item.definitionId]&&cat[item.definitionId].desc;
   if(!d)return '';
-  return '<div class="idle-fiche-desc-v1">'+descriptionHtml(d)+'</div>';
+  return '<div class="idle-fiche-desc-v1">'+descriptionHtml(d)+(item.definitionId==='deathNote'?blocDeathNote(a,cat.deathNote):'')+'</div>';
 }
 
 function boutonsFiche(item){

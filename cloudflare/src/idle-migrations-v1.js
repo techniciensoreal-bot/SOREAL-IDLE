@@ -31,7 +31,7 @@ import { createTrollStateV1, normaliserR3NomV1 } from "./idle-ngu-systemes.js";
 import { externalResourceAllocation, totalAllocated } from "./idle-ngu-ressources.js";
 import { baseState, normalizeResource } from "./idle-ngu-etat.js";
 
-export const ETAT_VERSION_COURANTE = 57;
+export const ETAT_VERSION_COURANTE = 58;
 
 function migrateLegacyTrackV47_(target, raw) {
   if (!target || !raw || typeof raw !== "object") return;
@@ -389,6 +389,27 @@ export const MIGRATIONS = Object.freeze([
       }
       q.data.attente = attente;
       delete q.data.items;
+      return etat;
+    }
+  }),
+  Object.freeze({
+    de: 57, vers: 58, nom: "marraine-secrete-v58", phase: "normalise",
+    /*
+     * Chaîne secrète de la Marraine (2026-11-20, idle-marraine-secrete-v1.js) : avant, The Godmother s'ouvrait au boss 166 (Evil). Elle n'existe plus qu'une fois `titan8Unlocked` posé par la mort du Consigliere (LootDrop::zone26Drop)
+     * quand les cinq noms de la Death Note sont rayés. Aucune perte : toute partie qui avait l'accès par l'ancienne règle (boss 166 déjà atteint, y compris par le pic de difficulté, ou Marraine déjà combattue) reçoit `titan8Unlocked` ;
+     * les autres devront la trouver. Pure : ne lit que l'état et le contexte.
+     */
+    appliquer(etat, contexte) {
+      const adv = etat && etat.adventure;
+      if (!estObjet(adv)) return etat;
+      if (!estObjet(adv.unlockFlags)) adv.unlockFlags = {};
+      if (adv.unlockFlags.titan8Unlocked) return etat;
+      const jeu = (contexte && contexte.jeu) || {};
+      const pics = estObjet(etat.difficultyPeaks) ? Object.values(etat.difficultyPeaks).map((v) => num(v, 0)) : [];
+      const etaitOuverte = num(etat.records && etat.records.highestBoss, 0) >= 166 || num(jeu.bosses, 0) >= 166 || pics.some((v) => v >= 166);
+      const mere = estObjet(adv.titans) ? adv.titans.godmother : null;
+      const dejaVue = estObjet(mere) && (num(mere.kills, 0) > 0 || num(mere.nextAt, 0) > 0);
+      if (etaitOuverte || dejaVue) adv.unlockFlags.titan8Unlocked = true;
       return etat;
     }
   })

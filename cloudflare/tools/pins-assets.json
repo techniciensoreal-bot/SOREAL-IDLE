@@ -344,8 +344,8 @@
   "sha": "f65c9b0a746af9e9a42862c46540f97365af59fb"
  },
  "/modules/exile-glop-v1.js": {
-  "pin": 2,
-  "sha": "56cf34618b2afedc38082a7965368e00fa381df2"
+  "pin": 3,
+  "sha": "a65ca524c442b4d2112d3196fbaad8e820bd9909"
  },
  "/modules/fade-notice-v1.js": {
   "pin": 4,
@@ -580,8 +580,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 316,
-  "sha": "9ec15b376ddd861ed8739f136509c9ef9373c8e9"
+  "pin": 318,
+  "sha": "671935e071c5f0847ca8fddc2ae67aec9aa23f79"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -640,8 +640,8 @@
   "sha": "d5ca766dd2619c822b691eb23a74518ade754d49"
  },
  "/modules/popup-effet-objet-v1.js": {
-  "pin": 6,
-  "sha": "0f9dbbc3f0763ec09cc58f6fe4664d9dcc2b5d4b"
+  "pin": 7,
+  "sha": "e52afb7e982836da7a72a733b298840e1458ab74"
  },
  "/modules/prefs-compte-v1.js": {
   "pin": 5,
@@ -700,12 +700,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 392,
-  "sha": "2cf3f96bdfbbdd6f51706e3e4106b6912d90bc72"
+  "pin": 393,
+  "sha": "6f506d9f7ad52b22c39753c89bebf03d86a0db19"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1040,
-  "sha": "7bca4b5c28e604ea4837aeb1f84c6aa647a35055"
+  "pin": 1041,
+  "sha": "0b59704407cd7140f15c6a342698512f20ab3919"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -800,12 +800,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1087,
-  "sha": "eebc99f7b5e5baa436ce54250cd937565a6f640a"
+  "pin": 1088,
+  "sha": "f99b1f98b448c588a307ca7b88d67f6aa9d1e95b"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 907,
-  "sha": "386bb9da771f10f76c17aefd8440382fd315ec0c"
+  "pin": 908,
+  "sha": "6958e9cbbac82cf386daf1a656ed4b7b2cc33a2f"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

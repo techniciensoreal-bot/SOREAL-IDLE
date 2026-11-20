@@ -975,6 +975,8 @@ beastClue1:{name:"The First Clue",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 beastClue2:{name:"The Second Clue",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 beastClue3:{name:"The Third Clue",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 beastClue4:{name:"The Final Clue!",zone:"",slot:"special",dropLevel:0,p:0,t:0},
+/* Chaîne secrète de la Marraine (Norman, 2026-11-20 ; table d'objets du jeu, build 1260) : 288 The Death Note (type 10, aucune stat) ; conditions : idle-marraine-secrete-v1.js ; texte : idle-adventure-descriptions-v1.js. */
+deathNote:{name:"The Death Note",zone:"",slot:"special",dropLevel:0,p:0,t:0},
 /*
  * La GLOP (quête d'IT HUNGERS, Norman, 2026-11-16 : « tout objet du jeu doit exister dans SOREAL »). Ids et noms de la table d'objets du jeu (build 1260) : 367 A Well Done Steak With Ketchup,
  * 368 Pickle Ice Cream, 369 A Can of Surstromming, 370 A Jar of Marmite, 371 Pizza With Pineapple (cinq ingrédients, type 10), 372 GLOP (type 10), 387 GLOP Recipe (type 10). Aucune stat. Ni les ingrédients
@@ -1411,6 +1413,7 @@ export const IDLE_ADVENTURE_WIKI_ITEM_IDS_V1=Object.freeze({
   "exileClueAntennae":340,
   "sackExile":341,
   /* Chaîne de la Bête : ids du jeu (build 1260). */
+  "deathNote":288,
   "crumpledNote":179,
   "beastClue1":180,
   "beastClue2":181,

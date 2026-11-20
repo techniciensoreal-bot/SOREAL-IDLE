@@ -159,7 +159,7 @@ const attente = (s) => { let n = 0; for (const par of Object.values(s.systems.qu
 /* --- 7. Migration 56 -> 57 : l'ancien stock devient une file d'attente, rien n'est perdu --- */
 {
   const m = MIGRATIONS.find((x) => x.de === 56);
-  assert.ok(m && m.vers === 57 && ETAT_VERSION_COURANTE === 57, "migration 56 -> 57 déclarée");
+  assert.ok(m && m.vers === 57 && ETAT_VERSION_COURANTE >= 57, "migration 56 -> 57 déclarée");
   const natif = JSON.parse(JSON.stringify(base()));   /* état natif du moteur (la migration ne joue que sur un état natif) */
   natif.etatVersion = 56;
   natif.systems.questing.data = { items: { sewers: { 0: 30, 5: 2 }, forest: { 0: 4 } }, maxedItems: { sewers: true } };
@@ -181,7 +181,7 @@ const attente = (s) => { let n = 0; for (const par of Object.values(s.systems.qu
   brutEtat.systems.questing.data.items = { sewers: { 0: 38, 9: 2 } };
   delete brutEtat.systems.questing.data.attente;
   let n = normalizeIdleNguState(brutEtat, ctx, T0);
-  assert.equal(n.etatVersion, 57);
+  assert.equal(n.etatVersion, ETAT_VERSION_COURANTE, "l'enchaînement va jusqu'à la version courante");
   assert.equal(attente(n) + total(n), 40, "aucune perte à la migration");
   n = advanceIdleNguState(n, 1, ctx, T0 + 1000);
   const libres = idleAdventureInventoryCapacityV1(n.adventure) - 4;

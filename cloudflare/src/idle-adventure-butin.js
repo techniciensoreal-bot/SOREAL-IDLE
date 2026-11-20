@@ -6,6 +6,7 @@
 import { BOOSTS, C, I, N } from "./idle-adventure-base.js";
 import { exileWahweeV1 } from "./idle-antlers-v1.js";
 import { glopIngredientButinV1 } from "./idle-glop-v1.js";
+import { marraineMortCibleV1 } from "./idle-marraine-secrete-v1.js";
 import { aleaV1 } from "./idle-alea-v1.js";
 import { IDLE_ADVENTURE_MOB_BESTIARY_V1, IDLE_ADVENTURE_ZONES, idleAdventureBestiaryAverageV1 } from "./idle-adventure-zones.js";
 import { SETS, SPECIALS, defById } from "./idle-adventure-sets.js";
@@ -840,6 +841,8 @@ export function rollKill(s,ctx){
   const out=exact===null?rollLegacyZoneLootAdventureV2(s,z,dropMult,ctx):exact;
   /* Ingrédients de la GLOP (quête d'IT HUNGERS, LootDrop::zone7Drop, 15, 20, 22, 29) : tirage plat par ennemi nommé, une fois la quête démarrée (idle-glop-v1.js). */
   glopIngredientButinV1(s,z.id,ctx.forceMobName,aleaV1(ctx),out);
+  /* Chaîne de la Marraine (LootDrop::zone2Drop, 4, 9, 10, 15) : tuer un des cinq ennemis nommés raye son nom sur la Death Note, une fois la quête commencée (idle-marraine-secrete-v1.js). */
+  const marraine=marraineMortCibleV1(s,z.id,ctx.forceMobName);
 
   if(
     !boss&&z.id==="forest"&&String(ctx.forceMobName||"")==="Goblin"&&
@@ -893,7 +896,7 @@ export function rollKill(s,ctx){
     }
   }
 
-  return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience,poop};
+  return{zone:z.id,boss,drops:out.filter(Boolean),gold,experience,poop,...(marraine?{secretMarraine:marraine}:{})};
 }
 
 /*

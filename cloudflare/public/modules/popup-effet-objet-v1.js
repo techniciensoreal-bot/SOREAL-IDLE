@@ -121,6 +121,9 @@ function construire(payload,res){
   }else if(adv==='loseZoneFight'&&r.glop&&r.glop.recette&&Array.isArray(r.glop.messages)&&r.glop.messages.length){
     /* LootDrop::postDeathDrops : K.O. par IT HUNGERS = la recette de la GLOP (textes du jeu). */
     spec={cle:'glop-recette',icone:'📜',img:'',titre:'Une recette…',nom:'Recette de la GLOP',phrase:r.glop.messages.map(function(m){return [String(m),'t'];}),rows:[]};
+  }else if(r.secretMarraine&&typeof r.secretMarraine==='object'&&Array.isArray(r.secretMarraine.messages)&&r.secretMarraine.messages.length){
+    /* Chaîne secrète de la Marraine (LootDrop::zone26Drop, zone2Drop, 4, 9, 10, 15) : les messages du journal du jeu, déjà dans la langue du joueur (les balises <b> du jeu sont retirées) ; rien d'autre n'est annoncé (aucun compteur, aucune condition). */
+    spec={cle:'marraine-liste',icone:'📓',img:'',titre:r.secretMarraine.debloque?'La Marraine t’attend !':(r.secretMarraine.objet?'Une liste de noms…':'La liste'),nom:'',phrase:r.secretMarraine.messages.map(function(m){return [String(m).replace(/<\/?b>/g,''),'t'];}),rows:[]};
   }else if(r.secretBete&&typeof r.secretBete==='object'&&Array.isArray(r.secretBete.messages)&&r.secretBete.messages.length){
     /* Chaîne secrète de la Bête (LootDrop::zone19Drop, checkUUGSecret, checkTreeSecret, checkJakeSecret) : les messages du journal du jeu, déjà dans la langue du joueur ; rien d'autre n'est annoncé (aucun compteur, aucune condition). */
     spec={cle:'bete-indice',icone:'📜',img:'',titre:'Quelque chose a été laissé derrière…',nom:'',phrase:r.secretBete.messages.map(function(m){return [String(m),'t'];}),rows:[]};

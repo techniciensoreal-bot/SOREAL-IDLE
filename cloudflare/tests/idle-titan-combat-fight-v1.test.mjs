@@ -12,7 +12,7 @@ const ctx = { bosses: 100, stats: { power: 1e20, toughness: 1e20, hp: 500 } };
 const agir = (s, p, t = 10_000, c = ctx) => applyIdleAdventureActionV47(s, p, c, t);
 
 // 1. Données : les 14 titans (+ le Prêtre d'Exilé et SKELETON GUARDIAN, 2026-11-16), valeurs de l'encadré wiki.
-assert.equal(Object.keys(IDLE_TITAN_COMBAT_V1).length, 16);
+assert.equal(Object.keys(IDLE_TITAN_COMBAT_V1).length, 17);   /* + THE CONSIGLIERE (chaîne de la Marraine, 2026-11-20) */
 assert.deepEqual(idleTitanCombatV1("t1"), { hp: 300000, power: 666, toughness: 666, regen: 66, attackRate: 2 });
 assert.equal(idleTitanCombatV1("t6", "brutal").hp, 5e13);
 assert.equal(idleTitanCombatV1("t5", "", 4).hp, 1e9);

@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Affichage : les maximums des bonus spéciaux affichés sur les fiches suivent la même règle d’arrondi que le jeu.",
-    "Collection, d’après le code du jeu : les bonus spéciaux d’une fiche à un niveau donné sont arrondis vers le bas, comme dans le jeu."
+    "Titans, d’après le code du jeu : l’accès à un titan tardif suit maintenant les règles du jeu ; les parties qui y avaient déjà accès le gardent."
   ] };
 })();

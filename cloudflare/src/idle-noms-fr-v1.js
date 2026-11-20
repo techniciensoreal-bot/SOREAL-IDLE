@@ -101,6 +101,7 @@ export const NOMS_SPECIALS_FR_V1 = Object.freeze({
   exileClueBuster: "Buster de l'Exilé (indice)",
   exileClueAntennae: "Antennes de l'Exilé (indice)",
   sackExile: "Sac de l'Exilé",
+  deathNote: "La Death Note",
   crumpledNote: "Une note froissée",
   beastClue1: "Le premier indice",
   beastClue2: "Le deuxième indice",

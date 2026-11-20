@@ -4,6 +4,7 @@
  * comme pour les autres textes du jeu ; en anglais le joueur lit l'original. Aucune description n'est inventée ni résumée.
  */
 export const IDLE_ADVENTURE_DESCRIPTIONS_V1 = Object.freeze({
+  /* 288 */ deathNote: "The Consigliere won't grant you an audience with The Godmother until you whack off everyone on this list:",
   /* 179 */ crumpledNote: "\"To release the power of THE BEAST, heed these words carefully:\n\nFirst, thou must defeat the one whose name must not be uttered, with the most sacred level of apathy.\n\nNext, thou must slay the World Tree wielding a shadow of its own strength.\n\nThird, thou must cruelly mock the salaryman, causing his demise by that which he most treasures, and nothing more.\n\nFinally, thou must run naked into the infinite majesty of the tower for no real reason, starting from the lowest bowels to the highest heights.\n\nOnly when these four quests ye have completed, and the clues arranged from end to beginning, will thou know when to seal away thine own power, which will awaken THE BEAST.\"",
   /* 180 */ beastClue1: "What on earth does it mean?",
   /* 181 */ beastClue2: "You still don't get it. :|",
@@ -24,4 +25,14 @@ export const IDLE_ADVENTURE_DESCRIPTIONS_V1 = Object.freeze({
   /* 371 */ pizzaPineapple: "Swallowing this is gonna be... tricky.",
   /* 372 */ glop: "This certainly violates some sort of human rights convention, but it'll save you from the 'IT HUNGERS' Titan for about 8 attacks!",
   /* 387 */ glopRecipe: "You will need:\n\n<b>Well done Steak With Ketchup - Found on the Orange Toupee</b>\n<b>Pickle Ice Cream - Found on SUNDAE</b>\n<b>Can of Surstromming - Found on Chocolate Singing Fish</b>\n<b>Jar of Marmite - Found on Barry, The Beer Fairy</b>\n<b>Pineapple Pizza - Found on The Annoying Fan</b>\n\n Mix ingredients in a giant blender for 30 seconds, then dump out onto a plate. That's about it. Good for temporarily neutralizing Titans."
+});
+
+/*
+ * Phrases de l'infobulle de la Death Note (288, InventoryController::itemTooltipText, build 1260) : le « trou » de la liste, puis le message de fin. La liste des noms (grisés une fois rayés) est composée par la page
+ * (modules/exile-glop-v1.js) ; ces phrases sont envoyées par le serveur (itemCatalog.deathNote.textes) pour être traduites avec les autres textes du jeu (design/traductions/fr/misc.json).
+ */
+export const IDLE_DEATH_NOTE_TEXTES_V1 = Object.freeze({
+  trou: "There's a weird gap in the list of names. Why would they put that there?",
+  retour: "You should head back to the Consigliere now that you completed the list!",
+  incomplete: "You feel like this Death Note should be complete, but that blank space still gives you the spoops."
 });

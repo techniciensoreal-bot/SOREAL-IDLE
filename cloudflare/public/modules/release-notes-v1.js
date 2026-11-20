@@ -34,6 +34,9 @@
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Collection, d’après le code du jeu : les bonus spéciaux d’une fiche à un niveau donné sont arrondis vers le bas, comme dans le jeu.'
+          ]},
+          {menu:'titans', titre:'Titans', points:[
+            'Titans, d’après le code du jeu : l’accès à un titan tardif suit maintenant les règles du jeu ; les parties qui y avaient déjà accès le gardent.'
           ]}
         ]
       },

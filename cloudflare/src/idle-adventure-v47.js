@@ -10,6 +10,7 @@ import { IDLE_ADVENTURE_ITEM_CATALOG_V1, SETS, SETS_OBJETS_V1, SPECIALS, defById
 import { idleBossRequisEchelleV1, idleBossRequisFacteurV1 } from "./idle-adventure-boss-requis-v1.js";
 import { base, idleAdventureBaseStatsV1, idleAdventureBoostManquantV1, idleAdventureNiveauEstMaxV1, idleAdventureObjetPleinementMaxeV1, idleAdventureSpecialBaseStatsV1, idleAdventureSpecialsListV1, item, normalizeIdleAdventureStateV47, special } from "./idle-adventure-objets.js";
 import { exileUtiliserPieceV1 } from "./idle-antlers-v1.js";
+import { IDLE_DEATH_NOTE_TEXTES_V1 } from "./idle-adventure-descriptions-v1.js";
 import { glopFabriquerV1 } from "./idle-glop-v1.js";
 import { consume, consumeAdventureSkillItemV1, fluxTitanV1, idleAdventureCubeTierV1, idleAdventureSpecialsByTypeV1, loseZoneFight, resolveZoneFight, setAutoKillTitanV1, setAutoKillTitansV1, setBeastModeAdventureV1, startTitanFight, startZoneFight, titan, titanCombatSnapshotV1, titanDifficulteOkV1, titanFound, titanGate, transformAdventureItemV1, useMove69AdventureV1, useUnlockItem } from "./idle-adventure-combat.js";
 import { repliZonesFermeesV1, rollKill, unlockedZone } from "./idle-adventure-butin.js";
@@ -369,7 +370,10 @@ function idleAdventureDefinitionsConnuesV1(s){
 }
 function idleAdventureCatalogueObjetsConnusV1(s){
   const ids=idleAdventureDefinitionsConnuesV1(s);
-  return Object.fromEntries(Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1).filter(([id])=>ids.has(id)));
+  const catalogue=Object.fromEntries(Object.entries(IDLE_ADVENTURE_ITEM_CATALOG_V1).filter(([id])=>ids.has(id)));
+  /* Death Note (288) : les phrases de son infobulle (liste composée par la page, drapeaux dans unlockFlags) ; seulement une fois l'objet obtenu (anti-spoil). */
+  if(catalogue.deathNote)catalogue.deathNote={...catalogue.deathNote,textes:{...IDLE_DEATH_NOTE_TEXTES_V1}};
+  return catalogue;
 }
 function idleAdventureCatalogueSetsConnusV1(s){
   const ids=idleAdventureDefinitionsConnuesV1(s);

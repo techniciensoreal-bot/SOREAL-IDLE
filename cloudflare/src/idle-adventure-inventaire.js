@@ -540,7 +540,7 @@ export const IDLE_ADVENTURE_COFFRE_TITAN_OBJETS_V1=Object.freeze({
   t5:["wanderersCane","wandoosXl","fannyPack","dorkyGlasses"],
   t6:["heroicSigil","ascendedX3Pendant","baldEgg","shrunkenVoodooDoll","pricelessVanGoghPainting","giantApple","crumpledNote","beastClue1","beastClue2","beastClue3","beastClue4","powerPill","smallGerbil","mysteriousPurpleLiquid"],
   nerd:["incriminatingEvidence","ordinaryCalculator","animeFigurine","ascendedX4Pendant","theD20","theD8","animeBodypillow","redMeeple","bagOfTrash","heartShapedPanties"],
-  godmother:["severedUnicornHead","kingLooty","violinCase","molotovCocktail","godmothersRing","godmothersWand","leftFairyWing","rightFairyWing"],
+  godmother:["deathNote","severedUnicornHead","kingLooty","violinCase","molotovCocktail","godmothersRing","godmothersWand","leftFairyWing","rightFairyWing"],
   t7:["stillBeatingHeart","theJoker","antlersExile","creditCard","tentacleExile","skipCard","antennaeExile","blackLotus","busterExile","sealExile","faceExile","exileClueTentacle","exileClueAntlers","exileClueBuster","exileClueAntennae","sackExile","blueEyesChestplate"],
   hungers:["theCricket","ascendedX5Pendant","emperorLooty","evilRubberDucky","gasGiant","carbonRod","kleinBottle","alienBugNest","theKey","wellDoneSteak","pickleIceCream","canSurstromming","jarOfMarmite","pizzaPineapple","glop","glopRecipe"],
   lobster:["ascendedX6Pendant","galacticHeraldLooty","skippingStone","bedRock","rockCandy","brokenScissors","portableStairway","amplifier"],

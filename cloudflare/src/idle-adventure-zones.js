@@ -649,7 +649,7 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
   hard:{p:5.5e16,t:3.5e16,idleP:1.2e17,idleT:8e16,autoKillP:2e17,autoKillT:1e17,autoKillR:2e15},
   brutal:{p:1.3e18,t:7.5e17,idleP:2.5e18,idleT:1.5e18,autoKillP:5e18,autoKillT:2.5e18,autoKillR:5e16}
 }},
-{id:"godmother",name:"The Godmother",boss:166,evilOnly:true,cooldown:5*H,drop:"severedUnicornHead",avatarLevel:6,difficulties:{
+{id:"godmother",name:"The Godmother",boss:166,evilOnly:true,requiresUnlock:"titan8Unlocked",cooldown:5*H,drop:"severedUnicornHead",avatarLevel:6,difficulties:{
   easy:{p:1.7e18,t:7e17,autoKillP:5e18,autoKillT:2.5e18,autoKillR:5e16},
   normal:{p:3.9e19,t:1.5e19,autoKillP:1e20,autoKillT:5e19,autoKillR:1e18},
   hard:{p:6.6e20,t:3.5e20,autoKillP:2e21,autoKillT:1e21,autoKillR:2e19},
@@ -701,5 +701,12 @@ export const IDLE_ADVENTURE_TITANS=Object.freeze([
  * (179, niveau 100) à CHAQUE victoire, ni or ni EXP ni compteur de titans. Aucun seuil de puissance : le jeu n'en a pas (le combat se résout coup par coup), donc p = t = 0. Il disparaît dès que la Bête est
  * débloquée (hiddenWhenFlag) ou déjà vaincue (remplacePar) ; la Bête, elle, ne se montre qu'à partir de là.
  */
-{id:"skeleton",name:"SKELETON GUARDIAN",boss:132,secret:true,hiddenWhenFlag:"titan6Unlocked",remplacePar:"t6",cooldown:3.5*H,p:0,t:0,drop:"",avatarLevel:6}
+{id:"skeleton",name:"SKELETON GUARDIAN",boss:132,secret:true,hiddenWhenFlag:"titan6Unlocked",remplacePar:"t6",cooldown:3.5*H,p:0,t:0,drop:"",avatarLevel:6},
+/*
+ * THE CONSIGLIERE (chaîne secrète de la Marraine, Norman 2026-11-20 ; code du jeu build 1260 : AdventureController::spawnEnemy, createEnemyTable, LootDrop::zone26Drop) : tant que « titan8Unlocked » est faux, la zone du 8e titan
+ * fait apparaître THE CONSIGLIERE (ennemi de type 22) à la place de The Godmother. Attaque 2, Power 6e17, Toughness 6e17, Regen 6e16, PV 6e19 (createEnemyTable ; IDLE_TITAN_COMBAT_V1.consigliere). Même déblocage et même minuteur de
+ * zone que la Marraine (boss 166 en Evil) : sa victoire relance le minuteur de la Marraine. Butin : la Death Note (288, niveau 100) tant que les cinq noms ne sont pas rayés, sinon le déblocage de la Marraine ; ni or ni EXP ni compteur de
+ * titans. Aucun seuil de puissance : le jeu n'en a pas (le combat se résout coup par coup), donc p = t = 0. Il disparaît dès que la Marraine est débloquée (hiddenWhenFlag) ou déjà vaincue (remplacePar).
+ */
+{id:"consigliere",name:"THE CONSIGLIERE",boss:166,evilOnly:true,secret:true,hiddenWhenFlag:"titan8Unlocked",remplacePar:"godmother",cooldown:5*H,p:0,t:0,drop:"",avatarLevel:6}
 ]);
