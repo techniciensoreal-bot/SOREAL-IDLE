@@ -7,4 +7,8 @@ const actions = lireSrc("idle-ngu-actions.js");
 assert.ok(/carte\.theEnd && idleAdventureInventoryUsedV1/.test(actions) && /INVENTAIRE_PLEIN/.test(actions), "THE END exige une place libre");
 const pistes = lireSrc("idle-ngu-pistes.js");
 assert.ok(!/Math\.max\(3600, WISH_MIN_LEVEL_SECONDS/.test(pistes), "plus de plancher de 3 600 s sur le temps minimal des souhaits");
+/* Wandoos hors ligne (2242) : vitesse de boot de la FIN pour toute la fenêtre. */
+assert.ok(lireSrc("idle-ngu-etat.js").includes("if (span >= 300) return { fraction: clamp(end / bootSeconds"), "Wandoos hors ligne : boot de la fin de fenêtre");
+/* Mur du boss 20 retiré. */
+assert.ok(/let bossBloqueRenaissance = false;/.test(lireSrc("idle-runtime-progression.js")), "plus de mur au boss 20");
 console.log("idle-alignement-jeu-2026-11-20-v1: OK");

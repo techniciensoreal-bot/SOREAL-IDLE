@@ -387,6 +387,8 @@ function wandoosBootFractionV1(state, now, seconds = 0) {
    * vitesse de la FIN de fenêtre. On utilise la vitesse moyenne de la rampe linéaire sur la fenêtre, et la
    * part de la fenêtre écoulée après le boot pour le +10 % du set Wandoos.
    */
+  /* Hors ligne (écart >= 300 s, seuil du moteur) : le jeu avance bootupTime de TOUT l'écart PUIS applique la vitesse de boot de la FIN à toute la fenêtre (Character::wandoosOfflineProgress, méthode 2242 ; audit hors-ligne.md E9, aligné le 2026-11-20). */
+  if (span >= 300) return { fraction: clamp(end / bootSeconds, 0, 1), afterBootShare: end >= bootSeconds ? 1 : 0, bootSeconds, elapsed: end };
   const start = end - span;
   const rampEnd = Math.min(end, bootSeconds);
   const rampStart = Math.min(start, bootSeconds);
