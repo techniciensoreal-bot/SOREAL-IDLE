@@ -37,10 +37,10 @@ const relClose = (a, b) => Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b), 
   const evil = equilibrerBossPrincipalSorealIdleV413_({}, index, "difficile");
   const sadistic = equilibrerBossPrincipalSorealIdleV413_({}, index, "extreme");
 
-  assert.ok(relClose(evil.attaque, normal.attaque / 1e30), "Evil : attaque divisée par 1e30 jusque dans le moteur de combat.");
-  assert.ok(relClose(evil.defense, normal.defense / 1e30), "Evil : defense divisée par 1e30 jusque dans le moteur de combat.");
-  assert.ok(relClose(evil.pv, normal.pv / 1e30), "Evil : pv suit la même proportion (HP=Attaque×10).");
-  assert.ok(relClose(sadistic.attaque, normal.attaque / 1e30), "SADISTIC : même diviseur ×1e30 qu'Evil, jamais cumulé.");
+  assert.ok(relClose(evil.attaque, normal.attaque), "Evil : le boss n'est jamais divisé, jusque dans le moteur de combat (audit IL 2026-11-20).");
+  assert.ok(relClose(evil.defense, normal.defense), "Evil : défense du boss inchangée.");
+  assert.ok(relClose(evil.pv, normal.pv), "Evil : pv suit la même proportion (HP=Attaque×10).");
+  assert.ok(relClose(sadistic.attaque, normal.attaque), "SADISTIC : boss inchangé.");
   assert.equal(evil.xp, normal.xp, "xp ne doit jamais être divisé par la difficulté.");
 }
 

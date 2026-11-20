@@ -445,9 +445,9 @@ function nguBossHpRegenForBossNumberV1(bossNumber) {
  */
 export function nguBossStatsV1(index, difficulty) {
   const i = Math.max(0, Math.floor(Number(index) || 0));
-  const divider = difficulty === "difficile" || difficulty === "extreme"
-    ? NGU_BOSS_EVIL_SADISTIC_DIVIDER_V1
-    : 1;
+  /* Audit IL 2026-11-20 : les stats du boss ne dépendent JAMAIS de la difficulté dans le jeu ; c'est le joueur qui est divisé par 1e30 (idle-ngu-bonus.js, difficultyDivider). Le paramètre `difficulty` est conservé pour les appelants. */
+  const divider = 1;
+  void NGU_BOSS_EVIL_SADISTIC_DIVIDER_V1; void difficulty;
 
   const bossNumber = i + 1;
   const regen =

@@ -19,8 +19,8 @@ test("Evil/Sadistic scale boss HP Regen with Fight Boss stats",()=>{
   const normal=nguBossStatsV1(4,"normal");
   const evil=nguBossStatsV1(4,"difficile");
   const sadistic=nguBossStatsV1(4,"extreme");
-  assert.equal(evil.regen,normal.regen/1e30);
-  assert.equal(sadistic.regen,normal.regen/1e30);
+  assert.equal(evil.regen,normal.regen);   /* le boss n'est pas divisé (audit IL 2026-11-20) */
+  assert.equal(sadistic.regen,normal.regen);
 });
 
 test("runtime uses the reference regen rather than Defense/20 for bosses",async()=>{

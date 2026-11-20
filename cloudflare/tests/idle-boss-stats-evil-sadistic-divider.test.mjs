@@ -27,11 +27,11 @@ const relClose = (a, b) => Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b), 
   const evil = nguBossStatsV1(index, "difficile");
   const sadistic = nguBossStatsV1(index, "extreme");
 
-  assert.ok(relClose(evil.attaque, normal.attaque / 1e30), "Evil : attaque doit être divisée par 1e30.");
-  assert.ok(relClose(evil.defense, normal.defense / 1e30), "Evil : defense doit être divisée par 1e30.");
-  assert.ok(relClose(sadistic.attaque, normal.attaque / 1e30), "SADISTIC : même diviseur ×1e30 qu'Evil, jamais cumulé.");
-  assert.ok(relClose(sadistic.defense, normal.defense / 1e30), "SADISTIC : même diviseur ×1e30 qu'Evil, jamais cumulé.");
-  assert.ok(relClose(evil.pv, normal.pv / 1e30), "pv doit suivre la même proportion qu'attaque (HP=Attaque×10, mécaniquement divisé pareil).");
+  assert.ok(relClose(evil.attaque, normal.attaque), "Evil : le BOSS n'est jamais divisé (audit IL 2026-11-20 : c'est le joueur qui l'est).");
+  assert.ok(relClose(evil.defense, normal.defense), "Evil : la défense du boss est inchangée.");
+  assert.ok(relClose(sadistic.attaque, normal.attaque), "SADISTIC : stats du boss inchangées.");
+  assert.ok(relClose(sadistic.defense, normal.defense), "SADISTIC : défense du boss inchangée.");
+  assert.ok(relClose(evil.pv, normal.pv), "pv doit suivre la même proportion qu'attaque (HP=Attaque×10, mécaniquement divisé pareil).");
   assert.equal(evil.xp, normal.xp, "xp ne varie jamais avec la difficulté (non documenté par le wiki comme changeant).");
   assert.equal(sadistic.xp, normal.xp, "xp ne varie jamais avec la difficulté (SADISTIC non plus).");
 }
@@ -41,7 +41,7 @@ const relClose = (a, b) => Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b), 
   const index = 200; // au-delà de NGU_BOSS_REFERENCE_V1 (160 entrées)
   const normal = nguBossStatsV1(index, "normal");
   const evil = nguBossStatsV1(index, "difficile");
-  assert.ok(relClose(evil.attaque, normal.attaque / 1e30), "Le diviseur doit s'appliquer aussi à la progression infinie extrapolée.");
+  assert.ok(relClose(evil.attaque, normal.attaque), "Même règle pour la progression extrapolée : le boss n'est jamais divisé.");
   assert.equal(evil.xp, normal.xp, "xp reste inchangé même au-delà de la table sourcée.");
 }
 

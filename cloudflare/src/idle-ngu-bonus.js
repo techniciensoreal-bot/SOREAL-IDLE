@@ -897,6 +897,8 @@ function idleNguBonusesSansMacguffinCoeurV1(state) {
     facteursStats,
     attackMultiplier: attackMultiplier * richJerksAttackMultiplier * equipmentAttackMultiplier,
     /* Part de l'Attaque/Défense appliquée AVANT la division de difficulté dans le jeu (Character::totalAttack, build 1260) : NUMBER x ITOPOD x équipement x Rich Jerks. Le « 100 » naturel n'en reçoit AUCUN ; il reçoit tout le reste. */
+    /* Lu dans le jeu (Character::totalAttack 2133 / totalDefense 2134 / updateCharacter 2132, difficultyModifier 2139 ; audit IL 2026-11-20) : en Evil et Sadistic le JOUEUR est divisé par 1e30 (plancher final 100) ; les stats du boss ne le sont jamais (BossController::advanceBoss 1546, Rebirth::resetBoss 2716). Avant : le diviseur était appliqué au BOSS (1e60 d'écart). */
+    difficultyDivider: state.difficulty === "difficile" || state.difficulty === "extreme" ? 1e30 : 1,
     attackPreMultiplier: number * perkBonuses.statMultiplier * richJerksAttackMultiplier * equipmentAttackMultiplier,
     defensePreMultiplier: number * perkBonuses.statMultiplier * richJerksDefenseMultiplier * equipmentDefenseMultiplier,
     /* Part « équipement d'Aventure » du produit ci-dessus (Adventure n'existe qu'à partir du boss 4 de chaque run : voir statsCombatPrincipalSorealIdleV413_). */

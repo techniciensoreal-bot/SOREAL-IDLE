@@ -1352,11 +1352,13 @@ export function multiplicateursCombatSorealIdle_(bonusMetaNgu, bossesRun) {
       : Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.equipmentDefenseMultiplier, 1));
   /* Lu dans le jeu (Character::totalAttack / totalDefense, build 1260, 2026-11-15) : le « 100 » naturel reçoit tous les bonus APRÈS la division de difficulté (Augments, Wandoos, Yggdrasil, NGU, Barbes, Mineurs, Quirks, Hacks, Souhaits, Cartes, MacGuffin), mais ni le NUMBER, ni ITOPOD, ni l'équipement, ni Rich Jerks. */
   const post = (total, pre) => Math.max(1e-300, nombreSorealIdle_(total, 1)) / Math.max(1e-300, nombreSorealIdle_(pre, 1));
+  /* Evil / Sadistic : le joueur est divisé par 1e30 (Character::difficultyModifier), voir difficultyDivider (idle-ngu-bonus.js). Tout le produit (donc aussi le « 100 » naturel) est divisé, le plancher de 100 s'applique ensuite au total. */
+  const diviseur = Math.max(1, nombreSorealIdle_(bonusMetaNgu.difficultyDivider, 1));
   return {
-    attaque: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.attackMultiplier, 1)) / facteurEquipementAttaque,
-    defense: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.defenseMultiplier, 1)) / facteurEquipementDefense,
-    attaquePost: post(bonusMetaNgu.attackMultiplier, bonusMetaNgu.attackPreMultiplier),
-    defensePost: post(bonusMetaNgu.defenseMultiplier, bonusMetaNgu.defensePreMultiplier)
+    attaque: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.attackMultiplier, 1)) / facteurEquipementAttaque / diviseur,
+    defense: Math.max(1e-300, nombreSorealIdle_(bonusMetaNgu.defenseMultiplier, 1)) / facteurEquipementDefense / diviseur,
+    attaquePost: post(bonusMetaNgu.attackMultiplier, bonusMetaNgu.attackPreMultiplier) / diviseur,
+    defensePost: post(bonusMetaNgu.defenseMultiplier, bonusMetaNgu.defensePreMultiplier) / diviseur
   };
 }
 
