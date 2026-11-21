@@ -31,6 +31,7 @@ var VARIANTES=[
 var SPECIALES=[
   {id:'perruque',boss:106,nom:'Perruque',duree:4.6,aide:'Toute l’image du boss 106 s’écoule comme des mèches de cheveux ; le boss 107 apparaît derrière, dans le tas.'},
   {id:'dechirure',boss:114,nom:'Déchirure',duree:3.0,aide:'Le boss 114 se déchire de haut en bas comme une feuille de papier ; les deux moitiés s’écartent puis tombent.'},
+  {id:'pancarte',boss:109,nom:'Pancarte',duree:3.1,aide:'Le boss 109 tombe comme une pancarte dont la chaîne lâche, vers le bas de l’écran ; quand l’image n’est plus là, un petit pet de flamme sort du bas.'},
   {id:'evier',boss:108,nom:'Évier',duree:4.3,aide:'Le boss 108 se vide comme de l’eau dans un évier : l’image tourne en tourbillon et disparaît dans la bonde, avec le bruit de la vidange.'}
 ];
 function varianteDe(id){return VARIANTES.concat(SPECIALES).filter(function(x){return x.id===id;})[0];}
@@ -99,6 +100,8 @@ function preparer(id,img,LW,LH){
     preparerPerruque(img,LW,LH,k);
   }else if(id==='dechirure'){
     preparerDechirure(LW,LH,k);
+  }else if(id==='pancarte'){
+    /* rien à préparer : l'image entière est dessinée telle quelle */
   }else if(id==='evier'){
     preparerEvier(LW,LH,k);
   }else if(id==='enfoncement'){
@@ -471,8 +474,63 @@ function dessinerEvier(c,t,k,LW,LH){
   }
 }
 
+/*
+ * Mort SPÉCIALE du boss 109, la pancarte (Norman, 2026-11-21 : « je veux que l'image tombe comme une pancarte vers le fond de l'écran et qu'un petit pet de flamme vienne du bas, quand l'image n'est plus à l'écran »).
+ * L'image est une pancarte pendue par deux chaînes : elle se balance en grinçant, la chaîne de gauche lâche (craquement), elle bascule autour du crochet de droite puis tombe en tournant, de plus en plus vite, et sort par le bas de l'écran
+ * (PANC_T_SORTIE). C'est seulement APRÈS (PANC_T_FLAMME) qu'un petit pet de flamme jaillit du bas, brille un instant et s'éteint dans un filet de fumée. Le son est calé sur ces mêmes temps (voir « pancarte » dans construireSon).
+ * Aucun texte : que des pixels de l'image.
+ */
+var PANC_T_CRAC=.45,PANC_T_CHUTE=.95,PANC_G=4,PANC_T_SORTIE=PANC_T_CHUTE+Math.sqrt(3.2/PANC_G),PANC_T_FLAMME=2.05,PANC_VIE_FLAMME=.95;
+function dessinerPancarte(c,t,k,LW,LH){
+  vide(c,LW,LH);
+  var px=LW*.92,py=0,ang=0,dy=0,gauche=true,sortie=t>=PANC_T_SORTIE;
+  /* les deux crochets du haut : celui de gauche reste vide quand la chaîne a lâché */
+  c.save();c.strokeStyle='#8d97a8';c.lineWidth=2;c.lineCap='round';
+  c.beginPath();c.moveTo(LW*.92,0);c.lineTo(LW*.92,LH*.045);c.stroke();
+  if(t<PANC_T_CRAC){c.beginPath();c.moveTo(LW*.08,0);c.lineTo(LW*.08,LH*.045);c.stroke();}
+  else{c.beginPath();c.moveTo(LW*.08,0);c.lineTo(LW*.08+LW*.015,LH*.03);c.stroke();}   /* le bout de chaîne cassé qui pend */
+  c.restore();
+  if(!sortie){
+    if(t<PANC_T_CRAC){
+      /* balancement qui grandit, autour du milieu du haut */
+      px=LW*.5;ang=Math.sin(t*15)*.055*lisse(t/.25);
+    }else if(t<PANC_T_CHUTE){
+      var u=(t-PANC_T_CRAC)/(PANC_T_CHUTE-PANC_T_CRAC);ang=-.62*u*u;                  /* bascule autour du crochet de droite */
+    }else{
+      var a=t-PANC_T_CHUTE;ang=-.62-a*1.5-a*a*.9;dy=.5*PANC_G*LH*a*a;                 /* chute libre en tournant, de plus en plus vite */
+    }
+    c.save();c.translate(px,py+dy);c.rotate(ang);c.translate(-px,-py);c.drawImage(k.img,0,0);c.restore();
+  }
+  /* le pet de flamme, une fois l'image sortie */
+  var age=t-PANC_T_FLAMME;
+  if(age>0&&age<PANC_VIE_FLAMME+.7){
+    var x=LW*.5,y=LH,e=age<PANC_VIE_FLAMME?Math.pow(Math.sin(Math.PI*age/PANC_VIE_FLAMME),.7):0;
+    if(e>0.01){
+      var h=LH*.2*e,w=LW*.075*(.6+.4*e),sw=Math.sin(t*38)*w*.35,fl=.9+Math.sin(t*61)*.1;
+      var lueur=c.createRadialGradient(x,y,2,x,y,LW*.28*e+8);lueur.addColorStop(0,'rgba(255,170,60,'+(.5*e).toFixed(2)+')');lueur.addColorStop(1,'rgba(255,120,20,0)');
+      c.fillStyle=lueur;c.fillRect(0,y-LW*.3,LW,LW*.3+1);
+      var couches=[[1,'rgba(255,92,18,'+(.92*fl).toFixed(2)+')'],[.68,'rgba(255,178,40,.95)'],[.36,'rgba(255,248,200,.98)']];
+      couches.forEach(function(cl){
+        var hh=h*cl[0],ww=w*cl[0];
+        c.fillStyle=cl[1];c.beginPath();c.moveTo(x-ww,y);
+        c.quadraticCurveTo(x-ww*.9,y-hh*.55,x+sw*cl[0],y-hh);
+        c.quadraticCurveTo(x+ww*.9,y-hh*.55,x+ww,y);c.closePath();c.fill();
+      });
+      for(var q=0;q<5;q++){var qa=age*1.6+q*.18,qy=y-qa*LH*.38-rnd(q*3+1)*6,qx=x+(rnd(q*5+2)-.5)*w*2.4+Math.sin(qa*9+q)*3;
+        if(qa<.5){c.fillStyle='rgba(255,'+(160+Math.floor(rnd(q)*80))+',60,'+(1-qa*2).toFixed(2)+')';c.fillRect(Math.round(qx),Math.round(qy),2,2);}}
+    }
+    /* un filet de fumée quand la flamme s'éteint */
+    if(age>PANC_VIE_FLAMME*.55){
+      var sa=(age-PANC_VIE_FLAMME*.55)/(PANC_VIE_FLAMME+.7-PANC_VIE_FLAMME*.55);
+      for(var z=0;z<4;z++){var zy=y-LH*.06-sa*LH*.2-z*LH*.03,zx=x+Math.sin(sa*7+z*1.7)*LW*.025;
+        c.fillStyle='rgba(185,190,200,'+(Math.max(0,.22*(1-sa))*(1-z*.18)).toFixed(2)+')';c.beginPath();c.arc(zx,zy,LW*(.018+z*.006)*(1+sa),0,Math.PI*2);c.fill();}
+    }
+  }
+}
+
 function dessiner(id,c,t,k,LW,LH){
-  if(id==='evier')dessinerEvier(c,t,k,LW,LH);
+  if(id==='pancarte')dessinerPancarte(c,t,k,LW,LH);
+  else if(id==='evier')dessinerEvier(c,t,k,LW,LH);
   else if(id==='perruque')dessinerPerruque(c,t,k,LW,LH);
   else if(id==='dechirure')dessinerDechirure(c,t,k,LW,LH);
   else if(id==='eboulement')dessinerEboulement(c,t,k,LW,LH);
@@ -503,7 +561,7 @@ function ton(a,t0,type,f0,f1,dur,pic,att){
   var g=a.createGain();env(g,t0,att||.01,dur,pic);o.connect(g);g.connect(sortieCourante||maitre(a));o.start(t0);o.stop(t0+dur+.1);
   return o;
 }
-var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000,perruque:4800,dechirure:3200,evier:4600};
+var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000,perruque:4800,dechirure:3200,evier:4600,pancarte:3300};
 function construireSon(a,id){
   var t=a.currentTime+.03,i;
   if(id==='eboulement'){
@@ -548,6 +606,18 @@ function construireSon(a,id){
     bs.connect(hp);hp.connect(lp);lp.connect(pk);pk.connect(g);g.connect(sortieCourante||maitre(a));bs.start(t+.3);
     souffle(a,t+.3,1.0,'bandpass',2400,4200,.6,.06,.1);                                   /* le souffle de la feuille qui se tend */
     souffle(a,t+1.45,.9,'bandpass',600,300,.7,.05,.25);                                    /* les deux moitiés qui tombent */
+  }else if(id==='pancarte'){
+    /* Calé sur l'image : balancement 0 – 0,45 s, la chaîne lâche à PANC_T_CRAC (0,45 s), chute dès 0,95 s, l'image sort à ~1,84 s, le pet de flamme part à PANC_T_FLAMME (2,05 s). */
+    for(i=0;i<6;i++)ton(a,t+i*.07,'square',640+Math.random()*260,430,.05,.1,.004);                                          /* la chaîne grince */
+    souffle(a,t,.45,'bandpass',900,500,3,.12,.1);ton(a,t,'sine',90,70,.45,.06,.1);                                           /* la pancarte se balance */
+    souffle(a,t+.45,.07,'highpass',2500,6500,.6,.75,.002);ton(a,t+.45,'sine',280,90,.14,.45,.003);                           /* craquement : la chaîne lâche */
+    for(i=0;i<4;i++)ton(a,t+.5+i*.12+Math.random()*.03,'triangle',1900-i*180,1300,.09,.12,.002);                              /* tintement de la ferraille qui bascule */
+    souffle(a,t+.95,.9,'bandpass',450,2400,1.3,.2,.55);                                                                      /* la chute : sifflement qui monte */
+    ton(a,t+1.82,'sine',160,60,.2,.25,.01);                                                                                  /* elle sort de l'écran : un dernier coup sourd, très loin */
+    souffle(a,t+2.05,.5,'bandpass',1900,520,.8,.5,.01);ton(a,t+2.05,'sine',150,55,.42,.5,.01);                               /* le pet de flamme : « pfwouf » */
+    souffle(a,t+2.12,.55,'highpass',3200,6800,.6,.1,.05);
+    for(i=0;i<6;i++)souffle(a,t+2.15+Math.random()*.5,.03,'bandpass',3000+Math.random()*3500,2500,6,.14,.002);               /* petits crépitements */
+    souffle(a,t+2.7,.4,'lowpass',500,150,.8,.06,.1);                                                                         /* le filet de fumée */
   }else if(id==='evier'){
     /* Calé sur l'image : la bonde apparaît dès 0,15 s, l'eau se retire de 0,5 s à 3,5 s (de plus en plus vite), le dernier « glouk » tombe à 3,5 s. */
     ton(a,t+.1,'sine',200,150,.35,.4,.01);souffle(a,t+.1,.3,'lowpass',500,200,1,.15,.02);                                 /* la bonde s'ouvre : « bloup » */

@@ -5,6 +5,7 @@
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
     "Magie du sang : « Bonus actuel » et « En le lançant maintenant » du sort du Nombre suivent ton sang en direct, sans changer d’onglet.",
-    "NGU : le décompte « Niveau suivant dans… » s’affiche dès que tu places de l’énergie ou de la magie, sans changer de menu ; le même défaut qui figeait la page en cas de champ rempli est corrigé pour les autres menus à pages mises à jour en direct."
+    "NGU : le décompte « Niveau suivant dans… » s’affiche dès que tu places de l’énergie ou de la magie, sans changer de menu ; le même défaut qui figeait la page en cas de champ rempli est corrigé pour les autres menus à pages mises à jour en direct.",
+    "Un autre boss a lui aussi sa mort : il tombe comme une pancarte dont la chaîne lâche, puis un petit pet de flamme sort du bas de l’écran."
   ] };
 })();
