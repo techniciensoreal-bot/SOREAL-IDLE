@@ -992,6 +992,8 @@ function advanceTowerV1(state, seconds, context) {
   const horsLigneItopod = seconds >= TOWER_COMBAT_MAX_SECONDS_V1;
   if (horsLigneItopod) {
     const etageUnique = Math.max(0, Math.min(optimal, d.highestFloor));
+    /* Lu dans le jeu (audit IL 2026-11-21, Character::adventureOfflineProgress 2239 : calculateBestItopodLevel > 0 exigé, il renvoie 0 sous 700 de Puissance ou si l'étage le plus haut est 0) : dans ce cas le jeu ne fait RIEN hors ligne, il ne joue pas l'étage 0. */
+    if (etageUnique <= 0) return;
     start = etageUnique;
     end = etageUnique;
     auto = false;
@@ -1299,7 +1301,8 @@ export function towerSetFloorsV1(state, payload) {
   }
   const highest = Math.max(0, int(d.highestFloor, 0));
   const start = clamp(int(payload.start, 0), 0, Math.max(0, highest - 1));
-  const end = clamp(int(payload.end, start), start, TOWER_MAX_FLOOR_V1);
+  /* Lu dans le jeu (audit IL 2026-11-21, AdventureController::verifyItopodInputs) : l'étage de fin est d'au moins 1 (début = fin = 0 devient fin = 1). */
+  const end = clamp(int(payload.end, start), Math.max(1, start), TOWER_MAX_FLOOR_V1);
   d.startFloor = start;
   d.endFloor = end;
   d.autoOptimal = false;

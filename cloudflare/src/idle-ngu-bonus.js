@@ -10,6 +10,7 @@ import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { avecEquipementFigeV1, idleAdventureCleEquipementV1, idleAdventureEquipmentStatsLectureV47, idleEquipementEffectifLectureV1, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureMemoNouvelleRequeteV1, idleAdventureSetRewardProductV1, idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
+import { idleAdventureCubeSoftcapV1 } from "./idle-adventure-inventaire.js";
 import { idleHeartsApMultiplierV1, idleHeartsExpMultiplierV1, idleHeartsHackSpeedMultiplierV1 } from "./idle-hearts-v1.js";
 import { idleCardsMultiplierV1, idleCardsApplyToBonusesV1 } from "./idle-cards-v1.js";
 import { macguffinEffectMultiplierV1, macguffinApplyToBonusesV1 } from "./idle-macguffins-v1.js";
@@ -1276,36 +1277,46 @@ export function idleAdventureCombatStatsV1(gear, context, bonuses) {
   const flat = (bo && bo.adventureBaseFlat) || { power: 0, toughness: 0, hp: 0, regen: 0 };
   const multPower = Math.max(0, num(bo && bo.adventurePowerMultiplier, 1));
   const multToughness = Math.max(0, num(bo && bo.adventureToughnessMultiplier, 1));
+  /*
+   * Lu dans le jeu (audit IL 2026-11-21 : InventoryController::cubePower 3598) : le seuil du plafond mou du Cube est Adventure.attack + attackBonus, soit la base de 10, l'équipement ET tous les gains plats permanents (fruits, perks, Iron Pill, achats, Pit) ;
+   * au-delà, le Cube compte base + racine(cube - base). Avant : seul l'équipement (+ récompenses de set) entrait dans le seuil. Même règle pour la Robustesse (Adventure.defense + defenseBonus).
+   */
+  const cubeP0 = Math.max(0, num(g.cubePowerContribution, 0)), cubeT0 = Math.max(0, num(g.cubeToughnessContribution, 0));
+  let cubeP = cubeP0, cubeT = cubeT0;
+  if (Number.isFinite(Number(g.cubePowerBrut)) && Number.isFinite(Number(g.cubeToughnessBrut))) {
+    cubeP = idleAdventureCubeSoftcapV1(Math.max(0, num(g.cubePowerBrut, 0)), baseAdventurePower + Math.max(0, num(g.power, 0) - cubeP0) + Math.max(0, num(permanent.adventurePower, 0)) + Math.max(0, num(flat.power, 0)));
+    cubeT = idleAdventureCubeSoftcapV1(Math.max(0, num(g.cubeToughnessBrut, 0)), baseAdventureToughness + Math.max(0, num(g.toughness, 0) - cubeT0) + Math.max(0, num(permanent.adventureToughness, 0)) + Math.max(0, num(flat.toughness, 0)));
+  }
+  const g2 = Object.assign({}, g, { power: num(g.power, 0) - cubeP0 + cubeP, toughness: num(g.toughness, 0) - cubeT0 + cubeT, hp: num(g.hp, 0) + 3 * (cubeP - cubeP0), regen: num(g.regen, 0) + 0.03 * (cubeT - cubeT0), cubePowerContribution: cubeP, cubeToughnessContribution: cubeT });
   /* Détail pour l'écran (provenance de chaque part) : parts additives avant le multiplicateur, puis le multiplicateur et ses sources. Les valeurs sont celles du calcul ci-dessous. */
-  const cubeP = Math.max(0, num(g.cubePowerContribution, 0)), cubeT = Math.max(0, num(g.cubeToughnessContribution, 0));
   const parts = (base, equip, cube, perm, plat, flatSrc) => ({ base, equipement: Math.max(0, equip - cube), cube, permanent: Math.max(0, perm), plat: Math.max(0, plat), plats: flatSrc || {} });
   const sourcesMult = (extra) => (bo && Array.isArray(bo.adventureSources) ? bo.adventureSources : []).concat(extra ? [extra] : []);
   const detail = !(context && context.detailV1) ? undefined : {
-    power: Object.assign(parts(baseAdventurePower, num(g.power, 0), cubeP, num(permanent.adventurePower, 0), num(flat.power, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.power), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
-    toughness: Object.assign(parts(baseAdventureToughness, num(g.toughness, 0), cubeT, num(permanent.adventureToughness, 0), num(flat.toughness, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.toughness), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) }),
-    hp: Object.assign(parts(hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1, num(g.hp, 0), 3 * cubeP, num(permanent.adventureHp, 0), num(flat.hp, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.hp), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
-    regen: Object.assign(parts(baseAdventureRegen, num(g.regen, 0), 0.03 * cubeT, num(permanent.adventureRegen, 0), num(flat.regen, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.regen), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) })
+    power: Object.assign(parts(baseAdventurePower, num(g2.power, 0), cubeP, num(permanent.adventurePower, 0), num(flat.power, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.power), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
+    toughness: Object.assign(parts(baseAdventureToughness, num(g2.toughness, 0), cubeT, num(permanent.adventureToughness, 0), num(flat.toughness, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.toughness), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) }),
+    hp: Object.assign(parts(hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1, num(g2.hp, 0), 3 * cubeP, num(permanent.adventureHp, 0), num(flat.hp, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.hp), { multiplicateur: multPower, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesPuissance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesPuissance] : null) }),
+    regen: Object.assign(parts(baseAdventureRegen, num(g2.regen, 0), 0.03 * cubeT, num(permanent.adventureRegen, 0), num(flat.regen, 0), bo && bo.adventureFlatSources && bo.adventureFlatSources.regen), { multiplicateur: multToughness, sources: sourcesMult(bo && Math.abs(num(bo.adventureSourcesEndurance, 1) - 1) > 1e-9 ? ["avance", bo.adventureSourcesEndurance] : null) })
   };
-  return Object.assign({}, g, detail ? { detailV1: detail } : {}, {
+  return Object.assign({}, g2, detail ? { detailV1: detail } : {}, {
     power:
       (baseAdventurePower +
-        Math.max(0, num(g.power, 0)) +
+        Math.max(0, num(g2.power, 0)) +
         Math.max(0, num(permanent.adventurePower, 0)) +
         Math.max(0, num(flat.power, 0))) * multPower,
     toughness:
       (baseAdventureToughness +
-        Math.max(0, num(g.toughness, 0)) +
+        Math.max(0, num(g2.toughness, 0)) +
         Math.max(0, num(permanent.adventureToughness, 0)) +
         Math.max(0, num(flat.toughness, 0))) * multToughness,
     hp:
       ((hasExternalAdventurePower ? baseAdventurePower * 3 : BASE_ADVENTURE_HP_V1) +
-        Math.max(0, num(g.hp, 0)) +
+        Math.max(0, num(g2.hp, 0)) +
         Math.max(0, num(permanent.adventureHp, 0)) +
         Math.max(0, num(flat.hp, 0))) * multPower,
     regenBase: baseAdventureRegen,
     regen:
       (baseAdventureRegen +
-        Math.max(0, num(g.regen, 0)) +
+        Math.max(0, num(g2.regen, 0)) +
         Math.max(0, num(permanent.adventureRegen, 0)) +
         Math.max(0, num(flat.regen, 0))) * multToughness,
     blockReduction: bo && Number.isFinite(Number(bo.blockReduction)) ? Number(bo.blockReduction) : 0.5

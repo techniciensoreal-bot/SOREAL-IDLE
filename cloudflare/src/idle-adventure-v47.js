@@ -262,6 +262,9 @@ function idleAdventureEquipmentStatsCalculV47(raw){
     toughness:baseToughness+cubeToughnessContribution,
     cubePowerContribution,
     cubeToughnessContribution,
+    /* Cube BRUT (avant le plafond mou) : le seuil du plafond est recalculé avec la base complète du jeu dans idleAdventureCombatStatsV1 (audit IL 2026-11-21). */
+    cubePowerBrut:N(s.cube.power),
+    cubeToughnessBrut:N(s.cube.toughness),
     /* Lu dans le jeu (Character::totalAdvHP 2164 : + cubePower x 3 ; totalAdvHPRegen 2165 : + cubeToughness x 0,03), audit IL 2026-11-20. */
     hp:equippedHp+N(s.setRewards.adventureHp)+3*cubePowerContribution,
     regen:equippedRegen+N(s.setRewards.adventureRegen)+0.03*cubeToughnessContribution,

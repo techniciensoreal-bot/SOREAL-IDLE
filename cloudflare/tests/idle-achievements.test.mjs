@@ -127,6 +127,7 @@ assert.deepEqual(normalizeIdleAchievementsDataV1({ unlocked: { boss_10: 5, incon
     s.systems.tower.active = true;
     if (fibo) s.systems.perks.data.levels[94] = fibo;
     if (avecSucces) s.systems.achievements.data.unlocked = Object.assign({}, tous);
+    s.systems.tower.data.highestFloor = 5;   /* jeu : hors ligne, l'étage optimal est borné par l'étage le plus haut atteint (audit IL 2026-11-21) */
     s = normalizeIdleNguState(s, ctx, 1_000_000);
     const ap0 = s.currencies.ap;
     s = advanceIdleNguState(s, 5 * 100, ctx, 2_000_000);

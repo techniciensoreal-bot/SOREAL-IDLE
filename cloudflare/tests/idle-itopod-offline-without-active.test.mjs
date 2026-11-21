@@ -42,8 +42,13 @@ function baseState() {
 // Exactement 650 : au seuil, ça progresse (« assez de Power pour tuer l'étage 1 en un coup »).
 {
   const ctx = { adventurePower: 650, adventureToughness: 650, bosses: 30 };
-  const state = advanceIdleNguState(baseState(), 3600, ctx, Date.now());
-  assert.ok(state.systems.tower.data.kills > 0, "650 exactement doit déjà progresser");
+  /* Lu dans le jeu (audit IL 2026-11-21, Character::adventureOfflineProgress 2239 + calculateBestItopodLevel : 0 sous 700 de Puissance) : hors ligne, entre 650 et 700 le jeu ne fait RIEN ; en ligne (court), 650 suffit. */
+  const horsLigne = advanceIdleNguState(baseState(), 3600, ctx, Date.now());
+  assert.equal(horsLigne.systems.tower.data.kills, 0, "hors ligne : 650 ne suffit pas, il faut 700");
+  const enLigne = advanceIdleNguState(Object.assign(baseState(), {}), 20, ctx, Date.now());
+  assert.ok(enLigne.systems.tower.data.kills > 0, "en ligne : 650 exactement progresse");
+  const ctx700 = { adventurePower: 700, adventureToughness: 700, bosses: 30 };
+  assert.ok(advanceIdleNguState(baseState(), 3600, ctx700, Date.now()).systems.tower.data.kills > 0, "hors ligne : 700 progresse");
 }
 
 // MacGuffin ITOPOD Drops (perk 68) : les kills obtenus hors ligne alimentent bien le compteur

@@ -23,7 +23,7 @@ function baseState(active) {
     version: IDLE_NGU_META_VERSION,
     saveSchema: IDLE_NGU_SAVE_SCHEMA,
     systems: {
-      tower: { unlocked: true, active, data: { floor: 0, killsOnFloor: 0, highestFloor: 0, kills: 0, ppProgress: 0 } }
+      tower: { unlocked: true, active, data: { floor: 0, killsOnFloor: 0, highestFloor: 5, kills: 0, ppProgress: 0 } }
     },
     currencies: { pp: 0 }
   };

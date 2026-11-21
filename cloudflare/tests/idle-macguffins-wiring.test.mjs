@@ -155,7 +155,7 @@ function fragment(s, type, level, equipped) {
   s.systems.perks.data.levels = { 68: 1 };
   s.systems.tower.unlocked = true;
   s.systems.tower.active = true;
-  s.systems.tower.data = { kills: 0 };
+  s.systems.tower.data = { kills: 0, highestFloor: 5 };   /* jeu : hors ligne, l étage optimal est borné par l étage le plus haut atteint ; à 0 il ne se passe rien (audit IL 2026-11-21) */
   s.systems.macguffins.data.itopodKills = 4999;
   /* docs/HORS-LIGNE.md, proposition 2 : l'ITOPOD exige 650 de Power d'Aventure au total. */
   s = advanceIdleNguState(s, 3600, { ...ctx, adventurePower: 1e6, adventureToughness: 1e6 }, T0 + 3600 * 1000);

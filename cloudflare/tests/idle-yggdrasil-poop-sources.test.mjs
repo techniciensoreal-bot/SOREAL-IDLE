@@ -91,7 +91,7 @@ function combatSky(mobName, rng, dropMultiplier = 1) {
   s.systems.perks.data.levels = { 30: 1 };
   s.systems.tower.unlocked = true;
   s.systems.tower.active = true;
-  s.systems.tower.data = { kills: 0 };
+  s.systems.tower.data = { kills: 0, highestFloor: 5 };   /* jeu : hors ligne, l étage optimal est borné par l étage le plus haut atteint ; à 0 il ne se passe rien (audit IL 2026-11-21) */
   s.selloutEffects.itopodPoopKills = 8999;
   const avant = Math.random;
   Math.random = () => 0.5; // aucun jet de 0,01 % : seule la Poop garantie compte
