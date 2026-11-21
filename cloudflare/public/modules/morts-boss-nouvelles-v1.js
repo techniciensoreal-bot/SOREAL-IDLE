@@ -588,9 +588,9 @@ function grincer(a,t0,dur,f0,fMid,f1,gate0,gate1,pic){
     var am=a.createGain();am.gain.value=.55;
     var lf=a.createOscillator();lf.type='square';lf.frequency.setValueAtTime(gate0,t0);lf.frequency.linearRampToValueAtTime(gate1,t0+dur);
     var lg=a.createGain();lg.gain.value=.45;lf.connect(lg);lg.connect(am.gain);
-    var bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1100;bp.Q.value=1.6;
+    var bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1150;bp.Q.value=4.5;
     var lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;lp.Q.value=.7;
-    var g=a.createGain(),pc=pic*(n?.6:1)*2.2;g.gain.value=.0001;g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(pc,t0+dur*.2);g.gain.linearRampToValueAtTime(pc,t0+dur*.88);g.gain.linearRampToValueAtTime(.0001,t0+dur);   /* monte vite, tient jusqu'au bout, puis se coupe */
+    var g=a.createGain();env(g,t0,dur*.3,dur*.7,pic*(n?.6:1));
     o.connect(am);am.connect(bp);bp.connect(lp);lp.connect(g);g.connect(sortieCourante||maitre(a));
     o.start(t0);lf.start(t0);o.stop(t0+dur+.1);lf.stop(t0+dur+.1);
   });
@@ -660,9 +660,9 @@ function construireSon(a,id){
     souffle(a,t+1.77,.6,'lowpass',900,200,.7,.12,.05);                                                                       /* la poussière retombe */
     /* le pet de la flamme : « pfrrrrt-prt-pt » */
     souffle(a,t+2.05,.14,'bandpass',900,380,.9,.3,.01);                                                                      /* le souffle qui précède */
-    vibrer(a,t+2.05,.56,'sawtooth',118,56,23,16,.75,.03,540);                                                                 /* le long « prrrrrt » grave qui descend en tremblant */
-    vibrer(a,t+2.68,.2,'square',86,60,30,9,.45,.02,420);                                                                       /* un deuxième, plus court */
-    vibrer(a,t+2.94,.09,'sawtooth',100,70,26,6,.3,.01,380);                                                                   /* et un dernier « pt » */
+    vibrer(a,t+2.05,.56,'sawtooth',118,56,23,16,.5,.03,540);                                                                 /* le long « prrrrrt » grave qui descend en tremblant */
+    vibrer(a,t+2.68,.2,'square',86,60,30,9,.3,.02,420);                                                                       /* un deuxième, plus court */
+    vibrer(a,t+2.94,.09,'sawtooth',100,70,26,6,.2,.01,380);                                                                   /* et un dernier « pt » */
     souffle(a,t+2.1,.5,'bandpass',420,260,.7,.16,.05);                                                                       /* le souffle humide qui l'accompagne */
   }else if(id==='evier'){
     /* Calé sur l'image : la bonde apparaît dès 0,15 s, l'eau se retire de 0,5 s à 3,5 s (de plus en plus vite), le dernier « glouk » tombe à 3,5 s. */
