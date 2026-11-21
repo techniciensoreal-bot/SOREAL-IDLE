@@ -338,7 +338,7 @@
     var st=s.state||{};
     var vue=(j&&j.systemes&&j.systemes.wandoosView)||{};
     var magieOk=false;
-    try{var bm=meta.systemeMetaParIdIdleV130_(j,'bloodMagic');magieOk=Boolean(bm&&bm.unlock&&bm.unlock.unlocked);}catch(_e){}
+    try{var bm=meta.systemeMetaParIdIdleV130_(j,'bloodMagic');magieOk=Boolean((bm&&bm.unlock&&bm.unlock.unlocked)||(j&&j.systemes&&j.systemes.ressourcesDecouvertes&&j.systemes.ressourcesDecouvertes.magic));}catch(_e){}   /* la Magie reste après une Renaissance une fois le boss 37 franchi (audit IL 2026-11-21) */
     var os=String(vue.os||(st.data&&st.data.os)||'98');
     if(!NOMS_OS[os])os='98';
     var e={s:s,st:st,data:st.data||{},al:st.allocation||{},vue:vue,actif:Boolean(st.active),os:os,magieOk:magieOk,dispos:Array.isArray(vue.osDisponibles)&&vue.osDisponibles.length?vue.osDisponibles:['98']};

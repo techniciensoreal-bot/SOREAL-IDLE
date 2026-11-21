@@ -14,7 +14,7 @@ import { wishBonusesV1 } from "./idle-wishes-v1.js";
 import { idleCardsMultiplierV1 } from "./idle-cards-v1.js";
 import { nguLevelsFromWorkV1 } from "./idle-ngu-catalog-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
-import { IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_META_VERSION, IDLE_NGU_TRACKS, IDLE_WISH_MAX_SLOTS_V1, RESOURCE_KEYS, WISH_MIN_LEVEL_SECONDS, challengePermanentBonuses, clamp, clone, int, num } from "./idle-ngu-catalogues.js";
+import { IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_META_VERSION, IDLE_NGU_TRACKS, IDLE_WISH_MAX_SLOTS_V1, RESOURCE_KEYS, WISH_MIN_LEVEL_SECONDS, challengePermanentBonuses, clamp, clone, int, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { expShopPurchasedV1 } from "./idle-ngu-actions.js";
 import { hackAbsorberAllocationV1, hackR3TotalV1, advanceTheEndFinalHackV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, syncWishAllocationTotalsV1, WANDOOS_INSTALL_SECONDES_V1, wandoosCalculVitessesV1, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
 import { externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, rebaserProgressionSecondesV1, setAllocation, totalAllocated } from "./idle-ngu-ressources.js";
@@ -126,7 +126,7 @@ export function setWishSlotAllocationV1(state, slot, resource, value, context = 
   const s = state.systems.wishes;
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   if (!RESOURCE_KEYS.includes(resource)) throw new Error("RESSOURCE_INVALIDE");
-  if (resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "magic" && !ressourceDecouverteV1(state, "magic")) throw new Error("MAGIC_VERROUILLEE");
   if (resource === "r3" && !state.systems.hacks?.unlocked) throw new Error("R3_VERROUILLEE");
   const idx = wishSlotIndexV1(state, slot);
   const r = state.resources[resource];
@@ -157,7 +157,7 @@ export function wishSlotsSnapshotV1(state) {
     minSecondsPerLevel: params.wishMinSeconds,
     speedMultiplier: params.speedMultiplier,
     r3Unlocked: Boolean(state.systems.hacks?.unlocked),
-    magicUnlocked: Boolean(state.systems.bloodMagic?.unlocked),
+    magicUnlocked: Boolean(ressourceDecouverteV1(state, "magic")),
     /* Anti-spoil (règle n°2) : seuls les slots déjà obtenus sont envoyés (jamais les slots à venir ni le maximum). */
     slots: (s.data.slots || []).slice(0, count).map((slot, index) => {
       const def = slot.wish ? defs.find(x => x.id === slot.wish) : null;
@@ -206,7 +206,7 @@ export function barbesTempsPleinV1(state, seconds) {
     if (!(parSeconde > 0)) return 0;
     return clamp(seconds - Math.ceil(manque / parSeconde), 0, seconds);
   };
-  return { energy: tempsPlein(energie, "energy"), magic: state.systems?.bloodMagic?.unlocked ? tempsPlein(magie, "magic") : 0 };
+  return { energy: tempsPlein(energie, "energy"), magic: ressourceDecouverteV1(state, "magic") ? tempsPlein(magie, "magic") : 0 };
 }
 
 function advanceBeardTrack(state, system, trackDef, track, seconds, sameResourceCount = 1, horsLigne = false, plafondNiveaux = Infinity) {
@@ -888,7 +888,7 @@ export function timeMachineViewV1(state) {
   const goldLevel = Math.max(0, num(d.goldLevel, 0));
   const fill = (progress, step) => (Number.isFinite(step) && step > 0 ? Math.max(0, Math.min(1, num(progress, 0) / step)) : 0);
   const speedStep = tmLevelSeconds(state, "energy", speedLevel + 1);
-  const goldStep = state.systems.bloodMagic?.unlocked ? tmLevelSeconds(state, "magic", goldLevel + 1) : Infinity;
+  const goldStep = ressourceDecouverteV1(state, "magic") ? tmLevelSeconds(state, "magic", goldLevel + 1) : Infinity;
   const highestBoss = Math.max(1, Math.min(274, num(d.highestBossEver, 0) - 27));
   return {
     goldPerBarFill: Math.max(0, num(d.bestGoldThisRun, 0)),
@@ -921,12 +921,12 @@ export function timeMachineViewV1(state) {
     /* Chantier « réactivité » : durée du niveau à 1 Energy / 1 Magic (K) et progression en secondes -> recalcul local au clic. */
     /* Prix en Or du niveau suivant de chaque piste (Norman, 2026-10-29 : « il faut le prix que coûte un niveau sur la barre ») ; celui de la Magie n'est envoyé qu'une fois Blood Magic débloqué (anti-spoil). */
     speedGoldCost: tmLevelGoldCost(speedLevel + 1),
-    goldGoldCost: state.systems.bloodMagic?.unlocked ? tmLevelGoldCost(goldLevel + 1) : null,
+    goldGoldCost: ressourceDecouverteV1(state, "magic") ? tmLevelGoldCost(goldLevel + 1) : null,
     /* Durée du niveau en cours SANS le plancher d'un tick (50 niveaux par seconde au plus) : l'écran en a besoin pour rejouer les niveaux (tm-projection-v1.js). */
     speedStepBrut: finiOuNullV1(tmSecondsFactorV1(state, "energy") * Math.max(1, speedLevel + 1)),
-    goldStepBrut: state.systems.bloodMagic?.unlocked ? finiOuNullV1(tmSecondsFactorV1(state, "magic") * Math.max(1, goldLevel + 1)) : null,
+    goldStepBrut: ressourceDecouverteV1(state, "magic") ? finiOuNullV1(tmSecondsFactorV1(state, "magic") * Math.max(1, goldLevel + 1)) : null,
     speedK: finiOuNullV1(tmLevelSeconds(state, "energy", speedLevel + 1, 1)),
-    goldK: state.systems.bloodMagic?.unlocked ? finiOuNullV1(tmLevelSeconds(state, "magic", goldLevel + 1, 1)) : null,
+    goldK: ressourceDecouverteV1(state, "magic") ? finiOuNullV1(tmLevelSeconds(state, "magic", goldLevel + 1, 1)) : null,
     speedProgressSeconds: Number.isFinite(speedStep) ? fractionProgressionSecondesV1(d, "speedProgress", speedStep) * speedStep : Math.max(0, num(d.speedProgress, 0)),
     goldProgressSeconds: Number.isFinite(goldStep) ? fractionProgressionSecondesV1(d, "goldProgress", goldStep) * goldStep : Math.max(0, num(d.goldProgress, 0))
   };
@@ -1001,7 +1001,7 @@ function avancerTmProgressifV1(state, seconds) {
   const s = state.systems.timeMachine;
   const d = s.data;
   const limiteDefi = state.challenge?.active === "hundredLevels";
-  const magieActive = Boolean(state.systems.bloodMagic.unlocked);
+  const magieActive = Boolean(ressourceDecouverteV1(state, "magic"));
   const brut0 = idleNguTimeMachineGrossGoldPerSecond(state);
   const drain = Math.max(0, brut0 - idleNguTimeMachineGoldPerSecond(state));
   const denom0 = tmBarresParSecondeV1(Math.max(0, num(d.speedLevel, 0))) * (1 + Math.max(0, num(d.goldLevel, 0)));
@@ -1161,7 +1161,7 @@ function avancerTmGrossierV1(state, seconds, orDejaCredite = false) {
     }
   };
   piste("speedProgress", "speedLevel", "speedTarget", facteurEnergie);
-  if (state.systems.bloodMagic.unlocked) piste("goldProgress", "goldLevel", "goldTarget", facteurMagie);
+  if (ressourceDecouverteV1(state, "magic")) piste("goldProgress", "goldLevel", "goldTarget", facteurMagie);
 
   tmApplyTargets(state);
 

@@ -63,12 +63,15 @@ const ngu = (state, tier, id) => state.systems.ngu.data.ngus[tier][id];
 
 // --- NGU Magic : nécessitent la Magic débloquée ---
 {
-  let s = unlocked((st) => { st.systems.bloodMagic.unlocked = false; });
+  let s = unlocked((st) => { st.systems.bloodMagic.unlocked = false; st.records.highestBoss = 30; });
   assert.throws(
     () => applyIdleNguAction(s, { action: "allocateNgu", ngu: "powerBeta", value: 10 }, { bosses: 30 }, 1_000_000),
     /MAGIC_VERROUILLEE/,
     "avant le boss 37, la Magic n'est pas débloquée"
   );
+  /* Lu dans le jeu (audit IL 2026-11-21, MagicDisplay::updateMagicBar 2622 : aucun test de boss ; Magic::reset 2619 ne touche ni le plafond ni la vitesse) : une fois le boss 37 franchi UNE fois, la Magie continue de se produire et de s'allouer après chaque Renaissance, avant de refrapper le boss 37. */
+  const apres = unlocked((st) => { st.systems.bloodMagic.unlocked = false; st.records.highestBoss = 40; });
+  assert.doesNotThrow(() => applyIdleNguAction(apres, { action: "allocateNgu", ngu: "powerBeta", value: 10 }, { bosses: 5 }, 1_000_000), "après un Rebirth, la Magic reste utilisable dès que le boss 37 a été franchi une fois");
   s = unlocked();
   s = act(s, { action: "allocateNgu", ngu: "powerBeta", value: 500 });
   s = advanceIdleNguState(s, 3600, context, 4_600_000);

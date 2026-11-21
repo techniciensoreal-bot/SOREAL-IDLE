@@ -10,7 +10,7 @@ import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleSelloutPotionFactorV1 } from "./idle-sellout-shop-v1.js";
 import { idleCardsMultiplierV1 } from "./idle-cards-v1.js";
-import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_META_VERSION, IDLE_NGU_SYSTEMS, MIN_REBIRTH_SECONDS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, int, num, safePow, safeProduct } from "./idle-ngu-catalogues.js";
+import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_META_VERSION, IDLE_NGU_SYSTEMS, MIN_REBIRTH_SECONDS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, int, num, safePow, safeProduct, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { defaultResource, idleNguAugmentDifficultyDividerV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState, normalizeRebirthState } from "./idle-ngu-etat.js";
 import { setRitualAllocationV1, trollBossDividerV1 } from "./idle-ngu-systemes.js";
 import { avecPorteeBonusV1, beardBonusMultiplier, clearNguAllocationsV1, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1, nguNumberRebirthV1, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
@@ -301,7 +301,7 @@ export function verifierCapApresEquipementV1(state, adventureApres, context) {
   const apres = Object.assign({}, state, { adventure: adventureApres });
   for (const [resource, mot] of [["energy", "d'énergie"], ["magic", "de magie"]]) {
     if (!state.resources?.[resource]) continue;
-    if (resource === "magic" && !state.systems.bloodMagic?.unlocked) continue;
+    if (resource === "magic" && !ressourceDecouverteV1(state, "magic")) continue;
     const place = totalAllocated(state, resource) + externalResourceAllocation(context, resource);
     if (place <= 0) continue;
     const capAvant = idleNguEffectiveResourceStatV1(state, resource, "cap");
@@ -349,7 +349,7 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
   const state=raw&&raw.version===IDLE_NGU_META_VERSION?raw:normalizeIdleNguState(raw||{});
   /* Resource 3 (wiki Resource 3 / Hacks / Wishes) : générée par speed et bars comme Energy et Magic, une fois les Hacks débloqués. */
   if(resource==="r3"&&!state.systems.hacks?.unlocked)return 0;
-  if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)return 0;
+  if(resource==="magic"&&!ressourceDecouverteV1(state, "magic"))return 0;
   const r=state.resources[resource]||defaultResource(resource);
   return avecPorteeBonusV1(state,()=>{
   /*
@@ -373,7 +373,7 @@ export function idleNguResourceGenerationPerSecond(raw,resource){
 export function advanceGeneratedResources(state,seconds,context={}){
   if(seconds<=0)return;
   for(const resource of ["energy","magic","r3"]){
-    if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)continue;
+    if(resource==="magic"&&!ressourceDecouverteV1(state, "magic"))continue;
     if(resource==="r3"&&!state.systems.hacks?.unlocked)continue;
     const r=state.resources[resource];
     /* Trois lectures seules, une seule portée de bonus ; l'état n'est modifié qu'après. */
@@ -424,7 +424,7 @@ export function setAllocation(state, id, resource, value, context = {}) {
   if (!def || !s || !s.unlocked) throw new Error("SYSTEME_VERROUILLE");
   if(state.challenge?.active==="noAugmentations"&&id==="augmentations")throw new Error("DEFI_SANS_AUGMENTATIONS");
   if (!def.resources.includes(resource)) throw new Error("RESSOURCE_INCOMPATIBLE");
-  if (resource === "magic" && !state.systems.bloodMagic.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "magic" && !ressourceDecouverteV1(state, "magic")) throw new Error("MAGIC_VERROUILLEE");
   /* Blood Magic : l'allocation de Magic est répartie par rituel ; l'ancienne action vise le rituel sélectionné. */
   if (id === "bloodMagic" && resource === "magic") {
     setRitualAllocationV1(state, s.data.activeRitual, value, context);
@@ -446,7 +446,7 @@ export function setAllocation(state, id, resource, value, context = {}) {
 
 export function reclaimAllocatedResource(state,resource,context={}){
   if(resource!=="energy"&&resource!=="magic")throw new Error("RESSOURCE_INVALIDE");
-  if(resource==="magic"&&!state.systems.bloodMagic?.unlocked)throw new Error("MAGIC_VERROUILLEE");
+  if(resource==="magic"&&!ressourceDecouverteV1(state, "magic"))throw new Error("MAGIC_VERROUILLEE");
   let released=0;
   for(const def of IDLE_NGU_SYSTEMS){
     const s=state.systems[def.id];

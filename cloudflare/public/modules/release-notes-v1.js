@@ -32,6 +32,9 @@
           {menu:'moneyPit', titre:'Trou sans fond', points:[
             'Les tableaux « Bonus obtenus » se placent sous les boutons du trou et de la roue, côte à côte sur PC.'
           ]},
+          {menu:'sang', titre:'Sang', points:[
+            'D’après le code du jeu : une fois le cap franchi pour la première fois, la Magie continue de se produire et de s’allouer après chaque Renaissance, sans attendre de refranchir ce cap.'
+          ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'Badavatar : dans la section Profil des Réglages, tu peux désormais choisir parmi tous les éléments (corps, vêtements, cheveux, yeux, oreilles, nez, bouche, barbe, accessoires), comme sur Soreal TV. Ton badavatar de départ reste tiré au hasard.',
             'Les doublons « Norman » et « Sébastien » qui n’étaient liés à aucun compte ne sont plus dans la tour : seuls les comptes principaux restent.'

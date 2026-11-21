@@ -74,7 +74,7 @@ function nguSnapshotV1(state, context) {
     activeTiers: active,
     maxLevel: IDLE_NGU_MAX_LEVEL_V1,
     unlocked: Boolean(s.unlocked),
-    magicUnlocked: Boolean(state.systems.bloodMagic?.unlocked),
+    magicUnlocked: Boolean(ressourceDecouverteV1(state, "magic")),
     advance: { energy: Boolean(s.data.advance?.energy), magic: Boolean(s.data.advance?.magic) },
     speedMultiplier: speeds,
     tiers,
@@ -150,7 +150,7 @@ export function capAllNguV1(state, resource, modifierBrut, context = {}) {
   const s = state.systems.ngu;
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   if (resource !== "energy" && resource !== "magic") throw new Error("RESSOURCE_INVALIDE");
-  if (resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "magic" && !ressourceDecouverteV1(state, "magic")) throw new Error("MAGIC_VERROUILLEE");
   if (!state.systems.questing?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const modifier = Number.isFinite(Number(modifierBrut)) ? Math.max(0.01, Math.min(1, Number(modifierBrut))) : 1;
   const tier = s.data.tier;
@@ -197,7 +197,7 @@ function construireSnapshotNguV1(state, context, now) {
       { ...r, capBase: r.cap, cap: idleNguEffectiveResourceStatV1(state, id, "cap") }
     ])),
     resourceInfo: Object.fromEntries(
-      RESOURCE_KEYS.filter(resource => !(resource === "magic" && !state.systems.bloodMagic?.unlocked) && !(resource === "r3" && !state.systems.hacks?.unlocked))
+      RESOURCE_KEYS.filter(resource => !(resource === "magic" && !ressourceDecouverteV1(state, "magic")) && !(resource === "r3" && !state.systems.hacks?.unlocked))
         .map(resource => [resource, resourceInfoV1(state, resource, context)])
     ),
     resourceBudget: Object.fromEntries(

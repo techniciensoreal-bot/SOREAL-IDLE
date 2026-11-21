@@ -85,6 +85,7 @@ const cap = (s, k) => idleNguEffectiveResourceStat(s, k, "cap");
 {
   const s = base();
   s.systems.bloodMagic.unlocked = false;
+  s.records.highestBoss = 30;   /* jamais passé le boss 37 : la Magie n'existe pas encore (une fois passé, elle reste après chaque Renaissance) */
   assert.throws(() => act(s, { action: "allocateWishSlot", slot: 0, resource: "magic", value: 1 }, { bosses: 0 }), /MAGIC_VERROUILLEE/);
   const t = base();
   t.systems.hacks.unlocked = false;

@@ -54,7 +54,7 @@ assert.ok(readFileSync("cloudflare/public/index.html", "utf8").includes('/module
 // 4. Machine temporelle : prix du niveau suivant
 const aug = readFileSync("cloudflare/public/modules/augmentations-page-v1.js", "utf8");
 const moteur = readFileSync("cloudflare/src/idle-ngu-pistes.js", "utf8");
-assert.ok(moteur.includes("speedGoldCost: tmLevelGoldCost(speedLevel + 1)") && moteur.includes("goldGoldCost: state.systems.bloodMagic?.unlocked ? tmLevelGoldCost(goldLevel + 1) : null"), "le moteur donne le prix ; celui de la Magie n'existe qu'une fois Blood Magic débloqué (anti-spoil)");
+assert.ok(moteur.includes("speedGoldCost: tmLevelGoldCost(speedLevel + 1)") && moteur.includes('goldGoldCost: ressourceDecouverteV1(state, "magic") ? tmLevelGoldCost(goldLevel + 1) : null'), "le moteur donne le prix ; celui de la Magie n'existe qu'une fois Blood Magic débloqué (anti-spoil)");
 assert.ok(aug.includes("data-tm-prix=") && aug.includes("[['vitesse',vue.speedGoldCost],['or',vue.goldGoldCost]]"), "ligne sous la barre, mise à jour à chaque synchro");
 assert.ok(readFileSync("cloudflare/public/soreal-idle-machine.css", "utf8").includes(".tmm-prix{"), "style de la ligne");
 console.log("idle-ygg-usage-animation-v1: OK");

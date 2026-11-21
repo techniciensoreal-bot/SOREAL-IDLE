@@ -19,7 +19,7 @@ import { idleYggPowerDeltaMultiplierV1 } from "./idle-yggdrasil-extra-v1.js";
 import { idleSelloutPotionFactorV1 } from "./idle-sellout-shop-v1.js";
 import { levelsPerFillBasicTrainingV411 } from "./idle-basic-training.js";
 import { externalResourceAllocation, idleNguAugmentationMultiplier, idleNguEffectiveResourceStatV1, totalAllocated, totalTrackLevel } from "./idle-ngu-ressources.js";
-import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_META_VERSION, IDLE_NGU_TRACKS, challengePermanentBonuses, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
+import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_META_VERSION, IDLE_NGU_TRACKS, challengePermanentBonuses, clamp, clone, int, nowMs, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { RICH_JERKS_PCT_PER_LEVEL_V1, createYggdrasilData, normalizeIdleNguState, wandoosCombatMultiplierV1 } from "./idle-ngu-etat.js";
 import { advanceIdleNguState, availableDiggerSlots, diggerBonuses, diggerDrainTotal, diggerGlobalBonus, trollFlagsV1, trollNguOffV1 } from "./idle-ngu-systemes.js";
 import { wishLevelV1 } from "./idle-ngu-snapshot.js";
@@ -356,7 +356,7 @@ export function applyNguTargetsV1(state) {
   if (!s?.unlocked || !s.data?.ngus) return;
   const ngus = s.data.ngus[s.data.tier];
   if (!ngus) return;
-  const magieOk = Boolean(state.systems.bloodMagic?.unlocked);
+  const magieOk = Boolean(ressourceDecouverteV1(state, "magic"));
   for (const resource of ["energy", "magic"]) {
     if (resource === "magic" && !magieOk) continue;
     const defs = IDLE_NGU_CATALOG_V1.filter(d => d.resource === resource);
@@ -384,7 +384,7 @@ export function setNguTargetV1(state, nguId, value) {
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const def = IDLE_NGU_CATALOG_V1.find(x => x.id === nguId);
   if (!def) throw new Error("NGU_INVALIDE");
-  if (def.resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (def.resource === "magic" && !ressourceDecouverteV1(state, "magic")) throw new Error("MAGIC_VERROUILLEE");
   const brut = Math.floor(num(value, 0));
   const cible = brut < 0 ? -1 : clamp(brut, 0, IDLE_NGU_MAX_LEVEL_V1);
   s.data.ngus[s.data.tier][nguId].target = cible;
@@ -396,7 +396,7 @@ export function setNguAdvanceV1(state, resource, enabled) {
   const s = state.systems.ngu;
   if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
   if (resource !== "energy" && resource !== "magic") throw new Error("RESSOURCE_INVALIDE");
-  if (resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "magic" && !ressourceDecouverteV1(state, "magic")) throw new Error("MAGIC_VERROUILLEE");
   s.data.advance = { ...(s.data.advance || { energy: false, magic: false }), [resource]: Boolean(enabled) };
   applyNguTargetsV1(state);
   return { resource, advance: Boolean(enabled) };
@@ -415,7 +415,7 @@ export function advanceNgusV1(state, seconds) {
     const n = s.data.ngus[tier][def.id];
     const alloc = Math.max(0, num(n.allocation, 0));
     if (alloc <= 0 || n.level >= IDLE_NGU_MAX_LEVEL_V1) continue;
-    if (def.resource === "magic" && !state.systems.bloodMagic?.unlocked) continue;
+    if (def.resource === "magic" && !ressourceDecouverteV1(state, "magic")) continue;
     const power = Math.max(1, idleNguEffectiveResourceStatV1(state, def.resource, "power"));
     const base = nguParamsV1(tier, def.id).baseCost;
     /*
@@ -449,7 +449,7 @@ export function setNguAllocationV1(state, nguId, value, context = {}, tierArg) {
   if (!nguActiveTiersV1(state.difficulty).includes(tier)) throw new Error("PALIER_NGU_VERROUILLE");
   if (tier !== s.data.tier) throw new Error("PALIER_NGU_INACTIF");
   const resource = def.resource;
-  if (resource === "magic" && !state.systems.bloodMagic?.unlocked) throw new Error("MAGIC_VERROUILLEE");
+  if (resource === "magic" && !ressourceDecouverteV1(state, "magic")) throw new Error("MAGIC_VERROUILLEE");
   const r = state.resources[resource];
   const cap = Math.max(0, idleNguEffectiveResourceStatV1(state, resource, "cap"));
   const n = s.data.ngus[tier][nguId];

@@ -57,10 +57,13 @@
         const bloodMagic=systemes.find(function(s){
           return s&&s.id==='bloodMagic';
         });
+        /* La Magie est PERMANENTE après le premier boss 37 (audit IL 2026-11-21 : elle continue de se produire après chaque Renaissance) : décision du serveur (ressourcesDecouvertes), plus le drapeau du système Blood Magic remis à zéro. */
+        const decouvertes=REG.idleEtat.systemes.ressourcesDecouvertes;
         const magicDebloquee=Boolean(
-          bloodMagic&&
+          (decouvertes&&decouvertes.magic)||
+          (bloodMagic&&
           bloodMagic.state&&
-          bloodMagic.state.unlocked
+          bloodMagic.state.unlocked)
         );
 
         if(!magicDebloquee)return;
