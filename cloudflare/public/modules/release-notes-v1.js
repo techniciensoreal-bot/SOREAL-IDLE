@@ -48,7 +48,7 @@
             'Les doublons « Norman » et « Sébastien » qui n’étaient liés à aucun compte ne sont plus dans la tour : seuls les comptes principaux restent.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Un autre boss a lui aussi sa mort : il tombe comme une pancarte dont la chaîne lâche, puis un petit pet de flamme sort du bas de l’écran.',
+            'Un autre boss a lui aussi sa mort : il est comme une pancarte dont le pied reste fixe et dont tout le reste bascule vers l’arrière, puis un petit pet de flamme sort du bas de l’écran.',
             'Un boss a désormais une mort qui lui est propre : il se vide comme de l’eau dans un évier, avec le bruit de la vidange.',
             'Arrivée d’un boss : fin du clignotement noir très bref qui apparaissait souvent juste après l’animation.'
           ]},

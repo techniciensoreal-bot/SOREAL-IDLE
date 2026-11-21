@@ -3,7 +3,8 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 
 /*
- * Norman (2026-11-21) : mort SPÉCIALE du boss 109 : « l'image tombe comme une pancarte vers le fond de l'écran et un petit pet de flamme vient du bas, quand l'image n'est plus à l'écran ». Jouée à chaque mort du 109, hors file.
+ * Norman (2026-11-21) : mort SPÉCIALE du boss 109 : « l'image tombe comme une pancarte vers le fond de l'écran et un petit pet de flamme vient du bas, quand l'image n'est plus à l'écran » ; puis « le bas reste fixe et c'est tout le reste qui tombe
+ * en arrière » (bascule en perspective autour du bord bas). Jouée à chaque mort du 109, hors file.
  */
 const src = readFileSync(new URL("../public/modules/morts-boss-nouvelles-v1.js", import.meta.url), "utf8").replace(/\r\n/g, "\n");
 const compteurs = { drawImage: 0, flamme: 0 };
@@ -33,12 +34,13 @@ assert.ok(src.includes("else if(id==='pancarte'){"), "son synthétisé de la pan
 
 // 2. La flamme vient APRÈS la sortie de l'image, et le son part avec elle.
 const nombre = (nom) => Number(new RegExp(nom + "=([\\d.]+)").exec(src)[1]);
-const tFlamme = nombre("PANC_T_FLAMME"), tChute = nombre("PANC_T_CHUTE"), tCrac = nombre("PANC_T_CRAC"), g = nombre("PANC_G");
-const tSortie = tChute + Math.sqrt(3.2 / g);
+const tFlamme = nombre("PANC_T_FLAMME"), tChute = nombre("PANC_T_CHUTE"), tCrac = nombre("PANC_T_CRAC"), g = nombre("PANC_GP");
+const tSortie = tChute + Math.sqrt(2 * (Math.PI / 2 - 0.1) / g);   /* l'angle atteint 90 degrés : l'image est à plat derrière, de profil */
 assert.ok(tCrac < tChute && tChute < tSortie && tSortie < tFlamme, "chaîne qui lâche, chute, sortie de l'image, puis la flamme (" + [tCrac, tChute, tSortie.toFixed(2), tFlamme].join(" < ") + ")");
 const sec = (x) => String(x).replace(/^0\./, ".").replace(".", "\\.");
 assert.ok(new RegExp("souffle\\(a,t\\+" + sec(tFlamme) + ",[\\d.]+,.bandpass.").test(src) && new RegExp("ton\\(a,t\\+" + sec(tFlamme) + ",.sine.,150,55").test(src), "le pet de flamme sonne à l'instant où la flamme apparaît");
-assert.ok(new RegExp("souffle\\(a,t\\+" + sec(tCrac) + ",\\.07,.highpass.").test(src), "le craquement de la chaîne tombe à l'instant où elle lâche");
+assert.ok(new RegExp("souffle\\(a,t\\+" + sec(tCrac) + ",[\\d.]+,.highpass.").test(src), "le craquement du pied tombe à l'instant où il cède");
+assert.ok(new RegExp("ton\\(a,t\\+" + String(Number((tChute + Math.sqrt(2 * (Math.PI / 2 - 0.1) / g)).toFixed(2))).replace(/^0\\./, ".").replace(".", "\\.") + ",.sine.,100,38").test(src), "le coup sourd tombe quand l'image est à plat (" + (tChute + Math.sqrt(2 * (Math.PI / 2 - 0.1) / g)).toFixed(2) + " s)");
 
 // 3. Dessin : tout l'écran sur toute la durée, sans erreur ; une seule image dessinée (jamais deux : pas de copie) ; la flamme n'existe qu'une fois l'image sortie.
 {
@@ -48,7 +50,8 @@ assert.ok(new RegExp("souffle\\(a,t\\+" + sec(tCrac) + ",\\.07,.highpass.").test
     for (let t = 0; t <= p.duree + 0.1; t += 0.05) {
       compteurs.drawImage = 0; compteurs.flamme = 0;
       M.dessiner("pancarte", ctx, t, k, LW, LH);
-      assert.ok(compteurs.drawImage <= 1, "au plus une image dessinée par image (t=" + t.toFixed(2) + ")");
+      assert.ok(compteurs.drawImage >= 1 || t >= tSortie, "l'image est dessinée tant qu'elle est à l'écran (t=" + t.toFixed(2) + ")");
+      assert.ok(compteurs.drawImage <= LH / 2 + 3, "une bande de deux pixels par rangée au plus (t=" + t.toFixed(2) + ", " + compteurs.drawImage + ")");
       if (t < tSortie) assert.equal(compteurs.flamme, 0, "pas de flamme tant que l'image est à l'écran (t=" + t.toFixed(2) + ")");
       if (t >= tSortie) assert.equal(compteurs.drawImage, 0, "l'image n'est plus dessinée une fois sortie (t=" + t.toFixed(2) + ")");
     }
