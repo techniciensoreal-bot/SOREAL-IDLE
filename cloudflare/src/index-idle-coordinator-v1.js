@@ -2,7 +2,7 @@ import { sqlRows } from "./core/sqlite-core.js";
 import { runSorealIdleOperation, idleOperationNames, idleInvaliderMemosCatalogueV1 } from "./idle-sqlite-runtime.js";
 import { profilsParEmailIdleV1, libelleJoueurIdleV1, lireProfilIdleV1 } from "./idle-profile-v1.js";
 import { idleBadavatarListePubliqueV1, idleBadavatarPhotoV1, idleBadavatarReinitialiserParNomV1, idleBadavatarReinitialiserV1, idleBadavatarEnregistrerV1, idleBadavatarLireV1, idleBadavatarCleNomV1, idleBadavatarMigrerNomV1 } from "./idle-profil-badavatar-v1.js";
-import { idleItopodNomRosterV1, idleItopodNomRosterParEmailV1, idleItopodCosmetiquesV1 } from "./idle-itopod-roster-v1.js";
+import { idleItopodNomRosterV1, idleItopodNomRosterParEmailV1, idleItopodCosmetiquesV1, idleItopodNomPublicProfilV1 } from "./idle-itopod-roster-v1.js";
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1, OPERATIONS_SANS_TRADUCTION_V1 } from "./idle-traductions-v1.js";
 import { poserRelaisV1, lireRelaisV1 } from "./idle-relais-apk-v1.js";
@@ -605,7 +605,9 @@ export class SorealIdleCoordinatorV1 {
       const emailsCompte = [email].concat(Array.isArray(s.user?.emails) ? s.user.emails : [], [s.user?.emailConnexion]).map((e) => sv(e).toLowerCase()).filter(Boolean);
       const nomRosterTv = s.user?.externe === true ? "" : idleItopodNomRosterParEmailV1(await idleItopodCosmetiquesV1(this.env), emailsCompte);
       const nomBrut = nomRosterTv || (s.user?.externe === true ? libelleJoueurIdleV1(profil || { externe: true, googleName: sv(s.user?.name), pseudo: "", prenom: "" }, "") : (sv(s.user?.prenom) || sv(profil?.prenom)));
-      const nom = idleItopodNomRosterV1(nomBrut);
+      /* Un ouvrier : si son nom de TV (« Norman ») a été retiré de la tour comme doublon de son compte (« Redrum (Norman) »), le badavatar suit le libellé du compte. */
+      const nomPublic = s.user?.externe === true ? nomBrut : idleItopodNomPublicProfilV1(nomBrut, libelleJoueurIdleV1(profil || {}, ""));
+      const nom = idleItopodNomRosterV1(nomPublic);
       const nomCle = idleBadavatarCleNomV1(nom && nom.toLowerCase() !== "joueur" ? nom : "");
       if (nomCle && action !== "reinitialiser" && action !== "enregistrer") idleBadavatarMigrerNomV1(this.sql, email, nomCle);
       if (action === "reinitialiser") return Response.json(idleBadavatarReinitialiserV1(this.sql, email), { headers: { "cache-control": "no-store" } });

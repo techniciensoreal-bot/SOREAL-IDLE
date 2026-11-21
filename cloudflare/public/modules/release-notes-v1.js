@@ -46,6 +46,7 @@
             'Quand tu manges un fruit de Magie, le fruit zoomé à l’écran garde sa teinte bleutée.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Badavatar : celui que tu as créé réapparaît bien dans la tour sous ton nom de compte (il avait disparu quand le doublon de ton prénom a été retiré).',
             'D’après le code du jeu : l’étage de fin est d’au moins 1 ; hors ligne, rien ne progresse entre 650 et 700 de Puissance ni tant qu’aucun étage n’a été atteint.',
             'Badavatar : dans la section Profil des Réglages, tu peux désormais choisir parmi tous les éléments (corps, vêtements, cheveux, yeux, oreilles, nez, bouche, barbe, accessoires), comme sur Soreal TV. Ton badavatar de départ reste tiré au hasard.',
             'Les doublons « Norman » et « Sébastien » qui n’étaient liés à aucun compte ne sont plus dans la tour : seuls les comptes principaux restent.'

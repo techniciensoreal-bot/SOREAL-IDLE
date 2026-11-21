@@ -46,7 +46,11 @@
   function pour(nom) {
     charger(false);
     var k = cle(nom);
-    return profils && profils[k] ? preparer(k, profils[k]) : null;
+    if (profils && profils[k]) return preparer(k, profils[k]);
+    /* Profil enregistré sous le prénom seul (« norman ») avant le retrait de ce doublon de la tour : il reste celui de « pseudo (norman) » tant qu'il n'a pas été réenregistré (le serveur le migre à l'ouverture du Profil). */
+    var m = /^.+\(([^()]+)\)\s*$/.exec(String(nom == null ? "" : nom));
+    if (m && profils) { var k2 = cle(m[1]); if (profils[k2]) return preparer(k2, profils[k2]); }
+    return null;
   }
 
   /* Appel authentifié sur SON profil : lire / enregistrer / reinitialiser. Résout { ok, ... } ; jamais de rejet. */

@@ -89,6 +89,16 @@ export function idleItopodSansDoublonsV1(workers) {
   return liste.filter((w) => !prenoms.has(norm(w && w.nom)));
 }
 
+/*
+ * Nom PUBLIC d'un profil de badavatar (Norman, 2026-11-21 : « le badavatar que j'ai créé n'apparaît pas dans l'ITOPOD après plusieurs heures ») : le profil d'équipe de TV donne « Norman », mais cette entrée seule est retirée de la tour quand le compte « Redrum (Norman) » existe
+ * (idleItopodSansDoublonsV1) : le badavatar doit alors suivre l'entrée qui RESTE, celle du compte. Renvoie le libellé « pseudo (prénom) » s'il se termine par « (nom de TV) », sinon le nom de TV tel quel.
+ */
+export function idleItopodNomPublicProfilV1(nomTv, libelleCompte) {
+  const tv = idleItopodNomRosterV1(nomTv), lib = idleItopodNomRosterV1(libelleCompte);
+  if (!tv || !lib || norm(lib) === norm(tv)) return tv || lib;
+  return norm(lib).endsWith("(" + norm(tv) + ")") ? lib : tv;
+}
+
 export function idleItopodRosterV1(cosmetics) {
   const par = cosmetics && typeof cosmetics === "object" ? cosmetics.parEmail : null;
   const out = new Map();

@@ -7,6 +7,7 @@
     "Magie du sang : « Bonus actuel » et « En le lançant maintenant » du sort du Nombre suivent ton sang en direct, sans changer d’onglet.",
     "NGU : le décompte « Niveau suivant dans… » s’affiche dès que tu places de l’énergie ou de la magie, sans changer de menu ; le même défaut qui figeait la page en cas de champ rempli est corrigé pour les autres menus à pages mises à jour en direct.",
     "Quand tu manges un fruit de Magie, le fruit zoomé à l’écran garde sa teinte bleutée.",
+    "Badavatar : celui que tu as créé réapparaît bien dans la tour sous ton nom de compte (il avait disparu quand le doublon de ton prénom a été retiré).",
     "Un autre boss a lui aussi sa mort : il est comme une pancarte dont le pied reste fixe et dont tout le reste bascule vers l’arrière, puis un petit pet de flamme sort du bas de l’écran."
   ] };
 })();
