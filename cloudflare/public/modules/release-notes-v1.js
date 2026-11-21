@@ -20,10 +20,21 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.5',
+    courante:'6.6',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.6',
+        nom:'Entraînement qui suit',
+        date:'2026-11-21',
+        groupes:[
+          {menu:'entrainement', titre:'Entraînement', points:[
+            'Entraînement de base : l’énergie passe de nouveau à la compétence suivante au bon moment, même quand la précédente est tout juste au seuil de déblocage.',
+            'Entraînement avancé, d’après le code du jeu : il s’ouvre dès que la cinquième compétence d’attaque et celle de défense ont au moins 25 000 niveaux (et non plus toutes les compétences débloquées).'
+          ]}
+        ]
+      },
       {
         version:'6.5',
         nom:'Fiches comme le jeu',

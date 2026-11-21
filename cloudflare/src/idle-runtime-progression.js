@@ -2507,9 +2507,11 @@ export function contexteMetaNguSorealIdle_(
     basicTrainingEnergyAllocation: totalBasicTrainingAllocationV411(
       stats && stats.entrainementBase
     ),
+    /* Lu dans le jeu (AllAdvancedTraining::advancedTrainingUnlocked, méthode 60, audit IL 2026-11-21) : Advanced Training s'ouvre quand la 5e compétence d'Attaque (percee_quai) ET la 5e de Défense (charge_logistique) ont au moins 25 000 niveaux (>=). Avant : « les 12 compétences débloquées », ce qui exige plus de 25 000 niveaux depuis que le déblocage d'une compétence est strict (OffenseTraining::locked, 4349). */
     basicTrainingComplete: Boolean(
-      skills.length &&
-      skills.every(function(skill){return Boolean(skill&&skill.unlocked);})
+      etatEntrainementBase &&
+      nombreSorealIdle_(etatEntrainementBase.skills.percee_quai && etatEntrainementBase.skills.percee_quai.level, 0) >= 25000 &&
+      nombreSorealIdle_(etatEntrainementBase.skills.charge_logistique && etatEntrainementBase.skills.charge_logistique.level, 0) >= 25000
     ),
     /*
      * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).

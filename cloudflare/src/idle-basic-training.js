@@ -464,11 +464,13 @@ function advanceBasicTrainingStateAutoV411_(
         continue;
       }
 
-      if(p.x0<needed){
+      /* Le déblocage est STRICT (OffenseTraining::locked, méthode 4349 : verrouillé tant que niveau <= id x 5000) : la compétence s'ouvre au niveau needed + 1. */
+      const ouverture=needed+1;
+      if(p.x0<ouverture){
         /* Déblocage pendant la fenêtre : transfert du surplus au-delà du cap. */
         start=Math.min(
           seconds,
-          p.start+(p.rate>0?(needed-p.x0)/p.rate:0)
+          p.start+(p.rate>0?(ouverture-p.x0)/p.rate:0)
         );
         const surplus=Math.max(0,int(prev.allocation,0)-Math.max(1,int(prev.cap,1)));
         prev.allocation=int(prev.allocation,0)-surplus;

@@ -12,3 +12,8 @@ assert.ok(lireSrc("idle-ngu-etat.js").includes("if (span >= 300) return { fracti
 /* Mur du boss 20 retiré. */
 assert.ok(/let bossBloqueRenaissance = false;/.test(lireSrc("idle-runtime-progression.js")), "plus de mur au boss 20");
 console.log("idle-alignement-jeu-2026-11-20-v1: OK");
+/* 2026-11-21 : Advanced Training s'ouvre comme dans le jeu (AllAdvancedTraining::advancedTrainingUnlocked 60 : 5e compétence d'Attaque ET de Défense >= 25 000 niveaux). */
+{
+  const prog = lireSrc("idle-runtime-progression.js");
+  assert.ok(/percee_quai\.level, 0\) >= 25000/.test(prog) && /charge_logistique\.level, 0\) >= 25000/.test(prog), "Advanced Training : 5e compétence de chaque chaîne à 25 000 niveaux");
+}

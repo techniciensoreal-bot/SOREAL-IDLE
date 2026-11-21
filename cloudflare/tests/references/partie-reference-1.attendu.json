@@ -532,17 +532,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "3ea805028e87ef2f"
+   "empreinte": "ca04aa97efa95e6c"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 8.17280017881e+46,
+   "pv": 8.17276853463e+46,
    "vaincus": null
   },
   "combat": {
    "attaque": 1.16324961731e+36,
    "defense": 6.34620350763e+35,
-   "pvMax": 1.53927168856e+47
+   "pvMax": 1.53922724549e+47
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",
@@ -647,17 +647,17 @@
   "inventaire": {
    "utilise": 0,
    "libre": 18,
-   "empreinte": "44bb0d2a63c7d8a2"
+   "empreinte": "5af82ad7161af9f5"
   },
   "boss": {
    "actuel": "Ninja Samouraï Surexcité",
-   "pv": 1.12971799599e+48,
+   "pv": 1.1296144398e+48,
    "vaincus": null
   },
   "combat": {
    "attaque": 1.16324961731e+36,
    "defense": 6.34620350763e+35,
-   "pvMax": 1.24228380602e+48
+   "pvMax": 1.24215934835e+48
   },
   "systemes": {
    "achievements": "4eda027f31ff90e2",

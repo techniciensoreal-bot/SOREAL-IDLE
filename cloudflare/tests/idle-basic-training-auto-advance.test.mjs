@@ -65,7 +65,7 @@ const fresh = () => {
   assert.equal(state.skills.attaque_passive.allocation, 2500, "« leaving the necessary cap »");
   assert.equal(state.skills.attaque_reguliere.allocation, 7500);
   // cap 15 000, 7 500 alloués -> 25 niv/s pendant les 50 s après le déblocage
-  assert.equal(state.skills.attaque_reguliere.level, 1250);
+  assert.equal(state.skills.attaque_reguliere.level, 1249, "déblocage STRICT à 5 001 niveaux (OffenseTraining::locked 4349) : un niveau de moins qu avant");
   assert.equal(totalBasicTrainingAllocationV411(state), total, "aucune énergie inactive prise ni créée");
   // défense : Blocage exactement au cap -> Défense renforcée débloquée mais rien à transférer
   assert.equal(state.skills.blocage.allocation, 2500);
