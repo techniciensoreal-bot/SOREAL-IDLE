@@ -425,7 +425,7 @@
                   if(window.__SOREAL_IDLE_META_HOST_V130__.idleNombre_(res.resultat.gold)>0){
                     window.__SOREAL_IDLE_META_HOST_V130__.ajouterLogAventureIdleV1_(
                       'gold',
-                      '+ '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.gold)+' or ! '+exclamationOrIdleV1_(res.resultat.gold)
+                      window.__SOREAL_IDLE_JOURNAL_JEU_V1__.or(window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(res.resultat.gold))
                     );
                   }
                 }

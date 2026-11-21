@@ -14,5 +14,5 @@ const ordre = [1, 50, 500, 5e3, 5e4, 5e5, 5e7, 5e9, 5e12, 5e15, 5e19, 5e25].map(
 assert.equal(new Set(ordre).size, ordre.length, "chaque palier a son mot : de plus en plus content");
 assert.equal(exclamation(5e25), "LÉGENDAIRE !!!", "au-delà du dernier palier : joie maximale");
 assert.equal(exclamation("n'importe quoi"), "Bah…", "jamais de plantage");
-assert.ok(meta.includes("' or ! '+exclamationOrIdleV1_(res.resultat.gold)"), "le journal d'Aventure utilise les paliers");
+assert.ok(meta.includes("JOURNAL_JEU_V1__.or("), "le journal d'Aventure écrit la phrase du jeu « X dropped N gold! Sweet! » (2026-11-21 : les phrases du jeu remplacent les mots à paliers)");
 console.log("idle-or-exclamation-v1: OK");

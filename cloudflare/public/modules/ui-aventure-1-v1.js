@@ -1717,7 +1717,7 @@
             fxIdleV1_('joueur','soin','+'+soigne);
             ajouterLogAventureIdleV1_(
               'manual',
-              (REG.idleEtat&&REG.idleEtat.nom||'Vous')+' lance '+(def&&def.label?def.label:'Soin')+' : +'+soigne+' PV !'
+              window.__SOREAL_IDLE_JOURNAL_JEU_V1__.soin(window.__SOREAL_IDLE_JOURNAL_JEU_V1__.fmt(soigne))
             );
           }
           pousserEtatVersRuntimePartageIdleV1_();
@@ -1782,9 +1782,7 @@
         /* Mode manuel, en vert -- distinct du bleu 'player' de l'attaque idle automatique (Norman, 2026-09-27). */
         ajouterLogAventureIdleV1_(
           'manual',
-          (REG.idleEtat&&REG.idleEtat.nom||'Vous')+' lance '+(def&&def.label?def.label:'Attaque')+' : '+
-          idleEntier_(degats)+' dégâts sur '+
-          libelleEnnemiAdventureIdleV1_(fight)+' !'
+          window.__SOREAL_IDLE_JOURNAL_JEU_V1__.coup(degats,libelleEnnemiAdventureIdleV1_(fight))
         );
         if(fight.monsterHp<=0){
           terminerCombatAdventureLocalV2_(fight,true);
@@ -2227,7 +2225,7 @@
           programmerRespawnAdventureIdleV165_(finCombatMsV166);
           ajouterLogAventureIdleV1_(
             'system',
-            'Vous avez vaincu '+nom+' !'
+            window.__SOREAL_IDLE_JOURNAL_JEU_V1__.victoire(nom)
           );
           /* Succès (2026-11-14) : « vaincre un titan avant qu'il attaque » (aucune attaque du titan pendant ce combat) et « survivre à un ennemi explosif » (explosion survécue) : annoncés au serveur avec la victoire. */
           idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt),sansCoup:Boolean(fight.titanId)&&!(REG.idleTitanAttaquesV1>1),exploderSurvived:Boolean(REG.idleExploderSurvivedV1),glopsUtilises:REG.idleTitanEtatV1?(REG.idleTitanEtatV1.glopsUtilises||0):0};
@@ -2243,7 +2241,7 @@
           marquerBoutonAventureKoIdleV1_();
           ajouterLogAventureIdleV1_(
             'enemy',
-            'Vous avez été mis K.O. par '+nom+' ! Retour à la Safe Zone…'
+            window.__SOREAL_IDLE_JOURNAL_JEU_V1__.defaite(nom)
           );
           idleAdventureResolutionIdentiteV2={titanId:String(fight.titanId||''),titanStartedAt:idleNombre_(fight.titanStartedAt),glopsUtilises:REG.idleTitanEtatV1?(REG.idleTitanEtatV1.glopsUtilises||0):0};
           REG.idleAdventureResolutionPendingV2='loseZoneFight';

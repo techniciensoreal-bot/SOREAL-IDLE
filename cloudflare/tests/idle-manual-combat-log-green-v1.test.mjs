@@ -18,7 +18,7 @@ assert.match(css, /\.soreal-idle-adventure-log-line-v1\.manual\{color:#7ee787\}/
 {
   const bloc = ui.slice(ui.indexOf("function attaqueManuelleAdventureIdleV3_("), ui.indexOf("function utiliserCompetenceAdventureIdleV3_("));
   assert.match(bloc, /ajouterLogAventureIdleV1_\(\s*\n?\s*'manual',/, "l'attaque manuelle doit logger en type 'manual' (vert), pas 'player' (bleu, réservé à l'idle auto)");
-  assert.match(bloc, /idleEtat&&idleEtat\.nom\|\|'Vous'\)\+' lance '/, "la ligne doit nommer le joueur (\"<Nom> lance <Compétence>\")");
+  assert.match(bloc, /JOURNAL_JEU_V1__\.coup\(degats,libelleEnnemiAdventureIdleV1_\(fight\)\)/, "la ligne est la phrase du jeu (PlayerController::damageText, 2026-11-21 : « reprends les phrases du jeu »)");
 }
 
 // 3. Heal (appliquerHealAdventureIdleV4_, utilisé par les skills "heal" et "ohShit") : log de type 'manual',
@@ -26,7 +26,7 @@ assert.match(css, /\.soreal-idle-adventure-log-line-v1\.manual\{color:#7ee787\}/
 {
   const bloc = ui.slice(ui.indexOf("function appliquerHealAdventureIdleV4_("), ui.indexOf("function appliquerParalyzeAdventureIdleV4_("));
   assert.match(bloc, /ajouterLogAventureIdleV1_\(\s*\n?\s*'manual',/, "le soin doit logger en type 'manual' (vert)");
-  assert.match(bloc, /lance '\+\(def&&def\.label\?def\.label:'Soin'\)\+' : \+'\+soigne\+' PV !'/, "la ligne doit donner l'explication : nom, compétence, montant soigné");
+  assert.match(bloc, /JOURNAL_JEU_V1__\.soin\(window\.__SOREAL_IDLE_JOURNAL_JEU_V1__\.fmt\(soigne\)\)/, "la ligne est la phrase du jeu « You healed yourself for N HP! » (PlayerController::heal)");
   // Le montant loggé doit être le soin RÉEL (borné au max, jamais un 15% brut qui dépasserait le plafond).
   assert.match(bloc, /soigne=Math\.round\(fight\.playerHp-avant\)/, "le montant loggé doit venir du PV réellement gagné (après plafonnement à playerHpMax)");
 }

@@ -46,6 +46,7 @@
             'Quand tu manges un fruit de Magie, le fruit zoomé à l’écran garde sa teinte bleutée.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Ta barre de vie s’affiche sous l’ennemi, avec un journal de combat (coups portés, ennemi vaincu, progression vers ton prochain Point d’Atout), comme dans le jeu d’origine.',
             'Badavatar : celui que tu as créé réapparaît bien dans la tour sous ton nom de compte (il avait disparu quand le doublon de ton prénom a été retiré).',
             'D’après le code du jeu : l’étage de fin est d’au moins 1 ; hors ligne, rien ne progresse entre 650 et 700 de Puissance ni tant qu’aucun étage n’a été atteint.',
             'Badavatar : dans la section Profil des Réglages, tu peux désormais choisir parmi tous les éléments (corps, vêtements, cheveux, yeux, oreilles, nez, bouche, barbe, accessoires), comme sur Soreal TV. Ton badavatar de départ reste tiré au hasard.',
@@ -57,6 +58,7 @@
             'Arrivée d’un boss : fin du clignotement noir très bref qui apparaissait souvent juste après l’animation.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Le journal de combat reprend les phrases du jeu d’origine (en anglais) : tes coups, les attaques des ennemis, les victoires et le butin d’or.',
             'Cube, d’après le code du jeu : le seuil au-delà duquel le Cube compte moins inclut la base de 10 et tous les gains plats permanents, pas seulement l’équipement.',
             'Butin : le filtre de butin d’un kill est celui de la zone où le kill a eu lieu.'
           ]},

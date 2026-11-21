@@ -1186,7 +1186,8 @@
         const subis=Math.min(avant,degats);
         fight.playerHp=Math.max(0,avant-subis);
         fxIdleV1_('mob','explosion');fxIdleV1_('joueur','degats','-'+idleEntier_(subis));jouerEffetAudioIdleV199_('skill_mobExplosion');
-        ajouterLogAventureIdleV1_('enemy','💥 '+libelleEnnemiAdventureIdleV1_(fight)+' explose : '+idleEntier_(subis)+' dégâts !');
+        ajouterLogAventureIdleV1_('enemy',window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('explodeMob',libelleEnnemiAdventureIdleV1_(fight),{n:window.__SOREAL_IDLE_JOURNAL_JEU_V1__.fmt(subis)})[0]);
+        ajouterLogAventureIdleV1_('enemy','You are almost certainly dead.');
         return fight.playerHp<=0?'mort':'survie';
       }
 
@@ -1232,71 +1233,88 @@
         if(!api||!e||!fight||!fight.titanId||!fight.active)return;
         const a=aventureMetaIdleV47_(REG.idleEtat);
         const out=api.apresCoupJoueur(fight.titanId,e,attaqueId,degats);
-        if(out.nerdAnnule)ajouterLogAventureIdleV1_('enemy','Le Greasy Nerd vacille : ton attaque ultime a annulé son dernier piratage !');
+        if(out.nerdAnnule)ajouterLogAventureIdleV1_('enemy',window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('nerdAnnule')[0]);
         if(out.reflete>0){
           const subis=titanCoupDirectSurJoueurIdleV1_(a,fight,maintenant,1,out.reflete);
-          ajouterLogAventureIdleV1_('enemy','Ton attaque rebondit sur la peau caoutchouteuse de THE BEAST : tu te blesses pour '+idleEntier_(subis)+' dégâts !');
+          window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('beastReflet','',{n:window.__SOREAL_IDLE_JOURNAL_JEU_V1__.fmt(subis)}).forEach(function(t){ajouterLogAventureIdleV1_('enemy',t);});
           if(!fight.active)return;
         }
         if(out.explosion){
-          ajouterLogAventureIdleV1_('enemy',out.dit?'Walderp ricane : « TU N’AS PAS FAIT CE QUE WALDERP A DIT ! » Il appuie sur un gros bouton rouge.':'Walderp ricane : « JE N’AI PAS DIT WALDERP DIT ! » Il appuie sur un gros bouton rouge.');
+          window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('walderpExplose','',{dit:out.dit}).forEach(function(t){ajouterLogAventureIdleV1_('enemy',t);});
           fxIdleV1_('mob','explosion');
           const subis=titanCoupDirectSurJoueurIdleV1_(a,fight,maintenant,out.mult);
-          ajouterLogAventureIdleV1_('enemy',libelleEnnemiAdventureIdleV1_(fight)+' explose : '+idleEntier_(subis)+' dégâts !');
         }
       }
 
-      /* Journal et effets du tour d'un titan (messages du jeu, traduits) : renvoie le type d'effet de l'attaque sur la barre de vie du joueur ('' = effet ordinaire). */
+      /* Journal et effets du tour d'un titan : les phrases sont CELLES DU JEU, en anglais (modules/journal-jeu-v1.js, lues dans EnemyAI le 2026-11-21 ; Norman : « reprends les phrases du jeu »). Les phrases de COUP (« X attacked for N damage! »...) sont écrites par kindAttaqueIdleV1_ avec les dégâts ; ici seulement les annonces et effets. Renvoie le type d'effet de l'attaque sur la barre de vie du joueur ('' = effet ordinaire). */
       function journalCapaciteTitanIdleV1_(fight,att){
-        const L=function(t){ajouterLogAventureIdleV1_('enemy',t);};
+        const JJ=window.__SOREAL_IDLE_JOURNAL_JEU_V1__;
+        const L=function(lignes){(lignes||[]).forEach(function(t){ajouterLogAventureIdleV1_('enemy',t);});};
         const nom=libelleEnnemiAdventureIdleV1_(fight);
         const api=window.SorealTitanComportementsV1;
-        const CONSIGNES={3:'une attaque normale',4:'une attaque forte',5:'une attaque perçante',6:'une attaque ultime'};
         let fx='';
-        if(att.type==='puissante'){L('💥 Attaque puissante !');fx='puissante';}
-        if(att.powerSmash){L('💥 '+nom+' lance un POWER SMASH !');fx='puissante';}
-        if(att.type==='super'){L('💥 SUPER attaque !');fx='puissante';}
-        if(att.type==='gantPuissant'){L('🥊 Gant de puissance : coup ×5 !');fx='puissante';}
-        if(att.type==='explosion'){L('💣 '+nom+' appuie sur un gros bouton rouge : tu n’as pas bouclé la boucle de Walderp !');fxIdleV1_('mob','explosion');fx='puissante';}
-        if(att.type==='walderpDit'){L((att.dit?'🗣️ WALDERP DIT : ':'🗣️ ')+'frappe-moi avec '+(CONSIGNES[att.consigne]||'une attaque')+' !');}
+        if(att.type==='puissante'||att.powerSmash||att.type==='super'||att.type==='gantPuissant')fx='puissante';
+        if(att.type==='explosion'){L(JJ.titan('walderpExplose',nom,{dit:att.dit}));fxIdleV1_('mob','explosion');fx='puissante';}
+        if(att.type==='walderpDit')L(JJ.titan('walderpDit',nom,{dit:att.dit,consigne:att.consigne}));
         if(att.type==='aura'){
-          const AURAS={0:'',1:'🔥 '+nom+' lance sa HYPER AURA ROUGE : il se soigne à toute vitesse !',2:'💥 '+nom+' équipe le badge POWER SMASH : ça va faire mal !',3:'🪨 '+nom+' se roule dans de la bouillie grise : il se recouvre d’une armure de métal !',4:'⏰ '+nom+' avale un réveil : tu te sens plus lent !',5:'🫧 '+nom+' se couvre de gelée caoutchouteuse : attention à tes attaques !',6:'☁️ '+nom+' lâche un nuage puant : il ronge ta santé !'};
-          if(AURAS[att.aura])L(AURAS[att.aura]);
-          if(att.aura>0)fxIdleV1_('joueur','aura');
+          if(att.aura>0){L(JJ.titan('aura',nom,{aura:att.aura}));fxIdleV1_('joueur','aura');}
         }
-        if(att.type==='piratage')L('💻 '+nom+' pirate le système : +8 % de puissance !');
-        if(att.type==='genou')L('🦵 '+nom+' te brise la rotule : tes capacités se rechargent 3 fois plus lentement !');
-        if(att.type==='explosionsDebut')L('💥 '+nom+' arme ses explosifs : quatre explosions arrivent !');
-        if(att.explosionRapide){L('💥 Explosion !');fx='puissante';}
-        if(att.type==='tirBras'){L('🔫 Le canon-bras de '+nom+' libère un tir chargé !');fx='puissante';}
-        if(att.type==='brasCharge')L('🔫 '+nom+' charge son canon-bras : BAISSE-TOI !');
-        if(att.type==='exileSaignement')L('🦌 '+nom+' t’encorne : tu saignes abondamment, ta régénération s’inverse !');
-        if(att.type==='exileParalysie')L('🧠 '+nom+' prend le contrôle de ton esprit : tu ne peux plus bouger !');
-        if(att.type==='succion')L('🐙 '+nom+' enroule un tentacule autour de toi et aspire ta vie !');
-        if(att.type==='devore'&&!att.invincibleDebut)L('🕳️ '+nom+' dévore tout sur son passage !');
-        if(att.type==='affaiblit')L('🥵 Tes bras s’alourdissent : tes dégâts manuels chutent pendant 12 s !');
-        if(att.type==='rats')L('🐀 '+nom+' invoque une nuée de rats furieux : ils arrivent !');
-        if(att.type==='ratsDebut')L('🐀 La nuée de rats se rue sur toi : 10 attaques rapides !');
-        if(att.type==='reductionPV')L('🩸 '+nom+' te vide de ta vie : tes PV tombent à 20 % !');
-        if(att.type==='bouclier')L('🛡️ '+nom+' renforce son bouclier : il annulera tes '+att.bouclier+' prochains coups !');
-        if(att.type==='accelere')L('📈 La puissance de '+nom+' s’accélère pour de bon !');
-        if(att.invincibleDebut)L('🛡️ '+nom+' devient invincible : tes coups ne le touchent plus !');
-        if(att.type==='sauterelles')L('🦗 Les sauterelles se ruent sur toi : 10 attaques rapides !');
+        if(att.type==='piratage')L(JJ.titan('piratage',nom));
+        if(att.type==='genou')L(JJ.titan('genou',nom));
+        if(att.type==='explosionsDebut')L(JJ.titan('explosionsDebut',nom));
+        if(att.explosionRapide)fx='puissante';
+        if(att.type==='tirBras'){L(JJ.titan('tirBras',nom));fx='puissante';}
+        if(att.type==='brasCharge')L(JJ.titan('brasCharge',nom));
+        if(att.type==='exileSaignement')L(JJ.titan('exileSaignement',nom));
+        if(att.type==='exileParalysie')L(JJ.titan('exileParalysie',nom));
+        if(att.type==='succion')L(JJ.titan('succion',nom));
+        if(att.invincibleDebut)L(JJ.titan('invincible',nom));
+        if(att.type==='affaiblit')L(JJ.titan('spores',nom));
+        if(att.type==='rats')L(JJ.titan('rats',nom));
+        if(att.type==='reductionPV')L(JJ.titan('reductionPV',nom));
+        if(att.type==='bouclier')L(JJ.titan('bouclier',nom,{renforce:att.bouclier>2}));
+        if(att.type==='accelere')L(JJ.titan('accelere',nom));
+        if(att.type==='sauterelles')L(JJ.titan('sauterelles',nom));
         if(att.rafale)fx='sauterelle';
         if(att.type==='chemise'){
           fx='chemise';
           const defDes=att.desactive?definitionCompetenceAdventureIdleV3_(att.desactive):null;
-          const sujet=fight.titanId==='t3'?'Jake agite sa chemise':nom+' agite la main';
-          L(att.nouvelle&&defDes?'👔 '+sujet+' : « '+defDes.label+' » est désactivée jusqu’à la fin du combat !':'👔 '+sujet+'… sans effet de plus.');
+          L(JJ.titan('chemise',nom,{desactive:Boolean(att.nouvelle&&defDes)}));
         }
-        if(att.saigne)L('🩸 Tu saignes ! Ta régénération baisse de '+idleEntier_(api.regenRetireeSaignement(fight.titanId,REG.idleTitanEtatV1))+' PV/s.');
-        if(att.paralyse){
-          fxIdleV1_('joueur','eclair');
-          L('⚡ Tu es paralysé : plus de capacités ni d’Idle pendant '+Math.round((att.paralyseMs||4000)/1000)+' s !');
-        }
-        if(att.spores){fxIdleV1_('joueur','spore');L('🍄 « Tes bras deviennent soudain lourds » : tes dégâts manuels tombent aux 2/3 pendant 15 s.');}
-        if(att.draine){fxIdleV1_('joueur','spore');L('🍄 « Tu sens l’énergie se vider de ton corps » : ta Robustesse tombe aux 2/3 et tu subis ×1,5 de dégâts pendant 15 s.');}
+        if(att.paralyse){fxIdleV1_('joueur','eclair');L(JJ.titan('paralyse',nom));}
+        if(att.spores){fxIdleV1_('joueur','spore');L(JJ.titan('spores',nom));}
+        if(att.draine){fxIdleV1_('joueur','spore');L(JJ.titan('draine',nom));}
         return fx;
+      }
+
+      /* Type de phrase d'attaque de l'ennemi (journal-jeu-v1.js : attaque) d'après la capacité du titan ou le cycle du type d'ennemi. */
+      function kindAttaqueIdleV1_(att,tourMob,fight){
+        if(att){
+          if(att.powerSmash)return 'smash';
+          if(att.type==='puissante')return 'puissante';
+          if(att.type==='super')return 'super';
+          if(att.type==='gant')return 'gant';
+          if(att.type==='gantPuissant')return 'gantPuissant';
+          if(att.explosionRapide)return 'explosion';
+          if(att.type==='tirBras')return 'tirBras';
+          if(att.type==='succion')return 'succion';
+          if(att.type==='devore')return 'devore';
+          if(att.type==='sauterelle')return 'sauterelle';
+          if(att.type==='rat')return 'rat';
+          if(att.saigne)return 'saigne';
+          return 'normal';
+        }
+        if(tourMob){
+          if(tourMob.charge)return 'massive';
+          if(tourMob.poison)return 'poison';
+          if(tourMob.poisonFin)return 'poisonFin';
+          if(tourMob.paralyse)return 'paralyse';
+          if(tourMob.avertit&&!tourMob.paralyse)return 'ralentit';
+          if(tourMob.rapideFin)return 'rapideFin';
+          if(window.SorealMobTypesV1&&window.SorealMobTypesV1.intervalleEnnemiMs(fight,1000,0)<1000)return 'rapide';
+          if(tourMob.croit)return 'croit';
+        }
+        return 'normal';
       }
 
       function fxEtatsIdleV1_(fight,maintenant){
@@ -1438,7 +1456,7 @@
             if(REG.idleAdventureManualStateV3.cooldownUntil[k]>maintenantTick-subieParalysie)REG.idleAdventureManualStateV3.cooldownUntil[k]+=subieParalysie;
           });
           REG.idleAdventureFightNextPlayerHitV2+=subieParalysie;
-          ajouterLogAventureIdleV1_('system','Tu peux de nouveau bouger.');
+          ajouterLogAventureIdleV1_('system',window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('liberte')[0]);
         }
         /*
          * Cooldowns plus lents sous l'effet d'un titan (PlayerController::timeDilation, build 1260 : aura 4 de The Beast dt/2, genou brisé de The Godmother dt/3) : chaque compteur de capacité (Block, Heal, Regular Attack...)
@@ -1520,8 +1538,7 @@
             fxIdleV1_('mob',multTitanIdle===0?'invincible':'coup',idleEntier_(degats));
             ajouterLogAventureIdleV1_(
               'player',
-              'Vous frappez '+libelleEnnemiAdventureIdleV1_(fight)+
-              ' pour '+idleEntier_(degats)+' dégâts !'
+              window.__SOREAL_IDLE_JOURNAL_JEU_V1__.coup(degats,libelleEnnemiAdventureIdleV1_(fight))
             );
             modifie=true;
             evenements+=1;
@@ -1564,15 +1581,13 @@
           let tourMob=null;
           if(window.SorealMobTypesV1&&!fight.titanId){
             tourMob=window.SorealMobTypesV1.tourEnnemi(fight,Math.random(),momentEvenement);
-            if(tourMob.prepare){fxIdleV1_('mob','charge');ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' rougeoie… une attaque énorme arrive !');}
-            else if(tourMob.avertit&&!tourMob.paralyse&&fight.mobType!=='rapid')ajouterLogAventureIdleV1_('enemy','⚡ Tu sens tes mouvements ralentir…');
-            else if(tourMob.avertit&&fight.mobType==='rapid')ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' se met à trembler violemment…');
-            if(tourMob.rapideDebut)ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' fonce et attaque à toute vitesse !');
-            if(tourMob.rapideFin)ajouterLogAventureIdleV1_('enemy','⚡ '+libelleEnnemiAdventureIdleV1_(fight)+' semble s’être calmé.');
+            /* Phrases du jeu (journal-jeu-v1.js) : annonces du chargeur et du rapide ; l'avertissement du paralyseur et la fin du poison / de la fureur sont écrits avec le coup lui-même (EnemyAI::paralyzeAI, poisonAttack, rapidAI). */
+            if(tourMob.prepare){fxIdleV1_('mob','charge');ajouterLogAventureIdleV1_('enemy',window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('chargeDebut',libelleEnnemiAdventureIdleV1_(fight))[0]);}
+            else if(tourMob.avertit&&fight.mobType==='rapid')ajouterLogAventureIdleV1_('enemy',window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('tremble',libelleEnnemiAdventureIdleV1_(fight))[0]);
+            if(tourMob.rapideDebut)ajouterLogAventureIdleV1_('enemy',window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('rapideDebut',libelleEnnemiAdventureIdleV1_(fight))[0]);
             if(tourMob.saute){modifie=true;evenements+=1;continue;}
             if(tourMob.mult!==1)degats=degatsAvecMult(tourMob.mult);
-            if(tourMob.charge){fxTypeAttaque='puissante';ajouterLogAventureIdleV1_('enemy','💥 Attaque massive !');}
-            else if(tourMob.croit)ajouterLogAventureIdleV1_('enemy','📈 '+libelleEnnemiAdventureIdleV1_(fight)+' gonfle à vue d’œil !');
+            if(tourMob.charge)fxTypeAttaque='puissante';
           }
           /* Capacités du titan (wiki « Titan Skills ») : attaque puissante (dégâts multipliés) ou paralysie du joueur. */
           let attTitan=null;
@@ -1622,27 +1637,27 @@
           fxIdleV1_('joueur',fxTypeAttaque,degats>0?'-'+idleEntier_(degats):'');
           if(attTitan&&attTitan.soinEnnemi>0){   /* EnemyAI::heal(0,1) : 10 % des PV max de l'ennemi */
             fight.monsterHp=Math.min(idleNombre_(fight.monsterHpMax),idleNombre_(fight.monsterHp)+idleNombre_(fight.monsterHpMax)*attTitan.soinEnnemi);
-            ajouterLogAventureIdleV1_('enemy',libelleEnnemiAdventureIdleV1_(fight)+' se soigne de '+idleEntier_(attTitan.soinEnnemi*100)+' % de ses PV !');
+
           }
 
           if(!(attTitan&&attTitan.type==='chemise'))ajouterLogAventureIdleV1_(
             'enemy',
-            libelleEnnemiAdventureIdleV1_(fight)+
-            ' vous a attaqué pour '+idleEntier_(degats)+' dégâts !'
+            window.__SOREAL_IDLE_JOURNAL_JEU_V1__.attaque(kindAttaqueIdleV1_(attTitan,tourMob,fight),libelleEnnemiAdventureIdleV1_(fight),window.__SOREAL_IDLE_JOURNAL_JEU_V1__.fmt(degats))
           );
+          /* Nerd : les phrases qui suivent le coup (nerdAI : le gant de puissance enfilé, puis cassé). */
+          if(attTitan&&(attTitan.type==='gant'||attTitan.type==='gantPuissant'))window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan(attTitan.type,libelleEnnemiAdventureIdleV1_(fight)).forEach(function(t){ajouterLogAventureIdleV1_('enemy',t);});
           /* Types d'ennemis (mobs-types-v1.js, Norman 2026-11-14) : poison et paralysie déclenchés par ce coup. */
           const mobTypes=window.SorealMobTypesV1;
           if(mobTypes&&!fight.titanId&&fight.playerHp>0&&tourMob){
-            if(tourMob.poison){fxIdleV1_('joueur','poison');jouerEffetAudioIdleV199_('skill_mobPoison');ajouterLogAventureIdleV1_('enemy','☠️ Tu es empoisonné !');}
+            if(tourMob.poison){fxIdleV1_('joueur','poison');jouerEffetAudioIdleV199_('skill_mobPoison');}
             if(tourMob.poisonDegats>0){
               const subisPoison=Math.min(idleNombre_(fight.playerHp),tourMob.poisonDegats);
               fight.playerHp=Math.max(0,idleNombre_(fight.playerHp)-subisPoison);
               fxIdleV1_('joueur','poison','-'+idleEntier_(subisPoison));
-              ajouterLogAventureIdleV1_('enemy','☠️ Tu subis aussi '+idleEntier_(subisPoison)+' dégâts de poison !');
+              ajouterLogAventureIdleV1_('enemy',window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('poisonDegats','',{n:window.__SOREAL_IDLE_JOURNAL_JEU_V1__.fmt(subisPoison)})[0]);
               if(fight.playerHp<=0){modifie=true;evenements+=1;terminerCombatAdventureLocalV2_(fight,false);return;}
             }
-            if(tourMob.poisonFin)ajouterLogAventureIdleV1_('enemy','☠️ Ton poison se dissipe.');
-            if(tourMob.paralyse){fxIdleV1_('joueur','eclair');jouerEffetAudioIdleV199_('skill_paralyze');ajouterLogAventureIdleV1_('enemy','⚡ Tu es paralysé : plus de capacités ni d’Idle pendant 2 s !');}
+            if(tourMob.paralyse){fxIdleV1_('joueur','eclair');jouerEffetAudioIdleV199_('skill_paralyze');}
           }
           modifie=true;
           evenements+=1;

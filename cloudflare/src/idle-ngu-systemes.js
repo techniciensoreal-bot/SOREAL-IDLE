@@ -1003,6 +1003,17 @@ function advanceTowerV1(state, seconds, context) {
   d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);
   d.respawnS = respawn;
   d.intervalS = interval;
+  /* Pour l'écran (Norman, 2026-11-21 : « dans l'ITOPOD le joueur a une barre de vie et il y a un journal de combat ») : de quoi dessiner la barre de vie du joueur et les lignes du journal, tirés du MÊME calcul que la progression (lecture seule, aucun effet sur le jeu).
+     pvMax / pv = PV max et PV actuels du joueur (d.hp n'existe que depuis qu'un combat a été simulé : sinon plein) ; degatsCoup = un coup du joueur (formule de towerHitsV1) ; ennemiCoup = un coup de l'ennemi de l'étage (EnemyAI::attack, aléa remplacé par 1) ; regenPv = régénération par seconde en auto-attaque. */
+  {
+    const echelle = Math.pow(1.05, d.floor);
+    const pvMax = Math.max(0, num(combatStats.hp, 0));
+    d.pvMax = pvMax;
+    d.pv = Number.isFinite(d.hp) ? clamp(d.hp, 0, pvMax) : pvMax;
+    d.degatsCoup = Math.max(0, power - (10 * echelle) / 2) * Math.max(0.1, idleBonus);
+    d.ennemiCoup = Math.floor(Math.max(0.1 * 10 * echelle, 10 * echelle - Math.max(0, num(combatStats.toughness, 0)) / 2));
+    d.regenPv = Math.max(0, num(combatStats.regen, 0)) * ITOPOD_AUTOATTACK_REGEN_V1;
+  }
 
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));
   const quirks = quirkBonusesV1(idleQuirkNiveauxV1(state));
@@ -1011,6 +1022,9 @@ function advanceTowerV1(state, seconds, context) {
   /* Même PPBonus que le Fruit of Rage (sets multiplicatifs, NGU PP, Hacks PP, Diggers PP, Perks, Cards PP). */
   const ppMultiplier = Math.max(0, num(bonuses.ppMultiplier, 1));
   const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));
+  /* Pour le journal de l'écran : PPP gagnés par kill = (base + étage) x PPBonus (ItopodPerkController::progressGained). */
+  d.ppBase = ppBase;
+  d.ppMult = ppMultiplier;
 
   const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor);
   const applyKills = (n, floor) => {
