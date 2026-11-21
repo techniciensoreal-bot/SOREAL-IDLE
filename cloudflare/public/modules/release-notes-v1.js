@@ -33,7 +33,8 @@
             'Les tableaux « Bonus obtenus » se placent sous les boutons du trou et de la roue, côte à côte sur PC.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
-            'Un boss a désormais une mort qui lui est propre : il se vide comme de l’eau dans un évier, avec le bruit de la vidange.'
+            'Un boss a désormais une mort qui lui est propre : il se vide comme de l’eau dans un évier, avec le bruit de la vidange.',
+            'Arrivée d’un boss : fin du clignotement noir très bref qui apparaissait souvent juste après l’animation.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Butin : le filtre de butin d’un kill est celui de la zone où le kill a eu lieu.'

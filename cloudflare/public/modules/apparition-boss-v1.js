@@ -317,6 +317,9 @@
         if(fini)return;fini=true;enCours=false;
         clearTimeout(echeance);
         nettoyerMort_(img);
+        /* Norman (2026-11-21) : « souvent, après l'animation d'arrivée d'un boss, un clignotement noir très rapide ». Cause : pour les mises en scène des réapparitions (app-boss-neuf), la scène (copie de l'image, identique à la vraie) est retirée
+           juste avant, et il ne reste que le fond sombre du calque (canvas vide) qui s'efface en 0,12 s : un noir visible. Là, le calque disparaît d'un coup (la vraie image est déjà exactement dessous) ; seul l'effet en canvas garde le fondu. */
+        if(calque.classList.contains('app-boss-neuf')){calque.style.transition='none';if(calque.parentNode)calque.parentNode.removeChild(calque);return;}
         calque.style.opacity='0';
         setTimeout(function(){if(calque.parentNode)calque.parentNode.removeChild(calque);},160);
       }

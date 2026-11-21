@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Un boss a désormais une mort qui lui est propre : il se vide comme de l’eau dans un évier, avec le bruit de la vidange."
+    "Un boss a désormais une mort qui lui est propre : il se vide comme de l’eau dans un évier, avec le bruit de la vidange.",
+    "Arrivée d’un boss : fin du clignotement noir très bref qui apparaissait souvent juste après l’animation."
   ] };
 })();
