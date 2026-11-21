@@ -580,8 +580,8 @@
   "sha": "26a35d1b0480bd9f2b2d58f2d219979949390528"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
-  "pin": 13,
-  "sha": "27ab4359f9ad1150b8939ae5ee341056331f409a"
+  "pin": 18,
+  "sha": "bf8b76fad4904c9a9b4412c8aa0bf5b3fb6a90f0"
  },
  "/modules/morts-joueur-nouvelles-v1.js": {
   "pin": 8,

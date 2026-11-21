@@ -38,7 +38,16 @@ const tFlamme = nombre("PANC_T_FLAMME"), tChute = nombre("PANC_T_CHUTE"), tCrac 
 const tSortie = tChute + Math.sqrt(2 * (Math.PI / 2 - 0.1) / g);   /* l'angle atteint 90 degrés : l'image est à plat derrière, de profil */
 assert.ok(tCrac < tChute && tChute < tSortie && tSortie < tFlamme, "chaîne qui lâche, chute, sortie de l'image, puis la flamme (" + [tCrac, tChute, tSortie.toFixed(2), tFlamme].join(" < ") + ")");
 const sec = (x) => String(x).replace(/^0\./, ".").replace(".", "\\.");
-assert.ok(new RegExp("souffle\\(a,t\\+" + sec(tFlamme) + ",[\\d.]+,.bandpass.").test(src) && new RegExp("ton\\(a,t\\+" + sec(tFlamme) + ",.sine.,150,55").test(src), "le pet de flamme sonne à l'instant où la flamme apparaît");
+assert.ok(new RegExp("souffle\\(a,t\\+" + sec(tFlamme) + ",[\\d.]+,.bandpass.").test(src) && new RegExp("vibrer\\(a,t\\+" + sec(tFlamme) + ",[\\d.]+,.sawtooth.").test(src), "le pet de flamme sonne à l'instant où la flamme apparaît");
+/* Norman (2026-11-21) : « un bruit de porte qui grince quand il tombe, et un bruit de pet pour la flamme » : le grincement couvre toute la bascule, le pet est une vibration grave qui descend en tremblant. */
+{
+  const m = /grincer\(a,t\+([\d.]+),([\d.]+),/g;
+  let couvre = false, x;
+  while ((x = m.exec(src))) { const debut = Number(x[1]), duree = Number(x[2]); if (debut >= tCrac && debut <= tChute && debut + duree >= tSortie - 0.05) couvre = true; }
+  assert.ok(couvre, "un grincement de porte couvre toute la bascule (de la chute jusqu'à ce que l'image soit à plat)");
+  assert.ok(src.includes("function grincer(a,t0,dur,f0,fMid,f1,gate0,gate1,pic)") && src.includes("lf.type='square'"), "le grincement est un gond qui accroche et glisse (dent de scie hachée par un battement carré)");
+  assert.ok(src.includes("function vibrer(a,t0,dur,type,f0,f1,fm,prof,pic,att,fcut)") && src.includes("lg.connect(o.frequency)"), "le pet est une onde grave dont la hauteur tremble (modulation de fréquence)");
+}
 assert.ok(new RegExp("souffle\\(a,t\\+" + sec(tCrac) + ",[\\d.]+,.highpass.").test(src), "le craquement du pied tombe à l'instant où il cède");
 assert.ok(new RegExp("ton\\(a,t\\+" + String(Number((tChute + Math.sqrt(2 * (Math.PI / 2 - 0.1) / g)).toFixed(2))).replace(/^0\\./, ".").replace(".", "\\.") + ",.sine.,100,38").test(src), "le coup sourd tombe quand l'image est à plat (" + (tChute + Math.sqrt(2 * (Math.PI / 2 - 0.1) / g)).toFixed(2) + " s)");
 

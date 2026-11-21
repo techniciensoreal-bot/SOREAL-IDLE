@@ -576,6 +576,35 @@ function ton(a,t0,type,f0,f1,dur,pic,att){
   var g=a.createGain();env(g,t0,att||.01,dur,pic);o.connect(g);g.connect(sortieCourante||maitre(a));o.start(t0);o.stop(t0+dur+.1);
   return o;
 }
+/*
+ * Grincement de porte (Norman, 2026-11-21 : « un bruit de porte qui grince quand il tombe ») : le bruit d'un gond ACCROCHE-GLISSE : une dent de scie dont la hauteur glisse (f0, puis fMid, puis f1), hachée par un battement carré rapide (la fréquence du hachage
+ * passe de gate0 à gate1 : le gond qui accroche puis glisse), filtrée dans les médiums pour le timbre du bois et du métal ; un second grain très légèrement désaccordé l'épaissit.
+ */
+function grincer(a,t0,dur,f0,fMid,f1,gate0,gate1,pic){
+  [0,1].forEach(function(n){
+    var o=a.createOscillator();o.type='sawtooth';
+    var d=n?1.012:1;
+    o.frequency.setValueAtTime(f0*d,t0);o.frequency.linearRampToValueAtTime(fMid*d,t0+dur*.5);o.frequency.linearRampToValueAtTime(f1*d,t0+dur);
+    var am=a.createGain();am.gain.value=.55;
+    var lf=a.createOscillator();lf.type='square';lf.frequency.setValueAtTime(gate0,t0);lf.frequency.linearRampToValueAtTime(gate1,t0+dur);
+    var lg=a.createGain();lg.gain.value=.45;lf.connect(lg);lg.connect(am.gain);
+    var bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1100;bp.Q.value=1.6;
+    var lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=3200;lp.Q.value=.7;
+    var g=a.createGain(),pc=pic*(n?.6:1)*2.2;g.gain.value=.0001;g.gain.setValueAtTime(.0001,t0);g.gain.linearRampToValueAtTime(pc,t0+dur*.2);g.gain.linearRampToValueAtTime(pc,t0+dur*.88);g.gain.linearRampToValueAtTime(.0001,t0+dur);   /* monte vite, tient jusqu'au bout, puis se coupe */
+    o.connect(am);am.connect(bp);bp.connect(lp);lp.connect(g);g.connect(sortieCourante||maitre(a));
+    o.start(t0);lf.start(t0);o.stop(t0+dur+.1);lf.stop(t0+dur+.1);
+  });
+}
+/* Vibration grave irrégulière (le bruit de pet de la flamme, Norman 2026-11-21) : une onde grave dont la hauteur descend en tremblant (modulation de fréquence rapide), filtrée dans les graves, avec son souffle humide. */
+function vibrer(a,t0,dur,type,f0,f1,fm,prof,pic,att,fcut){
+  var o=a.createOscillator();o.type=type;o.frequency.setValueAtTime(f0,t0);o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t0+dur);
+  var lf=a.createOscillator();lf.type='sine';lf.frequency.setValueAtTime(fm,t0);lf.frequency.linearRampToValueAtTime(fm*1.6,t0+dur);
+  var lg=a.createGain();lg.gain.value=prof;lf.connect(lg);lg.connect(o.frequency);
+  var lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.value=fcut||520;lp.Q.value=2.2;
+  var g=a.createGain();env(g,t0,att,Math.max(.02,dur-att),pic);
+  o.connect(lp);lp.connect(g);g.connect(sortieCourante||maitre(a));
+  o.start(t0);lf.start(t0);o.stop(t0+dur+.1);lf.stop(t0+dur+.1);
+}
 var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000,perruque:4800,dechirure:3200,evier:4600,pancarte:3300};
 function construireSon(a,id){
   var t=a.currentTime+.03,i;
@@ -622,18 +651,19 @@ function construireSon(a,id){
     souffle(a,t+.3,1.0,'bandpass',2400,4200,.6,.06,.1);                                   /* le souffle de la feuille qui se tend */
     souffle(a,t+1.45,.9,'bandpass',600,300,.7,.05,.25);                                    /* les deux moitiés qui tombent */
   }else if(id==='pancarte'){
-    /* Calé sur l'image : balancement 0 – 0,45 s, le pied cède à PANC_T_CRAC (0,45 s), bascule dès 0,9 s, elle est à plat derrière à ~1,72 s (coup sourd), le pet de flamme part à PANC_T_FLAMME (2,05 s). */
-    for(i=0;i<5;i++)ton(a,t+i*.085,'sawtooth',150+Math.random()*40,110,.08,.07,.006);                                        /* le bois du pied grince */
-    souffle(a,t,.45,'bandpass',700,380,3,.1,.1);ton(a,t,'sine',80,64,.45,.06,.1);                                            /* la pancarte se balance */
+    /* Calé sur l'image : balancement 0 – 0,45 s, le pied cède à PANC_T_CRAC (0,45 s), bascule dès 0,9 s, à plat derrière à ~1,72 s (coup sourd), le pet part à PANC_T_FLAMME (2,05 s). */
+    grincer(a,t+.02,.42,260,330,290,16,22,.16);                                                                              /* la porte grince déjà en se balançant */
     souffle(a,t+.45,.08,'highpass',2000,5500,.6,.7,.002);ton(a,t+.45,'sine',220,80,.16,.45,.003);                           /* craquement : le pied cède */
-    ton(a,t+.6,'sawtooth',200,140,.3,.06,.04);                                                                               /* le long grincement du bois qui penche */
-    souffle(a,t+.9,.85,'bandpass',300,1500,1.1,.17,.5);                                                                      /* la chute : l'air qui siffle, de plus en plus fort */
+    grincer(a,t+.5,1.25,230,520,330,14,34,.3);                                                                               /* LE grincement de porte : toute la bascule, de plus en plus aigu et saccadé */
+    souffle(a,t+.9,.8,'bandpass',300,1100,1.1,.07,.5);                                                                       /* l'air, en dessous */
     ton(a,t+1.72,'sine',100,38,.35,.95,.006);souffle(a,t+1.72,.3,'lowpass',700,120,.9,.5,.004);                              /* elle touche le sol, derrière : coup sourd */
-    souffle(a,t+1.77,.6,'lowpass',900,200,.7,.12,.05);                                                                        /* la poussière retombe */
-    souffle(a,t+2.05,.5,'bandpass',1900,520,.8,.5,.01);ton(a,t+2.05,'sine',150,55,.42,.5,.01);                               /* le pet de flamme : « pfwouf » */
-    souffle(a,t+2.12,.55,'highpass',3200,6800,.6,.1,.05);
-    for(i=0;i<6;i++)souffle(a,t+2.15+Math.random()*.5,.03,'bandpass',3000+Math.random()*3500,2500,6,.14,.002);               /* petits crépitements */
-    souffle(a,t+2.7,.4,'lowpass',500,150,.8,.06,.1);                                                                         /* le filet de fumée */
+    souffle(a,t+1.77,.6,'lowpass',900,200,.7,.12,.05);                                                                       /* la poussière retombe */
+    /* le pet de la flamme : « pfrrrrt-prt-pt » */
+    souffle(a,t+2.05,.14,'bandpass',900,380,.9,.3,.01);                                                                      /* le souffle qui précède */
+    vibrer(a,t+2.05,.56,'sawtooth',118,56,23,16,.75,.03,540);                                                                 /* le long « prrrrrt » grave qui descend en tremblant */
+    vibrer(a,t+2.68,.2,'square',86,60,30,9,.45,.02,420);                                                                       /* un deuxième, plus court */
+    vibrer(a,t+2.94,.09,'sawtooth',100,70,26,6,.3,.01,380);                                                                   /* et un dernier « pt » */
+    souffle(a,t+2.1,.5,'bandpass',420,260,.7,.16,.05);                                                                       /* le souffle humide qui l'accompagne */
   }else if(id==='evier'){
     /* Calé sur l'image : la bonde apparaît dès 0,15 s, l'eau se retire de 0,5 s à 3,5 s (de plus en plus vite), le dernier « glouk » tombe à 3,5 s. */
     ton(a,t+.1,'sine',200,150,.35,.4,.01);souffle(a,t+.1,.3,'lowpass',500,200,1,.15,.02);                                 /* la bonde s'ouvre : « bloup » */
