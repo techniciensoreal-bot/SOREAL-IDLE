@@ -460,6 +460,9 @@
 
       /* Feuille de style de la page Money Pit (partagée entre le rendu historique et le rendu Preact : money-pit-vdom-v1.js). */
       const CSS_PAGE_MONEY_PIT_V1=
+            /* Bonus obtenus (Norman, 2026-11-21) : chacun sous le bouton de son action, donc côte à côte sur PC ; téléphone : à la suite du bouton. */
+            '@media (min-width:761px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1{grid-template-rows:auto auto auto auto}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-v1:first-child>:nth-child(4){grid-column:1;grid-row:4}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp2-grille-v1>.mp-col-v1:last-child>:nth-child(4){grid-column:2;grid-row:4}}'+
+            '@media (max-width:760px){html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1:first-child>.mp-bandeau-v1{order:2}html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .mp-col-v1:last-child>.mp-bandeau-v1{order:4}}'+
             '.soreal-idle-money-scene-v206{position:relative;max-width:760px;margin:0 auto 14px;overflow:hidden;border-radius:18px;border:2px solid #26344d;background:#102e16;box-shadow:0 15px 40px rgba(0,0,0,.3)}'+
             /* Norman (2026-10-02) : l'image du trou était coupée à gauche et à droite (carré forcé + cover) : elle s'affiche maintenant en entier, à ses proportions. */
             /* Norman (2026-10-08) : « l'image du trou sans fond sur PC est beaucoup trop grande » : même image entière et centrée, mais jamais plus haute que 340 px (ni que 40 % de l'écran). */

@@ -205,7 +205,7 @@
   /* ---------- Composants ---------- */
   function b_(t){return h('b',null,t);}
   function Bandeau_(p){
-    return h('div',{class:'soreal-idle-section-v8'},
+    return h('div',{class:'soreal-idle-section-v8 mp-bandeau-v1'},
       h('div',{class:'soreal-idle-window-title-v31 gold'},p.titre),
       p.lignes.length
         ?h('div',{style:'display:grid;gap:5px;margin-top:6px'},p.lignes.map(function(l,i){return h('div',{class:'soreal-idle-note-v4',style:'margin:0',key:i},l);}))
@@ -272,8 +272,6 @@
     var cal=p.calendrier?Calendrier_(Object.assign({css:p.CSS_CAL},p.calendrier)):null;
     return h(P_.Fragment,null,
       h('div',{class:'soreal-idle-page-head-v28'},h('div',{class:'soreal-idle-page-title-v28'},'🕳️ Money Pit & 🎡 Roue journalière'),h('div',{class:'soreal-idle-page-sub-v28'},'Balance tout ton Or durement gagné dedans.')),
-      h(Bandeau_,{titre:'🕳️ Bonus obtenus grâce au Money Pit',lignes:p.bandeauPit,vide:'Aucun bonus pour l’instant : jette ton Or dans le trou.'}),
-      h(Bandeau_,{titre:'🎡 Bonus obtenus grâce à la roue journalière',lignes:p.bandeauRoue,vide:'Aucun bonus pour l’instant : fais tourner la roue.'}),
       h('style',null,p.CSS_PAGE),
       h('div',{class:'mp2-grille-v1'},
         h('div',{class:'mp-col-v1 mp-col-trou-v1'},
@@ -288,6 +286,8 @@
               h(Ilot_,{tag:'div',attrs:{'class':'vdom-ilot','data-vdom-ilot':'legende'},html:p.legende}),
               h(Prix_,p.prixPit),
               h('div',{class:'rb-prix-txt'},'Jets effectués : ',b_(String(p.jets)),'.'))),
+          /* Bonus obtenus : sous le bouton du Money Pit (Norman, 2026-11-21), donc côte à côte avec celui de la roue sur PC. */
+          h(Bandeau_,{titre:'🕳️ Bonus obtenus grâce au Money Pit',lignes:p.bandeauPit,vide:'Aucun bonus pour l’instant : jette ton Or dans le trou.'}),
           h(Cadre_,p.cadrePit)),
         h('div',{class:'mp-col-v1 mp-col-roue-v1'},
           p.carteRoue?(p.carteRoue.tout?h(Ilot_,{tag:'div',attrs:{'class':'vdom-ilot','data-vdom-ilot':'roue'},html:p.carteRoue.tout}):h(Ilot_,{tag:'div',attrs:p.carteRoue.attrs,html:p.carteRoue.html})):null,
@@ -297,6 +297,7 @@
             h(Ilot_,{tag:'div',attrs:{'class':'vdom-ilot','data-vdom-ilot':'controles'},html:p.controles}),
             h(Prix_,Object.assign({roue:true},p.prixRoue)),
             h('div',{class:'rb-prix-txt'},'Tours effectués : ',b_(String(p.tours)),'.'))),
+          h(Bandeau_,{titre:'🎡 Bonus obtenus grâce à la roue journalière',lignes:p.bandeauRoue,vide:'Aucun bonus pour l’instant : fais tourner la roue.'}),
           h(Cadre_,p.cadreRoue))),
       cal);
   }

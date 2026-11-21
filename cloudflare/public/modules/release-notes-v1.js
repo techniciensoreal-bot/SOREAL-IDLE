@@ -29,6 +29,9 @@
         nom:'Entraînement qui suit',
         date:'2026-11-21',
         groupes:[
+          {menu:'moneyPit', titre:'Trou sans fond', points:[
+            'Les tableaux « Bonus obtenus » se placent sous les boutons du trou et de la roue, côte à côte sur PC.'
+          ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Butin : le filtre de butin d’un kill est celui de la zone où le kill a eu lieu.'
           ]},
