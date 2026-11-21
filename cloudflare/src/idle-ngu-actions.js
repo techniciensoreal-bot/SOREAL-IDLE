@@ -232,6 +232,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     if (!applied.duplicate) {
       const invEnv = inventoryAutoEnvV1(state);
       if (advActionInv === "zoneKill" || advActionInv === "resolveZoneFight" || advActionInv === "titan") {
+        /* Le filtre est celui de la zone où le kill a EU LIEU (résultat du kill, sinon la zone envoyée), jamais celui d'une zone gardée en mémoire (2026-11-21). */
+        if (advActionInv !== "titan") { const zoneKill = String(applied.result?.zone || advPayloadInv.zone || ""); if (zoneKill) invEnv.filterZone = zoneKill; }
         const filtrage = idleInventoryProcessNewDropsV1(state.adventure, idsAvantAventure, invEnv);
         marquerDropsFiltresV1(applied.result, filtrage.filteredIds);
       }
