@@ -36,7 +36,11 @@
             'Les tableaux « Bonus obtenus » se placent sous les boutons du trou et de la roue, côte à côte sur PC.'
           ]},
           {menu:'sang', titre:'Sang', points:[
+            'Magie du sang : « Bonus actuel » et « En le lançant maintenant » du sort du Nombre suivent ton sang en direct, sans changer d’onglet.',
             'D’après le code du jeu : une fois le cap franchi pour la première fois, la Magie continue de se produire et de s’allouer après chaque Renaissance, sans attendre de refranchir ce cap.'
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'NGU : le décompte « Niveau suivant dans… » s’affiche dès que tu places de l’énergie ou de la magie, sans changer de menu ; le même défaut qui figeait la page en cas de champ rempli est corrigé pour les autres menus à pages mises à jour en direct.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'D’après le code du jeu : l’étage de fin est d’au moins 1 ; hors ligne, rien ne progresse entre 650 et 700 de Puissance ni tant qu’aucun étage n’a été atteint.',

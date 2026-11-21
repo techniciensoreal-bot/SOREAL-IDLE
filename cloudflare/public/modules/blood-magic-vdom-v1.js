@@ -26,6 +26,7 @@
   /* Sang minimum par sort, identique au serveur (jamais affiché) : sous ce seuil le bouton Lancer est inactif. */
   var SANG_MINI_SORTS={numberBoost:1,ironPill:100,bloodSpaghetti:1e4,counterfeitGold:1e6,leeches:5e22};
   var AUTO_CLES={numberBoost:'autoNumberBoost',bloodSpaghetti:'autoBloodSpaghetti',counterfeitGold:'autoCounterfeitGold'};
+  var APERCU_SORTS=['numberBoost','bloodSpaghetti','counterfeitGold'];
   var NOMS_ICONES_SORTS={numberBoost:'🔢',ironPill:'💊',bloodSpaghetti:'🍝',counterfeitGold:'💰',leeches:'🪱'};
 
   /* ---------- Modèle de vue : tous les effets de bord et tous les calculs, dans l'ordre de l'ancienne page ; les composants ne font que dessiner ---------- */
@@ -193,10 +194,11 @@
         h('div',{class:'soreal-idle-blood-sort-tete-v1'},
           h('b',null,sp.nom),
           infos?h('button',{type:'button',class:'soreal-idle-blood-info-v1',title:'Voir les effets','aria-expanded':sp.ouvert?'true':'false',onClick:function(e){appeler_('__basculerInfoSortBloodIdleV1__',sp.id,e.currentTarget);}},'i'):null),
-        sp.actuel?h('div',{class:'soreal-idle-blood-sort-actuel-v1'},sp.actuel):null,
+        /* « Bonus actuel » et « En le lançant maintenant » suivent le sang EN DIRECT (Norman, 2026-11-21 : « le nombre du sang pour le sort Nombre ne se met pas à jour en temps réel ») : ce sont des îlots Vif (écrits en place par blood-magic-v1.js, majApercusSortsV1_, avec le sang affiché) ; l'aperçu est toujours présent pour les trois sorts qui en ont un (vide = masqué par CSS). */
+        sp.actuel?h(Vif,{tag:'div',attrs:{class:'soreal-idle-blood-sort-actuel-v1','data-bm-actuel':sp.id},valeur:sp.actuel}):null,
         infos?h('div',{id:'sorealIdleBloodSortInfosV1_'+sp.id,class:'soreal-idle-blood-sort-infos-v1',hidden:!sp.ouvert},
           sp.desc?h('div',{class:'soreal-idle-blood-sort-desc-v1'},sp.desc):null,
-          sp.apercu?h('div',{class:'soreal-idle-blood-sort-apercu-v1'},sp.apercu):null):null,
+          (sp.apercu||APERCU_SORTS.indexOf(sp.id)>=0)?h(Vif,{tag:'div',attrs:{class:'soreal-idle-blood-sort-apercu-v1','data-bm-apercu':sp.id},valeur:sp.apercu}):null):null,
         sp.rechargeTxt?h('div',{class:'soreal-idle-blood-sort-apercu-v1'},sp.rechargeTxt):null,
         sp.auto?h('button',{type:'button',class:'soreal-idle-blood-auto-v1','data-sort-auto':sp.id,'aria-pressed':sp.auto.actif?'true':'false',title:'Lance ce sort chaque seconde avec sa part du sang',onClick:function(){appeler_('__actionMetaV47__',{action:'setBloodAutoSpell',spell:sp.id});}},'Automatique : '+(sp.auto.actif?'activé':'désactivé')):null,
         h(Lancer,{id:sp.id,sangMini:sp.sangMini,recharge:sp.recharge,peut:sp.peut,texte:sp.texte}));

@@ -4,9 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "« En direct » ne montre plus que ce que tu fais toi-même : les actions qui se déclenchent toutes seules n’y apparaissent plus.",
-    "D’après le code du jeu : une fois le cap franchi pour la première fois, la Magie continue de se produire et de s’allouer après chaque Renaissance, sans attendre de refranchir ce cap.",
-    "D’après le code du jeu : l’étage de fin est d’au moins 1 ; hors ligne, rien ne progresse entre 650 et 700 de Puissance ni tant qu’aucun étage n’a été atteint.",
-    "Cube, d’après le code du jeu : le seuil au-delà duquel le Cube compte moins inclut la base de 10 et tous les gains plats permanents, pas seulement l’équipement."
+    "Magie du sang : « Bonus actuel » et « En le lançant maintenant » du sort du Nombre suivent ton sang en direct, sans changer d’onglet.",
+    "NGU : le décompte « Niveau suivant dans… » s’affiche dès que tu places de l’énergie ou de la magie, sans changer de menu ; le même défaut qui figeait la page en cas de champ rempli est corrigé pour les autres menus à pages mises à jour en direct."
   ] };
 })();

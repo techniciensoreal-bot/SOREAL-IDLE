@@ -112,12 +112,12 @@
   "sha": "e69f0888e8f27eb4a498544f28c8fbe2e5a079f7"
  },
  "/modules/blood-magic-v1.js": {
-  "pin": 38,
-  "sha": "1d0dfe72d304635d24a5026335e7cf0a5a90e8f2"
+  "pin": 40,
+  "sha": "66993a3ea3745784aacbbefff8641947091ba1f2"
  },
  "/modules/blood-magic-vdom-v1.js": {
-  "pin": 3,
-  "sha": "f7df7352ea3027d4341cf9402a6ed2d1aae90d1b"
+  "pin": 4,
+  "sha": "b781d7f5af2882f473c4280855d24dde4ce80bf2"
  },
  "/modules/borne-bandes-sync-v1.js": {
   "pin": 1,
@@ -708,12 +708,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 412,
-  "sha": "105c0b04873a11d4c45f4fe8edf29e479083a47c"
+  "pin": 413,
+  "sha": "a79ac6085690678838bd5381e9d888a53a29e707"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1060,
-  "sha": "ad0341a7e6cc8a727d8ec51f3a0cf330c224fdee"
+  "pin": 1061,
+  "sha": "c07cb9899001af848dff383f0acacf92fe88d1bc"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -808,12 +808,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1110,
-  "sha": "31e3c751ecea724532f331f80a97a87968220a91"
+  "pin": 1111,
+  "sha": "e532c468e064079252937e96e1e813e4062f5728"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 930,
-  "sha": "17a90f6a2c5bfc39b128926bb08e571daf8a843e"
+  "pin": 931,
+  "sha": "111bdd30b4f950edec8ef8ab3d32c5b0585cdd45"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -868,8 +868,8 @@
   "sha": "dcd1bca28a603c3d826502bcd3216c3046c771a7"
  },
  "/modules/ui-boucle-v1.js": {
-  "pin": 41,
-  "sha": "05243ea96380a01551ba987e4354997d28f6a228"
+  "pin": 43,
+  "sha": "0d42239a7abdbe8ffbd4c485f5dbab5fe7579207"
  },
  "/modules/ui-boutique-v1.js": {
   "pin": 6,
@@ -1148,8 +1148,8 @@
   "sha": "5897011fe7875a99d6ddacfdb55dee1534172291"
  },
  "/soreal-idle-ui.css": {
-  "pin": 84,
-  "sha": "6298cd03124afcedb31633b090e88b347cba918a"
+  "pin": 85,
+  "sha": "ec14fda182145ffbb35ff1637840cf6ceb19be54"
  },
  "/soreal-idle-ui.js": {
   "pin": 667,

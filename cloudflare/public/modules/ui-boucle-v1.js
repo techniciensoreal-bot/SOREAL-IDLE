@@ -2544,14 +2544,23 @@
 
       function champSaisieActifIdleV1_(){
         if(REG.idlePointeurEnfonceV1&&Date.now()-REG.idlePointeurEnfonceV1<3000)return true;
+        /*
+         * Pages Preact (data-vdom : NGU, Magie du sang, Machine temporelle, Yggdrasil, Labos, ITOPOD) : leurs champs sont gérés par le composant (nœuds persistants, valeur relue dans le DOM, jamais écrasée par un rendu). Ils ne doivent JAMAIS
+         * bloquer le redessin (Norman, 2026-11-21 : « le décompte du NGU ne s'affiche pas après avoir placé de l'énergie, il faut changer d'onglet et revenir ») : Preact pose la valeur par propriété, donc value différait toujours de defaultValue
+         * (« 125 », « 0 » contre « ») et la page ne se redessinait plus du tout tant qu'un seul de ces champs existait.
+         */
+        const dansVdom=function(el){return Boolean(el&&el.closest&&el.closest('[data-vdom]'));};
         const a=document.activeElement;
-        if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))return true;
+        if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&!dansVdom(a))return true;
         /* Un champ modifié mais pas encore validé (ITOPOD : étages tapés ou réglés avec − et +) ne doit jamais être remis à zéro par un redessin. */
         const racine=document.querySelector('.soreal-idle-page-root-v28');
         if(!racine)return false;
         const champs=racine.querySelectorAll('input,textarea,select');
         for(let i=0;i<champs.length;i+=1){
           const c=champs[i];
+          if(dansVdom(c))continue;
+          /* Le champ « Input » (montant des boutons + et −) est partagé par tous les menus et gardé à CHAQUE frappe (saisirMontantAugmentIdleV1) : jamais un brouillon à protéger (sinon la page ne se redessinait plus tant qu'il différait de sa valeur de départ). */
+          if(c.id==='sorealIdleAugInputV1')continue;
           if(c.type==='checkbox'||c.type==='radio'){if(c.checked!==c.defaultChecked)return true;}
           else if(c.type!=='button'&&c.type!=='submit'&&c.value!==c.defaultValue)return true;
         }

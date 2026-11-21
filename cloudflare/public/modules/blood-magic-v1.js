@@ -193,6 +193,26 @@ function majBoutonsSortsV1_(){
     }
   });
 }
+/* Aperçus des sorts EN DIRECT (Norman, 2026-11-21 : « le nombre du sang pour le sort Nombre ne se met pas à jour en temps réel, il faut changer d'onglet et revenir ») : « Bonus actuel » et « En le lançant maintenant » sont recalculés avec le sang AFFICHÉ (mêmes définitions que la page : sortsDefinisBloodV1_) et écrits en place dans leurs îlots (data-bm-actuel / data-bm-apercu). */
+function majApercusSortsV1_(){
+  const els=document.querySelectorAll('[data-bm-actuel],[data-bm-apercu]');
+  if(!els.length)return;
+  const H=window.__SOREAL_IDLE_META_HOST_V130__;
+  const e=H.getIdleEtat();
+  const M=window.__SOREAL_IDLE_META_V130__;
+  const s=e&&M&&M.systemeMetaParIdIdleV130_?M.systemeMetaParIdIdleV130_(e,'bloodMagic'):null;
+  const data=s&&s.state&&s.state.data;
+  if(!data)return;
+  const defs=sortsDefinisBloodV1_(H,e.systemes||{},data,sangAfficheV1_());
+  const parId={};
+  defs.forEach(function(d){parId[d.id]=d;});
+  Array.prototype.forEach.call(els,function(el){
+    const act=el.hasAttribute('data-bm-actuel'),id=el.getAttribute(act?'data-bm-actuel':'data-bm-apercu'),d=parId[id];
+    if(!d)return;
+    const txt=(act?d.actuel:d.apercu)||'';
+    if(el.__bmEcrit!==txt){el.__bmEcrit=txt;if(el.textContent!==txt)el.textContent=txt;}
+  });
+}
 function majSangRituelsV1_(){
   if(typeof window.__sangRituelAfficheV1__!=='function')return;
   const F=window.__SOREAL_IDLE_FORMAT_NOMBRE_V2__;
@@ -216,6 +236,7 @@ if(typeof setInterval==='function'&&typeof document!=='undefined')setInterval(fu
     /* « Sang collecté » sous CHAQUE rituel, même hors de l'écran (la scène animée n'est mise à jour que quand elle est visible) */
     majSangRituelsV1_();
     majBoutonsSortsV1_();
+    majApercusSortsV1_();
     const or=document.getElementById('sorealIdleBloodOrV1');
     if(or){
       const e=H.getIdleEtat();
