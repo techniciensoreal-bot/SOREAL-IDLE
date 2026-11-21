@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Les tableaux « Bonus obtenus » se placent sous les boutons du trou et de la roue, côte à côte sur PC."
+    "Un boss a désormais une mort qui lui est propre : il se vide comme de l’eau dans un évier, avec le bruit de la vidange."
   ] };
 })();

@@ -30,7 +30,8 @@ var VARIANTES=[
 /* Mort SPÉCIALE d'un boss précis (jamais dans la file ci-dessus) : jouée à chaque mort de ce boss. Boss 106 : la perruque (Norman, 2026-11-12). */
 var SPECIALES=[
   {id:'perruque',boss:106,nom:'Perruque',duree:4.6,aide:'Toute l’image du boss 106 s’écoule comme des mèches de cheveux ; le boss 107 apparaît derrière, dans le tas.'},
-  {id:'dechirure',boss:114,nom:'Déchirure',duree:3.0,aide:'Le boss 114 se déchire de haut en bas comme une feuille de papier ; les deux moitiés s’écartent puis tombent.'}
+  {id:'dechirure',boss:114,nom:'Déchirure',duree:3.0,aide:'Le boss 114 se déchire de haut en bas comme une feuille de papier ; les deux moitiés s’écartent puis tombent.'},
+  {id:'evier',boss:108,nom:'Évier',duree:4.3,aide:'Le boss 108 se vide comme de l’eau dans un évier : l’image tourne en tourbillon et disparaît dans la bonde, avec le bruit de la vidange.'}
 ];
 function varianteDe(id){return VARIANTES.concat(SPECIALES).filter(function(x){return x.id===id;})[0];}
 function specialeDuBoss(idBoss){return SPECIALES.filter(function(x){return x.boss===idBoss;})[0]||null;}
@@ -98,6 +99,8 @@ function preparer(id,img,LW,LH){
     preparerPerruque(img,LW,LH,k);
   }else if(id==='dechirure'){
     preparerDechirure(LW,LH,k);
+  }else if(id==='evier'){
+    preparerEvier(LW,LH,k);
   }else if(id==='enfoncement'){
     k.terre=[];for(var tx=0;tx<LW;tx+=4)k.terre.push(rnd(tx*.21)*6);
     k.poussieres=[];for(var p=0;p<70;p++)k.poussieres.push({x:(rnd(p*3)-.5)*LW*1.1+LW/2,v:20+rnd(p+1)*60,r:3+rnd(p+2)*9,t:rnd(p+5)*.9,d:(rnd(p+7)-.5)*50});
@@ -401,8 +404,76 @@ function dessinerDechirure(c,t,k,LW,LH){
   }
 }
 
+/*
+ * Mort SPÉCIALE du boss 108, l'évier (Norman, 2026-11-21 : « je veux qu'il se vide comme de l'eau dans un évier avec le son qui colle bien »).
+ * Toute l'image est de l'eau : une bonde apparaît en bas, le niveau se retire vers elle (rayon de l'eau W qui rétrécit lentement puis de plus en plus vite, comme une vraie vidange) et l'eau tourne de plus en plus fort, plus vite près de la bonde.
+ * Chaque pixel est lu dans l'image d'origine à l'endroit où l'eau l'a emporté (rotation + contraction autour de la bonde) : l'image se tord en spirale et se fait aspirer. Le son est calé sur ces mêmes temps (voir « evier » dans construireSon) :
+ * grondement et glou-glou de plus en plus rapides, aspiration à la fin, dernier « glouk » quand W atteint 0 (à EVIER_TFIN), puis quelques gouttes. Aucun texte : que des pixels de l'image.
+ */
+var EVIER_T0=.5,EVIER_TFIN=3.5;
+function preparerEvier(LW,LH,k){
+  var d=k.img.getContext('2d').getImageData(0,0,LW,LH);
+  k.src=new Uint32Array(d.data.buffer.slice(0));
+  k.bx=LW*.5;k.by=LH*.64;
+  var dx=Math.max(k.bx,LW-k.bx),dy=Math.max(k.by,LH-k.by);
+  k.R=Math.sqrt(dx*dx+dy*dy)+2;
+}
+function dessinerEvier(c,t,k,LW,LH){
+  vide(c,LW,LH);
+  var bx=k.bx,by=k.by,R=k.R;
+  var u=cl((t-EVIER_T0)/(EVIER_TFIN-EVIER_T0),0,1),W=R*(1-Math.pow(u,1.7)),ap=lisse(t/.6)*(1-lisse((t-3.85)/.45));
+  var r0=Math.max(5,LW*.045);
+  if(!k.sortie||k.sortie.width!==LW){k.sortie=c.createImageData(LW,LH);}
+  var out=new Uint32Array(k.sortie.data.buffer),src=k.src,i=0,x,y;
+  /* l'eau se met à tourner : l'angle total grandit avec le temps, de plus en plus vite au fond */
+  var A=u*u*10.5+(t<EVIER_T0?lisse(t/EVIER_T0)*.25:.25),s=W>1?R/W:1e6;
+  var frissonX=t<EVIER_T0?Math.sin(t*70)*lisse(t/.15)*(1-lisse((t-.3)/.2))*1.2:0;
+  for(y=0;y<LH;y++){
+    for(x=0;x<LW;x++,i++){
+      var px=x-bx,py=y-by,r=Math.sqrt(px*px+py*py);
+      if(W<=1||r>=W){out[i]=0;continue;}
+      var f=1-r/W,ph=A*f*f*(1.4+1.1*f),cs=Math.cos(ph),sn=Math.sin(ph);
+      var sx=Math.round(bx+(px*cs-py*sn)*s+frissonX),sy=Math.round(by+(px*sn+py*cs)*s);
+      if(sx<0||sy<0||sx>=LW||sy>=LH){out[i]=0;continue;}
+      var p=src[sy*LW+sx];
+      /* l'eau qui tourne se teinte de bleu vers la bonde, avec une écume claire sur le bord du niveau */
+      var rr=p&255,gg=(p>>8)&255,bb=(p>>16)&255,aa=p>>>24,te=u*.28*f;
+      rr=rr*(1-te);gg=gg*(1-te*.4)+10*te;bb=bb+(255-bb)*te*.5;
+      var bord=W-r;if(bord<2.6&&u>0){var e=(1-bord/2.6)*.75;rr+=(235-rr)*e;gg+=(245-gg)*e;bb+=(255-bb)*e;}
+      out[i]=((aa<<24)|(bb<<16)|(gg<<8)|rr)>>>0;
+    }
+  }
+  c.putImageData(k.sortie,0,0);
+  /* sillage clair en spirale sur l'eau qui tourne (quelques traits qui suivent le tourbillon) */
+  if(W>8){
+    c.save();c.lineCap='round';
+    for(var b=0;b<5;b++){
+      var off=b*1.2566+t*(1.2+u*7.5);c.strokeStyle='rgba(225,240,255,'+(.22*Math.min(1,W/R*2)).toFixed(2)+')';c.lineWidth=1.1;c.beginPath();
+      for(var q=0;q<=22;q++){var fr=q/22,rad=W*(.12+.86*fr),an=off+(1-fr)*(1.5+u*7);var xx=bx+Math.cos(an)*rad,yy=by+Math.sin(an)*rad;if(q)c.lineTo(xx,yy);else c.moveTo(xx,yy);}
+      c.stroke();
+    }
+    c.restore();
+  }
+  /* la bonde : un trou sombre cerclé de métal, au centre du tourbillon */
+  if(ap>.01){
+    c.save();c.globalAlpha=ap;
+    c.fillStyle='#9fb0c4';c.beginPath();c.ellipse(bx,by,r0*1.55,r0*1.55*.62,0,0,Math.PI*2);c.fill();
+    c.fillStyle='#10151f';c.beginPath();c.ellipse(bx,by,r0*1.2,r0*1.2*.62,0,0,Math.PI*2);c.fill();
+    c.strokeStyle='#c8d6e6';c.lineWidth=1;c.beginPath();c.ellipse(bx,by,r0*1.55,r0*1.55*.62,0,0,Math.PI*2);c.stroke();
+    c.restore();
+  }
+  /* dernières bulles et gouttes qui dansent autour de la bonde après la vidange */
+  if(t>EVIER_TFIN-.1){
+    for(var g=0;g<6;g++){
+      var ag=t-EVIER_TFIN-.05-g*.09;if(ag<0||ag>.55)continue;
+      c.strokeStyle='rgba(210,235,255,'+((1-ag/.55)*.8).toFixed(2)+')';c.lineWidth=1;c.beginPath();c.arc(bx+(rnd(g*3+1)-.5)*r0*3,by-ag*18*(.6+rnd(g)),1.5+rnd(g+4)*2.5,0,Math.PI*2);c.stroke();
+    }
+  }
+}
+
 function dessiner(id,c,t,k,LW,LH){
-  if(id==='perruque')dessinerPerruque(c,t,k,LW,LH);
+  if(id==='evier')dessinerEvier(c,t,k,LW,LH);
+  else if(id==='perruque')dessinerPerruque(c,t,k,LW,LH);
   else if(id==='dechirure')dessinerDechirure(c,t,k,LW,LH);
   else if(id==='eboulement')dessinerEboulement(c,t,k,LW,LH);
   else if(id==='poussiere')dessinerPoussiere(c,t,k,LW,LH);
@@ -432,7 +503,7 @@ function ton(a,t0,type,f0,f1,dur,pic,att){
   var g=a.createGain();env(g,t0,att||.01,dur,pic);o.connect(g);g.connect(sortieCourante||maitre(a));o.start(t0);o.stop(t0+dur+.1);
   return o;
 }
-var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000,perruque:4800,dechirure:3200};
+var DUREES_SON={eboulement:4000,poussiere:3600,fonte:4000,foudre:3800,enfoncement:4000,perruque:4800,dechirure:3200,evier:4600};
 function construireSon(a,id){
   var t=a.currentTime+.03,i;
   if(id==='eboulement'){
@@ -477,6 +548,27 @@ function construireSon(a,id){
     bs.connect(hp);hp.connect(lp);lp.connect(pk);pk.connect(g);g.connect(sortieCourante||maitre(a));bs.start(t+.3);
     souffle(a,t+.3,1.0,'bandpass',2400,4200,.6,.06,.1);                                   /* le souffle de la feuille qui se tend */
     souffle(a,t+1.45,.9,'bandpass',600,300,.7,.05,.25);                                    /* les deux moitiés qui tombent */
+  }else if(id==='evier'){
+    /* Calé sur l'image : la bonde apparaît dès 0,15 s, l'eau se retire de 0,5 s à 3,5 s (de plus en plus vite), le dernier « glouk » tombe à 3,5 s. */
+    ton(a,t+.1,'sine',200,150,.35,.4,.01);souffle(a,t+.1,.3,'lowpass',500,200,1,.15,.02);                                 /* la bonde s'ouvre : « bloup » */
+    souffle(a,t+.35,3.0,'lowpass',260,150,.9,.3,1.6);ton(a,t+.4,'sine',58,44,3.1,.16,1.2);                               /* grondement de la canalisation */
+    /* le glou-glou : bruit filtré dont la hauteur monte (la colonne d'eau se rétrécit) et dont le volume est haché par un rythme de plus en plus rapide */
+    try{
+      var sn=a.createBufferSource();sn.buffer=bruit(a);sn.loop=true;
+      var bp=a.createBiquadFilter();bp.type='bandpass';bp.Q.value=7;bp.frequency.setValueAtTime(330,t+.45);bp.frequency.exponentialRampToValueAtTime(1500,t+3.4);
+      var vg=a.createGain();vg.gain.setValueAtTime(.0001,t+.45);vg.gain.linearRampToValueAtTime(.55,t+1.3);vg.gain.linearRampToValueAtTime(.8,t+3.2);vg.gain.linearRampToValueAtTime(.0001,t+3.55);
+      var hach=a.createGain();hach.gain.value=.5;
+      var lfo=a.createOscillator();lfo.type='sine';lfo.frequency.setValueAtTime(3,t+.45);lfo.frequency.exponentialRampToValueAtTime(15,t+3.4);
+      var lfg=a.createGain();lfg.gain.value=.5;lfo.connect(lfg);lfg.connect(hach.gain);
+      sn.connect(bp);bp.connect(hach);hach.connect(vg);vg.connect(sortieCourante||maitre(a));
+      sn.start(t+.45);sn.stop(t+3.6);lfo.start(t+.45);lfo.stop(t+3.6);
+    }catch(_e){}
+    /* des « glou » isolés : gouttes d'air qui remontent dans la canalisation, de plus en plus rapprochées */
+    var tg=.6,pas=.42;while(tg<3.35){var fg=150+Math.random()*90;ton(a,t+tg,'sine',fg*1.7,fg*.7,.11+Math.random()*.05,.3+Math.random()*.2,.004);tg+=pas*(.7+Math.random()*.6);pas=Math.max(.1,pas*.88);}
+    souffle(a,t+2.7,.85,'bandpass',500,3200,2.2,.5,.65);                                                                    /* l'aspiration finale : « sluurp » */
+    ton(a,t+3.5,'sine',330,70,.28,.9,.004);souffle(a,t+3.5,.18,'lowpass',900,150,1,.4,.004);                                /* le dernier « glouk » quand tout est parti */
+    for(i=0;i<6;i++)ton(a,t+3.62+i*.11+Math.random()*.04,'sine',1500+Math.random()*900,900,.05,.1,.002);                    /* gouttes qui retombent dans la bonde */
+    souffle(a,t+3.65,.7,'lowpass',380,120,.8,.07,.1);                                                                       /* dernier filet d'eau */
   }else if(id==='enfoncement'){
     souffle(a,t,2.6,'lowpass',200,60,.9,.5,.4);ton(a,t,'sine',48,34,2.6,.5,.3);                                    /* séisme */
     try{var lfo=a.createOscillator(),lg=a.createGain(),osc=ton(a,t+.1,'sine',55,38,2.4,.3,.3);lfo.frequency.value=9;lg.gain.value=4;lfo.connect(lg);lg.connect(osc.frequency);lfo.start(t);lfo.stop(t+3);}catch(_e){}
