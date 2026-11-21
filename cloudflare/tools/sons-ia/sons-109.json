@@ -1,0 +1,14 @@
+[
+  {"id":"grincement", "titre":"Grincement de porte (la pancarte bascule)", "duree":4.0, "n":6,
+   "prompts":["an old wooden door creaking slowly, long squeaky hinge, close microphone, no music",
+              "a rusty hinge squeaking and groaning as a heavy wooden board slowly tips over"]},
+  {"id":"chute", "titre":"Chute et coup sourd (elle touche le sol derrière)", "duree":3.0, "n":6,
+   "prompts":["a heavy wooden sign falling backwards and landing flat on the ground with a dull thud, dust, no music",
+              "big wooden board tipping over and slamming on the floor, deep wood impact"]},
+  {"id":"pet", "titre":"Pet (la flamme)", "duree":2.5, "n":6,
+   "prompts":["a short funny cartoon fart sound effect, wet flatulence, close microphone",
+              "a small wet fart, brief and comical, no speech, no music"]},
+  {"id":"flamme", "titre":"Petit souffle de flamme", "duree":2.5, "n":6,
+   "prompts":["a small gas flame puff, short soft fwoosh of fire igniting and dying out",
+              "a brief whoosh of a small fire burst, crackling sparks"]}
+]

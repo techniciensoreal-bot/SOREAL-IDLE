@@ -42,6 +42,9 @@
           {menu:'ngu', titre:'NGU', points:[
             'NGU : le décompte « Niveau suivant dans… » s’affiche dès que tu places de l’énergie ou de la magie, sans changer de menu ; le même défaut qui figeait la page en cas de champ rempli est corrigé pour les autres menus à pages mises à jour en direct.'
           ]},
+          {menu:'yggdrasil', titre:'Yggdrasil', points:[
+            'Quand tu manges un fruit de Magie, le fruit zoomé à l’écran garde sa teinte bleutée.'
+          ]},
           {menu:'tower', titre:'ITOPOD', points:[
             'D’après le code du jeu : l’étage de fin est d’au moins 1 ; hors ligne, rien ne progresse entre 650 et 700 de Puissance ni tant qu’aucun étage n’a été atteint.',
             'Badavatar : dans la section Profil des Réglages, tu peux désormais choisir parmi tous les éléments (corps, vêtements, cheveux, yeux, oreilles, nez, bouche, barbe, accessoires), comme sur Soreal TV. Ton badavatar de départ reste tiré au hasard.',

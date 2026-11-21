@@ -280,6 +280,9 @@
       '.ygg-carte.magie{--lueur:50,228,208;background:linear-gradient(180deg,rgba(36,112,108,.95),rgba(12,54,60,.97));box-shadow:inset 0 0 0 2px rgba(110,240,225,.4),inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000}',
       '.ygg-carte.magie .ygg-vitre{background:radial-gradient(ellipse at 50% 35%,#3fb3a4,#082a32)}',
       '.ygg-carte.magie .ygg-vitre::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(160deg,#22e8c4,#1b9ad8);mix-blend-mode:hue;opacity:.9}',
+      /* Fruit ZOOMÉ à l'écran (Norman, 2026-11-21 : « quand on mange les fruits Grenades, le fruit zoomé perd son filtre bleuté ») : la copie vit sur la page entière, hors de la vitre : elle reçoit le même calque de teinte (hue), découpé sur la silhouette du fruit. */
+      '.ygg-zoom-v1{pointer-events:none}.ygg-zoom-v1 img{display:block;width:100%;height:100%;object-fit:contain}',
+      '.ygg-zoom-v1.magie::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(160deg,#22e8c4,#1b9ad8);mix-blend-mode:hue;opacity:.9;-webkit-mask:var(--ygg-zoom-src) center/contain no-repeat;mask:var(--ygg-zoom-src) center/contain no-repeat}',
       '.ygg-carte.magie .ygg-barre i{background:linear-gradient(180deg,#b6fff0,#27b9b0);box-shadow:0 0 8px rgba(80,240,220,.7)}',
       '.ygg-carte.pousse,.ygg-carte.pret{z-index:1}',
       '.ygg-carte[data-fruit],.ygg-carte.magie[data-fruit]{background:linear-gradient(100deg,transparent 35%,hsl(var(--yg-h2,var(--yg-h,130)) var(--yg-s2,var(--yg-s,50%)) 30%/var(--yg-k,0))),linear-gradient(180deg,hsl(var(--yg-h,130) var(--yg-s,50%) 30%/.97),hsl(var(--yg-h,130) var(--yg-s,50%) 13%/.98));box-shadow:inset 0 0 0 2px hsl(var(--yg-h,130) 75% 68%/.5),inset 0 2px 0 rgba(255,255,255,.16),inset 0 -3px 0 rgba(0,0,0,.4),4px 4px 0 #000}',
@@ -763,8 +766,10 @@
       var r=img.getBoundingClientRect();if(!r.width)return;
       var vw=window.innerWidth||document.documentElement.clientWidth,vh=window.innerHeight||document.documentElement.clientHeight;
       var cx=r.left+r.width/2,cy=r.top+r.height/2,fin=Math.max(2,vh*1.3/r.height);
-      var e=document.createElement('img');e.src=img.currentSrc||img.src;e.alt='';e.setAttribute('aria-hidden','true');e.setAttribute('data-morph-garder','');
-      e.style.cssText='position:fixed;left:'+cx+'px;top:'+cy+'px;width:'+r.width+'px;height:'+r.height+'px;margin:-'+(r.height/2)+'px 0 0 -'+(r.width/2)+'px;object-fit:contain;z-index:99999;pointer-events:none;will-change:transform,opacity';
+      var src=img.currentSrc||img.src,magie=Boolean(img.closest&&img.closest('.ygg-carte.magie'));
+      var e=document.createElement('div');e.className='ygg-zoom-v1'+(magie?' magie':'');e.setAttribute('aria-hidden','true');e.setAttribute('data-morph-garder','');
+      var im=document.createElement('img');im.src=src;im.alt='';e.appendChild(im);
+      e.style.cssText='position:fixed;left:'+cx+'px;top:'+cy+'px;width:'+r.width+'px;height:'+r.height+'px;margin:-'+(r.height/2)+'px 0 0 -'+(r.width/2)+'px;z-index:99999;pointer-events:none;isolation:isolate;will-change:transform,opacity'+(magie?';--ygg-zoom-src:url("'+String(src).replace(/["\\\n]/g,'')+'")':'');
       document.body.appendChild(e);
       var dx=vw/2-cx,dy=vh/2-cy,t=function(p,sc,rd){return 'translate('+(dx*p).toFixed(1)+'px,'+(dy*p).toFixed(1)+'px) scale('+sc.toFixed(3)+') rotate('+rd+'deg)';};
       var a=e.animate([

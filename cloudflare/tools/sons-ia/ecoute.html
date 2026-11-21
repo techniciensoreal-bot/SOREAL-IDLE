@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Écoute des sons générés</title>
+<style>
+:root{color-scheme:dark;--bg:#0f1520;--fg:#e8eefb;--mut:#9aa6c4;--ok:#7ee2a0;--c:#1a2438}
+body{margin:0;padding:14px;background:var(--bg);color:var(--fg);font:15px/1.4 system-ui,sans-serif}
+h1{font-size:19px;margin:0 0 4px}h2{font-size:16px;margin:22px 0 6px;color:#ffd45a}
+p{color:var(--mut);margin:0 0 10px;max-width:70ch}
+.v{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--c);border:1px solid #2a3558;border-radius:10px;padding:8px 10px;margin:6px 0}
+.v.oui{border-color:var(--ok)}.v.non{opacity:.45}
+.v small{color:var(--mut);flex:1 1 220px}
+button{font:inherit;color:var(--fg);background:#22344d;border:1px solid #3c5578;border-radius:8px;padding:8px 12px;cursor:pointer;min-height:40px}
+button.p{background:#c78a1d;color:#1a1204;border-color:#6a4a0a;font-weight:700}
+#etat{position:sticky;top:0;background:var(--bg);padding:6px 0;color:var(--mut)}
+</style></head><body>
+<h1>Écoute des sons générés</h1>
+<p>Clique sur ▶ pour écouter, puis 👍 (je garde) ou 👎 (non). Tes choix sont enregistrés tout seuls. Tu peux en garder plusieurs par son : je mixerai le meilleur.</p>
+<div id="etat"></div><div id="liste"></div>
+<script>
+(async function(){
+  var cand=await (await fetch('/candidats.json')).json(),choix={};
+  try{choix=await (await fetch('/choix.json')).json();}catch(e){}
+  var groupes={};cand.forEach(function(c){(groupes[c.son]=groupes[c.son]||{titre:c.titre,l:[]}).l.push(c);});
+  var racine=document.getElementById('liste'),courant=null;
+  function maj(){var o=0,n=0;Object.keys(choix).forEach(function(k){if(choix[k]==='oui')o++;else if(choix[k]==='non')n++;});document.getElementById('etat').textContent=o+' gardé(s), '+n+' refusé(s), '+(cand.length-o-n)+' à écouter';}
+  function sauver(){fetch('/choix',{method:'POST',body:JSON.stringify(choix)});maj();}
+  Object.keys(groupes).forEach(function(id){
+    var g=groupes[id],h=document.createElement('h2');h.textContent=g.titre;racine.appendChild(h);
+    g.l.forEach(function(c){
+      var d=document.createElement('div');d.className='v '+(choix[c.fichier]||'');
+      var a=new Audio('/'+c.fichier);a.preload='none';
+      var play=document.createElement('button');play.className='p';play.textContent='▶ '+c.n;
+      play.onclick=function(){if(courant&&courant!==a){courant.pause();courant.currentTime=0;}courant=a;a.currentTime=0;a.play();};
+      var oui=document.createElement('button');oui.textContent='👍';var non=document.createElement('button');non.textContent='👎';
+      oui.onclick=function(){choix[c.fichier]='oui';d.className='v oui';sauver();};
+      non.onclick=function(){choix[c.fichier]='non';d.className='v non';sauver();};
+      var s=document.createElement('small');s.textContent=c.prompt;
+      d.appendChild(play);d.appendChild(oui);d.appendChild(non);d.appendChild(s);racine.appendChild(d);
+    });
+  });
+  maj();
+})();
+</script></body></html>
