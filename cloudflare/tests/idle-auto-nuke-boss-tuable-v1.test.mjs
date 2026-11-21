@@ -52,7 +52,7 @@ const amorcage = readFileSync("cloudflare/public/modules/ui-amorcage-v1.js", "ut
 const a = amorcage.indexOf("Number(achats.autoNuker)>0");
 const fenetre = amorcage.slice(a, a + 1800);
 assert.ok(fenetre.includes("if(j.nukePossible!==true)return;"), "garde nukePossible dans l'Auto Nuker");
-assert.ok(fenetre.indexOf("j.nukePossible!==true") < fenetre.indexOf("nukerBossIdleV1_();"), "la garde passe AVANT le lancement du Nuke");
+assert.ok(fenetre.indexOf("j.nukePossible!==true") < fenetre.indexOf("nukerBossIdleV1_(true);"), "la garde passe AVANT le lancement du Nuke");
 assert.ok(fenetre.indexOf("j.nukePossible!==true") < fenetre.indexOf("REG.idleAutoNukeDernierV1=maintenant"), "la minuterie n'est pas consommée tant qu'aucun boss n'est tuable");
 const etat = readFileSync("cloudflare/src/idle-runtime-etat.js", "utf8");
 assert.ok(etat.includes("nukePossible: nukeTueUnBossSorealIdle_("), "le moteur annonce nukePossible");

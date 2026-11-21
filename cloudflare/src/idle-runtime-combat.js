@@ -530,7 +530,8 @@ export function nukeTueUnBossSorealIdle_(stats, bossVaincus, niveau, attaque, de
 }
 
 export function nukerBossSorealIdle(
-  sessionToken
+  sessionToken,
+  automatique
 ) {
   const acces =
     exigerAccesSorealIdle_(
@@ -890,7 +891,8 @@ export function nukerBossSorealIdle(
     stats.sceauBriseBossNumero = 0;
 
     /* « En direct » : un Nuke qui a tué au moins un boss est annoncé avec le nombre de boss tués (compteurs lus par idle-flux-v1.js). */
-    if (defeated.length > 0) {
+    /* Un Nuke AUTOMATIQUE (achat « Auto Nuker », déclenché par la page) n'est jamais annoncé : « En direct » ne montre que ce que le joueur fait lui-même (Norman, 2026-11-21). */
+    if (defeated.length > 0 && automatique !== true) {
       stats.fluxNukes = Math.max(0, Math.floor(nombreSorealIdle_(stats.fluxNukes, 0))) + 1;
       stats.fluxNukeDernier = defeated.length;
     }

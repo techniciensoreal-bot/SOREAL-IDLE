@@ -641,7 +641,7 @@
         return true;
       }
 
-      function nukerBossIdleV1_(){
+      function nukerBossIdleV1_(automatique){
         if(
           REG.idleNukeEnCoursV1 ||
           !REG.idleEtat ||
@@ -726,7 +726,8 @@
             );
           })
           .nukerBossSorealIdle(
-            SOREAL_SESSION
+            SOREAL_SESSION,
+            automatique===true
           );
       }
 

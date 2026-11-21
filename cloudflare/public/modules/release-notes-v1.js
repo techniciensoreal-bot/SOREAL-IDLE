@@ -29,6 +29,9 @@
         nom:'Entraînement qui suit',
         date:'2026-11-21',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            '« En direct » ne montre plus que ce que tu fais toi-même : les actions qui se déclenchent toutes seules n’y apparaissent plus.'
+          ]},
           {menu:'moneyPit', titre:'Trou sans fond', points:[
             'Les tableaux « Bonus obtenus » se placent sous les boutons du trou et de la roue, côte à côte sur PC.'
           ]},

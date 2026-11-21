@@ -4,6 +4,7 @@
  * aucun n'appelle les autres au chargement).
  */
 import { IDLE_TITAN_COMBAT_V1, idleTitanCombatV1 } from "./idle-titans-combat-v1.js";
+import { fluxMuetActifV1 } from "./idle-flux-muet-v1.js";
 import { idleTheEndHasV1, idleTheEndGrantV1 } from "./idle-the-end-v1.js";
 import { aleaV1 } from "./idle-alea-v1.js";
 import { exileDonnerV1, exilePretreButinV1, IDLE_EXILE_OBJETS_V1 } from "./idle-antlers-v1.js";
@@ -205,12 +206,12 @@ export function annulerVictoireTitanV1(s,id){const d=IDLE_ADVENTURE_TITANS.find(
 if(st.kills===0&&id==="t1"){for(const [defId,cle] of [["aNumber","aNumber"],["wandoos98","wandoos98"]]){if(s.unlockFlags&&s.unlockFlags[unlockMap[cle]])continue;if(s.unlockItems&&s.unlockItems[cle]){s.unlockItems[cle]=false;retires.push(cle+":drapeau")}const copies=(s.inventory||[]).filter(x=>x&&x.definitionId===defId&&!x.locked).sort((a,b)=>I(a.level)-I(b.level));if(copies.length){retirerObjetAdventureV1(s,copies[0].id);retires.push(defId+":objet")}}}if(st.kills===0)s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};return{id,kills:st.kills,objetRetire,retires}}
 
 /* « En direct » : boosts versés dans une pièce ou dans le Cube de l'infini (compteurs seuls, lus par idle-flux-v1.js). */
-export function fluxBoostV1(s,cle,id){const f=s.boostFlux&&typeof s.boostFlux==='object'?s.boostFlux:{cube:0,piece:0,last:''};f[cle]=Math.max(0,I(f[cle],0))+1;if(cle==='piece')f.last=String(id||'');s.boostFlux=f}
+export function fluxBoostV1(s,cle,id){if(fluxMuetActifV1())return;const f=s.boostFlux&&typeof s.boostFlux==='object'?s.boostFlux:{cube:0,piece:0,last:''};f[cle]=Math.max(0,I(f[cle],0))+1;if(cle==='piece')f.last=String(id||'');s.boostFlux=f}
 
 /* « En direct » : objet transformé (ascension). Compteur + objet de départ + objet obtenu, jamais le détail. */
-function fluxTransformV1(s,de,vers){const f=s.boostFlux&&typeof s.boostFlux==='object'?s.boostFlux:{cube:0,piece:0,last:''};f.transform=Math.max(0,I(f.transform,0))+1;f.transformDe=String(de||'');f.transformVers=String(vers||'');s.boostFlux=f}
+function fluxTransformV1(s,de,vers){if(fluxMuetActifV1())return;const f=s.boostFlux&&typeof s.boostFlux==='object'?s.boostFlux:{cube:0,piece:0,last:''};f.transform=Math.max(0,I(f.transform,0))+1;f.transformDe=String(de||'');f.transformVers=String(vers||'');s.boostFlux=f}
 
-export function fluxTitanV1(s,cle,id){const f=s.titanFlux&&typeof s.titanFlux==="object"?s.titanFlux:{starts:0,losses:0,last:""};f[cle]=Math.max(0,I(f[cle],0))+1;f.last=String(id);s.titanFlux=f}
+export function fluxTitanV1(s,cle,id){if(fluxMuetActifV1())return;const f=s.titanFlux&&typeof s.titanFlux==="object"?s.titanFlux:{starts:0,losses:0,last:""};f[cle]=Math.max(0,I(f[cle],0))+1;f.last=String(id);s.titanFlux=f}
 
 export function loseZoneFight(s,ctx){if(!s.fight?.active)throw Error("AUCUN_COMBAT_ACTIF");if(s.fight.zone!==s.selectedZone)throw Error("ZONE_CHANGEE_PENDANT_COMBAT");/* Même identité que pour la victoire : la défaite d'un autre combat n'interrompt pas celui du titan. */if(s.fight.titanId&&(String(ctx.fightTitanId||"")!==String(s.fight.titanId)||N(ctx.fightTitanStartedAt)!==N(s.fight.titanStartedAt)))throw Error("COMBAT_TITAN_AUTRE");if(s.fight.titanId)fluxTitanV1(s,"losses",s.fight.titanId);const zone=s.fight.zone;const fightPerdu=s.fight;s.lastCombatZone=zone||s.lastCombatZone||"tutorial";s.fight={active:false,zone:"",monsterHp:0,monsterHpMax:0,boss:false,playerHp:0,playerHpMax:0};versZoneSureV1(s,"defaite","Tu as été mis K.O. dans cette zone");/* IT HUNGERS (LootDrop::postDeathDrops) : K.O. par lui = départ de la quête de la GLOP (drapeau + recette) ; les GLOP utilisées sont retirées du sac (idle-glop-v1.js). */if(fightPerdu.titanId==="hungers"){glopConsommerV1(s,Math.min(N(ctx.glopsUtilises),I(fightPerdu.glopStock)));return{defeated:true,zone,glop:glopMortParFaimV1(s)}}return{defeated:true,zone}}
 
@@ -421,6 +422,7 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
         const lot=Math.floor((t-cursor)/cd)+1;
         if(lot>1){
           st.kills=I(st.kills,0)+lot;
+          st.autoKills=I(st.autoKills,0)+lot;   /* tués par Auto-Kill : jamais annoncés dans « En direct » */
           st.rebirthKills=I(st.rebirthKills,0)+lot;
           if(tierKey){
             if(!st.difficultyKills||typeof st.difficultyKills!=="object")st.difficultyKills={};
@@ -434,6 +436,7 @@ export function advanceTitanAutoKillV1(s,ctx,seconds,t){
       }
       cycles+=1;
       st.kills=I(st.kills,0)+1;
+      st.autoKills=I(st.autoKills,0)+1;   /* tué par Auto-Kill : jamais annoncé dans « En direct » */
       st.rebirthKills=I(st.rebirthKills,0)+1;
       if(tierKey){
         if(!st.difficultyKills||typeof st.difficultyKills!=="object")st.difficultyKills={};

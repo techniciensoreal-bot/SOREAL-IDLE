@@ -981,7 +981,7 @@ setInterval(function(){
           if(!autoNukeDueIdleV1_(debut,REG.idleAutoNukeDernierV1,maintenant))return;
           if(REG.idleNukeEnCoursV1||j.combatBossActif||j.bossBloqueRenaissance)return;
           REG.idleAutoNukeDernierV1=maintenant;
-          nukerBossIdleV1_();
+          nukerBossIdleV1_(true);   /* automatique : jamais annoncé dans « En direct » */
         }catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('auto_nuke',e);}
       },1000);
 }

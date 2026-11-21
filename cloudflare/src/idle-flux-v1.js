@@ -63,7 +63,8 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const titans = {};
   const brutsTitans = (m.adventure && m.adventure.titans) || {};
   for (const [id, t] of Object.entries(brutsTitans)) {
-    const k = Math.max(0, Math.floor(N(t && t.kills, 0)));
+    /* Les tués par Auto-Kill (t.autoKills) ne comptent pas : « En direct » ne montre que ce que le joueur fait lui-même. */
+    const k = Math.max(0, Math.floor(N(t && t.kills, 0)) - Math.floor(N(t && t.autoKills, 0)));
     if (k > 0) titans[id] = k;
   }
   const defis = {};

@@ -10,7 +10,7 @@ import { instantaneJoueurV1, evenementsV1 } from "../src/idle-flux-v1.js";
  */
 const rt = lireSrc("idle-sqlite-runtime.js");
 assert.ok(rt.includes("fluxNukes:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxNukes,0)))") && rt.includes("fluxNukeDernier:Math.max(0,Math.floor(nombreSorealIdle_(s.fluxNukeDernier,0)))"), "les compteurs survivent à la lecture des statistiques");
-assert.ok(rt.includes("if (defeated.length > 0) {\n      stats.fluxNukes =") && rt.includes("stats.fluxNukeDernier = defeated.length;"), "le Nuke compte les boss tués");
+assert.ok(rt.includes("if (defeated.length > 0 && automatique !== true) {\n      stats.fluxNukes =") && rt.includes("stats.fluxNukeDernier = defeated.length;"), "le Nuke compte les boss tués");
 
 const inst = (extra) => instantaneJoueurV1({ stats: { metaNgu: {}, ...extra } });
 const a = inst({ fluxNukes: 2, fluxNukeDernier: 40 });

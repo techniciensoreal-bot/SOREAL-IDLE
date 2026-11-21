@@ -97,6 +97,7 @@ import {
   IDLE_ADVENTURE_ZONES
 } from "./idle-adventure-v47.js";
 import { macguffinMergeLevelV1 } from "./idle-macguffins-v1.js";
+import { fluxMuetV1 } from "./idle-flux-muet-v1.js";
 import { coffreRetirer, coffreDeposer } from "./idle-adventure-inventaire.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
 
@@ -898,8 +899,11 @@ export function advanceIdleInventoryAutoV1(s, seconds, envFn, rng = Math.random)
     cfg.boostElapsed += seconds;
     if (cfg.boostElapsed >= interval) { cfg.boostElapsed %= interval; lancerBoost = true; }
   }
-  if (lancerMerge) out.merge = idleInventoryRunAutoMergeV1(s, env);
-  if (lancerBoost) out.boost = idleInventoryRunAutoBoostV1(s, env, rng);
+  /* Automatique : jamais annoncé dans « En direct » (Norman, 2026-11-21). */
+  fluxMuetV1(() => {
+    if (lancerMerge) out.merge = idleInventoryRunAutoMergeV1(s, env);
+    if (lancerBoost) out.boost = idleInventoryRunAutoBoostV1(s, env, rng);
+  });
   return out;
 }
 

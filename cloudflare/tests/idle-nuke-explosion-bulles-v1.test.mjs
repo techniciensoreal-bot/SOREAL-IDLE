@@ -11,7 +11,7 @@ const augm = lire("modules/augmentations-page-v1.js");
 
 // 1. Explosion : la fonction, jouée au lancement du NUKE (après les vérifications), pose un calque gardé par le redessin.
 const debut = combat2.indexOf("function exploserBossNukeIdleV1_(){");
-const fin = combat2.indexOf("function nukerBossIdleV1_(){");
+const fin = combat2.indexOf("function nukerBossIdleV1_(automatique){");
 assert.ok(debut > 0 && fin > debut);
 const calques = [];
 const hote = {
