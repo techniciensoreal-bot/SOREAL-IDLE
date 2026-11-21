@@ -37,9 +37,9 @@
     var b = B();
     if (!b || !b.appliquerProfil || !p || !p.base) return null;
     if (p.cat && String(p.cat) !== String(b.versionCatalogue)) return null;
-    var design = b.appliquerProfil(b.tirerPourNom(p.base), p);
+    var design = b.appliquerProfil(b.composer ? b.composer(b.tirerPourNom(p.base), p.choix) : b.tirerPourNom(p.base), p);
     var photo = p.photo ? { url: urlVisage(nomCle, p.photo.v), visible: p.photo.visible !== false, z: p.photo.z, x: p.photo.x, y: p.photo.y, k: p.photo.k, kx: p.photo.kx, ky: p.photo.ky, rot: p.photo.rot } : null;
-    return { design: design, photo: photo, sig: JSON.stringify([p.base, p.pieces, p.photo]) };
+    return { design: design, photo: photo, sig: JSON.stringify([p.base, p.pieces, p.choix || null, p.photo]) };
   }
 
   /* Pour un nom d'ennemi de l'ITOPOD : le profil enregistré préparé, ou null. Lance (au plus une fois par minute) la lecture de la liste. */
@@ -66,7 +66,7 @@
   window.__SOREAL_IDLE_PROFIL_BADAVATAR_V1__ = {
     pour: pour, preparer: preparer, charger: charger, cle: cle, urlVisage: urlVisage, appeler: appeler, evenement: EVENEMENT,
     lire: function () { return appeler({ action: "lire" }); },
-    enregistrer: function (pieces, photo, cat) { return appeler({ action: "enregistrer", pieces: pieces, photo: photo || null, cat: String(cat == null ? "" : cat) }).then(function (r) { if (r && r.ok) charger(true); return r; }); },
+    enregistrer: function (pieces, photo, cat, choix) { return appeler({ action: "enregistrer", pieces: pieces, choix: choix || null, photo: photo || null, cat: String(cat == null ? "" : cat) }).then(function (r) { if (r && r.ok) charger(true); return r; }); },
     reinitialiser: function () { return appeler({ action: "reinitialiser" }).then(function (r) { if (r && r.ok) charger(true); return r; }); }
   };
 })();

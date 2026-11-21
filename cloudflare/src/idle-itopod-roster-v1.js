@@ -14,6 +14,9 @@ export const IDLE_ITOPOD_AVATAR_PREFIX_V1 = "shared/avatars/";
 export const IDLE_ITOPOD_DECOR_PREFIX_V1 = "shared/avatar-backgrounds/";
 /* Pièces des badavatars de l'ITOPOD (corps, cheveux, yeux...), copiées de shared/badavatars/ vers idle/badavatars/ (Norman, 2026-10-31) : un dossier idle/ part dans le manifeste de l'exe, donc elles marchent hors ligne. Les noms contiennent des virgules (« Image ChatGPT 13 oct. 2026, 16_38_49-4.webp »). */
 export const IDLE_ITOPOD_BADAVATARS_PREFIX_V1 = "idle/badavatars/";
+/* Éléments que le joueur CHOISIT dans l'éditeur de badavatar (Norman, 2026-11-21) : ceux de TV, lus directement dans shared/badavatars/ (jamais le reste du dossier : photos, fichiers à la racine). */
+export const IDLE_ITOPOD_BADAVATARS_PARTAGES_PREFIX_V1 = "shared/badavatars/";
+const DOSSIERS_BADAVATARS_PARTAGES_V1 = /^shared\/badavatars\/(Body_Homme|Body_Femme|Vetements|Cheveux|Yeux|Oreilles|Nez|Bouche|Barbe|Accessoires)\//;
 /* Avatars d'Halloween de TV (Norman, 2026-10-25 : « ça n'affiche pas les avatars d'Halloween dans l'ITOPOD, on a des emojis à la place ; je voudrais toujours ce que TV affiche ») : pendant la semaine, TV remplace l'avatar d'un profil par un
    fichier de shared/halloween/avatars/ (zone halloween-avatars de TV). Ce dossier est accepté en plus, UNIQUEMENT pour l'avatar d'un profil de l'équipe (jamais dans le tirage au hasard des joueurs). */
 export const IDLE_ITOPOD_AVATAR_HALLOWEEN_PREFIX_V1 = "shared/halloween/avatars/";
@@ -34,7 +37,7 @@ export function idleItopodCleR2V1(url, prefix) {
   try { k = decodeURIComponent(k); } catch (_) { return ""; }
   k = k.replace(/^\/+/, "").replace(/^assets\//, "");
   if (!k.startsWith(prefix) || k.includes("..") || k.includes("//") || !/\.(webp|png|jpe?g|gif|avif)$/i.test(k)) return "";
-  const autorise = prefix === IDLE_ITOPOD_BADAVATARS_PREFIX_V1 ? /^[\p{L}\p{N} _.,\-\/()'’]{1,240}$/u : /^[\p{L}\p{N} _.\-\/()'’]{1,240}$/u;
+  const autorise = prefix === IDLE_ITOPOD_BADAVATARS_PREFIX_V1 || prefix === IDLE_ITOPOD_BADAVATARS_PARTAGES_PREFIX_V1 ? /^[\p{L}\p{N} _.,\-\/()'’]{1,240}$/u : /^[\p{L}\p{N} _.\-\/()'’]{1,240}$/u;
   return autorise.test(k) ? k : "";
 }
 
@@ -72,6 +75,18 @@ export function idleItopodAjouterJoueursV1(workers, noms, clesAvatars) {
     out.push({ nom, avatar });
   }
   return out.sort((a, b) => a.nom.localeCompare(b.nom, "fr", { sensitivity: "base" }));
+}
+
+/*
+ * Doublons du prénom d'un compte principal (Norman, 2026-11-21 : « supprime le Norman et le Sébastien en double dans l'ITOPOD, ceux qui ne sont pas liés à nos comptes principaux »).
+ * Un compte d'ouvrier est un ennemi sous son libellé « pseudo (prénom) » (« Redrum (Norman) », « Saka (Sébastien) ») ; le profil d'équipe de TV et les deux « toujours présents » donnent en plus un « Norman » et un « Sébastien » seuls, sans compte :
+ * quand un libellé « X (N) » existe, l'entrée « N » seule est retirée. Sans libellé de compte pour ce prénom, l'entrée reste (rien ne disparaît sans son double).
+ */
+export function idleItopodSansDoublonsV1(workers) {
+  const liste = Array.isArray(workers) ? workers : [];
+  const prenoms = new Set();
+  for (const w of liste) { const m = /^.+\(([^()]+)\)\s*$/.exec(text(w && w.nom)); if (m) prenoms.add(norm(m[1])); }
+  return liste.filter((w) => !prenoms.has(norm(w && w.nom)));
 }
 
 export function idleItopodRosterV1(cosmetics) {
@@ -219,7 +234,7 @@ export async function idleItopodRosterReponseV1(request, env, fetchFn) {
       }
     }
   } catch (_) { /* sans les joueurs */ }
-  const valeur = { ok: true, workers: idleItopodAjouterJoueursV1(idleItopodRosterV1(cosmetics), nomsJoueurs, clesAvatars), decors: idleItopodDecorsParNiveauV1(cles), etages: idleItopodEtagesV1(clesEtages), complete: Boolean(cosmetics) };
+  const valeur = { ok: true, workers: idleItopodSansDoublonsV1(idleItopodAjouterJoueursV1(idleItopodRosterV1(cosmetics), nomsJoueurs, clesAvatars)), decors: idleItopodDecorsParNiveauV1(cles), etages: idleItopodEtagesV1(clesEtages), complete: Boolean(cosmetics) };
   /* Un échec de TV n'est gardé que peu de temps. */
   cache = { at: cosmetics ? maintenant : maintenant - DUREE_CACHE_MS + 30000, valeur };
   return jsonReponse(valeur);
@@ -232,7 +247,7 @@ function jsonReponse(valeur) {
 /* Image partagée (avatar ou décor) servie depuis R2 : uniquement les dossiers shared/avatars/ et shared/avatar-backgrounds/. */
 export async function idleItopodImagePartageeV1(request, env, url) {
   const brute = text(url.searchParams.get("key"));
-  const cle = idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_HALLOWEEN_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_BADAVATARS_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_DECOR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_ETAGE_PREFIX_V1);
+  const cle = idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_AVATAR_HALLOWEEN_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_BADAVATARS_PREFIX_V1) || (DOSSIERS_BADAVATARS_PARTAGES_V1.test(brute) ? idleItopodCleR2V1(brute, IDLE_ITOPOD_BADAVATARS_PARTAGES_PREFIX_V1) : "") || idleItopodCleR2V1(brute, IDLE_ITOPOD_DECOR_PREFIX_V1) || idleItopodCleR2V1(brute, IDLE_ITOPOD_ETAGE_PREFIX_V1);
   if (!cle) return new Response("Image invalide", { status: 400, headers: { "cache-control": "no-store" } });
   if (!env || !env.SOREAL_R2 || typeof env.SOREAL_R2.get !== "function") return new Response("Média indisponible", { status: 503, headers: { "cache-control": "no-store" } });
   const objet = await env.SOREAL_R2.get(cle);

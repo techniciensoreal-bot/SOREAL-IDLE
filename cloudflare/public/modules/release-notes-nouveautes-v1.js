@@ -4,6 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Badavatar : dans la section Profil des Réglages, tu peux désormais choisir parmi tous les éléments (corps, vêtements, cheveux, yeux, oreilles, nez, bouche, barbe, accessoires), comme sur Soreal TV. Ton badavatar de départ reste tiré au hasard.",
+    "Les doublons « Norman » et « Sébastien » qui n’étaient liés à aucun compte ne sont plus dans la tour : seuls les comptes principaux restent.",
     "Un boss a désormais une mort qui lui est propre : il se vide comme de l’eau dans un évier, avec le bruit de la vidange.",
     "Arrivée d’un boss : fin du clignotement noir très bref qui apparaissait souvent juste après l’animation."
   ] };

@@ -463,9 +463,13 @@
   "pin": 3,
   "sha": "0ecf22ba9e9e30882e0ba5872ba6212c08af0d0d"
  },
+ "/modules/itopod-badavatars-choix-catalogue-v1.js": {
+  "pin": 1,
+  "sha": "67b89a2a6cb29de2cda2d853ff25287dc00fa59e"
+ },
  "/modules/itopod-badavatars-v1.js": {
-  "pin": 9,
-  "sha": "8c6d9b1e555610fb3a107fb501eece956b956f79"
+  "pin": 10,
+  "sha": "f64303d9830f3415ac55a8fe34708e54cdb8d8ae"
  },
  "/modules/itopod-perks-page-v1.js": {
   "pin": 9,
@@ -576,8 +580,8 @@
   "sha": "26a35d1b0480bd9f2b2d58f2d219979949390528"
  },
  "/modules/morts-boss-nouvelles-v1.js": {
-  "pin": 10,
-  "sha": "7ea2f5b99e163486eb91e07965abb6a03cdcd548"
+  "pin": 11,
+  "sha": "627df2cb10a82d50e16e970612610b24a025754f"
  },
  "/modules/morts-joueur-nouvelles-v1.js": {
   "pin": 8,
@@ -652,12 +656,12 @@
   "sha": "475931ce6a423585ced203601ebb4978b534d16d"
  },
  "/modules/profil-badavatar-editeur-v1.js": {
-  "pin": 6,
-  "sha": "15875cf16112fb8bcc4cb4987d7a85300f30ecc7"
+  "pin": 8,
+  "sha": "c4611f04b9225881d4e5a2fd33ecb26caa1c3cd3"
  },
  "/modules/profil-badavatar-v1.js": {
-  "pin": 4,
-  "sha": "aa62515629bfc16696d5267ffe7603805e711ece"
+  "pin": 5,
+  "sha": "3b4e54425c304f1530edb323a5b7ca39aaa4959a"
  },
  "/modules/profil-visage-v1.js": {
   "pin": 2,
@@ -704,12 +708,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 407,
-  "sha": "4464b3d2b355fb8ea7e029b4d690a84887d52e93"
+  "pin": 409,
+  "sha": "8da096faadb6d5d0903eba87e4724ad154f987cd"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1055,
-  "sha": "3af5a10312810d2ab4652abaf07dd015c9cfae77"
+  "pin": 1057,
+  "sha": "17df571a96d3442de8b478def38fc8b012f92d2c"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -804,12 +808,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1105,
-  "sha": "f241b04886dd4b425e8eece31ea9ae2f8d996b7d"
+  "pin": 1107,
+  "sha": "c2c5881adb71e9e94f26af71b6d3cced964befe0"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 925,
-  "sha": "58edc7354b6036166b187951bcd73e48f20909a8"
+  "pin": 927,
+  "sha": "dbf392a326a35342f1bbc4caab87a2940946d025"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

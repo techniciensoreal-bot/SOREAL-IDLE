@@ -1,6 +1,7 @@
 /*
- * SOREAL IDLE — éditeur du badavatar (Réglages > Profil, Norman, 2026-11-01). Le joueur voit SON badavatar désigné (tiré par son nom, itopod-badavatars-v1.js) ; il peut déplacer, agrandir, tourner et masquer
- * ses pièces, JAMAIS en choisir d'autres. « Enregistrer » envoie les réglages au serveur (profil-badavatar-v1.js, src/idle-profil-badavatar-v1.js) : c'est ce que tout le monde voit dans l'ITOPOD.
+ * SOREAL IDLE — éditeur du badavatar (Réglages > Profil, Norman, 2026-11-01). Le joueur voit SON badavatar désigné (tiré par son nom au hasard, itopod-badavatars-v1.js) ; il peut déplacer, agrandir, tourner et masquer
+ * ses pièces ET, depuis le 2026-11-21 (« on peut choisir parmi tous les éléments, comme sur Soreal TV »), choisir le corps, les vêtements, les cheveux, les yeux, les oreilles, le nez, la bouche, la barbe et les accessoires parmi tous ceux de TV
+ * (catalogue itopod-badavatars-choix-catalogue-v1.js ; le choix se range dans E.choix et part avec « Enregistrer », composer() de itopod-badavatars-v1.js le met en forme). « Enregistrer » envoie les réglages au serveur (profil-badavatar-v1.js, src/idle-profil-badavatar-v1.js) : c'est ce que tout le monde voit dans l'ITOPOD.
  * Un visage personnalisé est FACULTATIF (profil-visage-v1.js) : il se pose sur le corps comme les pièces, et les pièces restent affichables et réglables par-dessus.
  * Rendu : EXACTEMENT celui de l'ITOPOD (rendreHtml + appliquerProfil) ; pendant un glissement seul le style des images change (miseAJour : aucune image recréée).
  * Règle n°4 (redessin) : l'éditeur est un nœud PERSISTANT, rattaché dans #profilBadavEditeurV1 par monter() (appelé après chaque redessin de la page, window.__SOREAL_IDLE_APRES_REDESSIN_V1__, dans la même tâche) ;
@@ -10,7 +11,10 @@
   "use strict";
   if (window.__SOREAL_IDLE_PROFIL_EDITEUR_V1__) return;
   var W = 480, H = 640, CLE_BROUILLON = "soreal_idle_profil_badavatar_brouillon_v1";
-  var NOMS = { Cheveux: "Cheveux", Yeux: "Yeux", Oreille_Gauche: "Oreille gauche", Oreille_Droite: "Oreille droite", Nez: "Nez", Bouche: "Bouche", Barbe: "Barbe" };
+  var NOMS = { Vetements: "Vêtement", Cheveux: "Cheveux", Yeux: "Yeux", Oreille_Gauche: "Oreille gauche", Oreille_Droite: "Oreille droite", Nez: "Nez", Bouche: "Bouche", Barbe: "Barbe", Accessoires: "Accessoire" };
+  /* Catégories du sélecteur : [identifiant, titre] ; « corps » et « Oreilles » (les deux oreilles d'un coup) sont des entrées à part. */
+  var CATEGORIES_CHOIX = [["corps", "Corps"], ["Vetements", "Vêtements"], ["Cheveux", "Cheveux"], ["Yeux", "Yeux"], ["Oreilles", "Oreilles"], ["Nez", "Nez"], ["Bouche", "Bouche"], ["Barbe", "Barbe"], ["Accessoires", "Accessoires"]];
+  var TUILE = 64;
   var racine = null, E = null, minuteurBrouillon = 0;
 
   function B() { return window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__; }
@@ -35,7 +39,11 @@
     ".pbe-poignee{position:absolute;right:-13px;bottom:-13px;width:26px;height:26px;border-radius:50%;background:#ffd45a;border:2px solid #1b2340;box-sizing:border-box;pointer-events:auto;cursor:nwse-resize;touch-action:none}" +
     ".pbe-plein-ctrl{display:none;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px}.pbe-agrandir{margin-top:8px;min-height:44px;width:100%}" +
     ".pbe-plein .pbe-scene-col{position:fixed;inset:0;z-index:99990;max-width:none;margin:0;padding:10px;box-sizing:border-box;background:rgba(5,8,18,.97);display:flex;flex-direction:column;align-items:center;justify-content:center}" +
-    ".pbe-plein .pbe-scene{width:min(100%,calc((100vh - 130px) * .75));max-width:none}.pbe-plein .pbe-plein-ctrl{display:flex}.pbe-plein .pbe-agrandir{display:none}";
+    ".pbe-plein .pbe-scene{width:min(100%,calc((100vh - 130px) * .75));max-width:none}.pbe-plein .pbe-plein-ctrl{display:flex}.pbe-plein .pbe-agrandir{display:none}" +
+    ".pbe-puces{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.pbe-puces button{min-height:44px;padding:0 12px}.pbe-puces button.sel{border-color:#ffd45a;background:#1d2646}" +
+    ".pbe-grille{display:flex;flex-wrap:wrap;gap:6px;max-height:330px;overflow:auto;padding:6px;border:1px solid #2a3558;border-radius:10px;background:#0d1226;margin-bottom:8px}.pbe-sous{width:100%;font-size:13px;color:#9aa6c4;margin:4px 0 0}" +
+    ".pbe-tuile{position:relative;width:" + 64 + "px;height:" + 64 + "px;padding:0;overflow:hidden;border:2px solid #2a3558;border-radius:8px;background:#141b33;cursor:pointer;flex:0 0 auto}.pbe-tuile.sel{border-color:#ffd45a}.pbe-tuile img{position:absolute;max-width:none;pointer-events:none}" +
+    ".pbe-tuile.corps{width:60px;height:80px}.pbe-tuile.aucun{display:flex;align-items:center;justify-content:center;color:#cfd8f2;font-size:12px;line-height:1.1;text-align:center}.pbe-grille-actions{width:100%;display:flex;gap:6px;flex-wrap:wrap}.pbe-grille-actions button{min-height:44px}";
 
   function nomPiece(c) { return NOMS[c] || c; }
 
@@ -44,9 +52,23 @@
   function pieceReglage(c) { return E.reglages[c] || (E.reglages[c] = parDefaut()); }
   function profilCourant() { return { pieces: E.reglages }; }
   function designAffiche() { return B().appliquerProfil(E.design, profilCourant()); }
+  /* Éléments choisis (Norman, 2026-11-21) : E.choix = { corps?, pieces: { catégorie: clé | null } } ; E.designBase = le badavatar désigné ; E.design = composer(base, choix). */
+  function copierChoix(c) { return c && typeof c === "object" ? { corps: c.corps || undefined, pieces: Object.assign({}, c.pieces || {}) } : { pieces: {} }; }
+  function choixPourServeur() {
+    var pieces = {}, n = 0;
+    Object.keys(E.choix.pieces || {}).forEach(function (c) { pieces[c] = E.choix.pieces[c]; n++; });
+    if (!E.choix.corps && !n) return null;
+    var sortie = {}; if (E.choix.corps) sortie.corps = E.choix.corps; if (n) sortie.pieces = pieces;
+    return sortie;
+  }
+  function recomposer() {
+    E.design = B().composer ? B().composer(E.designBase, choixPourServeur()) : E.designBase;
+    if (E.sel && E.sel !== "visage" && !E.design.parts[E.sel]) E.sel = null;
+  }
   function photoAffichee() { return E.visage ? { url: E.visage.image || PB().urlVisage(E.nomCle, E.visage.v), visible: E.visage.visible !== false, z: E.visage.z || 0, x: E.visage.x, y: E.visage.y, k: E.visage.k, kx: E.visage.kx, ky: E.visage.ky, rot: E.visage.rot } : null; }
   function signature() { return JSON.stringify([E.reglages, E.visage ? [E.visage.visible, E.visage.z || 0, E.visage.x, E.visage.y, E.visage.k, E.visage.kx, E.visage.ky, E.visage.rot, E.visage.image ? 1 : E.visage.v] : null]); }
   function estDefaut() {
+    if (choixPourServeur()) return false;
     var d = reglagesDefaut(E.design);
     return JSON.stringify(Object.keys(d).map(function (c) { var r = pieceReglage(c); return [r.visible, r.z || 0, r.dx, r.dy, r.k, r.rot]; })) === JSON.stringify(Object.keys(d).map(function () { return [true, 0, 0, 0, 1, 0]; })) && !E.visage;
   }
@@ -148,7 +170,8 @@
     racine.innerHTML = '<div class="pbe"><div class="pbe-scene-col"><div class="pbe-scene" data-scene="1" aria-label="Aperçu de ton badavatar"></div>' +
       '<button type="button" class="soreal-idle-expand-button-v25 pbe-agrandir" data-act="plein">Agrandir l’aperçu</button>' +
       '<div class="pbe-plein-ctrl"><button type="button" class="soreal-idle-expand-button-v25" data-pas="k" data-sens="-1" aria-label="Taille moins">−</button><button type="button" class="soreal-idle-expand-button-v25" data-pas="k" data-sens="1" aria-label="Taille plus">+</button><button type="button" class="soreal-idle-expand-button-v25" data-act="plein">Fermer l’aperçu</button></div></div>' +
-      '<div class="pbe-ctrl"><div class="pbe-note">Voici le badavatar qui t’a été désigné. Tu peux déplacer, agrandir, tourner ou masquer ses éléments ; tu ne peux pas en choisir d’autres.</div>' +
+      '<div class="pbe-ctrl"><div class="pbe-note">Voici le badavatar qui t’a été désigné au départ. Tu peux changer ses éléments (corps, vêtements, cheveux, accessoires…) en choisissant parmi tous ceux proposés, puis les déplacer, les agrandir, les tourner ou les masquer.</div>' +
+      choixHtml() +
       (avec ? visageBlocHtml() + '<div class="pbe-titre">Éléments</div><div class="pbe-note">Coche les éléments que tu gardes, décoche ceux que tu masques. Tu peux aussi les placer et les redimensionner par-dessus la tête.</div>' : '') +
       '<div class="pbe-liste">' + lignes + '</div><div class="pbe-calques"></div><div class="pbe-zone">' + reglageHtml() + '</div>' +
       (avec ? '' : '<div class="pbe-visage"><button type="button" class="soreal-idle-expand-button-v25" data-act="visage">Ajouter un visage (photo, personnage…)</button></div>') +
@@ -160,6 +183,77 @@
     placerZone();
     rendreScene();
     majCalques();
+    majPanneau();
+  }
+  /* ---------- choix des éléments ---------- */
+  function catalogueChoix() { var c = B().choixCatalogue; return c && c.parts && c.parts.Cheveux && c.parts.Cheveux.length ? c : null; }
+  function choixHtml() {
+    if (!catalogueChoix()) return "";
+    return '<div class="pbe-titre">Choisir les éléments</div><div class="pbe-puces">' + CATEGORIES_CHOIX.map(function (c) {
+      return '<button type="button" class="soreal-idle-expand-button-v25' + (E.panneau === c[0] ? " sel" : "") + '" data-panneau="' + c[0] + '">' + esc(c[1]) + '</button>';
+    }).join("") + '</div><div class="pbe-panneau"></div>';
+  }
+  /* Miniature : la boîte mesurée des pixels de la pièce, recadrée dans une tuile carrée (les corps : l'image entière). */
+  function tuileHtml(cat, m, courante) {
+    var url = B().urlParDefaut(B().prefixe + m[0]), cle = B().prefixe + m[0], corps = cat === "corps";
+    var nom = String(m[0]).replace(/^.*\//, "").replace(/\.[a-z]+$/i, "").replace(/_/g, " ");
+    var img;
+    if (corps) img = '<img loading="lazy" decoding="async" alt="" src="' + esc(url) + '" style="left:0;top:0;width:100%;height:100%;object-fit:contain">';
+    else {
+      var bw = m[5] - m[3] + 1, bh = m[6] - m[4] + 1, s = (TUILE - 6) / Math.max(bw, bh);
+      img = '<img loading="lazy" decoding="async" alt="" src="' + esc(url) + '" style="left:' + arr(3 + ((TUILE - 6) - bw * s) / 2 - m[3] * s, 1) + 'px;top:' + arr(3 + ((TUILE - 6) - bh * s) / 2 - m[4] * s, 1) + 'px;width:' + arr(m[1] * s, 1) + 'px;height:' + arr(m[2] * s, 1) + 'px">';
+    }
+    return '<button type="button" class="pbe-tuile' + (corps ? " corps" : "") + (courante === cle ? " sel" : "") + '" data-choix-cat="' + esc(cat) + '" data-choix-cle="' + esc(cle) + '" title="' + esc(nom) + '" aria-label="' + esc(nom) + '">' + img + '</button>';
+  }
+  function cleCourante(cat) {
+    if (cat === "corps") return E.design.body;
+    var p = E.design.parts[cat === "Oreilles" ? "Oreille_Droite" : cat];
+    return p ? p.key : "";
+  }
+  function panneauHtml() {
+    var cat = E.panneau, C = catalogueChoix();
+    if (!cat || !C) return "";
+    var courante = cleCourante(cat), h = '<div class="pbe-grille" data-grille="' + esc(cat) + '">';
+    if (cat === "corps") {
+      [["Body_Homme", "Homme"], ["Body_Femme", "Femme"]].forEach(function (g) {
+        h += '<div class="pbe-sous">' + g[1] + '</div>' + (C.bodies[g[0]] || []).map(function (m) { return tuileHtml("corps", m, courante); }).join("");
+      });
+    } else {
+      var liste = cat === "Oreilles" ? C.parts.Oreille_Droite : C.parts[cat];
+      h += '<button type="button" class="pbe-tuile aucun' + (!courante ? " sel" : "") + '" data-choix-cat="' + esc(cat) + '" data-choix-cle="" aria-label="Aucun">Aucun</button>' + (liste || []).map(function (m) { return tuileHtml(cat, m, courante); }).join("");
+    }
+    return h + '<div class="pbe-grille-actions"><button type="button" class="soreal-idle-expand-button-v25" data-choix-remettre="' + esc(cat) + '">Remettre l’élément désigné au départ</button></div></div>';
+  }
+  function majPanneau() {
+    var zone = racine.querySelector(".pbe-panneau");
+    if (!zone) return;
+    zone.innerHTML = panneauHtml();
+    Array.prototype.forEach.call(racine.querySelectorAll("[data-panneau]"), function (b) { b.classList.toggle("sel", b.getAttribute("data-panneau") === E.panneau); });
+  }
+  function surChoix(cat, cle) {
+    if (cat === "corps") { if (cle) E.choix.corps = cle; }
+    else {
+      var v = cle || null;
+      if (cat === "Oreilles") { E.choix.pieces.Oreille_Droite = v; E.choix.pieces.Oreille_Gauche = v; }
+      else E.choix.pieces[cat] = v;
+    }
+    appliquerChoix("Élément changé. Clique sur Enregistrer pour le garder.");
+  }
+  function remettreChoix(cat) {
+    if (cat === "corps") delete E.choix.corps;
+    else if (cat === "Oreilles") { delete E.choix.pieces.Oreille_Droite; delete E.choix.pieces.Oreille_Gauche; }
+    else delete E.choix.pieces[cat];
+    appliquerChoix("Élément désigné au départ rétabli. Clique sur Enregistrer pour le garder.");
+  }
+  /* Après un choix : la liste des éléments, les calques, la scène et la sélection de la grille se mettent à jour en place (la grille ne se recrée pas : son défilement reste). */
+  function appliquerChoix(texte) {
+    recomposer();
+    var liste = racine.querySelector(".pbe-liste");
+    if (liste) liste.innerHTML = Object.keys(E.design.parts).map(function (c) { return ligneHtml(c, nomPiece(c), pieceReglage(c).visible !== false); }).join("");
+    rendreScene(); majCalques(); refraichirControles();
+    var courante = E.panneau ? cleCourante(E.panneau) : "";
+    Array.prototype.forEach.call(racine.querySelectorAll("[data-choix-cle]"), function (t) { t.classList.toggle("sel", t.getAttribute("data-choix-cle") === courante); });
+    sauverBrouillon(); message(texte, "");
   }
   /* ---------- ordre d'empilement (calques) : du plus derrière au plus devant ; le corps reste toujours dessous ---------- */
   function baseOrdre(c) { if (c === "visage") return 0; var o = E.design.parts[c].order; return typeof o === "number" ? o : 1; }
@@ -205,17 +299,19 @@
   /* ---------- brouillon (règle n°6) ---------- */
   function sauverBrouillon() {
     clearTimeout(minuteurBrouillon);
-    minuteurBrouillon = setTimeout(function () { try { localStorage.setItem(CLE_BROUILLON, JSON.stringify({ base: E.base, reglages: E.reglages })); } catch (_e) { /* pas de stockage */ } }, 400);
+    minuteurBrouillon = setTimeout(function () { try { localStorage.setItem(CLE_BROUILLON, JSON.stringify({ base: E.base, reglages: E.reglages, choix: choixPourServeur() })); } catch (_e) { /* pas de stockage */ } }, 400);
   }
   function effacerBrouillon() { clearTimeout(minuteurBrouillon); try { localStorage.removeItem(CLE_BROUILLON); } catch (_e) { /* pas de stockage */ } }
-  function lireBrouillon() { try { var b = JSON.parse(localStorage.getItem(CLE_BROUILLON) || "null"); return b && b.base === E.base && b.reglages && typeof b.reglages === "object" ? b.reglages : null; } catch (_e) { return null; } }
+  function lireBrouillon() { try { var b = JSON.parse(localStorage.getItem(CLE_BROUILLON) || "null"); return b && b.base === E.base && b.reglages && typeof b.reglages === "object" ? b : null; } catch (_e) { return null; } }
 
   /* ---------- chargement ---------- */
   function appliquerEnregistre(rep) {
     var b = B(), p = rep && rep.profil && String(rep.profil.cat || "") === String(b.versionCatalogue) ? rep.profil : null;
     E.nom = rep.nom || ""; E.nomCle = rep.nomCle || "";
     E.base = (p && p.base) || E.nomCle || PB().cle(E.nom);
-    E.design = b.tirerPourNom(E.base);
+    E.designBase = b.tirerPourNom(E.base);
+    E.choix = copierChoix(p && p.choix);
+    recomposer();
     E.reglages = reglagesDefaut(E.design);
     if (p && p.pieces) Object.keys(E.reglages).forEach(function (c) { if (p.pieces[c]) E.reglages[c] = b.reglagePiece(p, c); });
     E.visage = p && p.photo ? { v: p.photo.v, visible: p.photo.visible !== false, z: Math.round(Number(p.photo.z) || 0), x: p.photo.x, y: p.photo.y, k: p.photo.k, kx: p.photo.kx == null ? 1 : p.photo.kx, ky: p.photo.ky == null ? 1 : p.photo.ky, rot: p.photo.rot } : null;
@@ -227,8 +323,11 @@
     PB().lire().then(function (rep) {
       if (!rep || rep.ok === false || !rep.nomCle) { E.message = rep && rep.message ? rep.message : "Ton badavatar n’est pas disponible pour l’instant."; construire(); return; }
       appliquerEnregistre(rep);
-      var br = lireBrouillon();
-      if (br) Object.keys(E.reglages).forEach(function (c) { if (br[c]) E.reglages[c] = Object.assign(parDefaut(), br[c]); });
+      var bro = lireBrouillon();
+      if (bro && bro.choix) { E.choix = copierChoix(bro.choix); recomposer(); }
+      var br = bro && bro.reglages;
+      if (br) Object.keys(br).forEach(function (c) { if (br[c]) E.reglages[c] = Object.assign(parDefaut(), br[c]); });
+      E.choixBrouillon = Boolean(bro);
       E.pret = true; E.message = ""; construire();
     });
     construire();
@@ -358,7 +457,7 @@
     Object.keys(E.design.parts).forEach(function (c) { var r = pieceReglage(c); pieces[c] = { visible: r.visible !== false, z: r.z || 0, dx: r.dx, dy: r.dy, k: r.k, rot: r.rot }; });
     var photo = null;
     if (E.visage) photo = Object.assign({ visible: E.visage.visible !== false, z: E.visage.z || 0, x: E.visage.x, y: E.visage.y, k: E.visage.k, kx: E.visage.kx, ky: E.visage.ky, rot: E.visage.rot }, E.visage.image ? { image: E.visage.image } : { garder: true });
-    var action = estDefaut() ? PB().reinitialiser() : PB().enregistrer(pieces, photo, b.versionCatalogue);
+    var action = estDefaut() ? PB().reinitialiser() : PB().enregistrer(pieces, photo, b.versionCatalogue, choixPourServeur());
     action.then(function (r) {
       E.occupe = false;
       var bouton = racine.querySelector('[data-act="enregistrer"]'); if (bouton) bouton.disabled = false;
@@ -374,6 +473,12 @@
     if (!t || !t.closest) return;
     var regler = t.closest("[data-regler]");
     if (regler) { choisir(regler.getAttribute("data-regler")); return; }
+    var pan = t.closest("[data-panneau]");
+    if (pan) { var np = pan.getAttribute("data-panneau"); E.panneau = E.panneau === np ? "" : np; majPanneau(); return; }
+    var tuile = t.closest("[data-choix-cle]");
+    if (tuile) { surChoix(tuile.getAttribute("data-choix-cat"), tuile.getAttribute("data-choix-cle")); return; }
+    var rem = t.closest("[data-choix-remettre]");
+    if (rem) { remettreChoix(rem.getAttribute("data-choix-remettre")); return; }
     var ordre = t.closest("[data-ordre]");
     if (ordre) { changerOrdre(E.sel, ordre.getAttribute("data-ordre")); return; }
     var cal = t.closest("[data-calque]");
@@ -400,7 +505,7 @@
     if (a === "plein") { racine.classList.toggle("pbe-plein"); placerCadre(); return; }
     if (a === "enregistrer") enregistrer();
     else if (a === "annuler") { charger(); }
-    else if (a === "defaut") { E.reglages = reglagesDefaut(E.design); E.visage = null; E.sel = null; construire(); sauverBrouillon(); message("Badavatar désigné rétabli. Clique sur Enregistrer pour le garder.", ""); }
+    else if (a === "defaut") { E.choix = { pieces: {} }; recomposer(); E.reglages = reglagesDefaut(E.design); E.visage = null; E.sel = null; construire(); sauverBrouillon(); message("Badavatar désigné rétabli. Clique sur Enregistrer pour le garder.", ""); }
     else if (a === "visage") { var f = racine.querySelector('[data-fichier]'); if (f) { f.value = ""; f.click(); } }
     else if (a === "retirer-visage") { E.visage = null; if (E.sel === "visage") E.sel = null; construire(); message("Visage retiré. Clique sur Enregistrer pour le garder.", ""); }
   }

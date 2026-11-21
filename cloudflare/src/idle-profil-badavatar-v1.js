@@ -12,7 +12,11 @@
  */
 import { sqlRows } from "./core/sqlite-core.js";
 
-export const IDLE_BADAVATAR_PIECES_V1 = Object.freeze(["Cheveux", "Yeux", "Oreille_Gauche", "Oreille_Droite", "Nez", "Bouche", "Barbe"]);
+/* Vetements et Accessoires : choisis par le joueur (Norman, 2026-11-21), jamais tirés au hasard. */
+export const IDLE_BADAVATAR_PIECES_V1 = Object.freeze(["Vetements", "Cheveux", "Yeux", "Oreille_Gauche", "Oreille_Droite", "Nez", "Bouche", "Barbe", "Accessoires"]);
+/* Dossier du R2 (shared/badavatars/<dossier>/…) d'où vient chaque catégorie : les deux oreilles viennent du même dossier. */
+export const IDLE_BADAVATAR_DOSSIERS_V1 = Object.freeze({ Vetements: "Vetements", Cheveux: "Cheveux", Yeux: "Yeux", Oreille_Gauche: "Oreilles", Oreille_Droite: "Oreilles", Nez: "Nez", Bouche: "Bouche", Barbe: "Barbe", Accessoires: "Accessoires" });
+const CLE_PIECE_V1 = /^[\p{L}\p{N} _.,\-/()'’]{1,200}\.(webp|png)$/u;
 /* Bornes (fractions de la scène 480 x 640 ; la tête fait environ 0,3 de large) : une pièce reste dans les environs de la tête. */
 export const IDLE_BADAVATAR_BORNES_V1 = Object.freeze({
   /* position : toute la scène (Norman, 2026-11-01) ; le rendu garde le centre de la pièce dans la zone visible */
@@ -69,6 +73,41 @@ export function idleBadavatarValiderPiecesV1(brut) {
   return { ok: true, pieces };
 }
 
+/*
+ * Éléments CHOISIS par le joueur (Norman, 2026-11-21 : « au moment de modifier notre badavatar, on peut choisir parmi tous les éléments, comme sur Soreal TV ») : { corps?, pieces: { catégorie: clé | null } }.
+ * corps = image du corps (Body_Homme ou Body_Femme, ce qui fixe le genre) ; pieces[catégorie] = une image du bon dossier, ou null (la catégorie n'a aucun élément). Une catégorie absente garde l'élément du badavatar désigné.
+ * Le serveur ne connaît pas le catalogue : il vérifie la FORME de chaque clé (dossier de la catégorie, caractères sûrs, pas de « .. ») ; le client ignore une clé absente de son catalogue. Refusé sinon, jamais corrigé en silence.
+ */
+const PREFIXE_BAV_V1 = "shared/badavatars/";
+export function idleBadavatarCleValideV1(cle, dossier) {
+  const t = typeof cle === "string" ? cle : "";
+  if (!t.startsWith(PREFIXE_BAV_V1 + dossier + "/")) return false;
+  const reste = t.slice((PREFIXE_BAV_V1 + dossier + "/").length);
+  return CLE_PIECE_V1.test(reste) && !reste.includes("..") && !reste.includes("//") && !reste.startsWith("/");
+}
+export function idleBadavatarValiderChoixV1(brut) {
+  if (brut === undefined || brut === null || brut === "") return { ok: true, choix: null };
+  if (typeof brut !== "object" || Array.isArray(brut)) return { ok: false, code: "BADAVATAR_CHOIX" };
+  const choix = {};
+  if (brut.corps !== undefined && brut.corps !== null) {
+    if (!idleBadavatarCleValideV1(brut.corps, "Body_Homme") && !idleBadavatarCleValideV1(brut.corps, "Body_Femme")) return { ok: false, code: "BADAVATAR_CHOIX_CORPS" };
+    choix.corps = brut.corps;
+  }
+  if (brut.pieces !== undefined && brut.pieces !== null) {
+    if (typeof brut.pieces !== "object" || Array.isArray(brut.pieces)) return { ok: false, code: "BADAVATAR_CHOIX" };
+    choix.pieces = {};
+    for (const c of Object.keys(brut.pieces)) {
+      if (!IDLE_BADAVATAR_PIECES_V1.includes(c)) return { ok: false, code: "BADAVATAR_PIECE_INCONNUE" };
+      const v = brut.pieces[c];
+      if (v !== null && !idleBadavatarCleValideV1(v, IDLE_BADAVATAR_DOSSIERS_V1[c])) return { ok: false, code: "BADAVATAR_CHOIX_PIECE" };
+      choix.pieces[c] = v;
+    }
+  }
+  if (choix.corps === undefined && (!choix.pieces || !Object.keys(choix.pieces).length)) return { ok: true, choix: null };
+  if (JSON.stringify(choix).length > 3000) return { ok: false, code: "BADAVATAR_CHOIX" };
+  return { ok: true, choix };
+}
+
 /* « data:image/webp;base64,... » ou « data:image/png;base64,... » : forme, taille et signature du fichier (jamais de HTML, jamais de SVG). */
 export function idleBadavatarValiderImageV1(texte) {
   const t = String(texte == null ? "" : texte);
@@ -99,6 +138,8 @@ const TABLES_PRETES_V1 = new WeakSet();
 export function idleBadavatarAssurerTableV1(sql) {
   if (sql && typeof sql === "object" && TABLES_PRETES_V1.has(sql)) return;
   sql.exec("CREATE TABLE IF NOT EXISTS idle_badavatar_profils(email TEXT PRIMARY KEY, nom_cle TEXT NOT NULL, base TEXT NOT NULL, cat TEXT NOT NULL DEFAULT '', pieces TEXT NOT NULL DEFAULT '{}', photo TEXT NOT NULL DEFAULT '', photo_placement TEXT NOT NULL DEFAULT '', maj INTEGER NOT NULL)");
+  /* Colonne ajoutée le 2026-11-21 (éléments choisis) : les tables déjà créées la reçoivent ici ; « duplicate column » = déjà là. */
+  try { sql.exec("ALTER TABLE idle_badavatar_profils ADD COLUMN choix TEXT NOT NULL DEFAULT ''"); } catch (_e) { /* déjà présente */ }
   sql.exec("CREATE INDEX IF NOT EXISTS idx_idle_badavatar_nom ON idle_badavatar_profils(nom_cle)");
   if (sql && typeof sql === "object") TABLES_PRETES_V1.add(sql);
 }
@@ -109,7 +150,7 @@ function ligneVersProfil(l, avecImage) {
   const placement = json(l.photo_placement, null);
   const aPhoto = Boolean(l.photo) && placement;
   return {
-    base: String(l.base), cat: String(l.cat || ""), nomCle: String(l.nom_cle), pieces: json(l.pieces, {}),
+    base: String(l.base), cat: String(l.cat || ""), nomCle: String(l.nom_cle), pieces: json(l.pieces, {}), choix: json(l.choix, null),
     photo: aPhoto ? Object.assign({ v: Number(l.maj) || 0 }, placement, avecImage ? { image: String(l.photo) } : {}) : null,
     maj: Number(l.maj) || 0
   };
@@ -117,7 +158,7 @@ function ligneVersProfil(l, avecImage) {
 
 export function idleBadavatarLireV1(sql, email) {
   idleBadavatarAssurerTableV1(sql);
-  const l = sqlRows(sql.exec("SELECT email,nom_cle,base,cat,pieces,photo,photo_placement,maj FROM idle_badavatar_profils WHERE email=?", String(email || "").toLowerCase()))[0];
+  const l = sqlRows(sql.exec("SELECT email,nom_cle,base,cat,pieces,choix,photo,photo_placement,maj FROM idle_badavatar_profils WHERE email=?", String(email || "").toLowerCase()))[0];
   return l ? ligneVersProfil(l, false) : null;
 }
 
@@ -131,6 +172,8 @@ export function idleBadavatarEnregistrerV1(sql, email, nomCle, entree, maintenan
   if (!entree || typeof entree !== "object") return { ok: false, code: "BADAVATAR_CORPS", message: "Profil invalide." };
   const pieces = idleBadavatarValiderPiecesV1(entree.pieces);
   if (!pieces.ok) return { ok: false, code: pieces.code, message: "Profil refusé : une valeur est hors des limites." };
+  const choixV = idleBadavatarValiderChoixV1(entree.choix);
+  if (!choixV.ok) return { ok: false, code: choixV.code, message: "Profil refusé : un élément choisi n’est pas valide." };
   const cat = String(entree.cat == null ? "" : entree.cat).slice(0, 16);
   if (!/^[0-9A-Za-z._-]{0,16}$/.test(cat)) return { ok: false, code: "BADAVATAR_CAT", message: "Profil invalide." };
   idleBadavatarAssurerTableV1(sql);
@@ -151,8 +194,8 @@ export function idleBadavatarEnregistrerV1(sql, email, nomCle, entree, maintenan
     placement = JSON.stringify(pl.placement);
   }
   const base = ancien && ancien.base ? String(ancien.base) : nomCle;
-  sql.exec("INSERT INTO idle_badavatar_profils(email,nom_cle,base,cat,pieces,photo,photo_placement,maj) VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(email) DO UPDATE SET nom_cle=excluded.nom_cle,base=excluded.base,cat=excluded.cat,pieces=excluded.pieces,photo=excluded.photo,photo_placement=excluded.photo_placement,maj=excluded.maj",
-    cle, nomCle, base, cat, JSON.stringify(pieces.pieces), image, placement, maintenant);
+  sql.exec("INSERT INTO idle_badavatar_profils(email,nom_cle,base,cat,pieces,choix,photo,photo_placement,maj) VALUES(?,?,?,?,?,?,?,?,?) ON CONFLICT(email) DO UPDATE SET nom_cle=excluded.nom_cle,base=excluded.base,cat=excluded.cat,pieces=excluded.pieces,choix=excluded.choix,photo=excluded.photo,photo_placement=excluded.photo_placement,maj=excluded.maj",
+    cle, nomCle, base, cat, JSON.stringify(pieces.pieces), choixV.choix ? JSON.stringify(choixV.choix) : "", image, placement, maintenant);
   return { ok: true, profil: idleBadavatarLireV1(sql, cle) };
 }
 
@@ -162,7 +205,7 @@ export function idleBadavatarEnregistrerV1(sql, email, nomCle, entree, maintenan
  * Renvoie true si une ligne a changé.
  */
 export function idleBadavatarProfilParDefautV1(l) {
-  if (l.photo || (l.photo_placement && String(l.photo_placement) !== "")) return false;
+  if (l.photo || (l.photo_placement && String(l.photo_placement) !== "") || (l.choix && String(l.choix) !== "")) return false;
   const pieces = json(l.pieces, {});
   return Object.keys(pieces).every((c) => {
     const p = pieces[c] || {};
@@ -173,7 +216,7 @@ export function idleBadavatarMigrerNomV1(sql, email, nomCle) {
   const cle = String(email || "").trim().toLowerCase();
   if (!cle || !nomCle) return false;
   idleBadavatarAssurerTableV1(sql);
-  const l = sqlRows(sql.exec("SELECT nom_cle,base,pieces,photo,photo_placement FROM idle_badavatar_profils WHERE email=?", cle))[0];
+  const l = sqlRows(sql.exec("SELECT nom_cle,base,pieces,choix,photo,photo_placement FROM idle_badavatar_profils WHERE email=?", cle))[0];
   if (!l) return false;
   const base = idleBadavatarProfilParDefautV1(l) ? nomCle : String(l.base);
   if (base === String(l.base) && nomCle === String(l.nom_cle)) return false;
@@ -200,9 +243,9 @@ export function idleBadavatarReinitialiserParNomV1(sql, nom) {
 export function idleBadavatarListePubliqueV1(sql) {
   idleBadavatarAssurerTableV1(sql);
   const sortie = {};
-  for (const l of sqlRows(sql.exec("SELECT email,nom_cle,base,cat,pieces,photo,photo_placement,maj FROM idle_badavatar_profils ORDER BY nom_cle"))) {
+  for (const l of sqlRows(sql.exec("SELECT email,nom_cle,base,cat,pieces,choix,photo,photo_placement,maj FROM idle_badavatar_profils ORDER BY nom_cle"))) {
     const p = ligneVersProfil(l, false);
-    sortie[p.nomCle] = { base: p.base, cat: p.cat, pieces: p.pieces, photo: p.photo };
+    sortie[p.nomCle] = { base: p.base, cat: p.cat, pieces: p.pieces, choix: p.choix, photo: p.photo };
   }
   return sortie;
 }

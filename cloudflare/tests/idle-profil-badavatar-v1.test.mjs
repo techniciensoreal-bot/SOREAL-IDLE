@@ -14,10 +14,10 @@ const sql = { exec(q, ...b) { const st = db.prepare(q); if (/^\s*(select|pragma|
 
 /* ---- pièces : liste fixe, bornes, visible obligatoire ---- */
 const bonne = { visible: true, dx: 0.05, dy: -0.05, k: 1.2, rot: 3 };
-assert.deepEqual([...IDLE_BADAVATAR_PIECES_V1].sort(), ["Barbe", "Bouche", "Cheveux", "Nez", "Oreille_Droite", "Oreille_Gauche", "Yeux"]);
+assert.deepEqual([...IDLE_BADAVATAR_PIECES_V1].sort(), ["Accessoires", "Barbe", "Bouche", "Cheveux", "Nez", "Oreille_Droite", "Oreille_Gauche", "Vetements", "Yeux"], "pièces réglables : celles de TV (Vetements et Accessoires depuis le 2026-11-21)");
 assert.equal(idleBadavatarValiderPiecesV1({ Nez: bonne }).ok, true);
 assert.equal(idleBadavatarValiderPiecesV1({ Chapeau: bonne }).code, "BADAVATAR_PIECE_INCONNUE", "une pièce inconnue est refusée (on ne choisit pas d'autres éléments)");
-assert.equal(idleBadavatarValiderPiecesV1({ Vetements: bonne }).ok, false);
+assert.equal(idleBadavatarValiderPiecesV1({ Vetements: bonne }).ok, true, "les vêtements se règlent comme les autres pièces (choisis depuis le 2026-11-21)");
 assert.equal(idleBadavatarValiderPiecesV1({ Nez: { ...bonne, visible: "oui" } }).code, "BADAVATAR_VISIBLE");
 for (const [champ, valeur] of [["dx", 0.6], ["dy", -0.6], ["k", 5], ["k", 0.1], ["rot", 181], ["rot", -181], ["dx", NaN], ["k", "1"], ["dy", Infinity]]) {
   assert.equal(idleBadavatarValiderPiecesV1({ Nez: { ...bonne, [champ]: valeur } }).ok, false, "hors bornes refusé : " + champ + "=" + valeur);

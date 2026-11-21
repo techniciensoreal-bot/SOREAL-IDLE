@@ -1,6 +1,7 @@
 /*
  * Personnages aléatoires de l'ITOPOD à partir des « badavatars » (Norman, 2026-10-31) : un corps d'homme ou de femme, avec cheveux, yeux, oreilles, nez, bouche et, parfois, une barbe
- * (les femmes aussi). JAMAIS de Vetements ni d'Accessoires (le corps lui-même porte déjà un débardeur ou une chemisette : c'est son image).
+ * (les femmes aussi). JAMAIS de Vetements ni d'Accessoires au tirage (le corps lui-même porte déjà un débardeur ou une chemisette : c'est son image). Depuis le 2026-11-21 le JOUEUR peut les choisir, ainsi que tous les autres éléments de TV (voir composer() et
+ * itopod-badavatars-choix-catalogue-v1.js) : le tirage, lui, reste inchangé.
  * FIGÉ (Norman, 2026-10-31) : le visage d'un nom d'équipe est fixe (tirerPourNom : graine = nom normalisé, minuscules sans accents) ; le tirage utilise l'INDICE dans les listes triées du catalogue.
  * Donc changer la liste des pièces (regénérer le catalogue, ajouter ou retirer une image du R2) CHANGE les visages. Le catalogue porte un champ version : ne pas le regénérer sans le dire ; si on doit ajouter
  * des pièces, les mettre à la FIN des listes (ne pas retrier) et monter la version, ou figer le design de chaque nom en base (option la plus sûre).
@@ -13,10 +14,13 @@
 (function () {
   "use strict";
   var CAT = window.__SOREAL_IDLE_ITOPOD_BADAVATARS_CATALOGUE_V1__ || { bodies: { Body_Homme: [], Body_Femme: [] }, parts: {} };
+  /* Éléments CHOISISSABLES (tout ce que propose TV) : catalogue à part, jamais utilisé pour le tirage (voir generer-catalogue-choix-badavatars.mjs). */
+  var CHX = window.__SOREAL_IDLE_ITOPOD_BADAVATARS_CHOIX_V1__ || { bodies: { Body_Homme: [], Body_Femme: [] }, parts: {} };
   var BASE = "shared/badavatars/";
   var W = 480, H = 640;                         /* scène de l'éditeur : 3/4, les images y sont posées en « contain » */
   var TIRABLES = ["Cheveux", "Yeux", "Oreille_Gauche", "Oreille_Droite", "Nez", "Bouche", "Barbe"];
-  var ORDRE = { Cheveux: 1, Yeux: 2, Oreille_Gauche: 3, Oreille_Droite: 4, Nez: 5, Bouche: 6, Barbe: 7 };
+  /* Vetements derrière tout sauf le corps, Accessoires devant tout (comme l'éditeur de TV). */
+  var ORDRE = { Vetements: -1, Cheveux: 1, Yeux: 2, Oreille_Gauche: 3, Oreille_Droite: 4, Nez: 5, Bouche: 6, Barbe: 7, Accessoires: 8 };
   var CHANCE_BARBE = { Body_Homme: 0.4, Body_Femme: 0.3 };
   /* Ancrage sur la tête (médianes relevées sur les personnages créés à la main par les joueurs, corps à tête mesurée fiable) : cy = position verticale du centre de la pièce (0 = haut du crâne, 1 = menton), w = largeur de la pièce en largeur de tête, h = hauteur (oreilles), dx = écart à l'axe. */
   var LANDMARKS = {
@@ -44,24 +48,31 @@
   function varier(rng, a) { return (rng() * 2 - 1) * a; }
   function arrondir(v, n) { var p = Math.pow(10, n); return Math.round(v * p) / p; }
 
-  /* Place une pièce : renvoie { x, y, scale, rotation } pour que la boîte mesurée de ses pixels vise le point d'ancrage. */
-  function placer(categorie, m, tete, rng, rotMax) {
-    var L = LANDMARKS[categorie];
+  /*
+   * Place une pièce : renvoie { x, y, scale, rotation } pour que la boîte mesurée de ses pixels vise le point d'ancrage.
+   * Repères d'ancrage (landmark) : cy = centre de la boîte (0 = haut du crâne, 1 = menton), OU haut = position du bord HAUT de la boîte, OU bas = position de son bord BAS (chapeaux : le bas du chapeau sur le front) ;
+   * w = largeur de la boîte en largeurs de tête (ou h = hauteur en hauteurs de tête) ; dx = écart à l'axe en largeurs de tête. flip : image retournée (oreille gauche faite avec l'image de la droite, comme dans l'éditeur de TV).
+   */
+  function placer(categorie, m, tete, rng, rotMax, options) {
+    var L = (options && options.landmark) || LANDMARKS[categorie];
+    var flip = Boolean(options && options.flip);
     var iw = m[1], ih = m[2], x0 = m[3], y0 = m[4], x1 = m[5], y1 = m[6];
     var s0 = Math.min(W / iw, H / ih);
     var bw = (x1 - x0 + 1) * s0, bh = (y1 - y0 + 1) * s0;
-    var ox = ((x0 + x1) / 2 - iw / 2) * s0, oy = ((y0 + y1) / 2 - ih / 2) * s0;
+    var ox = ((x0 + x1) / 2 - iw / 2) * s0 * (flip ? -1 : 1), oy = ((y0 + y1) / 2 - ih / 2) * s0;
     var T = tete[1], hauteur = tete[2] - tete[1], largeur = tete[3], axe = tete[4];
     var scale = L.h ? (L.h * hauteur) / bh : (L.w * largeur) / bw;
     scale *= 1 + varier(rng, 0.08);
     scale = Math.min(4, Math.max(0.15, scale));
     var rot = varier(rng, rotMax);
     var tx = axe + (L.dx || 0) * largeur + varier(rng, 0.02) * largeur;
-    var ty = T + (L.cy + varier(rng, 0.015)) * hauteur;
+    var ty = L.haut !== undefined ? T + L.haut * hauteur + (bh * scale) / 2 : L.bas !== undefined ? T + L.bas * hauteur - (bh * scale) / 2 : T + (L.cy + varier(rng, 0.015)) * hauteur;
     var a = rot * Math.PI / 180;
     var x = (tx - W / 2 - scale * (ox * Math.cos(a) - oy * Math.sin(a))) / W;
     var y = (ty - H / 2 - scale * (ox * Math.sin(a) + oy * Math.cos(a))) / H;
-    return { key: BASE + m[0], x: arrondir(x, 4), y: arrondir(y, 4), scale: arrondir(scale, 4), rotation: arrondir(rot, 2) };
+    var p = { key: BASE + m[0], x: arrondir(x, 4), y: arrondir(y, 4), scale: arrondir(scale, 4), rotation: arrondir(rot, 2) };
+    if (flip) p.flip = true;
+    return p;
   }
 
   /* Oreille gauche et droite d'un même style : le nom de l'une est celui de l'autre avec _gauche / _droite. */
@@ -139,24 +150,102 @@
     pb.x = arrondir(pb.x + (cx - (ap.l + ap.r) / 2) / W, 4);
   }
 
-  /* Les clés des designs sont celles de l'éditeur (shared/badavatars/…) ; les images sont servies depuis la copie idle/badavatars/… (hors ligne : miroir R2 de l'exe). */
+  /*
+   * Éléments CHOISIS par le joueur (Norman, 2026-11-21) : choix = { corps?: clé, pieces?: { catégorie: clé | null } } (voir src/idle-profil-badavatar-v1.js). composer() part du badavatar désigné (tirerPourNom) et applique les choix :
+   * un corps choisi remplace le corps (le genre suit) et re-place les éléments gardés sur SA tête ; une clé choisie remplace l'élément de la catégorie ; null le retire ; une catégorie absente garde l'élément désigné. Placement sans aucune
+   * variation au hasard (un choix s'affiche toujours pareil). Une clé absente du catalogue est ignorée (jamais une image cassée). Les réglages du joueur (déplacer, agrandir…) s'appliquent ensuite par appliquerProfil.
+   * Accessoires : repères d'ancrage d'après le NOM du fichier (lunettes sur les yeux, chapeau sur le front, collier sous le menton…), le joueur les ajuste à la main ensuite ; aucune valeur de jeu.
+   */
+  var REGLES_ACCESSOIRES = [
+    [/masque_de_ski/, { bas: 0.45, w: 1.2 }],
+    [/masque_chirurgical/, { cy: 0.8, w: 0.95 }],
+    [/(masque|cache_oeil|lunettes|monocle)/, { cy: 0.46, w: 1.0 }],
+    [/fausse_moustache/, { cy: 0.8, w: 0.6 }],
+    [/(cigare|cigarette|cure_dent|rose_entre|pipe|biberon)/, { cy: 0.93, w: 0.45 }],
+    [/(anneau_de_nez|pansement_nez)/, { cy: 0.63, w: 0.25 }],
+    [/(boucle_oreille|creoles)/, { cy: 0.72, h: 0.28, dx: 0.56 }],
+    [/(chaine|collier|cravate|noeud_papillon|echarpe|stethoscope|noeud_cadeau|badge|fleur_boutonniere|cadenas)/, { haut: 0.98, w: 0.95 }],
+    [/(cicatrice|tatouage|pansement|gouttes|pinces)/, { cy: 0.5, w: 0.85 }],
+    [/(etoiles|coeurs|fumee|bulle|papillon|oiseau|perroquet|ecureuil|champignon|mouche_geante|coton_tige)/, { bas: 0.05, w: 0.8 }],
+    [/casque_audio/, { cy: 0.4, w: 1.4 }],
+    [/(bob|bonnet|casque|casquette|chapeau|haut_de_forme|turban|beret|couronne|aureole|cornes|antennes|oreilles_de_lapin)/, { bas: 0.22, w: 1.25 }]
+  ];
+  var LANDMARK_VETEMENTS = { haut: 0.95, w: 2.1 };
+  function repereAccessoire(cle) {
+    var nom = String(cle).split("/").pop().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    for (var i = 0; i < REGLES_ACCESSOIRES.length; i++) if (REGLES_ACCESSOIRES[i][0].test(nom)) return REGLES_ACCESSOIRES[i][1];
+    return { cy: 0.5, w: 0.9 };
+  }
+  function entreeCatalogue(liste, cle) {
+    for (var i = 0; i < liste.length; i++) if (BASE + liste[i][0] === cle) return liste[i];
+    return null;
+  }
+  function genreDeCle(cle) { return String(cle).indexOf(BASE + "Body_Femme/") === 0 ? "Body_Femme" : String(cle).indexOf(BASE + "Body_Homme/") === 0 ? "Body_Homme" : ""; }
+  function corpsParCle(cle) {
+    var g = genreDeCle(cle);
+    return g ? entreeCatalogue(CHX.bodies[g] || [], cle) || entreeCatalogue(CAT.bodies[g] || [], cle) : null;
+  }
+  function optionsPiece(c, cle, flip) {
+    return { landmark: c === "Accessoires" ? repereAccessoire(cle) : c === "Vetements" ? LANDMARK_VETEMENTS : undefined, flip: flip };
+  }
+  function composer(design, choix) {
+    if (!choix || typeof choix !== "object") return design;
+    var sortie = { version: design.version, gender: design.gender, body: design.body, parts: {} };
+    Object.keys(design.parts).forEach(function (c) { sortie.parts[c] = design.parts[c]; });
+    var rng0 = function () { return 0.5; };
+    var corps = choix.corps ? corpsParCle(choix.corps) : null;
+    if (corps && BASE + corps[0] !== design.body) {
+      sortie.gender = genreDeCle(choix.corps); sortie.body = BASE + corps[0];
+      /* nouveau corps : les éléments gardés se re-posent sur sa tête (même image, même repère) */
+      Object.keys(sortie.parts).forEach(function (c) {
+        var p = sortie.parts[c], m = metaPiece(p.key);
+        if (!m) return;
+        var q = placer(c, m, corps, rng0, 0, optionsPiece(c, p.key, p.flip));
+        q.order = p.order;
+        sortie.parts[c] = q;
+      });
+    }
+    var tete = corpsEntree(sortie) || corps;
+    var pieces = choix.pieces && typeof choix.pieces === "object" ? choix.pieces : {};
+    if (tete) Object.keys(pieces).forEach(function (c) {
+      var cle = pieces[c];
+      if (cle === null) { delete sortie.parts[c]; return; }
+      var m = metaPiece(cle);
+      if (!m || (c !== "Oreille_Gauche" && c !== "Oreille_Droite" && ORDRE[c] === undefined)) return;
+      var gauche = c === "Oreille_Gauche";
+      var q = placer(c, m, tete, rng0, 0, optionsPiece(c, cle, gauche && /_droite\.[a-z]+$/i.test(cle)));
+      q.order = ORDRE[c];
+      sortie.parts[c] = q;
+    });
+    corrigerBarbe(sortie, tete || corpsEntree(sortie));
+    return sortie;
+  }
+
+  /* Les clés des designs sont celles de l'éditeur (shared/badavatars/…) ; les images du tirage sont servies depuis la copie idle/badavatars/… (hors ligne : miroir R2 de l'exe), les autres (éléments choisis) depuis shared/badavatars/. */
   /* Un nom d'équipe = un visage : même nom (casse et accents ignorés) = même personnage, genre et barbe compris. */
   function nomNormalise(nom) { return String(nom == null ? "" : nom).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim(); }
   function tirerPourNom(nom) { return tirer("nom:" + nomNormalise(nom)); }
 
-  function urlParDefaut(cle) { return "/api/idle/media/shared?key=" + encodeURIComponent("idle/badavatars/" + String(cle).slice(BASE.length)); }
+  var copiesIdle = null;
+  function estCopieIdle(cle) {
+    if (!copiesIdle) {
+      copiesIdle = {};
+      [CAT.bodies.Body_Homme, CAT.bodies.Body_Femme].concat(Object.keys(CAT.parts || {}).map(function (c) { return CAT.parts[c]; })).forEach(function (l) { (l || []).forEach(function (m) { copiesIdle[BASE + m[0]] = true; }); });
+    }
+    return copiesIdle[cle] === true;
+  }
+  function urlParDefaut(cle) { return "/api/idle/media/shared?key=" + encodeURIComponent((estCopieIdle(cle) ? "idle/badavatars/" : BASE) + String(cle).slice(BASE.length)); }
 
   /* Pile d'images posées comme dans l'éditeur (scène 3/4, chaque image occupe toute la scène, zIndex = order, translate(x,y) en % puis rotate puis scale). */
   function corpsEntree(design) {
-    var liste = (CAT.bodies && CAT.bodies[design.gender]) || [];
-    for (var i = 0; i < liste.length; i++) if (BASE + liste[i][0] === design.body) return liste[i];
-    return null;
+    return entreeCatalogue((CAT.bodies && CAT.bodies[design.gender]) || [], design.body) || entreeCatalogue((CHX.bodies && CHX.bodies[design.gender]) || [], design.body);
   }
   var metas = null;
   function metaPiece(cle) {
     if (!metas) {
       metas = {};
       Object.keys(CAT.parts || {}).forEach(function (c) { CAT.parts[c].forEach(function (m) { metas[BASE + m[0]] = m; }); });
+      Object.keys(CHX.parts || {}).forEach(function (c) { CHX.parts[c].forEach(function (m) { if (!metas[BASE + m[0]]) metas[BASE + m[0]] = m; }); });
     }
     return metas[cle] || null;
   }
@@ -302,5 +391,5 @@
     return html + "</div></div>";
   }
 
-  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, corrigerBarbe: corrigerBarbe, seuilBarbe: SEUIL_BARBE, boitePiece: boitePiece, metaPiece: metaPiece, cadrage: cadrage, appliquerProfil: appliquerProfil, zoneVisible: zoneVisible, empilement: empilement, centrePiece: centrePiece, miseAJour: miseAJour, reglagePiece: reglagePiece, boiteVisage: boiteVisage, bornes: BORNES, corpsEntree: corpsEntree, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };
+  window.__SOREAL_IDLE_ITOPOD_BADAVATARS_V1__ = { tirer: tirer, tirerPourNom: tirerPourNom, nomNormalise: nomNormalise, versionCatalogue: CAT.version, rendreHtml: rendreHtml, categoriesTirables: TIRABLES.slice(), placer: placer, composer: composer, choixCatalogue: CHX, repereAccessoire: repereAccessoire, urlParDefaut: urlParDefaut, corrigerBarbe: corrigerBarbe, seuilBarbe: SEUIL_BARBE, boitePiece: boitePiece, metaPiece: metaPiece, cadrage: cadrage, appliquerProfil: appliquerProfil, zoneVisible: zoneVisible, empilement: empilement, centrePiece: centrePiece, miseAJour: miseAJour, reglagePiece: reglagePiece, boiteVisage: boiteVisage, bornes: BORNES, corpsEntree: corpsEntree, LANDMARKS: LANDMARKS, catalogue: CAT, prefixe: BASE };
 })();

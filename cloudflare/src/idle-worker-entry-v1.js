@@ -636,7 +636,7 @@ export default {
         return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-admin-reinitialiser", { method: "POST", body: JSON.stringify({ nom: corps.nom }) });
       }
       const action = ["lire", "enregistrer", "reinitialiser"].includes(corps.action) ? corps.action : "lire";
-      return idleAvecCorsApkV1(corsApk, await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-moi", { method: "POST", body: JSON.stringify({ sessionToken: jeton, action, pieces: corps.pieces, photo: corps.photo, cat: corps.cat }) }));
+      return idleAvecCorsApkV1(corsApk, await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-moi", { method: "POST", body: JSON.stringify({ sessionToken: jeton, action, pieces: corps.pieces, photo: corps.photo, choix: corps.choix, cat: corps.cat }) }));
     }
     if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-export"));
     if (request.method === "POST" && url.pathname === "/api/v1/local/push") return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-push"));

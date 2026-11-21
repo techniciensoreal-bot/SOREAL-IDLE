@@ -556,7 +556,7 @@ function construireSon(a,id){
     try{
       var sn=a.createBufferSource();sn.buffer=bruit(a);sn.loop=true;
       var bp=a.createBiquadFilter();bp.type='bandpass';bp.Q.value=7;bp.frequency.setValueAtTime(330,t+.45);bp.frequency.exponentialRampToValueAtTime(1500,t+3.4);
-      var vg=a.createGain();vg.gain.setValueAtTime(.0001,t+.45);vg.gain.linearRampToValueAtTime(.55,t+1.3);vg.gain.linearRampToValueAtTime(.8,t+3.2);vg.gain.linearRampToValueAtTime(.0001,t+3.55);
+      var vg=a.createGain();vg.gain.value=.0001;vg.gain.setValueAtTime(.0001,t+.45);vg.gain.linearRampToValueAtTime(.55,t+1.3);vg.gain.linearRampToValueAtTime(.8,t+3.2);vg.gain.linearRampToValueAtTime(.0001,t+3.55);
       var hach=a.createGain();hach.gain.value=.5;
       var lfo=a.createOscillator();lfo.type='sine';lfo.frequency.setValueAtTime(3,t+.45);lfo.frequency.exponentialRampToValueAtTime(15,t+3.4);
       var lfg=a.createGain();lfg.gain.value=.5;lfo.connect(lfg);lfg.connect(hach.gain);

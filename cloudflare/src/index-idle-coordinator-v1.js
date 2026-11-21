@@ -609,7 +609,7 @@ export class SorealIdleCoordinatorV1 {
       const nomCle = idleBadavatarCleNomV1(nom && nom.toLowerCase() !== "joueur" ? nom : "");
       if (nomCle && action !== "reinitialiser" && action !== "enregistrer") idleBadavatarMigrerNomV1(this.sql, email, nomCle);
       if (action === "reinitialiser") return Response.json(idleBadavatarReinitialiserV1(this.sql, email), { headers: { "cache-control": "no-store" } });
-      if (action === "enregistrer") return Response.json(idleBadavatarEnregistrerV1(this.sql, email, nomCle, { pieces: p?.pieces, photo: p?.photo, cat: p?.cat }), { headers: { "cache-control": "no-store" } });
+      if (action === "enregistrer") return Response.json(idleBadavatarEnregistrerV1(this.sql, email, nomCle, { pieces: p?.pieces, choix: p?.choix, photo: p?.photo, cat: p?.cat }), { headers: { "cache-control": "no-store" } });
       /* lire : le profil enregistré (avec l'image) et le nom d'après lequel le badavatar est tiré par défaut. */
       const actuel = idleBadavatarLireV1(this.sql, email);
       let image = "";
