@@ -1,0 +1,16 @@
+/*
+ * Interrupteur « Nuke automatique » sur la tranche du pupitre de la borne (2026-11-22). Posé à côté du bouton « 1P » ; aucune animation en boucle (seulement le basculement du levier, coupé par prefers-reduced-motion).
+ */
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39 button.bna-sw.bna-sw{
+  position:absolute;z-index:30;left:66.7cqw;top:calc(31.35cqw - 15.97px);width:max(40px,7cqw);height:max(40px,7cqw);min-width:0;min-height:0;margin:0;padding:0;
+  transform:translateX(-50%);background:none;border:0;border-radius:0;box-shadow:none;clip-path:none;overflow:visible;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  font-size:0;letter-spacing:0;text-transform:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39 button.bna-sw.bna-sw::before,
+html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .soreal-idle-boss-controls-v39 button.bna-sw.bna-sw::after{content:none;display:none}
+.bna-sw .bna-rail{position:relative;display:block;width:max(36px,6.6cqw);height:max(19px,3.5cqw);border:2px solid #000;border-radius:999px;background:#3a1010;box-shadow:inset 0 2px 3px rgba(0,0,0,.7),0 1px 0 rgba(255,255,255,.25);transition:background .12s}
+.bna-sw .bna-levier{position:absolute;top:50%;left:2px;width:max(13px,2.5cqw);height:max(13px,2.5cqw);transform:translateY(-50%);border-radius:50%;border:2px solid #000;background:radial-gradient(circle at 35% 30%,#fff,#aab0c8 70%);box-shadow:0 1px 2px rgba(0,0,0,.6);transition:left .12s}
+.bna-sw.on .bna-rail{background:#1f7a2e}
+.bna-sw.on .bna-levier{left:calc(100% - max(13px,2.5cqw) - 6px)}
+.bna-sw .bna-txt{font-family:"Russo One","Bangers",Impact,sans-serif;font-size:max(9px,1.8cqw);line-height:1;color:#fff;text-shadow:0 1px 0 #000,0 0 3px #000}
+.bna-sw:focus-visible{outline:2px solid #fff}
+@media (prefers-reduced-motion:reduce){.bna-sw .bna-rail,.bna-sw .bna-levier{transition:none}}

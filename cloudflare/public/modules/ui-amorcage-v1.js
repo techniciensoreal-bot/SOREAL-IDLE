@@ -970,6 +970,8 @@ setInterval(function(){
           const j=REG.idleEtat;
           const achats=j&&j.systemes&&j.systemes.selloutShop&&j.systemes.selloutShop.purchases;
           if(!achats||!(Number(achats.autoNuker)>0))return;
+          /* Interrupteur de la borne (modules/borne-nuke-auto-v1.js, Norman 2026-11-22) : coupé = aucun Nuke automatique (le bouton Nuke manuel reste). */
+          if(window.__SOREAL_IDLE_BORNE_NUKE_AUTO_V1__&&!window.__SOREAL_IDLE_BORNE_NUKE_AUTO_V1__.actif())return;
           const debut=Number(j.renaissance&&j.renaissance.runDebuteA)||0;
           if(debut!==REG.idleAutoNukeRunV1){
             REG.idleAutoNukeRunV1=debut;

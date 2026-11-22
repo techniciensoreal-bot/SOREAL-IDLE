@@ -135,6 +135,10 @@
   "pin": 196,
   "sha": "ccb4d6584ab103439b0f9d3bde8b1f2cf25aeed4"
  },
+ "/modules/borne-nuke-auto-v1.js": {
+  "pin": 1,
+  "sha": "ace3064f79ec17f50d594da8369837eab45efccc"
+ },
  "/modules/borne-yeux-v1.js": {
   "pin": 24,
   "sha": "002680fb6a38f3bc0ad4488e8177a3e136387cc4"
@@ -720,12 +724,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 419,
-  "sha": "3a1eccd13ae8f176ea3862f9dd225f61e96f3bda"
+  "pin": 420,
+  "sha": "6e634e385413910e01c02d6a396eca2fe6d12994"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1069,
-  "sha": "ea21de88b9fd131c9571277f702436b61c105f5c"
+  "pin": 1070,
+  "sha": "10fa7d166873937784e053dc24cc6578f42cbfdc"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -820,12 +824,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1119,
-  "sha": "ce098252a2af66c5ab2cb564813da8e4e7f5f752"
+  "pin": 1120,
+  "sha": "bfeeb68a08f560e7449ed5ab39495c45833bbdf3"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 939,
-  "sha": "bdc32b82cfac1898ed970504bb94c7059e14090c"
+  "pin": 940,
+  "sha": "fa262e5cfb35083afe859da8d623e7c4f4ec8bf5"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -868,8 +872,8 @@
   "sha": "842f859ac3ab20f0a1ee7d6c142c959fbe6df312"
  },
  "/modules/ui-amorcage-v1.js": {
-  "pin": 22,
-  "sha": "3cfda8754c8db8b56bfeb91fd581473b052441d7"
+  "pin": 23,
+  "sha": "a96c01b38715eda1c7483723b8ff2c6629d77a4c"
  },
  "/modules/ui-aventure-1-v1.js": {
   "pin": 58,
@@ -896,8 +900,8 @@
   "sha": "df71495e5381548e29eb2bb8b7a9569f2db7e4ce"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 60,
-  "sha": "593091aca1df7a9249bdd236dd94782381a2f479"
+  "pin": 61,
+  "sha": "48b5e2ca73d388ca1924febd3beaef8a6058c38b"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
@@ -1054,6 +1058,10 @@
  "/soreal-idle-borne-led-v1.css": {
   "pin": 8,
   "sha": "14ee14d8344a1bf8b2d12db530240164655ba9bb"
+ },
+ "/soreal-idle-borne-nuke-auto-v1.css": {
+  "pin": 3,
+  "sha": "8052db230d23c004d6bd923ab473f03ce5bc7246"
  },
  "/soreal-idle-carte-boss.css": {
   "pin": 26,

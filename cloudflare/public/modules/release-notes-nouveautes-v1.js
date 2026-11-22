@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Ta barre de vie s’affiche sous l’ennemi, avec un journal de combat (coups portés, ennemi vaincu, progression vers ton prochain Point d’Atout), comme dans le jeu d’origine.",
-    "Le journal de combat reprend les phrases du jeu d’origine (en anglais) : tes coups, les attaques des ennemis, les victoires et le butin d’or."
+    "Nouveau sur la borne : un petit interrupteur « AUTO » pour couper ou remettre un lancement automatique, quand tu en possèdes un."
   ] };
 })();

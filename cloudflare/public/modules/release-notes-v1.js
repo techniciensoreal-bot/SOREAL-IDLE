@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.6',
+    courante:'6.7',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.7',
+        nom:'Borne à interrupteur',
+        date:'2026-11-22',
+        groupes:[
+          {menu:'combat', titre:'Combat de boss', points:[
+            'Nouveau sur la borne : un petit interrupteur « AUTO » pour couper ou remettre un lancement automatique, quand tu en possèdes un.'
+          ]}
+        ]
+      },
       {
         version:'6.6',
         nom:'Entraînement qui suit',
