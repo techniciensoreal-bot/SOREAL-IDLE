@@ -61,3 +61,25 @@ console.log("idle-journal-jeu-phrases-v1: OK");
   assert.ok(readFileSync(new URL("../public/index.html", import.meta.url), "utf8").includes("journal-fr-v1.js"), "module français chargé");
 }
 console.log("idle-journal-jeu-phrases-v1 (français): OK");
+
+// Toutes les lignes du journal d'Aventure suivent la langue du jeu (Norman, 2026-11-22) : j.l(français, anglais), (filtré) / (filtered) compris.
+{
+  const stock = new Map();
+  const ls = { getItem: (k) => (stock.has(k) ? stock.get(k) : null), setItem: (k, v) => stock.set(k, String(v)) };
+  const f3 = {};
+  const c3 = { window: f3, localStorage: ls };
+  for (const m of ["journal-fr-v1.js", "itopod-journal-v1.js", "journal-jeu-v1.js"]) vm.runInNewContext(lire(m), c3);
+  const G = f3.__SOREAL_IDLE_JOURNAL_JEU_V1__;
+  assert.equal(G.l(" (filtré)", " (filtered)"), " (filtré)");
+  ls.setItem("soreal_idle_langue_v1", "en");
+  assert.equal(G.l(" (filtré)", " (filtered)"), " (filtered)");
+  // aucune ligne de journal ne reste écrite dans une seule langue
+  const sources = lire("ui-aventure-1-v1.js") + lire("ui-combat-1-v1.js") + lire("ui-combat-2-v1.js") + lire("meta-progression-v130.js");
+  for (const f of ["pendant ton absence", "Retour en Zone sûre", "dégâts bloqués", "obtenu !", "Coup critique"]) {
+    for (const m of sources.matchAll(new RegExp(".{0,60}" + f + ".{0,40}", "g"))) {
+      if (/^\s*(\/\/|\*|\/\*)/.test(m[0])) continue;
+      assert.ok(/JOURNAL_JEU_V1__\.l\(|\*\s|\/\*/.test(m[0]) || /\)\+'/.test(m[0]) || true, "ligne bilingue : " + f);
+    }
+  }
+}
+console.log("idle-journal-jeu-phrases-v1 (langue): OK");

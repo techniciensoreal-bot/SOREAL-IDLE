@@ -32,7 +32,11 @@
           {menu:'combat', titre:'Combat de boss', points:[
             'Nouveau sur la borne : un petit interrupteur « AUTO » pour couper ou remettre un lancement automatique, quand tu en possèdes un.'
           ]},
+          {menu:'aventure', titre:'Aventure', points:[
+            'Tous les journaux de combat suivent la langue du jeu, y compris « (filtré) » à côté des objets filtrés.'
+          ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Dans la tour, les ennemis écrivent maintenant chacun de leurs coups dans le journal, ta défaite est notée et te ramène à ton étage de départ, et la vie de l’ennemi s’affiche sous sa barre.',
             'Le journal de combat de la tour est écrit dans la langue du jeu : en français pour la version française, avec les phrases du jeu d’origine pour l’anglais.'
           ]}
         ]

@@ -48,7 +48,8 @@ import { idleInventoryProcessNewDropsV1 } from "../src/idle-inventory-auto-v1.js
 // 3. Client : le message de loot ajoute "(filtré)" quand objet.filtered est vrai, et utilise les nouveaux types de couleur (loot/gold).
 const mod = readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8");
 assert.match(mod, /ajouterLogAventureIdleV1_\(\s*\n?\s*'loot',/, "le loot utilise le type 'loot' (couleur dédiée), plus 'system'");
-assert.match(mod, /\(objet&&objet\.filtered\?' \(filtré\)':''\)/, "\" (filtré)\" ajouté quand objet.filtered est vrai");
+/* 2026-11-22 : la ligne suit la langue du jeu ((filtré) en français, (filtered) en anglais, demande de Norman). */
+assert.match(mod, /objet&&objet\.filtered\?window\.__SOREAL_IDLE_JOURNAL_JEU_V1__\.l\(' \(filtré\)',' \(filtered\)'\)/, "\" (filtré)\" / \" (filtered)\" ajouté quand objet.filtered est vrai");
 assert.match(mod, /ajouterLogAventureIdleV1_\(\s*\n?\s*'gold',/, "le gain d'or utilise le type 'gold' (jaune), plus 'system'");
 
 console.log("idle-combat-log-filtered-drop-v1: OK");

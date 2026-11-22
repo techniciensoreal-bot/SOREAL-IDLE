@@ -4,7 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le journal de combat de la tour est écrit dans la langue du jeu : en français pour la version française, avec les phrases du jeu d’origine pour l’anglais.",
-    "Le journal de combat reprend les phrases du jeu d’origine, traduites en français : tes coups, les attaques des ennemis, les victoires et le butin d’or."
+    "Tous les journaux de combat suivent la langue du jeu, y compris « (filtré) » à côté des objets filtrés.",
+    "Dans la tour, les ennemis écrivent maintenant chacun de leurs coups dans le journal, ta défaite est notée et te ramène à ton étage de départ, et la vie de l’ennemi s’affiche sous sa barre."
   ] };
 })();

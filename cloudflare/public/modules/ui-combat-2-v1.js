@@ -1619,7 +1619,7 @@
               fxTypeAttaque='bloc';
               ajouterLogAventureIdleV1_(
                 'player',
-                '🛡️ Blocage : '+idleEntier_(bloques)+' dégâts bloqués !'
+                window.__SOREAL_IDLE_JOURNAL_JEU_V1__.l('🛡️ Blocage : '+idleEntier_(bloques)+' dégâts bloqués !','🛡️ Block: '+idleEntier_(bloques)+' damage blocked!')
               );
             }
           }

@@ -399,7 +399,7 @@
                        */
                       window.__SOREAL_IDLE_META_HOST_V130__.ajouterLogAventureIdleV1_(
                         'loot',
-                        (objet&&(objet.name||objet.nom)||'Un objet')+' obtenu !'+(objet&&objet.filtered?' (filtré)':''),
+                        (objet&&(objet.name||objet.nom)||window.__SOREAL_IDLE_JOURNAL_JEU_V1__.l('Un objet','An item'))+window.__SOREAL_IDLE_JOURNAL_JEU_V1__.l(' obtenu !',' obtained!')+(objet&&objet.filtered?window.__SOREAL_IDLE_JOURNAL_JEU_V1__.l(' (filtré)',' (filtered)'):''),
                         classeLog
                       );
                     });

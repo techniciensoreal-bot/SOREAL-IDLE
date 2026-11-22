@@ -722,7 +722,7 @@
           idleRetourSafeCleV1=cle;
           /* Norman (2026-10-21) : « quand je ferme le jeu et que je reviens, je suis parfois en zone sûre alors que j'étais dans une zone où aucun ennemi ne peut me battre » : au tout premier état d'une page, un retour en Zone sûre DE LA VEILLE (K.O. pendant l'absence ou défaite) est maintenant expliqué dans le journal (avant, il restait muet : on ne savait pas pourquoi). */
           if(String(a.selectedZone||'safe')==='safe'&&(r.raison==='ko_hors_ligne'||r.raison==='defaite')&&at>0&&Date.now()-at<86400000){
-            try{ajouterLogAventureIdleV1_('system','🛡️ Retour en Zone sûre : '+String(r.detail||r.raison));}catch(_e){}
+            try{ajouterLogAventureIdleV1_('system',(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('🛡️ Retour en Zone sûre : ','🛡️ Back to the Safe Zone: ')+String(r.detail||r.raison));}catch(_e){}
           }
           return;
         }
@@ -730,7 +730,7 @@
         idleRetourSafeCleV1=cle;
         if(!(at>0||String(r.raison||'')==='zone_fermee'))return;
         if(String(a.selectedZone||'safe')!=='safe'&&String(r.raison||'')!=='zone_fermee')return;
-        const texte=(String(a.selectedZone||'safe')==='safe'?'🛡️ Retour en Zone sûre : ':'↩️ Zone changée : ')+String(r.detail||r.raison||'raison inconnue');
+        const texte=(String(a.selectedZone||'safe')==='safe'?(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('🛡️ Retour en Zone sûre : ','🛡️ Back to the Safe Zone: '):(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('↩️ Zone changée : ','↩️ Zone changed: '))+String(r.detail||r.raison||(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('raison inconnue','unknown reason'));
         try{console.warn('[IDLE] retour en Zone sûre',r);}catch(_e){}
         try{ajouterLogAventureIdleV1_('system',texte);}catch(_e){}
       }

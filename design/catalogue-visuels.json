@@ -2597,7 +2597,6 @@
     "modules/fade-notice-v1.js",
     "modules/inventaire-volet-v1.js",
     "modules/inventory-auto-v1.js",
-    "modules/itopod-scene-v1.js",
     "modules/itopod-vdom-v1.js",
     "modules/journal-attaques-v1.js",
     "modules/journal-fr-v1.js",

@@ -762,12 +762,12 @@
         const d=infos&&infos.derniereDefaite;
         const cible=d?[d.monstre,d.zone].filter(Boolean).join(' · '):'';
         if(cible){
-          const suffixe=defaites>1?' ('+defaites+' défaites au total pendant ton absence)':'';
+          const suffixe=defaites>1?(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l(' ('+defaites+' défaites au total pendant ton absence)',' ('+defaites+' defeats in total while you were away)'):'';
           ajouterLogAventureIdleV1_(
             'enemy',
             (d.ko
-              ?'💀 Tu as été mis K.O. par '+cible+' pendant ton absence.'
-              :'⏱️ Le combat contre '+cible+' a traîné trop longtemps pendant ton absence : le farm automatique s’est arrêté.')+
+              ?(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('💀 Tu as été mis K.O. par '+cible+' pendant ton absence.','💀 You were knocked out by '+cible+' while you were away.')
+              :(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('⏱️ Le combat contre '+cible+' a traîné trop longtemps pendant ton absence : le farm automatique s’est arrêté.','⏱️ The fight against '+cible+' dragged on too long while you were away: automatic farming stopped.'))+
               suffixe
           );
           return;
@@ -775,14 +775,14 @@
         ajouterLogAventureIdleV1_(
           'enemy',
           defaites>1
-            ?'⚔️ Combat automatique : tu as été mis K.O. '+defaites+' fois pendant ton absence.'
-            :'⚔️ Combat automatique : tu as été mis K.O. pendant ton absence.'
+            ?(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('⚔️ Combat automatique : tu as été mis K.O. '+defaites+' fois pendant ton absence.','⚔️ Automatic fight: you were knocked out '+defaites+' times while you were away.')
+            :(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('⚔️ Combat automatique : tu as été mis K.O. pendant ton absence.','⚔️ Automatic fight: you were knocked out while you were away.')
         );
       }
 
       /* Rendu d'une ligne, partagé entre le journal live (dessinerJournalAventureIdleV1_) et le rendu complet de la page Aventure (même markup dupliqué avant ce correctif). */
       function rendreLigneJournalAventureIdleV1_(l){
-        const suffixeCritique=l.critique?' <span class="soreal-idle-adventure-log-crit-v1">💥 Coup critique !</span>':'';
+        const suffixeCritique=l.critique?' <span class="soreal-idle-adventure-log-crit-v1">💥 '+(typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('Coup critique !','Critical hit!')+'</span>':'';
         return '<div class="soreal-idle-adventure-log-line-v1 '+idleHtml_(l.type)+(l.rareteClasse?' '+idleHtml_(l.rareteClasse):'')+'">'+idleHtml_(l.texte)+suffixeCritique+'</div>';
       }
 
@@ -1916,7 +1916,7 @@
           if(a.skillState.move69Uses>=69)a.skillState.endPiece481=true;
           ajouterLogAventureIdleV1_(
             'system',
-            'A million realities collide in your mind, echoing a unified message: '+
+            (typeof window!=='undefined'&&window.__SOREAL_IDLE_JOURNAL_JEU_V1__||{l:function(a){return a;}}).l('Un million de réalités s’entrechoquent dans ton esprit, faisant résonner un message unifié : ','A million realities collide in your mind, echoing a unified message: ')+
             idleEntier_(a.skillState.move69Uses)
           );
           actionAdventureIdleV47_({action:'useMove69'});

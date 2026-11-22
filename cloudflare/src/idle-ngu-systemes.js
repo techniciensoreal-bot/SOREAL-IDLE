@@ -1013,6 +1013,9 @@ function advanceTowerV1(state, seconds, context) {
     d.degatsCoup = Math.max(0, power - (10 * echelle) / 2) * Math.max(0.1, idleBonus);
     d.ennemiCoup = Math.floor(Math.max(0.1 * 10 * echelle, 10 * echelle - Math.max(0, num(combatStats.toughness, 0)) / 2));
     d.regenPv = Math.max(0, num(combatStats.regen, 0)) * ITOPOD_AUTOATTACK_REGEN_V1;
+    /* PV de l'ennemi de l'étage (600 x 1,05^étage, powerUp sans l'aléa) et dégâts de poison par tour (floor(attaque x 0,2)) : texte de sa barre et journal. */
+    d.ennemiPv = 600 * echelle;
+    d.ennemiPoison = Math.floor(10 * echelle * 0.2);
   }
 
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));

@@ -1,7 +1,8 @@
-/* Barre de vie du joueur et journal de combat (2026-11-21). */
-.itp-vie-joueur{position:relative;margin-top:10px}
+/* Barre de vie du joueur, PV de l'ennemi et journal de combat (2026-11-21, ajusté le 2026-11-22). Le journal reprend les classes du journal de l'Aventure (soreal-idle-adventure-log-v1, -line-v1) : même fond, mêmes couleurs de lignes,
+   pas de défilement à la molette ni au doigt (overflow caché), flèches haut / bas posées à côté (modules/journal-fleches-v1.js). */
+.itp-arene{position:relative}
+.itp-vie-joueur,.itp-vie-ennemi{position:relative}
+.itp-vie-joueur{margin-top:10px}
 .itp-vie-joueur .itp-vie-rempli{background:repeating-linear-gradient(135deg,#3fbf5a 0 10px,#2c9444 10px 20px);box-shadow:0 0 12px rgba(63,191,90,.6)}
 .itp-vie-texte{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;letter-spacing:.5px;color:#fff;text-shadow:0 1px 0 #000,0 0 4px #000;pointer-events:none}
-.itp-journal{margin-top:10px;height:156px;overflow-y:auto;padding:8px 10px;border:3px solid #000;border-radius:4px;background:#d4d4d4;box-shadow:inset 0 3px 0 rgba(0,0,0,.25),4px 4px 0 #000;font-size:13px;line-height:1.35;color:#111;overscroll-behavior:contain}
-.itp-j-ligne{overflow-wrap:anywhere}
-.itp-j-vert{color:#0f7a2a}
+.itp-journal{margin-top:10px;overscroll-behavior:contain}

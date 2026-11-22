@@ -36,6 +36,8 @@ function coup(degats,nom){return coupJoueur(degats,nom,nomR3(),fmt);}
 var dernierEnnemi='';
 /* Langue : en français (langue du jeu ≠ anglais) les phrases viennent de modules/journal-fr-v1.js, traduction fidèle. */
 function FR(){var F=window.__SOREAL_IDLE_JOURNAL_FR_V1__;return F&&F.actif()?F:null;}
+/* Texte propre au jeu SOREAL (sans phrase du jeu d'origine) : français ou anglais selon la langue du jeu. */
+function l(fr,en){return FR()?fr:en;}
 function victoire(nom){dernierEnnemi=String(nom||'');var f=FR();return f?f.victoire(nom):'You have defeated '+nom+'!';}
 function or(n){var f=FR();return f?f.or(dernierEnnemi||"L'ennemi",n):(dernierEnnemi||'The enemy')+' dropped '+n+' gold! Sweet!';}
 /* Lignes du journal de l'ITOPOD : progression vers le prochain Point d'Atout et Points d'Atout gagnés (ItopodPerkController::addProgress). */
@@ -125,5 +127,5 @@ function titan(kind,nom,o){
     default:return [];
   }
 }
-window.__SOREAL_IDLE_JOURNAL_JEU_V1__={progres:progres,pointAtout:pointAtout,or:or,coup:coup,fmt:fmt,coupJoueur:coupJoueur,victoire:victoire,defaite:defaite,soin:soin,attaque:attaque,titan:titan};
+window.__SOREAL_IDLE_JOURNAL_JEU_V1__={l:l,progres:progres,pointAtout:pointAtout,or:or,coup:coup,fmt:fmt,coupJoueur:coupJoueur,victoire:victoire,defaite:defaite,soin:soin,attaque:attaque,titan:titan};
 })();

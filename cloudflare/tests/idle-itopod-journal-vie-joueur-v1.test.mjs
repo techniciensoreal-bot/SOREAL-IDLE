@@ -65,7 +65,7 @@ const lire = (f) => readFileSync(new URL("../public/" + f, import.meta.url), "ut
   const pas = () => S.pas();
   pas(); // premier coup : phrase de dégâts (0,8 + 0,5 x 0,4 = 1 x 1000 = « You smashed… » palier 1000 → FLORIFIED)
   assert.equal(boite.lignes.length, 1);
-  assert.match(boite.lignes[0], /itp-j-vert/);
+  assert.match(boite.lignes[0], /soreal-idle-adventure-log-line-v1 player/);
   assert.match(boite.lignes[0], /You (?:detonated|FLORIFIED|melted) /);
   // un coup toutes les secondes : le 2e coup, puis le 3e tue ; l'ennemi frappe à 1,8 s après son apparition (0,8 s après le 1er coup)
   t += 1000; pas();

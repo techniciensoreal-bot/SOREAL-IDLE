@@ -46,15 +46,62 @@ function estFlottant(cle){return String(cle||'').split('/').indexOf('level-1')!=
 
 /* Combat de l'écran : l'ennemi encaisse les coups un par un (le nombre de coups vient du serveur : towerHitsV1, la formule de la progression) ; purement visuel, le serveur calcule les kills. */
 var combat={auto:true,debut:0,fin:0,optimal:0,hits:1,intervalle:1,respawn:4,actif:false,killsServeur:-1,decalage:0,coups:0,mort:false,prochain:0,
-  pvMax:0,pv:0,degats:0,ennemiCoup:0,regenPv:0,ppBase:0,ppMult:1,ppProg:0,tEnnemi:0,dernierPas:0,nom:'',etageCourant:0};
+  pvMax:0,pv:0,degats:0,ennemiCoup:0,ennemiPoison:0,ennemiPv:0,regenPv:0,ppBase:0,ppMult:1,ppProg:0,tEnnemi:0,dernierPas:0,nom:'',etageCourant:0,surCourant:0,
+  ia:null,sansEnnemi:false,reperage:null,finParalysie:0,lectureFigee:false,lectureJusqua:0};
 
 /*
  * Barre de vie du joueur et journal de combat (Norman, 2026-11-21 : « dans l'ITOPOD le joueur a une barre de vie et il y a un journal de combat », photo du vrai jeu). Purement visuels, comme le combat de l'écran : le serveur calcule les kills.
  * Valeurs lues dans le jeu (NGU Idle build 1260) : le premier coup de l'ennemi tombe 1,8 s après son apparition (1,5 x Attack Rate de 1,2 s), puis un coup toutes les 1,2 s (EnemyAI::Update) ; le coup retire la valeur envoyée par le serveur (ennemiCoup,
  * aléa remplacé par 1) ; les PV se régénèrent de regenPv par seconde (AdventureController::manageFight). Si les PV tombent à 0, le joueur « meurt » : combat arrêté, nouvelle apparition après le délai (AdventureController::playerDeath).
  * Journal : les phrases viennent du jeu (PlayerController::damageText, modules/itopod-journal-v1.js), « You have defeated X! » (AdventureController::enemyDeath) et « You gained N progress to your next Perk Point! » puis « You gained N Perk Point(s)! »
- * (ItopodPerkController::addProgress). Le jeu n'écrit RIEN quand l'ennemi frappe le joueur. Aucune phrase n'est inventée ; elles restent en anglais comme dans le jeu. Les dégâts affichés varient de 0,8 à 1,2 fois le coup moyen (PlayerController::idleAttack).
+ * (ItopodPerkController::addProgress). L'ennemi ÉCRIT chacun de ses coups (« X has attacked for N damage! » et variantes par IA : EnemyAI::regularAttack / poisonAttack / chargeAttack / paralyzeAI / rapidAI / growerAI ; correction du 2026-11-22 : une première version
+ * affirmait à tort que le jeu n'écrivait rien). Les phrases viennent de modules/journal-jeu-v1.js (anglais ou français selon la langue du jeu). Les dégâts du joueur varient de 0,8 à 1,2 fois le coup moyen (PlayerController::idleAttack).
+ * Mort du joueur (AdventureController::playerDeath, zone ITOPOD) : « X has defeated you! », PV à 0, étage de DÉPART (0 en automatique, comme le serveur), l'ennemi disparaît (« No Enemy », « 0 HP ») jusqu'à la réapparition ; les PV remontent pendant ce temps ; à l'apparition,
+ * un joueur resté à 0 PV meurt aussitôt (manageFight). Le compteur de 10 kills n'est pas remis à zéro.
  */
+/* IA des 16 « Dude » de la zone ITOPOD (AdventureController::createEnemyTable, zone 1000) : 0 normal, 1 poison, 2 chargeur, 3 paralysie, 5 rapide, 6 grandisseur ; l'un des 16 est tiré à chaque apparition. */
+var IA_DUDE=[0,2,1,5,6,3,2,0,0,1,5,6,1,0,2,3];
+function neufIA(){return {ai:IA_DUDE[Math.floor(Math.random()*IA_DUDE.length)],poison:0,charge:0,paralyse:0,rapide:0,rapideMode:false,grow:0};}
+/* Un tour de l'ennemi (mêmes cycles que le moteur et que mobs-types-v1.js) : saute = pas de coup ce tour ; mult = multiplicateur du coup ; kind = phrase du coup ; tick = dégâts de poison ; paralyse = le joueur ne frappe plus 2 s. */
+function tourIA(ia){
+  var r={saute:false,mult:1,kind:'normal',tick:false,prepare:false,paralyse:false,tremble:false,rapideDebut:false};
+  switch(ia.ai){
+    case 1:
+      if(ia.poison<0){}
+      else if(ia.poison===0)r.kind='poison';
+      else if(ia.poison<=5){r.tick=true;ia.poison+=1;}
+      else{r.kind='poisonFin';ia.poison=-3;}
+      ia.poison+=1;break;
+    case 2:
+      ia.charge+=1;
+      if(ia.charge<3){}
+      else if(ia.charge===3){r.saute=true;r.prepare=true;}
+      else if(ia.charge<5)r.saute=true;
+      else{r.mult=4;r.kind='massive';ia.charge=0;}
+      break;
+    case 3:
+      if(ia.paralyse<0){}
+      else if(ia.paralyse===0)r.saute=true;
+      else if(ia.paralyse===1)r.kind='ralentit';
+      else if(ia.paralyse===2){r.kind='paralyse';r.paralyse=true;ia.paralyse=-10;}
+      ia.paralyse+=1;break;
+    case 5:
+      ia.rapide+=1;
+      if(ia.rapide<5){}
+      else if(ia.rapide===5){r.saute=true;r.tremble=true;}
+      else if(ia.rapide<8)r.saute=true;
+      else if(ia.rapide===8){ia.rapideMode=true;r.rapideDebut=true;r.kind='rapide';}
+      else if(ia.rapide<14)r.kind='rapide';
+      else{ia.rapideMode=false;ia.rapide=0;r.kind='rapideFin';}
+      break;
+    case 6:
+      ia.grow+=1;r.mult=1+Math.floor(ia.grow/2)*0.2;
+      if(ia.grow%2===0)r.kind='croit';
+      break;
+    default:break;
+  }
+  return r;
+}
 var journal=[];
 var JOURNAL_MAX=40;
 var PREMIER_COUP_ENNEMI_S=1.8,CADENCE_ENNEMI_S=1.2,SEUIL_PP=1e6;
@@ -74,15 +121,50 @@ function nomR3(){
 }
 function pctPv(){return combat.pvMax>0?Math.max(0,Math.min(100,combat.pv*100/combat.pvMax)):0;}
 function texteVie(){return fmtNombre(Math.max(0,Math.floor(combat.pv)))+' HP';}   /* comme le jeu : les PV actuels seulement */
-function ligneJournalHtml(l){return '<div class="itp-j-ligne'+(l.v?' itp-j-vert':'')+'">'+esc(l.t)+'</div>';}
-function ecrireJournal(el,texte,vert){
-  journal.push({t:texte,v:Boolean(vert)});
+/* PV de l'ennemi sous sa barre (« 4.424E+035 HP » dans le jeu ; « 0 HP » quand il n'y a plus d'ennemi, AdventureController::playerDeath). */
+function texteVieEnnemi(){
+  if(combat.sansEnnemi||combat.mort||!(combat.ennemiPv>0))return '0 HP';
+  return fmtNombre(Math.max(0,Math.floor(combat.ennemiPv*Math.max(0,1-combat.coups/Math.max(1,combat.hits)))))+' HP';
+}
+function majTexteEnnemi(el){
+  var t=el&&el.querySelector('.itp-vie-ennemi-texte');
+  if(!t)return;
+  var v=texteVieEnnemi();
+  if(t.__itpTexte!==v){t.__itpTexte=v;t.textContent=v;}
+}
+/* Mêmes classes que le journal de l'Aventure (soreal-idle-adventure-log-v1 / -line-v1 + player, enemy, system) : même fond, mêmes couleurs. */
+function ligneJournalHtml(l){return '<div class="soreal-idle-adventure-log-line-v1 '+esc(l.k)+'">'+esc(l.t)+'</div>';}
+function ecrireJournal(el,texte,type){
+  journal.push({t:texte,k:type||'system'});
   if(journal.length>JOURNAL_MAX)journal.splice(0,journal.length-JOURNAL_MAX);
   var boite=el&&el.querySelector('.itp-journal');
   if(!boite)return;
   boite.insertAdjacentHTML('beforeend',ligneJournalHtml(journal[journal.length-1]));
   while(boite.children.length>JOURNAL_MAX)boite.removeChild(boite.firstChild);
+  if(!combat.lectureFigee)boite.scrollTop=boite.scrollHeight;
+}
+/*
+ * Défilement du journal COMME CELUI DE L'AVENTURE (Norman, 2026-11-22 : « il doit fonctionner pareil que l'Aventure : pas possible de remonter les lignes avec la souris ou le doigt, des flèches haut et bas ») : le journal reste tout en bas ;
+ * molette et doigt ne le font pas défiler (overflow caché) ; deux flèches (modules/journal-fleches-v1.js, posées à côté du journal) remontent ou redescendent ; une lecture remontée revient tout en bas après 15 secondes sans appui.
+ */
+var LECTURE_RETOUR_MS=15000;
+function installerFleches(el){
+  var boite=el&&el.querySelector('.itp-journal'),F=window.__SOREAL_IDLE_JOURNAL_FLECHES_V1__;
+  if(!boite||!F||boite.__itpFleches)return;
+  boite.__itpFleches=true;
   boite.scrollTop=boite.scrollHeight;
+  F.installer(boite,function(sens){
+    if(sens<0)combat.lectureFigee=true;
+    combat.lectureJusqua=Date.now()+LECTURE_RETOUR_MS;
+    /* redescendre jusqu'en bas (ou presque) rend le suivi automatique */
+    if(sens>0&&boite.scrollHeight-boite.scrollTop-boite.clientHeight<=boite.clientHeight*0.8+4)combat.lectureFigee=false;
+  });
+}
+function retourJournal(el){
+  if(!combat.lectureFigee||Date.now()<combat.lectureJusqua)return;
+  combat.lectureFigee=false;
+  var boite=el&&el.querySelector('.itp-journal');
+  if(boite)boite.scrollTop=boite.scrollHeight;
 }
 function majBarreJoueur(el){
   var rempli=el&&el.querySelector('.itp-vie-joueur .itp-vie-rempli'),texte=el&&el.querySelector('.itp-vie-joueur .itp-vie-texte');
@@ -92,21 +174,48 @@ function majBarreJoueur(el){
   var t=texteVie();
   if(texte&&texte.__itpTexte!==t){texte.__itpTexte=t;texte.textContent=t;}
 }
-/* Régénération et coups de l'ennemi depuis le dernier pas ; renvoie true si le joueur est mort. */
-function avancerVieJoueur(maintenant){
+/* Régénération et tours de l'ennemi (chacun écrit dans le journal) depuis le dernier pas ; renvoie true si le joueur est mort. */
+function avancerVieJoueur(maintenant,el){
   if(!(combat.pvMax>0))return false;
   var dt=combat.dernierPas?Math.min(1,Math.max(0,(maintenant-combat.dernierPas)/1000)):0;
   combat.dernierPas=maintenant;
   combat.pv=Math.min(combat.pvMax,combat.pv+combat.regenPv*dt);
-  if(combat.tEnnemi&&!combat.mort){
+  var JJ=window.__SOREAL_IDLE_JOURNAL_JEU_V1__;
+  if(combat.finParalysie&&maintenant>=combat.finParalysie){combat.finParalysie=0;if(JJ)ecrireJournal(el,JJ.titan('liberte')[0],'system');}
+  if(combat.tEnnemi&&!combat.mort&&!combat.sansEnnemi){
+    if(!combat.ia)combat.ia=neufIA();
     var garde=0;
     while(combat.tEnnemi&&maintenant>=combat.tEnnemi&&garde++<20){
-      combat.pv-=combat.ennemiCoup;
-      combat.tEnnemi+=CADENCE_ENNEMI_S*1000;
+      var t=tourIA(combat.ia);
+      combat.tEnnemi+=(combat.ia.rapideMode?0.3:1)*CADENCE_ENNEMI_S*1000;
+      if(JJ){
+        if(t.prepare)ecrireJournal(el,JJ.titan('chargeDebut',combat.nom)[0],'enemy');
+        if(t.tremble)ecrireJournal(el,JJ.titan('tremble',combat.nom)[0],'enemy');
+        if(t.rapideDebut)ecrireJournal(el,JJ.titan('rapideDebut',combat.nom)[0],'enemy');
+      }
+      if(t.saute)continue;
+      var coup=Math.floor(combat.ennemiCoup*t.mult);
+      combat.pv-=coup;
+      if(JJ)ecrireJournal(el,JJ.attaque(t.kind,combat.nom,fmtNombre(coup)),'enemy');
+      if(t.tick&&combat.ennemiPoison>0){
+        combat.pv-=combat.ennemiPoison;
+        if(JJ)ecrireJournal(el,JJ.titan('poisonDegats','',{n:fmtNombre(combat.ennemiPoison)})[0],'enemy');
+      }
+      if(t.paralyse){combat.prochain=Math.max(combat.prochain,maintenant+2000);combat.finParalysie=maintenant+2000;}
       if(combat.pv<=0){combat.pv=0;return true;}
     }
   }
   return false;
+}
+/* Mort du joueur (AdventureController::playerDeath) : phrase du jeu, PV à 0, étage de départ, plus d'ennemi jusqu'à la réapparition. */
+function mortJoueur(el,maintenant){
+  var JJ=window.__SOREAL_IDLE_JOURNAL_JEU_V1__;
+  if(JJ)ecrireJournal(el,JJ.defaite(combat.nom),'enemy');
+  combat.pv=0;combat.coups=0;combat.mort=false;combat.tEnnemi=0;combat.ia=null;combat.finParalysie=0;
+  combat.sansEnnemi=true;
+  combat.reperage={etage:combat.auto?0:combat.debut,sur:combat.surCourant,dec:combat.decalage};
+  combat.prochain=maintenant+Math.max(0.34,combat.respawn)*1000;
+  remplir(el);
 }
 
 /*
@@ -136,17 +245,21 @@ function avatarGenere(ennemi,kills,etage,ancien){
 function contenu(etage,kills,killsSurEtage){
   /* Combats gagnés sur l'étage : ceux du serveur plus ceux de l'écran depuis la dernière synchro ; à 10 on passe à l'étage suivant. */
   var total=killsSurEtage+combat.decalage;
+  /* Après la mort du joueur : retour à l'étage de départ, le compteur de 10 kills continue (playerDeath ne le remet pas à zéro). */
+  if(combat.reperage){etage=combat.reperage.etage;total=combat.reperage.sur+(combat.decalage-combat.reperage.dec);}
   /* Étage suivant comme le serveur : à l'étage de fin on repart de l'étage de départ (jamais plus haut que la fin choisie) ; en automatique, jusqu'à l'étage optimal. */
   for(var m=Math.floor(total/10);m>0;m--){
     if(combat.auto)etage=Math.min(combat.optimal,etage+1);
     else etage=etage>=combat.fin?combat.debut:etage+1;
   }
-  killsSurEtage=total%10;
+  killsSurEtage=total%10;combat.surCourant=killsSurEtage;
   var n=roster&&Array.isArray(roster.workers)?roster.workers.length:0;
   var ennemi=n?roster.workers[indexEnnemi(n,kills,etage)]:null;
   var fond=decorPour(etage);
   var nom=ennemi?ennemi.nom:'Pissed Off Dude';
-  combat.nom=nom;combat.etageCourant=etage;
+  combat.nom=nom;
+  var JJn=window.__SOREAL_IDLE_JOURNAL_JEU_V1__;
+  var nomAffiche=combat.sansEnnemi?(JJn?JJn.l('Aucun ennemi','No Enemy'):'No Enemy'):nom;combat.etageCourant=etage;
   var classeAvatar='itp-avatar'+(ennemi&&estFlottant(ennemi.avatar)?' itp-flotte':'');
   var ancien=ennemi&&ennemi.avatar
     ?'<img class="'+classeAvatar+'" src="'+esc(urlImage(ennemi.avatar))+'" alt="" onerror="this.hidden=true">'
@@ -159,21 +272,21 @@ function contenu(etage,kills,killsSurEtage){
   for(var i=0;i<10;i++)pips+='<i class="itp-pip'+(i<=killsSurEtage?' plein':'')+'"></i>';
   var vie=combat.hits>0?Math.max(0,Math.min(100,100-combat.coups*100/combat.hits)):100;
   return '<div class="itp-banniere"><span class="itp-etage"><small>ÉTAGE</small><b>'+etage+'</b></span><span class="itp-pips" title="Ennemi en cours sur cet étage (10 par étage)">'+pips+'</span></div>'+
-    '<div class="itp-cadre"><div class="itp-vitre">'+decor+'<div class="itp-ombre"></div><div class="itp-ennemi'+(combat.mort?' itp-mort':'')+'">'+avatar+'</div><div class="itp-poing" aria-hidden="true"><span>👊</span></div>'+
+    '<div class="itp-cadre"><div class="itp-vitre">'+decor+'<div class="itp-ombre"></div><div class="itp-ennemi'+(combat.mort||combat.sansEnnemi?' itp-mort':'')+'">'+avatar+'</div><div class="itp-poing" aria-hidden="true"><span>👊</span></div>'+
     '<span class="itp-braise itp-b1"></span><span class="itp-braise itp-b2"></span><span class="itp-braise itp-b3"></span></div></div>'+
-    '<div class="itp-vie" title="Points de vie de l’ennemi"><div class="itp-vie-rempli" style="width:'+vie.toFixed(1)+'%"></div></div>'+
-    '<div class="itp-nom"><span class="itp-nom-texte">'+esc(nom)+'</span></div>'+
+    '<div class="itp-vie itp-vie-ennemi" title="Points de vie de l’ennemi"><div class="itp-vie-rempli" style="width:'+(combat.sansEnnemi?0:vie).toFixed(1)+'%"></div>'+(combat.pvMax>0?'<span class="itp-vie-texte itp-vie-ennemi-texte">'+esc(texteVieEnnemi())+'</span>':'')+'</div>'+
+    '<div class="itp-nom"><span class="itp-nom-texte">'+esc(nomAffiche)+'</span></div>'+
     '<div class="itp-prochain" data-itp-prochain aria-live="off">'+texteProchain()+'</div>'+
     (combat.pvMax>0
       ?'<div class="itp-vie itp-vie-joueur" title="Tes points de vie"><div class="itp-vie-rempli" style="width:'+pctPv().toFixed(1)+'%"></div><span class="itp-vie-texte">'+esc(texteVie())+'</span></div>'+
-       '<div class="itp-journal" data-itp-journal role="log" aria-live="off" title="Journal de combat">'+journal.slice(-8).map(ligneJournalHtml).join('')+'</div>'
+       '<div class="itp-journal soreal-idle-adventure-log-v1" data-itp-journal role="log" aria-live="off" title="Journal de combat">'+journal.map(ligneJournalHtml).join('')+'</div>'
       :'');
 }
 
 /* Compte à rebours du prochain combat (Norman, 2026-10-11) : une fois l'ennemi battu, le suivant arrive après le délai de réapparition de la tour ; pendant le combat on le dit aussi. */
 function texteProchain(){
   if(!combat.actif||!(combat.hits>0))return '';
-  if(combat.mort){
+  if(combat.mort||combat.sansEnnemi){
     var reste=Math.max(0,combat.prochain-Date.now())/1000;
     return '⏳ Prochain combat dans <b>'+reste.toFixed(1).replace('.',',')+' s</b>';
   }
@@ -189,8 +302,9 @@ function majProchain(el){
 function remplir(el){
   var k=Number(el.getAttribute('data-kills'))||0;
   el.innerHTML=contenu(Number(el.getAttribute('data-etage'))||0,k+combat.decalage,Number(el.getAttribute('data-sur'))||0);
+  installerFleches(el);
   var boite=el.querySelector('.itp-journal');
-  if(boite)boite.scrollTop=boite.scrollHeight;
+  if(boite&&!combat.lectureFigee)boite.scrollTop=boite.scrollHeight;
 }
 
 /* Un coup de poing sur l'ennemi : secousse, éclair blanc et poing qui s'écrase sur l'image. */
@@ -212,18 +326,23 @@ function pas(){
   if(!els.length||!combat.actif||!(combat.hits>0))return;
   var el=els[0];
   var maintenant=Date.now();
-  var joueurMort=avancerVieJoueur(maintenant);
+  installerFleches(el);
+  retourJournal(el);
+  var joueurMort=avancerVieJoueur(maintenant,el);
   majBarreJoueur(el);
-  if(joueurMort){
-    /* PV à 0 : combat arrêté, l'ennemi est remplacé après le délai de réapparition (les PV remontent pendant ce temps). */
-    combat.coups=0;combat.mort=false;combat.tEnnemi=0;
-    combat.prochain=maintenant+Math.max(0.34,combat.respawn)*1000;
+  majTexteEnnemi(el);
+  if(joueurMort){mortJoueur(el,maintenant);return;}
+  if(maintenant<combat.prochain)return;
+  if(combat.sansEnnemi){
+    /* Réapparition après la mort : un joueur resté à 0 PV meurt aussitôt (manageFight : PV <= 0). */
+    combat.sansEnnemi=false;combat.ia=null;
     remplir(el);
+    if(combat.pvMax>0&&!(combat.pv>0)){mortJoueur(el,maintenant);return;}
+    combat.prochain=maintenant+combat.intervalle*1000;
     return;
   }
-  if(maintenant<combat.prochain)return;
   if(combat.mort){
-    combat.decalage++;combat.coups=0;combat.mort=false;combat.tEnnemi=0;
+    combat.decalage++;combat.coups=0;combat.mort=false;combat.tEnnemi=0;combat.ia=null;
     combat.prochain=maintenant+combat.intervalle*1000;
     remplir(el);
     return;
@@ -234,22 +353,23 @@ function pas(){
   var barre=el.querySelector('.itp-vie:not(.itp-vie-joueur) .itp-vie-rempli');
   var reste=Math.max(0,100-combat.coups*100/combat.hits);
   if(barre)barre.style.width=reste.toFixed(1)+'%';
+  majTexteEnnemi(el);
   var J=window.__SOREAL_IDLE_ITOPOD_JOURNAL_V1__,JJ=window.__SOREAL_IDLE_JOURNAL_JEU_V1__;
-  if(J&&combat.degats>0)ecrireJournal(el,J.phrase(combat.degats*(0.8+Math.random()*0.4),combat.nom,nomR3(),fmtNombre),true);
+  if(J&&combat.degats>0)ecrireJournal(el,J.phrase(combat.degats*(0.8+Math.random()*0.4),combat.nom,nomR3(),fmtNombre),'player');
   if(combat.coups>=combat.hits){
-    combat.mort=true;combat.tEnnemi=0;
+    combat.mort=true;combat.tEnnemi=0;combat.ia=null;
     var ennemi=el.querySelector('.itp-ennemi');
     if(ennemi)ennemi.classList.add('itp-mort');
     combat.prochain=maintenant+Math.max(0.34,combat.respawn)*1000;
     if(combat.pvMax>0){
-      ecrireJournal(el,JJ?JJ.victoire(combat.nom):'You have defeated '+combat.nom+'!',false);
+      ecrireJournal(el,JJ?JJ.victoire(combat.nom):'You have defeated '+combat.nom+'!','system');
       var gain=Math.max(0,(combat.ppBase+combat.etageCourant)*combat.ppMult);
-      ecrireJournal(el,JJ?JJ.progres(fmtNombre(gain)):'You gained '+fmtNombre(gain)+' progress to your next Perk Point!',false);
+      ecrireJournal(el,JJ?JJ.progres(fmtNombre(gain)):'You gained '+fmtNombre(gain)+' progress to your next Perk Point!','system');
       combat.ppProg+=gain;
       if(combat.ppProg>=SEUIL_PP){
         var n=Math.floor(combat.ppProg/SEUIL_PP);
         combat.ppProg=combat.ppProg%SEUIL_PP;
-        ecrireJournal(el,JJ?JJ.pointAtout(n===1?'1':fmtNombre(n),n!==1):(n===1?'You gained 1 Perk Point!':'You gained '+fmtNombre(n)+' Perk Points!'),false);
+        ecrireJournal(el,JJ?JJ.pointAtout(n===1?'1':fmtNombre(n),n!==1):(n===1?'You gained 1 Perk Point!':'You gained '+fmtNombre(n)+' Perk Points!'),'system');
       }
     }
   }else{
@@ -288,12 +408,16 @@ function html(d){
   combat.fin=Math.max(combat.debut,Math.floor(Number(d&&d.endFloor)||0));
   combat.optimal=Math.max(0,Math.floor(Number(d&&d.optimalFloor)||0));
   if(combat.killsServeur!==kills){combat.killsServeur=kills;combat.decalage=0;combat.coups=0;combat.mort=false;combat.prochain=0;combat.tEnnemi=0;}
+  /* Un rendu de la page redonne la main au serveur : plus d'étage forcé par une mort visuelle. */
+  combat.reperage=null;combat.sansEnnemi=false;combat.ia=null;combat.finParalysie=0;combat.lectureFigee=false;
   /* Barre de vie du joueur et journal : valeurs du serveur à chaque rendu de la page (pv absent = pas de barre). */
   var nb=function(v){var x=Number(v);return Number.isFinite(x)&&x>0?x:0;};
   combat.pvMax=nb(d&&d.pvMax);
   combat.pv=combat.pvMax>0?Math.min(combat.pvMax,Math.max(0,Number(d&&d.pv)||0)):0;
   combat.degats=nb(d&&d.degatsCoup);
   combat.ennemiCoup=nb(d&&d.ennemiCoup);
+  combat.ennemiPoison=nb(d&&d.ennemiPoison);
+  combat.ennemiPv=nb(d&&d.ennemiPv);
   combat.regenPv=nb(d&&d.regenPv);
   combat.ppBase=nb(d&&d.ppBase);
   combat.ppMult=nb(d&&d.ppMult)||1;
