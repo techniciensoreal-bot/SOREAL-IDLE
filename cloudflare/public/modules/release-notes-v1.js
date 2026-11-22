@@ -29,6 +29,9 @@
         nom:'Borne à interrupteur',
         date:'2026-11-22',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Badavatar : dans le profil des Réglages, tes pièces ne sont plus déplacées par un ancien brouillon après un enregistrement ; ce que tu as enregistré est ce qui s’affiche partout.'
+          ]},
           {menu:'combat', titre:'Combat de boss', points:[
             'Nouveau sur la borne : un petit interrupteur « AUTO » pour couper ou remettre un lancement automatique, quand tu en possèdes un.'
           ]},

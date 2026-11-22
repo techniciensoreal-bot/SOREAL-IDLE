@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "La tour tournant en continu, la progression de ses points d’atout est réduite de 40 % ; tous les atouts restent accessibles, seulement plus lentement."
+    "Badavatar : dans le profil des Réglages, tes pièces ne sont plus déplacées par un ancien brouillon après un enregistrement ; ce que tu as enregistré est ce qui s’affiche partout."
   ] };
 })();

@@ -299,10 +299,19 @@
   /* ---------- brouillon (règle n°6) ---------- */
   function sauverBrouillon() {
     clearTimeout(minuteurBrouillon);
-    minuteurBrouillon = setTimeout(function () { try { localStorage.setItem(CLE_BROUILLON, JSON.stringify({ base: E.base, reglages: E.reglages, choix: choixPourServeur() })); } catch (_e) { /* pas de stockage */ } }, 400);
+    minuteurBrouillon = setTimeout(function () { try { localStorage.setItem(CLE_BROUILLON, JSON.stringify({ base: E.base, reglages: E.reglages, choix: choixPourServeur(), depuis: E.enregistre })); } catch (_e) { /* pas de stockage */ } }, 400);
   }
   function effacerBrouillon() { clearTimeout(minuteurBrouillon); try { localStorage.removeItem(CLE_BROUILLON); } catch (_e) { /* pas de stockage */ } }
-  function lireBrouillon() { try { var b = JSON.parse(localStorage.getItem(CLE_BROUILLON) || "null"); return b && b.base === E.base && b.reglages && typeof b.reglages === "object" ? b : null; } catch (_e) { return null; } }
+  /* Norman (2026-11-22) : « je replace tout, je sauvegarde, le résultat est visible dans l'ITOPOD, mais quand je vais dans Réglages les items sont placés n'importe comment ». Cause : un ANCIEN brouillon (clé liée au compte, qui peut revenir d'un autre appareil ou d'un envoi en retard)
+     était réappliqué PAR-DESSUS le profil enregistré. Un brouillon n'est repris que s'il a été fait à partir de CE profil enregistré (« depuis » = signature du profil enregistré au moment du brouillon) ; sinon il est périmé et jeté. */
+  function lireBrouillon() {
+    try {
+      var b = JSON.parse(localStorage.getItem(CLE_BROUILLON) || "null");
+      if (!(b && b.base === E.base && b.reglages && typeof b.reglages === "object")) return null;
+      if (b.depuis !== E.enregistre) { effacerBrouillon(); return null; }
+      return b;
+    } catch (_e) { return null; }
+  }
 
   /* ---------- chargement ---------- */
   function appliquerEnregistre(rep) {
