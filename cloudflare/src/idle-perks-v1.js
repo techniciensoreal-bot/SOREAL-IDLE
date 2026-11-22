@@ -502,3 +502,26 @@ export function perkBonusesV1(levelsById) {
     hackMilestoneReduction: Object.fromEntries(Object.entries(totals).filter(([k]) => k.startsWith("hackReduce_")).map(([k, v]) => [k.slice(11), v]))
   };
 }
+
+/*
+ * Bonus actuel et bonus au niveau suivant d'un atout ou d'un quirk (le jeu l'écrit dans l'info-bulle : ItopodPerkController::showTooltip et
+ * BeastQuestPerkController::showTooltip, « Current Bonus: X% », « Next Level Bonus: Y% », build 1260 ; valeur = niveau x effet par niveau, identiques au catalogue).
+ * Retourne [actuel, suivant, unité] (suivant = null au plafond ; unité « % » pour une clé en pourcentage, « » pour un nombre plat) ou null quand l'entrée n'a
+ * pas de valeur lisible par niveau (paliers de Fibonacci, booléens, clés dont le sens n'est pas un simple nombre : rien n'est affiché plutôt qu'inventé).
+ */
+const CLES_PLATES_AFFICHABLES_V1 = /(Flat|SlotBonus|Seconds|LevelFlat|titanExpBonusKills|advancedTrainingStartBonus|beardTrimSpeedLevel)$/;
+export function idleEntreeBonusAffichageV1(entry, niveau) {
+  if (!entry || !entry.bonus || Array.isArray(entry.fibonacciMilestones)) return null;
+  const cles = Object.keys(entry.bonus);
+  let cle = cles.find((k) => /Pct$/.test(k) && typeof entry.bonus[k] === "number");
+  let unite = "%";
+  if (!cle) {
+    if (cles.length !== 1 || !CLES_PLATES_AFFICHABLES_V1.test(cles[0]) || typeof entry.bonus[cles[0]] !== "number") return null;
+    cle = cles[0];
+    unite = "";
+  }
+  const parNiveau = entry.bonus[cle] * (unite === "%" ? 100 : 1);
+  const arrondi = (v) => Math.round(v * 10000) / 10000;
+  const n = Math.max(0, Math.min(entry.cap, Math.floor(Number(niveau) || 0)));
+  return [arrondi(parNiveau * n), n >= entry.cap ? null : arrondi(parNiveau * (n + 1)), unite];
+}

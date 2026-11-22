@@ -1514,13 +1514,10 @@ export function statsCombatPrincipalSorealIdleV413_(
     defense:
       defense,
 
+    /* Character::updateCharacter (build 1260, IL, 2026-11-22) : maxHP = 10 + 10 x attack, SANS plancher (avant : max(1000, 10 x attaque)). */
     pvMax:
-      Math.max(
-        1000,
-        Math.round(
-          attaque *
-          10
-        )
+      Math.round(
+        10 + attaque * 10
       ),
 
     attaqueEntrainement:

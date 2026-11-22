@@ -933,10 +933,11 @@ function appliquerProgressionEnergieSorealIdle__p3(bossCombatIndex, c, combatBos
       );
   }
 
+  /* Character::updateHP (build 1260, IL, 2026-11-22) : toutes les 0,02 s, curHP += 0,001 + 0,001 x defense, soit 0,05 x (1 + defense) PV/s (avant : defense / 20, sans le +1). */
   const regenPvSecJoueur =
     Math.max(
       0,
-      defense / 20
+      (1 + defense) / 20
     );
 
   if (!combatBossActif) {

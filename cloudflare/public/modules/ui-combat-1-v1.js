@@ -695,12 +695,13 @@
 
       function regenPvFightBossNguParSecondeV164_(defense){
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-31 */
+        /* Character::updateHP (build 1260, IL, 2026-11-22) : curHP += 0,001 + 0,001 x defense par pas de 0,02 s = 0,05 x (1 + defense) PV/s (le +1 manquait). Miroir moteur : regenPvSecJoueur, idle-runtime-progression.js. */
         return Math.max(
           0,
-          Math.max(
+          (1+Math.max(
             0,
             idleNombre_(defense)
-          )/
+          ))/
           20
         );
       }

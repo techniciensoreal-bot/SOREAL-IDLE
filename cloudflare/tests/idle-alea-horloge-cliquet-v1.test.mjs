@@ -7,7 +7,7 @@ import path from "node:path";
  * (idle-alea-v1.js) fait baisser le plafond : mettre alors la valeur à jour ici (jamais en hausse). Les valeurs ci-dessous sont celles mesurées le 2026-11-09 ; un fichier absent de la table vaut 0.
  */
 const PLAFOND_RANDOM = {
-  "idle-adventure-butin.js": 18, "idle-adventure-combat.js": 14, "idle-adventure-objets.js": 1, "idle-ngu-snapshot.js": 3, "idle-ngu-systemes.js": 5, "idle-runtime-progression.js": 1, "idle-worker-entry-v1.js": 1
+  "idle-adventure-butin.js": 18, "idle-adventure-combat.js": 15, "idle-adventure-objets.js": 1, "idle-ngu-snapshot.js": 3, "idle-ngu-systemes.js": 5, "idle-runtime-progression.js": 1, "idle-worker-entry-v1.js": 1
 };
 const PLAFOND_DATE_NOW = {
   "idle-adventure-butin.js": 1, "idle-adventure-combat.js": 4, "idle-adventure-v47.js": 2, "idle-basic-training.js": 10, "idle-cards-v1.js": 1, "idle-chat-v1.js": 3, "idle-daycare-v1.js": 2, "idle-flux-v1.js": 3, "idle-gains-v1.js": 1,

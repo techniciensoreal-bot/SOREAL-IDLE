@@ -46,7 +46,7 @@ const niveauDe = (r, defId) => r.result.drops.filter((d) => d.definitionId === d
 {
   const sMarraine = normalizeIdleAdventureStateV47({}); sMarraine.unlockFlags.titan8Unlocked = true;   /* la Marraine n'existe qu'une fois la chaîne du Consigliere faite (2026-11-20) */
   const r = titan("godmother", sMarraine, { bosses: 300, difficulty: "difficile", stats: { power: 1.7e18, toughness: 7e17 } });
-  assert.deepEqual(niveauDe(r, "severedUnicornHead"), [0], "The Godmother : A Severed Unicorn's Head lvl 0 - guaranteed");
+  assert.deepEqual(niveauDe(r, "severedUnicornHead"), [1], "The Godmother : A Severed Unicorn's Head lvl 1 fixe (makeTitanLevelledLoot(343, 1), 2026-11-22)");
 }
 
 // ---------- Fusion jusqu'au niveau 100 -> set complété ----------

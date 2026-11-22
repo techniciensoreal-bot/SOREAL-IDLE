@@ -49,7 +49,7 @@ for (const number of [1, 209, 5e6]) {
   const j = regler({ number });
   assert.equal(j.puissance, 100, "NUMBER " + number + " : attaque naturelle 100");
   assert.equal(j.defense, 100, "NUMBER " + number + " : défense naturelle 100");
-  assert.equal(j.pvJoueurMax, 1000, "NUMBER " + number + " : PV = 10 x Attaque, minimum 1 000");
+  assert.equal(j.pvJoueurMax, 1010, "NUMBER " + number + " : PV = 10 + 10 x Attaque (Character::updateCharacter, sans plancher) = 1 010 pour 100");
 }
 
 // 2. Avec de l'entraînement : NUMBER multiplie SEULEMENT les points de l'entraînement

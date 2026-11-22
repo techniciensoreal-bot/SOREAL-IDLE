@@ -30,17 +30,22 @@
         date:'2026-11-22',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Nouveau : cliquer sur une statistique ou une ressource ouvre son détail facteur par facteur (Énergie, Magie, vitesses, gains d’EXP, d’AP et de PP, statistiques d’Aventure, divers), seulement avec ce que tu as déjà débloqué ; le total d’Attaque et de Défense juste après un Rebirth est corrigé.',
             'Badavatar : dans le profil des Réglages, tes pièces ne sont plus déplacées par un ancien brouillon après un enregistrement ; ce que tu as enregistré est ce qui s’affiche partout.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Tes PV maximum valent 10 + 10 × ton Attaque, sans plancher, et ta régénération en combat suit le jeu d’origine.',
             'Le lancement automatique du Nuke suit un rythme fixe : à chaque échéance il ne tente que si un boss peut être tué, sinon il attend l’échéance suivante au lieu de partir dès qu’un boss devient tuable.',
             'Nouveau sur la borne : un petit interrupteur « AUTO » pour couper ou remettre un lancement automatique, quand tu en possèdes un.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Nouvelles infobulles : chances de butin dans les cartes des combats spéciaux que tu as débloqués et dans la liste des zones, et « Stats (X %) » avec les valeurs réduites dans la fiche d’un objet.',
+            'Le butin des combats spéciaux suit le jeu d’origine : le bonus de niveau du défi No Rebirth s’applique aux objets qui le prévoient, et la chance de la Calculatrice ordinaire est corrigée.',
             'Les boosts filtrés qui partent dans le cube comptent comme dans le jeu d’origine : tous les bonus de boost s’appliquent à chaque boost avalé, et il est avalé même si tu n’as pas encore trouvé le cube.',
             'Tous les journaux de combat suivent la langue du jeu, y compris « (filtré) » à côté des objets filtrés.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Atouts : bonus actuel et bonus du niveau suivant sur chaque carte, et les mêmes filtres, tri et bouton « Tout » sur toutes les boutiques d’atouts que tu as débloquées.',
             'La tour tournant en continu, la progression de ses points d’atout est réduite de 40 % ; tous les atouts restent accessibles, seulement plus lentement.',
             'La tour est alignée sur le jeu d’origine : étages 0 à 20 par défaut sans montée automatique, retour à ton étage de départ quand tu es battu, et la tour continue de tourner en même temps que l’Aventure. « Appliquer » interrompt le combat et te place tout de suite sur ton étage de départ.',
             'Nouveaux boutons de la tour : « Max », « Optimal » et l’interrupteur du Lazy Floor Shifter (quand tu l’as acheté) ; les statistiques de l’ennemi et du joueur s’affichent dans l’arène.',
@@ -50,6 +55,9 @@
             'Après « Appliquer », la tour affiche tout de suite les ennemis du nouvel étage au lieu de ceux de l’ancien.',
             'Dans la tour, les ennemis écrivent maintenant chacun de leurs coups dans le journal, ta défaite est notée et te ramène à ton étage de départ, et la vie de l’ennemi s’affiche sous sa barre.',
             'Le journal de combat de la tour est écrit dans la langue du jeu : en français pour la version française, avec les phrases du jeu d’origine pour l’anglais.'
+          ]},
+          {menu:'ngu', titre:'NGU', points:[
+            'Les NGU et les Hacks affichent leurs chiffres comme le jeu : effet par niveau, bonus par difficulté atteinte et jalons ; l’avance automatique de l’énergie boucle sur la liste.'
           ]}
         ]
       },

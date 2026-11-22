@@ -164,6 +164,11 @@ export function refreshRebirthState(state, context, now) {
   rb.canRebirth = runSeconds >= minRebirth && Math.max(0, int(context.bosses, 0)) >= REBIRTH_UNLOCK_BOSS_V1;
   rb.minimumRebirthSeconds = minRebirth;
   rb.preview = preview.factors;
+  /*
+   * Avertissement « PIT NOT USED » (RebirthPowerDisplay::Update, build 1260, 2026-11-22) : en rouge quand le temps du Pit atteint 3 600 s sans jet pendant ce Rebirth
+   * (pitTime >= 3600 && !tossedGold). Équivalent ici : le trou est débloqué, aucun jet depuis le dernier Rebirth et il est de nouveau jetable (nextAt dépassé).
+   * Calculé à l'envoi du snapshot (idle-ngu-snapshot.js), jamais stocké dans l'état (il dépend de l'heure).
+   */
   rb.updatedAt = now;
   return rb;
 }

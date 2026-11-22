@@ -84,7 +84,19 @@ const ordre = ["augments", "wandoos", "respawn", "gold", "adventureAlpha", "powe
   u = agir(u, { action: "allocateNgu", ngu: "pp", value: 40000 });
   u.systems.ngu.data.ngus.normal.pp.level = 4;
   u = agir(u, { action: "setNguTarget", ngu: "pp", value: 2 });
-  assert.equal(ngu(u, "pp").allocation, 0, "pas de NGU suivant : l'énergie est simplement rendue");
+  assert.equal(ngu(u, "pp").allocation, 0, "l'énergie quitte le dernier NGU");
+  /* AllNGUController::autoAdvanceEnergy (IL) : après le dernier (9e), l'indice repasse à 0 : l'énergie revient au PREMIER NGU de la liste. */
+  assert.equal(ngu(u, "augments").allocation, 40000, "recherche circulaire : du dernier NGU on repart au premier");
+  // tous les autres NGU d'énergie à leur cible : l'énergie est rendue
+  let v = depart();
+  v = agir(v, { action: "setNguAdvance", resource: "energy", enabled: true });
+  for (const id of ordre) if (id !== "pp") { v.systems.ngu.data.ngus.normal[id].level = 5; v = agir(v, { action: "setNguTarget", ngu: id, value: 3 }); }
+  v = agir(v, { action: "allocateNgu", ngu: "pp", value: 40000 });
+  v.systems.ngu.data.ngus.normal.pp.level = 4;
+  const libre = v.resources.energy.current;
+  v = agir(v, { action: "setNguTarget", ngu: "pp", value: 2 });
+  assert.equal(ngu(v, "pp").allocation, 0);
+  assert.ok(v.resources.energy.current >= libre + 40000 - 1, "tous à leur cible : l'énergie reste libre");
 }
 // 5. L'énergie ne se perd ni ne se crée : total alloué + libre inchangé
 {

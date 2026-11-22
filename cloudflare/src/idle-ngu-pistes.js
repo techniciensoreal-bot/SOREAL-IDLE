@@ -21,7 +21,7 @@ import { externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffec
 import { bloodMigrerAllocationV1, bloodRitualMagicV1, diggerBonuses, diggerDrainTotal } from "./idle-ngu-systemes.js";
 import { idleSelloutPotionMinuteeV1 } from "./idle-sellout-shop-v1.js";
 import { setFacteurNguV1, beardBonusMultiplier, gearPctV1, gearSpecialsV1, hackFxV1, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
-import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, wishLevelBrutV1 } from "./idle-ngu-snapshot.js";
+import { challengeHundredLevelsConsume, challengeHundredLevelsRemaining, wishLevelBrutV1, wishLevelV1 } from "./idle-ngu-snapshot.js";
 
 /*
  * Page Beards of Power : 7 slots -- 1 au déblocage, 1 Troll Normal (complétion 4), 1 boutique EXP (50 000 EXP),
@@ -209,12 +209,11 @@ export function barbesTempsPleinV1(state, seconds) {
   return { energy: tempsPlein(energie, "energy"), magic: ressourceDecouverteV1(state, "magic") ? tempsPlein(magie, "magic") : 0 };
 }
 
-function advanceBeardTrack(state, system, trackDef, track, seconds, sameResourceCount = 1, horsLigne = false, plafondNiveaux = Infinity) {
-  if (!system.active || !beardTrackUnlocked(state, trackDef) || seconds <= 0) return;
-
+/*
+ * Vitesse de base d'une barbe (progression par seconde, formule du wiki « Beards of Power » x 50 ticks) : partagée par advanceBeardTrack et l'info-bulle (beardInfoV1).
+ */
+function beardBaseRateV1(state, trackDef, sameResourceCount) {
   const resource = trackDef.resource || "energy";
-  /* Lu dans le jeu (AllBeardsController::beardProgressPerTick, build 1260, 2026-11-15) : une barbe n'avance que si la ressource est PLEINE (curEnergy / curMagic >= cap total). Hors ligne : seulement les secondes passées barre pleine (`seconds`). */
-  if (!horsLigne && num(state.resources?.[resource]?.current, 0) + 1e-9 < idleNguEffectiveResourceStatV1(state, resource, "cap")) return;
   const diggers = diggerBonuses(state);
   const diggerSpeed = resource === "magic"
     ? Math.max(1, num(diggers.magicBeard, 1))
@@ -253,6 +252,61 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
     beardSpeedFromSets *
     quirkBonusesV1(idleQuirkNiveauxV1(state)).beardSpeedMultiplier /
     (Math.max(1, num(trackDef.speedDivider, 1e8)) * Math.max(1, sameResourceCount));
+  return baseRate;
+}
+
+/*
+ * Bonus temporaire et permanent d'une barbe (BeardController::updateText / showTooltip, build 1260 : « Math For Nerds » du jeu) : [bonus temporaire, bonus permanent] en FRACTION (0,05 = 5 %).
+ * Mêmes formules que beardBonusMultiplier (idle-ngu-bonus.js : (1 + temporaire) x (1 + permanent)) ; le test idle-hacks-barbes-infobulles-v1 compare les deux.
+ */
+const BARBE_NIVEAU_SOUPLE_V1 = (level, exponent, scalar) => (level <= 1000 ? level : Math.pow(level, exponent) * scalar);
+export function beardPartsBonusV1(role, temp, perm) {
+  const f = BARBE_NIVEAU_SOUPLE_V1;
+  if (role === "attackDefense") return [temp * 0.05, perm * 0.01];
+  if (role === "drop") return [f(temp, 0.3, 125.9) * 0.0005, f(perm, 0.33, 102.4) * 0.0005];
+  if (role === "number") return [f(temp, 0.5, 31.7) * 0.01, f(perm, 0.5, 31.7) * 0.001];
+  if (role === "ngu") return [f(temp, 0.3, 125.9) * 0.0001, f(perm, 0.3, 125.9) * 0.0002];
+  if (role === "wandoos") return [f(temp, 0.5, 31.7) * 0.001, f(perm, 0.5, 31.7) * 0.002];
+  if (role === "adventure") return [f(temp, 0.3, 125.9) * 0.001, f(perm, 0.5, 31.7) * 0.0005];
+  if (role === "gold") return [f(temp, 0.5, 31.7) * 0.002, f(perm, 0.5, 31.7) * 0.005];
+  return [0, 0];
+}
+
+/*
+ * Info-bulle d'une barbe : actif / inactif, bonus temporaire et permanent, temps avant le niveau suivant (même vitesse que advanceBeardTrack, une barbe n'avance que si sa ressource est pleine),
+ * et ce que la barbe gagnerait au Rebirth si elle est active (AllBeardsController::addedTrimmings : min(niveau, floor(racine(niveau) x facteur de temps)), facteur de temps lu dans
+ * AllBeardsController::timeFactor : 0 sous 3600 s, puis secondes / 10800 x 24 / (24 - niveau du perk Five O'Clock Shadow), plafonné à 8). Pourcentages en nombres (5 = 5 %).
+ */
+export function beardInfoV1(state, trackDef, track, runSeconds) {
+  const temp = Math.max(0, int(track?.tempLevel, 0));
+  const perm = Math.max(0, int(track?.permanentLevel, 0));
+  const ids = beardActiveIdsV1(state);
+  const actif = ids.includes(trackDef.id);
+  const resource = trackDef.resource || "energy";
+  const tracks = IDLE_NGU_TRACKS.beards || [];
+  const memeRessource = ids.filter(id => (tracks.find(x => x.id === id)?.resource || "energy") === resource).length + (actif ? 0 : 1);
+  const same = Math.max(1, memeRessource * (state.adventure?.completedSets?.beardverse ? 0.9 : 1));
+  const aTick = beardBaseRateV1(state, trackDef, same) / 50;
+  const secondsPerLevel = aTick > 0 ? Math.max(1, Math.ceil((temp + 1) / aTick - 1e-9)) / 50 : null;
+  const shadow = Math.max(0, num(perkBonusesV1(idlePerkNiveauxV1(state)).beardTrimSpeedLevel, 0));
+  const t = Math.max(0, num(runSeconds, 0));
+  const facteur = t < 3600 ? 0 : clamp((t / 10800 * 24) / (24 - clamp(int(shadow, 0), 0, 12)), 0, 8);
+  const gagne = Math.min(temp, Math.floor(Math.sqrt(temp) * facteur));
+  const role = trackDef.beardRole;
+  const pct = (v) => Math.round(v * 1e8) / 1e6;
+  const [tb] = beardPartsBonusV1(role, temp, perm);
+  const [, pb0] = beardPartsBonusV1(role, temp, perm);
+  const [, pb1] = beardPartsBonusV1(role, temp, perm + gagne);
+  return { actif, bonusTemp: pct(tb), bonusPerm: pct(pb0), secondsPerLevel, gagneAuRebirth: gagne, permAvant: pct(pb0), permApres: pct(pb1) };
+}
+
+function advanceBeardTrack(state, system, trackDef, track, seconds, sameResourceCount = 1, horsLigne = false, plafondNiveaux = Infinity) {
+  if (!system.active || !beardTrackUnlocked(state, trackDef) || seconds <= 0) return;
+
+  const resource = trackDef.resource || "energy";
+  /* Lu dans le jeu (AllBeardsController::beardProgressPerTick, build 1260, 2026-11-15) : une barbe n'avance que si la ressource est PLEINE (curEnergy / curMagic >= cap total). Hors ligne : seulement les secondes passées barre pleine (`seconds`). */
+  if (!horsLigne && num(state.resources?.[resource]?.current, 0) + 1e-9 < idleNguEffectiveResourceStatV1(state, resource, "cap")) return;
+  const baseRate = beardBaseRateV1(state, trackDef, sameResourceCount);
 
   if (baseRate <= 0) return;
 
@@ -303,6 +357,44 @@ function advanceBeardTrack(state, system, trackDef, track, seconds, sameResource
  */
 /* Page Hacks : niveau maximal de chaque Hack (au-delà, la barre repart sans augmenter le bonus). */
 export const HACK_HARD_CAP_V1 = Object.freeze({ attackDefense: 7720, adventureStats: 7632, timeMachineSpeed: 7544, dropChance: 7544, augmentSpeed: 7456, energyNguSpeed: 7340, magicNguSpeed: 7340, bloodGain: 7252, qpGain: 7164, daycare: 7048, exp: 6960, number: 6873, pp: 6757, hackHack: 6757, wish: 6262 });
+
+/*
+ * Info-bulle d'un hack (HacksController::showTooltip, build 1260) : « Current Effect », « Next Level », « Time Until Next Level », « This Hack has reached N milestone(s) »,
+ * « Next Milestone reached in N levels », « Milestone Bonus ». Même formule que hackFxV1 (idle-ngu-bonus.js : effet = (1 + effet par niveau x niveau) x bonus de jalon ^ jalons ;
+ * Normal : aucun effet ; niveaux par jalon réduits par les quirks, les atouts et les souhaits 76 à 78) : hackReductionsInfoV1 en reprend la lecture, à garder identique.
+ * Retourne des nombres (pourcentages, secondes) ; le client ne refait aucun calcul.
+ */
+export function hackReductionsInfoV1(state) {
+  const reduction = quirkBonusesV1(idleQuirkNiveauxV1(state)).hackMilestoneReduction || {};
+  const perkReduction = Object.assign({}, perkBonusesV1(idlePerkNiveauxV1(state)).hackMilestoneReduction || {});
+  perkReduction.qpGain = (perkReduction.qpGain || 0) + wishLevelV1(state, 76);
+  perkReduction.number = (perkReduction.number || 0) + wishLevelV1(state, 77);
+  perkReduction.hackHack = (perkReduction.hackHack || 0) + wishLevelV1(state, 78);
+  return { reduction, perkReduction };
+}
+export function hackInfoV1(state, trackDef, track, reductions) {
+  const level = Math.max(0, int(track?.level, 0));
+  const normal = state.difficulty === "normal";
+  const par = Math.max(1, num(trackDef.levelsPerMilestone, 1) - Math.max(0, num(reductions.reduction[trackDef.id], 0)) - Math.max(0, num(reductions.perkReduction[trackDef.id], 0)));
+  const effet = (n) => normal ? 1 : (1 + (num(trackDef.effectPerLevelPct, 0) * n) / 100) * Math.pow(num(trackDef.milestoneBonusPct, 100) / 100, Math.floor(n / par));
+  const hardCap = HACK_HARD_CAP_V1[trackDef.id] || Infinity;
+  const hackSpeedMultiplier = Math.max(1e-12, num(idleNguBonusesLectureV1(state).hackSpeedMultiplier, 1));
+  const throughput = Math.max(0, num(track?.r3, 0)) * Math.max(1, idleNguEffectiveResourceStatV1(state, "r3", "power")) * hackSpeedMultiplier;
+  let secondsPerLevel = null;
+  if (throughput > 0 && level < hardCap) {
+    const sec = dureeNiveauEnTicksV1(Math.max(1, num(trackDef.speedDivider, 1e8)) * Math.pow(1.0078, level) * (level + 1) / 50 / throughput);
+    if (Number.isFinite(sec) && sec > 0) secondsPerLevel = sec;
+  }
+  const round = (v) => Math.round(v * 1e6) / 1e6;
+  return {
+    effetActuel: round(effet(level) * 100),
+    ...(level < hardCap ? { effetSuivant: round(effet(level + 1) * 100) } : {}),
+    jalons: Math.floor(level / par),
+    niveauxAvantJalon: par - (level % par),
+    bonusJalon: round(num(trackDef.milestoneBonusPct, 100)),
+    secondsPerLevel
+  };
+}
 
 function advanceHackTrack(state, system, trackDef, track, seconds) {
   if (!system.unlocked || seconds <= 0) return;

@@ -49,9 +49,9 @@ const regenStart=source.indexOf("const regenPvSecJoueur =");
 const regenEnd=source.indexOf("if (!combatBossActif)",regenStart);
 const regenBody=source.slice(regenStart,regenEnd);
 assert.ok(
-  regenBody.includes("defense / 20") &&
+  regenBody.includes("(1 + defense) / 20") &&
   !regenBody.includes("0.05 +"),
-  "Player Fight Boss HP regen must be exactly Defense/20."
+  "Player Fight Boss HP regen must be exactly (1 + Defense)/20 (Character::updateHP, IL build 1260)."
 );
 
 console.log("idle-fight-boss-zero-and-start-guard: OK");

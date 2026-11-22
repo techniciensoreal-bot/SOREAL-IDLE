@@ -52,32 +52,37 @@
   }
 
   /* Boutique des Atouts (Perk Emporium) : vitrines en liste ; la liste n'est refaite que si le modèle des cartes change. */
+  /* « Bonus actuel » et « Bonus du niveau suivant » (info-bulle du jeu : Current Bonus / Next Level Bonus) ; valeurs calculées par le serveur, jamais d'estimation ici. */
+  function nombreBonus_(v,u){return v.toLocaleString('fr-FR',{maximumFractionDigits:4})+(u==='%'?' %':'');}
   function Vitrine_(c){
+    var qk=Boolean(c.quirk);
     return h('article',{class:'pk-vitrine'+(c.auMax?' pk-max':c.abordable?' pk-abordable':'')+(c.niveau>0?' pk-possede':'')},
-      h('div',{class:'pk-socle'},h('img',{class:'pk-image',src:c.image,alt:'',loading:'lazy',onError:function(e){e.currentTarget.hidden=true;}})),
+      c.image?h('div',{class:'pk-socle'},h('img',{class:'pk-image',src:c.image,alt:'',loading:'lazy',onError:function(e){e.currentTarget.hidden=true;}})):null,
       h('div',{class:'pk-corps'},
         h('div',{class:'pk-nom'},c.nom),
         c.difficulte?h('div',{class:'pk-difficulte'},c.difficulte>=2?'ATOUT DE DIFFICULTÉ SADIQUE':'ATOUT DE DIFFICULTÉ MALÉFIQUE'):null,
         h('div',{class:'pk-effet'},c.effet),
+        c.bonus?h('div',{class:'pk-bonus'},h('div',null,'Bonus actuel : '+nombreBonus_(c.bonus[0],c.bonus[2])),c.bonus[1]!=null?h('div',null,'Bonus du niveau suivant : '+nombreBonus_(c.bonus[1],c.bonus[2])):null):null,
         c.paliers?h('div',{class:'pk-paliers'},c.paliers.map(function(t){return h('div',{key:t},t);})):null,
         h('div',{class:'pk-niveau'},h('div',{class:'pk-jauge'},h('i',{style:{width:c.barre}})),h('span',null,c.niveau+' / '+c.cap))),
       c.auMax
         ?h('div',{class:'pk-etiquette pk-etiquette-max'},'✔ Maximum')
         :h('div',{class:'pk-achats'},
-          h('button',{type:'button',class:'pk-acheter',onClick:function(){window.__acheterPerkIdleV1__(c.id);},onContextMenu:function(e){e.preventDefault();window.__acheterPerkToutIdleV1__(c.id);}},h('span',{class:'pk-prix'},'⭐ '+c.cout+' PP'),h('span',{class:'pk-achat'},'Acheter')),
-          h('button',{type:'button',class:'pk-bascule pk-tout',title:'Dépense tout ce que tu peux sur cet atout, jusqu’à son niveau maximum (clic droit sur l’achat, sur ordinateur).',onClick:function(){window.__acheterPerkToutIdleV1__(c.id);}},'Tout')));
+          h('button',{type:'button',class:'pk-acheter',onClick:function(){(qk?window.__acheterQuirkIdleV1__:window.__acheterPerkIdleV1__)(c.id);},onContextMenu:function(e){e.preventDefault();(qk?window.__acheterQuirkToutIdleV1__:window.__acheterPerkToutIdleV1__)(c.id);}},h('span',{class:'pk-prix'},(qk?'📚 ':'⭐ ')+c.cout+(qk?' QP':' PP')),h('span',{class:'pk-achat'},'Acheter')),
+          h('button',{type:'button',class:'pk-bascule pk-tout',title:qk?'Dépense tout ce que tu peux sur ce quirk, jusqu’à son niveau maximum (clic droit sur l’achat, sur ordinateur).':'Dépense tout ce que tu peux sur cet atout, jusqu’à son niveau maximum (clic droit sur l’achat, sur ordinateur).',onClick:function(){(qk?window.__acheterQuirkToutIdleV1__:window.__acheterPerkToutIdleV1__)(c.id);}},'Tout')));
   }
   function PerksVue_(p){
+    var qk=Boolean(p.quirk),filtrer=function(){return (qk?window.__quirkFiltrerIdleV1__:window.__perkFiltrerIdleV1__).apply(null,arguments);};
     return h('div',{class:'pk-fond'},h('div',{class:'pk-boutique'},
-      h('div',{class:'pk-enseigne'},h('span',{class:'pk-ampoules'}),h('div',{class:'pk-enseigne-texte'},h('small',null,'Boutique'),h('b',null,'Perk Emporium')),h('span',{class:'pk-ampoules'})),
+      h('div',{class:'pk-enseigne'},h('span',{class:'pk-ampoules'}),h('div',{class:'pk-enseigne-texte'},h('small',null,qk?'Quirks':'Boutique'),h('b',null,qk?'Quirk Emporium':'Perk Emporium')),h('span',{class:'pk-ampoules'})),
       h('div',{class:'pk-comptoir'},
-        h('div',{class:'pk-solde'},h('span',null,'⭐ PP disponibles'),h('b',null,String(p.pp))),
-        h('input',{class:'pk-recherche',type:'search',placeholder:'Chercher un perk…',value:p.q,onInput:function(e){window.__perkFiltrerIdleV1__(e.currentTarget.value,null);}}),
-        h('button',{type:'button',class:'pk-bascule'+(p.abordables?' actif':''),'aria-pressed':p.abordables?'true':'false',onClick:function(){window.__perkFiltrerIdleV1__(null,!p.abordables);}},'💰 Abordables'),
-        h('button',{type:'button',class:'pk-bascule'+(p.nonMax?' actif':''),'aria-pressed':p.nonMax?'true':'false',title:'Cache les atouts déjà au niveau maximum.',onClick:function(){window.__perkFiltrerIdleV1__(null,null,!p.nonMax);}},'🙈 Masquer les maximums'),
-        h('select',{class:'pk-recherche pk-tri','aria-label':'Tri des atouts',value:p.tri,onChange:function(e){window.__perkFiltrerIdleV1__(null,null,null,e.currentTarget.value);}},
+        h('div',{class:'pk-solde'},h('span',null,qk?'📚 QP disponibles':'⭐ PP disponibles'),h('b',null,String(p.pp))),
+        h('input',{class:'pk-recherche',type:'search',placeholder:qk?'Chercher un quirk…':'Chercher un perk…',value:p.q,onInput:function(e){filtrer(e.currentTarget.value,null);}}),
+        h('button',{type:'button',class:'pk-bascule'+(p.abordables?' actif':''),'aria-pressed':p.abordables?'true':'false',onClick:function(){filtrer(null,!p.abordables);}},'💰 Abordables'),
+        h('button',{type:'button',class:'pk-bascule'+(p.nonMax?' actif':''),'aria-pressed':p.nonMax?'true':'false',title:qk?'Cache les quirks déjà au niveau maximum.':'Cache les atouts déjà au niveau maximum.',onClick:function(){filtrer(null,null,!p.nonMax);}},'🙈 Masquer les maximums'),
+        h('select',{class:'pk-recherche pk-tri','aria-label':qk?'Tri des quirks':'Tri des atouts',value:p.tri,onChange:function(e){filtrer(null,null,null,e.currentTarget.value);}},
           h('option',{value:'id'},'Tri : ordre normal'),h('option',{value:'base'},'Tri : coût de base'),h('option',{value:'total'},'Tri : coût total restant'))),
-      h('div',{class:'pk-etagere'},p.cartes.length?p.cartes.map(function(c){return h(Vitrine_,Object.assign({key:c.id},c));}):h('div',{class:'pk-vide'},'Aucun perk ne correspond.'))));
+      h('div',{class:'pk-etagere'},p.cartes.length?p.cartes.map(function(c){return h(Vitrine_,Object.assign({key:c.id},c));}):h('div',{class:'pk-vide'},qk?'Aucun quirk ne correspond.':'Aucun perk ne correspond.'))));
   }
 
   /* La boutique n'est redessinée que si son contenu (signature du modèle) a changé : une synchro qui ne change rien aux vitrines ne parcourt pas leurs dizaines de cartes. */
@@ -121,5 +126,5 @@
             h('div',{class:'itp-pp-barre'},h('div',{class:'itp-pp-rempli',style:{width:p.ppLargeur}}))))));
   }
 
-  window.__SOREAL_IDLE_ITOPOD_VDOM_V1__={Page:Page_,Perks:Perks_};
+  window.__SOREAL_IDLE_ITOPOD_VDOM_V1__={Page:Page_,Perks:Perks_,Quirks:Perks_};
 })();

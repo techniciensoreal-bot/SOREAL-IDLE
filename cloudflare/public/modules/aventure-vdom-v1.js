@@ -106,7 +106,7 @@
         var actif=String(z.id)===selected;
         var idleInfo=(z.idleP!=null&&z.idleT!=null)?' · Puissance Idle '+formater(z.idleP)+' · Endurance Idle '+formater(z.idleT):'';
         return {id:String(z.id),nom:String(z.name||z.id),actif:actif,style:perso?perso.style(z.id,actif):'',iconeHtml:perso?perso.icone(z.id):'',
-          titre:'Puissance '+formater(z.p||0)+' · Endurance '+formater(z.t||0)+idleInfo};
+          titre:'Puissance '+formater(z.p||0)+' · Endurance '+formater(z.t||0)+idleInfo+(window.__SOREAL_IDLE_INFOBULLES_AVENTURE_V1__?window.__SOREAL_IDLE_INFOBULLES_AVENTURE_V1__.zoneTexte(z.id):'')};
       })
     });
   }

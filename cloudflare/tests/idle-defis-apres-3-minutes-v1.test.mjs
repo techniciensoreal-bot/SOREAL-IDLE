@@ -37,5 +37,5 @@ assert.equal(defiTropTotV1(arrete, T0 + 3000), true, "défi arrêté juste aprè
 const snap = readFileSync("cloudflare/src/idle-ngu-snapshot.js", "utf8");
 assert.ok(readFileSync("cloudflare/src/idle-runtime-actions.js", "utf8").includes("code:'DEFI_TROP_TOT'"), "refus au lancement dans l'action du joueur");
 assert.ok(!snap.includes('(def.id === "challenges" && defiTropTotV1(state, now))'), "le menu Défis reste affiché avant 3 minutes (Norman, 2026-11-02) : seul le lancement est refusé");
-assert.ok(snap.includes("const ferme = !state.systems[def.id]?.unlocked; return {"), "le menu ne se ferme que si le système n'est pas débloqué (anti-spoil)");
+assert.ok(snap.includes("const ferme = !state.systems[def.id]?.unlocked;"), "le menu ne se ferme que si le système n'est pas débloqué (anti-spoil)");
 console.log("idle-defis-apres-3-minutes-v1: OK");

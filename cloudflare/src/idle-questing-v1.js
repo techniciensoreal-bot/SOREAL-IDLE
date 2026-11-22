@@ -770,6 +770,9 @@ export function idleQuestingSnapshotV1(state, env = {}) {
     enAttente: attenteTotaleV1(d),
     dropChance: Math.min(1, IDLE_QUEST_BASE_DROP_CHANCE_V1 * dropMultiplier),
     dropMultiplier,
+    /* Multiplicateurs exposés pour l'affichage (build 1260, IL : BeastQuestController::giveRewardsAndClear) : qpMultiplier = facteur du QP (idleQuestQpMultiplierV1, sans le beurre) ; activeRewardMultiplier = allActiveModifier d'une quête non idle (facteur actif x souhaits/atouts). */
+    qpMultiplier: idleQuestQpMultiplierV1(state, env),
+    activeRewardMultiplier: IDLE_QUEST_ACTIVE_REWARD_FACTOR_V1 * bonus.activeRewardMultiplier,
     idleDivider: divider,
     idleSecondsPerItem: perItem,
     handInBonusLevel: bonus.handInBonusLevel,

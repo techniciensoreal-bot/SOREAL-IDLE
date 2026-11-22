@@ -86,7 +86,7 @@ assert.deepEqual(cp(partie(null)("obtenirEtatSorealIdle")).trajectoire, [], "auc
   assert.equal(encore.joueur.pvJoueurMax, etat.joueur.pvJoueurMax, "même vie max à l'opération suivante");
   assert.equal(niveau(encore), niveau(etat), "mêmes niveaux");
   assert.equal(cp(encore).multiplicateurAttaqueTotal, cp(etat).multiplicateurAttaqueTotal, "même multiplicateur d'attaque");
-  assert.equal(encore.joueur.pvJoueurMax, Math.max(1000, Math.round(encore.joueur.force * 10)), "vie max = attaque × 10 (formule inchangée)");
+  assert.equal(encore.joueur.pvJoueurMax, Math.round(10 + encore.joueur.force * 10), "vie max = 10 + 10 x attaque (Character::updateCharacter, build 1260)");
 }
 
 globalThis.Date = VraiDate;

@@ -155,7 +155,8 @@
     }).join('')+'</div>';
     return '<div class="idle-succes-resume-v1">'+
         tuile('🏅','Succès',faits,'linear-gradient(135deg,#f2a900,#f97316)')+
-        tuile('💎','Bonus Points',nombre(a.bp)+' BP','linear-gradient(135deg,#4f6bff,#9b5cf6)')+
+        /* « x / y » permis sur la page des succès (exception de Norman, 2026-10-10 : tous les trophées sont listés) ; y = somme des BP de la liste envoyée par le serveur (5825 pour le catalogue complet, tableau achievementBP du jeu). */
+        tuile('💎','Bonus Points',nombre(a.bp)+' / '+nombre(liste.reduce(function(t,x){return t+(Number(x.bp)||0);},0))+' BP','linear-gradient(135deg,#4f6bff,#9b5cf6)')+
         tuile('💠','Bonus d’AP','+'+pct((nombre(a.apMultiplier)-1)*100),'linear-gradient(135deg,#14b8a6,#22c55e)')+
       '</div>'+
       '<div class="soreal-idle-note-v4" style="margin:6px 0">+1 % d’AP par tranche de 100 BP. Un objectif reste caché tant que le boss indiqué n’est pas vaincu.</div>'+

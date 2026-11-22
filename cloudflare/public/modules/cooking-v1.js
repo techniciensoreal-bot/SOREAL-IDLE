@@ -41,7 +41,8 @@
     const niveau=Math.max(min,Math.min(max,Math.floor(nombre(ing.level))));
     return '<div class="soreal-idle-section-v8" style="margin:0">'+
       '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center">'+
-        '<b>Ingrédient n°'+n+'</b><span><b>'+niveau+'</b> / '+max+'</span>'+
+        /* Nom, quantité et unité du jeu (CookingController : nom de l'ingrédient, getIngredientAmount = multiplicateur d'unité x niveau) ; repli « Ingrédient n°N » si le serveur ne les a pas envoyés. */
+        '<b>'+(ing.nom?html(ing.nom):'Ingrédient n°'+n)+'</b><span>'+(ing.nom&&ing.facteur?'<b>'+Math.round(nombre(ing.facteur)*niveau)+'</b> '+html(ing.unite||'')+' · ':'')+'<b>'+niveau+'</b> / '+max+'</span>'+
       '</div>'+
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
         '<button type="button" class="soreal-idle-expand-button-v25"'+(niveau<=min?' disabled':'')+' onclick="window.__cuisineReglerIngredientIdleV1__('+ing.index+','+(niveau-1)+')">−</button>'+
@@ -65,7 +66,7 @@
     const ingredients=Array.isArray(d.ingredients)?d.ingredients:[];
     const b=d.bonuses||{};
     const t=d.timer||{};
-    const gainConnu=d.mealExpGainDocumented===true&&d.mealExpGainPct!=null;
+    const gainConnu=d.mealExpGainPct!=null;
     const pret=Boolean(t.ready);
 
     const pieces=Array.isArray(b.gearPieces)?b.gearPieces:[];
@@ -83,16 +84,16 @@
 
     const boutonManger=!pret
       ?'<button type="button" class="soreal-idle-expand-button-v25" disabled>🍽️ Manger ! · prêt dans '+duree(t.readyInMs)+'</button>'
-      :(gainConnu
-        ?'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__cuisineMangerIdleV1__()">🍽️ Manger !</button>'
-        :'<button type="button" class="soreal-idle-expand-button-v25" disabled>🍽️ Manger ! (gain non documenté)</button>');
+      :'<button type="button" class="soreal-idle-expand-button-v25"'+(gainConnu?' onclick="window.__cuisineMangerIdleV1__()"':' disabled')+'>🍽️ Manger !</button>';
+    /* Jeu (CookingController : expBonus = 1 au départ, +100 %, maximum 300 %) : le gain d'EXP total affiché est 100 % + les repas déjà mangés, plafonné à 300 %. */
+    const gainTotalAffiche=Math.min(300,100+Math.max(0,nombre(d.totalExpGainPct)));
 
     return entete(titre,sous)+
       '<div class="soreal-idle-summary-grid-v28">'+
         '<div class="soreal-idle-summary-v28">Efficacité du repas<b>'+pct(d.efficiencyPct)+'</b></div>'+
         '<div class="soreal-idle-summary-v28">Bonus de cuisine totaux<b>'+pct(d.totalCookingBonusesPct)+'</b></div>'+
-        '<div class="soreal-idle-summary-v28">Gain d’EXP du repas<b>'+(gainConnu?'+'+pct(d.mealExpGainPct):'non documenté')+'</b></div>'+
-        '<div class="soreal-idle-summary-v28">Gain d’EXP total<b>+'+pct(d.totalExpGainPct)+'</b></div>'+
+        '<div class="soreal-idle-summary-v28">Gain d’EXP du repas<b>'+(gainConnu?'+'+pct(d.mealExpGainPct):'—')+'</b></div>'+
+        '<div class="soreal-idle-summary-v28">Gain d’EXP total<b>+'+pct(gainTotalAffiche)+'</b></div>'+
       '</div>'+
       '<div class="soreal-idle-section-v8">'+
         '<div class="soreal-idle-window-title-v31">🥘 Repas n°'+Math.max(0,Math.floor(nombre(d.mealNumber)))+'</div>'+
@@ -100,7 +101,6 @@
         '<div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:9px">'+boutonManger+'</div>'+
         '<div class="soreal-idle-note-v4" style="margin-top:9px">⏱️ Un repas toutes les '+heures(t.mealMs)+(t.breadSet?' (Set Bread : −1 h)':'')+
           ' · temps en réserve : '+duree(t.bankedMs)+' (max '+heures(t.capMs)+') · repas mangés : '+Math.max(0,Math.floor(nombre(d.mealsEaten)))+'</div>'+
-        (gainConnu?'':'<div class="soreal-idle-note-v4" style="margin-top:5px">ℹ️ La formule du gain d’EXP d’un repas n’est pas encore disponible : manger reste désactivé.</div>')+
       '</div>'+
       '<div class="soreal-idle-section-v8">'+
         '<div class="soreal-idle-window-title-v31">✨ Bonus de cuisine</div>'+detailBonus+

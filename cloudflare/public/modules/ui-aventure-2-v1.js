@@ -1649,16 +1649,20 @@
         const basePower=idleNombre_(item.basePower);
         const baseToughness=idleNombre_(item.baseToughness);
         const q=1+niveau/100;
+        /* Mise à l'échelle par le boss atteint (jeu : Equipment::tooltipText, build 1260) : sous le palier de l'objet, le serveur envoie echelleBoss (pourcentage et valeurs réduites : Power, Max Health = Power x 3, Toughness, Health Regen = Toughness x 0,03, chaque Special) ; absent = valeurs pleines. */
+        const eb=item.echelleBoss&&typeof item.echelleBoss==='object'?item.echelleBoss:null;
+        const curPower=eb?idleNombre_(eb.power):idleNombre_(item.power);
+        const curToughness=eb?idleNombre_(eb.toughness):idleNombre_(item.toughness);
         const maxPower=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(basePower,niveau);
         const maxToughness=window.__SOREAL_IDLE_PLAFOND_NIVEAU_V1__(baseToughness,niveau);
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-265 */
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-266 */
-        const powerMaxAtteint=basePower>0&&idleNombre_(item.power)+1e-9>=maxPower;
-        const toughnessMaxAtteint=baseToughness>0&&idleNombre_(item.toughness)+1e-9>=maxToughness;
+        const powerMaxAtteint=basePower>0&&curPower+1e-9>=maxPower;
+        const toughnessMaxAtteint=baseToughness>0&&curToughness+1e-9>=maxToughness;
 
         /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-267 */
-        const itemHp=idleNombre_(item.power)*3;
-        const itemRegen=idleNombre_(item.toughness)*.03;
+        const itemHp=curPower*3;
+        const itemRegen=curToughness*.03;
         const baseHp=basePower*3;
         const baseRegen=baseToughness*.03;
         const maxHp=maxPower*3;
@@ -1673,9 +1677,10 @@
          * Power/Toughness/MaxHP/Regen (ordre "brut" du moteur, qui sépare les deux paires).
          */
         return '<div class="soreal-idle-v138-details-stats">'+
+            (eb?'<div class="soreal-idle-v138-details-stat idle-echelle-boss-v1"><b>Stats ('+(window.__SOREAL_IDLE_INFOBULLES_AVENTURE_V1__?window.__SOREAL_IDLE_INFOBULLES_AVENTURE_V1__.formaterEchelle(eb.pct):String(eb.pct).replace('.',','))+' %)</b></div>':'')+
             (basePower>0
-              ?'<div class="soreal-idle-v138-details-stat" data-cmp-cle="Puissance" data-cmp-val="'+idleNombre_(item.power)+'"><span class="sb-power-v1">Puissance</span><b>'+
-                '<span class="soreal-idle-v138-stat-value-v1'+(powerMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.power))+'</span>'+
+              ?'<div class="soreal-idle-v138-details-stat" data-cmp-cle="Puissance" data-cmp-val="'+curPower+'"><span class="sb-power-v1">Puissance</span><b>'+
+                '<span class="soreal-idle-v138-stat-value-v1'+(powerMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(curPower)+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxPower)+
               '</b></div>'
               :''
@@ -1688,8 +1693,8 @@
               :''
             )+
             (baseToughness>0
-              ?'<div class="soreal-idle-v138-details-stat" data-cmp-cle="Endurance" data-cmp-val="'+idleNombre_(item.toughness)+'"><span class="sb-toughness-v1">Endurance</span><b>'+
-                '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(item.toughness))+'</span>'+
+              ?'<div class="soreal-idle-v138-details-stat" data-cmp-cle="Endurance" data-cmp-val="'+curToughness+'"><span class="sb-toughness-v1">Endurance</span><b>'+
+                '<span class="soreal-idle-v138-stat-value-v1'+(toughnessMaxAtteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(curToughness)+'</span>'+
                 ' / '+formatGrandNombreIdleV70_(maxToughness)+
               '</b></div>'
               :''
@@ -1704,10 +1709,11 @@
             (function(){
               /* Pièces de set : tous leurs Specials (valeur actuelle / plafond du niveau), audit NGU 2026-09-23. */
               if(Array.isArray(item.specialsAll)&&item.specialsAll.length){
-                return item.specialsAll.map(function(sv){
-                  const atteint=idleNombre_(sv.value)+1e-9>=idleNombre_(sv.max);
-                  return '<div class="soreal-idle-v138-details-stat" data-cmp-cle="'+idleHtml_('Special: '+idleLabelSpecialBonusV1_(sv.type))+'" data-cmp-val="'+idleNombre_(sv.value)+'"><span class="sb-special-v1">'+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
-                    '<span class="soreal-idle-v138-stat-value-v1'+(atteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(idleNombre_(sv.value),2)+'%</span>'+
+                return item.specialsAll.map(function(sv,iSv){
+                  const valSv=eb&&Array.isArray(eb.specials)&&Number.isFinite(Number(eb.specials[iSv]))?Number(eb.specials[iSv]):idleNombre_(sv.value);
+                  const atteint=valSv+1e-9>=idleNombre_(sv.max);
+                  return '<div class="soreal-idle-v138-details-stat" data-cmp-cle="'+idleHtml_('Special: '+idleLabelSpecialBonusV1_(sv.type))+'" data-cmp-val="'+valSv+'"><span class="sb-special-v1">'+idleHtml_(idleLabelSpecialBonusV1_(sv.type))+'</span><b>'+
+                    '<span class="soreal-idle-v138-stat-value-v1'+(atteint?' maxed':'')+'">'+formatGrandNombreIdleV70_(valSv,2)+'%</span>'+
                     ' / '+formatGrandNombreIdleV70_(idleNombre_(sv.max),2)+'%'+
                   '</b></div>';
                 }).join('');

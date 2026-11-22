@@ -11,7 +11,7 @@ import { accessorySlotsCapacityAdventureV1 } from "./idle-adventure-inventaire.j
 import { idleCardsSnapshotV1, idleCardsGrantChallengeMayoV1 } from "./idle-cards-v1.js";
 import { idleYggIsMayoFruitV1, idleYggFruitUnlockedV1, idleYggExtraSnapshotV1 } from "./idle-yggdrasil-extra-v1.js";
 import { macguffinSnapshotV1, macguffinPermanentPctV1 } from "./idle-macguffins-v1.js";
-import { IDLE_PERKS_CATALOG_V1, perkBonusesV1, idlePerkByIdV1, idlePerkNextCostV1 } from "./idle-perks-v1.js";
+import { IDLE_PERKS_CATALOG_V1, perkBonusesV1, idlePerkByIdV1, idlePerkNextCostV1, idleEntreeBonusAffichageV1 } from "./idle-perks-v1.js";
 import { idleDifficulteSuffisanteV1, IDLE_PERK_DIFFICULTE_V1, IDLE_QUIRK_DIFFICULTE_V1, idleWishAccessibleV1, idlePerkNiveauxV1, idleWishTracksActifsV1, idleRangDifficulteV1 } from "./idle-difficulty-gates-v1.js";
 import { IDLE_QUIRKS_CATALOG_V1, idleQuirkByIdV1, idleQuirkNextCostV1 } from "./idle-quirks-v1.js";
 import { systemesPerkOuvertsV1 } from "./idle-perks-systemes-v1.js";
@@ -29,8 +29,11 @@ import { nguNormalLevelSumsV1, achievementsSnapshotV1, apBonusMultiplierV1, apWi
 import { augmentationGoldCost, augmentationSecondsForNextLevel, augmentationSecondsBrutNextLevel, externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceBudget, totalAllocated } from "./idle-ngu-ressources.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, ressourceDecouverteV1, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAutoEnvV1, resourceInfoV1 } from "./idle-ngu-actions.js";
+import { idleCookingAjouterNomsV1 } from "./idle-cooking-noms-v1.js";
+import { beardInfoV1, hackInfoV1, hackReductionsInfoV1 } from "./idle-ngu-pistes.js";
 import { IDLE_AT_ORDRE_V1, beardActiveIdsV1, beardSlotsV1, beardTrackUnlocked, bloodMagicViewV1, finiOuNullV1, timeMachineViewV1, wandoosViewV1, wishSlotCountV1, wishSlotsSnapshotV1 } from "./idle-ngu-pistes.js";
 import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, castBloodSpell, createTrollStateV1, diggerLaboVisibleV1, diggerViewV1, ritualUnlocked, bloodParSecondeV1, pitGrainesGrenadeV1, yggMaxTier, yggTierUpgradeCost, apercuYggFruitV1 } from "./idle-ngu-systemes.js";
+import { idleInfobullesTitansV1, idleInfobullesZonesV1, idleObjetsAvecEchelleBossV1 } from "./idle-infobulles-aventure-v1.js";
 import { IDLE_WANDOOS_OS_V1, RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, idleTheEndFinalHackSnapshotV1 } from "./idle-ngu-etat.js";
 /* Fruit à découvrir (anti-spoil, règle n°2) : les fruits de Mayo (système Cards), le Fruit of Numbers (5e complétion du défi Troll), le Fruit of Rage (ITOPOD), le Fruit of MacGuffin α (forme finale de Walderp) et le Fruit of Quirks (Titan 6) n'apparaissent qu'une fois obtenus, même Yggdrasil découvert. */const yggFruitSecretV1 = (id) => idleYggIsMayoFruitV1(id) || id === "numbers" || id === "rage" || id === "macguffinAlpha" || id === "quirks";
 
@@ -52,7 +55,22 @@ function nguSnapshotV1(state, context) {
       const alloc = Math.max(0, num(n.allocation, 0));
       const rate = alloc * power * speeds[def.resource];
       const perLevel = params.baseCost * (n.level + 1);
+      /*
+       * Info-bulle du jeu (NGUController::displayTooltip, build 1260) : « Multiplies ... by X% per level » (currentBoostFactor du palier affiché), « Normal Bonus / Evil Bonus / SADISTIC Bonus / Total Bonus »
+       * (ratio x 100 de chaque palier ; seulement les paliers déjà atteints, jamais un palier inactif : règle n°2) et « diminishing returns after level N » (le soft cap du palier affiché).
+       * Respawn : le ratio est le temps d'apparition restant (1 - réduction). Le temps restant (Time Remaining) est déjà la durée du tuyau (secondsPerLevel).
+       */
+      let totalRatio = 1;
+      const bonusPaliers = active.length > 1 ? active.map(t => {
+        const pct = nguEffectPctV1(t, def.id, s.data.ngus[t][def.id].level);
+        const ratio = def.id === "respawn" ? Math.max(0, 1 - pct / 100) : 1 + pct / 100;
+        totalRatio *= ratio;
+        return [t, Math.round(ratio * 1e6) / 1e4];
+      }) : null;
       return {
+        parNiveau: params.pct,
+        ...(params.softCap != null ? { softCap: params.softCap } : {}),
+        ...(bonusPaliers ? { bonusPaliers, bonusTotal: Math.round(totalRatio * 1e6) / 1e4 } : {}),
         id: def.id,
         name: def.name,
         effect: def.effect,
@@ -205,7 +223,7 @@ function construireSnapshotNguV1(state, context, now) {
     ),
     currencies: clone(state.currencies),
     records: clone(state.records),
-    rebirth: clone(state.rebirth),
+    rebirth: { ...clone(state.rebirth), pitInutilise: Boolean(state.systems.moneyPit?.unlocked) && Math.max(0, Math.trunc(Number(state.systems.moneyPit?.data?.tossesThisRun) || 0)) === 0 && nowMs(now) >= Math.max(0, Number(state.systems.moneyPit?.data?.nextAt) || 0) },
     difficulty: state.difficulty,
     difficultyPeaks: clone(state.difficultyPeaks),
     /* difficultyUnlockRequirements et earlyGameTimeline ne sont plus envoyés au client (audit du 2026-10-10, IDLE-AUDIT-GP-002) : le client ne les lit pas, et ils listaient les boss à battre pour débloquer chaque système. */
@@ -289,6 +307,14 @@ function construireSnapshotNguV1(state, context, now) {
         const prochains = snap.titans.filter(t => !t.progressionUnlocked && num(t.state && t.state.kills, 0) <= 0).map(t => num(t.boss, 0)).filter(b => b > 0).sort((x, y) => x - y);
         snap.titans = snap.titans.filter(t => t.progressionUnlocked || num(t.state && t.state.kills, 0) > 0);
         snap.titansAccesBoss = snap.titans.length ? 0 : (prochains[0] || 0);
+      }
+      /* Infobulles de chiffres du vrai jeu (idle-infobulles-aventure-v1.js, 2026-11-22) : chances de butin des titans et des zones ouvertes (base x facteur de butin, plafond en vert) et mise à l'échelle du boss atteint sur les objets du sac. Champs additifs, jamais de total. */
+      {
+        const facteurButin = Math.max(0, num(idleNguBonuses(state).dropMultiplier, 1));
+        snap.infobulles = { titans: idleInfobullesTitansV1(snap.titans, facteurButin), zones: idleInfobullesZonesV1(snap.zones, facteurButin) };
+        const bossEff = Number.isFinite(state.adventure && state.adventure.bossEffectif) ? state.adventure.bossEffectif : null;
+        snap.inventory = idleObjetsAvecEchelleBossV1(snap.inventory, bossEff);
+        if (snap.trash) snap.trash = idleObjetsAvecEchelleBossV1([snap.trash], bossEff)[0];
       }
       return snap;
     })(),
@@ -405,6 +431,9 @@ function construireSnapshotNguV1(state, context, now) {
     /* Audit 2026-11-14 (règle n°2) : un atout lié à un système encore verrouillé (barbes, mineurs, cartes…) n'est envoyé qu'une fois ce système découvert, sauf s'il est déjà possédé (idle-perks-systemes-v1.js). */
     perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => (state.systems.perks?.unlocked || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) && systemesPerkOuvertsV1(p, systemeOuvertPerkV1(state)) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0).map(p => (IDLE_PERK_DIFFICULTE_V1[p.id] ? Object.assign({}, p, { diff: IDLE_PERK_DIFFICULTE_V1[p.id] }) : p))),
     quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => (state.systems.quirks?.unlocked || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) && systemesPerkOuvertsV1(q, systemeOuvertPerkV1(state)) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
+    /* Bonus actuel / au niveau suivant de chaque atout et quirk ACCESSIBLE (info-bulle du jeu : « Current Bonus », « Next Level Bonus »), [actuel, suivant|null, unité] par numéro ; seulement les entrées déjà envoyées ci-dessus (règle n°2). */
+    perkBonusAffichage: Object.fromEntries(IDLE_PERKS_CATALOG_V1.filter(p => state.systems.perks?.unlocked && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) && systemesPerkOuvertsV1(p, systemeOuvertPerkV1(state))).map(p => [p.id, idleEntreeBonusAffichageV1(p, num(state.systems.perks?.data?.levels?.[p.id], 0))]).filter(e => e[1])),
+    quirkBonusAffichage: Object.fromEntries(IDLE_QUIRKS_CATALOG_V1.filter(q => state.systems.quirks?.unlocked && idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) && systemesPerkOuvertsV1(q, systemeOuvertPerkV1(state))).map(q => [q.id, idleEntreeBonusAffichageV1(q, num(state.systems.quirks?.data?.levels?.[q.id], 0))]).filter(e => e[1])),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
     daycare: Object.assign(idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state), daycareFragmentsExtV1(state, true)), { skins: skinsSnapshotV1(state, daycareSkinsEnvV1(state)) }),
     /* Automatisation de l'inventaire : déblocages, réglages, minuteurs, slots d'automerge, loadouts, filtre. */
@@ -473,7 +502,7 @@ function construireSnapshotNguV1(state, context, now) {
       used: clone(state.records.newbieOffersUsed || [])
     },
     /* Anti-spoil (règle n°2, balayage en ligne 2026-10-06) : un système encore verrouillé n'expose ni son nom, ni son icône, ni ce qui le débloque (objet, boss, Rebirths), ni ses pistes. */
-    systems: IDLE_NGU_SYSTEMS.filter(def => state.systems[def.id]?.unlocked).map(def => { const ferme = !state.systems[def.id]?.unlocked; return {   /* Norman (2026-11-02) : le menu Défis RESTE affiché même avant les 3 minutes de run (le lancement, lui, reste refusé : DEFI_TROP_TOT) */
+    systems: IDLE_NGU_SYSTEMS.filter(def => state.systems[def.id]?.unlocked).map(def => { const ferme = !state.systems[def.id]?.unlocked; const redHack = def.id === "hacks" && !ferme ? hackReductionsInfoV1(state) : null; return {   /* Norman (2026-11-02) : le menu Défis RESTE affiché même avant les 3 minutes de run (le lancement, lui, reste refusé : DEFI_TROP_TOT) */
 
       id: def.id,
       name: ferme ? "" : def.name,
@@ -482,9 +511,15 @@ function construireSnapshotNguV1(state, context, now) {
       resources: def.resources.slice(),
       unlock: ferme ? { unlocked: false } : unlockInfo(def, state, context),
       ...(def.id === "hacks" ? { finalHack: idleTheEndFinalHackSnapshotV1(state) } : {}),
+      /* Barbes : « Actives : x / y » (BeardController / AllBeardsController, nombre de barbes actives et d'emplacements possédés). */
+      ...(def.id === "beards" && !ferme ? { barbesActives: { actives: beardActiveIdsV1(state).length, emplacements: beardSlotsV1(state) } } : {}),
       tracks: ferme ? [] : (IDLE_NGU_TRACKS[def.id] || []).filter(track => def.id !== "wishes" || (idleWishAccessibleV1(state, track.id) && systemesPerkOuvertsV1(idleWishByIdV1(Number(track.id)) || track, systemeOuvertPerkV1(state))) || num(state.systems.wishes?.data?.tracks?.[track.id]?.level, 0) > 0)   /* audit 2026-11-14 (règle n°2) : un souhait lié à un système fermé (cartes, barbes…) n'est listé qu'une fois ce système découvert */.map(track => ({
         ...track,
         unlocked: def.id !== "beards" || beardTrackUnlocked(state, track),
+        /* Hacks : info-bulle du jeu (effet actuel / suivant, jalons, durée), calculée ICI (hackInfoV1). */
+        ...(redHack ? { info: hackInfoV1(state, track, state.systems.hacks.data.tracks?.[track.id], redHack) } : {}),
+        /* Barbes : info-bulle du jeu (actif, bonus temporaire / permanent, durée, gain au Rebirth) ; seulement pour une barbe déjà débloquée (règle n°2). */
+        ...(def.id === "beards" && !ferme && beardTrackUnlocked(state, track) ? { info: beardInfoV1(state, track, state.systems.beards.data.tracks?.[track.id], (nowMs(now) - num(state.runStartedAt, nowMs(now))) / 1000) } : {}),
         state: clone(state.systems[def.id].data.tracks?.[track.id] || { level: 0, tempLevel: 0, permanentLevel: 0, progress: 0 }),
         active: def.id === "beards"
           ? beardActiveIdsV1(state).includes(track.id)
@@ -493,7 +528,7 @@ function construireSnapshotNguV1(state, context, now) {
             : state.systems[def.id].data.activeTrack === track.id
       })),
       /* Cooking : vue publique, sans les cibles secrètes du repas. */
-      state: ferme ? idleNguViderValeursV1(state.systems[def.id]) : (def.id === "cooking" ? idleCookingSystemSnapshotV1(state, nowMs(now)) : clone(state.systems[def.id]))
+      state: ferme ? idleNguViderValeursV1(state.systems[def.id]) : (def.id === "cooking" ? idleCookingAjouterNomsV1(idleCookingSystemSnapshotV1(state, nowMs(now))) : clone(state.systems[def.id]))
     }; })
   };
 }
@@ -1367,7 +1402,10 @@ function challengeSnapshotDefinitions(state,context={}) {
   /* Anti-spoil (AGENTS.md, règle n°2) : un défi encore verrouillé n'est jamais envoyé au client. */
   return challengeDefsForTierV1(tier).map(def=>{
     const completion=Math.max(0,int(completions?.[def.id],0));
+    /* AP annoncé = AP crédité (AdventureController / *ChallengeController::expectedAPReward = Character::checkAPAdded, build 1260, IL, 2026-11-22) : base (x niveau si scaleByNumber) majorée par le bonus AP commun (apWithBonusV1) ; l'EXP « expected » reste la base. apBase = la base brute. */
+    const apBase=Math.max(0,num(def.reward?.ap,0))*(def.reward?.scaleByNumber?completion+1:1);
     return Object.assign({},clone(def),{
+      reward:Object.assign({},clone(def.reward||{}),{ap:apWithBonusV1(state,apBase),apBase}),
       tier,
       completion,
       unlocked:challengeUnlocked(def,state,context),
@@ -1467,6 +1505,7 @@ export function challengeAction(state, payload, context, now) {
     const elapsed=Math.max(0,now-num(state.challenge.startedAt,now));
     const rewarded=before<Math.max(0,int(def.max,0));
     let rewardExperienceGagnee=0;
+    let rewardApCredite=0;
     const rewardScale=def.reward?.scaleByNumber?before+1:1;
     const rewardExperience=Math.max(0,num(def.reward?.experience,0))*rewardScale;
     const rewardAp=Math.max(0,num(def.reward?.ap,0))*rewardScale;
@@ -1478,7 +1517,8 @@ export function challengeAction(state, payload, context, now) {
       rewardExperienceGagnee=Math.floor(rewardExperience*Math.max(0,num(idleNguBonusesLectureV1(state).xpMultiplier,1)));
       state.currencies.experience+=rewardExperienceGagnee;
       /* Page Arbitrary Points : AP des défis majoré par le bonus AP commun, arrondi inférieur. */
-      state.currencies.ap+=apWithBonusV1(state,rewardAp);
+      rewardApCredite=apWithBonusV1(state,rewardAp);
+      state.currencies.ap+=rewardApCredite;
       /* Basic Challenge Sadistic : mayo de chaque type (page Challenges, idle-cards-v1.js). */
       if(tier==="extreme"&&id==="basic")idleCardsGrantChallengeMayoV1(state,completions[id]);
     }
@@ -1497,7 +1537,7 @@ export function challengeAction(state, payload, context, now) {
       completion:Math.max(0,int(completions[id],0)),
       targetBoss:target,
       rewarded,
-      reward:rewarded?{experience:rewardExperienceGagnee,ap:rewardAp}:{experience:0,ap:0},
+      reward:rewarded?{experience:rewardExperienceGagnee,ap:rewardApCredite}:{experience:0,ap:0},
       elapsedMs:elapsed
     };
   }
@@ -1850,6 +1890,27 @@ export function buyPerkMaxV1(state, perkId) {
   s.data.levels[perk.id] = currentLevel + n;
   s.level = Object.values(s.data.levels).reduce((sum, v) => sum + Math.max(0, int(v, 0)), 0);
   return { cost: cost * n, perkId: perk.id, level: currentLevel + n, bought: n, cap: perk.cap };
+}
+
+/*
+ * « Tout dépenser » sur un quirk (BeastQuestPerkController::tryLevelAll, IL build 1260) : mêmes refus que buyQuirkV1, puis achète tant que QP >= coût et niveau < plafond
+ * (coût plat par niveau : n = min(plafond - niveau, floor(QP / coût))).
+ */
+export function buyQuirkMaxV1(state, quirkId) {
+  const quirk = idleQuirkByIdV1(int(quirkId, -1));
+  if (!quirk) throw new Error("QUIRK_INTROUVABLE");
+  const s = state.systems.quirks;
+  const avant = Math.max(0, int(s?.data?.levels?.[quirk.id], 0));
+  const cost = idleQuirkNextCostV1(quirk, avant);
+  if (!Number.isFinite(cost)) throw new Error("QUIRK_AU_MAXIMUM");
+  const n = Math.max(1, Math.min(quirk.cap - avant, Math.floor(state.currencies.qp / cost)));
+  let achetes = 0, depense = 0;
+  /* Chaque niveau passe par buyQuirkV1 : les refus (système verrouillé, difficulté, QP) et l'écriture restent ceux de l'achat à l'unité. */
+  for (let i = 0; i < n; i++) {
+    const r = buyQuirkV1(state, quirk.id);
+    achetes++; depense += r.cost;
+  }
+  return { cost: depense, quirkId: quirk.id, level: avant + achetes, bought: achetes, cap: quirk.cap };
 }
 
 /*

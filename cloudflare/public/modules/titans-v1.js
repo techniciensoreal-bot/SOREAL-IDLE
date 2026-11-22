@@ -186,7 +186,9 @@ function marquerVu(id){try{localStorage.setItem(cleVu(id),'1');}catch(_e){}}
 var choixPalier={};
 var signatureRendue={};
 /* Ce qui change quand un titan est vaincu : nombre de victoires et heure de retour. */
-function signature(t){var e=t&&t.state||{};return ent(e.kills)+"|"+prochainRetour(t)+"|"+(e.hiddenPanel?1:0);}
+function infobulles(){return window.__SOREAL_IDLE_INFOBULLES_AVENTURE_V1__||null;}
+/* Chances de butin du titan (modules/infobulles-aventure-v1.js) : une valeur qui change (facteur de butin, version ouverte) redessine la carte. */
+function signature(t){var e=t&&t.state||{};var ib=infobulles();return ent(e.kills)+"|"+prochainRetour(t)+"|"+(e.hiddenPanel?1:0)+"|"+(ib?ib.titanSignature(String(t&&t.id)):'');}
 function carte(t){
   var id=String(t.id);
   var palier=t.difficulties&&typeof t.difficulties==='object'?Object.keys(t.difficulties)[0]:'';
@@ -233,6 +235,7 @@ function carte(t){
     '</div>'+
     '<div class="ttn-sous-titre">Ses statistiques</div><div class="ttn-stats" id="ttnStats_'+h(id)+'">'+htmlStats(v)+'</div>'+
     '<div id="ttnReco_'+h(id)+'">'+seuilsRecommandes(t,palier)+'</div>'+
+    (infobulles()?infobulles().titanHtml(id):'')+
     capacites+
   '</article>';
 }
@@ -352,6 +355,7 @@ function css(){
     '.ttn-jauge i{display:block;height:100%;border-radius:999px;background:#6b7280}'+
     '.ttn-jauge.oui i{background:linear-gradient(90deg,#059669,#34d399)}.ttn-jauge.non i{background:linear-gradient(90deg,#b91c1c,#f87171)}'+
     '.ttn-ok-oui{color:#34d399;font-weight:900}.ttn-ok-non{color:#f87171;font-weight:900}'+
+    '.ttn-butin{display:grid;gap:4px;margin-top:6px}.ttn-butin-ligne{display:flex;justify-content:space-between;gap:10px;font-size:13px}.ttn-butin-ligne b{font-variant-numeric:tabular-nums}.ttn-butin-plafond{color:#34d399}'+
     '.ttn-details{margin-top:9px;font-size:13px}'+
     '.ttn-details summary{cursor:pointer;font-weight:800}'+
     '.ttn-details ul{margin:7px 0 0;padding-left:18px;line-height:1.5}'+

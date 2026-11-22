@@ -51,13 +51,14 @@ const copies = (r) => r.result.drops.filter((d) => d.definitionId === "wandoos98
   etat.unlockFlags.ngu = true;
   const bas = combat(etat, "t2", ctx, TOUT);
   assert.equal(copies(bas).length, 1, "GCT : une copie garantie");
-  assert.equal(copies(bas)[0].level, 3, "borne basse 3");
+  assert.equal(copies(bas)[0].level, 4, "jet à 0,2 x lf réussi (tirage 0) : Range(4,8) -> borne basse 4");
   const etat2 = normalizeIdleAdventureStateV47({});
   etat2.titans.t1 = { kills: 24, nextAt: 0 };
   etat2.unlockFlags.ngu = true;
   const haut = combat(etat2, "t2", ctx, PLUS_RIEN);
   assert.equal(copies(haut).length, 1);
   assert.equal(copies(haut)[0].level, 7, "borne haute 7");
+  assert.ok(true);
 }
 
 console.log("idle-titan-wandoos98-guaranteed OK");

@@ -34,7 +34,11 @@
         {id:'trainingFactor',nom:'Facteur de niveau d’entraînement'},
         {id:'bloodMagicBonus',nom:'Bonus de Magie du sang'},
         {id:'nguNumberBonus',nom:'Bonus NGU (Attaque)'},
-        {id:'beardNumberBonus',nom:'Bonus des Barbes'}
+        {id:'beardNumberBonus',nom:'Bonus des Barbes'},
+        /* RebirthPowerDisplay::Update (build 1260) : Yggdrasil, MacGuffin et Hack NUMBER Bonus, seulement s'ils sont différents de ×1 */
+        {id:'yggNumberBonus',nom:'Bonus NUMBER d’Yggdrasil'},
+        {id:'macguffinNumberBonus',nom:'Bonus NUMBER des MacGuffins'},
+        {id:'hacksNumberBonus',nom:'Bonus NUMBER des Hacks'}
       ];
 
       function rendreRenaissanceIdleV14_(j){
@@ -81,6 +85,14 @@
             ligne('👹','Boss le plus haut battu',formatGrandNombreIdleV70_(Math.max(0,idleEntier_(j&&j.bossVaincus))))+
             ligne('🔢','Nombre actif',formatGrandNombreIdleV70_(actuel))+
           '</div>';
+        /* Phrase du jeu (RebirthPowerDisplay::Update) : « Your NUMBER will be X x larger / smaller if you rebirth! » (+ « Or ~N more / fewer bosses! » au-delà de 3), seulement à partir du boss 17 ; N = log10 du rapport arrondi. */
+        let phraseNombre='';
+        if(idleEntier_(j&&j.bossVaincus)>=16&&actuel>0&&prochain>0&&Math.abs(prochain/actuel-1)>1e-9){
+          const grandit=prochain>actuel,rapport=grandit?prochain/actuel:actuel/prochain,nbBoss=Math.round(Math.log10(rapport));
+          phraseNombre=(grandit?'Ton Nombre sera '+formatGrandNombreIdleV70_(rapport,3)+' fois plus grand si tu renais !':'Ton Nombre sera '+formatGrandNombreIdleV70_(rapport,3)+' fois plus petit si tu renais !')+
+            (nbBoss>3?(grandit?' (soit ~'+nbBoss+' boss de plus)':' (soit ~'+nbBoss+' boss de moins)'):'');
+        }
+        const avertPit=meta.pitInutilise===true?'<div class="soreal-idle-rebirth-warning-v14 rb2-pit-inutilise" style="color:#ff4a4a;font-weight:700">PIT NON UTILISÉ</div>':'';
         return `
           <div id="sorealIdleBlocRenaissanceV27" class="soreal-idle-rebirth-v14 rb2-v1">
             <div class="soreal-idle-rebirth-title-v14">♻️ Rebirth</div>
@@ -100,6 +112,8 @@
                 <div class="soreal-idle-rebirth-stat-value-v14">×${ratio>=1000?formatGrandNombreIdleV70_(ratio,3):ratio.toFixed(3)}</div>
               </div>
             </div>
+            ${phraseNombre?'<div class="rb2-phrase-nombre">'+phraseNombre+'</div>':''}
+            ${avertPit}
             <button type="button" class="soreal-idle-rebirth-button-v14${prochain>actuel*1.0000001?' positif':''}"
               onclick="window.__renaitreIdleV14__()" ${(REG.idleRenaissanceEnCoursV14||!(REG.idleEtat&&REG.idleEtat.renaissance&&REG.idleEtat.renaissance.debloquee)||(REG.idleEtat.systemes&&REG.idleEtat.systemes.challenge&&REG.idleEtat.systemes.challenge.active==='noRebirth'))?'disabled':''}>
               ♻️ RENAISSANCE

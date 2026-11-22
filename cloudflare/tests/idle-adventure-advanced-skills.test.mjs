@@ -110,15 +110,15 @@ assert.equal(state.skillState.endPiece481,true);
 // The rare unlock items use their real documented base chances.
 const source=lireSrc("idle-adventure-v47.js");
 assert.ok(
-  source.includes('if(chance(.01)){const a=add(s,special("mysteriousRedLiquid",5))'),
+  lireSrc("idle-adventure-combat.js").includes('if(chance(.01))objetB("mysteriousRedLiquid",5)'),
   "Grand Corrupted Tree must use the 1% Red Liquid base chance."
 );
 assert.ok(
-  source.includes('if(palier&&chance(.00002)){const a=add(s,special("mysteriousPurpleLiquid",1))'),
+  lireSrc("idle-adventure-combat.js").includes('if(palier&&chance(.00002))objetB("mysteriousPurpleLiquid",1)'),
   "The Beast Normal+ must use the 0.002% Purple Liquid base chance."
 );
 assert.ok(
-  source.includes('if(tierKey==="brutal"&&chance(.000001)){const a=add(s,special("smallGerbil",4))'),
+  lireSrc("idle-adventure-combat.js").includes('if(tierKey==="brutal"&&chance(.000001))objetB("smallGerbil",4)'),
   "The Beast Brutal must use the 0.0001% Small Gerbil base chance."
 );
 

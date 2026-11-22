@@ -48,7 +48,7 @@
     }
     const ratio=q.required>0?Math.min(1,q.progress/q.required):0;
     return '<div class="soreal-idle-note-v4"><b>'+(q.major?'⭐ Quête majeure':'📜 Quête mineure')+'</b> — rapporter <b>'+esc(q.itemName)+'</b> ('+esc(q.zoneName)+')</div>'+
-      '<div class="soreal-idle-note-v4" style="margin-top:5px">Progression : <b>'+ent(q.progress)+' / '+ent(q.required)+'</b>'+(q.usedIdle?' · barre d’idle déjà remplie (récompense non doublée)':' · récompense active (x2)')+'</div>'+
+      '<div class="soreal-idle-note-v4" style="margin-top:5px">Progression : <b>'+ent(q.progress)+' / '+ent(q.required)+'</b>'+(q.usedIdle?' · barre d’idle déjà remplie (récompense non doublée)':(data.activeRewardMultiplier!=null?' · '+pct(data.activeRewardMultiplier,0)+' de récompenses (travailleur acharné, sans mode idle)':' · récompense active'))+'</div>'+
       '<div style="height:8px;background:#2a2f3d;border-radius:4px;margin-top:6px;overflow:hidden"><div style="height:100%;width:'+(ratio*100).toFixed(1)+'%;background:#d97706"></div></div>'+
       (data.idle?'<div class="soreal-idle-note-v4" style="margin-top:5px">Barre d’idle : '+pct(q.idleBar,0)+' · fin estimée en idle : '+duree(q.idleEtaSeconds)+'</div>':'')+
       '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
@@ -100,7 +100,11 @@
         '<div class="soreal-idle-summary-v28">Prochaine majeure<b>'+(data.secondsToNextMajor==null?'banque pleine':duree(data.secondsToNextMajor))+'</b></div>'+
         '<div class="soreal-idle-summary-v28">Beast Butter<b>'+ent(data.butters)+'</b></div>'+
       '</div>'+
-      '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🎯 Quête en cours</div>'+blocQuete(data.quest,data)+'</div>'+
+      '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">🎯 Quête en cours</div>'+blocQuete(data.quest,data)+
+        /* BeastQuestController::updateText : « QP Reward Modifier » et « Quest Item Drop Modifier » (valeurs du serveur ; rien n'est affiché si elles manquent). */
+        (data.qpMultiplier!=null?'<div class="soreal-idle-note-v4" style="margin-top:5px">Modificateur de récompense en QP : <b>'+pct(data.qpMultiplier,1)+'</b></div>':'')+
+        (data.dropMultiplier!=null?'<div class="soreal-idle-note-v4" style="margin-top:3px">Modificateur de butin de quête : <b>'+pct(data.dropMultiplier,1)+'</b></div>':'')+
+      '</div>'+
       '<div class="soreal-idle-section-v8"><div class="soreal-idle-window-title-v31">💤 Mode idle</div>'+
         '<div class="soreal-idle-note-v4">'+(data.idle?'Actif':'Inactif')+' — progression sans être dans la zone, 1 objet toutes les '+duree(data.idleSecondsPerItem)+' (diviseur '+ent(data.idleDivider)+'). Les objets ne tombent plus pendant l’idle, et une quête dont la barre d’idle s’est remplie n’est pas doublée.'+(data.trulyIdle?' Truly Idle Questing : remise et nouvelle quête automatiques.':'')+'</div>'+
         '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+

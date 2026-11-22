@@ -22,7 +22,7 @@ const fnBody = source.slice(fnStart, fnEnd);
 
 assert.ok(
   fnBody.includes("const regenPvSecJoueur=\n    Math.max(\n      0,\n      defense / 20\n    );".replace(/\n\s*/g, "")) ||
-  fnBody.replace(/\s+/g, "").includes("constregenPvSecJoueur=Math.max(0,defense/20);"),
+  fnBody.replace(/\s+/g, "").includes("constregenPvSecJoueur=Math.max(0,(1+defense)/20);"),
   "La regen du Combat de boss doit rester Defense/20 (formule NGU réelle, montant absolu de PV/seconde), pas un pourcentage du pool max."
 );
 

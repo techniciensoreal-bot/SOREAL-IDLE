@@ -43,7 +43,7 @@ assert.match(html, /sc-case (visible|cache)/, "trophées non obtenus, grisés");
 assert.match(html, /\?\?\?\?\?<\/span>[\s\S]*Tue le boss \d+ pour voir les infos/, "objectif caché : ????? et boss à tuer");
 assert.doesNotMatch(html, /\/ 50|⬜|➖/, "pas de total de portraits");
 assert.doesNotMatch(html, /Defeat Boss|Obtain /, "objectifs écrits en français, jamais le texte du wiki");
-assert.match(html, /Bonus Points<b>\d+ BP/);
+assert.match(html, /Bonus Points<b>\d+ \/ \d+ BP/);
 assert.doesNotMatch(html, /Player Portraits|__profilChoisirPortraitIdleV1__|idle-portrait-btn-v1/, "le choix du portrait a quitté Chroniques (borne du menu Combat : borne-joueur-v1.js)");
 assert.doesNotMatch(html, /__profilPrixSpecialIdleV1__/);
 assert.doesNotMatch(html, /Special Prize<\/div>/, "le Special Prize est proposé dans le menu Info (comme dans le jeu), plus sur cette page");

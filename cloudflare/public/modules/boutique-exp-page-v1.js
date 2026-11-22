@@ -287,7 +287,9 @@
         return '<div class="soreal-idle-exp-stat-v210">'+
           '<div class="soreal-idle-exp-stat-head-v210">'+
             '<span class="soreal-idle-exp-titrebloc-v1">'+idleExpTitreAvecImageIdleV1_(stat.icone+' '+stat.nom)+idleExpPointIdleV1_('res:'+res.id+':'+stat.id)+'</span>'+
-            '<div class="soreal-idle-exp-current-v211"><small>Actuel</small><strong>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(x[stat.id]||0,2)+'</strong></div>'+
+            '<div class="soreal-idle-exp-current-v211"><small>Actuel</small><strong>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(x[stat.id]||0,2)+'</strong>'+
+            /* « i » : détail facteur par facteur (stats-detail-v1.js, panneau de la ressource) */
+            '<button type="button" class="soreal-idle-v79-info-btn" data-stats-panneau="'+({energy:'energie',magic:'magie',r3:'ressource3'}[res.id]||'energie')+'" title="Détail du calcul" aria-label="Détail du calcul">i</button></div>'+
           '</div>'+
           '<div class="soreal-idle-exp-help-v210">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(stat.explication||'')+'</div>'+
           (!achat

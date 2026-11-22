@@ -52,6 +52,12 @@ function fibonacciPaliersIdleV1_(niveau){
         return out;
       }
 
+function bonusAffichageIdleV1_(j,champ,id){
+        const m=j&&j.systemes&&j.systemes[champ];
+        const b=m&&m[id];
+        return Array.isArray(b)&&typeof b[0]==='number'?[b[0],typeof b[1]==='number'?b[1]:null,b[2]==='%'?'%':'']:null;
+      }
+
 function modelePerksIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const s=systemeMetaParIdIdleV130_(j,'perks');
@@ -79,6 +85,8 @@ function modelePerksIdleV1_(j){
             paliers:perk.id===94?fibonacciPaliersIdleV1_(niveau):null,
             /* perk.diff : rang de difficulté exigé (1 Evil, 2 Sadistic), envoyé par le serveur seulement pour un atout déjà accessible (règle n°2) */
             difficulte:H.idleEntier_(perk.diff||0),
+            /* [bonus actuel, bonus au niveau suivant ou null, unité] calculés par le serveur (info-bulle du jeu : Current Bonus / Next Level Bonus) ; absent = rien d'affiché */
+            bonus:bonusAffichageIdleV1_(j,'perkBonusAffichage',perk.id),
             image:'/perks/'+H.idleEntier_(perk.id)+'.webp'+(perk.id===52||perk.id===53?'?v=2':'')});
         });
         /* Ordre du jeu : indices croissants ; les deux autres tris sont croissants sur leur clé, à égalité par indice. */
@@ -106,30 +114,76 @@ function perkFiltrerIdleV1_(q,abordables,nonMax,tri){
       }
       window.__perkFiltrerIdleV1__=perkFiltrerIdleV1_;
 
-function pageQuirksIdleV1_(j){
+/*
+ * Page Quirks : même boutique que les atouts (filtres « Abordables » et « Masquer les maximums », tri par numéro / coût de base / coût total, bouton « Tout »), lue dans le jeu (BeastQuestPerkController : constructList,
+ * tryLevelAll). Réglages liés au compte (règle n°6), clé soreal_idle_quirks_reglages_v1 ; rendu par le composant partagé Quirks (modules/itopod-vdom-v1.js).
+ */
+const CLE_REGLAGES_QUIRKS_V1='soreal_idle_quirks_reglages_v1';
+function lireReglagesQuirksIdleV1_(){
+        let o=null;
+        try{o=JSON.parse(localStorage.getItem(CLE_REGLAGES_QUIRKS_V1)||'null');}catch(_e){o=null;}
+        if(!o||typeof o!=='object')o={};
+        return {abordables:o.abordables===true,nonMax:o.nonMax===true,tri:(o.tri==='base'||o.tri==='total')?o.tri:'id'};
+      }
+function modeleQuirksIdleV1_(j){
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const s=systemeMetaParIdIdleV130_(j,'quirks');
-        if(!s||!s.state||!s.state.unlocked)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+        if(!s||!s.state||!s.state.unlocked)return null;
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.quirkDefinitions)?j.systemes.quirkDefinitions:[];
-        const qp=j&&j.systemes&&j.systemes.currencies?window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(j.systemes.currencies.qp||0):0;
-        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('📚 Quirks','Chaque Quirk a son propre coût plat et son propre plafond. Dépense tes QP pour les améliorer une par une.')+
-          '<div class="soreal-idle-summary-grid-v28"><div class="soreal-idle-summary-v28">📋 QP disponibles<b>'+qp+'</b></div></div>'+
-          '<div style="display:grid;gap:10px">'+defs.map(function(quirk){
-            const niveau=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(levels[quirk.id]||0);
-            const cap=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(quirk.cap||0);
-            const auMax=niveau>=cap;
-            const cout=window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(quirk.cost||0);
-            return '<div class="soreal-idle-section-v8" style="margin:0">'+
-              '<div style="display:flex;justify-content:space-between;gap:8px"><b>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(emojiNomIdleV1_('quirks',quirk.id,quirk.name||('Quirk '+quirk.id)))+'</b><span style="white-space:nowrap;flex:none">'+niveau+' / '+cap+'</span></div>'+
-              '<div style="font-size:14px;color:#aeb5c8;margin-top:5px">'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(quirk.effect||'')+'</div>'+
-              '<div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:9px">'+
-                (auMax
-                  ?'<span class="soreal-idle-note-v4">✔ Maximum atteint</span>'
-                  :'<button type="button" class="soreal-idle-expand-button-v25" onclick="window.__acheterQuirkIdleV1__('+quirk.id+')">📚 Acheter ('+cout+' QP)</button>')+
-              '</div>'+
-            '</div>';
-          }).join('')+'</div>';
+        const qp=j&&j.systemes&&j.systemes.currencies?H.idleEntier_(j.systemes.currencies.qp||0):0;
+        const filtre=window.__quirkFiltreIdleV1__||(window.__quirkFiltreIdleV1__={q:''});
+        const reg=lireReglagesQuirksIdleV1_();
+        const q=String(filtre.q||'').trim().toLowerCase();
+        const cartes=[];
+        defs.forEach(function(quirk){
+          const niveau=H.idleEntier_(levels[quirk.id]||0);
+          const cap=H.idleEntier_(quirk.cap||0);
+          const auMax=niveau>=cap;
+          const cout=H.idleEntier_(quirk.cost||0);
+          const nom=String(quirk.name||('Quirk '+quirk.id));
+          if(q&&(nom+' '+String(quirk.effect||'')).toLowerCase().indexOf(q)<0)return;
+          if(reg.abordables&&cout>qp)return;
+          if(reg.nonMax&&auMax)return;
+          cartes.push({id:quirk.id,quirk:true,nom:nom,effet:String(quirk.effect||''),niveau:niveau,cap:cap,auMax:auMax,cout:cout,abordable:!auMax&&qp>=cout,
+            barre:(cap>0?Math.min(100,niveau*100/cap):0).toFixed(1)+'%',total:Math.max(0,cap-niveau)*cout,paliers:null,
+            difficulte:0,bonus:bonusAffichageIdleV1_(j,'quirkBonusAffichage',quirk.id),image:''});
+        });
+        cartes.sort(function(a,b){
+          if(reg.tri==='base'&&a.cout!==b.cout)return a.cout-b.cout;
+          if(reg.tri==='total'&&a.total!==b.total)return a.total-b.total;
+          return a.id-b.id;
+        });
+        return {quirk:true,pp:qp,q:String(filtre.q||''),abordables:reg.abordables,nonMax:reg.nonMax,tri:reg.tri,cartes:cartes,sig:qp+'|'+String(filtre.q||'')+'|'+reg.abordables+'|'+reg.nonMax+'|'+reg.tri+'|'+JSON.stringify(cartes)};
       }
+
+function pageQuirksIdleV1_(j){
+        const m=modeleQuirksIdleV1_(j);
+        const V=window.__SOREAL_IDLE_VDOM_V1__,C=window.__SOREAL_IDLE_ITOPOD_VDOM_V1__;
+        if(!m)return '<div class="soreal-idle-section-v8" style="text-align:center;padding:26px">Rien à afficher pour le moment.</div>';
+        if(!V||!C)return '';
+        return window.__SOREAL_IDLE_META_HOST_V130__.entetePageIdleV28_('📚 Quirks','Chaque Quirk a son propre coût plat et son propre plafond. Dépense tes QP pour les améliorer une par une.')+
+          V.monter('quirks',C.Quirks,m);
+      }
+
+/* Réglages de la page Quirks : même principe que perkFiltrerIdleV1_ (rendu de nouveau aussitôt, sans redessiner le menu). */
+function quirkFiltrerIdleV1_(q,abordables,nonMax,tri){
+        const f=window.__quirkFiltreIdleV1__||(window.__quirkFiltreIdleV1__={q:''});
+        if(q!=null)f.q=String(q);
+        if(abordables!=null||nonMax!=null||tri!=null){
+          const r=lireReglagesQuirksIdleV1_();
+          if(abordables!=null)r.abordables=Boolean(abordables);
+          if(nonMax!=null)r.nonMax=Boolean(nonMax);
+          if(tri!=null)r.tri=(tri==='base'||tri==='total')?tri:'id';
+          try{localStorage.setItem(CLE_REGLAGES_QUIRKS_V1,JSON.stringify({abordables:Boolean(r.abordables),nonMax:Boolean(r.nonMax),tri:r.tri}));}catch(_e){}
+        }
+        const V=window.__SOREAL_IDLE_VDOM_V1__,C=window.__SOREAL_IDLE_ITOPOD_VDOM_V1__;
+        const j=window.__SOREAL_IDLE_META_HOST_V130__.getIdleEtat();
+        if(!V||!C||!j||typeof document==='undefined'||!document.querySelector('[data-vdom="quirks"]'))return;
+        const m=modeleQuirksIdleV1_(j);
+        if(m)V.monter('quirks',C.Quirks,m);
+      }
+      window.__quirkFiltrerIdleV1__=quirkFiltrerIdleV1_;
 
 /* Données de la tour (système ITOPOD) ; null tant qu'elle n'est pas débloquée. */
 function lireItopodIdleV1_(j){
@@ -328,6 +382,12 @@ function acheterQuirkIdleV1_(quirkId){
         actionMetaIdleV130_({action:'buyQuirk',quirkId:Number(quirkId)});
       }
       window.__acheterQuirkIdleV1__=acheterQuirkIdleV1_;
+
+/* « Tout » (BeastQuestPerkController::tryLevelAll) : dépense tout ce qui est possible sur ce quirk. */
+function acheterQuirkToutIdleV1_(quirkId){
+        actionMetaIdleV130_({action:'buyQuirkMax',quirkId:Number(quirkId)});
+      }
+      window.__acheterQuirkToutIdleV1__=acheterQuirkToutIdleV1_;
 
   window.__SOREAL_IDLE_ITOPOD_PERKS_PAGE_V1__={
     pageQuirksIdleV1_:pageQuirksIdleV1_,

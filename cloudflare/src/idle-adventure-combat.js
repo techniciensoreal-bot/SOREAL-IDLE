@@ -623,10 +623,7 @@ export function advanceAdventureZoneAutoFarmOfflineV1(s,ctx,seconds,t){
  * Butin des titans -- sections "Loot" des pages wiki (miroir local NGU-Wiki,
  * 2026-09-23). Les taux "base chance" sont multipliés par le multiplicateur de
  * drop comme partout ailleurs. "lvl a-b" = niveau tiré uniformément entre a et
- * b (lecture de la notation du wiki). Le bonus de niveau des défis No Rebirth
- * s'ajoute aux pièces de set, pas au Forest Pendant (le wiki précise qu'il ne
- * s'y applique pas) ; les objets SPECIALS gardent leur niveau wiki (même
- * convention que Wanderer's Cane / Mysterious Red Liquid / Beast ci-dessous).
+ * b (lecture de la notation du wiki). Le bonus de niveau des défis No Rebirth (LootDrop::titanLevelBonus, IL build 1260, 2026-11-22) s'ajoute aux pièces de set ET aux objets spéciaux et pendentifs (makeTitanLevelledLoot(id, niveau + bonus) : objetB()) ; il ne s'applique pas aux makeTitanLoot (niveau 0 : A Number, Forest Pendant d'UUG), au Forest Pendant du GRB (20 fixe), ni aux niveaux fixes (Wandoos 98 niveau 1 du GRB, Unicorn Head 1). Voir rollTitanLootV1 : chaque ligne porte sa méthode IL.
  *
  * Titans Evil/Sadistic (Greasy Nerd, Godmother, Exile, IT HUNGERS, ROCK
  * LOBSTER, AMALGAMATE) : "Only cube root of loot chance bonus applies" (en
@@ -652,6 +649,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
     if(a)out.push(a);
   };
   const objet=(defId,lvl)=>{const a=add(s,special(defId,lvl));if(a)out.push(a)};
+  /* LootDrop::titanLevelBonus (build 1260, IL) = 1 si le défi No Rebirth a >= 1 complétion, sinon 0 ; zone8/11/14/16/19Drop et titans Evil appellent makeTitanLevelledLoot(id, niveau + titanLevelBonus) pour les objets « spéciaux ». objetB = objet avec ce bonus ; objet seul = niveau SANS bonus (exceptions du jeu : makeTitanLoot, makeTitanLevelledLoot(id, n) fixe). special() borne au niveau max. */
+  const objetB=(defId,lvl)=>objet(defId,lvl+bonus);
   const boosts=(type,liste)=>{
     for(const [force,p] of liste)if(chance(p)){const a=add(s,boost(type,force));if(a)out.push(a)}
   };
@@ -672,7 +671,7 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
    */
   const titanEvil=(setId,tauxPiece,tous,normal,dur,brutal)=>{
     for(const slot of SETS[setId].slots)if(chanceEvil(tauxPiece,.25))equip(setId,slot,Math.min(MAX,4+bonus));
-    const tirer=liste=>{for(const [defId,lvl,p,cap] of liste)if(chanceEvil(p,cap))objet(defId,lvl)};
+    const tirer=liste=>{for(const [defId,lvl,p,cap] of liste)if(chanceEvil(p,cap))objetB(defId,lvl)};
     tirer(tous);
     if(palierNormal)tirer(normal);
     if(palierDur)tirer(dur);
@@ -680,7 +679,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
   };
   if(id==="t1"){
     // wiki GRB, Loot : "A Number lvl 0 (guaranteed)" -- objet fusionnable du Number (set).
-    objet("aNumber",Math.min(MAX,bonus));
+    /* zone6Drop, IL : « A Number » (102) = makeTitanLoot : niveau 0, SANS bonus No Rebirth. */
+    objet("aNumber",0);
     equip("grb",pick(cinq),Math.min(MAX,bonus));
     if(chance(.5))equip("grb",pick(cinq),niveau(0,2));
     for(const slot of [...cinq,"necklace","meat"])if(chance(.15))equip("grb",slot,niveau(0,4));
@@ -691,7 +691,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
      * non appliqué, note du wiki) ; infobox « guaranteed », New Player Guide (Truth) « a
      * guaranteed drop from the first two Titans ». Avant : une seule copie au 1er kill.
      */
-    objet("wandoos98",chance(.2)?2+I(Math.random()*3):1);
+    /* IL zone6Drop : branche à 20 % = Range(2,5)+titanLevelBonus (2 à 4 + bonus) ; sinon niveau 1 FIXE (sans bonus). */
+    if(chance(.2))objetB("wandoos98",2+I(Math.random()*3));else objet("wandoos98",1);
   }else if(id==="t2"){
     // wiki Grand Corrupted Tree, Loot : "A Giant Seed lvl 0 (guaranteed)" -- objet fusionnable du Seed (set).
     objet("giantSeed",Math.min(MAX,bonus));
@@ -699,8 +700,9 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
     boosts("power",[[10,.1],[20,.08],[50,.05],[100,.05]]);
     boosts("toughness",[[10,.1],[20,.08],[50,.05],[100,.05]]);
     boosts("special",[[10,.1],[20,.08],[50,.08],[100,.05]]);
-    if(chance(.01)){const a=add(s,special("mysteriousRedLiquid",5));if(a)out.push(a)}
-    pendantForet(50,.1);
+    /* IL zone8Drop : Mysterious Red Liquid (93) à 5+titanLevelBonus ; Forest Pendant (53) à 50+titanLevelBonus. */
+    if(chance(.01))objetB("mysteriousRedLiquid",5);
+    pendantForet(50+bonus,.1);
     /*
      * 2026-09-24 (audit des pages-guides) : copie de Wandoos 98 garantie à chaque kill, niveau
      * 3-7 (infobox « guaranteed (3-7) », Template:Item data « GClvldrop = 3-7 », Loot « guaranteed »,
@@ -708,7 +710,8 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
      * le « 20% base chance for lvl 4-7 » de la section Loot (copie en plus, ou niveau 4-7 à la
      * place ? le wiki ne tranche pas ; la page Wandoos dit « 4-7 »).
      */
-    objet("wandoos98",3+I(Math.random()*5));
+    /* IL zone8Drop : jet à 0,2 x facteur de loot -> Range(4,8)+titanLevelBonus (4 à 7) ; sinon Range(3,8)+titanLevelBonus (3 à 7). */
+    objetB("wandoos98",chance(.2)?4+I(Math.random()*4):3+I(Math.random()*5));
   }else if(id==="t3"){
     equip("scrap","paper",Math.min(MAX,bonus));
     equip("jake",pick(cinq),Math.min(MAX,bonus));
@@ -716,9 +719,10 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
     for(const slot of cinq)if(chance(.1))equip("jake",slot,Math.min(MAX,2+bonus));
     if(chance(.25))equip("jake",pick(["tie","paperweight"]),Math.min(MAX,2+bonus));
     // wiki : "Stapler lvl 4 (2% base chance)", "Ascended Forest Pendant lvl 1 (10% base chance)"
-    if(chance(.02))objet("stapler",4);
+    /* IL zone11Drop : Stapler (118) à 4+titanLevelBonus, Ascended Forest Pendant (76) à 1+titanLevelBonus. */
+    if(chance(.02))objetB("stapler",4);
     for(const type of ["power","toughness","special"])boosts(type,[[100,.1]]);
-    if(chance(.1))objet("ascendedForestPendant",1);
+    if(chance(.1))objetB("ascendedForestPendant",1);
   }else if(id==="t4"){
     // wiki UUG, Loot : "UUG's Armpit Hair lvl 0 (guaranteed)" -- objet fusionnable de l'Armpit (set).
     objet("uugHair",Math.min(MAX,bonus));
@@ -728,36 +732,39 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
       if((premier&&slot==="ringGreed")||chance(.02))equip("uug",slot,Math.min(MAX,4+bonus));
     }
     // wiki : "UUG's 'Special' Ring lvl 4 (UUG's rings (set) completed, 0.1% base chance)"
-    if(s.completedSets.uug&&chance(.001))objet("uugSpecialRing",4);
+    /* IL zone14Drop : UUG Special Ring (149) à 4+titanLevelBonus ; Forest Pendant d'UUG = makeTitanLoot(53) : niveau 0 SANS bonus. */
+    if(s.completedSets.uug&&chance(.001))objetB("uugSpecialRing",4);
     pendantForet(0,.02);
   }else if(id==="t5"){
-    if(chance(.005))objet(...canneWalderpV1());
+    /* IL zone16Drop : tous les objets spéciaux à niveau + titanLevelBonus (Wanderer's Cane 154 à 10, Candy Cane 159 à 0, Wandoos XL 163 à 20, pendentif 76 à 50, Fanny Pack 160 et Dorky Glasses 161 à 10). */
+    if(chance(.005))objet(...canneWalderpV1(bonus));
     for(const slot of ["head","chest","legs","boots"]){
       if(chance(.005))equip("wanderer",slot,Math.min(MAX,4+bonus));
       if(chance(.005))equip("rerednaw",slot,Math.min(MAX,4+bonus));
     }
     // wiki : "Ascended Forest Pendant lvl 50 (0.5% base chance)", "Fanny Pack lvl 10 (if Wanderer's (set) complete, 0.01%)", "Dorky Glasses lvl 10 (if S'rerednaW (set) complete, 0.01%)"
-    if(chance(.005))objet("ascendedForestPendant",50);
+    if(chance(.005))objetB("ascendedForestPendant",50);
     // wiki Walderp, Loot : "A busted copy of Wandoos XL lvl 20 (0.5% base chance)".
-    if(chance(.005))objet("wandoosXl",20);
-    if(s.completedSets.wanderer&&chance(.0001))objet("fannyPack",10);
-    if(s.completedSets.rerednaw&&chance(.0001))objet("dorkyGlasses",10);
+    if(chance(.005))objetB("wandoosXl",20);
+    if(s.completedSets.wanderer&&chance(.0001))objetB("fannyPack",10);
+    if(s.completedSets.rerednaw&&chance(.0001))objetB("dorkyGlasses",10);
   }else if(id==="t6"){
     // wiki The Beast, Loot : "Heroic Sigil lvl 4 - guaranteed" -- objet fusionnable du Heroic Sigil (set).
     objet("heroicSigil",Math.min(MAX,4+bonus));
     for(const slot of cinq)if(chance(.0005))equip("slimy",slot,Math.min(MAX,4+bonus));
     // wiki, "All Modes" : "Ascended Ascended Ascended Pendant lvl 1 (0.05% base chance)", "A Bald Egg lvl 4 (0.02% base chance)"
-    if(chance(.0005))objet("ascendedX3Pendant",1);
-    if(chance(.0002))objet("baldEgg",4);
+    /* IL zone19Drop : tous ces objets spéciaux à niveau + titanLevelBonus (Pendentif x3 1, Bald Egg 4, Voodoo 4, Purple Liquid 1, Van Gogh 4, Giant Apple 4, Power Pill 4, Small Gerbil 4). */
+    if(chance(.0005))objetB("ascendedX3Pendant",1);
+    if(chance(.0002))objetB("baldEgg",4);
     const palier=palierNormal;
     const dur=palierDur;
-    if(palier&&chance(.00005)){const a=add(s,special("shrunkenVoodooDoll",4));if(a)out.push(a)}
-    if(palier&&chance(.00002)){const a=add(s,special("mysteriousPurpleLiquid",1));if(a)out.push(a)}
-    if(dur&&chance(.00001)){const a=add(s,special("pricelessVanGoghPainting",4));if(a)out.push(a)}
+    if(palier&&chance(.00005))objetB("shrunkenVoodooDoll",4);
+    if(palier&&chance(.00002))objetB("mysteriousPurpleLiquid",1);
+    if(dur&&chance(.00001))objetB("pricelessVanGoghPainting",4);
     // wiki, "Hard+" : "A Giant Apple lvl 4 (0.0005% base chance)" ; "Brutal" : "A Power Pill lvl 4 (0.0002% base chance)"
-    if(dur&&chance(.000005))objet("giantApple",4);
-    if(tierKey==="brutal"&&chance(.000002))objet("powerPill",4);
-    if(tierKey==="brutal"&&chance(.000001)){const a=add(s,special("smallGerbil",4));if(a)out.push(a)}
+    if(dur&&chance(.000005))objetB("giantApple",4);
+    if(tierKey==="brutal"&&chance(.000002))objetB("powerPill",4);
+    if(tierKey==="brutal"&&chance(.000001))objetB("smallGerbil",4);
   }else if(id==="nerd"){
     // wiki Greasy Nerd, Loot : "Incriminating Evidence lvl 1 - guaranteed".
     objet("incriminatingEvidence",Math.min(MAX,1+bonus));
@@ -765,13 +772,15 @@ function rollTitanLootV1(s,id,tierKey,bonus,dropMult,out,alea=Math.random){
     const garanti=pick([...cinq.map(slot=>"greasynerd:"+slot),"ordinaryCalculator","animeFigurine"]);
     if(garanti.startsWith("greasynerd:"))equip("greasynerd",garanti.slice(11),Math.min(MAX,4+bonus));else objet(garanti,4);
     titanEvil("greasynerd",.00035,
-      [["ordinaryCalculator",4,.00035,.25],["animeFigurine",4,.00035,.25],["ascendedX4Pendant",4,.00035,.25]],
+      /* IL zone23Drop : An Ordinary Calculator (242) = Min(0,00023 x lfRooted, 0,25) ; les pièces 237-241 et la Figurine (243) restent à 0,00035. */
+      [["ordinaryCalculator",4,.00023,.25],["animeFigurine",4,.00035,.25],["ascendedX4Pendant",4,.00035,.25]],
       [["theD20",4,.00027,.25],["theD8",4,.00027,.25]],
       [["animeBodypillow",4,.00022,.25],["redMeeple",4,.00022,.25]],
       [["bagOfTrash",4,.00017,.25],["heartShapedPanties",4,.00017,.25]]);
   }else if(id==="godmother"){
     // wiki The Godmother, Loot : "A Severed Unicorn's Head lvl 0 - guaranteed".
-    objet("severedUnicornHead",Math.min(MAX,bonus));
+    /* IL : makeTitanLevelledLoot(343, 1) : niveau 1 FIXE, sans bonus No Rebirth. */
+    objet("severedUnicornHead",1);
     titanEvil("mobster",.0001,
       [["ascendedX4Pendant",8,.0001,.25],["kingLooty",8,.0001,.25]],
       [["violinCase",4,.000075,.25],["molotovCocktail",4,.000075,.25]],
@@ -843,7 +852,7 @@ const TITAN_LOOT_CUBE_ROOT_V1=Object.freeze({id:"titan-evil",requiredDifficulty:
  * The Candy Cane of Destiny lvl 0 instead" (idem pour le jet à 0,5 %). "flat" :
  * ce 1 % n'est pas multiplié par le bonus de drop.
  */
-function canneWalderpV1(){return Math.random()<.01?["candyCaneDestiny",0]:["wanderersCane",10]}
+function canneWalderpV1(bonus=0){return Math.random()<.01?["candyCaneDestiny",0+bonus]:["wanderersCane",10+bonus]}
 
 const TITAN_RANK_V1=Object.freeze({t1:1,t2:2,t3:3,t4:4,t5:5,t6:6,nerd:7,nerdmom:7,godmother:8,consigliere:8,t7:9,priest:9,skeleton:6,hungers:10,lobster:11,amalgamate:12,tippi:13,traitor:14});
 
@@ -895,7 +904,7 @@ export function titan(s,id,ctx,t,difficulty,opts={}){const aliases={titan1:"t1",
  */
 /* 1er kill de GRB : Wandoos débloqué ; la copie elle-même vient de rollTitanLootV1 (garantie à chaque kill, 2026-09-24). */
 if(id==="t1"&&!s.unlockItems.wandoos98)s.unlockItems.wandoos98=true;
-if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;const [canne,niveauCanne]=canneWalderpV1();drops.push(add(s,special(canne,niveauCanne)))}
+if(id==="t5"&&st.kills>=d.forms.length){s.unlockFlags.walderpFinalDefeated=true;const [canne,niveauCanne]=canneWalderpV1(Math.max(0,I(challengeTitanLootLevel,0)));drops.push(add(s,special(canne,niveauCanne)))}
 const titanFinalisee=id!=="t5"||st.kills>=d.forms.length;/* Succès « Defeat <titan> before they can attack even once » (2026-11-14) : t1 GRB, t2 Grand Corrupted Tree, t3 Jake, t4 UUG, t5 Walderp (forme finale). */if(opts.sansCoup===true&&titanFinalisee&&["t1","t2","t3","t4","t5"].includes(id))s.unlockFlags["noHit_"+id]=true;
 const titanDropMult=Math.max(.1,N(ctx.dropMultiplier,1)*(ctx.dropMultiplierIncludesGear?1:(1+idleAdventureCubeTierV1(s.cube).dropChancePct/100)*idleAdventureSetRewardProductV1(s,"drop")));
 if(titanFinalisee)rollTitanLootV1(s,id,tierKey,challengeTitanLootLevel,titanDropMult,drops,aleaV1(ctx));

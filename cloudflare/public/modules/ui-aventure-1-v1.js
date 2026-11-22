@@ -2483,7 +2483,7 @@ function pageAventureIdleV28_(j){
                 const perso=window.__SOREAL_IDLE_ZONES_STYLE_V1__;
                 const styleZone=perso?' style="'+idleHtml_(perso.style(z.id,active))+'"':'';
                 const iconeZone=perso?'<span class="zone-ico-v1" aria-hidden="true">'+perso.icone(z.id)+'</span>':'';
-                return '<button type="button" data-zone-id="'+idleHtml_(z.id)+'" class="team-sort-option zone-perso-v1'+(active?' active':'')+'"'+styleZone+' title="Puissance '+formatGrandNombreIdleV70_(z.p||0)+' · Endurance '+formatGrandNombreIdleV70_(z.t||0)+idleInfo+'" onclick="window.__selectionnerZoneAdventureIdleV47__(\''+idleHtml_(z.id)+'\');window.__toggleMenuZoneAdventureIdleV1__();">'+
+                return '<button type="button" data-zone-id="'+idleHtml_(z.id)+'" class="team-sort-option zone-perso-v1'+(active?' active':'')+'"'+styleZone+' title="Puissance '+formatGrandNombreIdleV70_(z.p||0)+' · Endurance '+formatGrandNombreIdleV70_(z.t||0)+idleInfo+(window.__SOREAL_IDLE_INFOBULLES_AVENTURE_V1__?idleHtml_(window.__SOREAL_IDLE_INFOBULLES_AVENTURE_V1__.zoneTexte(z.id,a)):'')+'" onclick="window.__selectionnerZoneAdventureIdleV47__(\''+idleHtml_(z.id)+'\');window.__toggleMenuZoneAdventureIdleV1__();">'+
                       iconeZone+'<span>'+idleHtml_(z.name||z.id)+'</span>'+
                       (active?'<span class="team-sort-option-arrow">✓</span>':'')+
                     '</button>';

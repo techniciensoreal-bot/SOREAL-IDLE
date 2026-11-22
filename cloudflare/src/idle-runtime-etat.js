@@ -19,6 +19,7 @@ import { classementDebloqueSorealIdle_, estAdministrateurSorealIdle_, identiteJo
 import { ameliorationsSorealIdle_, bonusAmeliorationsSorealIdle_, construireAventureSorealIdle_, coutAmeliorationSorealIdle_, niveauxParBarreEntrainementSorealIdle_ } from "./idle-runtime-aventure.js";
 import { __idleCtx, accesOuvertSorealIdle_, accesPublicSorealIdle_ } from "./idle-sqlite-runtime.js";
 import { facteurExpBossPerkSorealIdle_, nukeTueUnBossSorealIdle_ } from "./idle-runtime-combat.js";
+import { idleStatsBreakdownV1 } from "./idle-stats-breakdown-v1.js";
 
 /* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 151 lignes. */
 function construireEtatJoueurSorealIdle__p1(feuille, ligne){
@@ -1774,6 +1775,9 @@ export function construireEtatJoueurSorealIdle_(
       { attaque: combatPrincipalEtat.multiplicateurAttaqueTotal, defense: combatPrincipalEtat.multiplicateurDefenseTotal },
       String(row[0] || '')
     );
+
+  /* Panneaux « Stats Breakdown » (Énergie, Magie, vitesses, gains, Aventure) : un seul crochet, calculs dans idle-stats-breakdown-v1.js (jamais bloquant). */
+  if (combatPrincipalEtat.detailStats) combatPrincipalEtat.detailStats.panneauxStats = idleStatsBreakdownV1(statsEtat.metaNgu);
 
   return {
     

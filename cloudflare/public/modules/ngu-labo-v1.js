@@ -381,6 +381,19 @@ var h=P_&&P_.h;
 var ancreCourante=0;   /* instant de réception de la dernière synchro : repère d'un rendu venu du serveur (un rendu local le réutilise) */
 
 /* ---------- un tuyau ---------- */
+/* Détails d'un NGU (info-bulle du jeu : NGUController::displayTooltip) : effet par niveau, rendements décroissants, bonus de chaque palier DÉJÀ atteint et bonus total ; tout vient du serveur (parNiveau, softCap, bonusPaliers, bonusTotal). */
+var NOMS_PALIERS_={normal:'Normal',evil:'Maléfique',sadistic:'SADIQUE'};
+function detailsNgu_(n){
+  var l=[];
+  if(n.parNiveau!=null)l.push((n.id==='respawn'?'Réduction par niveau : ':'Effet par niveau : ')+format_(n.parNiveau,3)+' %');
+  if(n.softCap!=null)l.push('Rendements décroissants après le niveau '+format_(n.softCap));
+  if(Array.isArray(n.bonusPaliers)){
+    n.bonusPaliers.forEach(function(b){l.push('Bonus '+(NOMS_PALIERS_[b[0]]||b[0])+' : '+(b[0]==='normal'?'':'×')+format_(b[1],2)+' %');});
+    l.push('Bonus total : '+format_(n.bonusTotal,2)+' %');
+  }
+  return l;
+}
+
 /* Modèle de vue d'un tuyau. L'instant de départ (data-nl-t0) n'est écrit que pour un tuyau qui progresse (spl > 0 : seul cas où le tick le lit) ; un tuyau à l'arrêt porte toujours 0 (HTML stable, Norman 2026-11-02). */
 function barreVm_(n,ancre,rang){
   var c=COULEURS[n.id]||['#9aa5bb','#111111'];
@@ -396,7 +409,7 @@ function barreVm_(n,ancre,rang){
   return {id:n.id,res:n.resource,stamp:ancre,niveau:niveau,niveauTxt:format_(niveau),alloc:alloc,allocTxt:format_(alloc),p:p,spl:spl,cible:cible,pleine:pleine,rempli:rempli,pct:Math.round(rempli*100)+' %',
     t0:spl>0?ancre:0,nuage:present,nuages:nu,
     nom:'NGU '+String(n.name||n.id).toUpperCase(),vit:vitesseTexte_(spl),eta:etaTexte_(spl,rempli,cible>0&&niveau>=cible,n.resource),
-    effet:n.effect,effetTxt:(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %',avecCap:n.plafond!=null,
+    details:detailsNgu_(n),effet:n.effect,effetTxt:(n.id==='respawn'?'-':'+')+format_(n.effectPct,2)+' %',avecCap:n.plafond!=null,
     style:'--nl-c:'+c[0]+';--nl-t:'+c[1]+';--nl-e:'+eclatLigne_(n)+';--nl-r:'+(rang||0)+';'+cielVars_(n.id),
     fumee:fumeeVars_(spl,rempli,pleine),saisie:String(cible)};
 }
@@ -441,6 +454,7 @@ function barre_(b){
     h('div',{class:'nl-eta','data-nl-eta':'',dangerouslySetInnerHTML:{__html:b.eta}}),
     h('div',{class:'nl-infos'},h('span',null,(b.res==='magic'?'Magie':'Énergie')+' placée ',h('b',{'data-nl-alloc':'',dangerouslySetInnerHTML:{__html:esc_(b.allocTxt)}})),
       h('span',{class:'nl-effet',title:b.effet},b.effet+' ',h('b',null,b.effetTxt))),
+    b.details.length?h('details',{class:'nl-details'},h('summary',null,'Détails'),b.details.map(function(t,k){return h('div',{key:k},t);})):null,
     h('div',{class:'nl-actions'},
       h('label',{class:'nl-cible'},h('span',null,'Cible'),
         h('input',{type:'number',inputmode:'numeric',min:'-1',step:'1',value:b.saisie,'data-nl-cible-champ':id,title:'Niveau cible : l’énergie est retirée dès qu’il est atteint (0 = aucun objectif, -1 = fait passer son énergie au suivant, avec « Faire suivre l’énergie »)',

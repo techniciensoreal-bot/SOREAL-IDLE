@@ -770,6 +770,39 @@
         selectionnerPisteMetaIdleV131_;
 
 
+      /*
+       * Info-bulles du jeu pour les hacks (HacksController::showTooltip) et les barbes (BeardController::showTooltip) : chaque valeur vient du serveur (p.info, hackInfoV1 / beardInfoV1) ; rien n'est calculé ici.
+       */
+      function dureeInfoPisteIdleV1_(sec){
+        let t=Math.max(0,Math.round(Number(sec)||0));
+        const j=Math.floor(t/86400);t-=j*86400;
+        const hh=Math.floor(t/3600);t-=hh*3600;
+        const mm=Math.floor(t/60);t-=mm*60;
+        return (j?j+' j ':'')+((j||hh)?hh+' h ':'')+((j||hh||mm)?mm+' min ':'')+t+' s';
+      }
+      function infoPisteIdleV1_(sysId,p){
+        const i=p&&p.info;
+        if(!i||(sysId!=='hacks'&&sysId!=='beards'))return '';
+        const H=window.__SOREAL_IDLE_META_HOST_V130__;
+        const f=function(v){return H.formatGrandNombreIdleV70_(Number(v)||0,2);};
+        const l=[];
+        if(sysId==='hacks'){
+          l.push('Effet actuel : '+f(i.effetActuel)+' %');
+          if(i.effetSuivant!=null)l.push('Niveau suivant : '+f(i.effetSuivant)+' %');
+          if(i.secondsPerLevel!=null)l.push('Temps avant le niveau suivant : '+dureeInfoPisteIdleV1_(i.secondsPerLevel));
+          l.push('Jalons atteints : '+H.idleEntier_(i.jalons));
+          l.push('Prochain jalon dans '+H.idleEntier_(i.niveauxAvantJalon)+' niveau(x)');
+          l.push('Bonus de jalon : '+f(i.bonusJalon)+' %');
+        }else{
+          l.push(i.actif?'ACTIVE':'INACTIVE');
+          l.push('Bonus temporaire : '+f(i.bonusTemp)+' %');
+          l.push('Bonus permanent : '+f(i.bonusPerm)+' %');
+          if(i.secondsPerLevel!=null)l.push('Temps avant le niveau suivant : '+dureeInfoPisteIdleV1_(i.secondsPerLevel));
+          l.push('Si elle est active au Rebirth, cette barbe gagnera '+H.idleEntier_(i.gagneAuRebirth)+' niveau(x) permanent(s), de '+f(i.permAvant)+' % à '+f(i.permApres)+' %');
+        }
+        return '<br><small>'+l.map(function(t){return H.idleHtml_(t);}).join('<br>')+'</small>';
+      }
+
       function rendrePistesSystemeMetaIdleV131_(s){
         /* ANTI-SPOIL (AGENTS.md règle n°2) : une piste encore verrouillée n'apparaît pas du tout (ni cadenas, ni « Verrouillée »). */
         const pistes=
@@ -805,10 +838,12 @@
                 ' · '+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(niveau)+
                 '<br><small>'+window.__SOREAL_IDLE_META_HOST_V130__.idleHtml_(p.effect||'')+'</small>'+
                 /* Hacks : chaque hack a sa propre Resource 3 et tous ceux qui en ont avancent (jeu : HacksController::updateAllHacks) ; on voit ce qui est placé sur chacun. */
+                infoPisteIdleV1_(s.id,p)+
                 (s.id==='hacks'&&Number(st.r3)>0?'<br><small>Placé : <strong>'+window.__SOREAL_IDLE_META_HOST_V130__.formatGrandNombreIdleV70_(Number(st.r3))+'</strong></small>':'')+
               '</button>';
             }).join('')+
           '</div>'+
+          (s.id==='beards'&&s.barbesActives?'<div class="soreal-idle-note-v4" style="margin-top:6px">Actives : '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(s.barbesActives.actives)+' / '+window.__SOREAL_IDLE_META_HOST_V130__.idleEntier_(s.barbesActives.emplacements)+'</div>':'')+
           (s.id==='hacks'?'<div class="soreal-idle-note-v4" style="margin-top:6px">Tous les hacks qui ont de la ressource placée avancent en même temps. Le + et le − de la barre d’outils agissent sur la piste active.</div>':'')+
         '</div>';
       }

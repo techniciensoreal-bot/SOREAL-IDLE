@@ -366,9 +366,14 @@ export function applyNguTargetsV1(state) {
       const alloue = Math.max(0, num(n.allocation, 0));
       /* Cible -1 + « Faire suivre l'énergie » (Norman, 2026-11-07 : « quand une cible est à -1 elle doit juste faire passer à la ligne suivante l'énergie ») : une ligne à -1 n'est jamais une destination ET fait passer tout de suite son énergie à la ligne suivante, comme une ligne qui a atteint sa cible ; sans suivante, l'énergie est rendue. Sans « Faire suivre l'énergie », -1 ne change rien. */
       if (!(nguCibleAtteinteV1(n) || (s.data.advance?.[resource] && nguCibleIgnoreeV1(n))) || alloue <= 0) return;
-      const suivant = s.data.advance?.[resource]
-        ? defs.slice(index + 1).find(d => !nguCibleIgnoreeV1(ngus[d.id]) && !nguCibleAtteinteV1(ngus[d.id]) && ngus[d.id].level < IDLE_NGU_MAX_LEVEL_V1)
-        : null;
+      /* Recherche CIRCULAIRE (AllNGUController::autoAdvanceEnergy / autoAdvanceMagic, build 1260, IL, 2026-11-22) : l'indice suivant est i+1 et repasse à 0 en fin de liste (NGUEnergySize = 9 / NGUMagicSize) ; la boucle teste tous les NGU en sautant ceux dont reachedTarget est vrai ; si tous sont à leur cible, l'énergie reste libre (rendue). */
+      let suivant = null;
+      if (s.data.advance?.[resource]) {
+        for (let k = 1; k < defs.length; k++) {
+          const d = defs[(index + k) % defs.length];
+          if (!nguCibleIgnoreeV1(ngus[d.id]) && !nguCibleAtteinteV1(ngus[d.id]) && ngus[d.id].level < IDLE_NGU_MAX_LEVEL_V1) { suivant = d; break; }
+        }
+      }
       if (suivant) {
         ngus[suivant.id].allocation = Math.max(0, num(ngus[suivant.id].allocation, 0)) + alloue;
         n.allocation = 0;
