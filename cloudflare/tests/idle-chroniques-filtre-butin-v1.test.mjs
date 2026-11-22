@@ -15,5 +15,6 @@ assert.ok(fn.includes("def.consumable||def.slot==='consumable'?'':boutonFiltreCh
 assert.ok(fn.includes("filterBoostsIntoCube") && fn.includes("Il part directement dans le Cube"), "l'info-bulle d'un boost dit où il va");
 /* le moteur verse bien un boost filtré dans le Cube (déjà en place) */
 const moteur = fs.readFileSync("cloudflare/src/idle-inventory-auto-v1.js", "utf8");
-assert.ok(moteur.includes('o.kind === "boost" && env?.filterBoostsIntoCube && s.cube?.unlocked'), "boost filtré -> Cube");
+/* 2026-11-22 : comme le jeu (ItemNameDesc::cubeFilter), plus de condition « cube débloqué » */
+assert.ok(moteur.includes('o.kind === "boost" && env?.filterBoostsIntoCube') && !moteur.includes('filterBoostsIntoCube && s.cube?.unlocked'), "boost filtré -> Cube");
 console.log("idle-chroniques-filtre-butin-v1: OK");

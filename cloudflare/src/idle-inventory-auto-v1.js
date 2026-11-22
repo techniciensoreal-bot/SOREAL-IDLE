@@ -647,8 +647,9 @@ function autoTransformV1(s, cfg, env, o) {
  * et que « Filter Boosts into Infinity Cube! » est acheté (« boosts applied this way will not be
  * recycled » ; ni recyclage ni transformation automatique).
  */
+/* Audit du Cube de l'infini (Norman, 2026-11-22 : « il faut que ce soit comme le jeu ») : ItemNameDesc::cubeFilter n'exige que Arbitrary.hasCubeFilter (achat « Filter Boosts into Infinity Cube! ») ; la puissance et la robustesse du cube comptent sans condition (InventoryController::cubePower) : un boost filtré est donc toujours versé dans le cube, même avant d'avoir trouvé le Cube. */
 function disposeFilteredV1(s, o, env) {
-  if (o.kind === "boost" && env?.filterBoostsIntoCube && s.cube?.unlocked) {
+  if (o.kind === "boost" && env?.filterBoostsIntoCube) {
     try {
       idleAdventureCubeBoostItemV1(s, o.id, boostCtxV1(env));
     } catch (_) { /* retiré juste en dessous */ }
@@ -665,7 +666,7 @@ export function idleInventoryReceiveDropV1(s, item, env) {
   const cfg = cfgV1(s);
   if (filteredV1(cfg, env, item, idleInventoryFilterZoneV1(s, env?.filterZone))) {
     idleAdventureRecordItemV1(s, item);
-    if (item.kind === "boost" && env?.filterBoostsIntoCube && s.cube?.unlocked) {
+    if (item.kind === "boost" && env?.filterBoostsIntoCube) {
       s.inventory.push(item);
       disposeFilteredV1(s, item, env);
       return { filtered: true, cube: true };
@@ -692,7 +693,7 @@ export function idleInventoryProcessNewDropsV1(s, beforeIds, env) {
   for (const o of s.inventory.slice()) {
     if (before.has(String(o.id))) continue;
     if (filteredV1(cfg, env, o, zone)) {
-      if (o.kind === "boost" && env?.filterBoostsIntoCube && s.cube?.unlocked) out.cube += 1;
+      if (o.kind === "boost" && env?.filterBoostsIntoCube) out.cube += 1;
       out.filteredIds.push(String(o.id));
       disposeFilteredV1(s, o, env);
       out.filtered += 1;

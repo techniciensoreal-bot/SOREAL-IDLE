@@ -36,6 +36,7 @@
             'Nouveau sur la borne : un petit interrupteur « AUTO » pour couper ou remettre un lancement automatique, quand tu en possèdes un.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
+            'Les boosts filtrés qui partent dans le cube comptent comme dans le jeu d’origine : tous les bonus de boost s’appliquent à chaque boost avalé, et il est avalé même si tu n’as pas encore trouvé le cube.',
             'Tous les journaux de combat suivent la langue du jeu, y compris « (filtré) » à côté des objets filtrés.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
