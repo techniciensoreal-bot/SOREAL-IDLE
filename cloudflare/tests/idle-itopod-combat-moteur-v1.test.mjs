@@ -44,7 +44,7 @@ try {
   // --- Étages à plusieurs coups mais joueur solide : les kills passent, les PV restent entre 0 et le maximum, aucune mort ---
   {
     const ctx = ctxDe(3000, 300);
-    const depart = reglerEtages(baseState(), 40, 40, ctx);
+    const depart = reglerEtages(baseState({ floor: 40 }), 40, 40, ctx); /* Appliquer ne déplace plus le joueur (alignement 2026-11-22) : il est posé à l'étage 40 */
     const etat = avancer(depart, 120, 5, ctx);
     const d = etat.systems.tower.data;
     assert.ok(d.kills >= 15, "2 coups = 2 s + 4 s de réapparition : environ 20 kills en 120 s, obtenu " + d.kills);
@@ -83,7 +83,7 @@ try {
   // --- Une synchro longue donne la même issue que des synchros courtes (le cycle est rejoué depuis son début, jamais perdu) ---
   {
     const ctx = ctxDe(3000, 300);
-    const depart = reglerEtages(baseState(), 40, 40, ctx);
+    const depart = reglerEtages(baseState({ floor: 40 }), 40, 40, ctx); /* Appliquer ne déplace plus le joueur (alignement 2026-11-22) : il est posé à l'étage 40 */
     const court = avancer(depart, 60, 3, ctx).systems.tower.data;
     const long = avancer(depart, 60, 60, ctx).systems.tower.data;
     assert.equal(court.kills, long.kills);

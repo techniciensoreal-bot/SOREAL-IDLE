@@ -25,7 +25,7 @@ var OPERATIONS={
 };
 /* Actions de progression (agirProgressionSorealIdle) qui sont des achats. */
 var ACTIONS={
-  buyResource:1,buyNewbieOffer:1,buyPerk:1,buyQuirk:1,sellShopBuy:1,buyExpShop:1,richJerks:1,buyDigger:1,upgradeDigger:1,upgradeYggFruit:1
+  buyResource:1,buyNewbieOffer:1,buyPerk:1,buyPerkMax:1,buyQuirk:1,sellShopBuy:1,buyExpShop:1,richJerks:1,buyDigger:1,upgradeDigger:1,upgradeYggFruit:1
 };
 
 function estAchat(nom,args,resultat){

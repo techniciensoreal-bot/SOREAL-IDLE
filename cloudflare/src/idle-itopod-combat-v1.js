@@ -104,7 +104,8 @@ export function itopodFightV1(p) {
   const interval = Math.max(0.05, Number(p.interval) || 1);
   const hpMax = Math.max(0, Number(p.hpMax) || 0);
   const regen = Math.max(0, Number(p.regen) || 0);
-  const degatsJoueur = Math.max(0, Number(p.power) - e.defense / 2) * Math.max(0.1, Number(p.idleMult) || 1);
+  /* EnemyAI::takeDamage (IL, audit 2026-11-22) : Floor(dégâts / defenseFactor) : un coup du joueur est entier (même formule que towerHitsV1). */
+  const degatsJoueur = Math.floor(Math.max(0, Number(p.power) - e.defense / 2) * Math.max(0.1, Number(p.idleMult) || 1));
   const coupBase = Math.max(0.1 * e.attack, e.attack - Math.max(0, Number(p.toughness) || 0) / 2);
   const tick = Math.floor(e.attack * ITOPOD_POISON_FRACTION_V1);
   const st = itopodEnemyMemoireV1();

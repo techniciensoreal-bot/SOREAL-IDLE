@@ -47,7 +47,8 @@ function estFlottant(cle){return String(cle||'').split('/').indexOf('level-1')!=
 /* Combat de l'écran : l'ennemi encaisse les coups un par un (le nombre de coups vient du serveur : towerHitsV1, la formule de la progression) ; purement visuel, le serveur calcule les kills. */
 var combat={auto:true,debut:0,fin:0,optimal:0,hits:1,intervalle:1,respawn:4,actif:false,killsServeur:-1,decalage:0,coups:0,mort:false,prochain:0,
   pvMax:0,pv:0,degats:0,ennemiCoup:0,ennemiPoison:0,ennemiPv:0,regenPv:0,ppBase:0,ppMult:1,ppProg:0,tEnnemi:0,dernierPas:0,nom:'',etageCourant:0,surCourant:0,
-  ia:null,sansEnnemi:false,reperage:null,finParalysie:0,lectureFigee:false,lectureJusqua:0};
+  ia:null,sansEnnemi:false,reperage:null,finParalysie:0,lectureFigee:false,lectureJusqua:0,
+  idle:true,haut:0,hautConnu:false,floorServeur:0,iaNom:'',precFloor:null,precSur:0,shifterOn:false,puissanceJoueur:0,defenseJoueur:0,regenBase:0};
 
 /*
  * Barre de vie du joueur et journal de combat (Norman, 2026-11-21 : « dans l'ITOPOD le joueur a une barre de vie et il y a un journal de combat », photo du vrai jeu). Purement visuels, comme le combat de l'écran : le serveur calcule les kills.
@@ -61,7 +62,9 @@ var combat={auto:true,debut:0,fin:0,optimal:0,hits:1,intervalle:1,respawn:4,acti
  */
 /* IA des 16 « Dude » de la zone ITOPOD (AdventureController::createEnemyTable, zone 1000) : 0 normal, 1 poison, 2 chargeur, 3 paralysie, 5 rapide, 6 grandisseur ; l'un des 16 est tiré à chaque apparition. */
 var IA_DUDE=[0,2,1,5,6,3,2,0,0,1,5,6,1,0,2,3];
-function neufIA(){return {ai:IA_DUDE[Math.floor(Math.random()*IA_DUDE.length)],poison:0,charge:0,paralyse:0,rapide:0,rapideMode:false,grow:0};}
+/* Noms de l'IA affichés sur la ligne « Type: » (AdventureController::displayEnemyStats : AI.ToString() ; ordre de l'énumération AI lu dans EnemyAI::doAction : 0 normal, 1 poison, 2 charger, 3 paralyze, 4 exploder, 5 rapid, 6 grower). */
+var IA_NOMS={0:['normal','normal'],1:['poison','poison'],2:['charger','chargeur'],3:['paralyze','paralysie'],4:['exploder','explosion'],5:['rapid','rapide'],6:['grower','croissance']};
+function neufIA(){var ai=IA_DUDE[Math.floor(Math.random()*IA_DUDE.length)];combat.iaNom=ai;return {ai:ai,poison:0,charge:0,paralyse:0,rapide:0,rapideMode:false,grow:0};}
 /* Un tour de l'ennemi (mêmes cycles que le moteur et que mobs-types-v1.js) : saute = pas de coup ce tour ; mult = multiplicateur du coup ; kind = phrase du coup ; tick = dégâts de poison ; paralyse = le joueur ne frappe plus 2 s. */
 function tourIA(ia){
   var r={saute:false,mult:1,kind:'normal',tick:false,prepare:false,paralyse:false,tremble:false,rapideDebut:false};
@@ -124,7 +127,35 @@ function texteVie(){return fmtNombre(Math.max(0,Math.floor(combat.pv)))+' HP';} 
 /* PV de l'ennemi sous sa barre (« 4.424E+035 HP » dans le jeu ; « 0 HP » quand il n'y a plus d'ennemi, AdventureController::playerDeath). */
 function texteVieEnnemi(){
   if(combat.sansEnnemi||combat.mort||!(combat.ennemiPv>0))return '0 HP';
-  return fmtNombre(Math.max(0,Math.floor(combat.ennemiPv*Math.max(0,1-combat.coups/Math.max(1,combat.hits)))))+' HP';
+  return fmtNombre(Math.max(0,Math.floor(combat.ennemiPv*echelleEtage()*Math.max(0,1-combat.coups/Math.max(1,combat.hits)))))+' HP';
+}
+/* Échelle des stats de l'ennemi de l'étage affiché (1,05^étage : Power, Toughness, HP Regen ; PV x 600) par rapport à l'étage dont le serveur a envoyé les valeurs. */
+function echelleEtage(){
+  if(!combat.floorServeur&&!combat.etageCourant)return 1;
+  return Math.pow(1.05,combat.etageCourant-combat.floorServeur);
+}
+/* Format du jeu pour le Regen (AdventureController::displayEnemyStats : ToString("##0.##") si <= 1000, sinon suffixFormat). */
+function fmtRegen(v){
+  if(v>1000)return fmtNombre(v);
+  return String(Math.round(v*100)/100);
+}
+function ligneStat(libelle,valeur){return '<div><b>'+esc(libelle)+'</b> '+esc(valeur)+'</div>';}
+/* Panneau de stats de l'ennemi (AdventureController::displayEnemyStats, IL build 1260) : Power, Toughness, Max HP, HP Regen, Type. Power = attaque 10 x 1,05^étage, Toughness = défense 10 x 1,05^étage, Max HP = PV de l'ennemi (600 x 1,05^étage), HP Regen = 1 x 1,05^étage (valeurs de l'ennemi de la tour). « No Enemy » : le jeu n'écrit rien d'autre. */
+function statsEnnemiHtml(){
+  if(combat.sansEnnemi||!(combat.ennemiPv>0))return '';
+  var JJ=window.__SOREAL_IDLE_JOURNAL_JEU_V1__,l=JJ?JJ.l:function(fr,en){return en;};
+  var e=Math.pow(1.05,combat.etageCourant),n=IA_NOMS[combat.iaNom];
+  return ligneStat(l('Puissance :','Power:'),fmtNombre(10*e))+ligneStat(l('Robustesse :','Toughness:'),fmtNombre(10*e))+
+    ligneStat(l('PV max :','Max HP:'),fmtNombre(combat.ennemiPv*echelleEtage()))+ligneStat(l('Régén. PV :','HP Regen:'),fmtRegen(e))+
+    (n?ligneStat(l('Type :','Type:'),l(n[1],n[0])):'');
+}
+/* Panneau de stats du joueur (AdventureController::updateAdventureStats : Power = totalAdvAttack, Toughness = totalAdvDefense, Max HP = totalAdvHP, HP Regen = totalAdvHPRegen suivi de « /s »). Power et Toughness n'apparaissent que si le serveur les envoie (puissanceJoueur, defenseJoueur). */
+function statsJoueurHtml(){
+  var JJ=window.__SOREAL_IDLE_JOURNAL_JEU_V1__,l=JJ?JJ.l:function(fr,en){return en;};
+  return (combat.puissanceJoueur>0?ligneStat(l('Puissance :','Power:'),fmtNombre(combat.puissanceJoueur)):'')+
+    (combat.defenseJoueur>0?ligneStat(l('Robustesse :','Toughness:'),fmtNombre(combat.defenseJoueur)):'')+
+    ligneStat(l('PV max :','Max HP:'),fmtNombre(combat.pvMax))+
+    ligneStat(l('Régén. PV :','HP Regen:'),fmtNombre(combat.regenBase>0?combat.regenBase:combat.regenPv/(combat.idle?1.2:1))+'/s');
 }
 function majTexteEnnemi(el){
   var t=el&&el.querySelector('.itp-vie-ennemi-texte');
@@ -179,7 +210,9 @@ function avancerVieJoueur(maintenant,el){
   if(!(combat.pvMax>0))return false;
   var dt=combat.dernierPas?Math.min(1,Math.max(0,(maintenant-combat.dernierPas)/1000)):0;
   combat.dernierPas=maintenant;
-  combat.pv=Math.min(combat.pvMax,combat.pv+combat.regenPv*dt);
+  /* Régénération x1,2 seulement en auto-attaque (mode Idle) : le serveur envoie regenPv avec ce x1,2 ; mode Idle coupé = régénération de base (regenBase, ou regenPv / 1,2). */
+  var regen=combat.idle?combat.regenPv:(combat.regenBase>0?combat.regenBase:combat.regenPv/1.2);
+  combat.pv=Math.min(combat.pvMax,combat.pv+regen*dt);
   var JJ=window.__SOREAL_IDLE_JOURNAL_JEU_V1__;
   if(combat.finParalysie&&maintenant>=combat.finParalysie){combat.finParalysie=0;if(JJ)ecrireJournal(el,JJ.titan('liberte')[0],'system');}
   if(combat.tEnnemi&&!combat.mort&&!combat.sansEnnemi){
@@ -194,6 +227,7 @@ function avancerVieJoueur(maintenant,el){
         if(t.rapideDebut)ecrireJournal(el,JJ.titan('rapideDebut',combat.nom)[0],'enemy');
       }
       if(t.saute)continue;
+      /* Une seule troncature, après le multiplicateur (EnemyAI::regularAttack : floor(max(...) x aléa x mult)) ; le serveur peut envoyer ennemiCoup non tronqué ou tronqué, les deux marchent. */
       var coup=Math.floor(combat.ennemiCoup*t.mult);
       combat.pv-=coup;
       if(JJ)ecrireJournal(el,JJ.attaque(t.kind,combat.nom,fmtNombre(coup)),'enemy');
@@ -213,8 +247,10 @@ function mortJoueur(el,maintenant){
   if(JJ)ecrireJournal(el,JJ.defaite(combat.nom),'enemy');
   combat.pv=0;combat.coups=0;combat.mort=false;combat.tEnnemi=0;combat.ia=null;combat.finParalysie=0;
   combat.sansEnnemi=true;
-  combat.reperage={etage:combat.auto?0:combat.debut,sur:combat.surCourant,dec:combat.decalage};
-  combat.prochain=maintenant+Math.max(0.34,combat.respawn)*1000;
+  /* playerDeath (zone ITOPOD) : toujours l'étage de DÉPART (plus de mode automatique : départ 0 par défaut) ; sans départ envoyé (ancien serveur) debut vaut 0. */
+  combat.reperage={etage:combat.debut,sur:combat.surCourant,dec:combat.decalage};
+  /* AdventureController::respawnTime : aucun plancher (seul le multiplicateur de bonus est borné à 0,2) */
+  combat.prochain=maintenant+combat.respawn*1000;
   remplir(el);
 }
 
@@ -242,6 +278,12 @@ function avatarGenere(ennemi,kills,etage,ancien){
 }
 (window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__=window.__SOREAL_IDLE_MORPH_ATTRIBUTS_GARDES_V1__||[]).push('data-itp-repli');
 
+/* Étage après `total` victoires sur l'étage affiché (mêmes règles que la boucle de contenu() et que le moteur) : tous les 10 kills, étage +1 ; à la fin choisie, retour au départ. */
+function etageSuivant(etage,total){
+  if(total<10)return etage;
+  if(combat.auto)return Math.min(combat.optimal,etage+1);
+  return etage>=combat.fin?combat.debut:etage+1;
+}
 function contenu(etage,kills,killsSurEtage){
   /* Combats gagnés sur l'étage : ceux du serveur plus ceux de l'écran depuis la dernière synchro ; à 10 on passe à l'étage suivant. */
   var total=killsSurEtage+combat.decalage;
@@ -259,6 +301,7 @@ function contenu(etage,kills,killsSurEtage){
   var nom=ennemi?ennemi.nom:'Pissed Off Dude';
   combat.nom=nom;
   var JJn=window.__SOREAL_IDLE_JOURNAL_JEU_V1__;
+  if(!combat.sansEnnemi&&!combat.mort&&!combat.ia)combat.ia=neufIA();   /* l'IA est tirée à l'apparition : la ligne « Type: » la montre */
   var nomAffiche=combat.sansEnnemi?(JJn?JJn.l('Aucun ennemi','No Enemy'):'No Enemy'):nom;combat.etageCourant=etage;
   var classeAvatar='itp-avatar'+(ennemi&&estFlottant(ennemi.avatar)?' itp-flotte':'');
   var ancien=ennemi&&ennemi.avatar
@@ -276,9 +319,10 @@ function contenu(etage,kills,killsSurEtage){
     '<span class="itp-braise itp-b1"></span><span class="itp-braise itp-b2"></span><span class="itp-braise itp-b3"></span></div></div>'+
     '<div class="itp-vie itp-vie-ennemi" title="Points de vie de l’ennemi"><div class="itp-vie-rempli" style="width:'+(combat.sansEnnemi?0:vie).toFixed(1)+'%"></div>'+(combat.pvMax>0?'<span class="itp-vie-texte itp-vie-ennemi-texte">'+esc(texteVieEnnemi())+'</span>':'')+'</div>'+
     '<div class="itp-nom"><span class="itp-nom-texte">'+esc(nomAffiche)+'</span></div>'+
+    '<div class="itp-stats itp-stats-ennemi">'+statsEnnemiHtml()+'</div>'+
     '<div class="itp-prochain" data-itp-prochain aria-live="off">'+texteProchain()+'</div>'+
     (combat.pvMax>0
-      ?'<div class="itp-vie itp-vie-joueur" title="Tes points de vie"><div class="itp-vie-rempli" style="width:'+pctPv().toFixed(1)+'%"></div><span class="itp-vie-texte">'+esc(texteVie())+'</span></div>'+
+      ?'<div class="itp-stats itp-stats-joueur">'+statsJoueurHtml()+'</div>'+'<div class="itp-vie itp-vie-joueur" title="Tes points de vie"><div class="itp-vie-rempli" style="width:'+pctPv().toFixed(1)+'%"></div><span class="itp-vie-texte">'+esc(texteVie())+'</span></div>'+
        '<div class="itp-journal soreal-idle-adventure-log-v1" data-itp-journal role="log" aria-live="off" title="Journal de combat">'+journal.map(ligneJournalHtml).join('')+'</div>'
       :'');
 }
@@ -347,6 +391,8 @@ function pas(){
     remplir(el);
     return;
   }
+  /* Mode Idle coupé (le bouton du jeu) : le joueur ne frappe pas, l'ennemi continue de le frapper (PlayerController::idleAttack n'est appelé que si le mode Idle est actif). */
+  if(!combat.idle){combat.prochain=maintenant+Math.max(0.2,combat.intervalle)*1000;if(!combat.tEnnemi)combat.tEnnemi=maintenant+PREMIER_COUP_ENNEMI_S*1000;return;}
   combat.coups++;
   if(combat.coups===1)combat.tEnnemi=maintenant+Math.max(0,PREMIER_COUP_ENNEMI_S-combat.intervalle)*1000;
   effetCoup(el);
@@ -360,7 +406,8 @@ function pas(){
     combat.mort=true;combat.tEnnemi=0;combat.ia=null;
     var ennemi=el.querySelector('.itp-ennemi');
     if(ennemi)ennemi.classList.add('itp-mort');
-    combat.prochain=maintenant+Math.max(0.34,combat.respawn)*1000;
+    combat.prochain=maintenant+combat.respawn*1000;   /* aucun plancher : AdventureController::respawnTime */
+    var etageApres=etageSuivant(combat.etageCourant,combat.surCourant+1);
     if(combat.pvMax>0){
       ecrireJournal(el,JJ?JJ.victoire(combat.nom):'You have defeated '+combat.nom+'!','system');
       var gain=Math.max(0,(combat.ppBase+combat.etageCourant)*combat.ppMult);
@@ -371,6 +418,11 @@ function pas(){
         combat.ppProg=combat.ppProg%SEUIL_PP;
         ecrireJournal(el,JJ?JJ.pointAtout(n===1?'1':fmtNombre(n),n!==1):(n===1?'You gained 1 Perk Point!':'You gained '+fmtNombre(n)+' Perk Points!'),'system');
       }
+    }
+    /* Premier passage à un étage jamais atteint (IL AdventureController::enemyDeath, 0x901 : itopodLevel > highestItopodLevel → ItopodPerkController::awardHighestLevelPP, puis highestItopodLevel = itopodLevel ; les lignes ne viennent QU'APRÈS les lignes de progression). */
+    if(combat.hautConnu&&etageApres>combat.haut){
+      if(combat.pvMax>0&&etageApres%10===0&&JJ&&JJ.premiereAtteinte)JJ.premiereAtteinte(etageApres).forEach(function(ligne){ecrireJournal(el,ligne,'system');});
+      combat.haut=etageApres;
     }
   }else{
     combat.prochain=maintenant+Math.max(0.2,combat.intervalle)*1000;
@@ -396,7 +448,7 @@ function charger(){
 /* HTML de l'arène pour l'état de la tour d (floor, kills, killsOnFloor). */
 /* Signature de ce qui décide du combat à l'écran : un changement venu du serveur (« Appliquer », « Auto », nouvel étage du moteur) doit se voir TOUT DE SUITE (Norman, 2026-11-22 : après « Appliquer », les ennemis de l'ancien étage restaient jusqu'à un changement de menu). */
 function signature(d){
-  return [d&&d.floor,d&&d.startFloor,d&&d.endFloor,d&&d.hitsParKill,d&&d.optimalFloor,d&&d.ennemiPv,d&&d.pvMax].join('|');
+  return [d&&d.floor,d&&d.startFloor,d&&d.endFloor,d&&d.hitsParKill,d&&d.optimalFloor,d&&d.ennemiPv,d&&d.pvMax,d&&d.idleMode].join('|');
 }
 /* Met l'arène affichée à jour avec les valeurs du serveur sans redessiner la page : appelé à chaque synchro de la page ITOPOD ; ne fait quelque chose que si la signature a changé. Renvoie true si l'arène a été refaite. */
 function maj(d){
@@ -424,6 +476,7 @@ function lireDonnees(d){
   combat.intervalle=Number(d&&d.intervalS)>0?Number(d.intervalS):1;
   combat.respawn=Number(d&&d.respawnS)>0?Number(d.respawnS):4;
   combat.actif=Boolean(d&&d.actif);
+  /* Plus de mode automatique côté moteur (départ 0 / fin 20 par défaut) ; un ancien serveur qui envoie encore null garde l'ancien comportement. */
   combat.auto=!d||d.startFloor==null||d.endFloor==null;
   combat.debut=Math.max(0,Math.floor(Number(d&&d.startFloor)||0));
   combat.fin=Math.max(combat.debut,Math.floor(Number(d&&d.endFloor)||0));
@@ -443,6 +496,20 @@ function lireDonnees(d){
   combat.ppBase=nb(d&&d.ppBase);
   combat.ppMult=nb(d&&d.ppMult)||1;
   combat.ppProg=Math.max(0,Number(d&&d.ppProgress)||0);
+  combat.floorServeur=etage;
+  combat.idle=!d||d.idleMode!==false;                 /* champ absent = Idle actif */
+  combat.regenBase=nb(d&&d.regenBase);
+  combat.puissanceJoueur=nb(d&&d.puissanceJoueur);
+  combat.defenseJoueur=nb(d&&d.defenseJoueur);
+  combat.hautConnu=!!(d&&d.highestFloor!=null);
+  combat.haut=combat.hautConnu?Math.max(0,Math.floor(Number(d.highestFloor)||0)):0;
+  /* Lazy Shifter (AdventureController::activateLazyItopod) : un étage serveur qui change sans qu'une dizaine de victoires l'explique (le compteur de l'étage n'est pas reparti de zéro) est écrit ; d.shifterDe (étage d'avant) l'affirme explicitement s'il est envoyé. */
+  combat.shifterOn=!!(d&&d.shifterOn);
+  if(combat.shifterOn&&combat.precFloor!=null&&etage!==combat.precFloor&&(d.shifterDe!=null||sur>=combat.precSur)){
+    var JJs=window.__SOREAL_IDLE_JOURNAL_JEU_V1__,de=d.shifterDe!=null?Math.floor(Number(d.shifterDe)||0):combat.precFloor;
+    if(JJs&&JJs.changementEtage&&de!==etage)ecrireJournal(null,JJs.changementEtage(de,etage),'system');
+  }
+  combat.precFloor=etage;combat.precSur=sur;
   combat.dernierPas=0;
   combat.sigServeur=signature(d);
   return {etage:etage,kills:kills,sur:sur};

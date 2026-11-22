@@ -39,8 +39,8 @@ import {
 // --- Conditions de déblocage : les 3 doivent être réunies, aucun repli inventé ---
 // Rich Jerks x ITOPOD est désormais calculé DIRECTEMENT depuis state (voir
 // idle-rich-jerks-and-itopod-stat-bonus.test.mjs pour ce calcul en détail) --
-// state.bonuses.richJerksAttackLevel=1000 (10 000%) x perk id5 niveau100
-// (statPct 0.10x100=10, soit +1000%) = 10 000 000 %, largement >= 1e6.
+// state.bonuses.richJerksAttackLevel=1000 x perk id5 niveau 1000
+// (statPct 0.10x1000, soit x101) : (1 + 0,1 x 1000) x 101 = 10 201 >= 10 000 (RATIO du jeu, Rebirth::setEvilNextRebirth ; ex-« 1e6 % » mal converti).
 {
   const state = normalizeIdleNguState(null, { bosses: 301 }, 0);
   state.difficultyPeaks.normal = 301;
@@ -50,7 +50,7 @@ import {
   assert.equal(noneMet.difficile.bossReady, true, "Le seul critère calculable ici (boss 301) doit lui être vrai.");
 
   state.bonuses.richJerksAttackLevel = 1000;
-  state.systems.perks.data.levels[5] = 100;
+  state.systems.perks.data.levels[5] = 1000;
   const partial = idleNguDifficultyUnlockRequirementsV1(state, {});
   assert.equal(partial.difficile.richJerksReady, true, "Rich Jerks x ITOPOD doit maintenant dépasser 1M% (calculé depuis state, pas depuis un contexte externe).");
   assert.equal(partial.difficile.met, false, "beastV4Beaten manquant doit encore bloquer Evil, même avec le seuil Rich Jerks atteint.");
@@ -80,7 +80,7 @@ import {
   state.rebirth.number = 999;
   state.bank.advancedTraining = 42;
   state.bonuses.richJerksAttackLevel = 1000;
-  state.systems.perks.data.levels[5] = 100;
+  state.systems.perks.data.levels[5] = 1000;
 
   const ctx = { bosses: 301, beastV4Beaten: true };
   const { state: after, result } = applyIdleNguAction(state, { action: "difficulty", value: "difficile" }, ctx, 4 * 60 * 1000);

@@ -21,7 +21,8 @@ console.log("idle-barres-outils-nettes-v1: OK");
 /* Étages de l'ITOPOD : on recommence au premier ennemi de l'étage choisi ; téléphone : même placement ; Yggdrasil sans bords ; NGU plus sobre */
 {
   const ngu = lireSrc("idle-ngu-progression.js"), ui2 = lireUiComplet(), ygg = lire("modules/yggdrasil-elfes-v1.js");
-  assert.ok(ngu.includes("  d.floor = start;\n  d.killsOnFloor = 0;\n  return { start, end };") && ngu.includes("if (d.startFloor != null) d.floor = d.startFloor;"), "étages changés : retour au premier ennemi de l'étage de départ (manuel et Auto)");
+  /* Alignement 2026-11-22 : Appliquer / Auto ne déplacent plus le joueur ; le retour au premier ennemi de l'étage de départ est celui de changeZone (entrée dans la zone, Shifter). */
+  assert.ok(ngu.includes("function towerChangerZoneV1(state, d) {\n  d.floor = d.startFloor;\n  d.killsOnFloor = 0;"), "entrée dans la zone : retour au premier ennemi de l'étage de départ");
   assert.ok(!ui2.includes("window.matchMedia('(min-width:701px)').matches)return false;}catch(_e){return false;}\n        const placer"), "placement sous la bannière aussi sur téléphone");
   assert.ok(ygg.includes(".ygg-cadre{padding:0!important;border:0!important") && ygg.includes(".ygg-page{max-width:none!important;margin:0!important}") && ygg.includes("[data-menu=\"yggdrasil\"]:not(#_):not(#_){border:0!important"), "Yggdrasil : plus de bords, pleine largeur");
   assert.ok(ygg.includes(".ygg-nom{font-size:clamp(11px,2.2cqw,14px)!important") && ygg.includes("@container (max-width:560px){.ygg-grille{grid-template-columns:repeat(2,minmax(0,1fr))!important"), "textes plus grands, deux colonnes sur téléphone");

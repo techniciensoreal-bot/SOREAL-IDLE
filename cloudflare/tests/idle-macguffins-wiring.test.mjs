@@ -158,11 +158,12 @@ function fragment(s, type, level, equipped) {
   s.systems.tower.data = { kills: 0, highestFloor: 5 };   /* jeu : hors ligne, l étage optimal est borné par l étage le plus haut atteint ; à 0 il ne se passe rien (audit IL 2026-11-21) */
   s.systems.macguffins.data.itopodKills = 4999;
   /* docs/HORS-LIGNE.md, proposition 2 : l'ITOPOD exige 650 de Power d'Aventure au total. */
-  s = advanceIdleNguState(s, 3600, { ...ctx, adventurePower: 1e6, adventureToughness: 1e6 }, T0 + 3600 * 1000);
+  /* Hors ligne (adventureOfflineProgress, alignement 2026-11-22) : floor(kills / 5 000), reste perdu, compteur en ligne non touché ; 30 000 s = 6 000 kills. */
+  s = advanceIdleNguState(s, 30000, { ...ctx, adventurePower: 1e6, adventureToughness: 1e6 }, T0 + 30000 * 1000);
   const tuees = s.systems.tower.data.kills;
-  assert.ok(tuees >= 1, "L'ITOPOD doit tuer au moins un ennemi en une heure.");
-  assert.equal(s.systems.macguffins.data.inventory.length, 1, "Le 5000e kill ITOPOD donne un fragment.");
-  assert.equal(s.systems.macguffins.data.itopodKills, 4999 + tuees - 5000);
+  assert.ok(tuees >= 5000, "L'ITOPOD doit tuer plus de 5 000 ennemis hors ligne.");
+  assert.equal(s.systems.macguffins.data.inventory.length, Math.floor(tuees / 5000), "Hors ligne : un fragment par tranche de 5 000 kills, sans reliquat.");
+  assert.equal(s.systems.macguffins.data.itopodKills, 4999, "Le compteur en ligne n'est pas touché hors ligne.");
 }
 
 /* --- Titans --- */

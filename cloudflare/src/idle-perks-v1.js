@@ -117,8 +117,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
    * FoKStillSucksPerk » et « Fruit of Knowledge yields 3x more EXP » pour chacun -> x3 puis x9
    * (l'ancienne valeur 2 additionnée donnait x2 puis x4).
    */
-  { id: 19, name: "Fruit of Knowledge sucks, 1/5", effect: "Fruit of Knowledge yields 3x more EXP", cost: 20, cap: 1, bonus: { fruitKnowledgeExpPerks: 1 } },
-  { id: 20, name: "Fruit of Knowledge STILL sucks, 1/5", effect: "ANOTHER 3x EXP from Fruit of Knowledge", cost: 150, cap: 1, bonus: { fruitKnowledgeExpPerks: 1 } },
+  { id: 19, name: "\"Fruit of Knowledge sucks, 1/5\"", effect: "Fruit of Knowledge yields 3x more EXP", cost: 20, cap: 1, bonus: { fruitKnowledgeExpPerks: 1 } },
+  { id: 20, name: "\"Fruit of Knowledge STILL sucks, 1/5\"", effect: "ANOTHER 3x EXP from Fruit of Knowledge", cost: 150, cap: 1, bonus: { fruitKnowledgeExpPerks: 1 } },
   { id: 21, name: "Five O'Clock Shadow", effect: "Beard trim time factor grows faster, to a minimum of 12 hours", cost: 10, cap: 12, bonus: { beardTrimSpeedLevel: 1 } },
   { id: 22, name: "Wandoos Lover", effect: "+2 to your total OS level per level", cost: 1, cap: 50, bonus: { wandoosOsLevelFlat: 2 } },
   { id: 23, name: "Golden Showers", effect: "+5% multiplier to all gold drops in Adventure", cost: 1, cap: 200, bonus: { adventureGoldPct: 0.05 } },
@@ -145,11 +145,11 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
    */
   { id: 34, name: "Bonus Titan EXP!", effect: "The first (3 x level - 1) kills of each titan, each rebirth, grant +50% extra EXP", cost: 30, cap: 3, bonus: { titanExpBonusKills: 3 } },
   { id: 35, name: "Bonus Boss Exp!", effect: "+2% bonus to exp dropped by bosses 24 and on, per level", cost: 20, cap: 25, bonus: { bossExpPct: 0.02 } },
-  { id: 36, name: "Advanced Training Level Bank I", effect: "Saves 1% (rounded down) of Advanced Training levels gained per rebirth", cost: 3, cap: 10, bonus: { atBankPct: 0.01 } },
-  { id: 37, name: "Advanced Training Level Bank II", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 10, cap: 10, bonus: { atBankPct: 0.01 } },
-  { id: 38, name: "Advanced Training Level Bank III", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 25, cap: 10, bonus: { atBankPct: 0.01 } },
-  { id: 39, name: "Advanced Training Level Bank IV", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 50, cap: 10, bonus: { atBankPct: 0.01 } },
-  { id: 40, name: "Advanced Training Level Bank V", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 100, cap: 10, bonus: { atBankPct: 0.01 } },
+  { id: 36, name: "Adv. Training Level Bank I", effect: "Saves 1% (rounded down) of Advanced Training levels gained per rebirth", cost: 3, cap: 10, bonus: { atBankPct: 0.01 } },
+  { id: 37, name: "Adv. Training Level Bank II", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 10, cap: 10, bonus: { atBankPct: 0.01 } },
+  { id: 38, name: "Adv. Training Level Bank III", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 25, cap: 10, bonus: { atBankPct: 0.01 } },
+  { id: 39, name: "Adv. Training Level Bank IV", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 50, cap: 10, bonus: { atBankPct: 0.01 } },
+  { id: 40, name: "Adv. Training Level Bank V", effect: "Saves an additional 1% of Advanced Training levels gained per rebirth", cost: 100, cap: 10, bonus: { atBankPct: 0.01 } },
   { id: 41, name: "Time Machine Level Bank I", effect: "Saves 1% of Time Machine levels gained per rebirth", cost: 3, cap: 10, bonus: { tmBankPct: 0.01 } },
   { id: 42, name: "Time Machine Level Bank II", effect: "Saves an additional 1% of Time Machine levels gained per rebirth", cost: 10, cap: 10, bonus: { tmBankPct: 0.01 } },
   { id: 43, name: "Time Machine Level Bank III", effect: "Saves an additional 1% of Time Machine levels gained per rebirth", cost: 25, cap: 10, bonus: { tmBankPct: 0.01 } },
@@ -214,8 +214,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   { id: 91, name: "Advanced Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by 1! Normally, this divider is 8.", cost: 25000, cap: 1, bonus: { questIdleDividerReduction: 1 } },
   { id: 92, name: "Even More Advanced Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by another 1! Normally, this divider is 8.", cost: 250000, cap: 1, bonus: { questIdleDividerReduction: 1 } },
   { id: 104, name: "Truly Idle Questing", effect: "With this Perk, Idle Quests will automatically be handed in, and a new Quest started!", cost: 200, cap: 1, bonus: { questTrulyIdle: 1 } },
-  { id: 105, name: "Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by 2! Normally, this divider is 8.", cost: 100, cap: 1, bonus: { questIdleDividerReduction: 2 } },
-  { id: 106, name: "Another Gooder Idle Questing", effect: "This perk will reduce the speed divider placed on Idle Questing by 1! Normally, this divider is 8.", cost: 5000, cap: 1, bonus: { questIdleDividerReduction: 1 } },
+  { id: 105, name: "Gooder Idle Questing!", effect: "This perk will reduce the speed divider placed on Idle Questing by 2! Normally, this divider is 8.", cost: 100, cap: 1, bonus: { questIdleDividerReduction: 2 } },
+  { id: 106, name: "Another Gooder Idle Questing!", effect: "This perk will reduce the speed divider placed on Idle Questing by 1! Normally, this divider is 8.", cost: 5000, cap: 1, bonus: { questIdleDividerReduction: 1 } },
   { id: 107, name: "Boosted Boosts III", effect: "Additional 2% stacking bonus to the total boost power of any applied boost per level", cost: 20000, cap: 60, bonus: { boostPowerPct: 0.02 } },
   { id: 116, name: "Generic Energy Power Perk IV", effect: "+0.2% bonus multiplier to your Energy Power per level", cost: 100000, cap: 100, bonus: { energyPowerPct: 0.002 } },
   { id: 117, name: "Generic Energy Bar Perk IV", effect: "+0.2% bonus multiplier to your Energy Bars per level", cost: 100000, cap: 100, bonus: { energyBarsPct: 0.002 } },
@@ -255,8 +255,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
     bonus: { statPct: 9.0 /* le jeu applique x10 (stat6Bonus), soit 1 + 9 : lu dans le code, 2026-11-16 */, adventureStatsPct: 0.15, augmentSpeedPct: 0.2, nguSpeedEnergyPct: 0.2, nguSpeedMagicPct: 0.2 }
   },
   /* Questing (2026-09-23) : remise d'objets de quête et récompenses de base, page "Perk Points". */
-  { id: 145, name: "Bonus Quest Handin Progess I", effect: "You can now hand in higher level Quest Items for added progress. The formula is 1 + (level/10) progress, rounded down.", cost: 1500, cap: 1, bonus: { questHandinReduction: 1 } },
-  { id: 146, name: "Bonus Quest Handin Progess II", effect: "Reduce the level ratio for higher level Quest handins by 1 per level of this Perk! Originally the formula is 1 + (level/10), rounded down.", cost: 50000, cap: 2, bonus: { questHandinReduction: 1 } },
+  { id: 145, name: "Bonus Quest Handin Progress I", effect: "You can now hand in higher level Quest Items for added progress. The formula is 1 + (level/10) progress, rounded down.", cost: 1500, cap: 1, bonus: { questHandinReduction: 1 } },
+  { id: 146, name: "Bonus Quest Handin Progress II", effect: "Reduce the level ratio for higher level Quest handins by 1 per level of this Perk! Originally the formula is 1 + (level/10), rounded down.", cost: 50000, cap: 2, bonus: { questHandinReduction: 1 } },
   { id: 147, name: "Improved Major Quest QP Rewards", effect: "Each level adds + 1 to Major Quests' Base QP! Normally this is 50.", cost: 1000000, cap: 10, bonus: { questMajorBaseQp: 1 } },
   { id: 148, name: "Improved Minor Quest QP Rewards", effect: "Each level adds + 1 to Minor Quests' Base QP! Normally this is 10.", cost: 5000000, cap: 2, bonus: { questMinorBaseQp: 1 } },
   { id: 149, name: "Stat Boost for rich Perks IV", effect: "+1% to Attack/Defence per level", cost: 10000, cap: 1000, bonus: { statPct: 0.01 } },
@@ -277,7 +277,8 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   {
     id: 94,
     name: "The Fibonacci Perk",
-    effect: "Each level unlocks secret bonuses at the next Fibonacci-numbered level (1, 2, 5, 8, 13, 21, 34, 55, 89, 144, ...).",
+    /* Texte du jeu (perk 94, perks-jeu.json) sans la parenthèse qui parle du Discord et du wiki (jamais ces mots dans un texte joueur) ; la liste 1, 2, 3, 5, 8... n'y figure pas : elle se découvre palier par palier (règle n°2), voir fibonacciPaliersTextesV1 côté client. */
+    effect: "A very special perk: When the level of this perk reaches the next number in the Fibonacci sequence, you get a new secret perk!",
     cost: 500,
     cap: 1597,
     bonus: {},
@@ -329,11 +330,11 @@ export const IDLE_PERKS_CATALOG_V1 = Object.freeze([
   /* Page Perk Points 111/112 : un slot d'automerge chacun (lus par id dans idle-inventory-auto-v1.js). */
   { id: 111, name: "An Inventory Merge Slot", effect: "Convert a slot in your inventory into an inventory Automerge Slot! This slot will be triggered by the Automerge function - handy for levelling up gear automatically!", cost: 250, cap: 1, bonus: {} },
   { id: 112, name: "Another Inventory Merge Slot", effect: "Unlock another Inventory Automerge Slot!", cost: 500000, cap: 1, bonus: {} },
-  { id: 113, name: "Adventure Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 4000000, cap: 5, bonus: { hackReduce_adventureStats: 1 } },
-  { id: 114, name: "Blood Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 10000, cap: 5, bonus: { hackReduce_bloodGain: 1 } },
+  { id: 113, name: "Adventure Hack Milestone Reducer I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 4000000, cap: 5, bonus: { hackReduce_adventureStats: 1 } },
+  { id: 114, name: "Blood Hack Milestone Reducer I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 10000, cap: 5, bonus: { hackReduce_bloodGain: 1 } },
   /* Page Perk Points (index 86) et page « Item Daycare » (« 1 from ITOPOD perk for 50k PP ») : un slot de garderie. */
   { id: 86, name: "Daycare Slot! c:", effect: "Make the Daycare Kitty even happier-er-er-est-er and get a new Daycare Slot!", cost: 50000, cap: 1, bonus: { daycareSlotBonus: 1 } },
-  { id: 115, name: "Daycare Hack Milestone Reduces I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 200000, cap: 5, bonus: { hackReduce_daycare: 1 } },
+  { id: 115, name: "Daycare Hack Milestone Reducer I", effect: "Each level of this perk reduces the number of hack levels required per milestone by 1! This means more milestone bonuses!", cost: 200000, cap: 5, bonus: { hackReduce_daycare: 1 } },
   { id: 122, name: "Generic Resource 3 Power Perk IV", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Power! I wonder what you named it.", cost: 100000, cap: 100, bonus: { r3PowerPct: 0.01 } },
   { id: 123, name: "Generic Resource 3 Bar Perk IV", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Bars! I wonder what you named it.", cost: 100000, cap: 100, bonus: { r3BarsPct: 0.01 } },
   { id: 124, name: "Generic Resource 3 Cap Perk IV", effect: "Each level grants +1% bonus multiplier to your 3rd Resource's Cap! I wonder what you named it.", cost: 100000, cap: 100, bonus: { r3CapPct: 0.01 } },

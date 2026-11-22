@@ -51,6 +51,8 @@ const LISTE_BLANCHE = [
   { fichier: "borne-led-v1.js", contient: "' / '+pv.max", raison: "points de vie du boss en cours (même affichage que l'ancienne barre), pas un total de contenu" },
   /* challenges-v1.js : « ??? » remplace une valeur NON affichable (nombre trop grand pour la mise en forme) dans le détail d'un défi
      DÉJÀ débloqué ; ce n'est pas une case d'un contenu non découvert. */
+  /* itopod-perks-page-v1.js : Fibonacci Perk (perk 94), comme ItopodPerkUIController::fibPerkUnlocks : paliers déjà atteints + UN seul « ?????? » pour le PROCHAIN palier, jamais la suite ni le total (AGENTS.md règle n°2 respectée, demande de l'audit du 2026-11-22). */
+  { fichier: "itopod-perks-page-v1.js", contient: " : ??????", raison: "Fibonacci Perk : seul le prochain palier est masqué, sans total ni liste des suivants" },
   { fichier: "challenges-v1.js", contient: "???", raison: "valeur numérique non affichable d'un défi déjà débloqué, pas un contenu verrouillé" },
   /* meta-progression-v130.js : page Augmentations. Comme la ligne verrouillée de Basic Training, UNE SEULE paire encore
      verrouillée (la prochaine) est montrée, sans nom ni seuil, pour que l'interface ne saute pas ; tout le reste est tronqué.

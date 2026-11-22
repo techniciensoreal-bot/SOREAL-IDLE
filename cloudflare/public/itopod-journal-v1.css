@@ -6,3 +6,19 @@
 .itp-vie-joueur .itp-vie-rempli{background:repeating-linear-gradient(135deg,#3fbf5a 0 10px,#2c9444 10px 20px);box-shadow:0 0 12px rgba(63,191,90,.6)}
 .itp-vie-texte{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:900;letter-spacing:.5px;color:#fff;text-shadow:0 1px 0 #000,0 0 4px #000;pointer-events:none}
 .itp-journal{margin-top:10px;overscroll-behavior:contain}
+
+/* Panneaux de stats (AdventureController::displayEnemyStats / updateAdventureStats) : lignes « Power: », « Toughness: », « Max HP: », « HP Regen: », « Type: ». Hauteur réservée pour que « No Enemy » ne fasse pas sauter la page. */
+.itp-stats{margin-top:6px;font-size:13px;line-height:1.35;color:#e8e8f0;text-align:center}
+.itp-stats-ennemi{min-height:6.9em}
+.itp-stats b{color:#fff}
+
+/* Boutique des Atouts : bouton « Tout » à côté de l'achat, tri, mention de difficulté, paliers de Fibonacci ; interrupteurs de la tour (Lazy ITOPOD Floor Shifter, Idle Mode). */
+.pk-achats{display:flex;gap:8px;align-items:stretch}
+.pk-achats .pk-acheter{flex:1 1 auto}
+.pk-tout{flex:none;padding:8px 12px}
+.pk-tri{min-width:0;color:#e9d9ff;background:#2a1a50;border:3px solid #000;border-radius:6px;font-weight:900}
+.pk-difficulte{margin:2px 0 4px;font-size:12px;font-weight:950;letter-spacing:.05em;color:#ff9ad8;text-shadow:0 1px 0 #000}
+.pk-paliers{margin:6px 0 2px;font-size:13px;line-height:1.35;color:#cbb8f5}
+.itp-interrupteurs{margin-top:8px}
+.itp-bascule{background:linear-gradient(180deg,#64748b,#334155)}
+.itp-bascule.itp-actif{background:linear-gradient(180deg,#34d399,#0f766e)}

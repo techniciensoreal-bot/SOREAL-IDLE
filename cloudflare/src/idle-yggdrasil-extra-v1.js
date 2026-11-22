@@ -108,7 +108,7 @@ export const IDLE_YGG_ITOPOD_POOP_CHANCE_V1 = 0.0001;
 /* Au-delà, le tirage kill par kill est remplacé par l'espérance (choix d'implémentation, gros rattrapages hors-ligne). */
 const ITOPOD_POOP_LOOP_MAX_V1 = 100000;
 
-export function idleYggItopodPoopV1(state, kills, rng = Math.random) {
+export function idleYggItopodPoopV1(state, kills, rng = Math.random, opts = {}) {
   const k = Math.max(0, I(kills, 0));
   if (k <= 0) return 0;
   if (I(idlePerkNiveauxV1(state)[IDLE_YGG_ITOPOD_POOP_PERK_ID_V1], 0) < 1) return 0;
@@ -117,7 +117,10 @@ export function idleYggItopodPoopV1(state, kills, rng = Math.random) {
   const total = Math.max(0, I(fx.itopodPoopKills, 0)) + k;
   let gain = Math.floor(total / IDLE_YGG_ITOPOD_POOP_KILLS_V1);
   fx.itopodPoopKills = total - gain * IDLE_YGG_ITOPOD_POOP_KILLS_V1;
-  if (k <= ITOPOD_POOP_LOOP_MAX_V1) {
+  /* Hors ligne (Character::adventureOfflineProgress, IL_1fc1 à IL_1fee ; audit 2026-11-22) : le jeu ne fait QUE addPoopProgress(kills) (1 par 9 000 kills) ; le tirage à 0,01 % par kill n'existe qu'en ligne (LootDrop::itopodDrop). */
+  if (opts && opts.horsLigne === true) {
+    /* aucun tirage aléatoire */
+  } else if (k <= ITOPOD_POOP_LOOP_MAX_V1) {
     for (let i = 0; i < k; i++) if (rng() < IDLE_YGG_ITOPOD_POOP_CHANCE_V1) gain++;
   } else {
     const attendu = k * IDLE_YGG_ITOPOD_POOP_CHANCE_V1;

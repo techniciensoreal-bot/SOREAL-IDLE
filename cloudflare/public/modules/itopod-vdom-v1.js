@@ -57,11 +57,15 @@
       h('div',{class:'pk-socle'},h('img',{class:'pk-image',src:c.image,alt:'',loading:'lazy',onError:function(e){e.currentTarget.hidden=true;}})),
       h('div',{class:'pk-corps'},
         h('div',{class:'pk-nom'},c.nom),
+        c.difficulte?h('div',{class:'pk-difficulte'},c.difficulte>=2?'ATOUT DE DIFFICULTÉ SADIQUE':'ATOUT DE DIFFICULTÉ MALÉFIQUE'):null,
         h('div',{class:'pk-effet'},c.effet),
+        c.paliers?h('div',{class:'pk-paliers'},c.paliers.map(function(t){return h('div',{key:t},t);})):null,
         h('div',{class:'pk-niveau'},h('div',{class:'pk-jauge'},h('i',{style:{width:c.barre}})),h('span',null,c.niveau+' / '+c.cap))),
       c.auMax
         ?h('div',{class:'pk-etiquette pk-etiquette-max'},'✔ Maximum')
-        :h('button',{type:'button',class:'pk-acheter',onClick:function(){window.__acheterPerkIdleV1__(c.id);}},h('span',{class:'pk-prix'},'⭐ '+c.cout+' PP'),h('span',{class:'pk-achat'},'Acheter')));
+        :h('div',{class:'pk-achats'},
+          h('button',{type:'button',class:'pk-acheter',onClick:function(){window.__acheterPerkIdleV1__(c.id);},onContextMenu:function(e){e.preventDefault();window.__acheterPerkToutIdleV1__(c.id);}},h('span',{class:'pk-prix'},'⭐ '+c.cout+' PP'),h('span',{class:'pk-achat'},'Acheter')),
+          h('button',{type:'button',class:'pk-bascule pk-tout',title:'Dépense tout ce que tu peux sur cet atout, jusqu’à son niveau maximum (clic droit sur l’achat, sur ordinateur).',onClick:function(){window.__acheterPerkToutIdleV1__(c.id);}},'Tout')));
   }
   function PerksVue_(p){
     return h('div',{class:'pk-fond'},h('div',{class:'pk-boutique'},
@@ -69,7 +73,10 @@
       h('div',{class:'pk-comptoir'},
         h('div',{class:'pk-solde'},h('span',null,'⭐ PP disponibles'),h('b',null,String(p.pp))),
         h('input',{class:'pk-recherche',type:'search',placeholder:'Chercher un perk…',value:p.q,onInput:function(e){window.__perkFiltrerIdleV1__(e.currentTarget.value,null);}}),
-        h('button',{type:'button',class:'pk-bascule'+(p.abordables?' actif':''),onClick:function(){window.__perkFiltrerIdleV1__(null,!p.abordables);}},'💰 Abordables')),
+        h('button',{type:'button',class:'pk-bascule'+(p.abordables?' actif':''),'aria-pressed':p.abordables?'true':'false',onClick:function(){window.__perkFiltrerIdleV1__(null,!p.abordables);}},'💰 Abordables'),
+        h('button',{type:'button',class:'pk-bascule'+(p.nonMax?' actif':''),'aria-pressed':p.nonMax?'true':'false',title:'Cache les atouts déjà au niveau maximum.',onClick:function(){window.__perkFiltrerIdleV1__(null,null,!p.nonMax);}},'🙈 Masquer les maximums'),
+        h('select',{class:'pk-recherche pk-tri','aria-label':'Tri des atouts',value:p.tri,onChange:function(e){window.__perkFiltrerIdleV1__(null,null,null,e.currentTarget.value);}},
+          h('option',{value:'id'},'Tri : ordre normal'),h('option',{value:'base'},'Tri : coût de base'),h('option',{value:'total'},'Tri : coût total restant'))),
       h('div',{class:'pk-etagere'},p.cartes.length?p.cartes.map(function(c){return h(Vitrine_,Object.assign({key:c.id},c));}):h('div',{class:'pk-vide'},'Aucun perk ne correspond.'))));
   }
 
@@ -103,7 +110,11 @@
           h('div',{class:'itp-champs'},h(Champ_,{id:'itopodDebutV1',libelle:'Départ',valeur:p.champDebut}),h(Champ_,{id:'itopodFinV1',libelle:'Fin',valeur:p.champFin})),
           h('div',{class:'itp-actions'},
             h('button',{type:'button',class:'itp-bouton',onClick:function(){window.__itopodEtagesIdleV1__();}},'Appliquer'),
-            h('button',{type:'button',class:'itp-bouton itp-bouton-auto',title:'Règle tes étages sur ton meilleur étage (l’étage optimal du moment). Reclique plus tard pour le remettre à jour.',onClick:function(){window.__itopodAutoIdleV1__();}},'Auto'))),
+            h('button',{type:'button',class:'itp-bouton',title:'Départ = ton plus haut étage atteint − 1 (la fin reste telle quelle).',onClick:function(){window.__itopodMaxIdleV1__();}},'Max'),
+            h('button',{type:'button',class:'itp-bouton itp-bouton-auto',title:'Règle tes étages sur ton meilleur étage (l’étage optimal du moment). Reclique plus tard pour le remettre à jour.',onClick:function(){window.__itopodAutoIdleV1__();}},'Optimal')),
+          h('div',{class:'itp-actions itp-interrupteurs'},
+            p.shifter?h('button',{type:'button',class:'itp-bouton itp-bascule'+(p.shifter.actif?' itp-actif':''),'aria-pressed':p.shifter.actif?'true':'false',title:'Après chaque ennemi vaincu, règle les étages sur l’étage optimal.',onClick:function(){window.__itopodShifterIdleV1__(!p.shifter.actif);}},'🔄 Lazy ITOPOD Floor Shifter : '+(p.shifter.actif?'activé':'désactivé')):null,
+            h('button',{type:'button',class:'itp-bouton itp-bascule'+(p.idleMode?' itp-actif':''),'aria-pressed':p.idleMode?'true':'false',title:'Attaque automatique dans la tour. Désactivé, ton personnage n’attaque plus tout seul.',onClick:function(){window.__itopodIdleModeIdleV1__(!p.idleMode);}},'💤 Idle Mode : '+(p.idleMode?'activé':'désactivé')))),
         h('section',{class:'itp-panneau'},
           h('div',{class:'itp-titre'},'📊 Progression'),
           h('div',{class:'itp-tuiles'},p.tuiles.map(function(t){return h(Tuile_,{key:t[1],icone:t[0],libelle:t[1],valeur:t[2]});})),

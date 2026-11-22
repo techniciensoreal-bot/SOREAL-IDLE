@@ -88,7 +88,7 @@ assert.equal(idleNguBonuses(base).numberMultiplier, 1000, "le NUMBER courant seu
   s.runStartedAt = 0;
   s.rebirth.number = 999;
   s.bonuses.richJerksAttackLevel = 1000;
-  s.systems.perks.data.levels[5] = 100;
+  s.systems.perks.data.levels[5] = 1000; /* seuil du jeu : (1 + 0,1 x 1000) x x101 >= 10000 */
   const c = { bosses: 301, beastV4Beaten: true };
   const after = applyIdleNguAction(s, { action: "difficulty", value: "difficile" }, c, 4 * 60 * 1000).state;
   assert.equal(after.rebirth.number, 1);

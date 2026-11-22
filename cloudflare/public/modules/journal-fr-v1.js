@@ -176,6 +176,8 @@ function titan(kind,nom,o){
   }
 }
 window.__SOREAL_IDLE_JOURNAL_FR_V1__={actif:actif,defaut:DEFAUT,degats:DEGATS,attaque:attaque,titan:titan,
+  premiereAtteinte:function(etage,pp){return ["Tu as atteint l'étage "+etage+" de l'I.T.O.P.O.D pour la première fois !","Tu as reçu un bonus unique de "+pp+" Points d'Atout !"];},
+  changementEtage:function(de,vers){return "Le Floor Shifter de l'ITOPOD a changé ton étage actuel de "+de+" à "+vers+".";},
   victoire:function(nom){return 'Tu as vaincu '+nom+' !';},
   defaite:function(nom){return nom+' t\'a vaincu !';},
   soin:function(pv){return 'Tu t\'es soigné de '+pv+' PV !';},

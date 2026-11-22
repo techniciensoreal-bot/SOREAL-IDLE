@@ -21,6 +21,37 @@
  * une image par achat : celle du wiki NGU Idle (https://ngu-idle.fandom.com/wiki/Perk_Points), copiée dans /perks/<numéro du perk>.webp. Aucun total (anti-spoil).
  * Dessiné par modules/itopod-vdom-v1.js (Perks_) ; ici seulement les données.
  */
+/*
+ * Réglages de la boutique des Atouts : filtres « Abordables » et « Masquer les atouts au maximum », tri. Préférences du joueur : liées au compte (règle n°6), clé localStorage soreal_idle_perks_reglages_v1
+ * (le texte de recherche, lui, reste en mémoire : un mot oublié dans le champ cacherait des atouts au prochain chargement).
+ * Lu dans le jeu (build 1260, ItopodPerkController::constructList) : filtre « abordables » = filterAffordable (garde cost <= PP, les atouts au maximum NE SONT PAS écartés), filtre « pas au maximum » =
+ * filterNotMax ; tri = orderList : 0 = ordre croissant des indices, 1 = orderBaseCost (coût de base), 2 = orderTotalCost ((plafond - niveau) x coût). Le filtre de difficulté du jeu (filterDifficulty) est
+ * inutile ici : le serveur ne liste que ce qui est accessible.
+ */
+const CLE_REGLAGES_PERKS_V1='soreal_idle_perks_reglages_v1';
+function lireReglagesPerksIdleV1_(){
+        let o=null;
+        try{o=JSON.parse(localStorage.getItem(CLE_REGLAGES_PERKS_V1)||'null');}catch(_e){o=null;}
+        if(!o||typeof o!=='object')o={};
+        return {abordables:o.abordables===true,nonMax:o.nonMax===true,tri:(o.tri==='base'||o.tri==='total')?o.tri:'id'};
+      }
+function ecrireReglagesPerksIdleV1_(r){try{localStorage.setItem(CLE_REGLAGES_PERKS_V1,JSON.stringify({abordables:Boolean(r.abordables),nonMax:Boolean(r.nonMax),tri:r.tri}));}catch(_e){}}
+
+/*
+ * Fibonacci Perk (perk 94) : le jeu (ItopodPerkUIController::fibPerkUnlocks) liste les paliers (« Level N: » + effet si atteint, « ?????? » sinon). Règle n°2 : seuls les paliers DÉJÀ atteints sont écrits, plus un
+ * seul « ?????? » pour le PROCHAIN (jamais la suite ni le total). Textes du jeu (build 1260), écrits en français ici et rendus mot pour mot en anglais par le dictionnaire (« Level N: » + effet) ; le palier 1597 est le dernier (« (COSMETIC) » dans le jeu tant qu'il n'est pas atteint).
+ */
+const FIBONACCI_PALIERS_TEXTES_V1=[[1,'+10 % de Puissance d’Énergie et de Magie'],[2,'+10 % de Plafond d’Énergie'],[3,'+10 % de Plafond de Magie'],[5,'+5 % de vitesse des NGU d’Énergie'],[8,'+5 % de vitesse des NGU de Magie'],[13,'+5 % de gains de PP'],[21,'+10 % de Barres d’Énergie et de Magie'],[34,'13 % de stats d’Aventure'],[55,'+5 % de vitesse de la garderie'],[89,'+2 % de gains d’AP'],[144,'+5 % de chance d’avoir +1 niveau sur le butin !'],[233,'+10 % de récompenses de QP'],[377,'Multiplicateur d’Attaque/Défense de 377 %'],[610,'Plus aucun hasard sur les quêtes assignées !'],[987,'+5 % de gains d’EXP'],[1597,'ART DU CHAT FIBONACCI']];
+function fibonacciPaliersIdleV1_(niveau){
+        const out=[];
+        for(let k=0;k<FIBONACCI_PALIERS_TEXTES_V1.length;k++){
+          const pal=FIBONACCI_PALIERS_TEXTES_V1[k];
+          if(niveau>=pal[0])out.push('Niveau '+pal[0]+' : '+pal[1]);
+          else{out.push('Niveau '+pal[0]+' : ??????'+(pal[0]===1597?' (COSMÉTIQUE)':''));break;}
+        }
+        return out;
+      }
+
 function modelePerksIdleV1_(j){
         const H=window.__SOREAL_IDLE_META_HOST_V130__;
         const s=systemeMetaParIdIdleV130_(j,'perks');
@@ -28,7 +59,8 @@ function modelePerksIdleV1_(j){
         const levels=(s.state.data&&s.state.data.levels)||{};
         const defs=j&&j.systemes&&Array.isArray(j.systemes.perkDefinitions)?j.systemes.perkDefinitions:[];
         const pp=j&&j.systemes&&j.systemes.currencies?H.idleEntier_(j.systemes.currencies.pp||0):0;
-        const filtre=window.__perkFiltreIdleV1__||{q:'',abordables:false};
+        const filtre=window.__perkFiltreIdleV1__||(window.__perkFiltreIdleV1__={q:''});
+        const reg=lireReglagesPerksIdleV1_();
         const q=String(filtre.q||'').trim().toLowerCase();
         const cartes=[];
         defs.forEach(function(perk){
@@ -39,19 +71,37 @@ function modelePerksIdleV1_(j){
           const abordable=!auMax&&pp>=cout;
           const nom=String(perk.name||('Perk '+perk.id));
           if(q&&(nom+' '+String(perk.effect||'')).toLowerCase().indexOf(q)<0)return;
-          if(filtre.abordables&&!abordable)return;
+          if(reg.abordables&&cout>pp)return;   /* jeu : filterAffordable garde cost <= PP, même un atout au maximum */
+          if(reg.nonMax&&auMax)return;         /* jeu : filterNotMax */
           const barre=cap>0?Math.min(100,niveau*100/cap):0;
           cartes.push({id:perk.id,nom:nom,effet:String(perk.effect||''),niveau:niveau,cap:cap,auMax:auMax,cout:cout,abordable:abordable,barre:barre.toFixed(1)+'%',
+            total:Math.max(0,cap-niveau)*cout,
+            paliers:perk.id===94?fibonacciPaliersIdleV1_(niveau):null,
+            /* perk.diff : rang de difficulté exigé (1 Evil, 2 Sadistic), envoyé par le serveur seulement pour un atout déjà accessible (règle n°2) */
+            difficulte:H.idleEntier_(perk.diff||0),
             image:'/perks/'+H.idleEntier_(perk.id)+'.webp'+(perk.id===52||perk.id===53?'?v=2':'')});
         });
-        return {pp:pp,q:String(filtre.q||''),abordables:Boolean(filtre.abordables),cartes:cartes,sig:pp+'|'+String(filtre.q||'')+'|'+Boolean(filtre.abordables)+'|'+JSON.stringify(cartes)};   /* sig : Perks_ ne se redessine que si elle change */
+        /* Ordre du jeu : indices croissants ; les deux autres tris sont croissants sur leur clé, à égalité par indice. */
+        cartes.sort(function(a,b){
+          if(reg.tri==='base'&&a.cout!==b.cout)return a.cout-b.cout;
+          if(reg.tri==='total'&&a.total!==b.total)return a.total-b.total;
+          return a.id-b.id;
+        });
+        
+        return {pp:pp,q:String(filtre.q||''),abordables:reg.abordables,nonMax:reg.nonMax,tri:reg.tri,cartes:cartes,sig:pp+'|'+String(filtre.q||'')+'|'+reg.abordables+'|'+reg.nonMax+'|'+reg.tri+'|'+JSON.stringify(cartes)};   /* sig : Perks_ ne se redessine que si elle change */
       }
 
-/* Filtre du magasin des Perks : recherche et « abordables » ; la page est rendue de nouveau aussitôt (le champ de recherche est le MÊME élément : il garde le focus, sans aucune manœuvre). */
-function perkFiltrerIdleV1_(q,abordables){
-        const f=window.__perkFiltreIdleV1__||(window.__perkFiltreIdleV1__={q:'',abordables:false});
+/* Réglages du magasin des Perks : recherche, « abordables », « masquer les maximums », tri ; la page est rendue de nouveau aussitôt (le champ de recherche est le MÊME élément : il garde le focus, sans aucune manœuvre). */
+function perkFiltrerIdleV1_(q,abordables,nonMax,tri){
+        const f=window.__perkFiltreIdleV1__||(window.__perkFiltreIdleV1__={q:''});
         if(q!=null)f.q=String(q);
-        if(abordables!=null)f.abordables=Boolean(abordables);
+        if(abordables!=null||nonMax!=null||tri!=null){
+          const r=lireReglagesPerksIdleV1_();
+          if(abordables!=null)r.abordables=Boolean(abordables);
+          if(nonMax!=null)r.nonMax=Boolean(nonMax);
+          if(tri!=null)r.tri=(tri==='base'||tri==='total')?tri:'id';
+          ecrireReglagesPerksIdleV1_(r);
+        }
         rendreDeNouveauItopodIdleV1_();
       }
       window.__perkFiltrerIdleV1__=perkFiltrerIdleV1_;
@@ -117,11 +167,18 @@ function preparerItopodIdleV1_(j,sceneHtml){
         const conso=(j&&j.systemes&&j.systemes.consommables)||{};
         const pilulesRestantes=Math.max(0,Math.floor(Number(conso.reserve&&conso.reserve.bluePills)||0));
         const pilulesActives=Boolean(conso.pilulesActives);
+        /* PPP de base d'un kill : la valeur du SERVEUR (d.ppBase, base Sadistic complète : 2000 + quêtes + souhaits) ; repli sur la base de la difficulté en cours. */
+        const ppBase=Math.floor(d.ppBase!=null&&Number(d.ppBase)>0?Number(d.ppBase):(j&&j.systemes&&j.systemes.difficulty==='extreme'?2000:j&&j.systemes&&j.systemes.difficulty==='difficile'?700:200));
+        /* PP gagnés au total (ITOPOD.lifetimePoints du jeu, seulement par la progression, pas par les PP de record d'étage) : lu s'il existe côté serveur, affiché quand > 0 ; jamais de total à découvrir. */
+        const ppTotal=Math.max(0,H.idleNombre_(d.lifetimePp));
+        /* Lazy ITOPOD Floor Shifter : l'interrupteur n'apparaît qu'une fois l'amélioration ACHETÉE (règle n°2) ; Idle Mode : attaque automatique de la tour. */
+        const achatsBoutique=(j&&j.systemes&&j.systemes.selloutShop&&j.systemes.selloutShop.purchases)||{};
+        const shifterAchete=Number(achatsBoutique.lazyItopodFloorShifter)>0;
         const atouts=systemeMetaParIdIdleV130_(j,'perks');
         const atoutsOuverts=Boolean(atouts&&atouts.state&&atouts.state.unlocked);
         const vueAtouts=atoutsOuverts&&window.__itopodVueIdleV1__==='atouts';
         return {
-          sousTitre:'Une tour sans fin : bats 10 ennemis pour monter d’un étage. Chaque ennemi vaincu te rapporte des PPP ('+(j&&j.systemes&&j.systemes.difficulty==='extreme'?2000:j&&j.systemes&&j.systemes.difficulty==='difficile'?700:200)+' + le numéro de l’étage). À 1 000 000 PPP, tu gagnes 1 PP à dépenser dans les Atouts. Tu choisis l’étage de départ et l’étage de fin : arrivé au bout, tu repars du départ.',
+          sousTitre:'Une tour sans fin : bats 10 ennemis pour monter d’un étage. Chaque ennemi vaincu te rapporte des PPP ('+ppBase+' + le numéro de l’étage). À 1 000 000 PPP, tu gagnes 1 PP à dépenser dans les Atouts. Tu choisis l’étage de départ et l’étage de fin : arrivé au bout, tu repars du départ.',
           atoutsOuverts:atoutsOuverts,vueAtouts:vueAtouts,
           perks:atoutsOuverts?modelePerksIdleV1_(j):null,
           sceneHtml:sceneHtml,
@@ -130,7 +187,9 @@ function preparerItopodIdleV1_(j,sceneHtml){
           alerte:d.hitsParKill===0,
           modeEtages:auto?'Montée automatique jusqu’à l’étage optimal':(debut===fin?'Étage fixé : '+debut+(debut===optimal?' (ton meilleur étage)':''):'Départ '+debut+' → fin '+fin),
           champDebut:champDebut,champFin:champFin,
-          tuiles:[['🏢','Étage',etage],['⭐','PP disponibles',pp],['🗡️','Ennemis vaincus',H.formatGrandNombreIdleV70_(kills)],['⬆️','Prochain étage',versProchainEtage+' / 10'],['🏔️','Étage le plus haut',plusHaut],['🎯','Étage optimal',optimal]],
+          shifter:shifterAchete?{actif:d.shifterOn===true}:null,
+          idleMode:d.idleMode!==false,
+          tuiles:[['🏢','Étage',etage],['⭐','PP disponibles',pp],['🗡️','Ennemis vaincus',H.formatGrandNombreIdleV70_(kills)],['⬆️','Prochain étage',versProchainEtage+' / 10'],['🏔️','Étage le plus haut',plusHaut],['🎯','Étage optimal',optimal]].concat(ppTotal>0?[['⭐','PP gagnés au total',H.formatGrandNombreIdleV70_(ppTotal)]]:[]),
           ppTexte:Math.floor(ppProgress).toLocaleString('fr-FR')+' / 1 000 000',
           ppLargeur:pourcent.toFixed(2)+'%'
         };
@@ -238,16 +297,34 @@ function itopodPiluleIdleV1_(){
       }
       window.__itopodPiluleIdleV1__=itopodPiluleIdleV1_;
 
+/* « Optimal » (AdventureController::setOptimalFloor : une seule fois, pas un mode). */
 function itopodAutoIdleV1_(){
         effacerBrouillonItopodIdleV1_();
         actionMetaIdleV130_({action:'towerFloors',auto:true});
       }
       window.__itopodAutoIdleV1__=itopodAutoIdleV1_;
 
+/* « Max » (AdventureController::setMaxFloor) : départ = plus haut étage atteint - 1. */
+function itopodMaxIdleV1_(){
+        effacerBrouillonItopodIdleV1_();
+        actionMetaIdleV130_({action:'towerMaxFloor'});
+      }
+      window.__itopodMaxIdleV1__=itopodMaxIdleV1_;
+
+/* Interrupteurs de la tour : Lazy ITOPOD Floor Shifter (acheté) et Idle Mode ; l'état vit côté serveur (règle n°6). */
+window.__itopodShifterIdleV1__=function(activer){actionMetaIdleV130_({action:'towerShifter',enabled:Boolean(activer)});};
+window.__itopodIdleModeIdleV1__=function(activer){actionMetaIdleV130_({action:'towerIdleMode',enabled:Boolean(activer)});};
+
 function acheterPerkIdleV1_(perkId){
         actionMetaIdleV130_({action:'buyPerk',perkId:Number(perkId)});
       }
       window.__acheterPerkIdleV1__=acheterPerkIdleV1_;
+
+/* « Tout » : dépense tout ce qui est possible sur cet atout (ItopodPerkController::tryLevelAll, clic droit dans le jeu). Pas de confirmation d'achat (PlayerSettings.itopodConfirmation non reprise). */
+function acheterPerkToutIdleV1_(perkId){
+        actionMetaIdleV130_({action:'buyPerkMax',perkId:Number(perkId)});
+      }
+      window.__acheterPerkToutIdleV1__=acheterPerkToutIdleV1_;
 
 function acheterQuirkIdleV1_(quirkId){
         actionMetaIdleV130_({action:'buyQuirk',quirkId:Number(quirkId)});

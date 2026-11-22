@@ -28,7 +28,9 @@ if (!fs.existsSync(`${MIROIR}/pages/Perk Points.json`)) {
     "202 nom : wiki \"I wish I was a sneak preview of 4G's next Idle game\" / code \"I wish I was a sneak preview of Norman & Sébastien's next Idle game\""
   ];
   for (const k of ["perks", "quirks", "wishes"]) {
-    const inattendus = r[k].filter((l) => !numeriques(l) && !acceptes.includes(l) && !/ effet : /.test(l));
+    /* Noms alignés sur le JEU (IL build 1260, audit 2026-11-22), pas sur le wiki : « Adv. » (36-40), « ! » (105-106), « Reducer » (113-115), « Progress » (145-146), cartes « A / D » et « Speed » (164, 165, 169, 177, 178, 182, 190, 191, 195). */
+    const nomsDuJeu = (l) => k === "perks" && /^(36|37|38|39|40|105|106|113|114|115|145|146|164|165|169|177|178|182|190|191|195) nom :/.test(l);
+    const inattendus = r[k].filter((l) => !numeriques(l) && !acceptes.includes(l) && !nomsDuJeu(l) && !/ effet : /.test(l));
     assert.deepEqual(inattendus, [], `${k} : écarts de nom ou d'entrée inattendus`);
   }
   console.log("idle-catalogs-vs-wiki-mirror ok");

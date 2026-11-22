@@ -26,11 +26,11 @@ import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { FENETRE_INSTANT_CLIC_MS_V1 } from "./idle-instant-clic-v1.js";
 import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveBeardOnRebirth, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, setNguAdvanceV1, setNguAllocationV1, setNguTargetV1, setNguTierV1, syncIdleNguState, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
-import { buyNewbieOffer, buyPerkV1, buyQuirkV1, buyResource, challengeAction, capAllNguV1, collectSystem, crediterRecompensesAventure, daycareFragmentsExtV1, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
+import { buyNewbieOffer, buyPerkMaxV1, buyPerkV1, buyQuirkV1, buyResource, challengeAction, capAllNguV1, collectSystem, crediterRecompensesAventure, daycareFragmentsExtV1, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, hackActionV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
-import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, setRitualTargetV1, toggleDigger, towerSetFloorsV1, towerTogglePillV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
+import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, setRitualTargetV1, toggleDigger, towerEntrerV1, towerRebirthResetV1, towerSetFloorsV1, towerSetIdleModeV1, towerSetMaxFloorV1, towerSetShifterV1, towerTogglePillV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 import { beteSpecialRebirthV1 } from "./idle-bete-secret-v1.js";
 import { nerdLettreV1 } from "./idle-nerd-secret-v1.js";
 
@@ -222,6 +222,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     );
     if ((advActionInv === "unequip" || advActionInv === "equip") && !applied.duplicate) verifierCapApresEquipementV1(state, applied.state, context);
     state.adventure = applied.state;
+    /* Choisir une zone d'Aventure (Zone sûre comprise) quitte la zone ITOPOD : une seule zone à la fois dans le jeu (alignement 2026-11-22, audit de la Tour). */
+    if (advActionInv === "selectZone" && !applied.duplicate && state.systems.tower) state.systems.tower.active = false;
     /* THE TRAITOR vaincu : « sets your number of rebirths to 10,000, allowing you to complete the final achievement » (page THE TRAITOR (titan)). */
     if (state.adventure?.unlockFlags?.traitorDefeated) state.records.totalRebirths = Math.max(num(state.records.totalRebirths, 0), 10000);
     /*
@@ -433,10 +435,16 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     state.records.cinematiqueDerniere = code;
   } else if (action === "towerFloors" || action === "towerTogglePill") {
     result = action === "towerFloors" ? towerSetFloorsV1(state, payload) : towerTogglePillV1(state);
+  } else if (action === "towerMaxFloor" || action === "towerShifter" || action === "towerIdleMode") {
+    /* AdventureController::setMaxFloor ; Lazy ITOPOD Floor Shifter { enabled } (interrupteur indépendant) ; Idle Mode de la Tour { enabled } (alignement 2026-11-22). */
+    result = action === "towerMaxFloor" ? towerSetMaxFloorV1(state) : action === "towerShifter" ? towerSetShifterV1(state, payload) : towerSetIdleModeV1(state, payload);
   } else if (action === "toggle") {
     const s = state.systems[String(payload.system || "")];
     if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+    const etaitActif = Boolean(s.active);
     s.active = payload.active === undefined ? !s.active : Boolean(payload.active);
+    /* Entrer dans l'ITOPOD = ZoneSelector::changeZone(1000) : le joueur quitte la zone d'Aventure (alignement 2026-11-22, audit de la Tour). */
+    if (String(payload.system || "") === "tower" && s.active && !etaitActif) towerEntrerV1(state);
   } else if (action === "buyResource") {
     result = buyResource(state, String(payload.resource || ""), String(payload.stat || "power"), payload.quantity, context);
   } else if (action === "buyNewbieOffer") {
@@ -455,8 +463,8 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     result = toggleDigger(state,String(payload.digger||"drop"),payload.active);
   } else if (action === "setR3NomAleatoire") {
     result = setR3NomAleatoireV1(state, payload);
-  } else if (action === "buyPerk") {
-    result = buyPerkV1(state, payload.perkId);
+  } else if (action === "buyPerk" || action === "buyPerkMax") {
+    result = action === "buyPerk" ? buyPerkV1(state, payload.perkId) : buyPerkMaxV1(state, payload.perkId);
   } else if (action === "sellShopBuy") {
     /* Cœurs : l'objet est livré dans l'inventaire d'Aventure avant tout débit d'AP (idle-hearts-v1.js). */
     if (idleHeartV1(payload.itemId)) {
@@ -767,6 +775,8 @@ export function applyRebirthResetV56_(state,context,t,options={}) {
   for(const def of IDLE_NGU_SYSTEMS){
     const s=state.systems[def.id];
     if(def.kind==="run")resetRunSystem(def,s);
+    /* Rebirth : la zone repasse à Zone sûre, la Tour est quittée et le niveau retombe au départ (alignement 2026-11-22, audit de la Tour). */
+    if(def.id==="tower")towerRebirthResetV1(state);
     if(def.id==="hacks"||def.id==="wishes")s.allocation={energy:0,magic:0,r3:0};
     if(def.id==="hacks")for(const t of Object.values(s.data?.tracks||{}))t.r3=0;   /* la Resource 3 de chaque hack est rendue au Rebirth */
     /* Slots de souhaits : les souhaits placés restent, les ressources allouées sont perdues comme avant. */
@@ -1008,8 +1018,11 @@ export function idleNguRichJerksAttackPctV1(state) {
 export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
   const peaks = state && state.difficultyPeaks ? state.difficultyPeaks : {};
   const bossReadyEvil = num(peaks.normal, 0) >= 300; /* lu dans le jeu (Rebirth::setEvilNextRebirth, audit 2026-11-16) : highestBoss >= 300 */
-  const richJerksItopodBonusPct = idleNguRichJerksAttackPctV1(state) * idleNguItopodStatBonusPctV1(state);
-  const richJerksReady = richJerksItopodBonusPct >= 1e6;
+  /* lu dans le jeu, build 1260 (Rebirth::setEvilNextRebirth, IL_00a1..00cc) : Character.attackBoost x ItopodPerkController::totalStatBonus() >= 10000 (RATIO ; le message dit « at least a 1 000 000% bonus »).
+   * attackBoost = 1 au départ, +0,1 par achat Rich Jerks Attack (StatBoostPurchases::buyAttack10) ; totalStatBonus = produit des atouts de stats (niveaux ACTIFS à la difficulté courante, comme perkEffect). */
+  const richJerksItopodRatio = (1 + idleNguRichJerksAttackPctV1(state) / 100) * perkBonusesV1(idlePerkNiveauxV1(state)).statMultiplier;
+  const richJerksItopodBonusPct = richJerksItopodRatio * 100;
+  const richJerksReady = richJerksItopodRatio >= 10000;
   const beastV4Ready = Boolean(context.beastV4Beaten);
   const bossReadySadistic = num(peaks.difficile, 0) >= 300; /* lu dans le jeu (Rebirth::setSadisticNextRebirth) : highestHardBoss >= 300 */
   const exileV4Ready = Boolean(context.exileV4Beaten);
@@ -1022,6 +1035,7 @@ export function idleNguDifficultyUnlockRequirementsV1(state, context = {}) {
       bossReady: bossReadyEvil,
       richJerksReady,
       richJerksItopodBonusPct,
+      richJerksItopodRatio,
       beastV4Ready
     },
     extreme: {

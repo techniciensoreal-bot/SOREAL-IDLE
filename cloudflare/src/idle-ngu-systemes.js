@@ -909,7 +909,8 @@ function towerKillsPerRewardV1(tier) { return tier <= 20 ? 40 - tier : 20; }
  */
 export function towerHitsV1(power, idleBonus, floor, interval = 1) {
   const scale = Math.pow(1.05, floor);
-  const damage = Math.max(0, power - (10 * scale) / 2) /* le joueur n'a pas de plancher de dégâts dans le jeu (PlayerController) : lu 2026-11-16 */ * Math.max(0.1, idleBonus);
+  /* EnemyAI::takeDamage (IL, audit 2026-11-22) : Floor(dégâts / defenseFactor) : un coup du joueur est entier. */
+  const damage = Math.floor(Math.max(0, power - (10 * scale) / 2) /* le joueur n'a pas de plancher de dégâts dans le jeu (PlayerController) : lu 2026-11-16 */ * Math.max(0.1, idleBonus));
   const pv = 600 * scale;
   if (damage >= pv) return 1;
   const net = damage - scale * Math.max(0.05, Number(interval) || 1);
@@ -927,6 +928,18 @@ export function towerOptimalFloorV1(power, idleBonus) {
   const x = (power / 765) * Math.max(0.1, idleBonus);
   const f = Math.floor(Math.log(x) / Math.log(1.05) + 1e-9);
   return Math.min(TOWER_MAX_FLOOR_V1, Math.max(1, f));
+}
+
+/*
+ * Étage optimal tel que le jeu l'expose (Character::calculateBestItopodLevel, IL audit 2026-11-22) : 0 sous 700 de Puissance ; si le logarithme donne moins de 1 : 1, SANS plafond (cas « plus haut = 0 » : le jeu joue l'étage 1 hors ligne) ;
+ * sinon min(logarithme, étage le plus haut atteint). towerOptimalFloorV1 (ci-dessus) reste le calcul brut sans plafond.
+ */
+export function towerOptimalCappedV1(power, idleBonus, highest) {
+  if (!(power >= 700)) return 0;
+  const x = (power / 765) * Math.max(0.1, idleBonus);
+  const f = Math.floor(Math.log(x) / Math.log(1.05) + 1e-9);
+  if (!(f >= 1)) return 1;
+  return Math.min(TOWER_MAX_FLOOR_V1, Math.min(f, Math.max(0, int(highest, 0))));
 }
 
 /* Page ITOPOD, colonne « Boost » : force du boost lâché par palier (14 % de chance par kill, niveau 1). */
@@ -954,10 +967,14 @@ function towerMilestonePpV1(floor) {
  */
 const ITOPOD_MIN_POWER_V1 = 650;
 
-function advanceTowerV1(state, seconds, context) {
-  const tower = state.systems.tower;
-  if (!tower.unlocked || !(seconds > 0)) return;
-  const d = tower.data;
+/*
+ * Normalisation des données de la Tour (alignement 2026-11-22, audit de la Tour : Norman, « corrige tout en une fois »).
+ * Lu dans le jeu (NGU Idle build 1260, Adventure::.ctor) : itopodStart = 0 et itopodEnd = 20 par défaut, AUCUNE montée automatique vers l'étage optimal : l'ancien mode « auto » (départ / fin null) n'existe plus.
+ * Migration des anciennes sauvegardes : seules les valeurs null deviennent 0 / 20 ; un réglage posé par le joueur est conservé.
+ * Le Lazy ITOPOD Floor Shifter est un interrupteur indépendant (Arbitrary.lazyITOPODOn) : d.shifterOn ; ancien d.autoOptimal (posé par l'ancien bouton Auto) migré UNE fois en d.shifterOn, puis gardé en miroir (compat).
+ * Idle Mode (PlayerSettings / Adventure.autoattacking du jeu, faux par défaut dans le jeu) : d.idleMode, vrai par défaut ici pour ne pas casser les parties existantes.
+ */
+export function towerNormaliserV1(state, d) {
   d.kills = Math.max(0, int(d.kills, 0));
   if (d.killsOnFloor === undefined) {
     d.killsOnFloor = d.kills % 10;
@@ -968,47 +985,45 @@ function advanceTowerV1(state, seconds, context) {
   d.highestFloor = Math.max(int(d.highestFloor, 0), d.floor);
   d.killTime = Math.max(0, num(d.killTime, 0));
   d.apProgress = Math.max(0, num(d.apProgress, 0));
+  /* Wiki NGU Idle, page ITOPOD (vérifiée le 2026-10-12) : « your start floor ranging from 0 to 1 below the highest floor you've reached, and your end floor going all the way up to 1600 ». */
+  if (d.startFloor == null) d.startFloor = 0;
+  if (d.endFloor == null) d.endFloor = 20;
+  d.startFloor = clamp(int(d.startFloor, 0), 0, Math.max(0, d.highestFloor - 1));
+  d.endFloor = clamp(int(d.endFloor, d.startFloor), Math.max(1, d.startFloor), TOWER_MAX_FLOOR_V1);
+  if (typeof d.shifterOn !== "boolean") d.shifterOn = d.autoOptimal === true;
+  d.autoOptimal = d.shifterOn;
+  if (typeof d.idleMode !== "boolean") d.idleMode = true;
+}
+
+/* Étage suivant après les 10 kills d'un étage (AdventureController::enemyDeath, IL_08c5 à IL_08fc) : niveau + 1 ; au-delà de l'étage de fin, retour à l'étage de DÉPART. */
+function towerEtageSuivantV1(d, floor) {
+  return floor + 1 > d.endFloor ? d.startFloor : floor + 1;
+}
+
+function advanceTowerV1(state, seconds, context) {
+  const tower = state.systems.tower;
+  if (!tower.unlocked || !(seconds > 0)) return;
+  const d = tower.data;
+  towerNormaliserV1(state, d);
+  d.hitsParKill = 0;
 
   const gear = idleEquipementEffectifLectureV1(state);   /* lecture seule (équipement partagé et gelé) */
   const bonuses = idleNguBonusesLectureV1(state);
   const combatStats = idleAdventureCombatStatsV1(gear, context, bonuses);
   const powerRaw = combatStats.power;
+  const idleBonus = num(gear.specials?.idleAttackMultiplier, 1.2);
+  /* Étage optimal exposé = Character::calculateBestItopodLevel (plafonné à l'étage le plus haut atteint, repli à 1 sans plafond ; audit IL 2026-11-22). */
+  d.optimalFloor = towerOptimalCappedV1(powerRaw, idleBonus, d.highestFloor);
   /* Pour l'écran (Norman, 2026-10-04 : « les ennemis doivent prendre des coups, la vie descend progressivement quand on n'est pas assez fort pour les tuer d'un coup ») : coups nécessaires pour tuer un ennemi de l'étage en cours
      (towerHitsV1, la même formule que la progression), délai de réapparition et intervalle entre deux coups. 0 = pas assez de Power pour avancer. */
-  d.hitsParKill = 0;
   if (!(powerRaw >= ITOPOD_MIN_POWER_V1)) return;
   const power = Math.max(10, powerRaw);
-  const idleBonus = num(gear.specials?.idleAttackMultiplier, 1.2);
-  /*
-   * Hors ligne (ou en ligne, menu ITOPOD fermé) sans être "actif" (Norman, 2026-09-27, correctif docs/HORS-LIGNE.md
-   * point 2 -- wiki NGU, Build History .398 : « the ITOPOD ... progress hors ligne sans y être, tant que l'ITOPOD
-   * est débloqué et qu'on peut tuer l'étage 1 en un coup (~650 Power) ». towerHitsV1(power, idleBonus, 0) <= 1 EST
-   * exactement cette condition -- même formule que la progression manuelle ci-dessous, aucun seuil "650" inventé
-   * ni dupliqué : tower.active reste nécessaire seulement pour choisir/suivre un intervalle de niveaux à l'écran,
-   * jamais comme condition de progression en elle-même.
-   */
-  if (!tower.active && towerHitsV1(power, idleBonus, 0) > 1) return;
   const respawn = 4 * (1 - clamp(num(bonuses.respawnReduction, 0), 0, 1));   /* AdventureController::respawnTime : 4 s x facteurs, sans plancher (audit 2026-11-16) */
   const interval = state.adventure?.unlockFlags?.redLiquidMaxed ? 0.8 : 1;
-  const optimal = towerOptimalFloorV1(power, idleBonus);
-  /* Wiki NGU Idle, page ITOPOD (ngu-idle.fandom.com/wiki/ITOPOD, vérifiée le 2026-10-12) : « your start floor ranging from 0 to 1 below the highest floor you've reached, and your end floor going all the way up to 1600 » ; « If you ... defeat ten enemies on your end floor, you'll immediately go back to your start floor. » */
-  let start = d.startFloor == null ? null : clamp(int(d.startFloor, 0), 0, Math.max(0, d.highestFloor - 1));
-  let end = d.endFloor == null ? null : clamp(int(d.endFloor, 0), start ?? 0, TOWER_MAX_FLOOR_V1);
-  let auto = start === null || end === null;
-  /* Lazy ITOPOD Floor Shifter acheté (wiki : « check your optimal floor after each kill, and adjust it ») et mode Auto choisi : les étages suivent l'étage optimal à chaque tour. */
-  let shifter = Boolean(state.selloutShop?.purchases?.lazyItopodFloorShifter) && d.autoOptimal === true;
-  /* Hors ligne (audit du code du jeu, 2026-11-16, design/audit-code-jeu/hors-ligne.md E2, Character::addOfflineProgress 2240) : le jeu ne tient compte NI des étages de départ et de fin du joueur NI du Floor Shifter ; il joue UN SEUL étage, le meilleur étage calculé, plafonné à l'étage le plus haut déjà atteint (jamais de nouvel étage ni de PP de première atteinte). */
-  const horsLigneItopod = seconds >= TOWER_COMBAT_MAX_SECONDS_V1;
-  if (horsLigneItopod) {
-    const etageUnique = Math.max(0, Math.min(optimal, d.highestFloor));
-    /* Lu dans le jeu (audit IL 2026-11-21, Character::adventureOfflineProgress 2239 : calculateBestItopodLevel > 0 exigé, il renvoie 0 sous 700 de Puissance ou si l'étage le plus haut est 0) : dans ce cas le jeu ne fait RIEN hors ligne, il ne joue pas l'étage 0. */
-    if (etageUnique <= 0) return;
-    start = etageUnique;
-    end = etageUnique;
-    auto = false;
-    shifter = false;
-  }
-  d.optimalFloor = optimal;
+  /* Idle Mode (jeu : idleAttack seulement si Adventure.autoattacking ; régénération x1,2 seulement dans ce cas, AdventureController::manageFight). Hors ligne le jeu ne le consulte pas (adventureOfflineProgress). */
+  const idleOn = d.idleMode !== false;
+  const hpMax = Math.max(0, num(combatStats.hp, 0));
+  const regenJoueur = Math.max(0, num(combatStats.regen, 0)) * (idleOn ? ITOPOD_AUTOATTACK_REGEN_V1 : 1);
   d.hitsParKill = towerHitsV1(power, idleBonus, d.floor, interval);
   d.respawnS = respawn;
   d.intervalS = interval;
@@ -1016,15 +1031,32 @@ function advanceTowerV1(state, seconds, context) {
      pvMax / pv = PV max et PV actuels du joueur (d.hp n'existe que depuis qu'un combat a été simulé : sinon plein) ; degatsCoup = un coup du joueur (formule de towerHitsV1) ; ennemiCoup = un coup de l'ennemi de l'étage (EnemyAI::attack, aléa remplacé par 1) ; regenPv = régénération par seconde en auto-attaque. */
   {
     const echelle = Math.pow(1.05, d.floor);
-    const pvMax = Math.max(0, num(combatStats.hp, 0));
-    d.pvMax = pvMax;
-    d.pv = Number.isFinite(d.hp) ? clamp(d.hp, 0, pvMax) : pvMax;
-    d.degatsCoup = Math.max(0, power - (10 * echelle) / 2) * Math.max(0.1, idleBonus);
-    d.ennemiCoup = Math.floor(Math.max(0.1 * 10 * echelle, 10 * echelle - Math.max(0, num(combatStats.toughness, 0)) / 2));
-    d.regenPv = Math.max(0, num(combatStats.regen, 0)) * ITOPOD_AUTOATTACK_REGEN_V1;
+    d.pvMax = hpMax;
+    d.pv = Number.isFinite(d.hp) ? clamp(d.hp, 0, hpMax) : hpMax;
+    /* EnemyAI::takeDamage (audit IL 2026-11-22) : Floor(dégâts / defenseFactor) : un coup du joueur est entier. */
+    d.degatsCoup = Math.floor(Math.max(0, power - (10 * echelle) / 2) * Math.max(0.1, idleBonus));
+    /* Coup de l'ennemi NON tronqué (le jeu tronque une seule fois, après le multiplicateur du coup : la scène fait le floor). */
+    d.ennemiCoup = Math.max(0.1 * 10 * echelle, 10 * echelle - Math.max(0, num(combatStats.toughness, 0)) / 2);
+    d.regenPv = regenJoueur;
+    /* Panneau de stats du joueur (AdventureController::updateAdventureStats : Power, Toughness, Max HP, HP Regen de base). */
+    d.puissanceJoueur = Math.max(0, num(combatStats.power, 0));
+    d.defenseJoueur = Math.max(0, num(combatStats.toughness, 0));
+    d.regenBase = Math.max(0, num(combatStats.regen, 0));
     /* PV de l'ennemi de l'étage (600 x 1,05^étage, powerUp sans l'aléa) et dégâts de poison par tour (floor(attaque x 0,2)) : texte de sa barre et journal. */
     d.ennemiPv = 600 * echelle;
     d.ennemiPoison = Math.floor(10 * echelle * 0.2);
+  }
+  /*
+   * Hors ligne (Character::adventureOfflineProgress, IL 2239) : seconds >= TOWER_COMBAT_MAX_SECONDS_V1. Le jeu applique son rattrapage dès 10 s d'absence (OpenFileDialog::LoadText) ; ici la synchro en ligne est appelée toutes les ~15 s
+   * et ne se distingue pas d'une absence courte : le seuil reste celui du farm hors ligne (5 min), voir le rapport d'audit 2026-11-22.
+   * EN LIGNE, la Tour ne progresse que si le joueur est dans la zone ITOPOD (zone == 1000 du jeu : enemyDeath ne compte les kills ITOPOD que dans cette zone) = tower.active ; entrer, sortir : towerEntrerV1 / choix d'une zone d'Aventure.
+   * HORS LIGNE : seulement « ITOPOD débloqué » + Puissance >= 650 (adventureOfflineProgress ne lit ni la zone ni tower.active ; il lit aussi le réglage itopodOn, qui n'existe pas ici).
+   */
+  const horsLigneItopod = seconds >= TOWER_COMBAT_MAX_SECONDS_V1;
+  if (!horsLigneItopod && (!tower.active || !idleOn)) {
+    /* Hors de la zone (ou Idle Mode coupé) : aucun kill ; les PV se régénèrent seuls (jamais au-delà du maximum). */
+    if (Number.isFinite(d.hp)) d.hp = clamp(d.hp + regenJoueur * seconds, 0, hpMax);
+    return;
   }
 
   const perks = perkBonusesV1(idlePerkNiveauxV1(state));
@@ -1032,53 +1064,20 @@ function advanceTowerV1(state, seconds, context) {
   /* Lu dans le jeu (ItopodPerkController::progressGained, build 1260, 2026-11-15) : le bonus de base (quirks + souhaits) ne s'ajoute QU'EN Sadistic (2000 + étage + bonus de base) ; Normal (200 + étage), Evil (700 + étage). */
   const ppBase = state.difficulty === "extreme" ? 2000 + quirks.itopodPppFlat + 50 * wishLevelV1(state, 79) : state.difficulty === "difficile" ? 700 : 200;
   /* Même PPBonus que le Fruit of Rage (sets multiplicatifs, NGU PP, Hacks PP, Diggers PP, Perks, Cards PP). */
-  const ppMultiplier = Math.max(0, num(bonuses.ppMultiplier, 1));
+  /* ItopodPerkController::totalPPBonus (IL 330) : minimum 1 (audit 2026-11-22). */
+  const ppMultiplier = Math.max(1, num(bonuses.ppMultiplier, 1));
   const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));
   /* Pour le journal de l'écran : PPP gagnés par kill = (base + étage) x PPBonus (ItopodPerkController::progressGained). */
   d.ppBase = ppBase;
   d.ppMult = ppMultiplier;
 
   const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor, interval);
-  const applyKills = (n, floor) => {
-    if (!(n > 0)) return;
-    const tier = towerTierV1(floor);
-    /* Pièce 491 (page THE END) : « Drop chance equal to 0.005% * (ITOPOD Level - 1449) » à chaque kill dès l'étage 1450 ; jamais deux fois. */
-    /* Hors ligne (Character::adventureOfflineProgress, méthode 2239 : aucun appel à itopodDrop / checkEndDrop / checkExileDrop / checkITOPODSecret) : AUCUN de ces trois tirages (audit IL 2026-11-20). */
-    if (!horsLigneItopod && floor >= IDLE_THE_END_TOWER_FIRST_FLOOR_V1 && !idleTheEndHasV1(state.adventure, 491)) {
-      const p = Math.min(1, 0.00005 * (floor - (IDLE_THE_END_TOWER_FIRST_FLOOR_V1 - 1)));
-      if (Math.random() < 1 - Math.pow(1 - p, n)) idleTheEndGrantV1(state.adventure, 491, Date.now());
-    }
-    /* Tentacule de l'Exilé (337) : LootDrop::checkExileDrop, étages 950 à 999, exige le Visage (336) déjà vu (idle-antlers-v1.js). */
-    if (!horsLigneItopod && floor >= 950 && floor <= 999) exileItopodV1(state.adventure, floor, n);
-    /* Dernier indice de la Bête (183) : LootDrop::checkITOPODSecret (étage 100, départ 0, premier kill de l'étage, joueur nu depuis le début de la visite ; idle-bete-secret-v1.js). d.killsOnFloor = kills déjà faits sur l'étage. */
-    if (!horsLigneItopod && state.adventure && state.adventure.unlockFlags && state.adventure.unlockFlags.clue3Complete) beteItopodV1(state.adventure, d, floor, n, d.killsOnFloor);
-    d.kills += n;
-    /* Hors ligne (Character::adventureOfflineProgress du jeu, lu le 2026-11-16) : AUCUN objet de boost, ni tirage ; avec « Filter Boosts into Infinity Cube! » le jeu ajoute directement à la puissance et à la robustesse du cube capAttack[boost du palier] x kills / 8 x bonus des boosts / (diviseur x 2) (idleAdventureCubeDirectV1) ; sans le filtre, rien. */
-    if (horsLigneItopod) {
-      const envCube = inventoryAutoEnvV1(state);
-      if (envCube.filterBoostsIntoCube) idleAdventureCubeDirectV1(state.adventure, towerBoostStrengthV1(tier), n, envCube.boostCtx());
-    }
-    if (!horsLigneItopod) d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
-    const boosts = horsLigneItopod ? 0 : Math.floor(d.boostProgress);
-    if (boosts > 0) {
-      d.boostProgress -= boosts;
-      const types = ["power", "toughness", "special"];
-      const forceBoost = towerBoostStrengthV1(tier);
-      /* Filtre de butin, Filter Boosts into Infinity Cube et transformation automatique (idle-inventory-auto-v1.js). */
-      const invEnv = inventoryAutoEnvV1(state);
-      /*
-       * 2026-09-24 (seconde passe) : page Boost, « in the ITOPOD they drop at level 1 and can be affected by
-       * The Loot Goblin's Blessing and the Gaudy set bonus » -- même tirage +1 niveau que les drops de zone
-       * (dropLevelAdventureV2 : set Gaudy + bonusDropLevelChance = Loot Goblin + Fibonacci 144).
-       */
-      const levelUpChance = Math.min(1, Math.max(0, num(state.adventure?.setRewards?.extraDropLevelChance, 0)) + Math.max(0, num(state.adventure?.bonusDropLevelChance, 0)));
-      for (let i = 0; i < Math.min(boosts, 200); i++) {
-        const item = idleAdventureBoostV1(types[Math.floor(Math.random() * 3)], forceBoost);
-        item.level = Math.random() < levelUpChance ? 2 : 1;
-        if (!idleInventoryReceiveDropV1(state.adventure, item, invEnv)) break;
-      }
-    }
-    /* Little Blue Pill : PPP doublés (AllArbitraryController::pillModifier, ItopodPerkController::totalPPBonus) pour les n premiers kills couverts par le stock de pilules, réglage actif. */
+
+  /*
+   * PP par kill (ItopodPerkController::progressGained) : l'étage du KILL (AdventureController::enemyDeath calcule progressGained avant d'incrémenter le niveau, IL_0845 à IL_08ae), y compris pour le 10e kill d'un étage.
+   * Little Blue Pill : PPP doublés (AllArbitraryController::pillModifier, ItopodPerkController::totalPPBonus) pour les n premiers kills couverts par le stock de pilules, réglage actif.
+   */
+  const ppPart = (n, floor) => {
     const fx = state.selloutEffects;
     /* Lu dans le jeu, build 1260, 2026-11-17 : AdventureController::enemyDeath (1 pilule par kill ITOPOD SEULEMENT si PlayerSettings.buffedKillsOn) et Character::adventureOfflineProgress (kills buffés = min(kills, pilules) si actif, sinon 0). Réglage faux par défaut : sans lui, aucune pilule n'est consommée ni ne double les PPP. */
     const pills = fx && fx.buffedKillsOn === true ? Math.min(n, Math.max(0, int(fx.bluePills, 0))) : 0;
@@ -1086,6 +1085,58 @@ function advanceTowerV1(state, seconds, context) {
     /* Little Blue Pill : x2 (x2,2 avec le Blue Heart (set), idle-hearts-v1.js) pour chaque kill couvert. */
     const pillFactor = 2 * idleHeartsConsumableFactorV1(state);
     d.ppProgress = Math.max(0, num(d.ppProgress, 0)) + (n + pills * (pillFactor - 1)) * (ppBase + floor) * ppMultiplier;
+  };
+  /*
+   * Butin et récompenses d'un lot de n kills : AdventureController::enemyDeath appelle dropLoot APRÈS avoir incrémenté le niveau : le 10e kill d'un étage lâche son butin (palier d'AP / d'EXP, force du boost, pièce 491, Exilé, indice de la Bête)
+   * à l'étage SUIVANT (ou à l'étage de départ si on dépasse la fin) ; seul le PP (ppPart) utilise l'étage du kill (audit IL 2026-11-22). `lf` = étage du butin ; `killsAvantBete` = kills déjà faits sur l'étage (-1 : jamais le premier).
+   */
+  const lootPart = (n, lf, killsAvantBete) => {
+    if (!(n > 0)) return;
+    const tier = towerTierV1(lf);
+    /* Pièce 491 (page THE END) : « Drop chance equal to 0.005% * (ITOPOD Level - 1449) » à chaque kill dès l'étage 1450 ; jamais deux fois. */
+    /* Hors ligne (Character::adventureOfflineProgress, méthode 2239 : aucun appel à itopodDrop / checkEndDrop / checkExileDrop / checkITOPODSecret) : AUCUN de ces trois tirages (audit IL 2026-11-20). */
+    if (!horsLigneItopod && lf >= IDLE_THE_END_TOWER_FIRST_FLOOR_V1 && !idleTheEndHasV1(state.adventure, 491)) {
+      const p = Math.min(1, 0.00005 * (lf - (IDLE_THE_END_TOWER_FIRST_FLOOR_V1 - 1)));
+      if (Math.random() < 1 - Math.pow(1 - p, n)) idleTheEndGrantV1(state.adventure, 491, Date.now());
+    }
+    /* Tentacule de l'Exilé (337) : LootDrop::checkExileDrop, étages 950 à 999, exige le Visage (336) déjà vu (idle-antlers-v1.js). */
+    if (!horsLigneItopod && lf >= 950 && lf <= 999) exileItopodV1(state.adventure, lf, n);
+    /* Dernier indice de la Bête (183) : LootDrop::checkITOPODSecret (étage 100, départ 0, premier kill de l'étage, joueur nu depuis le début de la visite ; idle-bete-secret-v1.js). */
+    if (!horsLigneItopod && state.adventure && state.adventure.unlockFlags && state.adventure.unlockFlags.clue3Complete) beteItopodV1(state.adventure, d, lf, n, killsAvantBete);
+    /* Hors ligne (Character::adventureOfflineProgress du jeu, lu le 2026-11-16) : AUCUN objet de boost, ni tirage ; avec « Filter Boosts into Infinity Cube! » le jeu ajoute directement à la puissance et à la robustesse du cube capAttack[boost du palier] x kills / 8 x bonus des boosts / (diviseur x 2) (idleAdventureCubeDirectV1) ; sans le filtre, rien. */
+    if (horsLigneItopod) {
+      const envCube = inventoryAutoEnvV1(state);
+      if (envCube.filterBoostsIntoCube) idleAdventureCubeDirectV1(state.adventure, towerBoostStrengthV1(tier), n, envCube.boostCtx());
+    } else {
+      d.boostProgress = Math.max(0, num(d.boostProgress, 0)) + n * 0.14;
+      const boosts = Math.floor(d.boostProgress);
+      if (boosts > 0) {
+        d.boostProgress -= boosts;
+        const types = ["power", "toughness", "special"];
+        const forceBoost = towerBoostStrengthV1(tier);
+        /* Filtre de butin, Filter Boosts into Infinity Cube et transformation automatique (idle-inventory-auto-v1.js). */
+        const invEnv = inventoryAutoEnvV1(state);
+        /*
+         * 2026-09-24 (seconde passe) : page Boost, « in the ITOPOD they drop at level 1 and can be affected by
+         * The Loot Goblin's Blessing and the Gaudy set bonus » -- même tirage +1 niveau que les drops de zone
+         * (dropLevelAdventureV2 : set Gaudy + bonusDropLevelChance = Loot Goblin + Fibonacci 144).
+         */
+        const levelUpChance = Math.min(1, Math.max(0, num(state.adventure?.setRewards?.extraDropLevelChance, 0)) + Math.max(0, num(state.adventure?.bonusDropLevelChance, 0)));
+        for (let i = 0; i < Math.min(boosts, 200); i++) {
+          const item = idleAdventureBoostV1(types[Math.floor(Math.random() * 3)], forceBoost);
+          item.level = Math.random() < levelUpChance ? 2 : 1;
+          if (!idleInventoryReceiveDropV1(state.adventure, item, invEnv)) break;
+        }
+      }
+    }
+    if (horsLigneItopod) {
+      /* Hors ligne (adventureOfflineProgress IL_1db2 à IL_1dd2) : AP = kills / killsPerAP et EXP = (kills / killsPerEXP) x itopodEXPAwarded, divisions ENTIÈRES, sans report de reste ; l'AP hors ligne n'a aucun bonus (curArbitraryPoints += AP). */
+      const lots = Math.floor(n / towerKillsPerRewardV1(tier));
+      state.currencies.experience += lots * towerExpForTierV1(tier) * expMultiplier;
+      state.currencies.ap += lots;
+      return;
+    }
+    /* En ligne le jeu donne l'AP / l'EXP quand enemiesKilled % killsPerAP == 0 (LootDrop::itopodDrop) : même taux, compté ici en fraction reportée (équivalent à long terme). */
     const rewards = n / towerKillsPerRewardV1(tier);
     state.currencies.experience += rewards * towerExpForTierV1(tier) * expMultiplier;
     d.apProgress += rewards;
@@ -1096,43 +1147,73 @@ function advanceTowerV1(state, seconds, context) {
       state.currencies.ap += ap;
     }
   };
+  /* n kills à l'étage `floor` dont `nbFin` sont des 10es kills (butin à l'étage `floorFin`). */
+  const applyKills = (n, floor, nbFin = 0, floorFin = floor) => {
+    if (!(n > 0)) return;
+    ppPart(n, floor);
+    lootPart(n - nbFin, floor, d.killsOnFloor);
+    lootPart(nbFin, floorFin, -1);
+    d.kills += n;
+  };
   const reachFloor = (floor) => {
     if (floor <= d.highestFloor) return;
     for (let g = d.highestFloor + 1; g <= floor; g++) state.currencies.pp += towerMilestonePpV1(g);
     d.highestFloor = floor;
   };
+  const verserPp = () => {
+    const pp = Math.floor(d.ppProgress / 1e6);
+    if (pp > 0) {
+      d.ppProgress -= pp * 1e6;
+      state.currencies.pp += pp;
+      /* ITOPOD.lifetimePoints du jeu (« Total Earned PP ») : incrémenté par addProgress seulement, pas par awardHighestLevelPP. */
+      d.lifetimePp = Math.max(0, num(d.lifetimePp, 0)) + pp;
+    }
+  };
+
+  if (horsLigneItopod) {
+    /* Hors ligne (Character::adventureOfflineProgress, IL_1c9c à IL_1db2 ; audit IL 2026-11-22) : le jeu ne modifie NI itopodLevel NI itopodKillCount (ni ici d.floor, d.killsOnFloor, tower.level) ; il joue UN SEUL étage, calculateBestItopodLevel,
+       et exige qu'il soit > 0. Kills = secondes / (intervalle + réapparition) (Mathf.FloorToInt), le reste est perdu. Il n'ajoute que enemiesKilled, PP, EXP, AP, cube, pilule (jamais d'étage nouveau, donc jamais de PP de première atteinte). */
+    const best = d.optimalFloor;
+    if (best <= 0) return;
+    const kills = Math.floor(seconds / (interval + respawn));
+    applyKills(kills, best, 0, best);
+    verserPp();
+    return;
+  }
+
+  /* Lazy ITOPOD Floor Shifter acheté ET activé (Arbitrary.lazyITOPODOn, interrupteur indépendant) : après chaque kill, setOptimalFloor puis changeZone(1000) (niveau = départ, compteur = 0). */
+  const shifter = Boolean(state.selloutShop?.purchases?.lazyItopodFloorShifter) && d.shifterOn === true;
+  if (shifter) towerShifterActiverV1(state, d);
+  const start = d.startFloor;
+  const end = d.endFloor;
 
   let time = seconds + d.killTime;
   let guard = 0;
-  /* Les ennemis de l'ITOPOD attaquent (idle-itopod-combat-v1.js, lu dans le jeu le 2026-11-16) : en ligne (synchro courte), si un étage du parcours demande 1,8 s de coups ou plus (premier coup de l'ennemi), chaque kill est simulé avec les PV du joueur ; sinon (un coup tue avant le premier coup de l'ennemi) le calcul par lots ci-dessous est exact. Hors ligne le jeu ne simule aucun combat (kills = secondes / (1 + réapparition)) : calcul par lots. */
-  const hpMax = Math.max(0, num(combatStats.hp, 0));
-  const regenJoueur = Math.max(0, num(combatStats.regen, 0)) * ITOPOD_AUTOATTACK_REGEN_V1;
-  const etageLePlusHaut = auto ? optimal : end;
-  const combatNecessaire = !shifter && seconds < TOWER_COMBAT_MAX_SECONDS_V1 && hpMax > 0 && interval * towerHitsV1(power, idleBonus, etageLePlusHaut, interval) >= TOWER_FIRST_STRIKE_SECONDS_V1;
+  /* Les ennemis de l'ITOPOD attaquent (idle-itopod-combat-v1.js, lu dans le jeu le 2026-11-16) : en ligne (synchro courte), si un étage du parcours demande 1,8 s de coups ou plus (premier coup de l'ennemi), chaque kill est simulé avec les PV du joueur ; sinon (un coup tue avant le premier coup de l'ennemi) le calcul par lots ci-dessous est exact. */
+  const etageLePlusHaut = Math.max(end, d.floor);
+  const combatNecessaire = !shifter && hpMax > 0 && interval * towerHitsV1(power, idleBonus, etageLePlusHaut, interval) >= TOWER_FIRST_STRIKE_SECONDS_V1;
   if (combatNecessaire) {
     if (!Number.isFinite(d.hp)) d.hp = hpMax;
     d.hp = clamp(d.hp, 0, hpMax);
-    time = towerBoucleCombatV1({ alea: aleaV1(context), d, time, auto, start, end, optimal, power, idleBonus, toughness: Math.max(0, num(combatStats.toughness, 0)), interval, respawn, hpMax, regenJoueur, applyKills, reachFloor });
+    time = towerBoucleCombatV1({ alea: aleaV1(context), d, time, start, end, power, idleBonus, toughness: Math.max(0, num(combatStats.toughness, 0)), interval, respawn, hpMax, regenJoueur, applyKills, reachFloor });
   } else if (Number.isFinite(d.hp)) {
     /* Hors combat les PV se régénèrent seuls (jamais au-delà du maximum). */
     d.hp = clamp(d.hp + regenJoueur * seconds, 0, hpMax);
     d.fightAi = null;
   }
   while (!combatNecessaire && guard++ < 20000) {
-    if (shifter && towerAppliquerEtageOptimalV1(d, optimal)) {
-      start = d.startFloor;
-      end = d.endFloor;
-      auto = false;
-    }
-    if (auto) {
-      if (d.floor > optimal) d.floor = optimal;
-    } else if (d.floor < start || d.floor > end) {
-      d.floor = start;
-      d.killsOnFloor = 0;
-    }
     const tk = killTimeAt(d.floor);
-    const steady = auto ? d.floor >= optimal : start === end;
-    if (steady) {
+    if (shifter) {
+      /* Le Shifter ramène au départ et remet le compteur à 0 après CHAQUE kill : tous les kills ont lieu au même étage, aucun étage nouveau. */
+      const n = Math.floor(time / tk);
+      if (n <= 0) break;
+      time -= n * tk;
+      applyKills(n, d.floor);
+      d.killsOnFloor = 0;
+      break;
+    }
+    if (d.floor === start && start === end) {
+      /* Un seul étage : les 10es kills retombent sur le même étage (départ = fin). */
       const n = Math.floor(time / tk);
       if (n <= 0) break;
       time -= n * tk;
@@ -1140,13 +1221,13 @@ function advanceTowerV1(state, seconds, context) {
       d.killsOnFloor = (d.killsOnFloor + n) % 10;
       break;
     }
-    if (!auto && d.killsOnFloor === 0 && d.floor === start && d.highestFloor >= end) {
+    if (d.killsOnFloor === 0 && d.floor === start && d.highestFloor >= end) {
       let cycle = 0;
       for (let f = start; f <= end; f++) cycle += 10 * killTimeAt(f);
       const cycles = Math.floor(time / cycle);
       if (cycles >= 1) {
         time -= cycles * cycle;
-        for (let f = start; f <= end; f++) applyKills(10 * cycles, f);
+        for (let f = start; f <= end; f++) applyKills(10 * cycles, f, cycles, towerEtageSuivantV1(d, f));
         continue;
       }
     }
@@ -1154,22 +1235,18 @@ function advanceTowerV1(state, seconds, context) {
     const n = Math.min(need, Math.floor(time / tk));
     if (n <= 0) break;
     time -= n * tk;
-    applyKills(n, d.floor);
+    const termine = n === need;
+    const suivant = termine ? towerEtageSuivantV1(d, d.floor) : d.floor;
+    applyKills(n, d.floor, termine ? 1 : 0, suivant);
     d.killsOnFloor += n;
-    if (d.killsOnFloor >= 10) {
+    if (termine) {
       d.killsOnFloor = 0;
-      if (auto) d.floor = Math.min(optimal, d.floor + 1);
-      else if (d.floor >= end) d.floor = start;
-      else d.floor += 1;
+      d.floor = suivant;
       reachFloor(d.floor);
     }
   }
   d.killTime = combatNecessaire ? Math.min(time, TOWER_COMBAT_MAX_KILLTIME_V1) : Math.min(time, killTimeAt(d.floor));
-  const pp = Math.floor(d.ppProgress / 1e6);
-  if (pp > 0) {
-    d.ppProgress -= pp * 1e6;
-    state.currencies.pp += pp;
-  }
+  verserPp();
   tower.level = d.floor;
 }
 
@@ -1181,18 +1258,12 @@ const TOWER_COMBAT_MAX_KILLTIME_V1 = 5 * 60;
 
 /*
  * Boucle de combat de l'ITOPOD en ligne : un cycle (réapparition + combat) à la fois, avec les PV du joueur (d.hp) et l'IA tirée de l'ennemi (d.fightAi, gardée jusqu'à la fin du cycle).
- * Un kill compte comme dans le calcul par lots ; la mort du joueur le renvoie à l'étage de départ (le compteur de 10 kills n'est pas remis à zéro) et vide ses PV (playerDeath du jeu). Renvoie le temps restant.
+ * Un kill compte comme dans le calcul par lots ; la mort du joueur le renvoie à l'étage de DÉPART (jamais 0 si le départ est différent ; le compteur de 10 kills n'est pas remis à zéro) et vide ses PV (playerDeath du jeu). Renvoie le temps restant.
  */
 function towerBoucleCombatV1(c) {
-  const { d, auto, start, end, optimal } = c;
+  const { d } = c;
   let time = c.time;
   for (let garde = 0; garde < 5000; garde++) {
-    if (auto) {
-      if (d.floor > optimal) d.floor = optimal;
-    } else if (d.floor < start || d.floor > end) {
-      d.floor = start;
-      d.killsOnFloor = 0;
-    }
     if (!Number.isInteger(d.fightAi)) d.fightAi = itopodDrawAiV1(c.alea());
     const r = itopodCycleV1({ floor: d.floor, ai: d.fightAi, power: c.power, toughness: c.toughness, idleMult: c.idleBonus, interval: c.interval, hp: d.hp, hpMax: c.hpMax, regen: c.regenJoueur, respawn: c.respawn, tMax: time });
     if (!r.complete) break;
@@ -1201,16 +1272,16 @@ function towerBoucleCombatV1(c) {
     d.fightAi = null;
     if (r.outcome === "death") {
       d.deaths = Math.max(0, int(d.deaths, 0)) + 1;
-      d.floor = auto ? 0 : start;
+      d.floor = d.startFloor;   /* AdventureController::playerDeath (IL_0051 à IL_0056) : itopodLevel = itopodStart */
       continue;
     }
-    c.applyKills(1, d.floor);
+    const termine = d.killsOnFloor + 1 >= 10;
+    const suivant = termine ? towerEtageSuivantV1(d, d.floor) : d.floor;
+    c.applyKills(1, d.floor, termine ? 1 : 0, suivant);
     d.killsOnFloor += 1;
-    if (d.killsOnFloor >= 10) {
+    if (termine) {
       d.killsOnFloor = 0;
-      if (auto) d.floor = Math.min(optimal, d.floor + 1);
-      else if (d.floor >= end) d.floor = start;
-      else d.floor += 1;
+      d.floor = suivant;
       c.reachFloor(d.floor);
     }
   }
@@ -1218,22 +1289,85 @@ function towerBoucleCombatV1(c) {
 }
 
 /*
- * Règle de l'étage optimal (Norman, 2026-10-12), commune au bouton Auto (un clic) et au « Lazy ITOPOD Floor Shifter » (après chaque kill) : fin = étage optimal ; départ = optimal quand le wiki le permet (départ de 0 à un étage
- * sous le plus haut atteint : un seul étage, aucune boucle), sinon l'étage juste sous le plus haut atteint. Wiki ITOPOD (ngu-idle.fandom.com/wiki/ITOPOD). Renvoie false si aucun étage optimal n'est encore connu.
+ * AdventureController::verifyItopodInputs (IL, audit 2026-11-22) : départ = borné à [0 ; « plus haut atteint - 1 » ; 1600] ; fin = au moins le départ, au moins 1, au plus 1600. Ne modifie QUE itopodStart / itopodEnd : le niveau courant et le compteur de kills
+ * ne changent qu'à l'entrée dans la zone (changeZone), à la mort et au Lazy Shifter ; un niveau hors de [départ ; fin] continue jusqu'à la fin de ses 10 kills puis repart au départ (alignement 2026-11-22, renverse la décision du 2026-10-15).
+ */
+function towerVerifierEntreesV1(d, startBrut, endBrut) {
+  const plusHaut = Math.max(0, int(d.highestFloor, 0)) - 1;
+  let s = int(startBrut, 0);
+  if (s > plusHaut) s = plusHaut;
+  if (s < 0) s = 0;
+  if (s > TOWER_MAX_FLOOR_V1) s = TOWER_MAX_FLOOR_V1;
+  let e = int(endBrut, 0);
+  if (e <= s) e = s;
+  if (e < 1) e = 1;
+  if (e > TOWER_MAX_FLOOR_V1) e = TOWER_MAX_FLOOR_V1;
+  d.startFloor = s;
+  d.endFloor = e;
+}
+
+/*
+ * AdventureController::setOptimalFloor (IL, audit 2026-11-22 ; le Lazy ITOPOD Floor Shifter appelle la même, activateLazyItopod) : étage = calculateBestItopodLevel (d.optimalFloor), plafonné à « plus haut atteint - 1 » ; le jeu écrit cette MÊME valeur dans
+ * départ ET fin puis verifyItopodInputs : un étage optimal de 0 (ou « plus haut - 1 » <= 0) donne départ 0 et fin 1. Le jeu ne monte donc JAMAIS tout seul vers un nouvel étage. Renvoie toujours vrai (l'ancien repli « mode auto null » n'existe plus).
  */
 function towerAppliquerEtageOptimalV1(d, optimal) {
-  /* Lu dans le jeu (AdventureController::setOptimalFloor, méthode 179, audit IL 2026-11-20 ; le Lazy Floor Shifter appelle la même) : l'étage optimal est plafonné à « plus haut atteint - 1 », puis départ = fin = cet étage. Le jeu ne monte donc JAMAIS tout seul vers un nouvel étage : pour en découvrir un, le joueur règle la fin à la main. */
   const plusHaut = Math.max(0, int(d.highestFloor, 0));
-  const opt = Math.min(Math.max(0, int(optimal, 0)), Math.max(0, plusHaut - 1));
-  if (!(opt > 0)) return false;
-  const start = opt;
-  d.startFloor = start;
-  d.endFloor = opt;
-  if (d.floor < start || d.floor > opt) {
-    d.floor = start;
-    d.killsOnFloor = 0;
-  }
+  let opt = int(optimal, 0);
+  if (opt > plusHaut - 1) opt = plusHaut - 1;
+  towerVerifierEntreesV1(d, opt, opt);
   return true;
+}
+
+/* ZoneSelector::changeZone(1000) (IL) : niveau = départ, compteur de kills = 0, combat arrêté ; début d'une visite de l'ITOPOD : éligible au dernier indice de la Bête si l'indice 3 est fait. */
+function towerChangerZoneV1(state, d) {
+  d.floor = d.startFloor;
+  d.killsOnFloor = 0;
+  d.fightAi = null;
+  delete d.beteElig;
+  beteDebutVisiteV1(state.adventure, d);
+}
+
+/* AdventureController::activateLazyItopod (IL) : setOptimalFloor puis changeZone(1000). */
+function towerShifterActiverV1(state, d) {
+  const avant = d.floor;
+  towerAppliquerEtageOptimalV1(d, d.optimalFloor);
+  towerChangerZoneV1(state, d);
+  /* Pour la ligne de journal « The ITOPOD Floor Shifter changed your current floor from X to Y. » : étage d'avant le changement (scène). */
+  if (avant !== d.floor) d.shifterDe = avant;
+}
+
+/*
+ * Entrée dans la zone ITOPOD (action `toggle` du système « tower » qui l'active) : ZoneSelector::changeZone(1000) ; le joueur quitte la zone d'Aventure (une seule zone à la fois dans le jeu : selectedZone = Zone sûre, plus de combat en cours).
+ * Choisir une zone d'Aventure fait l'inverse (idle-ngu-actions.js : tower.active = faux).
+ */
+export function towerEntrerV1(state) {
+  const tower = state.systems.tower;
+  const d = tower.data;
+  towerNormaliserV1(state, d);
+  towerChangerZoneV1(state, d);
+  tower.level = d.floor;
+  const adv = state.adventure;
+  if (adv && typeof adv === "object") {
+    adv.selectedZone = "safe";
+    adv.fight = { active: false, zone: "", monsterHp: 0, monsterHpMax: 0, boss: false, playerHp: 0, playerHpMax: 0 };
+  }
+}
+
+/* Rebirth : la zone repasse à Zone sûre (la Tour est quittée) et itopodLevel retombe au départ ; PV, combat en cours et compteur de kills remis à zéro. Gardés : plus haut étage, Perks, PP, départ et fin. */
+export function towerRebirthResetV1(state) {
+  const tower = state.systems.tower;
+  if (!tower) return;
+  if (!tower.data || typeof tower.data !== "object") tower.data = {};
+  const d = tower.data;
+  towerNormaliserV1(state, d);
+  tower.active = false;
+  d.floor = d.startFloor;
+  d.killsOnFloor = 0;
+  d.killTime = 0;
+  d.fightAi = null;
+  delete d.hp;
+  delete d.beteElig;
+  tower.level = d.floor;
 }
 
 /*
@@ -1298,47 +1432,56 @@ export function towerTogglePillV1(state) {
   return { buffedKillsOn: fx.buffedKillsOn === true, pilules: Math.max(0, int(fx.bluePills, 0)) };
 }
 
+/*
+ * Boutons des étages de la Tour (alignement 2026-11-22, audit de la Tour). Aucun de ces boutons ne déplace le joueur : le jeu (verifyItopodInputs) ne modifie QUE itopodStart / itopodEnd ; d.floor et le compteur ne changent
+ * qu'à l'entrée dans la zone, à la mort et au Lazy Shifter. Si le niveau courant sort de [départ ; fin], il termine ses 10 kills puis repart au départ.
+ *  - { start, end } : réglage manuel (verifyItopodInputs) ;
+ *  - { auto: true } : bouton « Optimal » = setOptimalFloor UNE fois (l'ancien mode « suivre l'étage optimal » est le Lazy Shifter, interrupteur à part : towerSetShifterV1).
+ */
 export function towerSetFloorsV1(state, payload) {
   const tower = state.systems.tower;
   if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
   const d = tower.data;
+  towerNormaliserV1(state, d);
   if (payload.auto) {
-    /*
-     * Bouton « Auto » (Norman, 2026-10-12) : UN clic règle tes étages sur ton meilleur étage (l'étage optimal du moment : le plus haut où un coup suffit) et il ne monte plus étage par étage ; il ne se remet pas à jour tout seul,
-     * on reclique plus tard (le réglage automatique après chaque kill est l'achat « Lazy ITOPOD Floor Shifter », wiki ITOPOD, 4G's Sellout Shop : « check your optimal floor after each kill, and adjust it »).
-     * Respecte la règle du wiki (départ de 0 à un étage sous le plus haut atteint) : fin = optimal ; départ = optimal quand c'est permis (un seul étage, aucune boucle), sinon l'étage juste sous le plus haut atteint
-     * (par exemple optimal 14 alors que 14 est le plus haut : 13 → 14, comme dans le jeu d'origine). Aucun étage n'est sauté : l'étage le plus haut ne change que par la montée.
-     */
-    const optimal = Math.max(0, int(d.optimalFloor, 0));
-    if (towerAppliquerEtageOptimalV1(d, optimal)) {
-      /* Mode « suivre l'étage optimal » : ne sert que si le Lazy ITOPOD Floor Shifter est acheté (voir advance plus bas). */
-      d.autoOptimal = true;
-      /* Étages changés par le bouton : on recommence au PREMIER ennemi de l'étage choisi (Norman, 2026-10-15). */
-      if (d.startFloor != null) d.floor = d.startFloor;
-      d.killsOnFloor = 0;
-      delete d.beteElig;
-      beteDebutVisiteV1(state.adventure, d);
-      tower.level = d.floor;
-      return { auto: true, start: d.startFloor, end: d.endFloor };
-    }
-    d.startFloor = null;
-    d.endFloor = null;
-    return { auto: true };
+    towerAppliquerEtageOptimalV1(d, d.optimalFloor);
+    return { auto: true, start: d.startFloor, end: d.endFloor };
   }
-  const highest = Math.max(0, int(d.highestFloor, 0));
-  const start = clamp(int(payload.start, 0), 0, Math.max(0, highest - 1));
-  /* Lu dans le jeu (audit IL 2026-11-21, AdventureController::verifyItopodInputs) : l'étage de fin est d'au moins 1 (début = fin = 0 devient fin = 1). */
-  const end = clamp(int(payload.end, start), Math.max(1, start), TOWER_MAX_FLOOR_V1);
-  d.startFloor = start;
-  d.endFloor = end;
-  d.autoOptimal = false;
-  /* Changer les étages avec les boutons recommence TOUJOURS au premier ennemi de l'étage de départ choisi (Norman, 2026-10-15), qu'on soit déjà dans la plage ou non. */
-  /* Début d'une visite de l'ITOPOD (ZoneSelector::changeZone) : éligible au dernier indice de la Bête si l'indice 3 est fait. */
-  delete d.beteElig;
-  beteDebutVisiteV1(state.adventure, d);
-  d.floor = start;
-  d.killsOnFloor = 0;
-  return { start, end };
+  const start = int(payload.start, 0);
+  towerVerifierEntreesV1(d, start, payload.end === undefined || payload.end === null ? start : int(payload.end, start));
+  return { start: d.startFloor, end: d.endFloor };
+}
+
+/* AdventureController::setMaxFloor (IL, audit 2026-11-22) : départ = max(0, « plus haut atteint - 1 »), la fin reste telle quelle puis verifyItopodInputs (fin >= départ, >= 1). */
+export function towerSetMaxFloorV1(state) {
+  const tower = state.systems.tower;
+  if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const d = tower.data;
+  towerNormaliserV1(state, d);
+  towerVerifierEntreesV1(d, Math.max(0, int(d.highestFloor, 0) - 1), d.endFloor);
+  return { start: d.startFloor, end: d.endFloor };
+}
+
+/* Lazy ITOPOD Floor Shifter : interrupteur INDÉPENDANT (Arbitrary.lazyITOPODOn, AdventureController::toggleShifter), possible seulement si l'amélioration est achetée (boughtLazyITOPOD). */
+export function towerSetShifterV1(state, payload) {
+  const tower = state.systems.tower;
+  if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (!state.selloutShop?.purchases?.lazyItopodFloorShifter) throw new Error("ACHAT_REQUIS");
+  const d = tower.data;
+  towerNormaliserV1(state, d);
+  d.shifterOn = payload && payload.enabled !== undefined ? payload.enabled === true : !d.shifterOn;
+  d.autoOptimal = d.shifterOn;
+  return { shifterOn: d.shifterOn };
+}
+
+/* Idle Mode (bouton du jeu, Adventure.autoattacking) : l'attaque automatique de la Tour et la régénération x1,2 ne fonctionnent que s'il est actif. Vrai par défaut dans SOREAL (parties existantes). */
+export function towerSetIdleModeV1(state, payload) {
+  const tower = state.systems.tower;
+  if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const d = tower.data;
+  towerNormaliserV1(state, d);
+  d.idleMode = payload && payload.enabled !== undefined ? payload.enabled === true : !d.idleMode;
+  return { idleMode: d.idleMode };
 }
 
 function advanceLateSystems(state, seconds, context, now) {
@@ -1422,9 +1565,10 @@ function advanceLateSystems(state, seconds, context, now) {
   const killsItopodAvant = Math.max(0, int(state.systems.tower?.data?.kills, 0));
   span("tardif:itopod", () => advanceTowerV1(state, seconds, context));
   /* MacGuffin ITOPOD Drops (perk 68) : les kills de ce tick alimentent le compteur MacGuffin. */
-  macguffinOnItopodKillsV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant);
+  const horsLigneTour = seconds >= TOWER_COMBAT_MAX_SECONDS_V1;
+  macguffinOnItopodKillsV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant, Math.random, { horsLigne: horsLigneTour });
   /* Perk 30 « What a Crappy Perk » : Poop de l'ITOPOD (1 tous les 9 000 kills + 0,01 % par kill). */
-  idleYggItopodPoopV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant);
+  idleYggItopodPoopV1(state, Math.max(0, int(state.systems.tower?.data?.kills, 0)) - killsItopodAvant, Math.random, { horsLigne: horsLigneTour });
 
   /* Cards et Mayo : vrai système (idle-cards-v1.js), remplace les cartes factices horaires. */
   span("tardif:cartes", () => advanceIdleCardsV1(state, seconds));

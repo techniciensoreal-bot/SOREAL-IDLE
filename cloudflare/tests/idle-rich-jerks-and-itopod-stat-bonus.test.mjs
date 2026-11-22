@@ -57,24 +57,43 @@ assert.equal(RICH_JERKS_PCT_PER_LEVEL_V1, 10, "Effet wiki : +10% par niveau.");
   assert.ok(withDefenseBonuses.defenseMultiplier > withAttackBonuses.defenseMultiplier, "+1 niveau Defense doit augmenter defenseMultiplier.");
 }
 
-// --- ITOPOD stat bonus (PP) : inclut TOUT perk statPct, pas seulement "Rich Perks" nommés ---
+// --- Seuil du jeu (IL Rebirth::setEvilNextRebirth) : attackBoost x totalStatBonus() >= 10000 (RATIO), attackBoost = 1 + 0,1 par achat ---
 {
   let state = normalizeIdleNguState(null, { bosses: 301 }, 0);
   state.difficultyPeaks.normal = 301;
   state.currencies.experience = 1e9;
 
-  // Sans rien : verrouillé.
-  assert.equal(idleNguDifficultyUnlockRequirementsV1(state, {}).difficile.richJerksReady, false);
+  // Sans rien : attackBoost 1 x atouts 1 = 1 < 10000.
+  const r0 = idleNguDifficultyUnlockRequirementsV1(state, {}).difficile;
+  assert.equal(r0.richJerksReady, false);
+  assert.equal(r0.richJerksItopodRatio, 1, "Départ du jeu : attackBoost = 1, aucun atout de stats = x1.");
 
-  // La Newbie Stat Perk (id 4, +100%, cap 1) seule ne suffit jamais (richJerksAttackLevel=0 -> produit=0).
+  // La Newbie Stat Perk (id 4, +100%, cap 1) : x2 seulement ; attackBoost reste 1 -> loin de 10000.
   state.systems.perks.data.levels[4] = 1;
-  assert.equal(idleNguDifficultyUnlockRequirementsV1(state, {}).difficile.richJerksReady, false, "Sans aucun niveau Rich Jerks acheté, le produit reste 0 quel que soit le bonus ITOPOD.");
+  const r1 = idleNguDifficultyUnlockRequirementsV1(state, {}).difficile;
+  assert.equal(r1.richJerksReady, false);
+  assert.equal(r1.richJerksItopodRatio, 2);
 
-  // 1000 niveaux Rich Jerks Attack (10 000%) x Newbie Stat Perk (100%) = 1 000 000% pile.
+  // Ancien seuil (mal converti) : 1000 niveaux Rich Jerks x Newbie = 101 x 2 = 202 : NE débloque PLUS.
   const { state: withRichJerks } = applyIdleNguAction(state, { action: "richJerks", stat: "attack", levels: 1000 }, {}, 0);
-  const req = idleNguDifficultyUnlockRequirementsV1(withRichJerks, {});
-  assert.ok(req.difficile.richJerksItopodBonusPct >= 1e6, `10000% x 100% doit atteindre >= 1e6% (obtenu ${req.difficile.richJerksItopodBonusPct}).`);
-  assert.equal(req.difficile.richJerksReady, true);
+  const r2 = idleNguDifficultyUnlockRequirementsV1(withRichJerks, {}).difficile;
+  assert.equal(r2.richJerksItopodRatio, 202);
+  assert.equal(r2.richJerksReady, false, "202 < 10000 : l'ancien seuil laissait passer ce cas à tort.");
+
+  // Atout 5 (Rich Perks I) niveau 1000 = x101 : 101 x (1 + 100 ... ) -> (1 + 0,1 x 1000) x (2 x 101) = 20 402 >= 10000.
+  withRichJerks.systems.perks.data.levels[5] = 1000;
+  const r3 = idleNguDifficultyUnlockRequirementsV1(withRichJerks, {}).difficile;
+  assert.equal(r3.richJerksItopodRatio, 101 * 202);
+  assert.equal(r3.richJerksReady, true);
+
+  // Pile sur la limite : ratio 10000 débloque, juste en dessous non.
+  const lim = normalizeIdleNguState(null, { bosses: 301 }, 0);
+  lim.difficultyPeaks.normal = 301;
+  lim.systems.perks.data.levels[5] = 1000; // x101
+  lim.bonuses.richJerksAttackLevel = 980; // 1 + 98 = 99 -> 99 x 101 = 9999 < 10000
+  assert.equal(idleNguDifficultyUnlockRequirementsV1(lim, {}).difficile.richJerksReady, false);
+  lim.bonuses.richJerksAttackLevel = 990; // 100 x 101 = 10100
+  assert.equal(idleNguDifficultyUnlockRequirementsV1(lim, {}).difficile.richJerksReady, true);
 }
 
 console.log("idle-rich-jerks-and-itopod-stat-bonus: OK");

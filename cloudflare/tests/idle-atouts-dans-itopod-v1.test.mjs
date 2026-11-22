@@ -31,5 +31,5 @@ console.log("idle-atouts-dans-itopod-v1: OK");
   const i = meta.indexOf("sousTitre:'Une tour sans fin");
   const bloc = meta.slice(i, i + 900);
   assert.ok(!/Mal[ée]fique|Sadique|Evil|Sadistic/.test(bloc), "pas de difficulté nommée dans la présentation de l'ITOPOD");
-  assert.ok(bloc.includes("j.systemes.difficulty==='extreme'?2000"), "PPP de la difficulté en cours");
+  assert.ok(bloc.includes("ppBase") && meta.includes("j.systemes.difficulty==='extreme'?2000"), "PPP : base du serveur (d.ppBase), repli sur la difficulté en cours");
 }

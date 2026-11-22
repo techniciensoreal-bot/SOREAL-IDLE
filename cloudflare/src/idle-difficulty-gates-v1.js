@@ -49,9 +49,26 @@ export function idleNiveauxActifsV1(levelsById, table, difficulty) {
   return out;
 }
 
+/*
+ * Atouts dont le jeu lit le niveau BRUT (perkLevel[i]) SANS tester la difficulté (audit 2026-11-22, IL build 1260). Le jeu ne teste perkDifficultyReq[i]
+ * que dans ItopodPerkController::perkEffect, energyPower2..5, stat3Bonus, stat5Bonus, drop2, wish1, res3Power/Bar/Cap1..3, ngu1..3, sadBoss,
+ * questHandinRatio, stat6, adventureStats5 et aug1 ; les atouts ci-dessous sont lus directement par leurs consommateurs : MacGuffin Daycare (56,
+ * InventoryController::swapDaycare), 67, 70, 71, 73, 88 (MacGuffins), 83-87 (Iron Pill, etc.), 89-92 (Quêtes), 93 (respawn),
+ * 106, 107, 109, 110, 112, 113-115 et 217-219 (Hack Milestones), 145 (Bonus Quest Handin Progress I). Les cartes 161-216 : idle-cards-v1.js lit déjà le niveau brut pour les paliers, le deck et les tags, et teste la difficulté pour les seules VITESSES (200-207, vérifié dans le jeu le 2026-11-17) ; ce choix est conservé ici (paliers
+ * de cartes non listés). Le niveau acheté des atouts listés reste donc ACTIF même si la difficulté courante est plus basse que celle exigée pour les ACHETER (buyPerkV1 garde
+ * l'achat par la difficulté, comme tryLevelUp du jeu).
+ */
+const SANS_TEST_DIFFICULTE_V1 = new Set([56, 67, 70, 71, 73, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 106, 107, 109, 110, 112, 113, 114, 115, 145, 217, 218, 219]);
+export const IDLE_PERK_SANS_TEST_DIFFICULTE_V1 = Object.freeze([...SANS_TEST_DIFFICULTE_V1].sort((a, b) => a - b));
+
 /* Niveaux actifs des perks / quirks d'un état de jeu (state.difficulty = difficulté courante). */
 export function idlePerkNiveauxV1(state) {
-  return idleNiveauxActifsV1(state?.systems?.perks?.data?.levels, IDLE_PERK_DIFFICULTE_V1, state?.difficulty);
+  const levels = state?.systems?.perks?.data?.levels;
+  const out = idleNiveauxActifsV1(levels, IDLE_PERK_DIFFICULTE_V1, state?.difficulty);
+  if (levels && typeof levels === "object") {
+    for (const id of SANS_TEST_DIFFICULTE_V1) if (id in levels && !(id in out)) out[id] = levels[id];
+  }
+  return out;
 }
 export function idleQuirkNiveauxV1(state) {
   return idleNiveauxActifsV1(state?.systems?.quirks?.data?.levels, IDLE_QUIRK_DIFFICULTE_V1, state?.difficulty);

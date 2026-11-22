@@ -27,7 +27,7 @@ function baseState() {
   const state = advanceIdleNguState(baseState(), 3600, ctx, Date.now());
   const d = state.systems.tower.data;
   assert.ok(d.kills > 0, "des kills doivent s'accumuler sans tower.active");
-  assert.ok(d.floor > 0, "des étages doivent être franchis sans tower.active");
+  assert.equal(d.floor, 0, "hors ligne le jeu ne modifie pas itopodLevel (alignement 2026-11-22, adventureOfflineProgress)");
 }
 
 // Sous 650 de Power d'Aventure au total : aucune progression, même « actif ».
@@ -45,7 +45,9 @@ function baseState() {
   /* Lu dans le jeu (audit IL 2026-11-21, Character::adventureOfflineProgress 2239 + calculateBestItopodLevel : 0 sous 700 de Puissance) : hors ligne, entre 650 et 700 le jeu ne fait RIEN ; en ligne (court), 650 suffit. */
   const horsLigne = advanceIdleNguState(baseState(), 3600, ctx, Date.now());
   assert.equal(horsLigne.systems.tower.data.kills, 0, "hors ligne : 650 ne suffit pas, il faut 700");
-  const enLigne = advanceIdleNguState(Object.assign(baseState(), {}), 20, ctx, Date.now());
+  const etatEnLigne = baseState();
+  etatEnLigne.systems.tower.active = true;   /* en ligne la Tour ne progresse que dans la zone ITOPOD (alignement 2026-11-22) */
+  const enLigne = advanceIdleNguState(etatEnLigne, 20, ctx, Date.now());
   assert.ok(enLigne.systems.tower.data.kills > 0, "en ligne : 650 exactement progresse");
   const ctx700 = { adventurePower: 700, adventureToughness: 700, bosses: 30 };
   assert.ok(advanceIdleNguState(baseState(), 3600, ctx700, Date.now()).systems.tower.data.kills > 0, "hors ligne : 700 progresse");
@@ -58,8 +60,9 @@ function baseState() {
   state.systems.perks = { unlocked: true, data: { levels: { 68: 1 } } };
   state.systems.macguffins = { unlocked: true, data: { inventory: [], equipped: [], itopodKills: 4999, zoneCounter: { zone: "", kills: 0 }, sourceDropped: {}, serial: 1 } };
   const ctx = { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 };
-  const after = advanceIdleNguState(state, 3600, ctx, Date.now());
-  assert.ok(after.systems.tower.data.kills > 0, "l'ITOPOD doit avancer hors ligne pour ce test");
+  /* hors ligne : floor(kills / 5 000), reste perdu (adventureOfflineProgress) : 30 000 s = 6 000 kills = 1 fragment */
+  const after = advanceIdleNguState(state, 30000, ctx, Date.now());
+  assert.ok(after.systems.tower.data.kills >= 5000, "l'ITOPOD doit avancer hors ligne pour ce test");
   assert.ok(after.systems.macguffins.data.inventory.length > 0, "un fragment MacGuffin doit être déposé par les kills ITOPOD hors ligne");
 }
 
@@ -82,7 +85,8 @@ function baseState() {
   const boostsAvant = normalizeIdleNguState(s, ctx, Date.now()).adventure.inventory.filter(i => i.kind === "boost").length;
   const after = advanceIdleNguState(s, 3600, ctx, Date.now());
   const d = after.systems.tower.data;
-  assert.equal(d.floor, 3, "plafonné à l'étage le plus haut déjà atteint, plages ignorées");
+  assert.equal(d.floor, 0, "hors ligne le niveau courant n'est pas modifié (alignement 2026-11-22) ; le butin est celui de l'étage optimal, plafonné au plus haut atteint");
+  assert.equal(d.optimalFloor, 3, "étage joué hors ligne = optimal plafonné à l'étage le plus haut déjà atteint");
   assert.equal(d.highestFloor, 3, "aucun nouvel étage hors ligne");
   assert.ok(d.kills > 0);
   assert.equal(after.adventure.inventory.filter(i => i.kind === "boost").length, boostsAvant, "pas de boost hors ligne sans le filtre cube");

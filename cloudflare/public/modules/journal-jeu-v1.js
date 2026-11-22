@@ -43,6 +43,14 @@ function or(n){var f=FR();return f?f.or(dernierEnnemi||"L'ennemi",n):(dernierEnn
 /* Lignes du journal de l'ITOPOD : progression vers le prochain Point d'Atout et Points d'Atout gagnés (ItopodPerkController::addProgress). */
 function progres(n){var f=FR();return f?f.progres(n):'You gained '+n+' progress to your next Perk Point!';}
 function pointAtout(n,pluriel){var f=FR();return f?f.pointAtout(n,pluriel):(pluriel?'You gained '+n+' Perk Points!':'You gained 1 Perk Point!');}
+/* Premier passage à un étage (ItopodPerkController::awardHighestLevelPP, IL build 1260) : étage multiple de 10 seulement ; q = étage / 10 ; PP = q si q est multiple de 10, sinon plafond(q / 10). Deux lignes. */
+function premiereAtteinte(etage){
+  if(etage%10!==0)return [];
+  var q=etage/10,pp=q%10===0?q:Math.ceil(q/10),f=FR();
+  return f?f.premiereAtteinte(etage,pp):['You Reached floor '+etage+' of the I.T.O.P.O.D for the first time!',"You've been awarded a one-time bonus of "+pp+" Perk points!"];
+}
+/* Lazy Shifter (AdventureController::activateLazyItopod). */
+function changementEtage(de,vers){var f=FR();return f?f.changementEtage(de,vers):'The ITOPOD Floor Shifter changed your current floor from '+de+' to '+vers+'.';}
 function defaite(nom){var f=FR();return f?f.defaite(nom):nom+' has defeated you!';}
 function soin(pv){var f=FR();return f?f.soin(pv):'You healed yourself for '+pv+' HP!';}
 
@@ -127,5 +135,5 @@ function titan(kind,nom,o){
     default:return [];
   }
 }
-window.__SOREAL_IDLE_JOURNAL_JEU_V1__={l:l,progres:progres,pointAtout:pointAtout,or:or,coup:coup,fmt:fmt,coupJoueur:coupJoueur,victoire:victoire,defaite:defaite,soin:soin,attaque:attaque,titan:titan};
+window.__SOREAL_IDLE_JOURNAL_JEU_V1__={l:l,progres:progres,pointAtout:pointAtout,premiereAtteinte:premiereAtteinte,changementEtage:changementEtage,or:or,coup:coup,fmt:fmt,coupJoueur:coupJoueur,victoire:victoire,defaite:defaite,soin:soin,attaque:attaque,titan:titan};
 })();

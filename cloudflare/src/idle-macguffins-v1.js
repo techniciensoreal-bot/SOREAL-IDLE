@@ -590,12 +590,18 @@ export function macguffinOnZoneChangeV1(state, zoneId) {
 }
 
 /* ITOPOD : compteur jamais remis à zéro (sauf au drop), actif avec la perk 68. */
-export function macguffinOnItopodKillsV1(state, kills, rng = Math.random) {
+export function macguffinOnItopodKillsV1(state, kills, rng = Math.random, opts = {}) {
   const data = mgData(state);
   const out = [];
   if (!data || !macguffinUnlockedV1(state) || perkLevel(state, 68) <= 0 || !(kills > 0)) return out;
-  data.itopodKills += I(kills, 0);
   const required = macguffinItopodKillsRequiredV1(state);
+  /* Hors ligne (Character::adventureOfflineProgress, IL_2229 à IL_228e ; audit 2026-11-22) : nombre de drops = floor(kills / killsPerMacguffin), le reste est PERDU (en ligne : enemiesKilled % killsPerMacguffin == 0, soit un compteur qui court). Le plafond du jeu par Inventory.inventory.Count est ambigu : non repris. */
+  if (opts && opts.horsLigne === true) {
+    const lots = Math.floor(I(kills, 0) / Math.max(1, required));
+    for (let i = 0; i < lots; i++) dropRandom(state, data, rng, out);
+    return out;
+  }
+  data.itopodKills += I(kills, 0);
   while (data.itopodKills >= required) {
     data.itopodKills -= required;
     dropRandom(state, data, rng, out);

@@ -64,11 +64,15 @@ const ctx = { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 };
   let state = baseState();
   Object.assign(state.systems.tower.data, { floor: 5, killsOnFloor: 0, highestFloor: 20, kills: 50 });
   state = applyIdleNguAction(state, { action: "towerFloors", start: 2, end: 4 }, ctx, Date.now()).state;
-  assert.equal(state.systems.tower.data.floor, 2);
+  /* Alignement 2026-11-22 (verifyItopodInputs) : Appliquer ne modifie que départ / fin, le niveau courant (5, hors de [2 ; 4]) termine ses 10 kills puis repart au départ. */
+  assert.equal(state.systems.tower.data.floor, 5, "Appliquer ne déplace pas le joueur");
+  state = advanceIdleNguState(state, 5 * 10, ctx, Date.now());
+  assert.equal(state.systems.tower.data.floor, 2, "10 kills sur l'étage 5 (au-delà de la fin) puis retour au départ");
+  assert.equal(state.systems.tower.data.kills, 60);
   state = advanceIdleNguState(state, 5 * 10 * 3, ctx, Date.now());
   const d = state.systems.tower.data;
   assert.equal(d.floor, 2, "3 étages x 10 kills = un cycle complet, retour au départ");
-  assert.equal(d.kills, 50 + 30);
+  assert.equal(d.kills, 90);
 }
 
 // EXP et AP : palier 1 = 1 EXP / 39 kills ; 39 kills donnent 1 AP
@@ -92,73 +96,108 @@ const ctx = { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 };
 
 console.log("idle-itopod-floor-tracking: OK");
 
-// Bouton Auto (Norman, 2026-10-12) : un clic règle les étages sur le meilleur étage (optimal) ; règle du wiki : départ de 0 à « un étage sous le plus haut atteint », fin jusqu'à 1600 ; aucune montée automatique.
+// Bouton Optimal (ex-Auto, Norman 2026-10-12, aligné le 2026-11-22) : un clic = setOptimalFloor (étage optimal plafonné à « plus haut - 1 », départ = fin) ; aucune montée automatique, le joueur n'est pas déplacé.
 {
   let state = baseState();
+  Object.assign(state.systems.tower.data, { highestFloor: 500 });
   state = advanceIdleNguState(state, 1, ctx, Date.now());
   const optimal = state.systems.tower.data.optimalFloor;
-  assert.ok(optimal > 5, "l'étage optimal est calculé (" + optimal + ")");
-  // plus haut atteint au-dessus de l'optimal : un seul étage (départ = fin = optimal), aucune boucle, aucun changement d'étage
-  Object.assign(state.systems.tower.data, { floor: 3, killsOnFloor: 4, highestFloor: optimal + 5, startFloor: null, endFloor: null });
+  assert.ok(optimal > 5 && optimal < 500, "l'étage optimal est calculé (" + optimal + ")");
+  Object.assign(state.systems.tower.data, { floor: 3, killsOnFloor: 4 });
   state = applyIdleNguAction(state, { action: "towerFloors", auto: true }, ctx, Date.now()).state;
   let d = state.systems.tower.data;
   assert.equal(d.startFloor, optimal);
   assert.equal(d.endFloor, optimal);
-  assert.equal(d.floor, optimal, "placé sur le meilleur étage");
-  const etages = new Set();
-  for (let i = 0; i < 30; i++) {
-    state = advanceIdleNguState(state, 7, ctx, Date.now());
-    etages.add(state.systems.tower.data.floor);
-  }
-  assert.deepEqual([...etages], [optimal], "reste sur le meilleur étage : pas de montée ni de boucle");
+  assert.equal(d.floor, 3, "Optimal ne déplace pas le joueur (changeZone seulement)");
+  assert.equal(d.killsOnFloor, 4);
   // plus haut atteint = optimal : le jeu plafonne l'étage optimal à plus haut - 1 (AdventureController::setOptimalFloor 179) et met départ = fin = cet étage
   let s2 = baseState();
+  Object.assign(s2.systems.tower.data, { floor: 0, highestFloor: optimal });
   s2 = advanceIdleNguState(s2, 1, ctx, Date.now());
-  Object.assign(s2.systems.tower.data, { floor: 0, highestFloor: optimal, startFloor: null, endFloor: null });
+  assert.equal(s2.systems.tower.data.optimalFloor, optimal, "exposé = min(optimal, plus haut)");
   s2 = applyIdleNguAction(s2, { action: "towerFloors", auto: true }, ctx, Date.now()).state;
   assert.equal(s2.systems.tower.data.startFloor, optimal - 1, "départ = étage optimal plafonné à plus haut - 1");
   assert.equal(s2.systems.tower.data.endFloor, optimal - 1, "fin = départ : le jeu ne monte jamais seul vers un nouvel étage");
   assert.equal(s2.systems.tower.data.highestFloor, optimal, "aucun étage sauté : le plus haut ne change pas");
+  // plus haut = 0 : l'optimal vaut 0, départ 0 et fin 1 (setOptimalFloor puis verifyItopodInputs), plus de mode auto null
+  let s0 = baseState();
+  s0 = advanceIdleNguState(s0, 1, ctx, Date.now());
+  assert.equal(s0.systems.tower.data.optimalFloor, 0, "plus haut = 0 : calculateBestItopodLevel renvoie 0");
+  s0 = applyIdleNguAction(s0, { action: "towerFloors", auto: true }, ctx, Date.now()).state;
+  assert.equal(s0.systems.tower.data.startFloor, 0);
+  assert.equal(s0.systems.tower.data.endFloor, 1);
   // réglage manuel : le départ reste borné à un étage sous le plus haut (wiki)
   let s3 = baseState();
   Object.assign(s3.systems.tower.data, { floor: 14, highestFloor: 14, killsOnFloor: 0 });
   s3 = applyIdleNguAction(s3, { action: "towerFloors", start: 14, end: 14 }, ctx, Date.now()).state;
   assert.equal(s3.systems.tower.data.startFloor, 13, "départ borné à highestFloor - 1");
+  // Max : départ = plus haut - 1, la fin est gardée (setMaxFloor)
+  let s4 = baseState();
+  Object.assign(s4.systems.tower.data, { floor: 0, highestFloor: 40, startFloor: 0, endFloor: 100 });
+  s4 = applyIdleNguAction(s4, { action: "towerMaxFloor" }, ctx, Date.now()).state;
+  assert.equal(s4.systems.tower.data.startFloor, 39);
+  assert.equal(s4.systems.tower.data.endFloor, 100);
 }
 console.log("idle-itopod-floor-tracking: Auto OK");
 
-// Lazy ITOPOD Floor Shifter (wiki ITOPOD, boutique 4G : « check your optimal floor after each kill, and adjust it ») : acheté + Auto choisi, les étages suivent l'étage optimal quand la puissance monte ; sans l'achat, ils restent où l'Auto les a mis.
+// Réglage par défaut du jeu (Adventure::.ctor) : départ 0, fin 20 ; les anciennes sauvegardes en « mode auto » (null) sont migrées, un réglage du joueur est conservé.
+{
+  let state = advanceIdleNguState(baseState(), 1, ctx, Date.now());
+  assert.equal(state.systems.tower.data.startFloor, 0);
+  assert.equal(state.systems.tower.data.endFloor, 20);
+  let vieux = baseState();
+  Object.assign(vieux.systems.tower.data, { startFloor: null, endFloor: null, highestFloor: 300, autoOptimal: true });
+  vieux = advanceIdleNguState(vieux, 1, ctx, Date.now());
+  assert.equal(vieux.systems.tower.data.startFloor, 0);
+  assert.equal(vieux.systems.tower.data.endFloor, 20);
+  let regle = baseState();
+  Object.assign(regle.systems.tower.data, { startFloor: 30, endFloor: 31, highestFloor: 300 });
+  regle = advanceIdleNguState(regle, 1, ctx, Date.now());
+  assert.equal(regle.systems.tower.data.startFloor, 30);
+  assert.equal(regle.systems.tower.data.endFloor, 31);
+  // aucune montée vers l'optimal : le niveau reste dans [0 ; 20] puis retourne au départ
+  let monte = baseState();
+  Object.assign(monte.systems.tower.data, { highestFloor: 500 });
+  const etages = new Set();
+  for (let i = 0; i < 60; i++) { monte = advanceIdleNguState(monte, 50, ctx, Date.now()); etages.add(monte.systems.tower.data.floor); }
+  assert.ok(Math.max(...etages) <= 20, "jamais au-delà de la fin 20");
+}
+console.log("idle-itopod-floor-tracking: défaut 0/20 OK");
+
+// Lazy ITOPOD Floor Shifter : interrupteur INDÉPENDANT (Arbitrary.lazyITOPODOn), visible seulement avec l'achat ; après chaque kill : setOptimalFloor puis changeZone (niveau = départ, compteur 0).
 {
   const faible = { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 };
   const forte = { adventurePower: 1e9, adventureToughness: 1e9, bosses: 30 };
   const prepare = (achete) => {
     let st = baseState();
     st.selloutShop = { purchases: achete ? { lazyItopodFloorShifter: 1 } : {}, unlockedEver: true };
+    Object.assign(st.systems.tower.data, { highestFloor: 500, floor: 7, killsOnFloor: 3 });
     st = advanceIdleNguState(st, 1, faible, Date.now());
-    Object.assign(st.systems.tower.data, { highestFloor: 500, floor: 0 });
-    st = applyIdleNguAction(st, { action: "towerFloors", auto: true }, faible, Date.now()).state;
     return st;
   };
-  for (const achete of [true, false]) {
-    let st = prepare(achete);
-    const avant = st.systems.tower.data.endFloor;
-    assert.equal(st.systems.tower.data.startFloor, avant, "Auto : un seul étage (plus haut atteint bien au-dessus)");
-    st = advanceIdleNguState(st, 5, forte, Date.now());
-    const d = st.systems.tower.data;
-    if (achete) {
-      assert.ok(d.endFloor > avant, "avec le Shifter, la fin suit l'étage optimal plus haut (" + avant + " → " + d.endFloor + ")");
-      assert.equal(d.startFloor, d.endFloor, "toujours un seul étage");
-      assert.equal(d.floor, d.endFloor, "on est passé sur le nouvel étage optimal");
-    } else {
-      assert.equal(d.endFloor, avant, "sans le Shifter, l'étage ne bouge pas tout seul");
-    }
-  }
-  // un réglage manuel coupe le suivi automatique
+  assert.throws(() => applyIdleNguAction(prepare(false), { action: "towerShifter", enabled: true }, faible, Date.now()), /ACHAT_REQUIS/, "interdit sans l'achat");
   let st = prepare(true);
-  st = applyIdleNguAction(st, { action: "towerFloors", start: 3, end: 6 }, faible, Date.now()).state;
-  assert.equal(st.systems.tower.data.autoOptimal, false);
+  assert.equal(st.systems.tower.data.shifterOn, false, "désactivé par défaut");
+  st = applyIdleNguAction(st, { action: "towerShifter", enabled: true }, faible, Date.now()).state;
+  assert.equal(st.systems.tower.data.shifterOn, true);
+  st = advanceIdleNguState(st, 5, faible, Date.now());
+  let d = st.systems.tower.data;
+  const optFaible = d.optimalFloor;
+  assert.equal(d.startFloor, optFaible, "le Shifter pose départ = fin = étage optimal");
+  assert.equal(d.endFloor, optFaible);
+  assert.equal(d.floor, optFaible, "niveau = départ (changeZone)");
+  assert.equal(d.killsOnFloor, 0, "compteur remis à 0");
   st = advanceIdleNguState(st, 5, forte, Date.now());
-  assert.equal(st.systems.tower.data.endFloor, 6, "réglage manuel respecté, même avec le Shifter");
+  d = st.systems.tower.data;
+  assert.ok(d.endFloor > optFaible, "la fin suit l'étage optimal quand la puissance monte (" + optFaible + " → " + d.endFloor + ")");
+  assert.equal(d.floor, d.endFloor);
+  // interrupteur coupé : plus de suivi, et un réglage manuel est respecté
+  st = applyIdleNguAction(st, { action: "towerShifter", enabled: false }, faible, Date.now()).state;
+  st = applyIdleNguAction(st, { action: "towerFloors", start: 3, end: 6 }, faible, Date.now()).state;
+  const avant = st.systems.tower.data.endFloor;
+  st = advanceIdleNguState(st, 5, forte, Date.now());
+  assert.equal(st.systems.tower.data.endFloor, avant, "sans le Shifter activé, l'étage ne bouge pas tout seul");
+  assert.equal(st.systems.tower.data.endFloor, 6);
 }
 console.log("idle-itopod-floor-tracking: Shifter OK");
 

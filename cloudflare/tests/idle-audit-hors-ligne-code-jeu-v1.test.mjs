@@ -68,7 +68,9 @@ const ctx = { bosses: 100, basicTrainingComplete: true };
   assert.equal(avec.s.adventure.inventory.filter((i) => i.kind === "boost").length, 0, "aucun objet de boost hors ligne");
   assert.equal(sans.s.adventure.inventory.filter((i) => i.kind === "boost").length, 0, "sans filtre : aucun objet de boost non plus");
   assert.equal(sans.s.adventure.cube.power, sans.p0, "sans filtre : le cube ne change pas");
-  const tier = Math.max(1, Math.floor(d.floor / 50) + 1);
+  /* Alignement 2026-11-22 : hors ligne le jeu ne touche pas à itopodLevel ; le butin est celui de l'étage optimal (calculateBestItopodLevel). */
+  assert.equal(d.floor, 0, "hors ligne : d.floor inchangé");
+  const tier = Math.max(1, Math.floor(d.optimalFloor / 50) + 1);
   const force = tier <= 9 ? [1, 2, 5, 10, 20, 50, 100, 200, 500][tier - 1] : tier <= 14 ? 1000 : tier <= 17 ? 2000 : tier <= 23 ? 5000 : 10000;
   const attendu = (force * d.kills / 8) * 0.01 / 2;
   const gain = avec.s.adventure.cube.power - avec.p0;

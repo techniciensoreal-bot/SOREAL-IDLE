@@ -403,7 +403,7 @@ function construireSnapshotNguV1(state, context, now) {
      */
     /* Wiki : les Perks et Quirks « Evil only » / « Sadistic only » n'existent qu'à partir de cette difficulté (déjà possédés : gardés, inactifs). */
     /* Audit 2026-11-14 (règle n°2) : un atout lié à un système encore verrouillé (barbes, mineurs, cartes…) n'est envoyé qu'une fois ce système découvert, sauf s'il est déjà possédé (idle-perks-systemes-v1.js). */
-    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => (state.systems.perks?.unlocked || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) && systemesPerkOuvertsV1(p, systemeOuvertPerkV1(state)) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0)),
+    perkDefinitions: clone(IDLE_PERKS_CATALOG_V1.filter(p => (state.systems.perks?.unlocked || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, p.id, state.difficulty) && systemesPerkOuvertsV1(p, systemeOuvertPerkV1(state)) || num(state.systems.perks?.data?.levels?.[p.id], 0) > 0).map(p => (IDLE_PERK_DIFFICULTE_V1[p.id] ? Object.assign({}, p, { diff: IDLE_PERK_DIFFICULTE_V1[p.id] }) : p))),
     quirkDefinitions: clone(IDLE_QUIRKS_CATALOG_V1.filter(q => (state.systems.quirks?.unlocked || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0) && idleDifficulteSuffisanteV1(IDLE_QUIRK_DIFFICULTE_V1, q.id, state.difficulty) && systemesPerkOuvertsV1(q, systemeOuvertPerkV1(state)) || num(state.systems.quirks?.data?.levels?.[q.id], 0) > 0)),
     /* Item Daycare : slots, objets placés (progression, ETA) et objets de l'inventaire plaçables. */
     daycare: Object.assign(idleDaycareSnapshotV1(state.systems.daycare.data, state.adventure, daycareFactorsV1(state), daycareFragmentsExtV1(state, true)), { skins: skinsSnapshotV1(state, daycareSkinsEnvV1(state)) }),
@@ -1824,6 +1824,32 @@ export function buyPerkV1(state, perkId) {
   s.data.levels[perk.id] = currentLevel + 1;
   s.level = Object.values(s.data.levels).reduce((sum, v) => sum + Math.max(0, int(v, 0)), 0);
   return { cost, perkId: perk.id, level: currentLevel + 1, cap: perk.cap };
+}
+
+/*
+ * « Tout dépenser » sur un atout (clic droit dans le jeu : ItopodPerkUIController::levelAllEvent -> ItopodPerkController::tryLevelAll / doLevelAll,
+ * IL build 1260) : mêmes refus que tryLevelUp (au maximum, difficulté, PP insuffisants pour UN niveau), puis achète tant que PP >= coût et niveau < plafond.
+ * Le coût est plat par niveau : n = min(plafond - niveau, floor(PP / coût)). Le jeu a aussi une case de confirmation d'achat (PlayerSettings.itopodConfirmation) :
+ * non reprise ici.
+ */
+export function buyPerkMaxV1(state, perkId) {
+  const s = state.systems.perks;
+  if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  const perk = idlePerkByIdV1(int(perkId, -1));
+  if (!perk) throw new Error("PERK_INTROUVABLE");
+  if (!idleDifficulteSuffisanteV1(IDLE_PERK_DIFFICULTE_V1, perk.id, state.difficulty)) throw new Error("DIFFICULTE_REQUISE");
+  const levels = s.data && typeof s.data === "object" ? s.data.levels : null;
+  const currentLevel = Math.max(0, int(levels?.[perk.id], 0));
+  const cost = idlePerkNextCostV1(perk, currentLevel);
+  if (!Number.isFinite(cost)) throw new Error("PERK_AU_MAXIMUM");
+  if (state.currencies.pp < cost) throw new Error("MONNAIE_INSUFFISANTE");
+  const n = Math.max(1, Math.min(perk.cap - currentLevel, Math.floor(state.currencies.pp / cost)));
+  state.currencies.pp -= cost * n;
+  if (!s.data || typeof s.data !== "object") s.data = { levels: {} };
+  if (!s.data.levels || typeof s.data.levels !== "object") s.data.levels = {};
+  s.data.levels[perk.id] = currentLevel + n;
+  s.level = Object.values(s.data.levels).reduce((sum, v) => sum + Math.max(0, int(v, 0)), 0);
+  return { cost: cost * n, perkId: perk.id, level: currentLevel + n, bought: n, cap: perk.cap };
 }
 
 /*
