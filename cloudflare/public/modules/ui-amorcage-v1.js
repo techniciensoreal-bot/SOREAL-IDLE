@@ -977,12 +977,16 @@ setInterval(function(){
             REG.idleAutoNukeRunV1=debut;
             REG.idleAutoNukeDernierV1=0;
           }
-          /* Norman (2026-11-18) : l'Auto Nuker ne se lance que si le prochain NUKE tuerait au moins un boss (règle du moteur, nukePossible) ; sinon il ne sert à rien et jouait un son toutes les minutes. Rien n'est consommé : la minuterie reprend dès qu'un boss devient tuable. */
-          if(j.nukePossible!==true)return;
+          /*
+           * Norman (2026-11-18) : l'Auto Nuker ne se lance que si le prochain NUKE tuerait au moins un boss (règle du moteur, nukePossible).
+           * Norman (2026-11-22) : « le nuke auto doit se produire tous les X temps. Si quand il se produit aucun boss ne peut être nuké, alors il recommence le X temps avant de retenter. Il ne doit tenter que si c'est possible » :
+           * à CHAQUE échéance (10 s après le début du run, puis toutes les minutes) l'échéance est consommée ; si aucun boss n'est tuable il ne tente rien et la minuterie repart de zéro (il ne se déclenche plus d'un coup dès qu'un boss devient tuable).
+           */
           const maintenant=Date.now();
           if(!autoNukeDueIdleV1_(debut,REG.idleAutoNukeDernierV1,maintenant))return;
-          if(REG.idleNukeEnCoursV1||j.combatBossActif||j.bossBloqueRenaissance)return;
+          if(REG.idleNukeEnCoursV1||j.combatBossActif||j.bossBloqueRenaissance)return;   /* occupé : on réessaie à la seconde suivante, l'échéance n'est pas consommée */
           REG.idleAutoNukeDernierV1=maintenant;
+          if(j.nukePossible!==true)return;   /* rien à tuer : pas de tentative, la minuterie recommence */
           nukerBossIdleV1_(true);   /* automatique : jamais annoncé dans « En direct » */
         }catch(e){window.__SOREAL_IDLE_DIAG_V1__&&window.__SOREAL_IDLE_DIAG_V1__.signaler&&window.__SOREAL_IDLE_DIAG_V1__.signaler('auto_nuke',e);}
       },1000);

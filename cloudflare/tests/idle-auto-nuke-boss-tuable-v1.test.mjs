@@ -53,7 +53,10 @@ const a = amorcage.indexOf("Number(achats.autoNuker)>0");
 const fenetre = amorcage.slice(a, a + 1800);
 assert.ok(fenetre.includes("if(j.nukePossible!==true)return;"), "garde nukePossible dans l'Auto Nuker");
 assert.ok(fenetre.indexOf("j.nukePossible!==true") < fenetre.indexOf("nukerBossIdleV1_(true);"), "la garde passe AVANT le lancement du Nuke");
-assert.ok(fenetre.indexOf("j.nukePossible!==true") < fenetre.indexOf("REG.idleAutoNukeDernierV1=maintenant"), "la minuterie n'est pas consommée tant qu'aucun boss n'est tuable");
+/* occupé (nuke en cours, combat de boss) : l'échéance n'est pas consommée */
+assert.ok(fenetre.indexOf("j.bossBloqueRenaissance)return;") < fenetre.indexOf("REG.idleAutoNukeDernierV1=maintenant"), "un état occupé ne consomme pas l'échéance");
+/* 2026-11-22 (Norman : « le nuke auto doit se produire tous les X temps ; si aucun boss ne peut être nuké, il recommence le X temps avant de retenter ; il ne doit tenter que si c'est possible ») : l'échéance est consommée À CHAQUE échéance, la tentative n'a lieu que si un boss est tuable. */
+assert.ok(fenetre.indexOf("REG.idleAutoNukeDernierV1=maintenant") < fenetre.indexOf("j.nukePossible!==true"), "la minuterie repart de zéro à chaque échéance, même sans boss tuable");
 const etat = readFileSync("cloudflare/src/idle-runtime-etat.js", "utf8");
 assert.ok(etat.includes("nukePossible: nukeTueUnBossSorealIdle_("), "le moteur annonce nukePossible");
 console.log("OK idle-auto-nuke-boss-tuable-v1");

@@ -33,6 +33,7 @@
             'Badavatar : dans le profil des Réglages, tes pièces ne sont plus déplacées par un ancien brouillon après un enregistrement ; ce que tu as enregistré est ce qui s’affiche partout.'
           ]},
           {menu:'combat', titre:'Combat de boss', points:[
+            'Le lancement automatique du Nuke suit un rythme fixe : à chaque échéance il ne tente que si un boss peut être tué, sinon il attend l’échéance suivante au lieu de partir dès qu’un boss devient tuable.',
             'Nouveau sur la borne : un petit interrupteur « AUTO » pour couper ou remettre un lancement automatique, quand tu en possèdes un.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
