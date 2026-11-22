@@ -865,6 +865,11 @@
     cooking:{duree:460,construire:function(c){
       bruit_(c,{duration:.36,volume:.05,filterType:"highpass",frequency:5000,decay:.8});
       tonal_(c,{type:"triangle",from:1760,to:1740,duration:.1,volume:.03,delay:.02});}},
+    /* Énigmes (jeu d'aventure) : deux bips de manette, puis une note de victoire qui monte. */
+    scummvm:{duree:420,construire:function(c){
+      tonal_(c,{type:"square",from:440,to:440,duration:.05,volume:.02});
+      tonal_(c,{type:"square",from:587,to:587,duration:.05,volume:.02,delay:.08});
+      tonal_(c,{type:"triangle",from:784,to:1175,duration:.2,volume:.03,delay:.17});}},
     /* Chroniques (Collection, Classement et Succès réunis) : une page qu'on tourne, puis un ding doré. */
     chroniques:{duree:480,construire:function(c){
       bruit_(c,{duration:.18,volume:.04,filterType:"highpass",frequency:2500,frequencyEnd:5200,decay:1.6});

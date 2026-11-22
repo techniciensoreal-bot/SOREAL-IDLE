@@ -676,6 +676,12 @@ export const IDLE_NGU_TRACKS = Object.freeze({
   wishes: IDLE_WISHES_CATALOG_V1.map(w => ({ ...w, id: String(w.id) }))
 });
 
+/*
+ * Menu « Énigmes » (jeu ScummVM dans un iframe, ajout SOREAL, Norman, 2026-11-22) : il n'existe pas dans le jeu d'origine. Le boss qui l'ouvre est un
+ * choix SOREAL de conception (non publié, rien à voir avec une valeur du jeu), à ajuster par Norman.
+ */
+export const IDLE_SCUMMVM_BOSS_V1 = 30;
+
 export const IDLE_NGU_SYSTEMS = Object.freeze([
   { id: "achievements", name: "Achievements", icon: "🏆", kind: "permanent", resources: [], unlock: {} },
   { id: "dailySpin", name: "Daily Spin", icon: "🎡", kind: "daily", resources: [], unlock: { system: "moneyPit" } },
@@ -701,7 +707,9 @@ export const IDLE_NGU_SYSTEMS = Object.freeze([
   { id: "hacks", name: "Hacks", icon: "🧪", kind: "permanent", resources: ["r3"], unlock: {item:"incriminatingEvidence"} },
   { id: "wishes", name: "Wishes", icon: "🌠", kind: "permanent", resources: ["energy", "magic", "r3"], unlock: {item:"severedUnicornHead"} },
   { id: "cards", name: "Cards", icon: "🃏", kind: "cards", resources: [], unlock: {item:"stillBeatingHeart"} },
-  { id: "cooking", name: "Cooking", icon: "🍲", kind: "daily", resources: [], unlock: { flag: "itHungersDefeated" } }
+  { id: "cooking", name: "Cooking", icon: "🍲", kind: "daily", resources: [], unlock: { flag: "itHungersDefeated" } },
+  /* Énigmes : permanent (reste ouvert après un Rebirth), aucun contenu de jeu dans l'état. */
+  { id: "scummvm", name: "Énigmes", icon: "🕹️", kind: "permanent", resources: [], unlock: { bosses: IDLE_SCUMMVM_BOSS_V1 } }
 ]);
 
 /*

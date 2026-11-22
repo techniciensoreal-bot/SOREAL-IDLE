@@ -122,6 +122,8 @@
 
         const systemeId=REG.IDLE_SYSTEME_PAR_MENU_V1[id];
         if(!systemeId)return false;
+        /* Énigmes : fermé pour tous tant que le serveur ne l'ouvre pas (scummvm/ouvert) : ni bouton, ni bandeau, ni note. */
+        if(id==='scummvm'&&!(window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__&&window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__()))return false;
 
         const liste=
           j.systemes&&Array.isArray(j.systemes.systems)
@@ -266,6 +268,7 @@
         wishes:{forme:'etoile',verbe:'Faire un vœu'},
         cards:{forme:'carte',verbe:'Collectionner'},
         cooking:{forme:'cercle',verbe:'Cuisiner'},
+        scummvm:{forme:'carte',verbe:'Jouer'},
         chroniques:{forme:'hexagone',verbe:'Parcourir'},
         shop:{forme:'etoile',verbe:'Boutique magique'},
         chat:{forme:'bulle',verbe:'Discuter'},

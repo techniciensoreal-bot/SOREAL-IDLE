@@ -52,6 +52,15 @@
       "port": 8851
     },
     {
+      "name": "idle-local-scummvm",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "cloudflare/tools/essai-local.mjs"
+      ],
+      "env": { "PORT": "8853", "SCUMMVM_DOSSIER": ".scummvm-miroir", "PARTIE_B_OPTIONS": "{\"boss\":140,\"energieCap\":1e12,\"energie\":1e12,\"energiePuissance\":1e9,\"magieCap\":1e12,\"magie\":1e12,\"magiePuissance\":1e9,\"systemes\":true}" },
+      "port": 8853
+    },
+    {
       "name": "idle-local-nuke-boss3",
       "runtimeExecutable": "node",
       "runtimeArgs": [

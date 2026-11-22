@@ -10,6 +10,8 @@
  *
  * POST /debug/js (local uniquement) exécute du JS avec { sql, run, user, db } pour préparer un état (ex. modifier la ligne joueur).
  * Les médias R2 (images) n'existent pas en local : ils répondent 404.
+ * SCUMMVM_DOSSIER=<dossier> : /api/idle/scummvm/* est servi depuis <dossier>/scummvm/… (miroir du préfixe R2 « scummvm/ », même route que le Worker : idle-scummvm-v1.js ; remplir ce dossier avec
+ *   node cloudflare/tools/scummvm-envoyer.mjs … --local <dossier>), avec requêtes partielles (Range).
  */
 import http from "node:http";
 import fs from "node:fs";
@@ -85,6 +87,29 @@ const port = Number(process.env.PORT || 8799);
 const MEDIA_PROD = process.env.MEDIA_PROD === "0" ? "" : (process.env.MEDIA_PROD || "https://soreal-idle.technicien-soreal.workers.dev");
 http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
+  const aliasScummvm = process.env.SCUMMVM_DOSSIER ? (await import(pathToFileURL(REPO + "cloudflare/src/idle-scummvm-v1.js").href)).idleScummvmAliasV1(url.pathname) : null;
+  if (aliasScummvm) url.pathname = aliasScummvm;
+  if (process.env.SCUMMVM_DOSSIER && (req.method === "GET" || req.method === "HEAD") && url.pathname.startsWith("/api/idle/scummvm/")) {
+    const { idleScummvmCleV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-scummvm-v1.js").href);
+    /* l'interrupteur de production (objet R2 scummvm/ouvert) : en local, ouvert dès que le dossier miroir contient scummvm/ouvert ; sinon fermé comme en production */
+    if (url.pathname === "/api/idle/scummvm/ouvert") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify({ ouvert: fs.existsSync(path.join(process.env.SCUMMVM_DOSSIER, "scummvm", "ouvert")) })); return; }
+    const cle = idleScummvmCleV1(url.pathname.slice("/api/idle/scummvm/".length));
+    const fichier = cle ? path.join(process.env.SCUMMVM_DOSSIER, cle) : "";
+    if (!cle || !fs.existsSync(fichier) || fs.statSync(fichier).isDirectory()) { res.writeHead(cle ? 404 : 400); res.end("scummvm : introuvable"); return; }
+    const taille = fs.statSync(fichier).size;
+    const m = /^bytes=(\d*)-(\d*)$/.exec(String(req.headers.range || ""));
+    const type = TYPES[path.extname(fichier).toLowerCase()] || "application/octet-stream";
+    if (m && (m[1] !== "" || m[2] !== "")) {
+      const debut = m[1] === "" ? Math.max(0, taille - Number(m[2])) : Number(m[1]);
+      const fin = m[1] === "" || m[2] === "" ? taille - 1 : Math.min(Number(m[2]), taille - 1);
+      res.writeHead(206, { "content-type": type, "accept-ranges": "bytes", "content-range": "bytes " + debut + "-" + fin + "/" + taille, "content-length": fin - debut + 1, "cache-control": "no-cache" });
+      if (req.method === "HEAD") res.end(); else fs.createReadStream(fichier, { start: debut, end: fin }).pipe(res);
+      return;
+    }
+    res.writeHead(200, { "content-type": type, "accept-ranges": "bytes", "content-length": taille, "cache-control": "no-cache" });
+    if (req.method === "HEAD") res.end(); else fs.createReadStream(fichier).pipe(res);
+    return;
+  }
   if (MEDIA_PROD && req.method === "GET" && url.pathname.startsWith("/api/idle/media/")) {
     try {
       const r = await fetch(MEDIA_PROD + url.pathname + url.search);

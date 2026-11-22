@@ -453,7 +453,9 @@
               s.unlock&&
               s.unlock.unlocked&&
               /* Achievements : disponible (donc popup + voix) seulement une fois le menu apparu, au premier succès débloqué. */
-              (s.id!=='achievements'||menuSuccesVisibleIdleV1_(j))
+              (s.id!=='achievements'||menuSuccesVisibleIdleV1_(j))&&
+              /* Énigmes : rien (ni popup ni voix) tant que le serveur ne l'ouvre pas (interrupteur R2 scummvm/ouvert). */
+              (s.id!=='scummvm'||(window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__&&window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__()))
             ){
               disponibles.push(
                 'meta:'+String(s.id)
@@ -666,6 +668,14 @@
             'Ajuste la quantité de chaque ingrédient pour rendre le plat le plus efficace possible : dosage de chef.',
             'Équipe ton matériel de cuisine avant de manger pour augmenter les bonus.',
             'Quand tu manges le plat, son gain s’ajoute à ton gain d’expérience total, et un nouveau plat est généré.'
+          ]
+        },
+        scummvm:{
+          intro:'Les Énigmes sont un jeu d’aventure à part, qui se joue directement ici, au clavier, à la souris ou au doigt.',
+          bullets:[
+            'Ta partie est sauvegardée toute seule : tu peux quitter et reprendre quand tu veux.',
+            'Sur téléphone, un appui vaut un clic et deux doigts valent un clic droit.',
+            'Le jeu reste chargé quand tu changes de menu : tu reviens exactement là où tu en étais.'
           ]
         }
       };
@@ -1688,6 +1698,8 @@
             return pageSystemeMetaIdleV130_(j,'cards','Cards');
           case 'cooking':
             return pageSystemeMetaIdleV130_(j,'cooking','Cooking');
+          case 'scummvm':
+            return window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__?window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__.page(j):'';
           case 'succes':
             return pageSystemeMetaIdleV130_(j,'achievements','Achievements');
           case 'personnage':

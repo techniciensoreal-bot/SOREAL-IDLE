@@ -8,6 +8,14 @@
       "description": "Couleurs des 7 NGU de magie (la capture d'origine ne montre que les 9 NGU d'énergie) : choix visuel de SOREAL, sans effet sur le jeu.",
       "statut": "à valider par Norman",
       "date": "2026-11-14"
+    },
+    {
+      "fichier": "idle-ngu-catalogues.js",
+      "marqueur": "choix soreal",
+      "repere": "choix SOREAL de conception (non publié, rien à voir avec une",
+      "description": "IDLE_SCUMMVM_BOSS_V1 = 30 : boss qui ouvre le menu Énigmes (jeu ScummVM dans un iframe, ajout SOREAL sans équivalent dans le jeu d'origine). À ajuster par Norman.",
+      "statut": "à valider par Norman",
+      "date": "2026-11-22"
     }
   ]
 }

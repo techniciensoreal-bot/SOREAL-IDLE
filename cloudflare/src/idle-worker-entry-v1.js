@@ -1,6 +1,7 @@
 export { SorealIdleCoordinatorV1 } from "./index-idle-coordinator-v1.js";
 import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
 import { idleMeteoRepondreV1 } from "./idle-meteo-v1.js";
+import { IDLE_SCUMMVM_PREFIXE_URL_V1, idleScummvmAliasV1, idleScummvmRepondreV1 } from "./idle-scummvm-v1.js";
 import { planPurgeVoixStrictV1, lireCorpsPurgeV1 } from "./idle-voix-purge-v1.js";
 import { verifierJetonGoogleIdleV1 } from "./idle-google-auth-v1.js";
 
@@ -496,6 +497,12 @@ export default {
     if (request.method === "GET" && url.pathname === "/api/idle/media/meteo") {
       if (idleLimiteDepasseeV1("meteo:" + adresseClient, 30, 0.2) || idleLimiteDepasseeV1("meteo", 600, 60)) return idleTropDeRequetesV1();
       return idleMeteoRepondreV1(url);
+    }
+    /* ScummVM (idle-scummvm-v1.js) : moteur WebAssembly et jeux, objets R2 sous scummvm/ ; fichiers publics, requêtes partielles (le .wasm pèse 32 Mo) : plafond large par adresse. */
+    const aliasScummvm = idleScummvmAliasV1(url.pathname);
+    if ((request.method === "GET" || request.method === "HEAD") && (url.pathname.startsWith(IDLE_SCUMMVM_PREFIXE_URL_V1) || aliasScummvm)) {
+      if (idleLimiteDepasseeV1("scummvm:" + adresseClient, 600, 30)) return idleTropDeRequetesV1();
+      return idleScummvmRepondreV1(request, env, aliasScummvm ? new URL(aliasScummvm, url) : url);
     }
     if (request.method === "GET" && url.pathname === "/api/idle/media/badavatar-photo") {
       if (idleLimiteDepasseeV1("badavatar-photo:" + adresseClient, 60, 20) || idleLimiteDepasseeV1("badavatar-photo", 600, 100)) return idleTropDeRequetesV1();

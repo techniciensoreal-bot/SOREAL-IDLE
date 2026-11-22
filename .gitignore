@@ -8,3 +8,6 @@ tmp-*.mjs
 *.log
 __pycache__/
 *.pyc
+
+# miroir local de R2 (moteur et jeux ScummVM, voir cloudflare/tools/scummvm-envoyer.mjs)
+/.scummvm-miroir/

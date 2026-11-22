@@ -33,6 +33,7 @@ const T = {
   wishes: { bg: ["#1d1450", "#0e0a32", "#080620"], ring: ["#ffd24a", "#c89bff", "#5fe3ff", "#c89bff", "#ffd24a"], glow: "155,92,255", a: "#ffd24a", b: "#9b5cff", anim: { k: "shoot", t: 4.6 } },
   cards: { bg: ["#0e6a45", "#0a5236", "#063a25"], ring: ["#8a5a14", "#ffe08a", "#c8902a", "#fff0b0", "#c8902a", "#ffe08a", "#8a5a14"], glow: "255,224,138", a: "#d02828", b: "#ffe08a", anim: { k: "sweep", c: "255,240,176", t: 3 } },
   cooking: { bg: ["#6e290f", "#4a1b09", "#2c1005"], ring: ["#ffd29a", "#ea580c", "#8a2f06", "#ea580c", "#ffd29a"], glow: "234,88,12", a: "#ffd29a", b: "#c2410c", anim: { k: "rise", c: ["#ffd29a", "#fff0dc", "#ff9a5e"], t: 3.6, soft: true } },
+  scummvm: { bg: ["#4a1626", "#2e0c1a", "#1a0710"], ring: ["#ffd0d8", "#ff5a7a", "#7a1830", "#ff5a7a", "#ffd0d8"], glow: "255,90,122", a: "#ffd0d8", b: "#ff5a7a", anim: { k: "pulse", c: "255,90,122", t: 2.6 } },
   shop: { bg: ["#3e1646", "#2a0e34", "#180720"], ring: ["#c8902a", "#ffe27a", "#d946c8", "#ffe27a", "#c8902a"], glow: "217,70,200", a: "#ffe27a", b: "#8a2f9c", anim: { k: "chase", t: 2.8 } },
   chroniques: { bg: ["#3a2a14", "#291c0c", "#1a1106"], ring: ["#f1dfae", "#d2ae6a", "#8a6a2a", "#d2ae6a", "#f1dfae"], glow: "226,190,110", a: "#f1dfae", b: "#8a6a2a", anim: { k: "sweep", c: "255,236,180", t: 3.4 } },
   chat: { bg: ["#10313a", "#0b2328", "#061214"], ring: ["#2ff0d0", "#7cffe8", "#ffd27a", "#ffb02e", "#2ff0d0"], glow: "47,240,208", a: "#7cffe8", b: "#16a898", anim: { k: "pulse", c: "47,240,208", t: 2.2 } },
@@ -40,7 +41,7 @@ const T = {
   admin: { bg: ["#2a1218", "#171b24", "#0b0d12"], ring: ["#dc2626", "#ff8a8a", "#dc2626", "#7a1414", "#dc2626"], glow: "220,38,38", a: "#ff8a8a", b: "#7a1414", anim: { k: "blink", t: 1.4 } },
 };
 
-export const DOM = {"entrainement":"#e63b2e","combat":"#ff2d9a","aventure":"#58b947","renaissance":"#fff04a","moneyPit":"#c49a00","augmentations":"#ff8a1a","avance":"#1aa0ff","machine":"#0f8f8f","sang":"#6e0d22","tower":"#e4ecff","daycare":"#a8f0cc","challenges":"#ff9060","titans":"#6a4a3c","ngu":"#3d7bff","wandoos":"#9be01a","yggdrasil":"#1a4a2a","diggers":"#80802a","beards":"#d2a070","macguffins":"#c25cf0","hacks":"#00ff66","questing":"#a08ae8","quirks":"#f0a0d8","wishes":"#2b1f8a","cards":"#18a06a","cooking":"#a8421a","shop":"#9a2088","chroniques":"#f6f0d0","chat":"#22e0e0","parametres":"#8793a8","admin":"#1c1f28"};
+export const DOM = {"entrainement":"#e63b2e","combat":"#ff2d9a","aventure":"#58b947","renaissance":"#fff04a","moneyPit":"#c49a00","augmentations":"#ff8a1a","avance":"#1aa0ff","machine":"#0f8f8f","sang":"#6e0d22","tower":"#e4ecff","daycare":"#a8f0cc","challenges":"#ff9060","titans":"#6a4a3c","ngu":"#3d7bff","wandoos":"#9be01a","yggdrasil":"#1a4a2a","diggers":"#80802a","beards":"#d2a070","macguffins":"#c25cf0","hacks":"#00ff66","questing":"#a08ae8","quirks":"#f0a0d8","wishes":"#2b1f8a","cards":"#18a06a","cooking":"#a8421a","scummvm":"#ff5a7a","shop":"#9a2088","chroniques":"#f6f0d0","chat":"#22e0e0","parametres":"#8793a8","admin":"#1c1f28"};
 const hx=(h)=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
 const toHex=(r)=>"#"+r.map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,"0")).join("");
 const mix=(h,o,p)=>toHex(hx(h).map((v,i)=>v*(1-p)+hx(o)[i]*p));
@@ -120,6 +121,8 @@ const ORIG = {
   puzzle: (a, b) => `<path d="M8 14h10a5 5 0 1 1 10 0h12v10a5 5 0 1 0 0 10v10H28a5 5 0 1 0-10 0H8V34a5 5 0 1 1 0-10z" fill="${a}" stroke="${b}" stroke-width="2"/>`,
   book: (a, b) => `<path d="M4 10c8-3 14-2 20 2v30c-6-4-12-5-20-2z" fill="${a}"/><path d="M44 10c-8-3-14-2-20 2v30c6-4 12-5 20-2z" fill="${b}"/>`,
   chip: (a, b) => `<circle cx="24" cy="24" r="20" fill="${a}"/><circle cx="24" cy="24" r="13" fill="none" stroke="${b}" stroke-width="3" stroke-dasharray="6 5"/><circle cx="24" cy="24" r="6" fill="${b}"/>`,
+  manette: (a, b) => `<rect x="3" y="9" width="42" height="24" rx="11" fill="${a}"/><rect x="11" y="15" width="3" height="11" fill="${b}"/><rect x="7" y="19" width="11" height="3" fill="${b}"/><circle cx="33" cy="17" r="3" fill="${b}"/><circle cx="38" cy="23" r="3" fill="${b}"/>`,
+  cle: (a, b) => `<circle cx="14" cy="24" r="9" fill="none" stroke="${a}" stroke-width="5"/><path d="M23 24h21M36 24v8M42 24v6" stroke="${b}" stroke-width="4" stroke-linecap="round"/>`,
   chef: (a, b) => `<path d="M12 28c-6-2-8-12-1-15 1-6 9-9 13-4 4-5 12-2 13 4 7 3 5 13-1 15z" fill="${a}"/><rect x="12" y="28" width="24" height="14" rx="2" fill="${b}"/>`,
   mug: (a, b) => `<rect x="8" y="12" width="26" height="30" rx="4" fill="${a}"/><path d="M34 18h4a5 5 0 0 1 0 14h-4" stroke="${a}" stroke-width="4" fill="none"/><path d="M8 12c0-6 6-8 10-6 4-3 10-1 10 4 4 0 6 2 6 2H8z" fill="${b}"/>`,
 };
@@ -130,7 +133,7 @@ ORIG.infini = (a, b) => `<g id="infini"><path d="M24 24C30 12 44 14 44 24S30 36 
 /* Couleurs NATURELLES des dessins originaux (Norman : en couleur, jamais une teinte unique) : [couleur 1, couleur 2] */
 const PAL = { glove: ["#e63946", "#8d1b26"], joystick: ["#e63946", "#6b7280"], coin: ["#ffd24a", "#b8860b"], flame: ["#ff7a1a", "#ffd23b"], shovel: ["#c9ccd1", "#8b5a2b"], drop: ["#d81e3c", "#ff8a9a"],
   tower: ["#c9b79c", "#7a6a55"], gem: ["#4fd1ff", "#e8fbff"], flag: ["#ffffff", "#222222"], skull: ["#e8e2d0", "#7a3b3b"], comb: ["#e9c46a", "#8d5a2b"], scissors: ["#f4a261", "#d0d4da"],
-  puzzle: ["#9b5de5", "#e0c8ff"], book: ["#c0392b", "#e8c58a"], chip: ["#e63946", "#ffffff"], chef: ["#ffffff", "#aeb4bd"], mug: ["#e9a23b", "#fff4d6"], tourbillon: ["#7fe3ff", "#2b6cff"], infini: ["#ffe27a", "#ff8a1a"] };
+  puzzle: ["#9b5de5", "#e0c8ff"], book: ["#c0392b", "#e8c58a"], chip: ["#e63946", "#ffffff"], chef: ["#ffffff", "#aeb4bd"], manette: ["#3b4a6b", "#ff5a7a"], cle: ["#ffd24a", "#c9ccd1"], mug: ["#e9a23b", "#fff4d6"], tourbillon: ["#7fe3ff", "#2b6cff"], infini: ["#ffe27a", "#ff8a1a"] };
 /* Barbes : peigne NOIR (reflet gris), ciseaux en acier (reflets) aux anneaux ROUGES ; MacGuffins : pièce de puzzle VERT BOUTEILLE (dégradé, reflet, bord plus foncé) */
 ORIG.comb = () => '<g id="peigne"><rect x="4" y="9" width="40" height="10" rx="3" fill="#15151a"/><rect x="6" y="10.5" width="36" height="2.2" rx="1" fill="#5b5f6b"/>' + [7, 12.5, 18, 23.5, 29, 34.5, 40].map((x) => `<rect x="${x - 1}" y="19" width="2.6" height="19" rx="1.2" fill="#15151a"/>`).join("") + '</g>';
 ORIG.scissors = () => '<g id="ciseaux"><defs><linearGradient id="ac" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f7fb"/><stop offset=".5" stop-color="#9aa3af"/><stop offset="1" stop-color="#5b6470"/></linearGradient></defs><path d="M17 31L36 3l3 2L22 35zM31 31L12 3 9 5l17 30z" fill="url(#ac)" stroke="#3d4450" stroke-width="1"/><circle cx="14" cy="38" r="6" fill="none" stroke="#d62839" stroke-width="3.4"/><circle cx="34" cy="38" r="6" fill="none" stroke="#d62839" stroke-width="3.4"/><circle cx="24" cy="31" r="2" fill="#e8edf3" stroke="#3d4450"/></g>';
@@ -160,7 +163,7 @@ const SPEC = {
   macguffins: { g: 2, d: "o:puzzle", drop: [2, 3], m: "pulse", t: 2.4 }, hacks: { g: 1, d: 2, drop: [1, 2], m: "twinkle", t: 1.4 },
   questing: { g: 1, d: 2, drop: [1, 2], m: "sway", t: 3 }, quirks: { g: 1, d: "o:book", drop: [1, 2], m: "bob", t: 2.2 },
   wishes: { g: 1, d: 2, drop: [1, 2], m: "twinkle", t: 2.8 }, cards: { g: 0, d: "o:chip", drop: [0, 1], m: "sway", t: 2.6 },
-  cooking: { g: 5, d: "o:chef", drop: [5, 6], m: "bob", t: 2 }, shop: { g: 1, d: 2, drop: [1, 2], m: "twinkle", t: 2.4 },
+  cooking: { g: 5, d: "o:chef", drop: [5, 6], m: "bob", t: 2 }, scummvm: { g: "o:manette", d: "o:cle", drop: [], m: "bob", t: 2 }, shop: { g: 1, d: 2, drop: [1, 2], m: "twinkle", t: 2.4 },
   chroniques: { g: 0, d: 1, drop: [0, 1], m: "sway", t: 3.2 }, chat: { g: 0, d: "o:mug", drop: [0, 1], m: "bob", t: 2 },
   parametres: { g: 4, d: 6, drop: [4, 6], m: "spin", t: 10 }, admin: { g: 4, d: 5, drop: [4, 5], m: "twinkle", t: 1.6 },
 };

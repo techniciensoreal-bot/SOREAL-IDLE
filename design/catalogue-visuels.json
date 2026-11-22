@@ -1,12 +1,12 @@
 {
  "version": 1,
  "resume": {
-  "menus": 29,
-  "pages": 33,
+  "menus": 30,
+  "pages": 34,
   "keyframes": 436,
   "fichiersAvecWebAnimations": 21,
   "fichiersCanvas": 13,
-  "pointsEntreeRejouables": 288,
+  "pointsEntreeRejouables": 290,
   "mortsDeBase": 3,
   "retoursJoueur": 8,
   "retoursBoss": 7,
@@ -113,6 +113,10 @@
    "nom": "Cooking"
   },
   {
+   "id": "scummvm",
+   "nom": "Énigmes"
+  },
+  {
    "id": "shop",
    "nom": "Boutique"
   },
@@ -142,6 +146,7 @@
   "modules/itopod-perks-page-v1.js",
   "modules/labos-page-v1.js",
   "modules/money-pit-page-v1.js",
+  "modules/scummvm-page-v1.js",
   "modules/ui-actions-rapides-v1.js",
   "modules/ui-admin-v1.js",
   "modules/ui-amorcage-v1.js",
@@ -4628,6 +4633,8 @@
   "__SOREAL_IDLE_RUNTIME_V1__": "modules/runtime.js",
   "__SOREAL_IDLE_SANG_DECOR_V1__": "modules/sang-rituel-decor-v1.js",
   "__SOREAL_IDLE_SANS_BULLES_V1__": "modules/sans-bulles-v1.js",
+  "__SOREAL_IDLE_SCUMMVM_OUVERT_V1__": "modules/scummvm-page-v1.js",
+  "__SOREAL_IDLE_SCUMMVM_PAGE_V1__": "modules/scummvm-page-v1.js",
   "__SOREAL_IDLE_SETS_ZOOM_V1__": "modules/sets-zoom-v1.js",
   "__SOREAL_IDLE_SHOP_MUSIC_V1__": "modules/shop-music-v1.js",
   "__SOREAL_IDLE_SORTS_CONNUS_V1__": "modules/blood-magic-v1.js",

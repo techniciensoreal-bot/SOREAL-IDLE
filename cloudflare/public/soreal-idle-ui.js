@@ -723,6 +723,7 @@
         wishes:'wishes',
         cards:'cards',
         cooking:'cooking',
+        scummvm:'scummvm',
         succes:'achievements'
       };
       const IDLE_MENU_PAR_SYSTEME_V1=Object.fromEntries(
@@ -1105,6 +1106,7 @@
         wishes:'#a78bfa',
         cards:'#f9a8d4',
         cooking:'#c2410c',
+        scummvm:'#0ea5e9',
         chroniques:'#d9b45a',
         sellout:'#c084fc',
         spendExp:'#a855f7',
@@ -1150,6 +1152,7 @@
         {id:'wishes',icon:'🌠',nom:'Wishes'},
         {id:'cards',icon:'🃏',nom:'Cards'},
         {id:'cooking',icon:'🍲',nom:'Cooking'},
+        {id:'scummvm',icon:'🕹️',nom:'Énigmes'},
         {id:'shop',icon:'🔮',nom:'Boutique'},
         {id:'chroniques',icon:'📜',nom:'Chroniques'},
         {id:'chat',icon:'💬',nom:'Chat'},

@@ -3,12 +3,12 @@
 FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (ne pas éditer à la main). Liste de contrôle de la reconstruction (design/ARCHITECTURE-CIBLE.md) : un élément ne disparaît jamais sans l'accord de Norman.
 
 ## Résumé
-- menus : **29**
-- pages : **33**
+- menus : **30**
+- pages : **34**
 - keyframes : **436**
 - fichiersAvecWebAnimations : **21**
 - fichiersCanvas : **13**
-- pointsEntreeRejouables : **288**
+- pointsEntreeRejouables : **290**
 - mortsDeBase : **3**
 - retoursJoueur : **8**
 - retoursBoss : **7**
@@ -18,7 +18,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - dossiersDeRessources : **25**
 
 ## Menus
-Basic Training (`entrainement`) · Fight Boss (`combat`) · Adventure (`aventure`) · Rebirth (`renaissance`) · Augmentations (`augmentations`) · Advanced Training (`avance`) · Time Machine (`machine`) · Blood Magic (`sang`) · ITOPOD (`tower`) · Item Daycare (`daycare`) · Challenges (`challenges`) · Titans (`titans`) · NGU (`ngu`) · Wandoos (`wandoos`) · Yggdrasil (`yggdrasil`) · Labos (`diggers`) · Beards (`beards`) · MacGuffins (`macguffins`) · Hacks (`hacks`) · Questing (`questing`) · Quirks (`quirks`) · Wishes (`wishes`) · Cards (`cards`) · Cooking (`cooking`) · Boutique (`shop`) · Chroniques (`chroniques`) · Chat (`chat`) · Settings (`parametres`) · Admin (`admin`)
+Basic Training (`entrainement`) · Fight Boss (`combat`) · Adventure (`aventure`) · Rebirth (`renaissance`) · Augmentations (`augmentations`) · Advanced Training (`avance`) · Time Machine (`machine`) · Blood Magic (`sang`) · ITOPOD (`tower`) · Item Daycare (`daycare`) · Challenges (`challenges`) · Titans (`titans`) · NGU (`ngu`) · Wandoos (`wandoos`) · Yggdrasil (`yggdrasil`) · Labos (`diggers`) · Beards (`beards`) · MacGuffins (`macguffins`) · Hacks (`hacks`) · Questing (`questing`) · Quirks (`quirks`) · Wishes (`wishes`) · Cards (`cards`) · Cooking (`cooking`) · Énigmes (`scummvm`) · Boutique (`shop`) · Chroniques (`chroniques`) · Chat (`chat`) · Settings (`parametres`) · Admin (`admin`)
 
 ## Morts et retours du joueur
 - Morts de base (explosion en pixels, puis retour) : fondu, rewind, clignote
@@ -33,7 +33,7 @@ achievement, albumDix, albumFerme, albumPage, augTic, baille, bloodCap, bloodMin
 soreal_idle_effet_decor_v1, soreal_idle_effet_feu_v1, soreal_idle_effet_meteo_v1, soreal_idle_effet_nav_v1, soreal_idle_effet_orage_v1
 
 ## Points d'entrée rejouables (window.__SOREAL_IDLE_*__)
-Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 288 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
+Chaque module expose son API ici : une animation se REJOUE en direct dans le navigateur (jamais de planche de captures). 290 points d'entrée, listés dans `design/catalogue-visuels.json` (champ `pointsEntree`).
 
 ## Animations CSS orphelines (définies mais nommées nulle part ailleurs)
 `bnPulse` (soreal-idle-itopod.css) · `rgFeuV1` (soreal-idle-itopod.css) · `sorealIdleBtTickV1` (soreal-idle-ui.css)

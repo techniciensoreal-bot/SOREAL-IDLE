@@ -1,0 +1,15 @@
+/* Page « Énigmes » (jeu ScummVM dans un iframe) : modules/scummvm-page-v1.js. L'hôte est fixé sur <body> et se cale sur la zone de la page. */
+.scv-page{display:flex;flex-direction:column;gap:10px}
+.scv-zone{width:100%;aspect-ratio:16/10;max-height:calc(100dvh - 150px);min-height:200px;background:#000;border-radius:8px}
+#scvHoteV1{position:fixed;z-index:20;background:#000;border-radius:8px;overflow:hidden;touch-action:none;margin:0}
+#scvHoteV1.scv-cache{transform:translateX(-200vw);visibility:hidden;pointer-events:none}
+#scvHoteV1.scv-plein{left:0;top:0;width:100vw;height:100dvh;border-radius:0;z-index:2147483000}
+#scvHoteV1 iframe{position:absolute;inset:0;width:100%;height:100%;border:0;touch-action:none;background:#000}
+#scvHoteV1.scv-plein iframe{inset:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);width:auto;height:auto}
+.scv-voile{position:absolute;inset:0;touch-action:none}
+.scv-couv{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(8,10,20,.92);color:#fff;text-align:center;padding:16px;font-family:inherit}
+.scv-couv b{font-size:20px}
+.scv-barre{width:min(320px,80%);height:12px;border-radius:6px;background:#2a2f45;overflow:hidden}
+.scv-barre i{display:block;height:100%;width:0;background:#38bdf8}
+.scv-quitter{position:absolute;top:calc(8px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));z-index:3;display:none;padding:8px 12px;border-radius:8px;border:1px solid #fff6;background:#000a;color:#fff}
+#scvHoteV1.scv-plein .scv-quitter{display:block}
