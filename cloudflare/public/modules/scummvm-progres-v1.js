@@ -17,7 +17,13 @@
   const TABLE_IDB='FILE_DATA';
   const INTERVALLE_MS=30000;
 
-  let jeu=null,minuteur=0,enCours=false;
+  let jeu=null,minuteur=0,enCours=false,dossierJeu="";
+  const CLE_JOURNAL='soreal_idle_scummvm_journal_v1';   /* journal d'étalonnage (diagnostic, jamais affiché ; exclu de la synchro du compte : prefs-compte-v1.js) */
+  const JOURNAL_MAX=3000;
+  const BASE_JEUX='/api/idle/scummvm/jeux/';
+  const tropheesDe={};      /* id du jeu -> liste validée, null (absente ou invalide) ; undefined = pas encore essayé */
+  const chargements={};     /* id du jeu -> promesse en cours */
+  const profilsDe={};       /* id du jeu -> profil de lecture (pour annoter le journal) */
 
   function lireMemoire(){try{const v=JSON.parse(window.localStorage.getItem(CLE)||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{};}catch(_e){return {};}}
   function ecrireMemoire(m){try{window.localStorage.setItem(CLE,JSON.stringify(m));}catch(_e){}}
@@ -58,35 +64,143 @@
     });
   }
 
-  /* Une vérification : lit l'autosave, ajoute les unités vues, envoie l'action si le nombre a augmenté. Renvoie le nombre d'unités atteintes (ou -1). */
+  /* ---------- TROPHÉES (Norman, 2026-11-22) : liste propre à chaque jeu, `soreal-trophees.json` dans le dossier du jeu sur R2 ----------
+     Format { version:1, trophees:[{ id, nom:{fr,en}, ap, objets:[…], bits:[…] }] } ; un trophée est obtenu dès qu'UN de ses objets est possédé par un acteur OU qu'UN de ses bits est à 1
+     (mêmes unités que le lecteur de sauvegarde, départ de partie exclu). Fichier absent ou invalide : aucune liste (null), repli sur le comportement par unités, jamais d'erreur visible. */
+  function entierPositif(v){return typeof v==='number'&&isFinite(v)&&Math.floor(v)===v&&v>0;}
+  function entierIndice(v){return typeof v==='number'&&isFinite(v)&&Math.floor(v)===v&&v>=0;}
+  function validerTrophees(d){
+    try{
+      if(!d||typeof d!=='object'||d.version!==1||!Array.isArray(d.trophees)||!d.trophees.length||d.trophees.length>500)return null;
+      const ids={};const liste=[];
+      for(let i=0;i<d.trophees.length;i++){
+        const t=d.trophees[i];
+        if(!t||typeof t!=='object'||typeof t.id!=='string'||!/^[a-z0-9-]{1,60}$/.test(t.id)||ids[t.id])return null;
+        if(!entierPositif(t.ap)||!t.nom||typeof t.nom!=='object')return null;
+        const fr=typeof t.nom.fr==='string'?t.nom.fr.trim():'',en=typeof t.nom.en==='string'?t.nom.en.trim():'';
+        if(!fr||!en||fr.length>120||en.length>120)return null;
+        const objets=t.objets===undefined?[]:t.objets,bits=t.bits===undefined?[]:t.bits;
+        if(!Array.isArray(objets)||!Array.isArray(bits)||!objets.every(entierIndice)||!bits.every(entierIndice)||objets.length+bits.length===0||objets.length+bits.length>200)return null;
+        ids[t.id]=1;
+        liste.push({id:t.id,nom:{fr:fr,en:en},ap:t.ap,objets:objets.slice(),bits:bits.slice()});
+      }
+      return liste;
+    }catch(_e){return null;}
+  }
+  /* Trophées dont la condition est remplie par l'ensemble d'unités `vu` (bitset : objet i = unité i, bit n = unité objetsGlobaux + n), dans l'ordre de la liste. */
+  function tropheesRemplis(liste,vu,profil){
+    const a=function(i){return i>=0&&(i>>3)<vu.length&&(vu[i>>3]&(1<<(i&7)))!==0;};
+    return (liste||[]).filter(function(t){
+      return t.objets.some(function(o){return o<profil.objetsGlobaux&&a(o);})||t.bits.some(function(n){return n<profil.bits&&a(profil.objetsGlobaux+n);});
+    });
+  }
+  /* Charge la liste du jeu (une fois par jeu) : dossier de la langue d'abord, puis le dossier du catalogue. Résout toujours (liste ou null). */
+  function chargerTrophees(j,dossier){
+    if(!j||!j.id)return Promise.resolve(null);
+    if(tropheesDe[j.id]!==undefined)return Promise.resolve(tropheesDe[j.id]);
+    if(chargements[j.id])return chargements[j.id];
+    const dossiers=[dossier,j.dossier].filter(function(d,i,t){return d&&t.indexOf(d)===i;}).map(function(d){return String(d).replace(/[^A-Za-z0-9._+()-]/g,'');});
+    const essayer=function(k){
+      if(typeof window.fetch!=='function'||k>=dossiers.length)return Promise.resolve(null);
+      return window.fetch(BASE_JEUX+dossiers[k]+'/soreal-trophees.json').then(function(r){return r&&r.ok?r.json():null;}).catch(function(){return null;}).then(function(d){
+        const l=validerTrophees(d);
+        return l||essayer(k+1);
+      });
+    };
+    chargements[j.id]=essayer(0).then(function(l){tropheesDe[j.id]=l;delete chargements[j.id];return l;});
+    return chargements[j.id];
+  }
+
+  /* Journal d'étalonnage : { jeu: [{u,t}] }, une entrée par unité NOUVELLE vue par le suivi (u = numéro d'unité, t = instant en ms), plafonné à JOURNAL_MAX entrées par jeu. */
+  function lireJournal(){try{const v=JSON.parse(window.localStorage.getItem(CLE_JOURNAL)||'{}');return v&&typeof v==='object'&&!Array.isArray(v)?v:{};}catch(_e){return {};}}
+  function noterJournal(id,nouvelles,t){
+    if(!nouvelles.length)return;
+    try{
+      const jr=lireJournal();
+      const l=Array.isArray(jr[id])?jr[id]:[];
+      nouvelles.forEach(function(u){l.push({u:u,t:t});});
+      jr[id]=l.length>JOURNAL_MAX?l.slice(l.length-JOURNAL_MAX):l;
+      window.localStorage.setItem(CLE_JOURNAL,JSON.stringify(jr));
+    }catch(_e){}
+  }
+  /* Lecture du journal (console du navigateur) : chaque entrée est annotée { type:'objet', id } ou { type:'bit', id } quand le profil du jeu est connu ; les NOMS des objets ne sont pas dans le client. */
+  function journal(){
+    const jr=lireJournal(),sortie={};
+    Object.keys(jr).forEach(function(id){
+      const p=profilsDe[id]||(window.__SOREAL_IDLE_SCUMMVM_SAVE_V1__&&window.__SOREAL_IDLE_SCUMMVM_SAVE_V1__.PROFILS||{})[id==='dott'?'tentacle':id];
+      sortie[id]=(Array.isArray(jr[id])?jr[id]:[]).map(function(e){
+        const o={u:e.u,t:e.t};
+        if(p){if(e.u<p.objetsGlobaux){o.type='objet';o.id=e.u;}else{o.type='bit';o.id=e.u-p.objetsGlobaux;}}
+        return o;
+      });
+    });
+    return sortie;
+  }
+  window.__SOREAL_IDLE_SCUMMVM_JOURNAL_V1__=journal;
+
+  /* Trophées déjà crédités par le serveur pour ce jeu (état du joueur), pour ne jamais renvoyer un trophée connu. */
+  function tropheesServeur(id){
+    try{
+      const j=(window.__SOREAL_IDLE_REG__||{}).idleEtat;
+      const l=j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
+      const s=l.find(function(x){return x&&x.id==='scummvm';});
+      const d=s&&((s.state&&s.state.data)||s.data);
+      const e=d&&d.jeux&&d.jeux[id];
+      return e&&e.trophees&&typeof e.trophees==='object'?e.trophees:{};
+    }catch(_e){return {};}
+  }
+
+  /* Une vérification : lit l'autosave, ajoute les unités vues, puis (jeu avec liste de trophées) envoie les trophées NOUVEAUX, ou (sinon) l'action par unités si leur nombre a augmenté.
+     Renvoie le nombre d'unités atteintes (ou -1). */
   async function verifier(){
     const J=jeu;
     if(enCours||!J||!J.ap||!J.cible)return -1;
     const L=window.__SOREAL_IDLE_SCUMMVM_SAVE_V1__;
     const profil=L&&L.PROFILS?L.PROFILS[J.cible]:null;
     const plafond=Number(J.ap.plafond),parUnite=Number(J.ap.parUnite);
-    if(!profil||!(plafond>0)||!(parUnite>0))return -1;
+    if(!profil||!(plafond>0))return -1;
     enCours=true;
     try{
+      const liste=await chargerTrophees(J,dossierJeu);
+      if(!liste&&!(parUnite>0))return -1;
+      profilsDe[J.id]=profil;
       const a=await lireAutosave(J.cible);
       if(!a)return -1;
       const m=lireMemoire();
       const e=m[J.id]&&typeof m[J.id]==='object'?m[J.id]:{};
-      if(e.ts&&a.ts&&e.ts===a.ts)return Number(e.envoye)||0;   /* même sauvegarde que la dernière fois : rien à relire */
-      const brut=await L.decompresser(a.octets);
-      const lu=brut?L.lire(brut,profil):null;
-      if(!lu||lu.erreur)return -1;   /* format non reconnu : aucun crédit, jamais de valeur devinée */
       const taille=(L.unitesPossibles(profil)+7)>>3;
       const vu=depuisBase64(e.vu,taille);
-      L.unites(lu,profil).forEach(function(i){vu[i>>3]|=1<<(i&7);});
+      let ts=e.ts||0;
+      if(!(e.ts&&a.ts&&e.ts===a.ts)){   /* même sauvegarde que la dernière fois : rien à relire (les trophées sont tout de même évalués sur l'ensemble déjà vu) */
+        const brut=await L.decompresser(a.octets);
+        const lu=brut?L.lire(brut,profil):null;
+        if(!lu||lu.erreur)return -1;   /* format non reconnu : aucun crédit, jamais de valeur devinée */
+        const avant=vu.slice();
+        L.unites(lu,profil).forEach(function(i){vu[i>>3]|=1<<(i&7);});
+        const nouvelles=[];
+        for(let i=0;i<taille*8;i++)if((vu[i>>3]&(1<<(i&7)))&&!(avant[i>>3]&(1<<(i&7))))nouvelles.push(i);
+        noterJournal(J.id,nouvelles,Date.now());
+        ts=a.ts||0;
+      }
       const nb=compter(vu);
       const envoye=Math.max(0,Number(e.envoye)||0);
-      m[J.id]={vu:versBase64(vu),envoye:Math.max(envoye,nb),ts:a.ts||0};
-      if(nb>envoye){
-        const f=window.__actionMetaIdleV130__;
+      const f=window.__actionMetaIdleV130__;
+      const nouveau={vu:versBase64(vu),envoye:Math.max(envoye,nb),ts:ts};
+      if(liste){
+        /* mode trophées : plus d'action par unités (pas de double crédit) ; les trophées déjà envoyés ou connus du serveur ne repartent jamais */
+        const dejaEnvoyes=Array.isArray(e.troph)?e.troph.slice(0,500):[];
+        const connus=tropheesServeur(J.id);
+        const aEnvoyer=tropheesRemplis(liste,vu,profil).filter(function(t){return dejaEnvoyes.indexOf(t.id)<0&&!Object.prototype.hasOwnProperty.call(connus,t.id);});
+        nouveau.envoye=envoye;nouveau.troph=dejaEnvoyes;
+        if(aEnvoyer.length&&typeof f==='function'){
+          f({action:'scummvmTrophees',jeu:String(J.id),plafond:plafond,trophees:aEnvoyer.map(function(t){return {id:t.id,ap:t.ap};})});
+          aEnvoyer.forEach(function(t){nouveau.troph.push(t.id);});
+        }
+      }else if(nb>envoye){
         if(typeof f==='function')f({action:'scummvmProgres',jeu:String(J.id),unites:nb,plafond:plafond,parUnite:parUnite});
-        else m[J.id].envoye=envoye;   /* pas de canal d'actions : on réessaiera */
+        else nouveau.envoye=envoye;   /* pas de canal d'actions : on réessaiera */
       }
+      m[J.id]=nouveau;
       ecrireMemoire(m);
       return nb;
     }catch(_e){return -1;}
@@ -97,12 +211,13 @@
   function planifier(){
     minuteur=window.setTimeout(function(){minuteur=0;verifier().then(planifier,planifier);},INTERVALLE_MS);
   }
-  function demarrer(j){
+  function demarrer(j,dossier){
+    dossierJeu=String(dossier||"");
     jeu=j&&j.ap?j:null;
     if(!jeu||minuteur)return;
     planifier();
   }
   window.addEventListener('pagehide',function(){verifier();});   /* à la fermeture de la page */
 
-  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={CLE:CLE,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
+  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
 })();

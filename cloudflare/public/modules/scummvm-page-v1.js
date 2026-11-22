@@ -92,6 +92,7 @@
       jeuCourant=choisirJeu(catalogue,difficulteCourante);
       majCouverture();
       demarrerPrechargeSiBesoin();
+      chargerTropheesDuJeu();
     });
   }
 
@@ -165,7 +166,7 @@
     host.insertBefore(iframe,cover);
     iframe.src=urlLancement(jeuCourant);
     /* AP par progrès (modules/scummvm-progres-v1.js) : un minuteur de 30 s lit l'autosave du jeu tant que la page vit. */
-    try{const P=window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__;if(P)P.demarrer(jeuCourant);}catch(_e){}
+    try{const P=window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__;if(P)P.demarrer(jeuCourant,dossierDe(jeuCourant));}catch(_e){}
     /* Écran tactile : une couche au-dessus de l'iframe traduit appui = clic, deux doigts = clic droit. */
     if((navigator.maxTouchPoints||0)>0)monterVoile();
     if(cache)surveillerPretCache();
@@ -367,8 +368,73 @@
       const j=(window.__SOREAL_IDLE_REG__||{}).idleEtat;
       if(j&&scummvmDebloque(j)&&estOuvert()){difficulteCourante=difficulteDe(j);chargerCatalogue();}
       synchroniser();
+      majTrophees();
     }catch(_e){}
   });
+
+  /* ---------- TROPHÉES du jeu courant (Norman, 2026-11-22) : le bloc ne montre QUE les trophées déjà obtenus (nom + AP gagnés, dans l'ordre d'obtention) et le total gagné ;
+     jamais les autres, jamais leur nombre ni le total possible (règle n°2). Rien du tout tant qu'aucun n'est obtenu. Règle n°4 : nœud persistant (data-morph-vivant) dessiné ICI et
+     mis à jour de façon incrémentale (un trophée nouveau s'ajoute en bas, le reste n'est pas touché), appelé juste après chaque redessin ; aucune minuterie. */
+  let tNoeud=null,tIds=[],tLangue='',tTotal=null,tListe=null,tTotalEl=null;
+  function progresMod(){return window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__||null;}
+  function chargerTropheesDuJeu(){
+    const P=progresMod();
+    if(!P||!jeuCourant||!jeuCourant.ap)return;
+    P.chargerTrophees(jeuCourant,dossierDe(jeuCourant)).then(function(){try{majTrophees();redessinerPage();}catch(_e){}});
+  }
+  /* la liste vient d'être lue : un seul redessin de la page (le total hors trophées change de place) si le menu est ouvert */
+  function redessinerPage(){try{const R=window.__SOREAL_IDLE_REG__||{};if(String(R.idleMenuActifV28||'')==='scummvm'&&R.idleEtat&&typeof R.rendreIdleEtat_==='function')R.rendreIdleEtat_({ok:true,joueur:R.idleEtat});}catch(_e){}}
+  function etatJeu(j,jeu){
+    const l=j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
+    const s=l.find(function(x){return x&&x.id==='scummvm';});
+    const d=s&&((s.state&&s.state.data)||s.data);
+    return (d&&d.jeux&&jeu&&d.jeux[jeu.id])||null;
+  }
+  function nomTrophee(t){const n=(t&&t.nom)||{};return langueJeu()==='en'?(n.en||n.fr||''):(n.fr||n.en||'');}
+  function nombreLisible(n){try{const f=(window.__SOREAL_IDLE_REG__||{}).formatEntierLisibleIdleV1_;if(typeof f==='function')return String(f(n));}catch(_e){}return String(n);}
+  /* [{id,nom,ap}] des trophées obtenus, dans l'ordre d'obtention (liste du serveur ; l'AP est celui réellement crédité) */
+  function tropheesObtenus(j){
+    const P=progresMod();
+    const liste=P&&jeuCourant?P.tropheesDe(jeuCourant.id):null;
+    if(!liste)return [];
+    const e=etatJeu(j,jeuCourant);
+    const ordre=e&&Array.isArray(e.ordre)?e.ordre:[];
+    const cred=e&&e.trophees&&typeof e.trophees==='object'?e.trophees:{};
+    const par={};liste.forEach(function(t){par[t.id]=t;});
+    return ordre.filter(function(id){return par[id]&&Number(cred[id])>=0;}).map(function(id){return {id:id,nom:nomTrophee(par[id]),ap:Math.floor(Number(cred[id]))};});
+  }
+  function majTrophees(){
+    const noeud=document.getElementById('scvTropheesV1');
+    if(!noeud)return;
+    const j=(window.__SOREAL_IDLE_REG__||{}).idleEtat;
+    const obtenus=j?tropheesObtenus(j):[];
+    if(!obtenus.length){
+      if(noeud.firstChild){while(noeud.firstChild)noeud.removeChild(noeud.firstChild);}
+      tNoeud=noeud;tIds=[];tListe=null;tTotalEl=null;tTotal=null;
+      return;
+    }
+    const langue=langueJeu();
+    if(noeud!==tNoeud||!tListe||langue!==tLangue||!tListe.isConnected){
+      while(noeud.firstChild)noeud.removeChild(noeud.firstChild);
+      const titre=document.createElement('div');titre.className='scv-troph-titre';titre.textContent='Trophées';
+      tListe=document.createElement('ul');tListe.className='scv-troph-liste';
+      const ap=document.createElement('div');ap.className='scv-ap';
+      const lib=document.createElement('span');lib.textContent='AP gagnés avec ce jeu :';
+      tTotalEl=document.createElement('b');
+      ap.appendChild(lib);ap.appendChild(document.createTextNode(' '));ap.appendChild(tTotalEl);
+      [titre,tListe,ap].forEach(function(e){e.setAttribute('data-morph-garder','');noeud.appendChild(e);});   /* le redessin laisse ces blocs où ils sont (règle n°4) */
+      tNoeud=noeud;tIds=[];tLangue=langue;tTotal=null;
+    }
+    obtenus.forEach(function(t,i){
+      if(tIds[i]===t.id)return;
+      const li=document.createElement('li');
+      const n=document.createElement('span');n.className='scv-troph-nom';n.textContent=t.nom;
+      const a=document.createElement('b');a.className='scv-troph-ap';a.textContent='+'+nombreLisible(t.ap)+' AP';
+      li.appendChild(n);li.appendChild(a);tListe.appendChild(li);tIds[i]=t.id;
+    });
+    const total=apCredites(j,jeuCourant);
+    if(total!==tTotal){tTotalEl.textContent=nombreLisible(total);tTotal=total;}   /* comparé à la dernière valeur écrite, jamais à textContent */
+  }
 
   /* AP déjà gagnés avec le jeu courant (règle n°2 : seulement ce qui est gagné, jamais le plafond ni le nombre d'unités possibles). Rien si le jeu n'a pas de gain d'AP dans le catalogue. */
   function apCredites(j,jeu){
@@ -381,6 +447,8 @@
   }
   function apGagnes(j){
     if(!jeuCourant||!jeuCourant.ap)return '';
+    const P=progresMod();
+    if(P&&P.tropheesDe(jeuCourant.id)!==null)return '';   /* jeu avec une liste de trophées (ou liste en cours de lecture) : le total est dans le bloc des trophées, rien tant qu'aucun n'est obtenu */
     return '<div class="scv-ap"><span>AP gagnés avec ce jeu :</span> <b>'+esc(String(apCredites(j,jeuCourant)))+'</b></div>';
   }
 
@@ -391,9 +459,9 @@
     if(catalogue!==null)jeuCourant=choisirJeu(catalogue,difficulteCourante);
     const REG=window.__SOREAL_IDLE_REG__||{};
     const entete=typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
-    return entete+'<div class="scv-page"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div>'+apGagnes(j)+
+    return entete+'<div class="scv-page"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div>'+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button></div></div>';
   }
 
-  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe,apCredites:apCredites};
+  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe,apCredites:apCredites,majTrophees:majTrophees,tropheesObtenus:tropheesObtenus};
 })();

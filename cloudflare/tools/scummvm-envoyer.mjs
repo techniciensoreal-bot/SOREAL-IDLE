@@ -4,6 +4,7 @@
  *   node cloudflare/tools/scummvm-envoyer.mjs moteur <dossier-du-moteur>             moteur : scummvm.html, scummvm.js, scummvm.wasm, data/… (compilé par dists/emscripten/build.sh de ScummVM)
  *   node cloudflare/tools/scummvm-envoyer.mjs jeu <dossier-du-jeu> [--nom <dossier>]  un jeu (fichiers de données) -> scummvm/jeux/<nom>/ (par défaut le nom du dossier)
  *   node cloudflare/tools/scummvm-envoyer.mjs catalogue <jeux.json>                   le catalogue des jeux par difficulté (voir le format dans idle-scummvm-v1.js)
+ *   node cloudflare/tools/scummvm-envoyer.mjs trophees <fichier.json> --nom <dossier>   la liste des trophées d'un jeu -> scummvm/jeux/<nom>/soreal-trophees.json (validée avant l'envoi, mêmes règles que le client)
  *
  * Options :  --local <dossier>   copie dans <dossier>/scummvm/… (miroir pour SCUMMVM_DOSSIER de local-dev-server.mjs) au lieu d'envoyer sur R2
  *            --simuler           liste ce qui serait envoyé, sans rien écrire ni envoyer
@@ -14,6 +15,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import vm from "node:vm";
 
 const BUCKET = "soreal";
 const PREFIXE = "scummvm/";
@@ -129,7 +131,23 @@ if (commande === "moteur") {
   fs.writeFileSync(tmpIndex, JSON.stringify(dossiers));
   envoyer(tmpIndex, "jeux/index.json");
   fs.rmSync(tmpIndex, { force: true });
+} else if (commande === "trophees") {
+  /* liste des trophées d'un jeu (Norman, 2026-11-22) : validée par le MÊME code que le client (modules/scummvm-progres-v1.js, validerTrophees), pour qu'un fichier accepté ici le soit aussi dans la page */
+  const src = positionnels[0];
+  const nom = option("--nom");
+  if (!src || !fs.existsSync(src) || !nom) { console.error("usage : trophees <fichier.json> --nom <dossier du jeu>"); process.exit(2); }
+  if (!/^[A-Za-z0-9._\-+()]+$/.test(nom)) { console.error("nom de dossier invalide : " + nom); process.exit(2); }
+  let donnees;
+  try { donnees = JSON.parse(fs.readFileSync(src, "utf8")); } catch (e) { console.error("JSON illisible : " + e.message); process.exit(2); }
+  const bac = { localStorage: { getItem: () => null, setItem() {} }, addEventListener() {}, console, Promise };
+  bac.window = bac;
+  vm.createContext(bac);
+  vm.runInContext(fs.readFileSync(new URL("../public/modules/scummvm-progres-v1.js", import.meta.url), "utf8"), bac);
+  const liste = bac.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__.validerTrophees(donnees);
+  if (!liste) { console.error("fichier de trophées invalide : {\"version\":1,\"trophees\":[{\"id\":\"a-z0-9-\",\"nom\":{\"fr\":\"…\",\"en\":\"…\"},\"ap\":entier>0,\"objets\":[entiers],\"bits\":[entiers]}]} (ids uniques, au moins un objet ou un bit par trophée)"); process.exit(2); }
+  console.log("trophées : " + liste.length + " valides, " + liste.reduce((t, x) => t + x.ap, 0) + " AP au total (à comparer au plafond du jeu)");
+  envoyer(src, "jeux/" + nom + "/soreal-trophees.json");
 } else {
-  console.error("commandes : moteur <dossier> | jeu <dossier> [--nom n] | catalogue <jeux.json>   (options : --local <dossier> --simuler)");
+  console.error("commandes : moteur <dossier> | jeu <dossier> [--nom n] | catalogue <jeux.json> | trophees <fichier.json> --nom n   (options : --local <dossier> --simuler)");
   process.exit(2);
 }

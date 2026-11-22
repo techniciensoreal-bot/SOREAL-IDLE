@@ -612,8 +612,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 354,
-  "sha": "990d48944eb13f8ccd5cc11d58aa0efb9b757273"
+  "pin": 355,
+  "sha": "bda356a513acc1aff6b06a1af48a6d31894b7e3c"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -676,8 +676,8 @@
   "sha": "c8c13cb772f48ec4276db365db838ae79c45d4e4"
  },
  "/modules/prefs-compte-v1.js": {
-  "pin": 5,
-  "sha": "475931ce6a423585ced203601ebb4978b534d16d"
+  "pin": 6,
+  "sha": "e42ecc72962270ca609d4c7f8fd5f07a43cb3aad"
  },
  "/modules/profil-badavatar-editeur-v1.js": {
   "pin": 9,
@@ -760,12 +760,12 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 4,
-  "sha": "90d58d05b5f45854ff603866de7f299300c46e85"
+  "pin": 5,
+  "sha": "53d186e13bf4f3b19d7f7b5c78085a6c46c36a23"
  },
  "/modules/scummvm-progres-v1.js": {
-  "pin": 1,
-  "sha": "412dbc1b1db8c45ead52be1cb1bd9c423b23e86a"
+  "pin": 2,
+  "sha": "ea9be4a1a68686d9f1522e380ac7fee5de663215"
  },
  "/modules/scummvm-sauvegarde-v1.js": {
   "pin": 1,
@@ -1160,8 +1160,8 @@
   "sha": "a5842ac2de89e3be4f477314dc8002e382f93062"
  },
  "/soreal-idle-scummvm-v1.css": {
-  "pin": 2,
-  "sha": "fb4443028635cecd4d3ed0ab946f5ab72b24947a"
+  "pin": 3,
+  "sha": "b02e51bc39322b0595098291fcf60cea9ca509fb"
  },
  "/soreal-idle-stabilite-v1.css": {
   "pin": 2,

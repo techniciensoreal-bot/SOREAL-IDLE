@@ -14,3 +14,8 @@
 .scv-quitter{position:absolute;top:calc(8px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));z-index:3;display:none;padding:8px 12px;border-radius:8px;border:1px solid #fff6;background:#000a;color:#fff}
 #scvHoteV1.scv-plein .scv-quitter{display:block}
 .scv-ap{font-size:.9rem;opacity:.85}
+.scv-troph:empty{display:none}
+.scv-troph:not(:empty){display:flex;flex-direction:column;gap:6px}
+.scv-troph-titre{font-weight:700}
+.scv-troph-liste{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.scv-troph-liste li{display:flex;justify-content:space-between;gap:12px;font-size:.9rem}
