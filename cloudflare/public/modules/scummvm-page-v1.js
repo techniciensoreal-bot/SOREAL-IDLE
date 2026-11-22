@@ -46,8 +46,16 @@
     }
     return liste[0];
   }
+  /* Langue du jeu Soreal (clé soreal_idle_langue_v1 : « en » = anglais, sinon français). Un jeu peut avoir un dossier par langue (« dossiers »:{"fr":"…","en":"…"} dans jeux.json) : le dossier de la langue,
+     sinon celui du français, sinon « dossier ». Les sous-titres sont toujours demandés (--subtitles) : ils s'affichent dans la langue des fichiers du jeu choisi. */
+  function langueJeu(){try{return window.localStorage.getItem('soreal_idle_langue_v1')==='en'?'en':'fr';}catch(_e){return 'fr';}}
+  function dossierDe(jeu){
+    const d=jeu&&jeu.dossiers&&typeof jeu.dossiers==='object'?jeu.dossiers:null;
+    return String((d&&(d[langueJeu()]||d.fr))||jeu.dossier);
+  }
   function urlLancement(jeu){
-    return BASE+'moteur/scummvm.html#--save-slot=0 '+jeu.cible;
+    /* --path : ScummVM détecte le jeu par son dossier (mesuré le 2026-11-22 avec Day of the Tentacle) : aucune entrée à écrire dans scummvm.ini, un nouveau jeu n'a besoin que de son dossier sur R2. */
+    return BASE+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+' --subtitles --save-slot=0 '+jeu.cible;
   }
   function difficulteDe(j){
     const d=j&&j.systemes&&j.systemes.difficulty;
@@ -111,7 +119,7 @@
   function precharger(jeu){
     const racine=BASE+'moteur/';
     const fichiers=[racine+'scummvm.html',racine+'scummvm.js',racine+'scummvm.wasm',racine+'data/index.json'];
-    const dossier=BASE+'jeux/'+encodeURIComponent(jeu.dossier)+'/';
+    const dossier=BASE+'jeux/'+encodeURIComponent(dossierDe(jeu))+'/';
     precharge.total=60e6;   /* estimation tant que les tailles ne sont pas connues ; remplacée par la somme réelle */
     return fetch(dossier+'index.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(idx){
       let somme=0;const noms=Object.keys(idx||{});
@@ -371,5 +379,5 @@
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button></div></div>';
   }
 
-  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT};
+  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe};
 })();

@@ -59,6 +59,20 @@ const jeux = [
   { id: "a-e", nom: "Jeu Evil", dossier: "dossier-e", cible: "ce", difficulte: "evil" },
 ];
 
+/* 0. Langue (Norman, 2026-11-22 : sous-titres en français si le jeu est en français, en anglais s'il est en anglais) : dossier par langue, sous-titres toujours demandés, repli sur le français puis sur « dossier » */
+{
+  const jeu2 = { id: "x", nom: "X", dossier: "base", dossiers: { fr: "d-fr", en: "d-en" }, cible: "c", difficulte: "normal" };
+  const f1 = faux(); const A1 = f1.sb.__SOREAL_IDLE_SCUMMVM_PAGE_V1__;
+  assert.equal(A1.dossierDe(jeu2), "d-fr", "français par défaut");
+  assert.ok(A1.urlLancement(jeu2).endsWith("#--path=/data/games/d-fr --subtitles --save-slot=0 c"), "sous-titres demandés");
+  f1.stock["soreal_idle_langue_v1"] = "en";
+  assert.equal(A1.dossierDe(jeu2), "d-en", "anglais : le dossier anglais");
+  assert.equal(A1.dossierDe({ ...jeu2, dossiers: { fr: "d-fr" } }), "d-fr", "pas de dossier anglais : le français");
+  assert.equal(A1.dossierDe({ ...jeu2, dossiers: undefined }), "base", "sans dossiers : « dossier »");
+  f1.stock["soreal_idle_langue_v1"] = "fr";
+  assert.equal(A1.dossierDe({ ...jeu2, dossiers: { en: "d-en" } }), "base", "français sans dossier français : « dossier »");
+}
+
 /* 1. choix du jeu par difficulté, repli sur la difficulté inférieure puis sur le premier */
 {
   const { sb } = faux();
@@ -69,7 +83,7 @@ const jeux = [
   assert.equal(A.choisirJeu([jeux[1]], "normal").id, "a-e", "pas de jeu normal : le premier");
   assert.equal(A.choisirJeu([], "normal"), null);
   assert.equal(A.choisirJeu(null, "normal"), null);
-  assert.equal(A.urlLancement(jeux[0]), "/api/idle/scummvm/moteur/scummvm.html#--save-slot=0 cn", "URL de lancement exacte");
+  assert.equal(A.urlLancement(jeux[0]), "/api/idle/scummvm/moteur/scummvm.html#--path=/data/games/dossier-n --subtitles --save-slot=0 cn", "URL de lancement exacte");
   assert.equal(A.CLE_ETAT, "soreal_idle_scummvm_etat_v1");
 }
 
@@ -89,7 +103,7 @@ const jeux = [
   assert.equal(f.iframes.length, 1, "un seul iframe créé");
   const ifr = f.iframes[0];
   assert.equal(ifr.srcAffectations, 1, "src affecté une seule fois");
-  assert.equal(ifr.src, "/api/idle/scummvm/moteur/scummvm.html#--save-slot=0 ce", "le jeu de la difficulté du joueur (Evil)");
+  assert.equal(ifr.src, "/api/idle/scummvm/moteur/scummvm.html#--path=/data/games/dossier-e --subtitles --save-slot=0 ce", "le jeu de la difficulté du joueur (Evil)");
   assert.equal(ifr.getAttribute("allow"), "autoplay; fullscreen");
   assert.equal(ifr.parentCount, 1, "rattaché une seule fois");
   const hote = f.sb.document.body.children.find((c) => c.id === "scvHoteV1");
@@ -126,7 +140,7 @@ const jeux = [
   couv.listeners.click[0]({ target: { closest: () => ({}) } });
   assert.equal(f.iframes.length, 1, "Jouer crée l'iframe");
   assert.equal(f.stock.soreal_idle_scummvm_etat_v1, "lance", "état mémorisé (règle n°6)");
-  assert.equal(f.iframes[0].src, "/api/idle/scummvm/moteur/scummvm.html#--save-slot=0 cn");
+  assert.equal(f.iframes[0].src, "/api/idle/scummvm/moteur/scummvm.html#--path=/data/games/dossier-n --subtitles --save-slot=0 cn");
 }
 
 /* 4. catalogue vide : message simple, aucun iframe */

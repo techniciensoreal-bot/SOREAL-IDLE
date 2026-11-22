@@ -18,7 +18,8 @@ import { spawnSync } from "node:child_process";
 const BUCKET = "soreal";
 const PREFIXE = "scummvm/";
 const BASE_URL_JEUX = "/api/idle/scummvm/jeux";
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".wasm": "application/wasm", ".json": "application/json; charset=utf-8", ".svg": "image/svg+xml", ".png": "image/png", ".zip": "application/zip", ".txt": "text/plain; charset=utf-8" };
+/* types SANS « ; charset=… » : sous Windows wrangler est lancé par un shell qui coupe l'argument au point-virgule (« Unknown argument: charset=utf-8 ») ; la route (idle-scummvm-v1.js) ajoute le charset elle-même à la réponse. */
+const TYPES = { ".html": "text/html", ".js": "text/javascript", ".wasm": "application/wasm", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".zip": "application/zip", ".txt": "text/plain" };
 
 const args = process.argv.slice(2);
 const commande = args[0];
@@ -108,13 +109,17 @@ if (commande === "moteur") {
   const c = JSON.parse(fs.readFileSync(src, "utf8"));
   if (!c || !Array.isArray(c.jeux)) { console.error("le catalogue doit être {\"jeux\":[…]}"); process.exit(2); }
   for (const j of c.jeux) {
+    if (j && j.dossiers !== undefined) {
+      /* un dossier par langue (« fr » et « en ») : le jeu s'affiche et se sous-titre dans la langue des fichiers choisis selon la langue de Soreal */
+      if (typeof j.dossiers !== "object" || j.dossiers === null || !Object.entries(j.dossiers).every(([l, d]) => ["fr", "en"].includes(l) && /^[A-Za-z0-9._+()-]+$/.test(String(d)))) { console.error("« dossiers » doit être {\"fr\":\"dossier\",\"en\":\"dossier\"} (noms de dossier sans espace) : " + JSON.stringify(j.dossiers)); process.exit(2); }
+    }
     for (const champ of ["id", "nom", "dossier", "cible", "difficulte"]) if (!j || typeof j[champ] !== "string" || !j[champ]) { console.error("entrée invalide (champ « " + champ + " ») : " + JSON.stringify(j)); process.exit(2); }
     if (!["normal", "evil", "sadistic"].includes(j.difficulte)) { console.error("difficulte inconnue : " + j.difficulte + " (normal, evil ou sadistic)"); process.exit(2); }
   }
   envoyer(src, "jeux.json");
   /* liste des dossiers de jeux (ScummVM lit jeux/index.json pour parcourir le dossier racine : sans elle « Chemin inexistant ») */
   const dossiers = {};
-  for (const j of c.jeux) dossiers[j.dossier] = {};
+  for (const j of c.jeux) { dossiers[j.dossier] = {}; for (const d of Object.values(j.dossiers || {})) dossiers[d] = {}; }
   const tmpIndex = path.join(process.env.TEMP || process.env.TMPDIR || ".", "scummvm-jeux-index-" + process.pid + ".json");
   fs.writeFileSync(tmpIndex, JSON.stringify(dossiers));
   envoyer(tmpIndex, "jeux/index.json");

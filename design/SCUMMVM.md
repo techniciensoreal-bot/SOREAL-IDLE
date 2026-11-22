@@ -5,7 +5,7 @@ Décisions de Norman (2026-11-22) : un menu de la liste (comme Time Machine), je
 ## Disposition R2 (seau `soreal`, préfixe `scummvm/`), servie par `GET /api/idle/scummvm/<clé>`
 - `moteur/` : `scummvm.html`, `scummvm.js`, `scummvm.wasm`, `data/…` (moteur compilé ; 42 Mo + 11 Mo de données). Cache une semaine.
 - `jeux/<dossier>/…` : fichiers d'un jeu et `index.json` (`{nom: taille}`). Revalidé à chaque fois (ETag).
-- `jeux.json` : `{"jeux":[{"id":"sky-bass","nom":"Beneath a Steel Sky","dossier":"BASS-Floppy-1.3","cible":"sky","difficulte":"normal"}]}` (une entrée par difficulté : normal, evil, sadistic).
+- `jeux.json` : `{"jeux":[{"id":"dott","nom":"Day of the Tentacle","dossier":"DOTT","cible":"tentacle","difficulte":"normal"}]}` (une entrée par difficulté : normal, evil, sadistic).
 
 ## Où placer le jeu sur R2, et l'INTERRUPTEUR (fermé par défaut)
 Tout se range dans le seau **`soreal`**, sous le préfixe **`scummvm/`** (voir la disposition ci-dessus) ; l'outil `scummvm-envoyer.mjs` place les fichiers aux bonnes clés.
@@ -21,6 +21,9 @@ node cloudflare/tools/scummvm-envoyer.mjs catalogue jeux.json
 node cloudflare/tools/scummvm-envoyer.mjs moteur <dossier-du-moteur>                # une fois, ou à la mise à jour du moteur
 ```
 `--local <dossier>` copie dans un miroir (dossier `.scummvm-miroir/`, ignoré par git) pour `SCUMMVM_DOSSIER=.scummvm-miroir` de `local-dev-server.mjs` ; `--simuler` liste sans rien faire.
+
+## Lancement d'un jeu
+La page lance `scummvm.html#--path=/data/games/<dossier> --save-slot=0 <cible>` : ScummVM détecte le jeu à partir de son dossier (aucune entrée dans `scummvm.ini`), et reprend l'autosave. Il faut que le moteur ait le plugin de la famille du jeu (`data/plugins/lib<moteur>.so`, ex. `libscumm.so` pour Day of the Tentacle).
 
 ## Limites et points d'attention
 - La page de démonstration d'origine envoyait des rapports d'erreurs à Sentry : l'outil la nettoie ; rien ne doit sortir de notre origine.
