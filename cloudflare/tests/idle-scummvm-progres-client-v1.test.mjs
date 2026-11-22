@@ -57,15 +57,15 @@ function faux(opts = {}) {
   return { sb, stock, intervalles, actions, idb, P: sb.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__, fichier };
 }
 
-/* 1. un seul minuteur (30 s), même si on démarre plusieurs fois ou avec un autre jeu ; un jeu sans « ap » n'en crée aucun */
+/* 1. un seul minuteur (10 s), même si on démarre plusieurs fois ou avec un autre jeu ; un jeu sans « ap » n'en crée aucun */
 {
   const f = faux();
-  assert.equal(f.P.INTERVALLE_MS, 30000);
+  assert.equal(f.P.INTERVALLE_MS, 10000);
   f.P.demarrer({ id: "x", cible: "x", nom: "X" });
   assert.equal(f.intervalles.length, 0, "jeu sans gain d'AP : pas de minuteur");
   f.P.demarrer(JEU); f.P.demarrer(JEU); f.P.demarrer(Object.assign({}, JEU, { id: "autre", cible: "autre" }));
   assert.equal(f.intervalles.length, 1, "un seul minuteur");
-  assert.equal(f.intervalles[0].ms, 30000);
+  assert.equal(f.intervalles[0].ms, 10000);
 }
 
 /* 2. pas de base IndexedDB : rien d'envoyé, la base n'est pas créée (mise à niveau abandonnée) */

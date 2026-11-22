@@ -15,7 +15,7 @@
   const CLE='soreal_idle_scummvm_progres_v1';
   const BASE_IDB='/home/web_user';
   const TABLE_IDB='FILE_DATA';
-  const INTERVALLE_MS=30000;
+  const INTERVALLE_MS=10000;   /* 10 s (Norman, 2026-11-22 : un objet ramassé puis utilisé dans la minute n'était pas vu avec 30 s) ; l'autosave de ScummVM se règle par autosave_period dans scummvm.ini (la page l'écrit avant le lancement) */
 
   let jeu=null,minuteur=0,enCours=false,dossierJeu="";
   const CLE_JOURNAL='soreal_idle_scummvm_journal_v1';   /* journal d'étalonnage (diagnostic, jamais affiché ; exclu de la synchro du compte : prefs-compte-v1.js) */

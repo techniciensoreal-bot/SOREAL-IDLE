@@ -204,4 +204,66 @@ const jeux = [
   const men = readFileSync("cloudflare/public/modules/ui-menus-v1.js", "utf8");
   assert.ok(men.includes("s.id!=='scummvm'||(window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__"), "popup de nouveauté : fermé = rien");
 }
+/* 9. Autosave rapproché (Norman, 2026-11-22) : autosave_period=15 écrit dans la config de ScummVM (IndexedDB d'IDBFS) AVANT le lancement ; jamais d'erreur ni de config créée de toutes pièces */
+{
+  const CLE = "/home/web_user/scummvm.ini";
+  const fauxIdb = (ini, { sansTable = false, sansBase = false } = {}) => {
+    const store = {};
+    if (ini !== null) store[CLE] = { contents: new TextEncoder().encode(ini), timestamp: new Date(0), mode: 33206 };
+    const ecrits = [];
+    return {
+      store, ecrits,
+      databases: () => Promise.resolve(sansBase ? [] : [{ name: "/home/web_user" }]),
+      open: () => {
+        const rq = {};
+        queueMicrotask(() => {
+          rq.result = {
+            objectStoreNames: { contains: (n) => !sansTable && n === "FILE_DATA" },
+            close() {},
+            transaction: () => {
+              const tx = {};
+              tx.objectStore = () => ({
+                get: (k) => { const g = {}; queueMicrotask(() => { g.result = store[k]; if (g.onsuccess) g.onsuccess(); }); return g; },
+                put: (v, k) => { store[k] = v; ecrits.push(k); queueMicrotask(() => { if (tx.oncomplete) tx.oncomplete(); }); return {}; },
+              });
+              return tx;
+            },
+          };
+          if (rq.onsuccess) rq.onsuccess();
+        });
+        return rq;
+      },
+    };
+  };
+  const lancer = async (idb) => {
+    const f = faux(); f.sb.TextDecoder = TextDecoder; f.sb.TextEncoder = TextEncoder; f.sb.indexedDB = idb;
+    await f.sb.__SOREAL_IDLE_SCUMMVM_PAGE_V1__.reglerAutosave();
+    return new TextDecoder().decode((idb.store[CLE] || { contents: new Uint8Array() }).contents);
+  };
+  let idb = fauxIdb("[scummvm]\nversioninfo=2.10.0git\nautosave_period=60\n\n[x]\na=b\n");
+  let txt = await lancer(idb);
+  assert.ok(txt.includes("autosave_period=15") && !txt.includes("autosave_period=60") && txt.includes("[x]"), "60 s remplacé par 15 s, le reste de la config intact");
+  assert.equal(idb.ecrits.length, 1);
+  idb = fauxIdb("[scummvm]\nversioninfo=2.10.0git\n");
+  txt = await lancer(idb);
+  assert.ok(txt.includes("[scummvm]\nautosave_period=15"), "réglage absent : ajouté sous [scummvm]");
+  idb = fauxIdb("[scummvm]\nautosave_period=15\n");
+  await lancer(idb);
+  assert.equal(idb.ecrits.length, 0, "déjà à 15 s : rien n'est réécrit");
+  idb = fauxIdb("[scummvm]\nautosave_period=150\n");
+  txt = await lancer(idb);
+  assert.ok(txt.includes("autosave_period=15\n") && !txt.includes("autosave_period=150"), "150 n'est pas pris pour 15");
+  idb = fauxIdb(null);
+  await lancer(idb);
+  assert.equal(idb.ecrits.length, 0, "pas de config : on n'en fabrique pas (le moteur la reçoit déjà réglée depuis R2)");
+  idb = fauxIdb("[scummvm]\nautosave_period=60\n", { sansBase: true });
+  await lancer(idb);
+  assert.equal(idb.ecrits.length, 0, "pas de base IndexedDB : rien (jamais créée par la page)");
+  idb = fauxIdb("[scummvm]\nautosave_period=60\n", { sansTable: true });
+  await lancer(idb);
+  assert.equal(idb.ecrits.length, 0, "base sans table FILE_DATA : ignorée");
+  const f2 = faux(); f2.sb.indexedDB = { databases: () => Promise.reject(new Error("panne")) };
+  await f2.sb.__SOREAL_IDLE_SCUMMVM_PAGE_V1__.reglerAutosave();   // ne lève jamais
+}
+
 console.log("idle-scummvm-page-client-v1 OK");

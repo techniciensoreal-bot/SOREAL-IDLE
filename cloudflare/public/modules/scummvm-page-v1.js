@@ -155,6 +155,45 @@
   }
   function couvrir(oui){if(cover)cover.style.display=oui?'flex':'none';}
 
+  /* Écrit autosave_period=15 dans /home/web_user/scummvm.ini (base IndexedDB d'IDBFS, table FILE_DATA) si la config existe déjà (un profil neuf la reçoit déjà réglée du moteur sur R2) ; au plus 1,5 s d'attente, jamais d'erreur. */
+  const AUTOSAVE_S=15,CLE_INI='/home/web_user/scummvm.ini';
+  function reglerAutosave(){
+    return new Promise(function(resolve){
+      let fini=false;
+      const fin=function(){if(!fini){fini=true;resolve();}};
+      window.setTimeout(fin,1500);
+      try{
+        window.indexedDB.databases().then(function(l){
+          if(!(l||[]).some(function(d){return d&&d.name==='/home/web_user';}))return fin();
+          const rq=window.indexedDB.open('/home/web_user');
+          rq.onerror=fin;rq.onblocked=fin;
+          rq.onsuccess=function(){
+            const db=rq.result;
+            const clore=function(){try{db.close();}catch(_e){}fin();};
+            try{
+              if(!db.objectStoreNames.contains('FILE_DATA'))return clore();
+              const g=db.transaction('FILE_DATA','readonly').objectStore('FILE_DATA').get(CLE_INI);
+              g.onerror=clore;
+              g.onsuccess=function(){
+                const v=g.result;
+                if(!v||!v.contents)return clore();
+                let txt=new TextDecoder().decode(v.contents);
+                const ligne='autosave_period='+AUTOSAVE_S;
+                const motif=/autosave_period=[0-9]+/;
+                const m=motif.exec(txt);
+                if(m&&m[0]===ligne)return clore();   /* déjà réglé */
+                txt=m?txt.replace(motif,ligne):txt.replace('[scummvm]','[scummvm]\n'+ligne);
+                v.contents=new TextEncoder().encode(txt);v.timestamp=new Date();
+                const tx=db.transaction('FILE_DATA','readwrite');
+                tx.objectStore('FILE_DATA').put(v,CLE_INI);
+                tx.oncomplete=clore;tx.onerror=clore;tx.onabort=clore;
+              };
+            }catch(_e){clore();}
+          };
+        },fin);
+      }catch(_e){fin();}
+    });
+  }
   function creerIframe(cache){
     if(iframe||!jeuCourant)return;
     creerHote();
@@ -164,8 +203,10 @@
     iframe.style.touchAction='none';
     iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();});
     host.insertBefore(iframe,cover);
-    iframe.src=urlLancement(jeuCourant);
-    /* AP par progrès (modules/scummvm-progres-v1.js) : un minuteur de 30 s lit l'autosave du jeu tant que la page vit. */
+    /* Autosave rapproché (Norman, 2026-11-22 : un objet pris puis perdu dans la minute n'était pas vu avec 60 s) : le réglage autosave_period de ScummVM est écrit dans sa config (IndexedDB) AVANT le lancement ; sans IndexedDB on lance tout de suite. */
+    const lancer=function(){if(iframe&&!iframe.src)iframe.src=urlLancement(jeuCourant);};
+    if(!window.indexedDB||typeof window.indexedDB.databases!=='function')lancer();else reglerAutosave().then(lancer,lancer);
+    /* AP par progrès (modules/scummvm-progres-v1.js) : un minuteur de 10 s lit l'autosave du jeu tant que la page vit. */
     try{const P=window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__;if(P)P.demarrer(jeuCourant,dossierDe(jeuCourant));}catch(_e){}
     /* Écran tactile : une couche au-dessus de l'iframe traduit appui = clic, deux doigts = clic droit. */
     if((navigator.maxTouchPoints||0)>0)monterVoile();
@@ -463,5 +504,5 @@
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button></div></div>';
   }
 
-  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe,apCredites:apCredites,majTrophees:majTrophees,tropheesObtenus:tropheesObtenus};
+  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe,reglerAutosave:reglerAutosave,apCredites:apCredites,majTrophees:majTrophees,tropheesObtenus:tropheesObtenus};
 })();
