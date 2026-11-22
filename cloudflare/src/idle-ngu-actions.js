@@ -222,8 +222,6 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     );
     if ((advActionInv === "unequip" || advActionInv === "equip") && !applied.duplicate) verifierCapApresEquipementV1(state, applied.state, context);
     state.adventure = applied.state;
-    /* Choisir une zone d'Aventure (Zone sûre comprise) quitte la zone ITOPOD : une seule zone à la fois dans le jeu (alignement 2026-11-22, audit de la Tour). */
-    if (advActionInv === "selectZone" && !applied.duplicate && state.systems.tower) state.systems.tower.active = false;
     /* THE TRAITOR vaincu : « sets your number of rebirths to 10,000, allowing you to complete the final achievement » (page THE TRAITOR (titan)). */
     if (state.adventure?.unlockFlags?.traitorDefeated) state.records.totalRebirths = Math.max(num(state.records.totalRebirths, 0), 10000);
     /*

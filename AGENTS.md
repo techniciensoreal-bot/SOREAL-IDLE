@@ -304,6 +304,10 @@ pour pouvoir la réutiliser telle quelle :
   déployée, seulement en ajouter une nouvelle si une future migration de
   classe est nécessaire.
 
+## Règle SOREAL : l'ITOPOD et l'Aventure tournent EN MÊME TEMPS (Norman, 2026-11-22)
+
+Écart volontaire avec le jeu d'origine (une seule zone à la fois, l'ITOPOD étant la zone 1000) : « autorise l'ITOPOD et le mode Aventure à tourner en même temps. Ce sera notre règle Soreal ». En ligne la tour progresse en parallèle d'un combat ou d'un farm d'Aventure, qu'on soit « entré » ou non (condition : un coup tue l'étage 0, ou bouton « Entrer ») ; entrer dans la tour ne quitte pas la zone d'Aventure, choisir une zone ne quitte pas la tour, un Rebirth ne change pas `tower.active` (il remet seulement le niveau au départ). À ne PAS « corriger » lors d'un futur audit contre le jeu ; test : `idle-itopod-alignement-moteur-v1` (point 12).
+
 ## Règle n°3 (barres et boucles d'animation) : aucune boucle imparfaite
 
 Demande de Norman (2026-10-09) : toute animation qui se répète dans une barre (braises, étoiles, runes, aurore, plasma, code, gouttes…) doit boucler SANS À-COUP. À appliquer d'office pour toute barre existante ou

@@ -105,14 +105,14 @@ const T = () => Date.now();
   assert.ok(towerOptimalCappedV1(1e6, 1.2, 1000) > 100, "sans plafond effectif : le calcul brut");
 }
 
-// 12. Zone ITOPOD : en ligne, la Tour ne progresse que dans la zone (active) ; entrer = changeZone ; choisir une zone d'Aventure la quitte ; Rebirth : Zone sûre.
+// 12. RÈGLE SOREAL (Norman, 2026-11-22 : « autorise l'ITOPOD et le mode Aventure à tourner en même temps ») : la Tour progresse en ligne EN PARALLÈLE de l'Aventure ; entrer = changeZone (niveau = départ, compteur 0) SANS quitter la zone d'Aventure ; choisir une zone ne quitte pas la tour ; Rebirth : niveau = départ, tower.active inchangé.
 {
   let s = advanceIdleNguState(Object.assign(baseState(), {}), 20, ctx, T());
   assert.ok(s.systems.tower.data.kills > 0, "active : progresse");
   const inactif = baseState();
   inactif.systems.tower.active = false;
   const r = advanceIdleNguState(inactif, 20, ctx, T());
-  assert.equal(r.systems.tower.data.kills, 0, "en ligne, hors de la zone ITOPOD : aucun kill");
+  assert.ok(r.systems.tower.data.kills > 0, "règle SOREAL : en ligne, la tour progresse sans être « entré » dès que la Puissance suffit (un coup tue l'étage 0)");
   assert.ok(advanceIdleNguState(inactif, 3600, ctx, T()).systems.tower.data.kills > 0, "hors ligne : inchangé (aucune zone exigée)");
   // entrer : niveau = départ, compteur = 0, sortie de la zone d'Aventure
   let e = normalizeIdleNguState({}, ctx, 1_000_000);
@@ -123,17 +123,17 @@ const T = () => Date.now();
   assert.equal(e.systems.tower.active, true);
   assert.equal(e.systems.tower.data.floor, 5, "changeZone : niveau = départ");
   assert.equal(e.systems.tower.data.killsOnFloor, 0, "changeZone : compteur = 0");
-  assert.equal(e.adventure.selectedZone, "safe", "entrer dans l'ITOPOD quitte la zone d'Aventure");
-  // choisir une zone d'Aventure sort de l'ITOPOD
+  assert.equal(e.adventure.selectedZone, "tutorial", "règle SOREAL : entrer dans l'ITOPOD ne quitte PAS la zone d'Aventure");
+  // choisir une zone d'Aventure ne sort pas de l'ITOPOD
   e = applyIdleNguAction(e, { action: "adventure", adventure: { action: "selectZone", zone: "tutorial" } }, ctx, 1_000_000).state;
   assert.equal(e.adventure.selectedZone, "tutorial");
-  assert.equal(e.systems.tower.active, false, "choisir une zone d'Aventure met tower.active à faux");
-  // Rebirth : la Tour est quittée, niveau = départ, compteur 0, PV remis à zéro ; plus haut étage, départ et fin gardés
+  assert.equal(e.systems.tower.active, true, "règle SOREAL : choisir une zone d'Aventure ne met pas tower.active à faux");
+  // Rebirth : niveau = départ, compteur 0, PV remis à zéro ; plus haut étage, départ et fin gardés ; tower.active inchangé
   e.systems.tower.active = true;
   Object.assign(e.systems.tower.data, { floor: 8, killsOnFloor: 4, hp: 3, fightAi: 2, highestFloor: 40 });
   applyRebirthResetV56_(e, ctx, 2_000_000, {});
   const d = e.systems.tower.data;
-  assert.equal(e.systems.tower.active, false);
+  assert.equal(e.systems.tower.active, true, "Rebirth : tower.active inchangé (règle SOREAL)");
   assert.equal(d.floor, 5, "Rebirth : niveau = étage de départ");
   assert.equal(d.killsOnFloor, 0);
   assert.equal(d.hp, undefined);

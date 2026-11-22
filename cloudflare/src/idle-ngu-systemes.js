@@ -1049,12 +1049,12 @@ function advanceTowerV1(state, seconds, context) {
   /*
    * Hors ligne (Character::adventureOfflineProgress, IL 2239) : seconds >= TOWER_COMBAT_MAX_SECONDS_V1. Le jeu applique son rattrapage dès 10 s d'absence (OpenFileDialog::LoadText) ; ici la synchro en ligne est appelée toutes les ~15 s
    * et ne se distingue pas d'une absence courte : le seuil reste celui du farm hors ligne (5 min), voir le rapport d'audit 2026-11-22.
-   * EN LIGNE, la Tour ne progresse que si le joueur est dans la zone ITOPOD (zone == 1000 du jeu : enemyDeath ne compte les kills ITOPOD que dans cette zone) = tower.active ; entrer, sortir : towerEntrerV1 / choix d'une zone d'Aventure.
+   * RÈGLE SOREAL (décision de Norman, 2026-11-22 : « autorise l'ITOPOD et le mode Aventure à tourner en même temps ») : EN LIGNE la Tour progresse EN PARALLÈLE de l'Aventure, que le joueur y soit « entré » ou non (le jeu d'origine n'a qu'une zone à la fois : zone == 1000) ; seule la Puissance minimale (un coup tue l'étage 0) ou le bouton « Entrer » la lance. Écart volontaire avec le jeu, à ne pas « corriger ».
    * HORS LIGNE : seulement « ITOPOD débloqué » + Puissance >= 650 (adventureOfflineProgress ne lit ni la zone ni tower.active ; il lit aussi le réglage itopodOn, qui n'existe pas ici).
    */
   const horsLigneItopod = seconds >= TOWER_COMBAT_MAX_SECONDS_V1;
-  if (!horsLigneItopod && (!tower.active || !idleOn)) {
-    /* Hors de la zone (ou Idle Mode coupé) : aucun kill ; les PV se régénèrent seuls (jamais au-delà du maximum). */
+  if (!horsLigneItopod && ((!tower.active && towerHitsV1(power, idleBonus, 0, interval) > 1) || !idleOn)) {
+    /* Pas assez fort pour tuer l'étage 0 en un coup sans être entré (ou Idle Mode coupé) : aucun kill ; les PV se régénèrent seuls (jamais au-delà du maximum). */
     if (Number.isFinite(d.hp)) d.hp = clamp(d.hp + regenJoueur * seconds, 0, hpMax);
     return;
   }
@@ -1337,8 +1337,8 @@ function towerShifterActiverV1(state, d) {
 }
 
 /*
- * Entrée dans la zone ITOPOD (action `toggle` du système « tower » qui l'active) : ZoneSelector::changeZone(1000) ; le joueur quitte la zone d'Aventure (une seule zone à la fois dans le jeu : selectedZone = Zone sûre, plus de combat en cours).
- * Choisir une zone d'Aventure fait l'inverse (idle-ngu-actions.js : tower.active = faux).
+ * Entrée dans la tour (action `toggle` du système « tower » qui l'active) : ZoneSelector::changeZone(1000) pour la position (niveau = départ, compteur 0) ; RÈGLE SOREAL (2026-11-22) : la zone d'Aventure n'est PAS quittée, les deux tournent ensemble (le jeu d'origine : une seule zone à la fois, selectedZone = Zone sûre, plus de combat en cours).
+ * Choisir une zone d'Aventure ne quitte pas la tour (règle SOREAL).
  */
 export function towerEntrerV1(state) {
   const tower = state.systems.tower;
@@ -1346,11 +1346,7 @@ export function towerEntrerV1(state) {
   towerNormaliserV1(state, d);
   towerChangerZoneV1(state, d);
   tower.level = d.floor;
-  const adv = state.adventure;
-  if (adv && typeof adv === "object") {
-    adv.selectedZone = "safe";
-    adv.fight = { active: false, zone: "", monsterHp: 0, monsterHpMax: 0, boss: false, playerHp: 0, playerHpMax: 0 };
-  }
+  /* RÈGLE SOREAL (2026-11-22) : entrer dans la tour NE sort PAS le joueur de la zone d'Aventure (les deux tournent en même temps). */
 }
 
 /* Rebirth : la zone repasse à Zone sûre (la Tour est quittée) et itopodLevel retombe au départ ; PV, combat en cours et compteur de kills remis à zéro. Gardés : plus haut étage, Perks, PP, départ et fin. */
@@ -1360,8 +1356,7 @@ export function towerRebirthResetV1(state) {
   if (!tower.data || typeof tower.data !== "object") tower.data = {};
   const d = tower.data;
   towerNormaliserV1(state, d);
-  tower.active = false;
-  d.floor = d.startFloor;
+  d.floor = d.startFloor;   /* RÈGLE SOREAL (2026-11-22) : tower.active n'est pas touché (la tour tourne en parallèle de l'Aventure) */
   d.killsOnFloor = 0;
   d.killTime = 0;
   d.fightAi = null;
