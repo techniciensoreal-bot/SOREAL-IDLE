@@ -55,7 +55,7 @@
   }
   function urlLancement(jeu){
     /* --path : ScummVM détecte le jeu par son dossier (mesuré le 2026-11-22 avec Day of the Tentacle) : aucune entrée à écrire dans scummvm.ini, un nouveau jeu n'a besoin que de son dossier sur R2. */
-    return BASE+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+' --subtitles --save-slot=0 '+jeu.cible;
+    return BASE+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
   }
   function difficulteDe(j){
     const d=j&&j.systemes&&j.systemes.difficulty;
@@ -164,6 +164,8 @@
     iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();});
     host.insertBefore(iframe,cover);
     iframe.src=urlLancement(jeuCourant);
+    /* AP par progrès (modules/scummvm-progres-v1.js) : un minuteur de 30 s lit l'autosave du jeu tant que la page vit. */
+    try{const P=window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__;if(P)P.demarrer(jeuCourant);}catch(_e){}
     /* Écran tactile : une couche au-dessus de l'iframe traduit appui = clic, deux doigts = clic droit. */
     if((navigator.maxTouchPoints||0)>0)monterVoile();
     if(cache)surveillerPretCache();
@@ -368,6 +370,20 @@
     }catch(_e){}
   });
 
+  /* AP déjà gagnés avec le jeu courant (règle n°2 : seulement ce qui est gagné, jamais le plafond ni le nombre d'unités possibles). Rien si le jeu n'a pas de gain d'AP dans le catalogue. */
+  function apCredites(j,jeu){
+    const l=j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
+    const s=l.find(function(x){return x&&x.id==='scummvm';});
+    const d=s&&((s.state&&s.state.data)||s.data);
+    const e=d&&d.jeux&&jeu&&d.jeux[jeu.id];
+    const n=Math.floor(Number(e&&e.apCredite));
+    return n>0?n:0;
+  }
+  function apGagnes(j){
+    if(!jeuCourant||!jeuCourant.ap)return '';
+    return '<div class="scv-ap"><span>AP gagnés avec ce jeu :</span> <b>'+esc(String(apCredites(j,jeuCourant)))+'</b></div>';
+  }
+
   function page(j){
     if(!estOuvert())return '';
     difficulteCourante=difficulteDe(j);
@@ -375,9 +391,9 @@
     if(catalogue!==null)jeuCourant=choisirJeu(catalogue,difficulteCourante);
     const REG=window.__SOREAL_IDLE_REG__||{};
     const entete=typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
-    return entete+'<div class="scv-page"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div>'+
+    return entete+'<div class="scv-page"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div>'+apGagnes(j)+
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button></div></div>';
   }
 
-  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe};
+  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe,apCredites:apCredites};
 })();

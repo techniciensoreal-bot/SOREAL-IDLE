@@ -114,6 +114,11 @@ if (commande === "moteur") {
       if (typeof j.dossiers !== "object" || j.dossiers === null || !Object.entries(j.dossiers).every(([l, d]) => ["fr", "en"].includes(l) && /^[A-Za-z0-9._+()-]+$/.test(String(d)))) { console.error("« dossiers » doit être {\"fr\":\"dossier\",\"en\":\"dossier\"} (noms de dossier sans espace) : " + JSON.stringify(j.dossiers)); process.exit(2); }
     }
     for (const champ of ["id", "nom", "dossier", "cible", "difficulte"]) if (!j || typeof j[champ] !== "string" || !j[champ]) { console.error("entrée invalide (champ « " + champ + " ») : " + JSON.stringify(j)); process.exit(2); }
+    /* gain d'AP par progrès (facultatif) : { plafond, parUnite } nombres strictement positifs (AP bruts : plafond total du jeu, AP par unité de progrès ; voir design/SCUMMVM.md) ; chaque jeu a le sien */
+    if (j.ap !== undefined) {
+      if (typeof j.ap !== "object" || j.ap === null || Array.isArray(j.ap)) { console.error("« ap » doit être {\"plafond\":nombre,\"parUnite\":nombre} : " + JSON.stringify(j)); process.exit(2); }
+      for (const champ of ["plafond", "parUnite"]) if (j.ap[champ] !== undefined && !(typeof j.ap[champ] === "number" && Number.isFinite(j.ap[champ]) && j.ap[champ] > 0)) { console.error("ap." + champ + " doit être un nombre strictement positif : " + JSON.stringify(j)); process.exit(2); }
+    }
     if (!["normal", "evil", "sadistic"].includes(j.difficulte)) { console.error("difficulte inconnue : " + j.difficulte + " (normal, evil ou sadistic)"); process.exit(2); }
   }
   envoyer(src, "jeux.json");

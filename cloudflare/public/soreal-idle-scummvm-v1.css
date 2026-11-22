@@ -13,3 +13,4 @@
 .scv-barre i{display:block;height:100%;width:0;background:#38bdf8}
 .scv-quitter{position:absolute;top:calc(8px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));z-index:3;display:none;padding:8px 12px;border-radius:8px;border:1px solid #fff6;background:#000a;color:#fff}
 #scvHoteV1.scv-plein .scv-quitter{display:block}
+.scv-ap{font-size:.9rem;opacity:.85}

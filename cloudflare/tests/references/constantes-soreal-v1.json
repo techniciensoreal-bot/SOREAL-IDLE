@@ -16,6 +16,14 @@
       "description": "IDLE_SCUMMVM_BOSS_V1 = 30 : boss qui ouvre le menu Énigmes (jeu ScummVM dans un iframe, ajout SOREAL sans équivalent dans le jeu d'origine). À ajuster par Norman.",
       "statut": "à valider par Norman",
       "date": "2026-11-22"
+    },
+    {
+      "fichier": "idle-scummvm-progres-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "choix SOREAL de conception (non publié, aucun équivalent dan",
+      "description": "IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1 = 1 000 000 : borne absolue des AP qu un jeu ScummVM peut rapporter (menu Enigmes), au cas ou le catalogue jeux.json serait mal saisi (le plafond reel, 150 000 pour Day of the Tentacle, et les AP par unite viennent du catalogue). Ajout SOREAL sans equivalent dans le jeu d origine ; a ajuster par Norman.",
+      "statut": "à valider par Norman",
+      "date": "2026-11-22"
     }
   ]
 }

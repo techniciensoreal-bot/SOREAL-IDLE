@@ -69,6 +69,7 @@ const jeux = [
   assert.equal(A1.dossierDe(jeu2), "d-en", "anglais : le dossier anglais");
   assert.equal(A1.dossierDe({ ...jeu2, dossiers: { fr: "d-fr" } }), "d-fr", "pas de dossier anglais : le français");
   assert.equal(A1.dossierDe({ ...jeu2, dossiers: undefined }), "base", "sans dossiers : « dossier »");
+  assert.ok(A1.urlLancement(jeu2).endsWith("#--path=/data/games/d-en --no-subtitles --save-slot=0 c"), "anglais : sous-titres désactivés (Norman, 2026-11-22)");
   f1.stock["soreal_idle_langue_v1"] = "fr";
   assert.equal(A1.dossierDe({ ...jeu2, dossiers: { en: "d-en" } }), "base", "français sans dossier français : « dossier »");
 }
