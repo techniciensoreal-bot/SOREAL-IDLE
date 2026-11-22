@@ -394,8 +394,29 @@ function charger(){
 }
 
 /* HTML de l'arène pour l'état de la tour d (floor, kills, killsOnFloor). */
+/* Signature de ce qui décide du combat à l'écran : un changement venu du serveur (« Appliquer », « Auto », nouvel étage du moteur) doit se voir TOUT DE SUITE (Norman, 2026-11-22 : après « Appliquer », les ennemis de l'ancien étage restaient jusqu'à un changement de menu). */
+function signature(d){
+  return [d&&d.floor,d&&d.startFloor,d&&d.endFloor,d&&d.hitsParKill,d&&d.optimalFloor,d&&d.ennemiPv,d&&d.pvMax].join('|');
+}
+/* Met l'arène affichée à jour avec les valeurs du serveur sans redessiner la page : appelé à chaque synchro de la page ITOPOD ; ne fait quelque chose que si la signature a changé. Renvoie true si l'arène a été refaite. */
+function maj(d){
+  if(typeof document==='undefined')return false;
+  var els=document.querySelectorAll('.'+CLASSE);
+  if(!els.length||signature(d)===combat.sigServeur)return false;
+  var r=lireDonnees(d);
+  var el=els[0];
+  combat.decalage=0;combat.coups=0;combat.mort=false;combat.prochain=0;combat.tEnnemi=0;
+  el.setAttribute('data-etage',String(r.etage));el.setAttribute('data-kills',String(r.kills));el.setAttribute('data-sur',String(r.sur));
+  remplir(el);
+  return true;
+}
 function html(d){
   charger();
+  var r=lireDonnees(d);
+  return '<section class="itp-arene '+CLASSE+'" data-etage="'+r.etage+'" data-kills="'+r.kills+'" data-sur="'+r.sur+'">'+contenu(r.etage,r.kills+combat.decalage,r.sur)+'</section>';
+}
+/* Lit les valeurs du serveur (étage, kills, coups par ennemi, PV, dégâts...) dans l'état du combat de l'écran. */
+function lireDonnees(d){
   var etage=Math.max(0,Math.floor(Number(d&&d.floor)||0));
   var kills=Math.max(0,Math.floor(Number(d&&d.kills)||0));
   var sur=Math.max(0,Math.min(9,Math.floor(Number(d&&d.killsOnFloor!=null?d.killsOnFloor:kills%10)||0)));
@@ -423,8 +444,9 @@ function html(d){
   combat.ppMult=nb(d&&d.ppMult)||1;
   combat.ppProg=Math.max(0,Number(d&&d.ppProgress)||0);
   combat.dernierPas=0;
-  return '<section class="itp-arene '+CLASSE+'" data-etage="'+etage+'" data-kills="'+kills+'" data-sur="'+sur+'">'+contenu(etage,kills+combat.decalage,sur)+'</section>';
+  combat.sigServeur=signature(d);
+  return {etage:etage,kills:kills,sur:sur};
 }
 
-window.__SOREAL_IDLE_ITOPOD_SCENE_V1__={pas:pas,texteProchain:texteProchain,combat:combat,estFlottant:estFlottant,html:html,numeroDecor:numeroDecor,indexEnnemi:indexEnnemi};
+window.__SOREAL_IDLE_ITOPOD_SCENE_V1__={pas:pas,texteProchain:texteProchain,combat:combat,estFlottant:estFlottant,html:html,maj:maj,numeroDecor:numeroDecor,indexEnnemi:indexEnnemi};
 })();

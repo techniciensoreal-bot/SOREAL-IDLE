@@ -174,10 +174,17 @@ function itopodVueIdleV1_basculer_(){
       }
       window.__itopodVueIdleV1_basculer__=itopodVueIdleV1_basculer_;
 
+/* Arène : un nouvel étage ou de nouveaux coups par ennemi venus du serveur (« Appliquer », « Auto ») la refont tout de suite, sans changer de menu (la scène ne fait rien si rien n'a changé). */
+function majArenaItopodIdleV1_(j){
+        const sc=window.__SOREAL_IDLE_ITOPOD_SCENE_V1__,t=lireItopodIdleV1_(j);
+        if(sc&&sc.maj&&t)sc.maj(Object.assign({},t.d,{actif:Boolean(t.s.state.active)}));
+      }
+
 /* Mise à jour en direct de la page ITOPOD à chaque synchro (étage, ennemis vaincus, PP, progression, solde et vitrines) : même rendu, seul ce qui change est touché ; la scène animée (HTML de la dernière page) et les champs d'étage en cours de saisie ne sont jamais réécrits. */
 function rafraichirItopodIdleV1_(j){
         const V=window.__SOREAL_IDLE_VDOM_V1__,C=window.__SOREAL_IDLE_ITOPOD_VDOM_V1__;
         if(!V||!C||typeof document==='undefined'||!document.querySelector('.itp-page'))return;
+        majArenaItopodIdleV1_(j);   /* les valeurs du serveur (étage appliqué, coups par ennemi, PV) changent l'arène tout de suite */
         const vm=preparerItopodIdleV1_(j,derniereSceneItopodIdleV1_);
         if(vm)V.monter('itopod',C.Page,vm);
       }

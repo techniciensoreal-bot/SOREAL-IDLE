@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Tous les journaux de combat suivent la langue du jeu, y compris « (filtré) » à côté des objets filtrés.",
-    "Dans la tour, les ennemis écrivent maintenant chacun de leurs coups dans le journal, ta défaite est notée et te ramène à ton étage de départ, et la vie de l’ennemi s’affiche sous sa barre."
+    "Après « Appliquer », la tour affiche tout de suite les ennemis du nouvel étage au lieu de ceux de l’ancien."
   ] };
 })();

@@ -75,3 +75,25 @@ console.log("idle-itopod-ennemis-frappent-mort-v1: OK");
   assert.ok(readFileSync(new URL("../public/itopod-journal-v1.css", import.meta.url), "utf8").includes(".itp-arene{position:relative}"), "les flèches se placent dans l'arène");
 }
 console.log("idle-itopod-ennemis-frappent-mort-v1 (flèches): OK");
+
+// « Appliquer » (Norman, 2026-11-22) : un nouvel étage venu du serveur refait l'arène tout de suite (coups par ennemi, étage, PV), sans changer de menu.
+{
+  const f4 = {};
+  let t4 = 2_000_000;
+  const D4 = function () { return new Date(t4); }; D4.now = () => t4;
+  const el4 = { _a: { "data-kills": "100", "data-etage": "5", "data-sur": "0" }, getAttribute(n) { return this._a[n]; }, setAttribute(n, v) { this._a[n] = v; }, innerHTML: "", querySelector: () => null };
+  const c4 = { window: f4, localStorage: { getItem: () => "en" }, document: { hidden: false, querySelectorAll: () => [el4], addEventListener() {} }, fetch: () => Promise.reject(new Error("x")), Date: D4, Math };
+  for (const m of ["journal-jeu-v1.js", "itopod-scene-v1.js"]) vm.runInNewContext(lire("modules/" + m), c4);
+  const S4 = f4.__SOREAL_IDLE_ITOPOD_SCENE_V1__;
+  const base = { floor: 5, kills: 100, killsOnFloor: 0, hitsParKill: 1, intervalS: 1, respawnS: 4, actif: true, startFloor: 5, endFloor: 5, pvMax: 100, pv: 100, degatsCoup: 100, ennemiCoup: 1, ennemiPv: 600, regenPv: 0, ppBase: 200, ppMult: 1, ppProgress: 0 };
+  S4.html(base);
+  assert.equal(S4.combat.hits, 1);
+  assert.equal(S4.maj(base), false, "rien n'a changé côté serveur : arène laissée telle quelle");
+  assert.equal(S4.maj(Object.assign({}, base, { floor: 40, startFloor: 40, endFloor: 40, hitsParKill: 5, ennemiPv: 4200 })), true, "nouvel étage appliqué : arène refaite");
+  assert.equal(S4.combat.hits, 5, "les ennemis du NOUVEL étage (plusieurs coups) sont ceux de l'écran");
+  assert.ok(el4.innerHTML.includes("<b>40</b>"), "le bon étage est affiché");
+  assert.equal(el4._a["data-etage"], "40");
+  const perks = readFileSync(new URL("../public/modules/itopod-perks-page-v1.js", import.meta.url), "utf8");
+  assert.ok(perks.includes("sc.maj(Object.assign({},t.d") && perks.includes("majArenaItopodIdleV1_(j);"), "chaque synchro de la page ITOPOD met l'arène à jour");
+}
+console.log("idle-itopod-ennemis-frappent-mort-v1 (appliquer): OK");

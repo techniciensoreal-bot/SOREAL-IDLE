@@ -484,12 +484,12 @@
   "sha": "476443f433fa5bb3552449d25ff4e013c49d6e55"
  },
  "/modules/itopod-perks-page-v1.js": {
-  "pin": 9,
-  "sha": "e0487b809bea4201af80893ad2dc284d63969923"
+  "pin": 11,
+  "sha": "a15a48687f6dd770c15091766eccb0e98fe61325"
  },
  "/modules/itopod-scene-v1.js": {
-  "pin": 21,
-  "sha": "a1bee0f0a16c83a4ceb4d2a9ecc365f4bd70a588"
+  "pin": 22,
+  "sha": "fb2bc2e03061681cf98c800b8ed12425eedc393e"
  },
  "/modules/itopod-vdom-v1.js": {
   "pin": 3,
@@ -728,12 +728,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 422,
-  "sha": "9c0578959ab992098289d55563c1d9a77b0f1277"
+  "pin": 423,
+  "sha": "65b6e8155dadf30d7e1ad849ea8d6635be6f6127"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1072,
-  "sha": "3081ef6c2a78a5001ec0ae97561410525a2c2bb5"
+  "pin": 1073,
+  "sha": "c906d559d6d027ff7c752973966b44cc67414191"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -828,12 +828,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1122,
-  "sha": "2e61cc6c43a40a49737dc35ba7cd67cce57e0288"
+  "pin": 1123,
+  "sha": "44c8d9a0d962b41095d0223a1f4fd951c869771d"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 942,
-  "sha": "0a69f9584125e5df261f977d7d8c86ff6a43e70b"
+  "pin": 943,
+  "sha": "7a076efeddb65d9b355f780e2208ede7bc88bb61"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
