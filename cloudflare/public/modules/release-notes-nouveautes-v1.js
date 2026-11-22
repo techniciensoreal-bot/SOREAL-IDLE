@@ -7,6 +7,7 @@
     "Badavatar : dans le profil des Réglages, tes pièces ne sont plus déplacées par un ancien brouillon après un enregistrement ; ce que tu as enregistré est ce qui s’affiche partout.",
     "Le lancement automatique du Nuke suit un rythme fixe : à chaque échéance il ne tente que si un boss peut être tué, sinon il attend l’échéance suivante au lieu de partir dès qu’un boss devient tuable.",
     "Les boosts filtrés qui partent dans le cube comptent comme dans le jeu d’origine : tous les bonus de boost s’appliquent à chaque boost avalé, et il est avalé même si tu n’as pas encore trouvé le cube.",
-    "La tour est alignée sur le jeu d’origine : étages 0 à 20 par défaut sans montée automatique, retour à ton étage de départ quand tu es battu, et la tour continue de tourner en même temps que l’Aventure. « Appliquer » interrompt le combat et te place tout de suite sur ton étage de départ."
+    "La tour est alignée sur le jeu d’origine : étages 0 à 20 par défaut sans montée automatique, retour à ton étage de départ quand tu es battu, et la tour continue de tourner en même temps que l’Aventure. « Appliquer » interrompt le combat et te place tout de suite sur ton étage de départ.",
+    "Nouveaux boutons de la tour : « Max », « Optimal » et l’interrupteur du Lazy Floor Shifter (quand tu l’as acheté) ; les statistiques de l’ennemi et du joueur s’affichent dans l’arène."
   ] };
 })();

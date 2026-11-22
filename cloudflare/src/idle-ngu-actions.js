@@ -30,7 +30,7 @@ import { buyNewbieOffer, buyPerkMaxV1, buyPerkV1, buyQuirkV1, buyResource, chall
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
 import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, hackActionV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
-import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, setRitualTargetV1, toggleDigger, towerEntrerV1, towerRebirthResetV1, towerSetFloorsV1, towerSetIdleModeV1, towerSetMaxFloorV1, towerSetShifterV1, towerTogglePillV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
+import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, setRitualTargetV1, toggleDigger, towerEntrerV1, towerRebirthResetV1, towerSetFloorsV1, towerSetMaxFloorV1, towerSetShifterV1, towerTogglePillV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 import { beteSpecialRebirthV1 } from "./idle-bete-secret-v1.js";
 import { nerdLettreV1 } from "./idle-nerd-secret-v1.js";
 
@@ -433,9 +433,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
     state.records.cinematiqueDerniere = code;
   } else if (action === "towerFloors" || action === "towerTogglePill") {
     result = action === "towerFloors" ? towerSetFloorsV1(state, payload) : towerTogglePillV1(state);
-  } else if (action === "towerMaxFloor" || action === "towerShifter" || action === "towerIdleMode") {
+  } else if (action === "towerMaxFloor" || action === "towerShifter") {
     /* AdventureController::setMaxFloor ; Lazy ITOPOD Floor Shifter { enabled } (interrupteur indépendant) ; Idle Mode de la Tour { enabled } (alignement 2026-11-22). */
-    result = action === "towerMaxFloor" ? towerSetMaxFloorV1(state) : action === "towerShifter" ? towerSetShifterV1(state, payload) : towerSetIdleModeV1(state, payload);
+    result = action === "towerMaxFloor" ? towerSetMaxFloorV1(state) : towerSetShifterV1(state, payload);
   } else if (action === "toggle") {
     const s = state.systems[String(payload.system || "")];
     if (!s?.unlocked) throw new Error("SYSTEME_VERROUILLE");

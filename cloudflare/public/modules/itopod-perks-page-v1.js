@@ -188,7 +188,6 @@ function preparerItopodIdleV1_(j,sceneHtml){
           modeEtages:auto?'Montée automatique jusqu’à l’étage optimal':(debut===fin?'Étage fixé : '+debut+(debut===optimal?' (ton meilleur étage)':''):'Départ '+debut+' → fin '+fin),
           champDebut:champDebut,champFin:champFin,
           shifter:shifterAchete?{actif:d.shifterOn===true}:null,
-          idleMode:d.idleMode!==false,
           tuiles:[['🏢','Étage',etage],['⭐','PP disponibles',pp],['🗡️','Ennemis vaincus',H.formatGrandNombreIdleV70_(kills)],['⬆️','Prochain étage',versProchainEtage+' / 10'],['🏔️','Étage le plus haut',plusHaut],['🎯','Étage optimal',optimal]].concat(ppTotal>0?[['⭐','PP gagnés au total',H.formatGrandNombreIdleV70_(ppTotal)]]:[]),
           ppTexte:Math.floor(ppProgress).toLocaleString('fr-FR')+' / 1 000 000',
           ppLargeur:pourcent.toFixed(2)+'%'
@@ -313,7 +312,6 @@ function itopodMaxIdleV1_(){
 
 /* Interrupteurs de la tour : Lazy ITOPOD Floor Shifter (acheté) et Idle Mode ; l'état vit côté serveur (règle n°6). */
 window.__itopodShifterIdleV1__=function(activer){actionMetaIdleV130_({action:'towerShifter',enabled:Boolean(activer)});};
-window.__itopodIdleModeIdleV1__=function(activer){actionMetaIdleV130_({action:'towerIdleMode',enabled:Boolean(activer)});};
 
 function acheterPerkIdleV1_(perkId){
         actionMetaIdleV130_({action:'buyPerk',perkId:Number(perkId)});

@@ -484,16 +484,16 @@
   "sha": "476443f433fa5bb3552449d25ff4e013c49d6e55"
  },
  "/modules/itopod-perks-page-v1.js": {
-  "pin": 12,
-  "sha": "6271e38952358a2a1a7b209d42a028752d89d51f"
+  "pin": 13,
+  "sha": "02215fff5478e69625ba9cba1be6ba3f744f50b2"
  },
  "/modules/itopod-scene-v1.js": {
   "pin": 23,
   "sha": "a486180cdb9a1dbdeb7793b9423c1fe4e112a90c"
  },
  "/modules/itopod-vdom-v1.js": {
-  "pin": 4,
-  "sha": "e122eff059c99a5664792993b5f5c0ee4cbea102"
+  "pin": 5,
+  "sha": "9120c0b4b0fb3baca1bec35ee526e8ad3cafbd3f"
  },
  "/modules/journal-attaques-v1.js": {
   "pin": 5,
@@ -608,8 +608,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 348,
-  "sha": "fbd1050210a8acef69fc7b406d3bd07044a6281c"
+  "pin": 349,
+  "sha": "517e09d31b19c6096ac330386375d7e5b9c2c0e4"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -728,12 +728,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 433,
-  "sha": "3f00ce6c4868cca0f428fd39b9816acdbf9908e4"
+  "pin": 434,
+  "sha": "bfbabd30c37ec5227d63c1f380e940b074c6fcc9"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1083,
-  "sha": "06b1ee67c82b5ecb267dc59fdc7200f954f111ef"
+  "pin": 1084,
+  "sha": "5c58b9c58b0d2a7d8fb835ed7b273a05bd865437"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -828,12 +828,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1134,
-  "sha": "e0e6fb96911ddd5cd618a2a5e7d4649993ade99d"
+  "pin": 1135,
+  "sha": "d495d33d81de754a42568a56b52472d73d9fc9c0"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 954,
-  "sha": "b2d9aa742df35709609338a3a1bfac490f66f8a2"
+  "pin": 955,
+  "sha": "7264e959d4fb5f1a564700d39448a41e8212fc35"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

@@ -196,16 +196,15 @@ assert.ok(!boutons.some((b) => b.textContent.includes("Lazy ITOPOD")), "Floor Sh
 dessiner(joueur({ achats: { lazyItopodFloorShifter: 1 }, d: { shifterOn: false, idleMode: true } }));
 const b2 = [...racine.querySelectorAll(".itp-montee .itp-bouton")];
 const shifter = b2.find((b) => b.textContent.includes("Lazy ITOPOD Floor Shifter"));
-const idle = b2.find((b) => b.textContent.includes("Idle Mode"));
-assert.ok(shifter && idle);
-assert.ok(shifter.textContent.includes("désactivé") && idle.textContent.includes("activé") && !idle.textContent.includes("désactivé"));
+assert.ok(shifter, "interrupteur du Floor Shifter (acheté)");
+assert.ok(!b2.some((b) => b.textContent.includes("Idle Mode")), "le bouton Idle Mode n'existe plus (Norman, 2026-11-22 : aucune utilité)");
+assert.ok(shifter.textContent.includes("désactivé"));
 actions.length = 0;
 evenement(shifter, "click");
-evenement(idle, "click");
-assert.deepEqual(JSON.parse(JSON.stringify(actions)), [{ action: "towerShifter", enabled: true }, { action: "towerIdleMode", enabled: false }]);
+assert.deepEqual(JSON.parse(JSON.stringify(actions)), [{ action: "towerShifter", enabled: true }]);
 
 // les actions existent côté moteur
 const actionsSrc = readFileSync("cloudflare/src/idle-ngu-actions.js", "utf8");
-for (const a of ["towerMaxFloor", "towerShifter", "towerIdleMode", "buyPerkMax", "towerFloors"]) assert.ok(actionsSrc.includes('"' + a + '"'), "action moteur " + a);
+for (const a of ["towerMaxFloor", "towerShifter", "buyPerkMax", "towerFloors"]) assert.ok(actionsSrc.includes('"' + a + '"'), "action moteur " + a);
 
 console.log("idle-atouts-boutique-alignement-v1: OK");

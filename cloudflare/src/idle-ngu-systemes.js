@@ -999,7 +999,7 @@ export function towerNormaliserV1(state, d) {
   d.endFloor = clamp(int(d.endFloor, d.startFloor), Math.max(1, d.startFloor), TOWER_MAX_FLOOR_V1);
   if (typeof d.shifterOn !== "boolean") d.shifterOn = d.autoOptimal === true;
   d.autoOptimal = d.shifterOn;
-  if (typeof d.idleMode !== "boolean") d.idleMode = true;
+  d.idleMode = true;   /* Idle Mode supprimé (Norman, 2026-11-22 : « aucune utilité ») : l'attaque automatique est toujours active ; remet à vrai une partie qui l'avait coupé avec l'ancien bouton */
 }
 
 /* Étage suivant après les 10 kills d'un étage (AdventureController::enemyDeath, IL_08c5 à IL_08fc) : niveau + 1 ; au-delà de l'étage de fin, retour à l'étage de DÉPART. */
@@ -1487,16 +1487,6 @@ export function towerSetShifterV1(state, payload) {
   d.shifterOn = payload && payload.enabled !== undefined ? payload.enabled === true : !d.shifterOn;
   d.autoOptimal = d.shifterOn;
   return { shifterOn: d.shifterOn };
-}
-
-/* Idle Mode (bouton du jeu, Adventure.autoattacking) : l'attaque automatique de la Tour et la régénération x1,2 ne fonctionnent que s'il est actif. Vrai par défaut dans SOREAL (parties existantes). */
-export function towerSetIdleModeV1(state, payload) {
-  const tower = state.systems.tower;
-  if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
-  const d = tower.data;
-  towerNormaliserV1(state, d);
-  d.idleMode = payload && payload.enabled !== undefined ? payload.enabled === true : !d.idleMode;
-  return { idleMode: d.idleMode };
 }
 
 function advanceLateSystems(state, seconds, context, now) {

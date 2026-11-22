@@ -142,19 +142,14 @@ const T = () => Date.now();
   assert.equal(d.endFloor, 9);
 }
 
-// 15. Idle Mode : coupé, la Tour n'attaque plus en ligne (régénération sans le x1,2) ; hors ligne le jeu ne le consulte pas ; vrai par défaut.
+// 15. Idle Mode : supprimé (Norman, 2026-11-22 : « aucune utilité ») ; l'attaque automatique est toujours active, et une partie qui l'avait coupé avec l'ancien bouton est remise à vrai.
 {
-  let s = advanceIdleNguState(baseState(), 1, ctx, T());
-  assert.equal(s.systems.tower.data.idleMode, true, "vrai par défaut (parties existantes)");
-  s = applyIdleNguAction(s, { action: "towerIdleMode", enabled: false }, ctx, T()).state;
-  assert.equal(s.systems.tower.data.idleMode, false);
-  const avant = s.systems.tower.data.kills;
-  s = advanceIdleNguState(s, 30, ctx, T());
-  assert.equal(s.systems.tower.data.kills, avant, "Idle Mode coupé : aucun kill en ligne");
-  const hors = advanceIdleNguState(s, 3600, ctx, T());
-  assert.ok(hors.systems.tower.data.kills > avant, "hors ligne : indépendant de l'Idle Mode");
-  s = applyIdleNguAction(s, { action: "towerIdleMode", enabled: true }, ctx, T()).state;
-  assert.equal(s.systems.tower.data.idleMode, true);
+  let s = baseState();
+  s.systems.tower.data.idleMode = false;
+  s = advanceIdleNguState(s, 20, ctx, T());
+  assert.equal(s.systems.tower.data.idleMode, true, "remis à vrai");
+  assert.ok(s.systems.tower.data.kills > 0, "la tour progresse");
+  assert.throws(() => applyIdleNguAction(s, { action: "towerIdleMode", enabled: false }, ctx, T()), "l'action n'existe plus");
 }
 
 console.log("idle-itopod-alignement-moteur-v1: OK");
