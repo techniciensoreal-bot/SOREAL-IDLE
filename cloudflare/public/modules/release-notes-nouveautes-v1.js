@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "La tour est alignée sur le jeu d’origine : étages 0 à 20 par défaut sans montée automatique, « Appliquer » ne te déplace plus, retour à ton étage de départ quand tu es battu, et la tour continue de tourner en même temps que l’Aventure."
+    "La tour tournant en continu, la progression de ses points d’atout est réduite de 40 % ; tous les atouts restent accessibles, seulement plus lentement."
   ] };
 })();

@@ -1,3 +1,4 @@
+import { IDLE_ITOPOD_PP_RATE_V1 } from "../src/idle-ngu-systemes.js";   /* règle SOREAL 2026-11-22 */
 import assert from "node:assert/strict";
 import {
   advanceIdleNguState,
@@ -30,10 +31,10 @@ import {
 
   const withoutBonus = oneKill(0);
   assert.equal(withoutBonus.systems.tower.data.kills, 1, "Sanity : la calibration doit produire exactement 1 kill.");
-  assert.equal(withoutBonus.systems.tower.data.ppProgress, 200, "Sans le set, (200 + floor 0) x 1 kill = 200.");
+  assert.equal(withoutBonus.systems.tower.data.ppProgress, 200 * IDLE_ITOPOD_PP_RATE_V1, "Sans le set, (200 + floor 0) x 1 kill = 200.");
 
   const withBonus = oneKill(.10);
-  assert.ok(Math.abs(withBonus.systems.tower.data.ppProgress - 220) < 1e-9, "Avec Pretty Pink Princess (set) complet (+10% PP), 200 x 1.10 = 220.");
+  assert.ok(Math.abs(withBonus.systems.tower.data.ppProgress - 220 * IDLE_ITOPOD_PP_RATE_V1) < 1e-9, "Avec Pretty Pink Princess (set) complet (+10% PP), 200 x 1.10 = 220.");
 }
 
 // --- Party : +5% Total Diggers Level Bonus (additif, cf. idle-digger-global-bonus-additive-v1.test.mjs) ---

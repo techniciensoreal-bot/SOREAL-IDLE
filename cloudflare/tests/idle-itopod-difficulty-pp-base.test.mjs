@@ -4,6 +4,7 @@ import {
   IDLE_NGU_SAVE_SCHEMA,
   advanceIdleNguState
 } from "../src/idle-ngu-progression.js";
+import { IDLE_ITOPOD_PP_RATE_V1 } from "../src/idle-ngu-systemes.js";   /* règle SOREAL 2026-11-22 : PP de la tour x taux */
 
 /*
  * Norman (2026-09-18) : "il faut tout faire" (fidélité Evil/Sadistic).
@@ -34,15 +35,15 @@ function oneKill(difficulty) {
 {
   const normal = oneKill("normal");
   assert.equal(normal.systems.tower.data.kills, 1, "Sanity : la calibration doit produire exactement 1 kill.");
-  assert.equal(normal.systems.tower.data.ppProgress, 200, "Normal : (200 + floor 0) x 1 kill = 200.");
+  assert.equal(normal.systems.tower.data.ppProgress, 200 * IDLE_ITOPOD_PP_RATE_V1, "Normal : (200 + floor 0) x 1 kill = 200.");
 }
 {
   const evil = oneKill("difficile");
-  assert.equal(evil.systems.tower.data.ppProgress, 700, "Evil : (700 + floor 0) x 1 kill = 700, jamais 200.");
+  assert.equal(evil.systems.tower.data.ppProgress, 700 * IDLE_ITOPOD_PP_RATE_V1, "Evil : (700 + floor 0) x 1 kill = 700, jamais 200.");
 }
 {
   const sadistic = oneKill("extreme");
-  assert.equal(sadistic.systems.tower.data.ppProgress, 2000, "SADISTIC : (2000 + floor 0) x 1 kill = 2000, jamais 200 ni 700.");
+  assert.equal(sadistic.systems.tower.data.ppProgress, 2000 * IDLE_ITOPOD_PP_RATE_V1, "SADISTIC : (2000 + floor 0) x 1 kill = 2000, jamais 200 ni 700.");
 }
 
 console.log("idle-itopod-difficulty-pp-base: OK");

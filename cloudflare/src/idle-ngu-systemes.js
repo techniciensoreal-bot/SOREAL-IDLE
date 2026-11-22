@@ -896,6 +896,13 @@ export function diggerViewV1(state){
  */
 const TOWER_MAX_FLOOR_V1 = 1600;
 
+/*
+ * RÈGLE SOREAL (décision de Norman, 2026-11-22 : « pour palier au fait que l'ITOPOD tourne 24h sur 24, réduis un peu les récompenses d'atouts points. Trouve une manière de le faire pour que tout reste accessible quand même ») : la progression de PP de la tour
+ * (PPP par kill) est multipliée par ce taux. La formule du jeu (base + étage) x PPBonus et TOUS les coûts et plafonds des atouts restent ceux du jeu : tout reste achetable, seulement plus lentement. 1 = valeurs du jeu d'origine. Écart volontaire à ne pas « corriger ».
+ * Ne touche ni les PP de première atteinte d'un étage, ni les PP des titans, ni ceux de l'Yggdrasil.
+ */
+export const IDLE_ITOPOD_PP_RATE_V1 = 0.6;
+
 function towerTierV1(floor) { return Math.max(1, Math.floor(floor / 50) + 1); }
 
 function towerExpForTierV1(tier) { return tier <= 1 ? 1 : tier === 2 ? 2 : (tier - 1) * (tier - 2) + 2; }
@@ -1069,7 +1076,7 @@ function advanceTowerV1(state, seconds, context) {
   const expMultiplier = Math.max(0, num(bonuses.xpMultiplier, 1));
   /* Pour le journal de l'écran : PPP gagnés par kill = (base + étage) x PPBonus (ItopodPerkController::progressGained). */
   d.ppBase = ppBase;
-  d.ppMult = ppMultiplier;
+  d.ppMult = ppMultiplier * IDLE_ITOPOD_PP_RATE_V1;   /* gain réel par kill (journal de la scène) */
 
   const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor, interval);
 
@@ -1084,7 +1091,7 @@ function advanceTowerV1(state, seconds, context) {
     if (pills > 0) fx.bluePills -= pills;
     /* Little Blue Pill : x2 (x2,2 avec le Blue Heart (set), idle-hearts-v1.js) pour chaque kill couvert. */
     const pillFactor = 2 * idleHeartsConsumableFactorV1(state);
-    d.ppProgress = Math.max(0, num(d.ppProgress, 0)) + (n + pills * (pillFactor - 1)) * (ppBase + floor) * ppMultiplier;
+    d.ppProgress = Math.max(0, num(d.ppProgress, 0)) + (n + pills * (pillFactor - 1)) * (ppBase + floor) * ppMultiplier * IDLE_ITOPOD_PP_RATE_V1;
   };
   /*
    * Butin et récompenses d'un lot de n kills : AdventureController::enemyDeath appelle dropLoot APRÈS avoir incrémenté le niveau : le 10e kill d'un étage lâche son butin (palier d'AP / d'EXP, force du boost, pièce 491, Exilé, indice de la Bête)
