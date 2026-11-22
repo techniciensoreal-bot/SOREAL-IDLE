@@ -14,7 +14,11 @@
   'use strict';
   if(window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__)return;
 
-  const BASE='/api/idle/scummvm/';
+  /* Fichiers PROTÉGÉS par compte (Norman, 2026-11-22 : « donne l'accès au jeu à mon compte uniquement ») : tout passe par /api/idle/scummvm/<jeton>/… ; le jeton vient de POST /api/v1/scummvm-acces (voir plus bas). Sans jeton : la racine nue (le serveur répond 404). */
+  const RACINE='/api/idle/scummvm/';
+  let jetonFichiers='',jetonExpire=0;
+  function BASE(){return jetonFichiers?RACINE+jetonFichiers+'/':RACINE;}
+  window.__SOREAL_IDLE_SCUMMVM_BASE_V1__=BASE;
   const CLE_ETAT='soreal_idle_scummvm_etat_v1';
   /* Difficultés du moteur (state.difficulty) -> difficultés du catalogue ; repli sur la difficulté inférieure. */
   const DIFF_CATALOGUE={normal:'normal',difficile:'evil',extreme:'sadistic'};
@@ -55,7 +59,7 @@
   }
   function urlLancement(jeu){
     /* --path : ScummVM détecte le jeu par son dossier (mesuré le 2026-11-22 avec Day of the Tentacle) : aucune entrée à écrire dans scummvm.ini, un nouveau jeu n'a besoin que de son dossier sur R2. */
-    return BASE+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
+    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
   }
   function difficulteDe(j){
     const d=j&&j.systemes&&j.systemes.difficulty;
@@ -66,19 +70,35 @@
     return l.some(function(s){return s&&s.id==='scummvm';});
   }
 
-  /* Interrupteur serveur : GET /api/idle/scummvm/ouvert -> {ouvert:bool}. Une requête au démarrage puis au plus toutes les 60 s (jamais de rafale) ; échec réseau = fermé. */
+  /* Accès du COMPTE : POST /api/v1/scummvm-acces (jeton de session du joueur) -> {autorise, jeton, expire}. Une requête au démarrage puis au plus toutes les 60 s (jamais de rafale) ; elle renouvelle aussi le jeton
+     (le serveur en rend un valable 12 à 24 h : bien avant l'expiration, donc toujours renouvelé plus de 10 minutes avant) ; échec, refus ou session absente = fermé : menu masqué, aucun appel au catalogue ni au moteur.
+     Un jeton qui change pendant la partie ne recrée jamais l'iframe : le jeu garde ses fichiers déjà chargés. */
   let ouvert=false,ouvertLeMs=0,ouvertEnCours=false;
+  function apkAcces(){const a=window.__SOREAL_IDLE_APK_CONNEXION_V1__;try{return a&&a.acces?a.acces():null;}catch(_e){return null;}}   /* application Android : adresse du serveur et jeton du compte (comme profil-badavatar-v1.js) */
+  function jetonSession(){
+    try{const s=window.sessionStorage.getItem('soreal_idle_session_v1');if(s)return String(s);}catch(_e){}
+    try{const g=JSON.parse(window.localStorage.getItem('soreal_idle_google_session_v1')||'null');if(g&&g.token)return String(g.token);}catch(_e){}
+    try{return String(window.localStorage.getItem('horsligne_soreal_jeton_v1')||'');}catch(_e){return '';}
+  }
+  /* L'exe Windows (pont window.sorealDesktop) et l'APK hors ligne (pont window.AndroidSoreal) ne relaient pas encore les fichiers du jeu (moteur, jeux) : le menu y reste CACHÉ plutôt que cassé (2026-11-22). Le site (navigateur, application TWA) fonctionne. */
+  function horsSite(){try{return Boolean(window.sorealDesktop||window.AndroidSoreal);}catch(_e){return false;}}
   function interroger(){
+    if(horsSite()){ouvert=false;ouvertLeMs=Date.now();return;}
     if(ouvertEnCours)return;
     ouvertEnCours=true;ouvertLeMs=Date.now();
-    fetch(BASE+'ouvert',{cache:'no-store'}).then(function(r){return r.ok?r.json():{ouvert:false};}).catch(function(){return {ouvert:false};}).then(function(d){
-      const nouveau=Boolean(d&&d.ouvert===true);
+    const a=apkAcces(),t=a?a.jeton:jetonSession();
+    const fermer=function(){return {autorise:false};};
+    if(!t)ouvertLeMs=Date.now()-50000;   /* pas encore de session (connexion en cours) : aucune requête, nouvel essai dans 10 s */
+    (t?fetch((a?a.base:'')+'/api/v1/scummvm-acces',{method:'POST',cache:'no-store',headers:{'content-type':'application/json',authorization:'Bearer '+t},body:'{}'}).then(function(r){return r.ok?r.json():fermer();}).catch(fermer):Promise.resolve(fermer())).then(function(d){
+      const nouveau=Boolean(d&&d.autorise===true&&typeof d.jeton==='string'&&d.jeton);
       ouvertEnCours=false;
+      if(nouveau){jetonFichiers=d.jeton;jetonExpire=Number(d.expire)||0;}else{jetonFichiers='';jetonExpire=0;}
       ouvert=nouveau;   /* le menu apparaît au prochain rendu normal (synchro), sans rendu forcé */
     });
   }
   function estOuvert(){
-    if(!ouvertLeMs||Date.now()-ouvertLeMs>60000)interroger();
+    /* renouvelé au plus toutes les 60 s, et aussitôt si le jeton expire dans moins de 10 minutes */
+    if(!ouvertLeMs||Date.now()-ouvertLeMs>60000||(ouvert&&jetonExpire&&jetonExpire*1000-Date.now()<600000&&Date.now()-ouvertLeMs>5000))interroger();
     return ouvert;
   }
   window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__=estOuvert;
@@ -86,7 +106,7 @@
   function chargerCatalogue(){
     if(catalogue!==null||catalogueEnCours)return;
     catalogueEnCours=true;
-    fetch(BASE+'jeux.json').then(function(r){return r.ok?r.json():{jeux:[]};}).catch(function(){return {jeux:[]};}).then(function(d){
+    fetch(BASE()+'jeux.json').then(function(r){return r.ok?r.json():{jeux:[]};}).catch(function(){return {jeux:[]};}).then(function(d){
       catalogue=d&&Array.isArray(d.jeux)?d.jeux:[];
       catalogueEnCours=false;
       jeuCourant=choisirJeu(catalogue,difficulteCourante);
@@ -118,9 +138,9 @@
     }).catch(function(){});
   }
   function precharger(jeu){
-    const racine=BASE+'moteur/';
+    const racine=BASE()+'moteur/';
     const fichiers=[racine+'scummvm.html',racine+'scummvm.js',racine+'scummvm.wasm',racine+'data/index.json'];
-    const dossier=BASE+'jeux/'+encodeURIComponent(dossierDe(jeu))+'/';
+    const dossier=BASE()+'jeux/'+encodeURIComponent(dossierDe(jeu))+'/';
     precharge.total=60e6;   /* estimation tant que les tailles ne sont pas connues ; remplacée par la somme réelle */
     return fetch(dossier+'index.json').then(function(r){return r.ok?r.json():{};}).catch(function(){return {};}).then(function(idx){
       let somme=0;const noms=Object.keys(idx||{});
@@ -195,7 +215,7 @@
     });
   }
   function creerIframe(cache){
-    if(iframe||!jeuCourant)return;
+    if(iframe||!jeuCourant||!jetonFichiers)return;   /* sans jeton valide : rien (le serveur répondrait 404) ; l'iframe est créé au prochain affichage */
     creerHote();
     iframe=document.createElement('iframe');
     iframe.setAttribute('allow','autoplay; fullscreen');
@@ -205,7 +225,11 @@
     host.insertBefore(iframe,cover);
     /* Autosave rapproché (Norman, 2026-11-22 : un objet pris puis perdu dans la minute n'était pas vu avec 60 s) : le réglage autosave_period de ScummVM est écrit dans sa config (IndexedDB) AVANT le lancement ; sans IndexedDB on lance tout de suite. */
     const lancer=function(){if(iframe&&!iframe.src)iframe.src=urlLancement(jeuCourant);};
-    if(!window.indexedDB||typeof window.indexedDB.databases!=='function')lancer();else reglerAutosave().then(lancer,lancer);
+    /* Sauvegardes liées au compte (modules/scummvm-sync-v1.js, Norman, 2026-11-22) : la reprise de la dernière partie du compte (autre appareil) se fait AVANT le lancement (3 s au plus, jamais d'erreur), le suivi (envoi des fichiers changés) après. */
+    const reprise=function(){const S=window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__;try{return S?S.reprendre(jeuCourant):Promise.resolve();}catch(_e){return Promise.resolve();}};
+    const apres=function(){if(!window.indexedDB||typeof window.indexedDB.databases!=='function')lancer();else reglerAutosave().then(lancer,lancer);};
+    reprise().then(apres,apres);
+    try{const S=window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__;if(S)S.suivre(jeuCourant);}catch(_e){}
     /* AP par progrès (modules/scummvm-progres-v1.js) : un minuteur de 10 s lit l'autosave du jeu tant que la page vit. */
     try{const P=window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__;if(P)P.demarrer(jeuCourant,dossierDe(jeuCourant));}catch(_e){}
     /* Écran tactile : une couche au-dessus de l'iframe traduit appui = clic, deux doigts = clic droit. */

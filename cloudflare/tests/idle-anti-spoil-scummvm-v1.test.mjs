@@ -20,6 +20,14 @@ assert.ok(!/\bjeuxTotal|\.length\s*\+\s*['"]\s*\/|jeux\.length/.test(mod.replace
 assert.ok(mod.includes("soreal_idle_scummvm_etat_v1"), "état lié au compte (préfixe soreal_idle_)");
 assert.ok(mod.includes("data-morph-garder") && mod.includes("__SOREAL_IDLE_APRES_REDESSIN_V1__"), "règle n°4");
 
+/* accès par compte (2026-11-22) : un compte sans accès ne voit RIEN (ni menu, ni texte « refusé / réservé / accès », ni nom de jeu) et le serveur ne lui répond que par un booléen faux sans jeton */
+{
+  const code = mod.replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.ok(!/refus|réserv|reserv|autoris|accès|acces interdit|interdit|verrouill/i.test(code.replace(/scummvm-acces|autorise|jetonFichiers/gi, "")), "aucun texte joueur sur l'accès : le menu est simplement absent");
+  assert.ok(!/innerHTML\s*=\s*[^;]*(jeton|autorise)/.test(code), "le jeton n'est jamais affiché");
+  const worker = readFileSync("cloudflare/src/idle-worker-entry-v1.js", "utf8");
+  assert.ok(/\{ ok: true, autorise: false \}/.test(worker), "refus : {ok, autorise:false} sans jeton ni nom");
+}
 const index = readFileSync("cloudflare/public/index.html", "utf8");
 assert.ok(index.indexOf("/modules/scummvm-page-v1.js") > 0 && index.indexOf("/modules/scummvm-page-v1.js") < index.indexOf("/modules/meta-progression-v130.js"), "script chargé avant meta-progression-v130.js");
 

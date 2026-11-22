@@ -2,7 +2,7 @@
 
 Décisions de Norman (2026-11-22) : un menu de la liste (comme Time Machine), jeu affiché instantanément avec la partie déjà chargée, jouable au doigt sur téléphone, n'importe quel jeu ScummVM déposé dans un dossier R2, un jeu par difficulté, choisi plus tard. Chaque progrès dans le jeu (même ramasser un objet) rapportera un peu d'AP : étape suivante.
 
-## Disposition R2 (seau `soreal`, préfixe `scummvm/`), servie par `GET /api/idle/scummvm/<clé>`
+## Disposition R2 (seau `soreal`, préfixe `scummvm/`), servie par `GET /api/idle/scummvm/<jeton>/<clé>` (voir « Qui a accès »)
 - `moteur/` : `scummvm.html`, `scummvm.js`, `scummvm.wasm`, `data/…` (moteur compilé ; 42 Mo + 11 Mo de données). Cache une semaine.
 - `jeux/<dossier>/…` : fichiers d'un jeu et `index.json` (`{nom: taille}`). Revalidé à chaque fois (ETag).
 - `jeux.json` : `{"jeux":[{"id":"dott","nom":"Day of the Tentacle","dossier":"DOTT","cible":"tentacle","difficulte":"normal"}]}` (une entrée par difficulté : normal, evil, sadistic).
@@ -13,6 +13,21 @@ Tout se range dans le seau **`soreal`**, sous le préfixe **`scummvm/`** (voir l
 Ouvrir (effet en moins d'une minute, sans redéploiement) : `echo 1 > ouvert.txt && npx wrangler r2 object put soreal/scummvm/ouvert --file ouvert.txt --remote`.
 Fermer : `npx wrangler r2 object delete soreal/scummvm/ouvert --remote`.
 En local (`SCUMMVM_DOSSIER`) : ouvert si le miroir contient `scummvm/ouvert`.
+
+## Qui a accès (contrôle par COMPTE, 2026-11-22)
+Décision de Norman : « donne l'accès au jeu à mon compte uniquement » (jeu du commerce : aucun autre joueur ne doit pouvoir télécharger ses fichiers, même en connaissant l'adresse). Les fichiers ne sont plus publics.
+- **Liste d'accès** : objet R2 `scummvm/acces.json` = `{"admins":true,"comptes":["adresse@du.compte"],"tous":false}`. `admins:true` = l'administrateur (celui que reconnaît `estAdminSorealIdle`, donc le compte de Norman) ; `comptes` = adresses e-mail en plus (minuscules) ; `tous:true` = tout joueur connecté. Absent ou illisible = personne. L'interrupteur `scummvm/ouvert` reste le MAÎTRE (absent = fermé pour tous, même l'administrateur). Mémo de 30 s : effet en moins d'une minute.
+- **Envoyer la liste** : écrire un fichier `acces.json` puis `node cloudflare/tools/scummvm-envoyer.mjs acces acces.json` (valide puis envoie ; `--local <dossier>` / `--simuler` comme les autres commandes).
+  - Norman seul : `{"admins":true,"comptes":[],"tous":false}`
+  - Ajouter un compte : ajouter son adresse à `comptes`, renvoyer. Retirer : l'enlever, renvoyer (son jeton est refusé en moins d'une minute).
+  - Ouvrir à tout le monde (plus tard) : `{"admins":true,"comptes":[],"tous":true}`.
+  - Fermer pour tous : supprimer `scummvm/ouvert` (voir plus haut), ou envoyer `{"admins":false,"comptes":[],"tous":false}`.
+- **Jeton** : `POST /api/v1/scummvm-acces` (jeton de session du joueur) répond `{ok, autorise, jeton, expire}` ; sans droit : `autorise:false`, jamais de jeton. Le jeton `base64url(charge).base64url(signature)` (HMAC-SHA256 ; charge `{c: adresse du compte, e: expiration en secondes, a: 1 si le droit venait du drapeau administrateur}`) vit de 12 à 24 h (expiration arrondie à une borne de 12 h : le même jeton, donc la même adresse et le même cache du navigateur, pendant une tranche ; le client le redemande toutes les 60 s).
+- **Clé de signature** : aucun secret de ticket ou de session n'est lisible depuis le Worker (jetons de session opaques, gardés dans le Durable Object). Le Durable Object crée donc UNE clé aléatoire de 256 bits (table `idle_meta`, clé `scummvm_secret_v1`, route interne `/__soreal-idle-v1/scummvm-secret`, exclue des sauvegardes `backup-all`). Un secret Worker `SOREAL_IDLE_SCUMMVM_SECRET` (16 caractères au moins), s'il est posé, est utilisé à sa place. Changer la clé invalide tous les jetons (ils sont redemandés dans la minute).
+- **Fichiers** : `/api/idle/scummvm/<jeton>/<clé>` ; la route vérifie signature, expiration ET que le compte est encore dans la liste. Tout refus = 404. Les chemins absolus du moteur (`/data/…`, `/scummvm.ini`, `/api/idle/scummvm/jeux/…`) n'ont pas de jeton : acceptés seulement si le `Referer` (même origine) commence par `/api/idle/scummvm/<jeton valide>/`. `Cache-Control` privé. L'ancien `GET /api/idle/scummvm/ouvert` public n'existe plus.
+- **Fonction partagée** (pour protéger d'autres routes, ex. sauvegardes) : `idleScummvmCompteAutoriseV1(env, utilisateur)`, `idle-scummvm-acces-v1.js`, avec `utilisateur = {email, emails?, emailConnexion?, admin}` ; l'identité vérifiée d'une session s'obtient par `idleScummvmIdentiteSessionV1(env, jetonDeSession)`.
+- **Local** (`SCUMMVM_DOSSIER`) : aucun contrôle de compte, tout jeton est accepté (premier segment retiré), `POST /api/v1/scummvm-acces` répond `autorise:true, jeton:"local.local"` si le miroir contient `scummvm/ouvert` ; le miroir contient un exemple `scummvm/acces.json`.
+- Limite connue : le moteur demande ses chemins absolus avec le `Referer` de la page ; une partie de plus de 12 à 24 h sans rechargement peut voir ces chemins refusés une fois le jeton expiré. L'exe et l'APK relaient la demande de jeton (`/api/v1/scummvm-acces`) mais ne servent pas les fichiers eux-mêmes (comme avant).
 
 ## Mettre un jeu en ligne
 ```

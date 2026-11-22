@@ -149,7 +149,7 @@ const reset = () => { SERV.reseau = true; SERV.status = 200; SERV.corps = { ok: 
   assert.ok(!/idle_apk_/.test(prefs.replace(/\/\*[\s\S]*?\*\//g, "")) || true);
   assert.ok(m.length === 0 || m.every((x) => !/idle_apk/.test(x)), "le module des préférences ne recopie pas les clés idle_apk_");
   const entree = lire("../src/idle-worker-entry-v1.js");
-  assert.ok(entree.includes("local\\/push|call|profil-badavatar)$/.test(url.pathname)"), "CORS de l'application sur /api/v1/call (preuve d'administrateur) et le profil");
+  assert.ok(entree.includes("local\\/push|call|profil-badavatar|scummvm-acces)$/.test(url.pathname)"), "CORS de l'application sur /api/v1/call (preuve d'administrateur) et le profil");
 }
 
 // ---------- ui-admin-v1.js : décision côté interface, avec une fausse application

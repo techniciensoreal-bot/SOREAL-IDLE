@@ -329,12 +329,13 @@ const progres = (etat, p, t = t0 + 1000) => applyIdleNguAction(etat, Object.assi
   const sb = {
     console, Promise, Date, Math, JSON, Object, Array, String, Number, Boolean, Set, Error, RegExp,
     localStorage: { _s: {}, getItem(k) { return k in this._s ? this._s[k] : null; }, setItem(k, v) { this._s[k] = String(v); } },
-    navigator: {}, screen: {}, addEventListener() {},
+    navigator: {}, screen: {}, addEventListener() {}, sessionStorage: { getItem: (k) => (k === "soreal_idle_session_v1" ? "session-de-test" : null) },
     document: { addEventListener() {}, body: { appendChild() {} }, createElement: el, createTextNode: (t) => { const n = el("#text"); n._t = t; return n; }, getElementById: (id) => (id === "scvTropheesV1" ? noeud : null) },
     setTimeout: () => 1, requestAnimationFrame: () => 1,
   };
   sb.fetch = async (url) => {
-    if (String(url).endsWith("/ouvert")) return { ok: true, json: async () => ({ ouvert: true }) };
+    /* accès par compte (2026-11-22) : la page demande son jeton de fichiers au serveur */
+    if (String(url).endsWith("/api/v1/scummvm-acces")) return { ok: true, json: async () => ({ ok: true, autorise: true, jeton: "jeton1234.signature-de-test-12345", expire: 4e9 }) };
     if (String(url).endsWith("jeux.json")) return { ok: true, json: async () => ({ jeux: [JEU] }) };
     if (String(url).endsWith("soreal-trophees.json")) return { ok: true, json: async () => ({ version: 1, trophees: [trophee("a", { nom: { fr: "Le livret", en: "The book" }, ap: 1500, objets: [352] }), trophee("b", { nom: { fr: "Le correcteur", en: "The corrector" }, ap: 25000, objets: [350] }), trophee("secret", { nom: { fr: "Trophée secret", en: "Secret trophy" }, ap: 777, objets: [1] })] }) };
     return { ok: false, json: async () => ({}) };

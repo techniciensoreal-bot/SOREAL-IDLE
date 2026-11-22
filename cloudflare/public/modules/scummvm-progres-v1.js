@@ -20,7 +20,8 @@
   let jeu=null,minuteur=0,enCours=false,dossierJeu="";
   const CLE_JOURNAL='soreal_idle_scummvm_journal_v1';   /* journal d'étalonnage (diagnostic, jamais affiché ; exclu de la synchro du compte : prefs-compte-v1.js) */
   const JOURNAL_MAX=3000;
-  const BASE_JEUX='/api/idle/scummvm/jeux/';
+  /* fichiers protégés par jeton de compte (scummvm-page-v1.js expose la base courante /api/idle/scummvm/<jeton>/) */
+  function baseJeux(){const f=window.__SOREAL_IDLE_SCUMMVM_BASE_V1__;return (typeof f==='function'?f():'/api/idle/scummvm/')+'jeux/';}
   const tropheesDe={};      /* id du jeu -> liste validée, null (absente ou invalide) ; undefined = pas encore essayé */
   const chargements={};     /* id du jeu -> promesse en cours */
   const profilsDe={};       /* id du jeu -> profil de lecture (pour annoter le journal) */
@@ -108,7 +109,7 @@
     const dossiers=[dossier,j.dossier].filter(function(d,i,t){return d&&t.indexOf(d)===i;}).map(function(d){return String(d).replace(/[^A-Za-z0-9._+()-]/g,'');});
     const essayer=function(k){
       if(typeof window.fetch!=='function'||k>=dossiers.length)return Promise.resolve(null);
-      return window.fetch(BASE_JEUX+dossiers[k]+'/soreal-trophees.json').then(function(r){return r&&r.ok?r.json():null;}).catch(function(){return null;}).then(function(d){
+      return window.fetch(baseJeux()+dossiers[k]+'/soreal-trophees.json').then(function(r){return r&&r.ok?r.json():null;}).catch(function(){return null;}).then(function(d){
         const l=validerTrophees(d);
         return l||essayer(k+1);
       });

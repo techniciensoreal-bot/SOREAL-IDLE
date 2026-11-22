@@ -5,12 +5,15 @@
  *   scummvm/jeux/<dossier>/…    les fichiers d'un jeu + un index.json `{nom: taille}` (généré par cloudflare/tools/scummvm-envoyer.mjs)
  *   scummvm/jeux.json           le catalogue : {"jeux":[{"id","nom","dossier","cible","difficulte"}]} (un jeu par difficulté)
  * Norman change de jeu en envoyant un autre dossier et en éditant jeux.json : aucun code à modifier.
- * La route est publique (ce sont des fichiers de jeu, jamais des données de joueur) ; elle gère les requêtes partielles (Range), l'ETag et la revalidation.
+ * La route N'EST PLUS publique (Norman, 2026-11-22 : « donne l'accès au jeu à mon compte uniquement » ; jeu du commerce) : les fichiers sont servis sous `/api/idle/scummvm/<jeton>/<clé>`, le jeton (signé, 12 à 24 h) étant délivré
+ * par POST /api/v1/scummvm-acces aux seuls comptes de la liste `scummvm/acces.json` (idle-scummvm-acces-v1.js). Les chemins absolus du moteur (`/data/…`, `/scummvm.ini`, `…/scummvm/jeux/…`) n'ont pas de jeton : ils
+ * sont acceptés seulement si le Referer commence par `/api/idle/scummvm/<jeton valide>/`. Tout refus = 404 (rien n'est révélé). Elle gère les requêtes partielles (Range), l'ETag et la revalidation.
  * INTERRUPTEUR (Norman, 2026-11-22 : « il ne faut pas qu'il soit accessible aux joueurs pour le moment ») : tout est FERMÉ tant que l'objet R2 `scummvm/ouvert` n'existe pas (le contenu n'importe pas) :
- * la route répond 404 pour tous les fichiers et `GET /api/idle/scummvm/ouvert` répond {"ouvert":false} (le client cache alors le menu). Ouvrir : envoyer un objet `scummvm/ouvert` ; fermer : le supprimer
+ * plus aucun jeton n'est délivré ni accepté (404). Ouvrir : envoyer un objet `scummvm/ouvert` ; fermer : le supprimer
  * (wrangler r2 object put|delete soreal/scummvm/ouvert --remote) ; effet en moins d'une minute (mémo de l'isolat).
  * Anti-spoil (règle n°2) : le catalogue est une liste de jeux, pas de contenu de jeu de Soreal ; le client n'affiche que le jeu de la difficulté courante.
  */
+import { idleScummvmFormeJetonV1, idleScummvmVerifierJetonV1 } from "./idle-scummvm-acces-v1.js";
 export const IDLE_SCUMMVM_PREFIXE_R2_V1 = "scummvm/";
 export const IDLE_SCUMMVM_PREFIXE_URL_V1 = "/api/idle/scummvm/";
 
@@ -33,9 +36,10 @@ function typeDe(cle) {
   return (m && TYPES_V1[m[0].toLowerCase()]) || "application/octet-stream";
 }
 
-/* Cache : le moteur change rarement (une semaine) ; les jeux et le catalogue sont revalidés à chaque fois (ETag : 304 sans retélécharger) pour qu'un jeu remplacé soit pris tout de suite. */
+/* Cache : le moteur change rarement (une semaine) ; les jeux et le catalogue sont revalidés à chaque fois (ETag : 304 sans retélécharger) pour qu'un jeu remplacé soit pris tout de suite.
+ * PRIVÉ (jamais de cache partagé : ces fichiers ne sont pas publics, 2026-11-22) ; l'adresse contient le jeton, valable 12 à 24 h et identique pour un même compte pendant ce temps : la page rechargée réutilise le cache. */
 function cacheDe(cle) {
-  return cle.startsWith(IDLE_SCUMMVM_PREFIXE_R2_V1 + "moteur/") ? "public, max-age=604800" : "no-cache";
+  return cle.startsWith(IDLE_SCUMMVM_PREFIXE_R2_V1 + "moteur/") ? "private, max-age=604800" : "private, no-cache";
 }
 
 /* Requête partielle « bytes=a-b » (un seul intervalle) -> {offset, length} ou null (aucune) ou "invalide". */
@@ -70,18 +74,32 @@ export async function idleScummvmOuvertV1(env, maintenant = Date.now()) {
 }
 export function idleScummvmOublierMemoV1() { memoOuvert = { t: 0, valeur: false }; }
 
+const INTROUVABLE_V1 = () => new Response("Introuvable", { status: 404, headers: { "cache-control": "no-store" } });
+
+/* Autorisation d'une requête de fichier : (1) jeton en premier segment (`/api/idle/scummvm/<jeton>/<clé>`) ; (2) sinon, chemin sans jeton (le moteur demande `/data/…`, `/scummvm.ini` et `…/scummvm/jeux/…` en chemins absolus) :
+ * accepté SEULEMENT si l'en-tête Referer (même origine, chemin complet) commence par `/api/idle/scummvm/<jeton valide>/`. Renvoie la partie du chemin après le jeton, ou null (jeton absent, faux, expiré, compte plus autorisé : 404 pour tous, rien n'est révélé). */
+async function autoriser(request, env, url, reste) {
+  const premier = reste.split("/")[0];
+  if (idleScummvmFormeJetonV1(premier)) return (await idleScummvmVerifierJetonV1(env, premier)) ? reste.slice(premier.length + 1) : null;
+  let ref = null;
+  try { ref = new URL(request.headers.get("referer") || ""); } catch (_e) { return null; }
+  if (ref.origin !== url.origin || !ref.pathname.startsWith(IDLE_SCUMMVM_PREFIXE_URL_V1)) return null;
+  const seg = ref.pathname.slice(IDLE_SCUMMVM_PREFIXE_URL_V1.length).split("/")[0];
+  if (!idleScummvmFormeJetonV1(seg) || !ref.pathname.startsWith(IDLE_SCUMMVM_PREFIXE_URL_V1 + seg + "/")) return null;
+  return (await idleScummvmVerifierJetonV1(env, seg)) ? reste : null;
+}
+
 export async function idleScummvmRepondreV1(request, env, url) {
   const methode = request.method;
   if (methode !== "GET" && methode !== "HEAD") return new Response("Méthode refusée", { status: 405, headers: { allow: "GET, HEAD" } });
-  const reste = url.pathname.slice(IDLE_SCUMMVM_PREFIXE_URL_V1.length);
-  const ouvert = await idleScummvmOuvertV1(env);
-  if (reste === "ouvert") return new Response(JSON.stringify({ ouvert }), { status: 200, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" } });
-  if (!ouvert) return new Response("Introuvable", { status: 404, headers: { "cache-control": "no-store" } });
+  const resteBrut = url.pathname.slice(IDLE_SCUMMVM_PREFIXE_URL_V1.length);
+  const reste = await autoriser(request, env, url, resteBrut);
+  if (reste === null) return INTROUVABLE_V1();
   const cle = idleScummvmCleV1(reste);
   if (!cle) return new Response("Chemin invalide", { status: 400, headers: { "cache-control": "no-store" } });
   if (!env || !env.SOREAL_R2 || typeof env.SOREAL_R2.get !== "function") return new Response("Média indisponible", { status: 503, headers: { "cache-control": "no-store" } });
   const tete = await env.SOREAL_R2.head(cle);
-  if (!tete) return new Response("Introuvable", { status: 404, headers: { "cache-control": "public, max-age=30" } });
+  if (!tete) return INTROUVABLE_V1();
   const entetes = new Headers();
   entetes.set("content-type", typeDe(cle));
   entetes.set("cache-control", cacheDe(cle));

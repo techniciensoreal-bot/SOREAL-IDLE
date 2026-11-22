@@ -91,9 +91,12 @@ http.createServer(async (req, res) => {
   if (aliasScummvm) url.pathname = aliasScummvm;
   if (process.env.SCUMMVM_DOSSIER && (req.method === "GET" || req.method === "HEAD") && url.pathname.startsWith("/api/idle/scummvm/")) {
     const { idleScummvmCleV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-scummvm-v1.js").href);
-    /* l'interrupteur de production (objet R2 scummvm/ouvert) : en local, ouvert dès que le dossier miroir contient scummvm/ouvert ; sinon fermé comme en production */
-    if (url.pathname === "/api/idle/scummvm/ouvert") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify({ ouvert: fs.existsSync(path.join(process.env.SCUMMVM_DOSSIER, "scummvm", "ouvert")) })); return; }
-    const cle = idleScummvmCleV1(url.pathname.slice("/api/idle/scummvm/".length));
+    const { idleScummvmFormeJetonV1 } = await import(pathToFileURL(REPO + "cloudflare/src/idle-scummvm-acces-v1.js").href);
+    /* En local aucun contrôle de compte : tout jeton est accepté, on retire simplement le premier segment s'il en a la forme (production : idle-scummvm-acces-v1.js, route 404 sans jeton valide). L'interrupteur reste le maître : le miroir doit contenir scummvm/ouvert. */
+    let reste = url.pathname.slice("/api/idle/scummvm/".length);
+    const premier = reste.split("/")[0];
+    if (premier === "local.local" || idleScummvmFormeJetonV1(premier)) reste = reste.slice(premier.length + 1);
+    const cle = idleScummvmCleV1(reste);
     const fichier = cle ? path.join(process.env.SCUMMVM_DOSSIER, cle) : "";
     if (!cle || !fs.existsSync(fichier) || fs.statSync(fichier).isDirectory()) { res.writeHead(cle ? 404 : 400); res.end("scummvm : introuvable"); return; }
     const taille = fs.statSync(fichier).size;
@@ -108,6 +111,13 @@ http.createServer(async (req, res) => {
     }
     res.writeHead(200, { "content-type": type, "accept-ranges": "bytes", "content-length": taille, "cache-control": "no-cache" });
     if (req.method === "HEAD") res.end(); else fs.createReadStream(fichier).pipe(res);
+    return;
+  }
+  /* Accès à ScummVM : en local le compte est toujours autorisé (jeton factice) tant que le miroir contient l'interrupteur scummvm/ouvert ; sinon fermé comme en production. */
+  if (process.env.SCUMMVM_DOSSIER && req.method === "POST" && url.pathname === "/api/v1/scummvm-acces") {
+    const ouvert = fs.existsSync(path.join(process.env.SCUMMVM_DOSSIER, "scummvm", "ouvert"));
+    res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" });
+    res.end(JSON.stringify(ouvert ? { ok: true, autorise: true, jeton: "local.local", expire: Math.floor(Date.now() / 1000) + 86400 } : { ok: true, autorise: false }));
     return;
   }
   if (MEDIA_PROD && req.method === "GET" && url.pathname.startsWith("/api/idle/media/")) {

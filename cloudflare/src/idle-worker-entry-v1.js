@@ -2,6 +2,7 @@ export { SorealIdleCoordinatorV1 } from "./index-idle-coordinator-v1.js";
 import { traiterRequeteIdleMedia } from "./idle-media-v1.js";
 import { idleMeteoRepondreV1 } from "./idle-meteo-v1.js";
 import { IDLE_SCUMMVM_PREFIXE_URL_V1, idleScummvmAliasV1, idleScummvmRepondreV1 } from "./idle-scummvm-v1.js";
+import { idleScummvmCompteAutoriseV1, idleScummvmIdentiteSessionV1, idleScummvmSignerJetonV1 } from "./idle-scummvm-acces-v1.js";
 import { planPurgeVoixStrictV1, lireCorpsPurgeV1 } from "./idle-voix-purge-v1.js";
 import { verifierJetonGoogleIdleV1 } from "./idle-google-auth-v1.js";
 
@@ -194,7 +195,7 @@ async function idleLogoutV1(request, env) {
 const IDLE_ORIGINE_APK_V1 = "https://appassets.androidplatform.net";
 function idleCorsApkV1(request, url) {
   if (request.headers.get("origin") !== IDLE_ORIGINE_APK_V1) return null;
-  if (!/^\/api\/v1\/(relais|pseudo|local\/export|local\/push|call|profil-badavatar)$/.test(url.pathname)) return null;
+  if (!/^\/api\/v1\/(relais|pseudo|local\/export|local\/push|call|profil-badavatar|scummvm-acces)$/.test(url.pathname)) return null;
   return { "access-control-allow-origin": IDLE_ORIGINE_APK_V1, "access-control-allow-headers": "authorization, content-type", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-max-age": "600", vary: "origin" };
 }
 function idleAvecCorsApkV1(cors, reponse) {
@@ -498,7 +499,7 @@ export default {
       if (idleLimiteDepasseeV1("meteo:" + adresseClient, 30, 0.2) || idleLimiteDepasseeV1("meteo", 600, 60)) return idleTropDeRequetesV1();
       return idleMeteoRepondreV1(url);
     }
-    /* ScummVM (idle-scummvm-v1.js) : moteur WebAssembly et jeux, objets R2 sous scummvm/ ; fichiers publics, requêtes partielles (le .wasm pèse 32 Mo) : plafond large par adresse. */
+    /* ScummVM (idle-scummvm-v1.js) : moteur WebAssembly et jeux, objets R2 sous scummvm/ ; fichiers PROTÉGÉS par jeton de compte (idle-scummvm-acces-v1.js : /api/idle/scummvm/<jeton>/<clé>, 404 sinon), requêtes partielles (le .wasm pèse 32 Mo) : plafond large par adresse. */
     const aliasScummvm = idleScummvmAliasV1(url.pathname);
     if ((request.method === "GET" || request.method === "HEAD") && (url.pathname.startsWith(IDLE_SCUMMVM_PREFIXE_URL_V1) || aliasScummvm)) {
       if (idleLimiteDepasseeV1("scummvm:" + adresseClient, 600, 30)) return idleTropDeRequetesV1();
@@ -644,6 +645,28 @@ export default {
       }
       const action = ["lire", "enregistrer", "reinitialiser"].includes(corps.action) ? corps.action : "lire";
       return idleAvecCorsApkV1(corsApk, await idleCoordinatorFetchV1(env, "/__soreal-idle-v1/badavatar-moi", { method: "POST", body: JSON.stringify({ sessionToken: jeton, action, pieces: corps.pieces, photo: corps.photo, choix: corps.choix, cat: corps.cat }) }));
+    }
+    /* Sauvegardes de ScummVM (menu Énigmes) synchronisées entre les appareils du compte (idle-scummvm-sauvegardes-v1.js) : jeton de session, corps borné (12 fichiers de 300 000 caractères au plus). */
+    if (url.pathname === "/api/v1/scummvm-sauvegardes" && request.method === "POST") {
+      const jeton = idleBearerV1(request);
+      if (!jeton) return idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401);
+      if (idleLimiteDepasseeV1("scvsauv:" + jeton, 6, 0.1) || idleLimiteDepasseeV1("scvsauv:" + adresseClient, 30, 0.5)) return idleTropDeRequetesV1();
+      const lecture = await idleLireJsonBorneV1(request, 1800000);
+      if (lecture.tropGros) return idleCorpsTropGrosV1();
+      const corps = lecture.corps && typeof lecture.corps === "object" ? lecture.corps : {};
+      return idleCoordinatorFetchV1(env, "/__soreal-idle-v1/scummvm-sauvegardes", { method: "POST", body: JSON.stringify({ sessionToken: jeton, action: corps.action, jeu: corps.jeu, force: corps.force, fichiers: corps.fichiers }) });
+    }
+    /* Accès à ScummVM (idle-scummvm-acces-v1.js) : le joueur authentifié demande son jeton de fichiers ; { ok, autorise, jeton, expire } ; sans droit : autorise:false, jamais de jeton. */
+    if (url.pathname === "/api/v1/scummvm-acces" && request.method === "POST") {
+      const jeton = idleBearerV1(request);
+      if (!jeton) return idleAvecCorsApkV1(corsApk, idleJsonV1({ ok: false, code: "LAUNCH_TICKET_REQUIRED" }, 401));
+      if (idleLimiteDepasseeV1("scummvm-acces:" + jeton, 10, 0.2)) return idleAvecCorsApkV1(corsApk, idleTropDeRequetesV1());
+      const identite = await idleScummvmIdentiteSessionV1(env, jeton);
+      if (!identite) return idleAvecCorsApkV1(corsApk, idleJsonV1({ ok: false, code: "IDLE_SESSION_INVALID" }, 401));
+      if (!(await idleScummvmCompteAutoriseV1(env, identite))) return idleAvecCorsApkV1(corsApk, idleJsonV1({ ok: true, autorise: false }));
+      const signe = await idleScummvmSignerJetonV1(env, identite.email, identite.admin);
+      if (!signe) return idleAvecCorsApkV1(corsApk, idleJsonV1({ ok: true, autorise: false }));
+      return idleAvecCorsApkV1(corsApk, idleJsonV1({ ok: true, autorise: true, jeton: signe.jeton, expire: signe.expire }));
     }
     if (request.method === "GET" && url.pathname === "/api/v1/local/export") return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-export"));
     if (request.method === "POST" && url.pathname === "/api/v1/local/push") return idleAvecCorsApkV1(corsApk, await idleLocalV1(request, env, "local-push"));

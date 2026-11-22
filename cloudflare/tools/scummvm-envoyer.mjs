@@ -5,6 +5,7 @@
  *   node cloudflare/tools/scummvm-envoyer.mjs jeu <dossier-du-jeu> [--nom <dossier>]  un jeu (fichiers de données) -> scummvm/jeux/<nom>/ (par défaut le nom du dossier)
  *   node cloudflare/tools/scummvm-envoyer.mjs catalogue <jeux.json>                   le catalogue des jeux par difficulté (voir le format dans idle-scummvm-v1.js)
  *   node cloudflare/tools/scummvm-envoyer.mjs trophees <fichier.json> --nom <dossier>   la liste des trophées d'un jeu -> scummvm/jeux/<nom>/soreal-trophees.json (validée avant l'envoi, mêmes règles que le client)
+ *   node cloudflare/tools/scummvm-envoyer.mjs acces <acces.json>                      la liste d'accès par compte -> scummvm/acces.json (voir design/SCUMMVM.md, « Qui a accès »)
  *
  * Options :  --local <dossier>   copie dans <dossier>/scummvm/… (miroir pour SCUMMVM_DOSSIER de local-dev-server.mjs) au lieu d'envoyer sur R2
  *            --simuler           liste ce qui serait envoyé, sans rien écrire ni envoyer
@@ -147,7 +148,18 @@ if (commande === "moteur") {
   if (!liste) { console.error("fichier de trophées invalide : {\"version\":1,\"trophees\":[{\"id\":\"a-z0-9-\",\"nom\":{\"fr\":\"…\",\"en\":\"…\"},\"ap\":entier>0,\"objets\":[entiers],\"bits\":[entiers]}]} (ids uniques, au moins un objet ou un bit par trophée)"); process.exit(2); }
   console.log("trophées : " + liste.length + " valides, " + liste.reduce((t, x) => t + x.ap, 0) + " AP au total (à comparer au plafond du jeu)");
   envoyer(src, "jeux/" + nom + "/soreal-trophees.json");
+} else if (commande === "acces") {
+  /* liste d'accès par compte (Norman, 2026-11-22) -> scummvm/acces.json ; validée par le MÊME code que le Worker (idle-scummvm-acces-v1.js) : un fichier accepté ici l'est aussi par le serveur */
+  const src = positionnels[0];
+  if (!src || !fs.existsSync(src)) { console.error("usage : acces <acces.json>   {\"admins\":true|false,\"comptes\":[\"adresse\"],\"tous\":true|false}"); process.exit(2); }
+  let donnees;
+  try { donnees = JSON.parse(fs.readFileSync(src, "utf8")); } catch (e) { console.error("JSON illisible : " + e.message); process.exit(2); }
+  const { idleScummvmNormaliserAccesV1 } = await import("../src/idle-scummvm-acces-v1.js");
+  const liste = idleScummvmNormaliserAccesV1(donnees);
+  if (!liste) { console.error("liste d'accès invalide : {\"admins\":booléen,\"comptes\":[chaînes non vides],\"tous\":booléen}"); process.exit(2); }
+  console.log("accès : administrateur " + (liste.admins ? "oui" : "non") + ", comptes en plus : " + liste.comptes.length + ", tout le monde : " + (liste.tous ? "OUI" : "non"));
+  envoyer(src, "acces.json");
 } else {
-  console.error("commandes : moteur <dossier> | jeu <dossier> [--nom n] | catalogue <jeux.json> | trophees <fichier.json> --nom n   (options : --local <dossier> --simuler)");
+  console.error("commandes : moteur <dossier> | jeu <dossier> [--nom n] | catalogue <jeux.json> | trophees <fichier.json> --nom n | acces <acces.json>   (options : --local <dossier> --simuler)");
   process.exit(2);
 }

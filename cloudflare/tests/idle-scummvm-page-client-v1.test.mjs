@@ -7,6 +7,8 @@ import { readFileSync } from "node:fs";
  * choix du jeu par difficulté, catalogue vide, URL de lancement exacte, rien d'autre que le nom du jeu courant dans la page (règle n°2).
  */
 const code = readFileSync("cloudflare/public/modules/scummvm-page-v1.js", "utf8");
+const JETON = "jeton1234.signature-de-test-12345";
+const BASE = "/api/idle/scummvm/" + JETON + "/";
 
 function faux(opts = {}) {
   const stock = {};
@@ -33,6 +35,7 @@ function faux(opts = {}) {
     console, Promise, Date, Math, JSON, Object, Array, String, Number, Boolean, Set, Error,
     localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); } },
     navigator: { maxTouchPoints: 0 },
+    sessionStorage: { getItem: (k) => (k === "soreal_idle_session_v1" && sb.__session ? sb.__session : null) },
     document: {
       head: el("head"), body: el("body"),
       createElement: el,
@@ -45,8 +48,9 @@ function faux(opts = {}) {
   };
   sb.window = sb;
   sb.__SOREAL_IDLE_REG__ = {};
-  sb.__appels = []; sb.__ouvert = true;
-  sb.fetch = async (url) => (sb.__appels.push(String(url)), { ok: true, json: async () => (String(url).endsWith("/ouvert") ? { ouvert: sb.__ouvert } : String(url).endsWith("jeux.json") ? sb.__catalogue : {}), arrayBuffer: async () => new ArrayBuffer(0), body: null });
+  sb.__appels = []; sb.__ouvert = true; sb.__session = "session-de-test"; sb.__jeton = JETON; sb.__expire = 4e9; sb.__posts = [];
+  /* accès par compte (2026-11-22) : POST /api/v1/scummvm-acces -> {autorise, jeton, expire} ; tous les fichiers sous /api/idle/scummvm/<jeton>/ */
+  sb.fetch = async (url, init) => { if (init && init.method === "POST") sb.__posts.push({ url: String(url), init }); return (sb.__appels.push(String(url)), { ok: true, json: async () => (String(url).endsWith("/api/v1/scummvm-acces") ? (sb.__ouvert ? { ok: true, autorise: true, jeton: sb.__jeton, expire: sb.__expire } : { ok: true, autorise: false }) : String(url).endsWith("jeux.json") ? sb.__catalogue : {}), arrayBuffer: async () => new ArrayBuffer(0), body: null }); };
   sb.__catalogue = { jeux: [] };
   vm.createContext(sb);
   const demarrer = () => vm.runInContext(code, sb);
@@ -76,7 +80,7 @@ const jeux = [
 
 /* 1. choix du jeu par difficulté, repli sur la difficulté inférieure puis sur le premier */
 {
-  const { sb } = faux();
+  const { sb } = faux(); await attendre();
   const A = sb.__SOREAL_IDLE_SCUMMVM_PAGE_V1__;
   assert.equal(A.choisirJeu(jeux, "normal").id, "a-n");
   assert.equal(A.choisirJeu(jeux, "difficile").id, "a-e", "Evil = difficile");
@@ -84,7 +88,7 @@ const jeux = [
   assert.equal(A.choisirJeu([jeux[1]], "normal").id, "a-e", "pas de jeu normal : le premier");
   assert.equal(A.choisirJeu([], "normal"), null);
   assert.equal(A.choisirJeu(null, "normal"), null);
-  assert.equal(A.urlLancement(jeux[0]), "/api/idle/scummvm/moteur/scummvm.html#--path=/data/games/dossier-n --subtitles --save-slot=0 cn", "URL de lancement exacte");
+  assert.equal(A.urlLancement(jeux[0]), BASE + "moteur/scummvm.html#--path=/data/games/dossier-n --subtitles --save-slot=0 cn", "URL de lancement exacte");
   assert.equal(A.CLE_ETAT, "soreal_idle_scummvm_etat_v1");
 }
 
@@ -101,10 +105,11 @@ const jeux = [
   f.setZone(zone);
   await attendre();
   for (let i = 0; i < 5; i++) hooks[0]();
+  await attendre();   /* le lancement attend la reprise des sauvegardes du compte (microtâche) */
   assert.equal(f.iframes.length, 1, "un seul iframe créé");
   const ifr = f.iframes[0];
   assert.equal(ifr.srcAffectations, 1, "src affecté une seule fois");
-  assert.equal(ifr.src, "/api/idle/scummvm/moteur/scummvm.html#--path=/data/games/dossier-e --subtitles --save-slot=0 ce", "le jeu de la difficulté du joueur (Evil)");
+  assert.equal(ifr.src, BASE + "moteur/scummvm.html#--path=/data/games/dossier-e --subtitles --save-slot=0 ce", "le jeu de la difficulté du joueur (Evil)");
   assert.equal(ifr.getAttribute("allow"), "autoplay; fullscreen");
   assert.equal(ifr.parentCount, 1, "rattaché une seule fois");
   const hote = f.sb.document.body.children.find((c) => c.id === "scvHoteV1");
@@ -139,9 +144,10 @@ const jeux = [
   const couv = hote.children[0];
   assert.ok(/Jeu Normal/.test(couv.innerHTML) && /Jouer/.test(couv.innerHTML), "nom du jeu + bouton Jouer");
   couv.listeners.click[0]({ target: { closest: () => ({}) } });
+  await attendre();
   assert.equal(f.iframes.length, 1, "Jouer crée l'iframe");
   assert.equal(f.stock.soreal_idle_scummvm_etat_v1, "lance", "état mémorisé (règle n°6)");
-  assert.equal(f.iframes[0].src, "/api/idle/scummvm/moteur/scummvm.html#--path=/data/games/dossier-n --subtitles --save-slot=0 cn");
+  assert.equal(f.iframes[0].src, BASE + "moteur/scummvm.html#--path=/data/games/dossier-n --subtitles --save-slot=0 cn");
 }
 
 /* 4. catalogue vide : message simple, aucun iframe */
@@ -169,35 +175,107 @@ const jeux = [
   assert.equal(appels, 0, "menu verrouillé : aucune requête");
   assert.equal(f.sb.document.body.children.length, 0, "menu verrouillé : aucun hôte");
 }
-/* 6. interrupteur serveur (scummvm/ouvert) : fermé = menu absent, aucun appel au catalogue ni au moteur, même débloqué ; ouvert = menu présent */
+/* 6. accès par COMPTE (2026-11-22) : sans autorisation du serveur = menu absent, aucun appel au catalogue ni au moteur, même débloqué ; autorisé = menu présent, jeton dans l'adresse de chaque fichier */
 {
   const f = faux({ differe: true });
   f.sb.__ouvert = false;
   f.demarrer();
   const A = f.sb.__SOREAL_IDLE_SCUMMVM_PAGE_V1__;
   await attendre();
-  assert.equal(f.sb.__appels.filter((u) => u.endsWith("/ouvert")).length, 1, "une seule requête au démarrage");
-  assert.equal(f.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), false, "fermé");
+  const acces = (x) => x.sb.__appels.filter((u) => u.endsWith("/api/v1/scummvm-acces"));
+  assert.equal(acces(f).length, 1, "une seule requête au démarrage");
+  assert.equal(f.sb.__posts[0].init.headers.authorization, "Bearer session-de-test", "jeton de session du joueur");
+  assert.equal(f.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), false, "non autorisé : fermé");
   f.stock.soreal_idle_scummvm_etat_v1 = "lance";
   f.sb.__SOREAL_IDLE_REG__.idleEtat = { systemes: { difficulty: "normal", systems: [{ id: "scummvm" }] } };
   f.setZone(f.el("div"));
   assert.equal(A.page(f.sb.__SOREAL_IDLE_REG__.idleEtat), "", "page vide quand c'est fermé");
   f.sb.__SOREAL_IDLE_APRES_REDESSIN_V1__[0]();
   await attendre();
-  assert.ok(!f.sb.__appels.some((u) => u.includes("jeux") || u.includes("moteur")), "fermé : aucun appel au catalogue ni au moteur : " + f.sb.__appels.join(","));
+  assert.ok(!f.sb.__appels.some((u) => u.includes("jeux") || u.includes("moteur")), "non autorisé : aucun appel au catalogue ni au moteur : " + f.sb.__appels.join(","));
   assert.equal(f.iframes.length, 0);
-  assert.equal(f.sb.__appels.filter((u) => u.endsWith("/ouvert")).length, 1, "pas de requête à chaque redessin");
-  /* ouvert */
+  assert.equal(acces(f).length, 1, "pas de requête à chaque redessin");
+  assert.equal(f.sb.__SOREAL_IDLE_SCUMMVM_BASE_V1__(), "/api/idle/scummvm/", "aucun jeton gardé");
+  /* exe Windows (window.sorealDesktop) et APK hors ligne (window.AndroidSoreal) : les fichiers du jeu n'y sont pas relayés : menu fermé, aucune requête (2026-11-22) */
+  for (const pont of ["sorealDesktop", "AndroidSoreal"]) {
+    const x = faux({ differe: true });
+    x.sb[pont] = {};
+    x.demarrer();
+    await attendre();
+    assert.equal(x.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), false, pont + " : menu fermé");
+    assert.equal(acces(x).length, 0, pont + " : aucune demande d'accès");
+    assert.ok(!x.sb.__appels.some((u) => u.includes("scummvm")), pont + " : aucun appel ScummVM");
+  }
+  /* autorisé : le catalogue et le moteur passent par le jeton */
   const g = faux();
   await attendre();
-  assert.equal(g.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), true, "ouvert");
+  assert.equal(g.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), true, "autorisé");
+  assert.equal(g.sb.__SOREAL_IDLE_SCUMMVM_BASE_V1__(), BASE, "base avec jeton");
+  g.sb.__catalogue = { jeux };
+  g.sb.__SOREAL_IDLE_REG__.idleEtat = { systemes: { difficulty: "normal", systems: [{ id: "scummvm" }] } };
+  g.setZone(g.el("div"));
+  g.sb.__SOREAL_IDLE_SCUMMVM_PAGE_V1__.page(g.sb.__SOREAL_IDLE_REG__.idleEtat);
+  await attendre();
+  assert.ok(g.sb.__appels.includes(BASE + "jeux.json"), "catalogue lu sous le jeton : " + g.sb.__appels.join(","));
+  assert.ok(g.sb.__appels.every((u) => u.endsWith("/api/v1/scummvm-acces") || u.startsWith(BASE)), "toute requête de fichier passe par le jeton : " + g.sb.__appels.join(","));
   /* échec réseau = fermé */
   const h = faux({ differe: true });
   h.sb.fetch = async () => { throw new Error("réseau"); };
   h.demarrer(); await attendre();
   assert.equal(h.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), false, "échec réseau = fermé");
+  /* réponse sans jeton (ou refus) = fermé */
+  const k = faux({ differe: true });
+  k.sb.fetch = async () => ({ ok: true, json: async () => ({ ok: true, autorise: true }) });
+  k.demarrer(); await attendre();
+  assert.equal(k.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), false, "autorise sans jeton = fermé");
+  /* pas de session : aucune requête (un jeton n'a aucun sens), nouvel essai ensuite */
+  const m = faux({ differe: true });
+  m.sb.__session = "";
+  m.demarrer(); await attendre();
+  assert.equal(m.sb.__appels.length, 0, "sans session : aucune requête");
+  assert.equal(m.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), false);
 }
-/* 7. branchement : la barre de menus consulte l'interrupteur */
+/* 6b. renouvellement : au plus toutes les 60 s ; aussitôt que le jeton expire dans moins de 10 minutes ; un jeton qui change ne recrée jamais l'iframe */
+{
+  const f = faux({ differe: true });
+  let maintenant = 1_000_000_000_000;
+  const DateReel = Date;
+  f.sb.Date = class extends DateReel { static now() { return maintenant; } };
+  f.sb.__expire = Math.floor(maintenant / 1000) + 3600;   /* expire dans 1 h */
+  f.demarrer(); await attendre();
+  const acces = () => f.sb.__appels.filter((u) => u.endsWith("/api/v1/scummvm-acces")).length;
+  assert.equal(acces(), 1);
+  maintenant += 30_000; f.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(); await attendre();
+  assert.equal(acces(), 1, "moins de 60 s : pas de nouvelle requête");
+  maintenant += 40_000; f.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(); await attendre();
+  assert.equal(acces(), 2, "après 60 s : renouvelé");
+  /* proche de l'expiration (moins de 10 minutes) : renouvelé dès 5 s */
+  f.sb.__expire = Math.floor(maintenant / 1000) + 300; maintenant += 61_000; f.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(); await attendre();
+  assert.equal(acces(), 3);
+  f.sb.__jeton = "autre1234.signature-de-test-67890"; f.sb.__expire = Math.floor(maintenant / 1000) + 86400;
+  maintenant += 6_000; f.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(); await attendre();
+  assert.equal(acces(), 4, "jeton qui expire bientôt : renouvelé sans attendre 60 s");
+  assert.equal(f.sb.__SOREAL_IDLE_SCUMMVM_BASE_V1__(), "/api/idle/scummvm/autre1234.signature-de-test-67890/", "nouveau jeton pris");
+}
+/* 6c. un jeton renouvelé pendant la partie ne recrée ni ne recharge l'iframe */
+{
+  const f = faux(); await attendre();
+  f.sb.__catalogue = { jeux };
+  f.stock.soreal_idle_scummvm_etat_v1 = "lance";
+  const hooks = f.sb.__SOREAL_IDLE_APRES_REDESSIN_V1__;
+  f.sb.__SOREAL_IDLE_REG__.idleEtat = { systemes: { difficulty: "normal", systems: [{ id: "scummvm" }] } };
+  f.setZone(f.el("div"));
+  f.sb.__SOREAL_IDLE_SCUMMVM_PAGE_V1__.page(f.sb.__SOREAL_IDLE_REG__.idleEtat);
+  await attendre(); hooks[0](); await attendre();
+  assert.equal(f.iframes.length, 1);
+  f.sb.__jeton = "autre1234.signature-de-test-67890";
+  f.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__();   /* pas encore 60 s : aucun effet */
+  hooks[0](); hooks[0]();
+  assert.equal(f.iframes.length, 1, "toujours un seul iframe");
+  assert.equal(f.iframes[0].srcAffectations, 1, "jamais rechargé");
+  assert.ok(f.iframes[0].src.startsWith(BASE + "moteur/scummvm.html#"), "l'adresse de l'iframe garde le jeton de départ");
+}
+/* 7. branchement : la barre de menus consulte l'accès par compte (même fonction qu'avant : fermé = menu absent) */
 {
   const nav = readFileSync("cloudflare/public/modules/ui-navigation-v1.js", "utf8");
   assert.ok(nav.includes("if(id==='scummvm'&&!(window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__&&window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__()))return false;"), "menuDisponible : fermé = absent");

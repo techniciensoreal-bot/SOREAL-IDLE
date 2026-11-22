@@ -6,6 +6,8 @@ import { idleItopodNomRosterV1, idleItopodNomRosterParEmailV1, idleItopodCosmeti
 import { allegerCataloguesV1 } from "./idle-catalogues-v1.js";
 import { traduireReponseV1, OPERATIONS_SANS_TRADUCTION_V1 } from "./idle-traductions-v1.js";
 import { poserRelaisV1, lireRelaisV1 } from "./idle-relais-apk-v1.js";
+import { idleScummvmSauvegardesTraiterV1 } from "./idle-scummvm-sauvegardes-v1.js";
+import { idleScummvmCompteAutoriseV1 } from "./idle-scummvm-acces-v1.js";
 import { exporterPourMoteurLocalV1, recevoirDuMoteurLocalV1, lireAlertesLocalesV1, listerSauvegardesLocalesV1, restaurerSauvegardeLocaleV1, localActifV1, definirLocalActifV1, noterActionServeurV1, textesPourMoteurLocalV1 } from "./idle-local-sync-v1.js";
 
 /*
@@ -618,6 +620,44 @@ export class SorealIdleCoordinatorV1 {
       if (actuel && actuel.photo) { const ph = idleBadavatarPhotoV1(this.sql, actuel.nomCle); if (ph) image = ph.type; }
       return Response.json({ ok: true, nom: nom || "", nomCle, profil: actuel, photoType: image }, { headers: { "cache-control": "no-store" } });
     }
+    /* Sauvegardes de ScummVM synchronisées entre les appareils du compte (idle-scummvm-sauvegardes-v1.js) : le compte est celui de la session (jamais fourni par le client), droit de jouer ET droit « Énigmes » exigés. */
+    if (path === "/__soreal-idle-v1/scummvm-sauvegardes") {
+      const p = await request.json().catch(() => ({}));
+      const s = this.standaloneSessionV1(sv(p?.sessionToken));
+      if (!s.ok) return Response.json({ ok: false, error: s.error, message: "Connexion perdue : reconnecte-toi." }, { headers: { "cache-control": "no-store" } });
+      if (!this.accesJeuV1(s, sv(p?.sessionToken))) return Response.json({ ok: false, error: "SOREAL_IDLE_ACCES_REFUSE" }, { headers: { "cache-control": "no-store" } });
+      const email = sv(s.user?.email || s.user?.emailConnexion || (Array.isArray(s.user?.emails) ? s.user.emails[0] : "")).toLowerCase();
+      const autorise = async () => {
+        let admin = false;
+        try { const r = runSorealIdleOperation(this.sqlMoteur, "estAdminSorealIdle", [sv(p?.sessionToken)], s.user); admin = Boolean(r && r.isAdmin === true); } catch (_e) { admin = false; }
+        return idleScummvmCompteAutoriseV1(this.env, { email, emails: Array.isArray(s.user?.emails) ? s.user.emails : [], emailConnexion: s.user?.emailConnexion, admin });
+      };
+      const res = await idleScummvmSauvegardesTraiterV1(this.sql, email, { action: p?.action, jeu: p?.jeu, force: p?.force, fichiers: p?.fichiers }, { autorise });
+      return Response.json(res, { headers: { "cache-control": "no-store" } });
+    }
+    /* Accès à ScummVM (idle-scummvm-acces-v1.js, Norman 2026-11-22) : identité vérifiée de la session (adresse du compte + drapeau administrateur, même preuve que estAdminSorealIdle) ; le Worker décide ensuite avec la liste R2 scummvm/acces.json. */
+    if (path === "/__soreal-idle-v1/scummvm-acces") {
+      const p = await request.json().catch(() => ({}));
+      const s = this.standaloneSessionV1(sv(p?.sessionToken));
+      if (!s.ok) return Response.json({ ok: false, error: s.error }, { headers: { "cache-control": "no-store" } });
+      const email = sv(s.user?.email || s.user?.emailConnexion || (Array.isArray(s.user?.emails) ? s.user.emails[0] : "")).toLowerCase();
+      if (!email) return Response.json({ ok: false, error: "SCUMMVM_COMPTE" }, { headers: { "cache-control": "no-store" } });
+      let admin = false;
+      try { const r = runSorealIdleOperation(this.sqlMoteur, "estAdminSorealIdle", [sv(p?.sessionToken)], s.user); admin = Boolean(r && r.isAdmin === true); } catch (_e) { admin = false; }
+      const emails = [email].concat(Array.isArray(s.user?.emails) ? s.user.emails : [], [s.user?.emailConnexion]).map((e) => sv(e).toLowerCase()).filter(Boolean);
+      return Response.json({ ok: true, email, emails: Array.from(new Set(emails)), admin }, { headers: { "cache-control": "no-store" } });
+    }
+    /* Clé de signature des jetons de fichiers ScummVM : le Worker n'a AUCUN secret (aucun secret de ticket ou de session n'est lisible : les jetons de session sont opaques et vivent dans ce stockage) ; une clé aléatoire de 256 bits est donc créée ici une fois et gardée dans idle_meta. Route interne : jamais joignable depuis l'internet. */
+    if (path === "/__soreal-idle-v1/scummvm-secret") {
+      let secret = "";
+      try { secret = sv(this.sqlAll("SELECT meta_value FROM idle_meta WHERE meta_key=?", "scummvm_secret_v1")[0]?.meta_value); } catch (_e) { secret = ""; }
+      if (!/^[0-9a-f]{64}$/.test(secret)) {
+        const octets = crypto.getRandomValues(new Uint8Array(32));
+        secret = Array.from(octets, (b) => b.toString(16).padStart(2, "0")).join("");
+        this.sql.exec("INSERT INTO idle_meta(meta_key,meta_value) VALUES(?,?) ON CONFLICT(meta_key) DO UPDATE SET meta_value=excluded.meta_value", "scummvm_secret_v1", secret);
+      }
+      return Response.json({ ok: true, secret }, { headers: { "cache-control": "no-store" } });
+    }
     if (path === "/__soreal-idle-v1/local-textes") {
       const p = await request.json().catch(() => ({}));
       const s = this.standaloneSessionV1(sv(p?.sessionToken));
@@ -669,7 +709,7 @@ export class SorealIdleCoordinatorV1 {
       let profils = [];
       try { profils = this.sqlAll("SELECT email,pseudo,pseudo_key,externe,google_name,prenom,first_seen,updated_at FROM idle_profiles ORDER BY email"); } catch (_e) { /* pas encore de table : aucun profil */ }
       let meta = [];
-      try { meta = this.sqlAll("SELECT meta_key,meta_value FROM idle_meta ORDER BY meta_key"); } catch (_e) { /* idem */ }
+      try { meta = this.sqlAll("SELECT meta_key,meta_value FROM idle_meta WHERE meta_key<>'scummvm_secret_v1' ORDER BY meta_key"); } catch (_e) { /* idem */ }
       return Response.json({ ok: true, v: 1, at: Date.now(), nbJoueurs: Math.max(0, joueurs.length - 1), joueurs, profils, meta }, { headers: { "cache-control": "no-store" } });
     }
     if (path === "/__soreal-idle-v1/counts") {
