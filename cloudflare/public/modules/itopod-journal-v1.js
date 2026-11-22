@@ -106,7 +106,10 @@ var TIERS=[
 ];
 function phrase(degats,nom,nomR3,formater){
   var d=Number(degats)||0,p=DEFAUT;
-  for(var i=0;i<TIERS.length;i++){if(d>TIERS[i][0]){p=TIERS[i][1];break;}}
+  /* Version française (modules/journal-fr-v1.js, mêmes paliers dans le même ordre) quand la langue du jeu n'est pas l'anglais. */
+  var FR=window.__SOREAL_IDLE_JOURNAL_FR_V1__,fr=Boolean(FR&&FR.actif()&&FR.degats.length===TIERS.length);
+  if(fr)p=FR.defaut;
+  for(var i=0;i<TIERS.length;i++){if(d>TIERS[i][0]){p=fr?FR.degats[i]:TIERS[i][1];break;}}
   var fmt=typeof formater==='function'?formater:function(v){return String(v);};
   return p.map(function(x){return x===1?String(nom==null?'':nom):x===2?fmt(d):x===3?String(nomR3||'Resource 3'):x;}).join('');
 }

@@ -36,3 +36,28 @@ for (const vieux of ["vous a attaqué pour", "Vous frappez", "Vous avez vaincu",
 assert.ok(combat.includes("JOURNAL_JEU_V1__"), "journal d'Aventure branché sur les phrases du jeu");
 assert.ok(readFileSync(new URL("../public/index.html", import.meta.url), "utf8").includes("journal-jeu-v1.js"), "module chargé");
 console.log("idle-journal-jeu-phrases-v1: OK");
+
+// Version française (Norman, 2026-11-22 : « le journal de combat de l'ITOPOD doit être traduit en français pour la version française »).
+{
+  const stock = new Map();
+  const ls = { getItem: (k) => (stock.has(k) ? stock.get(k) : null), setItem: (k, v) => stock.set(k, String(v)) };
+  const f2 = {};
+  const c2 = { window: f2, localStorage: ls };
+  for (const m of ["journal-fr-v1.js", "itopod-journal-v1.js", "journal-jeu-v1.js"]) vm.runInNewContext(lire(m), c2);
+  const I = f2.__SOREAL_IDLE_ITOPOD_JOURNAL_V1__, G = f2.__SOREAL_IDLE_JOURNAL_JEU_V1__, FR = f2.__SOREAL_IDLE_JOURNAL_FR_V1__;
+  assert.equal(FR.degats.length, I.tiers.length, "92 paliers français alignés sur la table anglaise");
+  assert.equal(I.phrase(7.355e35, "Dalassa", "", String), "Tu fais un câlin d'ours à Dalassa pour 7.355e+35 dégâts !", "français par défaut");
+  assert.equal(I.phrase(5, "Zed", "", String), "Tu as frappé Zed pour 5 dégâts !");
+  assert.equal(G.victoire("Zed"), "Tu as vaincu Zed !");
+  assert.equal(G.progres("5"), "Tu as gagné 5 de progression vers ton prochain Point d'Atout !");
+  assert.equal(G.pointAtout("1", false), "Tu as gagné 1 Point d'Atout !");
+  assert.equal(G.attaque("normal", "Zed", "12"), "Zed a attaqué pour 12 dégâts !");
+  assert.equal(G.or("5"), "L'ennemi a lâché 5 pièces d'or ! Génial !".replace("L'ennemi", "Zed"), "le butin reprend le dernier ennemi vaincu");
+  ls.setItem("soreal_idle_langue_v1", "en");
+  assert.equal(I.phrase(7.355e35, "Dalassa", "", String), "You give Dalassa a bear-hug for 7.355e+35 damage!", "anglais : phrase du jeu");
+  assert.equal(G.victoire("Zed"), "You have defeated Zed!");
+  assert.equal(G.progres("5"), "You gained 5 progress to your next Perk Point!");
+  assert.equal(G.attaque("normal", "Zed", "12"), "Zed attacked for 12 damage!");
+  assert.ok(readFileSync(new URL("../public/index.html", import.meta.url), "utf8").includes("journal-fr-v1.js"), "module français chargé");
+}
+console.log("idle-journal-jeu-phrases-v1 (français): OK");

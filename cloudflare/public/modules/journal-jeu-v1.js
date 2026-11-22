@@ -34,10 +34,15 @@ function fmt(v){
 function coup(degats,nom){return coupJoueur(degats,nom,nomR3(),fmt);}
 /* Nom du dernier ennemi vaincu : les lignes de butin du jeu commencent par lui (« X dropped N gold! Sweet! », LootDrop::zoneNDrop). */
 var dernierEnnemi='';
-function victoire(nom){dernierEnnemi=String(nom||'');return 'You have defeated '+nom+'!';}
-function or(n){return (dernierEnnemi||'The enemy')+' dropped '+n+' gold! Sweet!';}
-function defaite(nom){return nom+' has defeated you!';}
-function soin(pv){return 'You healed yourself for '+pv+' HP!';}
+/* Langue : en français (langue du jeu ≠ anglais) les phrases viennent de modules/journal-fr-v1.js, traduction fidèle. */
+function FR(){var F=window.__SOREAL_IDLE_JOURNAL_FR_V1__;return F&&F.actif()?F:null;}
+function victoire(nom){dernierEnnemi=String(nom||'');var f=FR();return f?f.victoire(nom):'You have defeated '+nom+'!';}
+function or(n){var f=FR();return f?f.or(dernierEnnemi||"L'ennemi",n):(dernierEnnemi||'The enemy')+' dropped '+n+' gold! Sweet!';}
+/* Lignes du journal de l'ITOPOD : progression vers le prochain Point d'Atout et Points d'Atout gagnés (ItopodPerkController::addProgress). */
+function progres(n){var f=FR();return f?f.progres(n):'You gained '+n+' progress to your next Perk Point!';}
+function pointAtout(n,pluriel){var f=FR();return f?f.pointAtout(n,pluriel):(pluriel?'You gained '+n+' Perk Points!':'You gained 1 Perk Point!');}
+function defaite(nom){var f=FR();return f?f.defaite(nom):nom+' has defeated you!';}
+function soin(pv){var f=FR();return f?f.soin(pv):'You healed yourself for '+pv+' HP!';}
 
 /*
  * Phrase d'une attaque de l'ennemi (n = dégâts déjà formatés). kind :
@@ -45,6 +50,7 @@ function soin(pv){return 'You healed yourself for '+pv+' HP!';}
  *  gant / gantPuissant (nerdAI) · explosion (godmotherAI) · tirBras (exileAI) · succion (doExileAura) · devore (itHungersAI) · sauterelle / rat (jakeAI / ratAI) · saigne (theButcherAI)
  */
 function attaque(kind,nom,n){
+  var f=FR();if(f)return f.attaque(kind,nom,n);
   switch(kind){
     case 'puissante':return nom+' unleashed a power attack for '+n+' damage!';
     case 'super':return nom+' unleashed a SUPER power attack for '+n+' damage!';
@@ -82,6 +88,7 @@ var AURAS={
 var CONSIGNES={3:'REGULAR',4:'STRONG',5:'PIERCING',6:'ULTIMATE'};
 function titan(kind,nom,o){
   o=o||{};
+  var f=FR();if(f)return f.titan(kind,nom,o);
   switch(kind){
     case 'gant':return ['At the same time, the Nerd slips a Power Glove onto their right hand!','Watch out, this is gonna be bad!'];
     case 'gantPuissant':return ['They hit you so hard their glove broke! You\'re safe for a little while longer. '];
@@ -113,9 +120,10 @@ function titan(kind,nom,o){
     case 'rapideDebut':return [nom+' surged forward and started attacking crazy fast!'];
     case 'tremble':return [nom+' starts shaking violently! What\'s about to happen?'];
     case 'poisonDegats':return ['You also take '+o.n+' poison damage!'];
+    case 'presqueMort':return ['You are almost certainly dead.'];
     case 'liberte':return ['You\'ve broken out of the paralyze effect! Start kicking some ass, pronto!'];
     default:return [];
   }
 }
-window.__SOREAL_IDLE_JOURNAL_JEU_V1__={or:or,coup:coup,fmt:fmt,coupJoueur:coupJoueur,victoire:victoire,defaite:defaite,soin:soin,attaque:attaque,titan:titan};
+window.__SOREAL_IDLE_JOURNAL_JEU_V1__={progres:progres,pointAtout:pointAtout,or:or,coup:coup,fmt:fmt,coupJoueur:coupJoueur,victoire:victoire,defaite:defaite,soin:soin,attaque:attaque,titan:titan};
 })();

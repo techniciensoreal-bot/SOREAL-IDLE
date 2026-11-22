@@ -31,6 +31,9 @@
         groupes:[
           {menu:'combat', titre:'Combat de boss', points:[
             'Nouveau sur la borne : un petit interrupteur « AUTO » pour couper ou remettre un lancement automatique, quand tu en possèdes un.'
+          ]},
+          {menu:'tower', titre:'ITOPOD', points:[
+            'Le journal de combat de la tour est écrit dans la langue du jeu : en français pour la version française, avec les phrases du jeu d’origine pour l’anglais.'
           ]}
         ]
       },
@@ -68,7 +71,7 @@
             'Arrivée d’un boss : fin du clignotement noir très bref qui apparaissait souvent juste après l’animation.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Le journal de combat reprend les phrases du jeu d’origine (en anglais) : tes coups, les attaques des ennemis, les victoires et le butin d’or.',
+            'Le journal de combat reprend les phrases du jeu d’origine, traduites en français : tes coups, les attaques des ennemis, les victoires et le butin d’or.',
             'Cube, d’après le code du jeu : le seuil au-delà duquel le Cube compte moins inclut la base de 10 et tous les gains plats permanents, pas seulement l’équipement.',
             'Butin : le filtre de butin d’un kill est celui de la zone où le kill a eu lieu.'
           ]},

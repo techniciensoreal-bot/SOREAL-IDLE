@@ -1188,7 +1188,7 @@
         fight.playerHp=Math.max(0,avant-subis);
         fxIdleV1_('mob','explosion');fxIdleV1_('joueur','degats','-'+idleEntier_(subis));jouerEffetAudioIdleV199_('skill_mobExplosion');
         ajouterLogAventureIdleV1_('enemy',window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('explodeMob',libelleEnnemiAdventureIdleV1_(fight),{n:window.__SOREAL_IDLE_JOURNAL_JEU_V1__.fmt(subis)})[0]);
-        ajouterLogAventureIdleV1_('enemy','You are almost certainly dead.');
+        window.__SOREAL_IDLE_JOURNAL_JEU_V1__.titan('presqueMort').forEach(function(t){ajouterLogAventureIdleV1_('enemy',t);});
         return fight.playerHp<=0?'mort':'survie';
       }
 

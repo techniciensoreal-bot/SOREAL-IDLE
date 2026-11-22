@@ -234,7 +234,7 @@ function pas(){
   var barre=el.querySelector('.itp-vie:not(.itp-vie-joueur) .itp-vie-rempli');
   var reste=Math.max(0,100-combat.coups*100/combat.hits);
   if(barre)barre.style.width=reste.toFixed(1)+'%';
-  var J=window.__SOREAL_IDLE_ITOPOD_JOURNAL_V1__;
+  var J=window.__SOREAL_IDLE_ITOPOD_JOURNAL_V1__,JJ=window.__SOREAL_IDLE_JOURNAL_JEU_V1__;
   if(J&&combat.degats>0)ecrireJournal(el,J.phrase(combat.degats*(0.8+Math.random()*0.4),combat.nom,nomR3(),fmtNombre),true);
   if(combat.coups>=combat.hits){
     combat.mort=true;combat.tEnnemi=0;
@@ -242,14 +242,14 @@ function pas(){
     if(ennemi)ennemi.classList.add('itp-mort');
     combat.prochain=maintenant+Math.max(0.34,combat.respawn)*1000;
     if(combat.pvMax>0){
-      ecrireJournal(el,'You have defeated '+combat.nom+'!',false);
+      ecrireJournal(el,JJ?JJ.victoire(combat.nom):'You have defeated '+combat.nom+'!',false);
       var gain=Math.max(0,(combat.ppBase+combat.etageCourant)*combat.ppMult);
-      ecrireJournal(el,'You gained '+fmtNombre(gain)+' progress to your next Perk Point!',false);
+      ecrireJournal(el,JJ?JJ.progres(fmtNombre(gain)):'You gained '+fmtNombre(gain)+' progress to your next Perk Point!',false);
       combat.ppProg+=gain;
       if(combat.ppProg>=SEUIL_PP){
         var n=Math.floor(combat.ppProg/SEUIL_PP);
         combat.ppProg=combat.ppProg%SEUIL_PP;
-        ecrireJournal(el,n===1?'You gained 1 Perk Point!':'You gained '+fmtNombre(n)+' Perk Points!',false);
+        ecrireJournal(el,JJ?JJ.pointAtout(n===1?'1':fmtNombre(n),n!==1):(n===1?'You gained 1 Perk Point!':'You gained '+fmtNombre(n)+' Perk Points!'),false);
       }
     }
   }else{

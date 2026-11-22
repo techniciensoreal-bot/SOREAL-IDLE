@@ -480,16 +480,16 @@
   "sha": "f64303d9830f3415ac55a8fe34708e54cdb8d8ae"
  },
  "/modules/itopod-journal-v1.js": {
-  "pin": 1,
-  "sha": "b8977a56e61702260d3a03e796ebdd5f6f45e43e"
+  "pin": 2,
+  "sha": "476443f433fa5bb3552449d25ff4e013c49d6e55"
  },
  "/modules/itopod-perks-page-v1.js": {
   "pin": 9,
   "sha": "e0487b809bea4201af80893ad2dc284d63969923"
  },
  "/modules/itopod-scene-v1.js": {
-  "pin": 17,
-  "sha": "039135b6811fa85485859616fe2ded5c9a9b6f63"
+  "pin": 18,
+  "sha": "303de0e0623f73a4fa13fa38fd80747e7f46396a"
  },
  "/modules/itopod-vdom-v1.js": {
   "pin": 3,
@@ -503,9 +503,13 @@
   "pin": 1,
   "sha": "94fab409dca29867aea6feffa466ae3437cfdda6"
  },
+ "/modules/journal-fr-v1.js": {
+  "pin": 1,
+  "sha": "d13a931ffa7e914e254ffca40e9bb58aefa6836b"
+ },
  "/modules/journal-jeu-v1.js": {
-  "pin": 2,
-  "sha": "d8fe4334ea57d441b5f3256eb1f1e5a0b185f09e"
+  "pin": 3,
+  "sha": "45a68ac386e6339db058b5cf911c80b98e643fa6"
  },
  "/modules/labos-page-v1.js": {
   "pin": 11,
@@ -724,12 +728,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 420,
-  "sha": "6e634e385413910e01c02d6a396eca2fe6d12994"
+  "pin": 421,
+  "sha": "d4c262b078da79465d9b1b1f3151277bbf7478a1"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1070,
-  "sha": "10fa7d166873937784e053dc24cc6578f42cbfdc"
+  "pin": 1071,
+  "sha": "7d3f5756f410c9ec6433b0110bdcb50387552756"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -824,12 +828,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1120,
-  "sha": "bfeeb68a08f560e7449ed5ab39495c45833bbdf3"
+  "pin": 1121,
+  "sha": "1c05c217ad440fec2b2c0d301790031fc9abccb9"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 940,
-  "sha": "fa262e5cfb35083afe859da8d623e7c4f4ec8bf5"
+  "pin": 941,
+  "sha": "4264b2168772c96efc6aba55b81f2925de7609f8"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
@@ -900,8 +904,8 @@
   "sha": "df71495e5381548e29eb2bb8b7a9569f2db7e4ce"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 61,
-  "sha": "48b5e2ca73d388ca1924febd3beaef8a6058c38b"
+  "pin": 62,
+  "sha": "6e38c34ab48a05048d50c953f94b8190fcc53b1b"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
