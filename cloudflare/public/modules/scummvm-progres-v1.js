@@ -80,9 +80,13 @@
         const fr=typeof t.nom.fr==='string'?t.nom.fr.trim():'',en=typeof t.nom.en==='string'?t.nom.en.trim():'';
         if(!fr||!en||fr.length>120||en.length>120)return null;
         const objets=t.objets===undefined?[]:t.objets,bits=t.bits===undefined?[]:t.bits;
-        if(!Array.isArray(objets)||!Array.isArray(bits)||!objets.every(entierIndice)||!bits.every(entierIndice)||objets.length+bits.length===0||objets.length+bits.length>200)return null;
+        if(!Array.isArray(objets)||!Array.isArray(bits)||!objets.every(entierIndice)||!bits.every(entierIndice)||objets.length+bits.length>200)return null;
+        /* nbObjets (optionnel) : trophée de COLLECTION, obtenu quand le joueur a possédé au moins N objets différents (« prendre 15 choses ») ; il peut remplacer les objets et les indicateurs */
+        const nb=t.nbObjets===undefined?0:t.nbObjets;
+        if(nb!==0&&!(Number.isInteger(nb)&&nb>=1&&nb<=800))return null;
+        if(objets.length+bits.length===0&&nb===0)return null;
         ids[t.id]=1;
-        liste.push({id:t.id,nom:{fr:fr,en:en},ap:t.ap,objets:objets.slice(),bits:bits.slice()});
+        const e={id:t.id,nom:{fr:fr,en:en},ap:t.ap,objets:objets.slice(),bits:bits.slice()};if(nb>0)e.nbObjets=nb;liste.push(e);
       }
       return liste;
     }catch(_e){return null;}
@@ -90,8 +94,10 @@
   /* Trophées dont la condition est remplie par l'ensemble d'unités `vu` (bitset : objet i = unité i, bit n = unité objetsGlobaux + n), dans l'ordre de la liste. */
   function tropheesRemplis(liste,vu,profil){
     const a=function(i){return i>=0&&(i>>3)<vu.length&&(vu[i>>3]&(1<<(i&7)))!==0;};
+    let nbObjetsVus=0;
+    for(let i=0;i<profil.objetsGlobaux;i++)if(a(i))nbObjetsVus++;
     return (liste||[]).filter(function(t){
-      return t.objets.some(function(o){return o<profil.objetsGlobaux&&a(o);})||t.bits.some(function(n){return n<profil.bits&&a(profil.objetsGlobaux+n);});
+      return (t.nbObjets>0&&nbObjetsVus>=t.nbObjets)||t.objets.some(function(o){return o<profil.objetsGlobaux&&a(o);})||t.bits.some(function(n){return n<profil.bits&&a(profil.objetsGlobaux+n);});
     });
   }
   /* Charge la liste du jeu (une fois par jeu) : dossier de la langue d'abord, puis le dossier du catalogue. Résout toujours (liste ou null). */

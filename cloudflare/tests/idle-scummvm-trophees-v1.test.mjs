@@ -418,4 +418,23 @@ const progres = (etat, p, t = t0 + 1000) => applyIdleNguAction(etat, Object.assi
   assert.ok(!/document\.|innerHTML/.test(nuP), "le suivi n'écrit rien dans la page");
 }
 
+/* 10. Trophée de collection (nbObjets) : « avoir possédé au moins N objets différents » (les trois trophées de vol de Day of the Tentacle) */
+{
+  const f = faux();
+  const L = f.P.validerTrophees({ version: 1, trophees: [trophee("vol-3", { nbObjets: 3 }), trophee("vol-5", { nbObjets: 5, objets: [], bits: [] })] });
+  assert.ok(L && L.length === 2 && L[0].nbObjets === 3, "nbObjets seul suffit comme condition");
+  const vu = new Uint8Array((L0.unitesPossibles(profil) + 7) >> 3);
+  const poser = (i) => { vu[i >> 3] |= 1 << (i & 7); };
+  poser(10); poser(11);
+  assert.deepEqual(Array.from(f.P.tropheesRemplis(L, vu, profil).map((t) => t.id)), [], "2 objets : rien");
+  poser(12);
+  assert.deepEqual(Array.from(f.P.tropheesRemplis(L, vu, profil).map((t) => t.id)), ["vol-3"], "3 objets : le premier");
+  poser(profil.objetsGlobaux + 4);   // un indicateur n'est pas un objet : il ne compte pas
+  assert.deepEqual(Array.from(f.P.tropheesRemplis(L, vu, profil).map((t) => t.id)), ["vol-3"], "les indicateurs ne comptent pas comme des objets");
+  poser(13); poser(14);
+  assert.deepEqual(Array.from(f.P.tropheesRemplis(L, vu, profil).map((t) => t.id)), ["vol-3", "vol-5"]);
+  for (const mauvais of [0, -1, 801, 1.5, "3", null]) assert.equal(f.P.validerTrophees({ version: 1, trophees: [trophee("x", { nbObjets: mauvais })] }), null, "nbObjets invalide : " + JSON.stringify(mauvais));
+  assert.ok(f.P.validerTrophees({ version: 1, trophees: [trophee("x", { objets: [1], nbObjets: 4 })] }), "peut s'ajouter à des objets");
+}
+
 console.log("idle-scummvm-trophees-v1 OK");
