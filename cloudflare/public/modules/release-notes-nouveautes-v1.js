@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Les ennemis de la tour récupèrent de la vie entre deux coups, comme dans le jeu : il faut parfois un coup de plus pour les tuer.",
     "Après « Appliquer », la tour affiche tout de suite les ennemis du nouvel étage au lieu de ceux de l’ancien."
   ] };
 })();

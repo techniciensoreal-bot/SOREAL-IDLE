@@ -100,7 +100,7 @@ console.log("idle-itopod-decors-hasard-v1 (avatars, perks): OK");
   assert.ok(/\.itp-ennemi \.itp-avatar\{[^}]*bottom:0[^}]*border:0[^}]*background:none/.test(css2), "avatar sans cadre, collé au bas");
   assert.ok(css2.includes(".itp-avatar.itp-flotte") && css2.includes("itpPoing") && css2.includes(".itp-vie-rempli"));
   const prog = lireSrc("idle-ngu-progression.js");
-  assert.ok(prog.includes("d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);"), "coups par ennemi donnés à l'écran");
+  assert.ok(prog.includes("d.hitsParKill = towerHitsV1(power, idleBonus, d.floor, interval);"), "coups par ennemi donnés à l'écran");
   const m2 = (readFileSync("cloudflare/public/modules/meta-progression-v130.js", "utf8") + lirePagesMeta());
   assert.ok(m2.includes("toggleSystemeMetaIdleV130_('tower')") && m2.includes("Entrer dans l’ITOPOD"), "bouton pour entrer dans la tour");
 }

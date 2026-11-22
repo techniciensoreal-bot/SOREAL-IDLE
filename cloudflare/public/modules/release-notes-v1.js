@@ -36,6 +36,7 @@
             'Tous les journaux de combat suivent la langue du jeu, y compris « (filtré) » à côté des objets filtrés.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Les ennemis de la tour récupèrent de la vie entre deux coups, comme dans le jeu : il faut parfois un coup de plus pour les tuer.',
             'Après « Appliquer », la tour affiche tout de suite les ennemis du nouvel étage au lieu de ceux de l’ancien.',
             'Dans la tour, les ennemis écrivent maintenant chacun de leurs coups dans le journal, ta défaite est notée et te ramène à ton étage de départ, et la vie de l’ennemi s’affiche sous sa barre.',
             'Le journal de combat de la tour est écrit dans la langue du jeu : en français pour la version française, avec les phrases du jeu d’origine pour l’anglais.'

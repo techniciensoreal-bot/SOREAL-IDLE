@@ -902,10 +902,19 @@ function towerExpForTierV1(tier) { return tier <= 1 ? 1 : tier === 2 ? 2 : (tier
 
 function towerKillsPerRewardV1(tier) { return tier <= 20 ? 40 - tier : 20; }
 
-function towerHitsV1(power, idleBonus, floor) {
+/*
+ * Coups nécessaires pour tuer un ennemi de l'étage. Régénération de l'ennemi (Norman, 2026-11-22 : « les ennemis de l'ITOPOD n'ont pas de regen de vie dans le jeu original ? » ; AdventureController::manageFight : PV de l'ennemi + régénération x dt, plafonnés
+ * à ses PV max ; régénération de base 1 x 1,05^étage par seconde, createEnemyTable zone 1000) : entre deux coups (« interval » secondes) l'ennemi récupère regen x interval ; le premier coup n'en subit aucune (PV pleins). Après le 1er coup il reste PV - dégâts,
+ * puis chaque coup retire (dégâts - regen x interval) : coups = 1 + ceil((PV - dégâts) / (dégâts - regen x interval)). Si le coup ne dépasse pas la régénération, l'ennemi ne meurt jamais (valeur très grande : le joueur n'avance pas).
+ */
+export function towerHitsV1(power, idleBonus, floor, interval = 1) {
   const scale = Math.pow(1.05, floor);
   const damage = Math.max(0, power - (10 * scale) / 2) /* le joueur n'a pas de plancher de dégâts dans le jeu (PlayerController) : lu 2026-11-16 */ * Math.max(0.1, idleBonus);
-  return Math.max(1, Math.ceil((600 * scale) / Math.max(1e-9, damage)));
+  const pv = 600 * scale;
+  if (damage >= pv) return 1;
+  const net = damage - scale * Math.max(0.05, Number(interval) || 1);
+  if (!(net > 0)) return 1e9;
+  return Math.max(1, 1 + Math.ceil((pv - damage) / net));
 }
 
 /*
@@ -1000,7 +1009,7 @@ function advanceTowerV1(state, seconds, context) {
     shifter = false;
   }
   d.optimalFloor = optimal;
-  d.hitsParKill = towerHitsV1(power, idleBonus, d.floor);
+  d.hitsParKill = towerHitsV1(power, idleBonus, d.floor, interval);
   d.respawnS = respawn;
   d.intervalS = interval;
   /* Pour l'écran (Norman, 2026-11-21 : « dans l'ITOPOD le joueur a une barre de vie et il y a un journal de combat ») : de quoi dessiner la barre de vie du joueur et les lignes du journal, tirés du MÊME calcul que la progression (lecture seule, aucun effet sur le jeu).
@@ -1029,7 +1038,7 @@ function advanceTowerV1(state, seconds, context) {
   d.ppBase = ppBase;
   d.ppMult = ppMultiplier;
 
-  const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor);
+  const killTimeAt = (floor) => respawn + interval * towerHitsV1(power, idleBonus, floor, interval);
   const applyKills = (n, floor) => {
     if (!(n > 0)) return;
     const tier = towerTierV1(floor);
@@ -1099,7 +1108,7 @@ function advanceTowerV1(state, seconds, context) {
   const hpMax = Math.max(0, num(combatStats.hp, 0));
   const regenJoueur = Math.max(0, num(combatStats.regen, 0)) * ITOPOD_AUTOATTACK_REGEN_V1;
   const etageLePlusHaut = auto ? optimal : end;
-  const combatNecessaire = !shifter && seconds < TOWER_COMBAT_MAX_SECONDS_V1 && hpMax > 0 && interval * towerHitsV1(power, idleBonus, etageLePlusHaut) >= TOWER_FIRST_STRIKE_SECONDS_V1;
+  const combatNecessaire = !shifter && seconds < TOWER_COMBAT_MAX_SECONDS_V1 && hpMax > 0 && interval * towerHitsV1(power, idleBonus, etageLePlusHaut, interval) >= TOWER_FIRST_STRIKE_SECONDS_V1;
   if (combatNecessaire) {
     if (!Number.isFinite(d.hp)) d.hp = hpMax;
     d.hp = clamp(d.hp, 0, hpMax);
