@@ -2113,7 +2113,6 @@ html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v
   /* « Login rewards » prend la largeur des DEUX cadres réunis (87,5 % de la grille + 2,5 px de gouttière) */
   html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="moneyPit"] .cal-v1{max-width:none!important;width:calc(100% * .875 + 2.5px)!important;margin-left:auto!important;margin-right:auto!important;box-sizing:border-box}
 }
-.soreal-idle-page-root-v28 .or-manque-v1.or-manque-v1{color:#ff3b3b!important;font-weight:900;text-shadow:0 1px 0 #000}
 
 /* Même brillance partout (Norman, 2026-11-04 : « des différences de brillance entre le pupitre et la bande montante à côté de l'écran ») : la bande du pupitre reçoit le même halo que celles de l'écran et du soubassement (0 0 22px + 0 0 46px, ramenés à l'échelle du dessin du pupitre). */
 html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-deck-svg g.bn-lueur[data-lueur="B"]>polygon,html body.soreal-idle-active-v47.soreal-idle-active-v47 .soreal-idle-page-root-v28[data-menu="combat"] .borne-v2 .bn-deck-svg g.bn-lueur[data-lueur="B"]>path{filter:drop-shadow(0 0 3px #2f7bff) drop-shadow(0 0 9.6px #2f7bff) drop-shadow(0 0 20px rgba(47,123,255,.75))}

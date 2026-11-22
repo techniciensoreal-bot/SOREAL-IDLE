@@ -219,8 +219,26 @@ export function idleQuirkNextCostV1(quirk, currentLevel) {
  */
 /* Bonus en pourcentage dont les quirks DISTINCTS se multiplient (niveaux d'un même quirk additionnés) : voir quirkBonusesV1. */
 export const QUIRK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct","r3PowerPct","r3CapPct","r3BarsPct","nguSpeedEnergyPct","nguSpeedMagicPct"]); /* produit des quirks, lu dans le jeu (BeastQuestPerkController::total*Bonus, 2026-11-16) */
+/* Audit de rapidité 2026-11-22 : fonction pure des niveaux du catalogue, mémo à clé de contenu, une copie par appel (voir perkBonusesV1). */
+const QUIRK_BONUS_MEMO_V1 = new Map();
 export function quirkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
+  let cle = "";
+  for (const quirk of IDLE_QUIRKS_CATALOG_V1) {
+    const level = Math.max(0, Math.min(quirk.cap, Number(levels[quirk.id]) || 0));
+    if (level) cle += quirk.id + ":" + level + ",";
+  }
+  let valeur = QUIRK_BONUS_MEMO_V1.get(cle);
+  if (valeur === undefined) {
+    valeur = quirkBonusesCalculV1(levels);
+    if (QUIRK_BONUS_MEMO_V1.size >= 64) QUIRK_BONUS_MEMO_V1.clear();
+    QUIRK_BONUS_MEMO_V1.set(cle, valeur);
+  }
+  const copie = Object.assign({}, valeur);
+  copie.hackMilestoneReduction = Object.assign({}, valeur.hackMilestoneReduction);
+  return copie;
+}
+function quirkBonusesCalculV1(levels) {
   const totals = {};
   /* Page Boost : « Beasted Boosts I à IV, chacun multiplicatif avec les autres » (1,5 x 2,2 x 1,5 x 1,25 au maximum). */
   let boostPowerProduct = 1;

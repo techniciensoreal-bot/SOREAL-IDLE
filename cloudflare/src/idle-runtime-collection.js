@@ -153,31 +153,6 @@ export function genererObjetLootSorealIdle_(
   return null;
 }
 
-/*
- * Compatibilité avec le combat principal historique.
- */
-function genererObjetBossSorealIdle_(
-  bossVaincusAvant,
-  bossNom
-) {
-  return genererObjetLootSorealIdle_({
-    zoneId: 0,
-    zoneNom: '',
-    bossNom:
-      String(
-        bossNom || ''
-      ),
-    progression:
-      Math.max(
-        0,
-        nombreSorealIdle_(
-          bossVaincusAvant,
-          0
-        )
-      )
-  });
-}
-
 function nomBaseObjetCollectionSorealIdle_(
   objet
 ) {

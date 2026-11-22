@@ -97,7 +97,7 @@ for (const motif of ["/modules/*", "/soreal-idle-*.js", "/soreal-idle-*.css", "i
 
 /* Dette CSS connue : nombre de « !important » dans les feuilles de style. Cliquet : le total ne doit JAMAIS augmenter ; en retirer = baisser PLAFOND_IMPORTANT.
  * Aucun outil ne vérifie le rendu visuel : on les retire page par page, à l'œil, pas en masse. */
-const PLAFOND_IMPORTANT = 2517;
+const PLAFOND_IMPORTANT = 2508;
 let important = 0;
 for (const f of readdirSync(join(racine, "public"))) if (f.endsWith(".css")) important += (readFileSync(join(racine, "public", f), "utf8").match(/!important/g) || []).length;
 infos.push(`dette CSS : ${important} « !important » (plafond ${PLAFOND_IMPORTANT}, ne doit jamais monter)`);
@@ -111,7 +111,7 @@ if (important > PLAFOND_IMPORTANT) problemes.push(`CSS : ${important} « !import
  * `node cloudflare/tools/audit-architecture.mjs --detail` liste les fichiers responsables de chaque compte. */
 const PLAFONDS = {
   importantJs: 348,          /* « !important » dans le JS (chaînes CSS comprises) */
-  setInterval: 103,          /* setInterval( */
+  setInterval: 102,          /* setInterval( */
   requestAnimationFrame: 106,/* requestAnimationFrame( */
   mutationObserver: 23,     /* new MutationObserver( */
   styleInjecte: 98,         /* createElement('style') : total */
@@ -226,7 +226,7 @@ const OCTETS_PAR_FICHIER = {
 /* Feuilles de style : plafond de lignes par feuille (taille du 2026-11-09), jamais en hausse. Une feuille absente d'ici est limitée à MAX_LIGNES_FICHIER. */
 const LIGNES_CSS_PAR_FEUILLE = {
   "soreal-idle-album-titans.css": 65,
-  "soreal-idle-album.css": 265,
+  "soreal-idle-album.css": 263,
   "soreal-idle-augment-led-haut-v1.css": 35,
   "soreal-idle-augment-led-v1.css": 71,
   "soreal-idle-augment-pcb-puissance-v1.css": 58,
@@ -243,7 +243,7 @@ const LIGNES_CSS_PAR_FEUILLE = {
   "soreal-idle-entetes-d.css": 255,
   "soreal-idle-entetes-miniature-v1.css": 57,
   "soreal-idle-entrainement-puissance-v1.css": 236,
-  "soreal-idle-itopod.css": 2125,
+  "soreal-idle-itopod.css": 2121,
   "soreal-idle-jeu-global.css": 167,
   "soreal-idle-jeu.css": 246,
   "soreal-idle-labos-habillage-v1.css": 42,
@@ -251,8 +251,8 @@ const LIGNES_CSS_PAR_FEUILLE = {
   "soreal-idle-machine.css": 99,
   "soreal-idle-menus-boutons-v1.css": 395,
   "soreal-idle-renaissance.css": 46,
-  "soreal-idle-themes.css": 2364,
-  "soreal-idle-ui.css": 6325,
+  "soreal-idle-themes.css": 2356,
+  "soreal-idle-ui.css": 6271,
 };
 
 const frontend = fichiers.filter((f) => (f.startsWith("public/modules/") || f === "public/soreal-idle-ui.js") && !GENERES.has(f));

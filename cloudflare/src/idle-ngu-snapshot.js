@@ -25,7 +25,7 @@ import { idsPortraitsDeChaineV1, idlePortraitsSnapshotV1 } from "./idle-portrait
 import { idsSkinsDeChaineV1, skinsSnapshotV1 } from "./idle-daycare-skins-v1.js";
 import { idleCookingSystemSnapshotV1 } from "./idle-cooking-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
-import { nguNormalLevelSumsV1, achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, setNguAllocationV1, applyNguTargetsV1, nguTotalLevelsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
+import { nguNormalLevelSumsV1, achievementsSnapshotV1, apBonusMultiplierV1, apWithBonusV1, avecPorteeBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguAugmentationsVisiblesV1, idleNguBonuses, idleNguBonusesLectureV1, idleNguViderValeursV1, nguFxV1, nguSpeedMultiplierV1, setNguAllocationV1, applyNguTargetsV1, syncIdleNguState, unlockInfo } from "./idle-ngu-bonus.js";
 import { augmentationGoldCost, augmentationSecondsForNextLevel, augmentationSecondsBrutNextLevel, externalResourceAllocation, fractionProgressionSecondesV1, idleNguEffectiveResourceStatV1, idleNguResourceBudget, totalAllocated } from "./idle-ngu-ressources.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGERS, IDLE_NGU_NEWBIE_OFFERS, IDLE_NGU_RESOURCE_PURCHASES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, MIN_REBIRTH_SECONDS, RESOURCE_KEYS, ressourceDecouverteV1, challengeCompletionsV1, challengeDefsForTierV1, challengePermanentBonuses, challengeTierV1, clamp, clone, int, nowMs, num } from "./idle-ngu-catalogues.js";
 import { applyRebirthResetV56_, daycareFactorsV1, expShopSnapshotV1, inventoryAutoEnvV1, resourceInfoV1 } from "./idle-ngu-actions.js";
@@ -1309,10 +1309,6 @@ function spinDaily(state, now) {
   s.data.history=historique.slice(0,IDLE_MONEY_PIT_HISTORIQUE_MAX_V1);
 
   return resultat;
-}
-
-function challengeNguLevels(state) {
-  return nguTotalLevelsV1(state);
 }
 
 function laserSwordPair(state) {

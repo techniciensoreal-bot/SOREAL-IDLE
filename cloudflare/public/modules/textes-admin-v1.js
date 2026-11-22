@@ -2045,7 +2045,7 @@ function ajusterCadres_(racine){
   var prevu=0;
   function planifier(){if(prevu)return;prevu=requestAnimationFrame(function(){prevu=0;try{ajusterCadres_();}catch(_e){}});}
   if(document.addEventListener)document.addEventListener('input',function(ev){var t=ev.target;if(t&&t.tagName==='TEXTAREA'&&t.closest&&t.closest('#'+EDITEUR_ID))planifier();},true);
-  try{if(typeof MutationObserver!=='undefined')new MutationObserver(function(ml){for(var i=0;i<ml.length;i++){var n=ml[i].target;if(n&&n.nodeType===1&&n.closest&&(n.id===EDITEUR_ID||n.closest('#'+EDITEUR_ID))){planifier();return;}}}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
+  try{if(typeof MutationObserver!=='undefined')new MutationObserver(function(ml){if(!document.getElementById(EDITEUR_ID))return;for(var i=0;i<ml.length;i++){var n=ml[i].target;if(n&&n.nodeType===1&&n.closest&&(n.id===EDITEUR_ID||n.closest('#'+EDITEUR_ID))){planifier();return;}}}).observe(document.body,{childList:true,subtree:true});}catch(_e){}
   if(window.addEventListener)window.addEventListener('resize',planifier);
 })();
 

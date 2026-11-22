@@ -135,12 +135,6 @@
   var dernierEtat=null;
   function fmt(n,dec){var f=window.__SOREAL_IDLE_REG__&&window.__SOREAL_IDLE_REG__.formatGrandNombreIdleV70_;return f?f(n,dec):String(Math.round(Number(n)*100)/100);}
   function lib(k){var f=window.__SOREAL_IDLE_REG__&&window.__SOREAL_IDLE_REG__.idleLabelSpecialBonusV1_;return f?f(k):String(k);}
-  function identifiantsPortes(a){
-    var e=(a&&a.equipment)||{};
-    var ids=[e.head,e.chest,e.legs,e.boots,e.weapon,e.weapon2].concat(Array.isArray(e.accessories)?e.accessories:[]).filter(Boolean).map(String);
-    return ids.sort().join('|');
-  }
-  function identifiantsConfig(lo){return (lo&&Array.isArray(lo.items)?lo.items:[]).map(function(x){return String(x.id);}).sort().join('|');}
   function totalHtml(t){
     if(!t)return '';
     var p=[];

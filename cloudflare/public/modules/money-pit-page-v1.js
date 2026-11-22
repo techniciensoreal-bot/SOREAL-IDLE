@@ -655,6 +655,8 @@
   /* Les yeux n'apparaissent qu'à partir du moment où l'image est À L'ÉCRAN (Norman, 2026-10-31) : un observateur pose la classe mp3-vu quand 60 % de l'image sont visibles ; les yeux (en pause avant) apparaissent alors l'un après l'autre. La classe est gardée par le morph (data-morph-classes-gardees). */
   const vusIdleV1_=new WeakSet();
   function surveillerYeuxIdleV1_(){
+    /* audit 2026-11-22 : l'observateur voit TOUTE mutation de la page ; sans image du Money Pit dans la page, rien à faire (liste vivante, aucun balayage). */
+    if(!document.getElementsByClassName('mp3-calques').length)return;
     document.querySelectorAll('.mp3-calques:not(.mp3-vu)').forEach(function(c){
       if(vusIdleV1_.has(c))return;
       vusIdleV1_.add(c);

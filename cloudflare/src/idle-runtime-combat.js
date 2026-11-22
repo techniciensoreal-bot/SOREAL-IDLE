@@ -7,7 +7,7 @@ import { idleNguBonuses } from "./idle-ngu-progression.js";
 import { compterVictoireBossV1_ } from "./idle-victoires-boss-v1.js";
 import { assurerDonneesJeuSorealIdle_, exigerAccesSorealIdle_, obtenirFeuilleJoueursSorealIdle_, trouverLigneJoueurSorealIdle_ } from "./idle-runtime-acces.js";
 import { LockService, SpreadsheetApp } from "./idle-sqlite-runtime.js";
-import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, nombreSorealIdle_ } from "./idle-runtime-config.js";
+import { CONFIG_SOREAL_IDLE, nombreSorealIdle_ } from "./idle-runtime-config.js";
 import { appliquerProgressionEnergieSorealIdle_ } from "./idle-runtime-progression.js";
 import { marquerRencontreBossPrincipalUneFoisParRunV207_, parserJsonSorealIdle_, statsJoueurSorealIdle_ } from "./idle-runtime-collection.js";
 import { bossCatalogueSorealIdle_ } from "./idle-runtime-catalogue.js";

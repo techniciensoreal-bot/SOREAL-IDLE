@@ -30,6 +30,7 @@
         date:'2026-11-22',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Le jeu est un peu plus rapide : environ 16 % de temps de calcul en moins à chaque synchronisation.',
             'Nouveau : cliquer sur une statistique ou une ressource ouvre son détail facteur par facteur (Énergie, Magie, vitesses, gains d’EXP, d’AP et de PP, statistiques d’Aventure, divers), seulement avec ce que tu as déjà débloqué ; le total d’Attaque et de Défense juste après un Rebirth est corrigé.',
             'Badavatar : dans le profil des Réglages, tes pièces ne sont plus déplacées par un ancien brouillon après un enregistrement ; ce que tu as enregistré est ce qui s’affiche partout.'
           ]},
@@ -45,6 +46,7 @@
             'Tous les journaux de combat suivent la langue du jeu, y compris « (filtré) » à côté des objets filtrés.'
           ]},
           {menu:'tower', titre:'ITOPOD', points:[
+            'Sur téléphone, la boutique d’atouts n’a plus qu’une colonne et ne déborde plus de l’écran.',
             'Atouts : bonus actuel et bonus du niveau suivant sur chaque carte, et les mêmes filtres, tri et bouton « Tout » sur toutes les boutiques d’atouts que tu as débloquées.',
             'La tour tournant en continu, la progression de ses points d’atout est réduite de 40 % ; tous les atouts restent accessibles, seulement plus lentement.',
             'La tour est alignée sur le jeu d’origine : étages 0 à 20 par défaut sans montée automatique, retour à ton étage de départ quand tu es battu, et la tour continue de tourner en même temps que l’Aventure. « Appliquer » interrompt le combat et te place tout de suite sur ton étage de départ.',

@@ -875,8 +875,7 @@ html,body{overflow-x:hidden}
                 repeat(3,minmax(0,1fr));
             }
           }
-          .soreal-idle-item-v10.selection-mode{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation}
-          .soreal-idle-item-check-v32{position:absolute;top:7px;right:7px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#304d94;color:#fff;font-size:14px;font-weight:1000;z-index:3}
+                    .soreal-idle-item-check-v32{position:absolute;top:7px;right:7px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#304d94;color:#fff;font-size:14px;font-weight:1000;z-index:3}
           .soreal-idle-toast-inline-v32{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:1000;max-width:min(460px,88vw);padding:9px 13px;border-radius:999px;background:rgba(31,41,71,.94);color:#fff;font-size:12px;font-weight:950;pointer-events:none;box-shadow:0 8px 22px rgba(31,41,71,.24)}
 
           .soreal-idle-collection-zone-v32{margin-top:12px;padding:12px;border-radius:14px;background:#edf1f8;border:1px solid rgba(38,52,84,.08)}
@@ -1491,19 +1490,8 @@ html,body{overflow-x:hidden}
              * En mode Stop, la salle de repos utilise elle aussi
              * quasiment toute la largeur disponible.
              */
-            #sorealIdleRestImageHostV43{
-              width:calc(100vw - 8px) !important;
-              max-width:560px !important;
-              aspect-ratio:1 / 1 !important;
-              border-radius:8px !important;
-            }
-
-            #sorealIdleRestImageHostV43 img{
-              width:100% !important;
-              height:100% !important;
-              object-fit:cover !important;
-            }
-
+            
+            
             .soreal-idle-boss-controls-v39{
               width:100% !important;
               max-width:none !important;

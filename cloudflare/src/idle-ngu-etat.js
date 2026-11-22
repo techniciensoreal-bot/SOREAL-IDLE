@@ -16,7 +16,7 @@ import { macguffinEffectMultiplierV1, createMacguffinDataV1, normalizeMacguffinD
 import { createIdleCookingDataV1, normalizeIdleCookingDataV1 } from "./idle-cooking-v1.js";
 import { createIdleAdventureStateV47, normalizeIdleAdventureStateV47, idleAdventureAddItemV1, idleAdventureBoostV1 } from "./idle-adventure-v47.js";
 import { normalizeIdleAchievementsDataV1 } from "./idle-achievements-v1.js";
-import { IDLE_SELLOUT_SHOP_CATALOG_V1, createSelloutEffectsV1 } from "./idle-sellout-shop-v1.js";
+import { createSelloutEffectsV1 } from "./idle-sellout-shop-v1.js";
 import { idleLoginCalendarNormaliserV1 } from "./idle-login-calendar-v1.js";
 import { wishBonusesV1 } from "./idle-wishes-v1.js";
 import { idleInventoryMergeSlotCountV1, normalizeIdleInventoryAutoV1 } from "./idle-inventory-auto-v1.js";
@@ -27,7 +27,7 @@ import { CHALLENGE_TIER_KEYS_V1, IDLE_NGU_AUGMENTATIONS, IDLE_NGU_BLOOD_RITUALS,
 import { appliquerConsommablesSetsAventureV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, moneyPitTotauxNormalisesV1, roueTotauxNormalisesV1, wishLevelV1, wishLevelBrutV1 } from "./idle-ngu-snapshot.js";
 import { IDLE_MONEY_PIT_HISTORIQUE_MAX_V1, createTrollStateV1, diggerBonuses, normaliserR3NomV1, trollFlagsV1 } from "./idle-ngu-systemes.js";
 import { daycareBaseInputsV1, expShopPurchasedV1 } from "./idle-ngu-actions.js";
-import { externalResourceAllocation, reconcileResourceCurrents, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
+import { reconcileResourceCurrents, refreshRebirthState } from "./idle-ngu-ressources.js";
 import { HACK_HARD_CAP_V1 } from "./idle-ngu-pistes.js";
 import { estNatifV47V1, etatPlusRecentV1, migrerEtatV1, versionEffectiveV1 } from "./idle-migrations-v1.js";
 

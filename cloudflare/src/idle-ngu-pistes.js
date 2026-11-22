@@ -12,7 +12,7 @@ import { idleAdventureCubeTierV1 } from "./idle-adventure-v47.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { wishBonusesV1 } from "./idle-wishes-v1.js";
 import { idleCardsMultiplierV1 } from "./idle-cards-v1.js";
-import { nguLevelsFromWorkV1 } from "./idle-ngu-catalog-v1.js";
+import "./idle-ngu-catalog-v1.js";
 import { idleWandoosXlUnlockedV1 } from "./idle-wandoos-os-v1.js";
 import { IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_META_VERSION, IDLE_NGU_TRACKS, IDLE_WISH_MAX_SLOTS_V1, RESOURCE_KEYS, WISH_MIN_LEVEL_SECONDS, challengePermanentBonuses, clamp, clone, int, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { expShopPurchasedV1 } from "./idle-ngu-actions.js";

@@ -17,6 +17,7 @@
   }
   window.__SOREAL_IDLE_BORNE_BANDES_SYNC_V1__={synchroniser:synchroniser};
   (window.__SOREAL_IDLE_APRES_REDESSIN_V1__=window.__SOREAL_IDLE_APRES_REDESSIN_V1__||[]).push(synchroniser);
-  setInterval(synchroniser,4000);
+  /* audit 2026-11-22 : pas de balayage de toutes les animations du document quand l'onglet est caché (le redessin, lui, rejoue toujours la synchro). */
+  setInterval(function(){if(!document.hidden)synchroniser();},4000);
   setTimeout(synchroniser,600);
 })();

@@ -5,7 +5,7 @@
  */
 import { macguffinAdventureBeforeV1, macguffinAfterAdventureV1, applyMacguffinActionV1, macguffinApplyRebirthV1 } from "./idle-macguffins-v1.js";
 import { idleInventoryIdsV1, idleInventoryManualBoostBeforeV1, idleInventoryProcessNewDropsV1, idleInventoryManualBoostAfterV1, applyIdleInventoryAutoActionV1, idleInventoryBoostRecycleChanceV1, idleInventoryLoadoutSlotsV1 } from "./idle-inventory-auto-v1.js";
-import { idleAdventureInventoryUsedV1, idleAdventureInventoryCapacityV1, applyIdleAdventureActionV47, idleAdventureEquipmentStatsV47, idleEquipementEffectifV1, idleAdventureSpecialItemV1, idleAdventureAddItemV1, idleAdventureTitanCooldownMsV1 } from "./idle-adventure-v47.js";
+import { idleAdventureInventoryUsedV1, idleAdventureInventoryCapacityV1, applyIdleAdventureActionV47, idleEquipementEffectifV1, idleAdventureSpecialItemV1, idleAdventureAddItemV1, idleAdventureTitanCooldownMsV1 } from "./idle-adventure-v47.js";
 import { perkBonusesV1 } from "./idle-perks-v1.js";
 import { appliquerUiPrefsV1 } from "./idle-ui-prefs-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1 } from "./idle-difficulty-gates-v1.js";
@@ -30,7 +30,7 @@ import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveB
 import { buyNewbieOffer, buyPerkMaxV1, buyPerkV1, buyQuirkV1, buyQuirkMaxV1, buyResource, challengeAction, capAllNguV1, collectSystem, crediterRecompensesAventure, daycareFragmentsExtV1, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
 import { RICH_JERKS_COST_EXP_V1, RICH_JERKS_PCT_PER_LEVEL_V1, createAugmentationData, createBloodMagicData, createTimeMachineData, nettoyerMobMeilleurButinV1, createWandoosData, unlockSatisfied } from "./idle-ngu-etat.js";
-import { atApplyTargetsV1, atSetTrackEnergyV1, beardActiveIdsV1, clearWishSlotAllocationsV1, hackActionV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
+import { atApplyTargetsV1, atSetTrackEnergyV1, clearWishSlotAllocationsV1, hackActionV1, setWishSlotAllocationV1, setWishSlotV1, tmApplyTargets } from "./idle-ngu-pistes.js";
 import { bloodCollecteRemiseAZeroV1, advanceIdleNguState, activateYggFruit, bloodRitualMagicV1, castBloodSpell, setBloodAutoSpellV1, createTrollStateV1, diggerBonuses, setDiggerLevel, setR3NomAleatoireV1, setRitualAllocationV1, setRitualTargetV1, toggleDigger, towerEntrerV1, towerRebirthResetV1, towerSetFloorsV1, towerSetMaxFloorV1, towerSetShifterV1, towerTogglePillV1, upgradeDigger, upgradeYggFruit, useYggFruit } from "./idle-ngu-systemes.js";
 import { beteSpecialRebirthV1 } from "./idle-bete-secret-v1.js";
 import { nerdLettreV1 } from "./idle-nerd-secret-v1.js";

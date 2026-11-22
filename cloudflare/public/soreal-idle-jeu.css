@@ -191,7 +191,7 @@ body.soreal-idle-active-v47 .pk-comptoir .pk-recherche{flex:1 1 180px;min-width:
 @keyframes pkNeon{0%,100%{opacity:1}46%{opacity:.82}50%{opacity:.55}54%{opacity:.9}}
 @keyframes pkAmpoules{0%{opacity:1}100%{opacity:.55}}
 @media (prefers-reduced-motion:reduce){.pk-enseigne-texte b,.pk-ampoules{animation:none}}
-@media (max-width:480px){.pk-etagere{grid-template-columns:1fr 1fr;gap:20px 10px}.pk-enseigne-texte b{font-size:22px}.pk-ampoules{display:none}.pk-vitrine{padding:8px}}
+@media (max-width:480px){.pk-etagere{grid-template-columns:minmax(0,1fr);gap:20px 10px}.pk-vitrine{min-width:0}.pk-enseigne-texte b{font-size:22px}.pk-ampoules{display:none}.pk-vitrine{padding:8px}}
 
 /* ====================== ITOPOD : ennemi sans cadre, vie, coups ====================== */
 .itp-avatar[hidden],.itp-decor[hidden]{display:none}

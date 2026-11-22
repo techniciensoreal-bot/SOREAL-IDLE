@@ -126,10 +126,11 @@ function attendrePhonemizer_(){
   if(typeof window.createPiperPhonemize==="function")return Promise.resolve(true);
   return new Promise(function(resolve){
     const debut=Date.now();
-    const id=setInterval(function(){
-      if(typeof window.createPiperPhonemize==="function"){clearInterval(id);resolve(true);return;}
-      if(Date.now()-debut>15000){clearInterval(id);resolve(false);}
-    },50);
+    (function guetter(){
+      if(typeof window.createPiperPhonemize==="function"){resolve(true);return;}
+      if(Date.now()-debut>15000){resolve(false);return;}
+      setTimeout(guetter,50);
+    })();
   });
 }
 

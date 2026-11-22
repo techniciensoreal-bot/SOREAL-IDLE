@@ -16,6 +16,11 @@
   Cache-Control: public, max-age=31536000, immutable
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
+# Moteur local : le Worker et le wasm sont demandes avec une empreinte ?v=<hash du contenu> (moteur-local-v1.js, pins de maj-pins.mjs) : un changement de contenu change l'adresse, donc immuable sans risque (2,5 Mo de moins a revalider a chaque lancement).
+/moteur-local-worker-v1.js
+  Cache-Control: public, max-age=31536000, immutable
+/sql-wasm-v1.wasm
+  Cache-Control: public, max-age=31536000, immutable
 /wandoos/*
   Cache-Control: public, max-age=31536000, immutable
 /machine-v2/*
@@ -48,6 +53,13 @@
 /chargement/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
 /trou/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+# items / titans / player : petits dossiers (6 + 2 + 3 fichiers), aucun fichier jamais remplace sous le meme nom dans l'historique git (verifie le 2026-11-22).
+/items/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/titans/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/player/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=86400
 # Icones d'application (manifeste PWA, index.html) : sensibles, 7 jours sans stale-while-revalidate.
 /icons/*

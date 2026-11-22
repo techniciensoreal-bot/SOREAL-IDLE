@@ -67,7 +67,7 @@
 import { nombreV1, entierV1 } from "./idle-outils-v1.js";
 import { idleHeartsCardMayoSpeedMultiplierV1, idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
 import { idlePerkNiveauxV1, idleQuirkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
-import { idleTheEndGrantV1, idleTheEndHasV1, IDLE_THE_END_CARD_CHANCE_V1, IDLE_THE_END_CARD_MAYO_V1 } from "./idle-the-end-v1.js";
+import { idleTheEndGrantV1, IDLE_THE_END_CARD_CHANCE_V1, IDLE_THE_END_CARD_MAYO_V1 } from "./idle-the-end-v1.js";
 
 const N = nombreV1;   /* outil commun (corps identique) */
 const I = entierV1;   /* outil commun (corps identique) */

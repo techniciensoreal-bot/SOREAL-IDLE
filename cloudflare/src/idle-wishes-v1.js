@@ -295,8 +295,24 @@ export function idleWishByIdV1(id) {
  * not a flat levelsById map) since Wishes reuse the generic track system
  * (IDLE_NGU_TRACKS) rather than a dedicated purchase model.
  */
+/* Audit de rapidité 2026-11-22 : fonction pure des niveaux des souhaits du catalogue, mémo à clé de contenu, une copie (plate) par appel (voir perkBonusesV1). */
+const WISH_BONUS_MEMO_V1 = new Map();
 export function wishBonusesV1(tracksById) {
   const tracks = tracksById && typeof tracksById === "object" ? tracksById : {};
+  let cle = "";
+  for (const wish of IDLE_WISHES_CATALOG_V1) {
+    const level = Math.max(0, Math.min(wish.levels, Number(tracks[wish.id]?.level) || 0));
+    if (level) cle += wish.id + ":" + level + ",";
+  }
+  let valeur = WISH_BONUS_MEMO_V1.get(cle);
+  if (valeur === undefined) {
+    valeur = wishBonusesCalculV1(tracks);
+    if (WISH_BONUS_MEMO_V1.size >= 64) WISH_BONUS_MEMO_V1.clear();
+    WISH_BONUS_MEMO_V1.set(cle, valeur);
+  }
+  return Object.assign({}, valeur);
+}
+function wishBonusesCalculV1(tracks) {
   const totals = {};
   function produitParSouhaitV1(trs, cle) {
     let f = 1;

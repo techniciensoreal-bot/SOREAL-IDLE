@@ -390,8 +390,29 @@ function perkBonusPairesV1(perk) {
 /* Bonus en pourcentage dont les atouts DISTINCTS se multiplient (niveaux d'un même atout additionnés) : voir perkBonusesV1. */
 export const PERK_CLES_PRODUIT_V1 = Object.freeze(["statPct","adventureStatsPct","energyPowerPct","energyCapPct","energyBarsPct","magicPowerPct","magicCapPct","magicBarsPct","qpEarningsPct","r3PowerPct","r3BarsPct","r3CapPct","nguSpeedEnergyPct","nguSpeedMagicPct","wishSpeedPct","dropChancePct"]);
 /* Ressource 3, vitesse des NGU, vitesse des souhaits, taux de drop : produit des atouts, lu dans le code du jeu (build 1260, 2026-11-16 : ItopodPerkController::totalRes3PowerBonus, totalEnergyNGUBonus, totalWishSpeedBonus, totalDropChanceBonus ; chaque atout vaut 1 + niveau x effet par niveau et les atouts se multiplient). */
+/*
+ * Audit de rapidité 2026-11-22 : perkBonusesV1 est une fonction PURE des niveaux du catalogue (0,5 ms par appel, ~50 appels par synchro). Mémo à clé de CONTENU (niveaux bornés des seuls atouts du catalogue) ;
+ * chaque appel reçoit sa propre copie (l'objet gardé n'est jamais exposé), donc aucun résultat ne change.
+ */
+const PERK_BONUS_MEMO_V1 = new Map();
 export function perkBonusesV1(levelsById) {
   const levels = levelsById && typeof levelsById === "object" ? levelsById : {};
+  let cle = "";
+  for (const perk of IDLE_PERKS_CATALOG_V1) {
+    const level = Math.max(0, Math.min(perk.cap, Number(levels[perk.id]) || 0));
+    if (level) cle += perk.id + ":" + level + ",";
+  }
+  let valeur = PERK_BONUS_MEMO_V1.get(cle);
+  if (valeur === undefined) {
+    valeur = perkBonusesCalculV1(levels);
+    if (PERK_BONUS_MEMO_V1.size >= 64) PERK_BONUS_MEMO_V1.clear();
+    PERK_BONUS_MEMO_V1.set(cle, valeur);
+  }
+  const copie = Object.assign({}, valeur);
+  copie.hackMilestoneReduction = Object.assign({}, valeur.hackMilestoneReduction);
+  return copie;
+}
+function perkBonusesCalculV1(levels) {
   const totals = {};
   /* Page Boost : « Boosted Boosts I à V, chacun multiplicatif avec les autres » (2,5 x 2,2 x 2,2 x 1,5 x 1,5 au maximum). */
   let boostPowerProduct = 1;

@@ -1,8 +1,8 @@
-import { NOMS_SPECIALS_FR_V1, NOMS_SETS_FR_V1, NOMS_SETS_OBJETS_FR_V1, NOMS_PIECES_FR_V1 } from "./idle-noms-fr-v1.js";
-import { SET_ITEM_SPECIALS_V1 } from "./idle-adventure-set-specials-v1.js";
-import { idleSpecialPointsRatioV1 } from "./idle-adventure-special-points-v1.js";
-import { idleTitanCombatV1, IDLE_TITAN_COMBAT_V1 } from "./idle-titans-combat-v1.js";
-import { idleTheEndNormalizeV1, idleTheEndGrantV1, idleTheEndHasV1, idleTheEndSnapshotV1, idleTheEndPlayV1 } from "./idle-the-end-v1.js";
+import "./idle-noms-fr-v1.js";
+import "./idle-adventure-set-specials-v1.js";
+import "./idle-adventure-special-points-v1.js";
+import { IDLE_TITAN_COMBAT_V1 } from "./idle-titans-combat-v1.js";
+import { idleTheEndSnapshotV1, idleTheEndPlayV1 } from "./idle-the-end-v1.js";
 import { IDLE_ADVENTURE_TITANS, IDLE_ADVENTURE_ZONES } from "./idle-adventure-zones.js";
 import { I, N, X, __perfCompteursV1 } from "./idle-adventure-base.js";
 import { IDLE_ADVENTURE_COFFRE_COEURS_V1, IDLE_ADVENTURE_COFFRE_LOOTY_V1, IDLE_ADVENTURE_COFFRE_PENDENTIFS_V1, IDLE_ADVENTURE_COFFRE_TITAN_OBJETS_V1, accessorySlotsCapacityAdventureV1, add, applyBoost, coffreDeposer, coffreRetirer, cube, discard, equip, idleAdventureCoffreSlotsV1, idleAdventureCubeSoftcapV1, inventoryCapacityAdventureV1, inventoryUsedAdventureV1, merge, reorderInventoryAdventureV2, secondeArmeDebloqueeAdventureV1, setLockAdventureV1, syncInventorySlotsAdventureV2, trashPutAdventureV1, trashRecoverAdventureV1, unequip } from "./idle-adventure-inventaire.js";
@@ -180,7 +180,8 @@ export function idleAdventureEquipmentStatsV47(raw){
  * dualWieldRatio, bossEffectif (échelle bossRequired des objets) et res3Actif (condition du set Evidence), 2026-11-16, setRewards, permanent, cube et idleAttackBonus. Le reste de l'état d'Aventure (sac, coffre, liste d'objets, zone, filtres…, ~50 Ko) ne change jamais ce résultat : preuve par mutation de CHAQUE champ de l'état de
  * référence (idle-equipement-cle-v1.test.mjs) et SOREAL_IDLE_VERIF_BONUS=1 (chaque réutilisation du mémo est comparée à un recalcul).
  */
-export function idleAdventureCleEquipementV1(raw){
+/* Audit de rapidité 2026-11-22 : la clé SOUS FORME DE TABLEAU (la clé du mémo des bonus l'embarque telle quelle : une seule sérialisation au lieu de sérialiser puis échapper une chaîne de 20 Ko). */
+export function idleAdventureCleEquipementPartiesV1(raw){
   if(!raw||typeof raw!=="object")return null;
   const e=raw.equipment&&typeof raw.equipment==="object"?raw.equipment:{};
   const ids=new Set([e.head,e.chest,e.legs,e.boots,e.weapon,e.weapon2,...(Array.isArray(e.accessories)?e.accessories:[])].filter(Boolean));
@@ -188,7 +189,11 @@ export function idleAdventureCleEquipementV1(raw){
   /* La normalisation rejoue checkSets : les récompenses de sets dépendent de la liste d'objets (itemList), des sets complétés et du niveau de CHAQUE objet du sac (record) : ils entrent dans la clé, le sac sous forme compacte (définition, niveau). */
   /* Audit 2026-11-12 : sac à plat (définition, niveau, définition, niveau…) au lieu d'une paire par objet (450 petits tableaux par appel) ; ids dans un Set (au lieu de includes par objet). La clé change de FORME seulement : elle reste fonction de ce que le calcul lit (idle-equipement-cle-v1). */
   const sac=[];if(Array.isArray(raw.inventory))for(const x of raw.inventory){if(x){sac.push(x.definitionId,x.level)}else sac.push(0,0)}
-  return JSON.stringify([raw.version,e,portes,raw.dualWieldRatio,raw.bossEffectif,raw.res3Actif,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac]);
+  return [raw.version,e,portes,raw.dualWieldRatio,raw.bossEffectif,raw.res3Actif,raw.setRewards,raw.permanent,raw.cube,raw.idleAttackBonus,raw.itemList,raw.completedSets,sac];
+}
+export function idleAdventureCleEquipementV1(raw){
+  const parties=idleAdventureCleEquipementPartiesV1(raw);
+  return parties===null?null:JSON.stringify(parties);
 }
 function idleAdventureEquipmentStatsMemoV47(raw,lecture){
   let cle=null;

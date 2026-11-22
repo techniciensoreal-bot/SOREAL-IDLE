@@ -10,7 +10,7 @@ import { basicTrainingSnapshotV411, normalizeBasicTrainingStateV411 } from "./id
 import { idleDevEstAdminV1, idleDevSlotForUserV1 } from "./idle-dev-save-slots-v1.js";
 import { nomBossSurchargeV1 } from "./idle-textes-v1.js";
 import { mondeDuBossV1 } from "./idle-boss-monde-v1.js";
-import { CONFIG_SOREAL_IDLE, bossParMondeSorealIdle_, dateSorealIdle_, deblocagesEtatSorealIdleV405_, inventaireCapaciteMaxSorealIdle_, nombreSorealIdle_, seuilPuissanceBossPrincipalSorealIdle_ } from "./idle-runtime-config.js";
+import { CONFIG_SOREAL_IDLE, dateSorealIdle_, deblocagesEtatSorealIdleV405_, inventaireCapaciteMaxSorealIdle_, nombreSorealIdle_, seuilPuissanceBossPrincipalSorealIdle_ } from "./idle-runtime-config.js";
 import { bonusEquipementSorealIdle_, construireBestiaireSorealIdle_, detailsEquipementSorealIdle_, listeCollectionSorealIdle_, parserJsonSorealIdle_, progressionCollectionsSorealIdle_, slotsEquipementSorealIdle_, statsJoueurSorealIdle_, synchroniserCollectionSorealIdle_ } from "./idle-runtime-collection.js";
 import { attaqueBossSorealIdle_, bonusSetsSorealIdle_, coutExtensionSacSorealIdle_, coutForgeSorealIdle_, defenseBossSorealIdle_, definitionBossSorealIdle_, degatsRecusSecondeSorealIdle_, delaiRespawnBossSorealIdle_, mettreAJourManaStatsSorealIdle_, niveauMagieSorealIdle_, niveauRequisBossSorealIdle_, nomBossSorealIdle_, nombreObjetsSacSorealIdle_, pvMaxBossSorealIdle_, recompenseXpBossNiveauSorealIdle_, regenBossSecondeSorealIdle_, multiplicateursCombatSorealIdle_, statsCombatPrincipalSorealIdleV413_, xpBossSorealIdle_ } from "./idle-runtime-boss.js";
 import { contexteMetaNguSorealIdle_, metaTickEnergieSorealIdle_ } from "./idle-runtime-progression.js";

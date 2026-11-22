@@ -8,8 +8,8 @@ import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { ITOPOD_AUTOATTACK_REGEN_V1, itopodCycleV1, itopodDrawAiV1 } from "./idle-itopod-combat-v1.js";
 import { exileHackV1, exileItopodV1 } from "./idle-antlers-v1.js";
 import { beteDebutVisiteV1, beteItopodV1 } from "./idle-bete-secret-v1.js";
-import { IDLE_TICK_SECONDS_V1, dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
-import { span, enveloppeSpan } from "./idle-spans-v1.js";
+import { dureeNiveauEnTicksV1 } from "./idle-tick-v1.js";
+import { span } from "./idle-spans-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleRangDifficulteV1 } from "./idle-difficulty-gates-v1.js";
 import { macguffinEffectMultiplierV1, macguffinEatFruitV1, macguffinFruitLevelsV1, macguffinOnItopodKillsV1 } from "./idle-macguffins-v1.js";
 import { IDLE_THE_END_LAST_SPELL_BLOOD_V1, idleTheEndGrantV1, IDLE_THE_END_TOWER_FIRST_FLOOR_V1, idleTheEndHasV1 } from "./idle-the-end-v1.js";
@@ -18,7 +18,7 @@ import { idleLoginCalendarOctroiV1 } from "./idle-login-calendar-v1.js";
 import { acquerirSkinsV1 } from "./idle-daycare-skins-v1.js";
 import { acquerirPortraitsV1 } from "./idle-portraits-v1.js";
 import { idleYggFruitUnlockedV1, idleYggAutoActivateV1, idleYggActivationCostV1, idleYggSeedUnitV1, idleYggUsePoopV1, idleYggMayoFruitBaseV1, idleYggFruitOfQuirksQpV1, idleYggQuickActivationV1, idleYggTierSecondsV1, idleYggItopodPoopV1 } from "./idle-yggdrasil-extra-v1.js";
-import { idleAdventureEquipmentStatsV47, idleAdventureCubeDirectV1, idleEquipementEffectifV1, idleEquipementEffectifLectureV1, idleAdventureBoostV1, zoneNormalePlusAvanceeV1, advanceTitanAutoKillV1, advanceAdventureZoneAutoFarmOfflineV1 } from "./idle-adventure-v47.js";
+import { idleAdventureCubeDirectV1, idleEquipementEffectifLectureV1, idleAdventureBoostV1, zoneNormalePlusAvanceeV1, advanceTitanAutoKillV1, advanceAdventureZoneAutoFarmOfflineV1 } from "./idle-adventure-v47.js";
 import { idleCardsMayoFruitProgressV1, idleCardsMayoFruitApercuV1, advanceIdleCardsV1 } from "./idle-cards-v1.js";
 import { idleInventoryReceiveDropV1, idleInventoryIdsV1, idleInventoryProcessNewDropsV1, advanceIdleInventoryAutoV1 } from "./idle-inventory-auto-v1.js";
 import { idleHeartsConsumableFactorV1 } from "./idle-hearts-v1.js";
@@ -33,7 +33,7 @@ import { EARLY_GAME_MAX_OFFLINE_SECONDS, IDLE_NGU_BLOOD_RITUALS, IDLE_NGU_DIGGER
 import { advanceAugmentations, advanceGeneratedResources, externalResourceAllocation, idleNguEffectiveResourceStatV1, rebaserProgressionSecondesV1, reconcileResourceCurrents, reclaimAllocatedResource, refreshRebirthState, totalAllocated } from "./idle-ngu-ressources.js";
 import { advanceWandoos, applyYggQuickActivationV1, idleNguDifficultySpeedDividerV1, normalizeIdleNguState } from "./idle-ngu-etat.js";
 import { autoCompleteChallengeV1, challengeHundredLevelsConsume, challengeHundredLevelsRemaining, crediterRecompensesAventure, photoRecompensesAventure, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
-import { achievementMetricsV1, advanceNgusV1, apWithBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
+import { achievementMetricsV1, advanceNgusV1, apWithBonusV1, gearPctV1, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonusesLectureV1, nguFxV1 } from "./idle-ngu-bonus.js";
 import { advanceTimeMachine, advanceTrackSystem, barbesTempsPleinV1, crediterOrHorsLigneV1, idleNguTimeMachineGrossGoldPerSecond, tmAbsenceHorsLigneV1 } from "./idle-ngu-pistes.js";
 import { daycareFactorsV1, expShopPurchasedV1, inventoryAutoEnvV1 } from "./idle-ngu-actions.js";
 
