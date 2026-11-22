@@ -64,14 +64,15 @@ const ctx = { adventurePower: 1e6, adventureToughness: 1e6, bosses: 30 };
   let state = baseState();
   Object.assign(state.systems.tower.data, { floor: 5, killsOnFloor: 0, highestFloor: 20, kills: 50 });
   state = applyIdleNguAction(state, { action: "towerFloors", start: 2, end: 4 }, ctx, Date.now()).state;
-  /* Alignement 2026-11-22 (verifyItopodInputs) : Appliquer ne modifie que départ / fin, le niveau courant (5, hors de [2 ; 4]) termine ses 10 kills puis repart au départ. */
-  assert.equal(state.systems.tower.data.floor, 5, "Appliquer ne déplace pas le joueur");
+  /* RÈGLE SOREAL (Norman, 2026-11-22) : Appliquer interrompt le combat et place le joueur sur l'étage de DÉPART, compteur à 0 (le jeu d'origine ne touche qu'à Départ / Fin). */
+  assert.equal(state.systems.tower.data.floor, 2, "Appliquer place le joueur à l'étage de départ");
+  assert.equal(state.systems.tower.data.killsOnFloor, 0);
   state = advanceIdleNguState(state, 5 * 10, ctx, Date.now());
-  assert.equal(state.systems.tower.data.floor, 2, "10 kills sur l'étage 5 (au-delà de la fin) puis retour au départ");
+  assert.equal(state.systems.tower.data.floor, 3, "10 kills à l'étage 2 puis étage suivant");
   assert.equal(state.systems.tower.data.kills, 60);
   state = advanceIdleNguState(state, 5 * 10 * 3, ctx, Date.now());
   const d = state.systems.tower.data;
-  assert.equal(d.floor, 2, "3 étages x 10 kills = un cycle complet, retour au départ");
+  assert.equal(d.floor, 3, "30 kills : 3 -> 4 -> retour au départ 2 -> 3 (la fin 4 renvoie au départ)");
   assert.equal(d.kills, 90);
 }
 
@@ -108,8 +109,8 @@ console.log("idle-itopod-floor-tracking: OK");
   let d = state.systems.tower.data;
   assert.equal(d.startFloor, optimal);
   assert.equal(d.endFloor, optimal);
-  assert.equal(d.floor, 3, "Optimal ne déplace pas le joueur (changeZone seulement)");
-  assert.equal(d.killsOnFloor, 4);
+  assert.equal(d.floor, optimal, "règle SOREAL 2026-11-22 : Optimal place le joueur à l'étage de départ (= l'optimal)");
+  assert.equal(d.killsOnFloor, 0);
   // plus haut atteint = optimal : le jeu plafonne l'étage optimal à plus haut - 1 (AdventureController::setOptimalFloor 179) et met départ = fin = cet étage
   let s2 = baseState();
   Object.assign(s2.systems.tower.data, { floor: 0, highestFloor: optimal });

@@ -1440,6 +1440,16 @@ export function towerTogglePillV1(state) {
  *  - { start, end } : réglage manuel (verifyItopodInputs) ;
  *  - { auto: true } : bouton « Optimal » = setOptimalFloor UNE fois (l'ancien mode « suivre l'étage optimal » est le Lazy Shifter, interrupteur à part : towerSetShifterV1).
  */
+/*
+ * RÈGLE SOREAL (Norman, 2026-11-22 : « quand je fais Appliquer dans l'ITOPOD, ça doit interrompre le combat en cours et me mettre au bon étage ») : appliquer (ou Optimal, ou Max) interrompt le combat en cours et te place sur l'étage de DÉPART, compteur de kills à 0 (le jeu d'origine
+ * ne touche alors qu'aux champs Départ / Fin ; ici c'est comme une nouvelle entrée dans la tour : ZoneSelector::changeZone). Écart volontaire à ne pas « corriger ».
+ */
+function towerRepositionnerV1(state, d) {
+  towerChangerZoneV1(state, d);
+  d.killTime = 0;
+  state.systems.tower.level = d.floor;
+}
+
 export function towerSetFloorsV1(state, payload) {
   const tower = state.systems.tower;
   if (!tower.unlocked) throw new Error("SYSTEME_VERROUILLE");
@@ -1447,10 +1457,12 @@ export function towerSetFloorsV1(state, payload) {
   towerNormaliserV1(state, d);
   if (payload.auto) {
     towerAppliquerEtageOptimalV1(d, d.optimalFloor);
+    towerRepositionnerV1(state, d);
     return { auto: true, start: d.startFloor, end: d.endFloor };
   }
   const start = int(payload.start, 0);
   towerVerifierEntreesV1(d, start, payload.end === undefined || payload.end === null ? start : int(payload.end, start));
+  towerRepositionnerV1(state, d);
   return { start: d.startFloor, end: d.endFloor };
 }
 
@@ -1461,6 +1473,7 @@ export function towerSetMaxFloorV1(state) {
   const d = tower.data;
   towerNormaliserV1(state, d);
   towerVerifierEntreesV1(d, Math.max(0, int(d.highestFloor, 0) - 1), d.endFloor);
+  towerRepositionnerV1(state, d);
   return { start: d.startFloor, end: d.endFloor };
 }
 

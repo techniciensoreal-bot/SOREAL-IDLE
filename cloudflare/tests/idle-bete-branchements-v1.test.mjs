@@ -24,7 +24,7 @@ assert.ok(/beteSecretsTitanV1\(s,id,out\)/.test(lire("cloudflare/src/idle-advent
   assert.equal(s.systems.tower.data.beteElig, undefined, "indice 3 pas fait : rien n'est écrit dans l'état");
   s.adventure.unlockFlags.clue3Complete = true;
   towerSetFloorsV1(s, { start: 0, end: 120 });
-  assert.equal(s.systems.tower.data.beteElig, undefined, "régler les étages ne commence pas une visite (alignement 2026-11-22)");
+  assert.equal(s.systems.tower.data.beteElig, true, "règle SOREAL 2026-11-22 : régler les étages (Appliquer) repositionne comme une nouvelle entrée = début de visite");
   towerEntrerV1(s);
   assert.equal(s.systems.tower.data.beteElig, true);
   towerSetFloorsV1(s, { start: 5, end: 120 });
