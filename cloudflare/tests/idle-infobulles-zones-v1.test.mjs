@@ -74,7 +74,7 @@ for (const [id, lignes] of Object.entries(JEU)) {
     assert.ok(Math.abs(capMoteur - l[1]) < 1e-9, id + " " + cles[i] + " : plafond moteur " + capMoteur + " <> jeu " + l[1]);
   });
 }
-assert.deepEqual(Object.keys(DIFFERENCES_JEU_V1), ["jrpgville:boost"], "écart connu à signaler à Norman");
+assert.deepEqual(Object.keys(DIFFERENCES_JEU_V1), [], "plus aucun écart avec le jeu (JRPGVille aligné, 2026-11-22)");
 
 // Client : texte ajouté à l'infobulle (title) de la zone, vide si rien ; branché dans les deux rendus de la liste de zones.
 const ctx = { window: {}, document: {} };

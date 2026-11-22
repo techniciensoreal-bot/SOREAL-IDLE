@@ -111,7 +111,7 @@ export const IDLE_INFOBULLES_ZONES_V1 = Object.freeze({
  * Écart connu entre le jeu (IL) et le moteur, affiché tel que le MOTEUR tire (l'infobulle ne doit jamais promettre autre chose que ce qui tombe) et signalé à Norman : JRPGVille, boosts :
  * le jeu écrit 0,0000015 (1,5e-6) avec plafond 8 %, le moteur tire 0,000015 (1,5e-5) avec plafond 10 % (profil du 2026-09-23, d'après le wiki).
  */
-export const DIFFERENCES_JEU_V1 = Object.freeze({ "jrpgville:boost": Object.freeze({ jeu: Object.freeze({ base: 0.0000015, cap: 0.08 }), moteur: Object.freeze({ base: 0.000015, cap: 0.1 }) }) });
+export const DIFFERENCES_JEU_V1 = Object.freeze({}); /* plus aucun écart : JRPGVille aligné sur le jeu le 2026-11-22 */
 
 function definitionLigneZone(zoneId, cle) {
   const p = IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2[zoneId];

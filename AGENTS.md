@@ -17,6 +17,10 @@ SOREAL-TV). Rien n'empêche mécaniquement un commit de toucher n'importe
 quelle partie du moteur — la discipline vient des règles ci-dessous et des
 tests, pas d'un outil de CI qui bloquerait un scope non déclaré.
 
+## Règle n°0 (Norman, 2026-11-22) : le JEU est la source de vérité, pas le wiki
+
+Quand le jeu d'origine (code décompilé, IL build 1260, banc `cloudflare/tools/banc-vrai-jeu/`) et le wiki NGU Idle divergent, **c'est toujours le jeu qui gagne**. Le wiki ne sert que là où le jeu ne donne pas la valeur. Toute valeur tirée du wiki qu'on découvre fausse face au jeu se corrige sur le jeu (exemple : boosts de JRPGVille, 1,5e-6 plafond 8 % dans le jeu).
+
 ## Règle n°1 (non négociable) : fidélité au wiki NGU Idle
 
 **Aucune valeur de mob, d'objet, de zone ou de mécanique ne doit jamais être

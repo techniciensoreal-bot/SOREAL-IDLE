@@ -612,8 +612,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 351,
-  "sha": "2c7dbb455c439d38daab70017c2f068d81246530"
+  "pin": 352,
+  "sha": "76ec5e18551eb7402daaeeae73f2e0cd560a821f"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,

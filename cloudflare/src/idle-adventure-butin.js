@@ -509,7 +509,7 @@ export const IDLE_ADVENTURE_ZONE_LOOT_PROFILE_V2=Object.freeze({
   },
   jrpgville:{
     normal:{
-      boosts:[{strength:2000,chance:0.000015,cap:0.1},{strength:5000,chance:0.000015,cap:0.1}],
+      boosts:[{strength:2000,chance:0.0000015,cap:0.08},{strength:5000,chance:0.0000015,cap:0.08}], /* boosts alignés sur le JEU (IL, AdventureController::zoneDescriptions, 2026-11-22 : 1,5e-6, plafond 8 %) ; l'ancienne valeur (1,5e-5, 10 %) venait du wiki : le jeu est la source de vérité (Norman, 2026-11-22) */
       equipment:[{chance:0.0000055,cap:0.04,set:"jrpg",level:1}],
       specials:[{id:"handCursor",chance:0.000002,cap:0.017,level:1}] /* wiki, section Loot > Normal enemy (audit 2026-09-23) */
     },
