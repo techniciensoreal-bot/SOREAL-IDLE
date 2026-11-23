@@ -24,8 +24,9 @@
   const DIFF_CATALOGUE={normal:'normal',difficile:'evil',extreme:'sadistic'};
   const ORDRE_DIFF=['normal','evil','sadistic'];
 
+  let iframeSrcLe=0,relancesMoteur=0;   /* relance automatique d'un moteur resté muet (voir attendrePret) */
   let catalogue=null;      /* null = pas encore lu ; [] = aucun jeu ; [..] = jeux */
-  let catalogueEnCours=false;
+  let catalogueEnCours=false,catalogueEssaiLe=0;   /* un échec de lecture n'est JAMAIS mémorisé : nouvel essai au redessin suivant, 5 s au moins après (2026-11-23 : « parfois le jeu ne démarre pas, il faut recharger la page ») */
   let difficulteCourante='normal';
   let jeuCourant=null;
   let host=null,iframe=null,cover=null,btnQuitter=null,barrePlein=null;
@@ -108,11 +109,12 @@
   window.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__=estOuvert;
   interroger();   /* une requête au démarrage */
   function chargerCatalogue(){
-    if(catalogue!==null||catalogueEnCours)return;
-    catalogueEnCours=true;
-    fetch(BASE()+'jeux.json').then(function(r){return r.ok?r.json():{jeux:[]};}).catch(function(){return {jeux:[]};}).then(function(d){
-      catalogue=d&&Array.isArray(d.jeux)?d.jeux:[];
+    if(catalogue!==null||catalogueEnCours||Date.now()-catalogueEssaiLe<5000)return;
+    catalogueEnCours=true;catalogueEssaiLe=Date.now();
+    fetch(BASE()+'jeux.json').then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}).then(function(d){
       catalogueEnCours=false;
+      if(!d||!Array.isArray(d.jeux))return;   /* échec : catalogue toujours « pas encore lu », on réessaiera */
+      catalogue=d.jeux;
       jeuCourant=choisirJeu(catalogue,difficulteCourante);
       majCouverture();
       demarrerPrechargeSiBesoin();
@@ -328,7 +330,7 @@
     iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();installerSouris(fenetreJeu());majVoile();setTimeout(majVoile,1500);setTimeout(majVoile,5000);});
     host.insertBefore(iframe,cover);
     /* Autosave rapproché (Norman, 2026-11-22 : un objet pris puis perdu dans la minute n'était pas vu avec 60 s) : le réglage autosave_period de ScummVM est écrit dans sa config (IndexedDB) AVANT le lancement ; sans IndexedDB on lance tout de suite. */
-    const lancer=function(){if(iframe&&!iframe.src)iframe.src=urlLancement(jeuCourant);};
+    const lancer=function(){if(iframe&&!iframe.src){iframeSrcLe=Date.now();iframe.src=urlLancement(jeuCourant);}};
     /* Sauvegardes liées au compte (modules/scummvm-sync-v1.js, Norman, 2026-11-22) : la reprise de la dernière partie du compte (autre appareil) se fait AVANT le lancement (3 s au plus, jamais d'erreur), le suivi (envoi des fichiers changés) après. */
     const reprise=function(){const S=window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__;try{return S?S.reprendre(jeuCourant):Promise.resolve();}catch(_e){return Promise.resolve();}};
     const apres=function(){if(!window.indexedDB||typeof window.indexedDB.databases!=='function')lancer();else reglerAutosave().then(lancer,lancer);};
@@ -535,6 +537,13 @@
       attente=0;
       if(iframe&&moteurEstPret())moteurPret=true;
       if(moteurPret){if(estVisible())couvrir(false);return;}
+      /* moteur muet depuis 90 s (réseau coupé pendant le téléchargement, page d'erreur dans l'iframe) : UNE relance, sans toucher à la partie (les sauvegardes restent dans IndexedDB) */
+      if(iframe&&iframeSrcLe&&relancesMoteur<1&&Date.now()-iframeSrcLe>90000&&jeuCourant){
+        relancesMoteur++;iframeSrcLe=Date.now();
+        const u=urlLancement(jeuCourant),ifr=iframe;
+        try{ifr.src='about:blank';}catch(_e){}
+        window.setTimeout(function(){if(iframe===ifr)ifr.src=u;},300);
+      }
       majCouverture();attendrePret();
     },500);
   }
