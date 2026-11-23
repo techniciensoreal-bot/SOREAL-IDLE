@@ -163,7 +163,7 @@
     {n:'👁 Verbes du jeu',special:'verbes'}
   ];
   /* Les 9 verbes dessinés par le jeu (en bas à gauche) sont cachés par un voile noir posé sur le canvas, DANS la fenêtre du jeu (l'inventaire à droite et la ligne de phrase restent visibles et cliquables). Position mesurée sur le canvas 640 x 480 :
-     verbes = 0 à 44,4 % de la largeur (colonne de flèches de l'inventaire à partir de 45 %), 76,2 à 100 % de la hauteur (bord haut du cadre à 76,7 %), mesurés pixel par pixel sur le canvas. Le bouton « Verbes du jeu » les réaffiche ; le choix est gardé (clé soreal_idle_scummvm_verbes_v1, liée au compte). */
+     verbes = 0 à 291 px sur 640 (45,5 % : jusqu'à la ligne noire verticale qui sépare les verbes de la colonne de flèches de l'inventaire, x = 287 à 290), 76,2 à 100 % de la hauteur (bord haut du cadre à 76,7 %), mesurés pixel par pixel sur le canvas. Le bouton « Verbes du jeu » les réaffiche ; le choix est gardé (clé soreal_idle_scummvm_verbes_v1, liée au compte). */
   const CLE_VERBES='soreal_idle_scummvm_verbes_v1';
   function verbesJeuVisibles(){try{return window.localStorage.getItem(CLE_VERBES)==='1';}catch(_e){return false;}}
   function majVoile(){
@@ -172,7 +172,7 @@
       const d=w.document,c=d.querySelector('canvas');
       let v=d.getElementById('scvVoileV1');
       if(!c||!touchesDuJeu()||verbesJeuVisibles()){if(v)v.style.display='none';return;}
-      if(!v){v=d.createElement('div');v.id='scvVoileV1';v.style.cssText='position:fixed;background:#000;z-index:5;pointer-events:auto;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:4%;padding:2% 3%;box-sizing:border-box;';
+      if(!v){v=d.createElement('div');v.id='scvVoileV1';v.style.cssText='position:fixed;background:#000;z-index:5;pointer-events:auto;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2.5%;padding:1.2% 1.5%;box-sizing:border-box;';
         TOUCHES_TENTACLE_FR.slice(0,NB_VERBES).forEach(function(x,i){
           const b=d.createElement('button');b.type='button';b.textContent=x.n;
           b.style.cssText='min-width:0;border:1px solid #6d7dff88;border-radius:6px;background:#1b2238;color:#fff;font-family:inherit;font-weight:700;cursor:pointer;touch-action:manipulation;padding:0;';
@@ -185,7 +185,7 @@
       const r=c.getBoundingClientRect();
       /* le jeu (4:3) est dessiné au centre du canvas, qui peut être plus large : on mesure la zone réellement dessinée, pas le canvas */
       const jh=Math.min(r.height,r.width*0.75),jw=jh*4/3,jx=r.left+(r.width-jw)/2,jy=r.top+(r.height-jh)/2;
-      v.style.display='grid';v.style.left=jx+'px';v.style.top=(jy+jh*0.762)+'px';v.style.width=(jw*0.444)+'px';v.style.height=(jh*0.238)+'px';v.style.fontSize=Math.max(9,Math.round(jh*0.032))+'px';
+      v.style.display='grid';v.style.left=jx+'px';v.style.top=(jy+jh*0.762)+'px';v.style.width=(jw*0.4547)+'px';v.style.height=(jh*0.238)+'px';v.style.fontSize=Math.max(9,Math.round(jh*0.04))+'px';
     }catch(_e){}
   }
   const NB_VERBES=9;
