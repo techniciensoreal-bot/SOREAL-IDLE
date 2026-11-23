@@ -258,7 +258,8 @@
   function couvrir(oui){if(cover)cover.style.display=oui?'flex':'none';}
 
   /* Écrit autosave_period=15 dans /home/web_user/scummvm.ini (base IndexedDB d'IDBFS, table FILE_DATA) si la config existe déjà (un profil neuf la reçoit déjà réglée du moteur sur R2) ; au plus 1,5 s d'attente, jamais d'erreur. */
-  const AUTOSAVE_S=15,CLE_INI='/home/web_user/scummvm.ini';
+  /* Sauvegarde automatique rapprochée : des objets pris puis donnés ou utilisés en quelques secondes (diamant, badge, boule de poussière, etc.) échappaient au suivi avec 15 s (Norman, 2026-11-23 : « j'ai eu tous les objets cités »). 5 s sur ordinateur, 10 s sur téléphone (le son y craque déjà ; une écriture de sauvegarde coûte). */
+  const AUTOSAVE_S=appareilTactile()?10:5,CLE_INI='/home/web_user/scummvm.ini';
   function reglerAutosave(){
     return new Promise(function(resolve){
       let fini=false;
