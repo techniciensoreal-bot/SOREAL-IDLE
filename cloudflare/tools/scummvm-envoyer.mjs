@@ -120,7 +120,7 @@ if (commande === "moteur") {
     /* gain d'AP par progrès (facultatif) : { plafond, parUnite } nombres strictement positifs (AP bruts : plafond total du jeu, AP par unité de progrès ; voir design/SCUMMVM.md) ; chaque jeu a le sien */
     if (j.ap !== undefined) {
       if (typeof j.ap !== "object" || j.ap === null || Array.isArray(j.ap)) { console.error("« ap » doit être {\"plafond\":nombre,\"parUnite\":nombre} : " + JSON.stringify(j)); process.exit(2); }
-      for (const champ of ["plafond", "parUnite", "unitesReference", "croissance"]) if (j.ap[champ] !== undefined && !(typeof j.ap[champ] === "number" && Number.isFinite(j.ap[champ]) && j.ap[champ] > 0)) { console.error("ap." + champ + " doit être un nombre strictement positif : " + JSON.stringify(j)); process.exit(2); }
+      for (const champ of ["plafond", "parUnite", "unitesReference", "croissance", "bonusComplet"]) if (j.ap[champ] !== undefined && !(typeof j.ap[champ] === "number" && Number.isFinite(j.ap[champ]) && j.ap[champ] > 0)) { console.error("ap." + champ + " doit être un nombre strictement positif : " + JSON.stringify(j)); process.exit(2); }
     }
     if (!["normal", "evil", "sadistic"].includes(j.difficulte)) { console.error("difficulte inconnue : " + j.difficulte + " (normal, evil ou sadistic)"); process.exit(2); }
   }

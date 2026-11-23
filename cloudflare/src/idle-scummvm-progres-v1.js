@@ -88,8 +88,17 @@ export function idleScummvmProgresV1(state, payload) {
   }
   const ap = Math.max(0, Math.min(cible - dejaAp, limite - dejaAp));
   jeux[id] = { unites: Math.max(dejaUnites, unites), apCredite: dejaAp + ap };
+  if (jeu.bonus > 0) jeux[id].bonus = Math.floor(num(jeu.bonus, 0));   /* déjà reçu : conservé */
   if (ap > 0) state.currencies.ap = Math.max(0, num(state.currencies.ap, 0)) + ap;   /* AP brut : jamais de multiplicateur */
-  return { ap, apCredite: jeux[id].apCredite, unites: jeux[id].unites, ignore: nouvelles === 0 };
+  /* BONUS DE FIN (Norman, 2026-11-23 : « 50 000 AP offerts à ceux qui débloquent les 150 000 ») : une seule fois, quand le plafond du jeu est atteint ; montant { bonus } du catalogue, borné par la borne absolue ; non compté dans le plafond ni dans le compteur « x / plafond ». */
+  let bonusAp = 0;
+  const bonus = Math.floor(num(payload.bonus, 0));
+  if (!(jeux[id].bonus > 0) && jeux[id].apCredite >= limite && bonus > 0) {
+    bonusAp = Math.min(bonus, IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1);
+    jeux[id].bonus = bonusAp;
+    state.currencies.ap = Math.max(0, num(state.currencies.ap, 0)) + bonusAp;
+  }
+  return { ap: ap + bonusAp, apCredite: jeux[id].apCredite, unites: jeux[id].unites, bonus: bonusAp, ignore: nouvelles === 0 && bonusAp === 0 };
 }
 
 /*

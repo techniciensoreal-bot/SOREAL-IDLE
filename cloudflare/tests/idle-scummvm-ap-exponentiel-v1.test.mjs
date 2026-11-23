@@ -27,4 +27,19 @@ let e = cumul(50); e = cumul(100, e); const e2 = cumul(40, e);
 assert.equal(ap(e), a100, "par paliers = d'un coup");
 assert.equal(ap(e2), a100, "une valeur plus basse n'enlève rien");
 assert.equal(e.currencies.ap, a100, "l'AP du joueur est crédité du même montant (brut)");
+// bonus de fin : 50 000 AP, une seule fois, quand le plafond est atteint
+{
+  const PB = Object.assign({}, P, { bonus: 50000 });
+  const prog = (e, n) => applyIdleNguAction(e, Object.assign({ action: "scummvmProgres", unites: n }, PB), ctx, t0 + 1000).state;
+  const e1 = prog(syncIdleNguState({}, ctx, t0), 199);
+  assert.equal(e1.systems.scummvm.data.jeux.dott.bonus, undefined, "pas de bonus avant le plafond");
+  const apAvant = e1.currencies.ap;
+  const e2 = prog(e1, 200);
+  assert.equal(e2.systems.scummvm.data.jeux.dott.bonus, 50000, "bonus reçu au plafond");
+  assert.equal(e2.currencies.ap, apAvant + (150000 - e1.systems.scummvm.data.jeux.dott.apCredite) + 50000, "AP crédités = reste du plafond + 50 000");
+  assert.equal(e2.systems.scummvm.data.jeux.dott.apCredite, 150000, "le bonus n'est pas compté dans le plafond");
+  const e3 = prog(prog(e2, 200), 500);
+  assert.equal(e3.currencies.ap, e2.currencies.ap, "le bonus n'est offert qu'une fois");
+  assert.equal(e3.systems.scummvm.data.jeux.dott.bonus, 50000);
+}
 console.log("idle-scummvm-ap-exponentiel-v1: OK (1re " + premier + ", 100e cumul " + a100 + ", dernière " + dernier + ")");

@@ -227,7 +227,7 @@
           aEnvoyer.forEach(function(t){nouveau.troph.push(t.id);});
         }
       }else if(nb>envoye){
-        if(AP_ACTIF&&typeof f==='function'){const msg={action:'scummvmProgres',jeu:String(J.id),unites:nb,plafond:plafond};if(parUnite>0)msg.parUnite=parUnite;if(reference>=2&&croissance>1){msg.reference=reference;msg.croissance=croissance;}f(msg);}
+        if(AP_ACTIF&&typeof f==='function'){const msg={action:'scummvmProgres',jeu:String(J.id),unites:nb,plafond:plafond};if(parUnite>0)msg.parUnite=parUnite;if(reference>=2&&croissance>1){msg.reference=reference;msg.croissance=croissance;}if(Number(J.ap.bonusComplet)>0)msg.bonus=Number(J.ap.bonusComplet);f(msg);}
         else nouveau.envoye=envoye;   /* pas de canal d'actions : on réessaiera */
       }
       m[J.id]=nouveau;

@@ -173,15 +173,15 @@ function faux(opts = {}) {
   assert.equal(A.apCredites(j({ dott: { unites: 12, apCredite: "x" } }), JEU), 0);
   const nu = srcPage.replace(/\/\*[\s\S]*?\*\//g, "");
   const bloc = nu.slice(nu.indexOf("function apGagnes"), nu.indexOf("function page"));
-  assert.ok(bloc.includes("AP gagnés avec ce jeu :") && bloc.includes("apCredites("), "texte : AP gagnés");
-  assert.ok(!/plafond|parUnite|unites|\.ap\.|possibles/.test(bloc.replace("if(!jeuCourant||!jeuCourant.ap)return '';", "")), "ni plafond, ni unités, ni total dans le rendu");
-  assert.ok(!/plafond|parUnite/.test(nu), "la page ne manipule ni le plafond ni les AP par unité");
+  assert.ok(bloc.includes("AP obtenus :") && bloc.includes("apCredites("), "texte : AP obtenus / plafond (exception du 2026-11-23, AGENTS.md)");
+  assert.ok(!/parUnite|unites|possibles/.test(bloc.replace("if(!jeuCourant||!jeuCourant.ap)return '';", "")), "le compteur montre le plafond d'AP (exception) mais jamais les unités");
+  assert.ok(!/parUnite/.test(nu), "la page ne manipule pas les AP par unité");
 }
 
 /* 8. traduction anglaise du texte ajouté, et scripts chargés avant la page */
 {
   const dico = JSON.parse(readFileSync("cloudflare/public/modules/traduction-anglais-dict-v1.json", "utf8"));
-  assert.ok(dico["AP gagnés avec ce jeu :"], "traduction anglaise");
+  assert.ok(dico["AP gagnés avec ce jeu :"] && dico["AP obtenus :"] && dico["Bonus de fin obtenu :"], "traduction anglaise");
   const index = readFileSync("cloudflare/public/index.html", "utf8");
   const p = (n) => index.indexOf("/modules/" + n);
   assert.ok(p("scummvm-sauvegarde-v1.js") > 0 && p("scummvm-progres-v1.js") > p("scummvm-sauvegarde-v1.js") && p("scummvm-page-v1.js") > p("scummvm-progres-v1.js"), "sauvegarde, progrès puis page");
