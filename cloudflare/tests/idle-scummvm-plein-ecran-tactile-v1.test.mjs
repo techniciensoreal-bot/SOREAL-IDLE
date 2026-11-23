@@ -11,6 +11,6 @@ assert.ok(!/width:\s*auto|height:\s*auto/.test(regle[1]), "pas de width/height:a
 assert.ok(/width:calc\(100%/.test(regle[1]) && /height:calc\(100%/.test(regle[1]), "taille explicite (tout l'écran moins les zones sûres)");
 
 assert.ok(!/scv-voile/.test(css), "plus de couche tactile dans la feuille de style");
-assert.ok(!/monterVoile|envoyerSouris|new w\.MouseEvent|dispatchEvent\(new/.test(js), "plus d'événements de souris simulés envoyés au jeu");
+assert.ok(!/monterVoile|envoyerSouris|new w\.MouseEvent|dispatchEvent\(new (w\.)?(Mouse|Pointer)Event/.test(js), "plus d'événements de souris simulés envoyés au jeu (le ralentissement de la souris réécrit des événements TACTILES, jamais de souris)");
 assert.ok(!/addEventListener\('touch(start|move|end)'/.test(js), "aucun écouteur tactile qui intercepterait les touchers du jeu");
 console.log("idle-scummvm-plein-ecran-tactile-v1: OK");
