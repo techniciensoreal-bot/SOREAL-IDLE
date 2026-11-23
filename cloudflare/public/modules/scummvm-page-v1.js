@@ -163,7 +163,7 @@
     {n:'👁 Verbes du jeu',special:'verbes'}
   ];
   /* Les 9 verbes dessinés par le jeu (en bas à gauche) sont cachés par un voile noir posé sur le canvas, DANS la fenêtre du jeu (l'inventaire à droite et la ligne de phrase restent visibles et cliquables). Position mesurée sur le canvas 640 x 480 :
-     verbes = 0 à 45 % de la largeur, 77 à 100 % de la hauteur. Le bouton « Verbes du jeu » les réaffiche ; le choix est gardé (clé soreal_idle_scummvm_verbes_v1, liée au compte). */
+     verbes = 0 à 44,4 % de la largeur (colonne de flèches de l'inventaire à partir de 45 %), 76,2 à 100 % de la hauteur (bord haut du cadre à 76,7 %), mesurés pixel par pixel sur le canvas. Le bouton « Verbes du jeu » les réaffiche ; le choix est gardé (clé soreal_idle_scummvm_verbes_v1, liée au compte). */
   const CLE_VERBES='soreal_idle_scummvm_verbes_v1';
   function verbesJeuVisibles(){try{return window.localStorage.getItem(CLE_VERBES)==='1';}catch(_e){return false;}}
   function majVoile(){
@@ -185,7 +185,7 @@
       const r=c.getBoundingClientRect();
       /* le jeu (4:3) est dessiné au centre du canvas, qui peut être plus large : on mesure la zone réellement dessinée, pas le canvas */
       const jh=Math.min(r.height,r.width*0.75),jw=jh*4/3,jx=r.left+(r.width-jw)/2,jy=r.top+(r.height-jh)/2;
-      v.style.display='grid';v.style.left=jx+'px';v.style.top=(jy+jh*0.77)+'px';v.style.width=(jw*0.465)+'px';v.style.height=(jh*0.23)+'px';v.style.fontSize=Math.max(9,Math.round(jh*0.032))+'px';
+      v.style.display='grid';v.style.left=jx+'px';v.style.top=(jy+jh*0.762)+'px';v.style.width=(jw*0.444)+'px';v.style.height=(jh*0.238)+'px';v.style.fontSize=Math.max(9,Math.round(jh*0.032))+'px';
     }catch(_e){}
   }
   const NB_VERBES=9;
