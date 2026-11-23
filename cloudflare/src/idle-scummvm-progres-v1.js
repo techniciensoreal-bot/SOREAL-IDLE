@@ -21,7 +21,7 @@ export const IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1 = 1000000;
  * pas l'état (le suivi des trophées côté client n'envoie rien non plus : scummvm-progres-v1.js, AP_ACTIF). Le passer à vrai = une ligne ici et une dans le client, une fois les montants arrêtés.
  * Les fonctions de test peuvent le forcer avec idleScummvmDefinirApActifV1.
  */
-let apActifV1 = false;
+let apActifV1 = true;   /* 2026-11-23 : calcul terminé (Norman : « chaque objet ramassé, utilisé, donné, poussé donne de l'AP, de façon exponentielle »), gain ACTIVÉ */
 export function idleScummvmApActifV1() { return apActifV1; }
 export function idleScummvmDefinirApActifV1(v) { apActifV1 = Boolean(v); }
 /*
@@ -60,7 +60,12 @@ export function idleScummvmProgresV1(state, payload) {
   const unites = Math.floor(num(payload.unites, -1));
   const plafond = Math.floor(num(payload.plafond, -1));
   const parUnite = Math.floor(num(payload.parUnite, -1));
-  if (!(unites >= 0 && unites <= UNITES_MAX_V1) || !(plafond > 0) || !(parUnite > 0)) throw new Error("PAYLOAD_INVALIDE");
+  /* GAIN EXPONENTIEL (Norman, 2026-11-23) : { reference, croissance } = nombre d'unités d'une partie complète et rapport entre l'AP de la dernière unité et celui de la première ;
+     choix SOREAL de conception (courbe non publiée, aucun équivalent dans NGU Idle), à valider par Norman. Sans ces deux nombres : ancien gain linéaire (parUnite). */
+  const reference = Math.floor(num(payload.reference, 0));
+  const croissance = num(payload.croissance, 0);
+  const expo = reference >= 2 && reference <= 5000 && croissance > 1 && croissance <= 1e6;
+  if (!(unites >= 0 && unites <= UNITES_MAX_V1) || !(plafond > 0) || !(expo || parUnite > 0)) throw new Error("PAYLOAD_INVALIDE");
   const sys = state.systems.scummvm;
   if (!sys.data || typeof sys.data !== "object") sys.data = {};
   if (!sys.data.jeux || typeof sys.data.jeux !== "object") sys.data.jeux = {};
@@ -74,7 +79,14 @@ export function idleScummvmProgresV1(state, payload) {
   /* plafond effectif : celui du catalogue, borné par la borne absolue du moteur */
   const limite = Math.min(plafond, IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1);
   const nouvelles = Math.max(0, unites - dejaUnites);
-  const ap = Math.max(0, Math.min(nouvelles * parUnite, limite - dejaAp));
+  /* exponentiel : cumul F(n) = plafond × (r^n − 1) / (r^N − 1), r = croissance^(1/(N−1)) ; on crédite F(unites) − déjà crédité (idempotent) ; n ≥ N → plafond */
+  let cible = nouvelles * parUnite + dejaAp;
+  if (expo) {
+    const r = Math.pow(croissance, 1 / (reference - 1));
+    const n = Math.min(Math.max(dejaUnites, unites), reference);
+    cible = n >= reference ? limite : Math.floor(limite * (Math.pow(r, n) - 1) / (Math.pow(r, reference) - 1));
+  }
+  const ap = Math.max(0, Math.min(cible - dejaAp, limite - dejaAp));
   jeux[id] = { unites: Math.max(dejaUnites, unites), apCredite: dejaAp + ap };
   if (ap > 0) state.currencies.ap = Math.max(0, num(state.currencies.ap, 0)) + ap;   /* AP brut : jamais de multiplicateur */
   return { ap, apCredite: jeux[id].apCredite, unites: jeux[id].unites, ignore: nouvelles === 0 };

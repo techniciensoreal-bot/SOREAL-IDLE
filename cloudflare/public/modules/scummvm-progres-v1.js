@@ -16,7 +16,7 @@
   const BASE_IDB='/home/web_user';
   const TABLE_IDB='FILE_DATA';
   /* Gain d'AP COUPÉ (Norman, 2026-11-23 : « je ne veux pas le gain avant qu'on ait terminé de calculer ») : le suivi lit les sauvegardes mais n'envoie aucun crédit et ne note aucun trophée comme envoyé (ils partiront tous quand l'interrupteur passera à vrai, avec celui du moteur : idle-scummvm-progres-v1.js). */
-  let AP_ACTIF=false;
+  let AP_ACTIF=true;
   const INTERVALLE_MS=10000;   /* 10 s (Norman, 2026-11-22 : un objet ramassé puis utilisé dans la minute n'était pas vu avec 30 s) ; l'autosave de ScummVM se règle par autosave_period dans scummvm.ini (la page l'écrit avant le lancement) */
 
   let jeu=null,minuteur=0,enCours=false,dossierJeu="";
@@ -187,12 +187,12 @@
     if(enCours||!J||!J.ap||!J.cible)return -1;
     const L=window.__SOREAL_IDLE_SCUMMVM_SAVE_V1__;
     const profil=L&&L.PROFILS?L.PROFILS[J.cible]:null;
-    const plafond=Number(J.ap.plafond),parUnite=Number(J.ap.parUnite);
+    const plafond=Number(J.ap.plafond),parUnite=Number(J.ap.parUnite),reference=Number(J.ap.unitesReference),croissance=Number(J.ap.croissance);
     if(!profil||!(plafond>0))return -1;
     enCours=true;
     try{
       const liste=await chargerTrophees(J,dossierJeu);
-      if(!liste&&!(parUnite>0))return -1;
+      if(!liste&&!(parUnite>0)&&!(reference>=2&&croissance>1))return -1;
       profilsDe[J.id]=profil;
       const a=await lireAutosave(J.cible);
       if(!a)return -1;
@@ -227,7 +227,7 @@
           aEnvoyer.forEach(function(t){nouveau.troph.push(t.id);});
         }
       }else if(nb>envoye){
-        if(AP_ACTIF&&typeof f==='function')f({action:'scummvmProgres',jeu:String(J.id),unites:nb,plafond:plafond,parUnite:parUnite});
+        if(AP_ACTIF&&typeof f==='function'){const msg={action:'scummvmProgres',jeu:String(J.id),unites:nb,plafond:plafond};if(parUnite>0)msg.parUnite=parUnite;if(reference>=2&&croissance>1){msg.reference=reference;msg.croissance=croissance;}f(msg);}
         else nouveau.envoye=envoye;   /* pas de canal d'actions : on réessaiera */
       }
       m[J.id]=nouveau;

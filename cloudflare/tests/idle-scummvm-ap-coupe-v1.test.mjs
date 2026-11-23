@@ -7,7 +7,9 @@ import { idleScummvmApActifV1, idleScummvmProgresV1, idleScummvmTropheesV1 } fro
 import { IDLE_SCUMMVM_BOSS_V1 } from "../src/idle-ngu-catalogues.js";
 
 // 1. moteur : coupé par défaut
-assert.equal(idleScummvmApActifV1(), false, "le gain d'AP est coupé par défaut");
+const { idleScummvmDefinirApActifV1: definirAp } = await import("../src/idle-scummvm-progres-v1.js");
+assert.equal(idleScummvmApActifV1(), true, "le gain d'AP est actif depuis le 2026-11-23 (calcul exponentiel terminé)");
+definirAp(false);   /* le reste du test vérifie le comportement de l'interrupteur COUPÉ */
 const t0 = Date.parse("2026-11-23T10:00:00.000Z");
 let etat = syncIdleNguState({}, { bosses: IDLE_SCUMMVM_BOSS_V1 + 5 }, t0);
 const avantAp = JSON.stringify(etat.currencies);
@@ -66,7 +68,7 @@ vm.createContext(sb);
 vm.runInContext(srcSave, sb);
 vm.runInContext(srcProgres, sb);
 assert.ok(sb.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__, "module chargé");
-assert.ok(/let AP_ACTIF=false;/.test(srcProgres), "le suivi est coupé par défaut (AP_ACTIF=false)");
+assert.ok(/let AP_ACTIF=true;/.test(srcProgres), "le suivi est actif (AP_ACTIF=true)");
 assert.ok(/if\(AP_ACTIF&&aEnvoyer\.length&&typeof f==='function'\)/.test(srcProgres), "trophées : envoi seulement si le gain est actif");
-assert.ok(/if\(AP_ACTIF&&typeof f==='function'\)f\(\{action:'scummvmProgres'/.test(srcProgres), "unités : envoi seulement si le gain est actif");
+assert.ok(/if\(AP_ACTIF&&typeof f==='function'\)\{const msg=\{action:'scummvmProgres'/.test(srcProgres), "unités : envoi seulement si le gain est actif");
 console.log("idle-scummvm-ap-coupe-v1: OK");

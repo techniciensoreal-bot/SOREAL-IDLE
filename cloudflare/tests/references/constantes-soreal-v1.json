@@ -24,6 +24,14 @@
       "description": "IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1 = 1 000 000 : borne absolue des AP qu un jeu ScummVM peut rapporter (menu Enigmes), au cas ou le catalogue jeux.json serait mal saisi (le plafond reel, 150 000 pour Day of the Tentacle, et les AP par unite viennent du catalogue). Ajout SOREAL sans equivalent dans le jeu d origine ; a ajuster par Norman.",
       "statut": "à valider par Norman",
       "date": "2026-11-22"
+    },
+    {
+      "fichier": "idle-scummvm-progres-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "choix SOREAL de conception (courbe non publiée, aucun équiva",
+      "description": "Gain d AP exponentiel du menu Enigmes : cumul = plafond x (r^n - 1)/(r^N - 1) avec N unites de reference et r = croissance^(1/(N-1)) ; pour Day of the Tentacle 200 unites et un rapport de 100 entre la derniere et la premiere (catalogue jeux.json). Courbe voulue par Norman (2026-11-23 : tres peu au debut, beaucoup a la fin) mais ses nombres sont ma proposition ; a valider par Norman.",
+      "statut": "à valider par Norman",
+      "date": "2026-11-23"
     }
   ]
 }
