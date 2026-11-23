@@ -760,8 +760,8 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 9,
-  "sha": "61557a7e464b44a24b02608e552623032576c6cb"
+  "pin": 10,
+  "sha": "bd626727ee434900546d0075899fde7250aacf46"
  },
  "/modules/scummvm-progres-v1.js": {
   "pin": 6,
@@ -1164,8 +1164,8 @@
   "sha": "a5842ac2de89e3be4f477314dc8002e382f93062"
  },
  "/soreal-idle-scummvm-v1.css": {
-  "pin": 3,
-  "sha": "b02e51bc39322b0595098291fcf60cea9ca509fb"
+  "pin": 4,
+  "sha": "2dbc47edd44530d01e00b13ad4db8d4fadab63d4"
  },
  "/soreal-idle-stabilite-v1.css": {
   "pin": 2,

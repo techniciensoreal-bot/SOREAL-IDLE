@@ -28,7 +28,7 @@
   let catalogueEnCours=false;
   let difficulteCourante='normal';
   let jeuCourant=null;
-  let host=null,iframe=null,cover=null,overlay=null,btnQuitter=null;
+  let host=null,iframe=null,cover=null,btnQuitter=null;
   let gestePage=false;     /* un geste de l'utilisateur a eu lieu : le son peut partir */
   let iframeCharge=false,moteurPret=false,chargeLe=0;
   let pause=false,plein=false,preSuivi=false,preFini=false,attente=0,observeur=null,zoneObservee=null;
@@ -232,8 +232,7 @@
     try{const S=window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__;if(S)S.suivre(jeuCourant);}catch(_e){}
     /* AP par progrès (modules/scummvm-progres-v1.js) : un minuteur de 10 s lit l'autosave du jeu tant que la page vit. */
     try{const P=window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__;if(P)P.demarrer(jeuCourant,dossierDe(jeuCourant));}catch(_e){}
-    /* Écran tactile : une couche au-dessus de l'iframe traduit appui = clic, deux doigts = clic droit. */
-    if((navigator.maxTouchPoints||0)>0)monterVoile();
+    /* Tactile : AUCUNE couche au-dessus du jeu (2026-11-23). La couche précédente envoyait des événements de souris SIMULÉS, que ScummVM ignore (mesuré : le clic réel passe, le clic simulé non) ; un toucher natif sur l'iframe devient un vrai clic de souris pour le navigateur. */
     if(cache)surveillerPretCache();
   }
   /* Le moteur ne montre pas son AudioContext (Module.SDL2 absent) : on enveloppe le constructeur de l'iframe dès son chargement (l'audio n'est ouvert qu'après l'initialisation du wasm) pour pouvoir le suspendre. */
@@ -300,56 +299,6 @@
     else{majCouverture();attendrePret();}
     suspendre(false);
     debloquerSon();
-  }
-
-  /* ---------- tactile : appui = clic, deux doigts = clic droit ---------- */
-  function envoyerSouris(type,x,y,bouton,appuye){
-    const w=fenetreJeu();if(!w)return;
-    try{
-      const r=iframe.getBoundingClientRect();
-      const cible=w.document.getElementById('canvas')||w.document.querySelector('canvas')||w.document.body;
-      cible.dispatchEvent(new w.MouseEvent(type,{bubbles:true,cancelable:true,view:w,clientX:x-r.left,clientY:y-r.top,screenX:x,screenY:y,button:bouton,buttons:appuye?(bouton===2?2:1):0}));
-    }catch(_e){}
-  }
-  function cliquer(x,y,bouton){
-    envoyerSouris('mousemove',x,y,0,false);
-    envoyerSouris('mousedown',x,y,bouton,true);
-    envoyerSouris('mouseup',x,y,bouton,false);
-  }
-  function monterVoile(){
-    if(overlay)return;
-    overlay=document.createElement('div');overlay.className='scv-voile';
-    host.insertBefore(overlay,cover);
-    let debut=null;
-    const centre=function(ts){let x=0,y=0;for(let i=0;i<ts.length;i++){x+=ts[i].clientX;y+=ts[i].clientY;}return {x:x/ts.length,y:y/ts.length};};
-    overlay.addEventListener('touchstart',function(e){
-      e.preventDefault();
-      gestePage=true;debloquerSon();
-      const c=centre(e.touches);
-      if(!debut)debut={t:Date.now(),x:c.x,y:c.y,max:e.touches.length,bouge:false,x0:c.x,y0:c.y};
-      else debut.max=Math.max(debut.max,e.touches.length);
-      if(e.touches.length===1)envoyerSouris('mousemove',c.x,c.y,0,false);
-    },{passive:false});
-    overlay.addEventListener('touchmove',function(e){
-      e.preventDefault();if(!debut)return;
-      const c=centre(e.touches);
-      if(Math.abs(c.x-debut.x0)+Math.abs(c.y-debut.y0)>14)debut.bouge=true;
-      debut.x=c.x;debut.y=c.y;
-      if(e.touches.length===1)envoyerSouris('mousemove',c.x,c.y,0,false);   /* un doigt qui glisse déplace le curseur (survol), sans cliquer */
-    },{passive:false});
-    overlay.addEventListener('touchend',function(e){
-      e.preventDefault();
-      if(!debut||e.touches.length>0)return;
-      const d=debut;debut=null;
-      if(d.bouge||Date.now()-d.t>600)return;
-      cliquer(d.x,d.y,d.max>=2?2:0);
-    },{passive:false});
-    overlay.addEventListener('touchcancel',function(){debut=null;});
-    /* souris sur un appareil hybride : la couche transmet aussi la souris. */
-    overlay.addEventListener('mousemove',function(e){envoyerSouris('mousemove',e.clientX,e.clientY,0,false);});
-    overlay.addEventListener('mousedown',function(e){e.preventDefault();gestePage=true;debloquerSon();envoyerSouris('mousedown',e.clientX,e.clientY,e.button,true);});
-    overlay.addEventListener('mouseup',function(e){envoyerSouris('mouseup',e.clientX,e.clientY,e.button,false);});
-    overlay.addEventListener('contextmenu',function(e){e.preventDefault();});
   }
 
   /* ---------- plein écran ---------- */
