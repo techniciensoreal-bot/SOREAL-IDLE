@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le jeu est un peu plus rapide : environ 16 % de temps de calcul en moins à chaque synchronisation.",
-    "Sur téléphone, la boutique d’atouts n’a plus qu’une colonne et ne déborde plus de l’écran."
+    "Petits réglages d’affichage et de fluidité après la grande mise à jour d’hier."
   ] };
 })();

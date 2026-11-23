@@ -16,6 +16,15 @@
  * choix SOREAL de conception (non publié, aucun équivalent dans NGU Idle ; décision du 2026-11-22), à valider par Norman.
  */
 export const IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1 = 1000000;
+/*
+ * INTERRUPTEUR DU GAIN D'AP (Norman, 2026-11-23 : « je ne veux pas le gain avant qu'on ait terminé de calculer ») : tant qu'il est FAUX, les deux actions ne créditent RIEN et ne changent
+ * pas l'état (le suivi des trophées côté client n'envoie rien non plus : scummvm-progres-v1.js, AP_ACTIF). Le passer à vrai = une ligne ici et une dans le client, une fois les montants arrêtés.
+ * Les fonctions de test peuvent le forcer avec idleScummvmDefinirApActifV1.
+ */
+let apActifV1 = false;
+export function idleScummvmApActifV1() { return apActifV1; }
+export function idleScummvmDefinirApActifV1(v) { apActifV1 = Boolean(v); }
+const RIEN_V1 = (extra) => Object.assign({ ap: 0, apCredite: 0, unites: 0, nouveaux: [], ignore: true, desactive: true }, extra || {});
 /* Garde-fous de forme : identifiant de jeu court, nombre d'unités plausible (une sauvegarde SCUMM ne dépasse pas quelques milliers de faits). */
 const UNITES_MAX_V1 = 100000;
 const JEUX_MAX_V1 = 64;
@@ -26,6 +35,7 @@ const num = (v, defaut = 0) => (Number.isFinite(Number(v)) ? Number(v) : defaut)
 /* Applique un crédit de progrès. Renvoie { ap, apCredite, unites, ignore } ; lève SYSTEME_VERROUILLE (menu fermé) ou PAYLOAD_INVALIDE (forme invalide). */
 export function idleScummvmProgresV1(state, payload) {
   if (!state.systems.scummvm?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (!apActifV1) return RIEN_V1();   /* gain d'AP coupé : aucun crédit, aucun changement d'état */
   const id = String(payload?.jeu ?? "");
   if (!ID_JEU_V1.test(id)) throw new Error("PAYLOAD_INVALIDE");
   const unites = Math.floor(num(payload.unites, -1));
@@ -65,6 +75,7 @@ const ID_TROPHEE_V1 = /^[a-z0-9-]{1,60}$/;
 /* Renvoie { ap, apCredite, nouveaux: [ids], ignore } ; lève SYSTEME_VERROUILLE ou PAYLOAD_INVALIDE. */
 export function idleScummvmTropheesV1(state, payload) {
   if (!state.systems.scummvm?.unlocked) throw new Error("SYSTEME_VERROUILLE");
+  if (!apActifV1) return RIEN_V1();   /* gain d'AP coupé : aucun crédit, aucun changement d'état */
   const id = String(payload?.jeu ?? "");
   if (!ID_JEU_V1.test(id)) throw new Error("PAYLOAD_INVALIDE");
   const plafond = Math.floor(num(payload.plafond, -1));

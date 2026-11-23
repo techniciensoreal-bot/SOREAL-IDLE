@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.7',
+    courante:'6.8',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.8',
+        nom:'Petits réglages',
+        date:'2026-11-23',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Petits réglages d’affichage et de fluidité après la grande mise à jour d’hier.'
+          ]}
+        ]
+      },
       {
         version:'6.7',
         nom:'Borne à interrupteur',

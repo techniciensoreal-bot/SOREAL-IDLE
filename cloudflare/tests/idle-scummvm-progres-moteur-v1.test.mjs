@@ -2,13 +2,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { applyIdleNguAction, syncIdleNguState } from "../src/idle-ngu-progression.js";
 import { apBonusMultiplierV1 } from "../src/idle-ngu-bonus.js";
-import { IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1, idleScummvmProgresV1 } from "../src/idle-scummvm-progres-v1.js";
+import { idleScummvmDefinirApActifV1, IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1, idleScummvmProgresV1 } from "../src/idle-scummvm-progres-v1.js";
 import { IDLE_SCUMMVM_BOSS_V1 } from "../src/idle-ngu-catalogues.js";
 
 /*
  * Action `scummvmProgres` (AP par progrès dans le jeu ScummVM du menu Énigmes, Norman, 2026-11-22) : AP BRUT (jamais le multiplicateur d'AP), plafond par jeu,
  * monotone, ignorée tant que le menu est verrouillé, borne absolue du moteur, jeux indépendants. Aucune nouvelle opération du protocole.
  */
+idleScummvmDefinirApActifV1(true);   /* le gain d'AP est coupé en production (2026-11-23) : ces tests de crédit l'activent */
 const t0 = 1_000_000;
 const ctx = { bosses: IDLE_SCUMMVM_BOSS_V1 };
 const ouvert = () => syncIdleNguState({}, ctx, t0);

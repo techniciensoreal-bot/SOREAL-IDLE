@@ -3,7 +3,7 @@ import vm from "node:vm";
 import { readFileSync } from "node:fs";
 import { applyIdleNguAction, syncIdleNguState } from "../src/idle-ngu-progression.js";
 import { apBonusMultiplierV1 } from "../src/idle-ngu-bonus.js";
-import { IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1, idleScummvmProgresV1, idleScummvmTropheesV1 } from "../src/idle-scummvm-progres-v1.js";
+import { idleScummvmDefinirApActifV1, IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1, idleScummvmProgresV1, idleScummvmTropheesV1 } from "../src/idle-scummvm-progres-v1.js";
 import { IDLE_SCUMMVM_BOSS_V1 } from "../src/idle-ngu-catalogues.js";
 
 /*
@@ -11,6 +11,7 @@ import { IDLE_SCUMMVM_BOSS_V1 } from "../src/idle-ngu-catalogues.js";
  * (crédit unique, plafond, AP brut, ordre, menu verrouillé, pas de double crédit avec `scummvmProgres`), client (n'envoie que les trophées nouveaux), page (seulement ce qui est obtenu,
  * aucun total ni liste des autres, nœud persistant), journal d'étalonnage, clé exclue de la synchro du compte, traductions.
  */
+idleScummvmDefinirApActifV1(true);   /* le gain d'AP est coupé en production (2026-11-23) : ces tests de crédit l'activent */
 const srcSave = readFileSync("cloudflare/public/modules/scummvm-sauvegarde-v1.js", "utf8");
 const srcProgres = readFileSync("cloudflare/public/modules/scummvm-progres-v1.js", "utf8");
 const srcPage = readFileSync("cloudflare/public/modules/scummvm-page-v1.js", "utf8");
@@ -60,6 +61,7 @@ function faux(opts = {}) {
   vm.createContext(sb);
   vm.runInContext(srcSave, sb);
   vm.runInContext(srcProgres, sb);
+  sb.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__.definirApActif(true);   /* gain d'AP coupé en production (2026-11-23) : ce banc l'active */
   const fichier = (buf, ts) => ({ contents: new Uint8Array(buf), timestamp: new Date(ts) });
   return { sb, stock, timers, actions, idb, P: sb.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__, fichier };
 }

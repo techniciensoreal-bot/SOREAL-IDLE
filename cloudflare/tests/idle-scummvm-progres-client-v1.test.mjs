@@ -53,6 +53,7 @@ function faux(opts = {}) {
   vm.createContext(sb);
   vm.runInContext(srcSave, sb);
   vm.runInContext(srcProgres, sb);
+  if (!opts.apCoupe) sb.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__.definirApActif(true);   /* le gain d'AP est coupé en production (2026-11-23) : les tests de crédit l'activent */
   const fichier = (buf, ts) => ({ contents: new Uint8Array(buf), timestamp: new Date(ts) });
   return { sb, stock, intervalles, actions, idb, P: sb.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__, fichier };
 }

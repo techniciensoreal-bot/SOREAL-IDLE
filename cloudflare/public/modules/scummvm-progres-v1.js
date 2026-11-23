@@ -15,6 +15,8 @@
   const CLE='soreal_idle_scummvm_progres_v1';
   const BASE_IDB='/home/web_user';
   const TABLE_IDB='FILE_DATA';
+  /* Gain d'AP COUPÉ (Norman, 2026-11-23 : « je ne veux pas le gain avant qu'on ait terminé de calculer ») : le suivi lit les sauvegardes mais n'envoie aucun crédit et ne note aucun trophée comme envoyé (ils partiront tous quand l'interrupteur passera à vrai, avec celui du moteur : idle-scummvm-progres-v1.js). */
+  let AP_ACTIF=false;
   const INTERVALLE_MS=10000;   /* 10 s (Norman, 2026-11-22 : un objet ramassé puis utilisé dans la minute n'était pas vu avec 30 s) ; l'autosave de ScummVM se règle par autosave_period dans scummvm.ini (la page l'écrit avant le lancement) */
 
   let jeu=null,minuteur=0,enCours=false,dossierJeu="";
@@ -199,12 +201,12 @@
         const connus=tropheesServeur(J.id);
         const aEnvoyer=tropheesRemplis(liste,vu,profil).filter(function(t){return dejaEnvoyes.indexOf(t.id)<0&&!Object.prototype.hasOwnProperty.call(connus,t.id);});
         nouveau.envoye=envoye;nouveau.troph=dejaEnvoyes;
-        if(aEnvoyer.length&&typeof f==='function'){
+        if(AP_ACTIF&&aEnvoyer.length&&typeof f==='function'){
           f({action:'scummvmTrophees',jeu:String(J.id),plafond:plafond,trophees:aEnvoyer.map(function(t){return {id:t.id,ap:t.ap};})});
           aEnvoyer.forEach(function(t){nouveau.troph.push(t.id);});
         }
       }else if(nb>envoye){
-        if(typeof f==='function')f({action:'scummvmProgres',jeu:String(J.id),unites:nb,plafond:plafond,parUnite:parUnite});
+        if(AP_ACTIF&&typeof f==='function')f({action:'scummvmProgres',jeu:String(J.id),unites:nb,plafond:plafond,parUnite:parUnite});
         else nouveau.envoye=envoye;   /* pas de canal d'actions : on réessaiera */
       }
       m[J.id]=nouveau;
@@ -226,5 +228,5 @@
   }
   window.addEventListener('pagehide',function(){verifier();});   /* à la fermeture de la page */
 
-  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
+  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,definirApActif:function(v){AP_ACTIF=Boolean(v);},validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
 })();
