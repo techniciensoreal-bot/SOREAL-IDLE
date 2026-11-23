@@ -24,6 +24,25 @@ export const IDLE_SCUMMVM_AP_MAX_PAR_JEU_V1 = 1000000;
 let apActifV1 = false;
 export function idleScummvmApActifV1() { return apActifV1; }
 export function idleScummvmDefinirApActifV1(v) { apActifV1 = Boolean(v); }
+/*
+ * ANNULATION des crédits déjà faits (Norman, 2026-11-23, « 1 » : retirer l'AP déjà gagné) : tant que le gain est coupé, chaque synchronisation retranche des AP du joueur ce qu'Énigmes lui avait crédité
+ * (jeux[id].apCredite, la seule trace des crédits : les AP ne se réécrivent pas autrement) et efface ces enregistrements (idempotent : une 2e synchronisation ne retire plus rien). Quand le gain sera
+ * réactivé, la fonction ne fait plus rien et les trophées déjà obtenus seront recrédités par le suivi du client (rien n'est perdu : il garde l'ensemble déjà vu). Renvoie vrai si elle a retiré quelque chose.
+ */
+export function idleScummvmAnnulerCreditsV1(state) {
+  if (apActifV1) return false;
+  const sys = state && state.systems && state.systems.scummvm;
+  const jeux = sys && sys.data && sys.data.jeux;
+  if (!jeux || typeof jeux !== "object" || !Object.keys(jeux).length) return false;
+  let total = 0;
+  for (const id of Object.keys(jeux)) {
+    const j = jeux[id];
+    if (j && typeof j === "object") total += Math.max(0, Math.floor(Number.isFinite(Number(j.apCredite)) ? Number(j.apCredite) : 0));
+  }
+  sys.data.jeux = {};
+  if (total > 0 && state.currencies) state.currencies.ap = Math.max(0, (Number.isFinite(Number(state.currencies.ap)) ? Number(state.currencies.ap) : 0) - total);
+  return true;
+}
 const RIEN_V1 = (extra) => Object.assign({ ap: 0, apCredite: 0, unites: 0, nouveaux: [], ignore: true, desactive: true }, extra || {});
 /* Garde-fous de forme : identifiant de jeu court, nombre d'unités plausible (une sauvegarde SCUMM ne dépasse pas quelques milliers de faits). */
 const UNITES_MAX_V1 = 100000;

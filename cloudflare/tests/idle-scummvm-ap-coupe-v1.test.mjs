@@ -27,6 +27,36 @@ assert.equal(JSON.stringify(etat), avantTout, "l'état d'entrée n'est pas modif
 const verrou = syncIdleNguState({}, { bosses: 1 }, t0);
 assert.throws(() => idleScummvmProgresV1(verrou, { jeu: "dott", unites: 1, plafond: 1000, parUnite: 10 }), /SYSTEME_VERROUILLE/);
 
+// 1b. ANNULATION (Norman, 2026-11-23, « retire l'AP déjà gagné ») : un compte qui avait reçu de l'AP d'Énigmes le voit retiré UNE fois à la synchronisation, les enregistrements sont effacés
+{
+  const { idleScummvmDefinirApActifV1, idleScummvmAnnulerCreditsV1 } = await import("../src/idle-scummvm-progres-v1.js");
+  const ctx = { bosses: IDLE_SCUMMVM_BOSS_V1 + 5 };
+  let e = syncIdleNguState({}, ctx, t0);
+  const apDepart = 1234;
+  e.currencies.ap = apDepart;
+  idleScummvmDefinirApActifV1(true);   // l'époque où le gain était actif
+  e = applyIdleNguAction(e, { action: "scummvmTrophees", jeu: "dott", plafond: 150000, trophees: [{ id: "livret-suisse", ap: 1500 }, { id: "correcteur", ap: 600 }] }, ctx, t0 + 1000).state;
+  e = applyIdleNguAction(e, { action: "scummvmTrophees", jeu: "autre", plafond: 150000, trophees: [{ id: "t1", ap: 400 }] }, ctx, t0 + 2000).state;
+  assert.equal(e.currencies.ap, apDepart + 1500 + 600 + 400, "le gain actif avait bien crédité");
+  idleScummvmDefinirApActifV1(true);
+  const intact = JSON.stringify(syncIdleNguState(JSON.parse(JSON.stringify(e)), ctx, t0 + 3000).currencies);
+  assert.ok(Number(JSON.parse(intact).ap) >= apDepart + 2500, "gain actif : la synchronisation ne retire rien");
+  idleScummvmDefinirApActifV1(false);    // le gain est coupé
+  const brut = JSON.parse(JSON.stringify(e));
+  const apx = brut.currencies.ap;
+  const s1 = syncIdleNguState(brut, ctx, t0 + 4000);
+  assert.ok(Math.abs(s1.currencies.ap - apDepart) < 1e-6 || s1.currencies.ap < apx, "l'AP crédité est retiré : " + s1.currencies.ap);
+  assert.equal(Math.round(s1.currencies.ap), apDepart, "retiré exactement (1500 + 600 + 400)");
+  assert.deepEqual(s1.systems.scummvm.data.jeux, {}, "enregistrements effacés");
+  const s2 = syncIdleNguState(JSON.parse(JSON.stringify(s1)), ctx, t0 + 5000);
+  assert.equal(Math.round(s2.currencies.ap), apDepart, "idempotent : rien de plus n'est retiré");
+  assert.equal(idleScummvmAnnulerCreditsV1(s2), false);
+  // jamais d'AP négatif
+  const pauvre = syncIdleNguState({}, ctx, t0); pauvre.currencies.ap = 10; pauvre.systems.scummvm.data = { jeux: { dott: { apCredite: 5000 } } };
+  idleScummvmAnnulerCreditsV1(pauvre);
+  assert.equal(pauvre.currencies.ap, 0, "jamais négatif");
+}
+
 // 2. client : le suivi ne lit que ; aucune action, aucun trophée « envoyé »
 const srcSave = readFileSync("cloudflare/public/modules/scummvm-sauvegarde-v1.js", "utf8");
 const srcProgres = readFileSync("cloudflare/public/modules/scummvm-progres-v1.js", "utf8");
