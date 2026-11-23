@@ -57,9 +57,13 @@
     const d=jeu&&jeu.dossiers&&typeof jeu.dossiers==='object'?jeu.dossiers:null;
     return String((d&&(d[langueJeu()]||d.fr))||jeu.dossier);
   }
+  /* TÉLÉPHONE : le son crépitait sur téléphone et pas sur PC (Norman, 2026-11-23). La musique du jeu est émulée (carte AdLib, OPL) : sur un processeur de téléphone le moteur n'arrive pas à remplir le tampon audio à temps. Deux réglages ScummVM
+     plus légers, appliqués SEULEMENT sur un appareil tactile : émulateur OPL le plus léger (opl_driver=db, option de ligne de commande) et un tampon audio plus grand (audio_buffer_size dans scummvm.ini). Réglages non mesurés sur un vrai téléphone : à ajuster. */
+  function appareilTactile(){try{return Boolean(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)||((navigator.maxTouchPoints||0)>1&&'ontouchstart' in window);}catch(_e){return false;}}
+  const REGLAGES_INI_TACTILE={audio_buffer_size:'8192'};
   function urlLancement(jeu){
     /* --path : ScummVM détecte le jeu par son dossier (mesuré le 2026-11-22 avec Day of the Tentacle) : aucune entrée à écrire dans scummvm.ini, un nouveau jeu n'a besoin que de son dossier sur R2. */
-    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
+    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+(appareilTactile()?' --opl-driver=db':'')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
   }
   function difficulteDe(j){
     const d=j&&j.systemes&&j.systemes.difficulty;
@@ -292,11 +296,17 @@
                 const v=g.result;
                 if(!v||!v.contents)return clore();
                 let txt=new TextDecoder().decode(v.contents);
-                const ligne='autosave_period='+AUTOSAVE_S;
-                const motif=/autosave_period=[0-9]+/;
-                const m=motif.exec(txt);
-                if(m&&m[0]===ligne)return clore();   /* déjà réglé */
-                txt=m?txt.replace(motif,ligne):txt.replace('[scummvm]','[scummvm]\n'+ligne);
+                const reglages=Object.assign({autosave_period:String(AUTOSAVE_S)},appareilTactile()?REGLAGES_INI_TACTILE:{});
+                let change=false;
+                Object.keys(reglages).forEach(function(cle){
+                  const ligne=cle+'='+reglages[cle];
+                  const motif=new RegExp(cle+'=[0-9]+');
+                  const m=motif.exec(txt);
+                  if(m&&m[0]===ligne)return;
+                  change=true;
+                  txt=m?txt.replace(motif,ligne):txt.replace('[scummvm]','[scummvm]'+String.fromCharCode(10)+ligne);
+                });
+                if(!change)return clore();   /* déjà réglé */
                 v.contents=new TextEncoder().encode(txt);v.timestamp=new Date();
                 const tx=db.transaction('FILE_DATA','readwrite');
                 tx.objectStore('FILE_DATA').put(v,CLE_INI);
