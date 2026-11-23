@@ -28,7 +28,7 @@
   let catalogueEnCours=false;
   let difficulteCourante='normal';
   let jeuCourant=null;
-  let host=null,iframe=null,cover=null,btnQuitter=null;
+  let host=null,iframe=null,cover=null,btnQuitter=null,barrePlein=null;
   let gestePage=false;     /* un geste de l'utilisateur a eu lieu : le son peut partir */
   let iframeCharge=false,moteurPret=false,chargeLe=0;
   let pause=false,plein=false,preSuivi=false,preFini=false,attente=0,observeur=null,zoneObservee=null;
@@ -152,6 +152,56 @@
     });
   }
 
+  /* ---------- boutons de touches (Norman, 2026-11-23 : « des boutons de l'interface Soreal IDLE à la place des raccourcis clavier du jeu, téléphone et PC ») ----------
+     Touches MESURÉES dans le vrai jeu (Day of the Tentacle, version française, ScummVM) en envoyant chaque touche et en lisant la ligne de phrase : O Ouvrir, G Donner, C Fermer, P Prendre, L Regarder, T Parler à, U Utiliser, S Pousser, Y Tirer ;
+     Échap passe la scène, Espace met en pause, F5 ouvre le menu du jeu. Version anglaise : lettres des verbes non mesurées, donc aucun bouton (jamais de touche devinée). */
+  const TOUCHES_TENTACLE_FR=[
+    {n:'Ouvrir',key:'o',code:'KeyO',kc:79},{n:'Regarder',key:'l',code:'KeyL',kc:76},{n:'Donner',key:'g',code:'KeyG',kc:71},
+    {n:'Fermer',key:'c',code:'KeyC',kc:67},{n:'Utiliser',key:'u',code:'KeyU',kc:85},{n:'Prendre',key:'p',code:'KeyP',kc:80},
+    {n:'Parler',key:'t',code:'KeyT',kc:84},{n:'Pousser',key:'s',code:'KeyS',kc:83},{n:'Tirer',key:'y',code:'KeyY',kc:89},
+    {n:'⏸ Pause',key:' ',code:'Space',kc:32},{n:'☰ Menu',key:'F5',code:'F5',kc:116},
+    {n:'👁 Verbes du jeu',special:'verbes'}
+  ];
+  /* Les 9 verbes dessinés par le jeu (en bas à gauche) sont cachés par un voile noir posé sur le canvas, DANS la fenêtre du jeu (l'inventaire à droite et la ligne de phrase restent visibles et cliquables). Position mesurée sur le canvas 640 x 480 :
+     verbes = 0 à 45 % de la largeur, 77 à 100 % de la hauteur. Le bouton « Verbes du jeu » les réaffiche ; le choix est gardé (clé soreal_idle_scummvm_verbes_v1, liée au compte). */
+  const CLE_VERBES='soreal_idle_scummvm_verbes_v1';
+  function verbesJeuVisibles(){try{return window.localStorage.getItem(CLE_VERBES)==='1';}catch(_e){return false;}}
+  function majVoile(){
+    try{
+      const w=fenetreJeu();if(!w||!w.document)return;
+      const d=w.document,c=d.querySelector('canvas');
+      let v=d.getElementById('scvVoileV1');
+      if(!c||!touchesDuJeu()||verbesJeuVisibles()){if(v)v.style.display='none';return;}
+      if(!v){v=d.createElement('div');v.id='scvVoileV1';v.style.cssText='position:fixed;background:#000;z-index:5;pointer-events:auto;';d.body.appendChild(v);
+        if(w.ResizeObserver&&!c.__scvObs){c.__scvObs=new w.ResizeObserver(function(){majVoile();});c.__scvObs.observe(c);}
+        w.addEventListener('resize',majVoile);}
+      const r=c.getBoundingClientRect();
+      v.style.display='block';v.style.left=r.left+'px';v.style.top=(r.top+r.height*0.77)+'px';v.style.width=(r.width*0.45)+'px';v.style.height=(r.height*0.21)+'px';
+    }catch(_e){}
+  }
+  function touchesDuJeu(){
+    if(!jeuCourant||jeuCourant.cible!=='tentacle'||langueJeu()==='en')return null;
+    return TOUCHES_TENTACLE_FR;
+  }
+  function htmlTouches(classe){
+    const t=touchesDuJeu();if(!t)return '';
+    return '<div class="'+classe+'">'+t.map(function(x,i){return '<button type="button" class="scv-touche" onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.n)+'</button>';}).join('')+'</div>';
+  }
+  /* Envoie la touche au jeu (événements clavier dans la fenêtre du jeu, même origine : le moteur les lit comme une vraie frappe). */
+  window.__scvTouche__=function(i){
+    try{
+      const t=touchesDuJeu(),x=t&&t[i],w=fenetreJeu();
+      if(x&&x.special==='verbes'){try{window.localStorage.setItem(CLE_VERBES,verbesJeuVisibles()?'0':'1');}catch(_e){}majVoile();return;}
+      if(!x||!w||!w.document)return;
+      const cible=w.document.activeElement||w.document.body;
+      ['keydown','keyup'].forEach(function(type){
+        const e=new w.KeyboardEvent(type,{key:x.key,code:x.code,bubbles:true,cancelable:true});
+        try{Object.defineProperty(e,'keyCode',{get:function(){return x.kc;}});Object.defineProperty(e,'which',{get:function(){return x.kc;}});}catch(_e){}
+        cible.dispatchEvent(e);
+      });
+    }catch(_e){}
+  };
+
   /* ---------- hôte, iframe, couverture ---------- */
   function creerHote(){
     if(host)return;
@@ -160,10 +210,12 @@
     btnQuitter=document.createElement('button');btnQuitter.type='button';btnQuitter.className='scv-quitter';btnQuitter.textContent='✕';btnQuitter.setAttribute('aria-label','Quitter le plein écran');
     btnQuitter.addEventListener('click',function(){pleinEcran(false);});
     host.appendChild(cover);host.appendChild(btnQuitter);
+    barrePlein=document.createElement('div');barrePlein.className='scv-touches-plein';host.appendChild(barrePlein);
     document.body.appendChild(host);
     cover.addEventListener('click',function(e){const b=e.target&&e.target.closest&&e.target.closest('button');if(b)jouer();});
     majCouverture();
   }
+  function majBarrePlein(){if(barrePlein)barrePlein.innerHTML=htmlTouches('scv-touches-rang');}
   function majCouverture(){
     if(!cover)return;
     if(catalogue!==null&&!jeuCourant){cover.innerHTML='<b>Aucun jeu disponible pour l’instant.</b>';return;}
@@ -221,7 +273,7 @@
     iframe.setAttribute('allow','autoplay; fullscreen');
     iframe.setAttribute('title',jeuCourant.nom||'');
     iframe.style.touchAction='none';
-    iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();});
+    iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();majVoile();setTimeout(majVoile,1500);setTimeout(majVoile,5000);});
     host.insertBefore(iframe,cover);
     /* Autosave rapproché (Norman, 2026-11-22 : un objet pris puis perdu dans la minute n'était pas vu avec 60 s) : le réglage autosave_period de ScummVM est écrit dans sa config (IndexedDB) AVANT le lancement ; sans IndexedDB on lance tout de suite. */
     const lancer=function(){if(iframe&&!iframe.src)iframe.src=urlLancement(jeuCourant);};
@@ -369,6 +421,8 @@
     if(!host)return;
     plein=oui;
     host.classList.toggle('scv-plein',oui);
+    if(oui)majBarrePlein();
+    host.classList.toggle('scv-avec-touches',Boolean(oui&&touchesDuJeu()));
     if(oui){host.style.left='';host.style.top='';host.style.width='';host.style.height='';}
     try{
       if(oui){
@@ -537,7 +591,7 @@
     if(catalogue!==null)jeuCourant=choisirJeu(catalogue,difficulteCourante);
     const REG=window.__SOREAL_IDLE_REG__||{};
     const entete=typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
-    return entete+'<div class="scv-page"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div>'+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
+    return entete+'<div class="scv-page"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div>'+htmlTouches('scv-touches')+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button> <span id="scvRecomV1" class="scv-recom" data-morph-vivant></span></div></div>';
   }
 
