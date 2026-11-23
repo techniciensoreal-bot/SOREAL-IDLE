@@ -61,10 +61,15 @@
   /* TÉLÉPHONE : le son crépitait sur téléphone et pas sur PC (Norman, 2026-11-23). La musique du jeu est émulée (carte AdLib, OPL) : sur un processeur de téléphone le moteur n'arrive pas à remplir le tampon audio à temps. Deux réglages ScummVM
      plus légers, appliqués SEULEMENT sur un appareil tactile : émulateur OPL le plus léger (opl_driver=db, option de ligne de commande) et un tampon audio plus grand (audio_buffer_size dans scummvm.ini). Réglages non mesurés sur un vrai téléphone : à ajuster. */
   function appareilTactile(){try{return Boolean(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)||((navigator.maxTouchPoints||0)>1&&'ontouchstart' in window);}catch(_e){return false;}}
-  const REGLAGES_INI_TACTILE={audio_buffer_size:'8192'};
+  const REGLAGES_INI_TACTILE={audio_buffer_size:'8192',output_rate:'22050'};
+  /* Le son CRAQUAIT beaucoup sur téléphone malgré l'émulateur OPL léger (Norman, 2026-11-23). La musique est le gros du calcul (carte AdLib émulée) : sur appareil tactile elle est COUPÉE par défaut (--music-driver=null) et la fréquence de mixage baissée (output_rate=22050 dans scummvm.ini : l'option de ligne de commande --output-rate n'existe pas, le moteur démarrait sur son lanceur) ;
+     la voix et les bruitages restent. Bouton « Musique » pour la remettre (le jeu est relancé, sa partie reprend à la dernière sauvegarde automatique). Choix SOREAL, non mesuré sur un vrai téléphone. Préférence liée au compte. */
+  const CLE_MUSIQUE='soreal_idle_scummvm_musique_v1';
+  function musiqueActive(){try{return window.localStorage.getItem(CLE_MUSIQUE)==='1';}catch(_e){return false;}}
+  function libelleMusique(){return musiqueActive()?'🎵 Musique : oui':'🎵 Musique : non';}
   function urlLancement(jeu){
     /* --path : ScummVM détecte le jeu par son dossier (mesuré le 2026-11-22 avec Day of the Tentacle) : aucune entrée à écrire dans scummvm.ini, un nouveau jeu n'a besoin que de son dossier sur R2. */
-    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+(appareilTactile()?' --opl-driver=db':'')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
+    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+(appareilTactile()?' --opl-driver=db'+(musiqueActive()?'':' --music-driver=null'):'')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
   }
   function difficulteDe(j){
     const d=j&&j.systemes&&j.systemes.difficulty;
@@ -162,11 +167,8 @@
      Touches MESURÉES dans le vrai jeu (Day of the Tentacle, version française, ScummVM) en envoyant chaque touche et en lisant la ligne de phrase : O Ouvrir, G Donner, C Fermer, P Prendre, L Regarder, T Parler à, U Utiliser, S Pousser, Y Tirer ;
      Échap passe la scène, Espace met en pause, F5 ouvre le menu du jeu. Version anglaise : lettres des verbes non mesurées, donc aucun bouton (jamais de touche devinée). */
   const TOUCHES_TENTACLE_FR=[
-    {n:'Ouvrir',key:'o',code:'KeyO',kc:79},{n:'Regarder',key:'l',code:'KeyL',kc:76},{n:'Donner',key:'g',code:'KeyG',kc:71},
-    {n:'Fermer',key:'c',code:'KeyC',kc:67},{n:'Utiliser',key:'u',code:'KeyU',kc:85},{n:'Prendre',key:'p',code:'KeyP',kc:80},
-    {n:'Parler',key:'t',code:'KeyT',kc:84},{n:'Pousser',key:'s',code:'KeyS',kc:83},{n:'Tirer',key:'y',code:'KeyY',kc:89},
     {n:'⏸ Pause',key:' ',code:'Space',kc:32},{n:'☰ Menu',key:'F5',code:'F5',kc:116},
-    {n:'👁 Verbes du jeu',special:'verbes'},{n:'',special:'sensibilite'}
+    {n:'',special:'sensibilite'},{n:'',special:'musique'}
   ];
   /* SOURIS ÉMULÉE LENTE (Norman, 2026-11-23 : « la sensibilité de la souris émulée sur téléphone beaucoup plus lente ») : en mode pavé tactile ScummVM déplace le curseur du même déplacement que le doigt ; on RALENTIT ce déplacement en
      réécrivant les événements tactiles AVANT le moteur (dans la fenêtre du jeu, phase de capture) : la position transmise = position de départ + déplacement du doigt × facteur. Facteur 0,3 par défaut (« beaucoup plus lente »), 1 = normal ;
@@ -198,48 +200,20 @@
       ['touchstart','touchmove','touchend','touchcancel'].forEach(function(t){w.addEventListener(t,filtre,{capture:true,passive:false});});
     }catch(_e){}
   }
-  /* Les 9 verbes dessinés par le jeu (en bas à gauche) sont cachés par un voile noir posé sur le canvas, DANS la fenêtre du jeu (l'inventaire à droite et la ligne de phrase restent visibles et cliquables). Position mesurée sur le canvas 640 x 480 :
-     verbes = 0 à 291 px sur 640 (45,5 % : jusqu'à la ligne noire verticale qui sépare les verbes de la colonne de flèches de l'inventaire, x = 287 à 290), 76,2 à 100 % de la hauteur (bord haut du cadre à 76,7 %), mesurés pixel par pixel sur le canvas. Le bouton « Verbes du jeu » les réaffiche ; le choix est gardé (clé soreal_idle_scummvm_verbes_v1, liée au compte). */
-  const CLE_VERBES='soreal_idle_scummvm_verbes_v1';
-  function verbesJeuVisibles(){try{return window.localStorage.getItem(CLE_VERBES)==='1';}catch(_e){return false;}}
-  function majVoile(){
-    try{
-      const w=fenetreJeu();if(!w||!w.document)return;
-      const d=w.document,c=d.querySelector('canvas');
-      let v=d.getElementById('scvVoileV1');
-      if(!c||!touchesDuJeu()||verbesJeuVisibles()){if(v)v.style.display='none';return;}
-      if(!v){v=d.createElement('div');v.id='scvVoileV1';v.style.cssText='position:fixed;background:#000;z-index:5;pointer-events:auto;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:2.5%;padding:1.2% 1.5%;box-sizing:border-box;';
-        TOUCHES_TENTACLE_FR.slice(0,NB_VERBES).forEach(function(x,i){
-          const b=d.createElement('button');b.type='button';b.textContent=x.n;
-          b.style.cssText='min-width:0;border:1px solid #6d7dff88;border-radius:6px;background:#1b2238;color:#fff;font-family:inherit;font-weight:700;cursor:pointer;touch-action:manipulation;padding:0;';
-          b.addEventListener('click',function(){try{w.parent.__scvTouche__(i);}catch(_e){}});
-          v.appendChild(b);
-        });
-        d.body.appendChild(v);
-        if(w.ResizeObserver&&!c.__scvObs){c.__scvObs=new w.ResizeObserver(function(){majVoile();});c.__scvObs.observe(c);}
-        w.addEventListener('resize',majVoile);}
-      const r=c.getBoundingClientRect();
-      /* le jeu (4:3) est dessiné au centre du canvas, qui peut être plus large : on mesure la zone réellement dessinée, pas le canvas */
-      const jh=Math.min(r.height,r.width*0.75),jw=jh*4/3,jx=r.left+(r.width-jw)/2,jy=r.top+(r.height-jh)/2;
-      v.style.display='grid';v.style.left=jx+'px';v.style.top=(jy+jh*0.762)+'px';v.style.width=(jw*0.4547)+'px';v.style.height=(jh*0.238)+'px';v.style.fontSize=Math.max(9,Math.round(jh*0.04))+'px';
-    }catch(_e){}
-  }
-  const NB_VERBES=9;
   function touchesDuJeu(){
-    if(!jeuCourant||jeuCourant.cible!=='tentacle'||langueJeu()==='en')return null;
-    return TOUCHES_TENTACLE_FR;
+    if(!jeuCourant)return null;
+    return TOUCHES_TENTACLE_FR.filter(function(x){return x.special!=='sensibilite'&&x.special!=='musique'||appareilTactile();});   /* souris lente et musique : appareils tactiles seulement */
   }
   function htmlTouches(classe){
     const t=touchesDuJeu();if(!t)return '';
-    /* les 9 verbes sont NOS boutons posés à la place de ceux du jeu (voile, ci-dessous) ; la rangée du dessous n'a que pause, menu et le bouton des verbes du jeu */
-    return '<div class="'+classe+'">'+t.map(function(x,i){return i<NB_VERBES?'':'<button type="button" class="scv-touche"'+(x.special==='sensibilite'?' data-sens="1"':'')+' onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.special==='sensibilite'?libelleSens():x.n)+'</button>';}).join('')+'</div>';
+    return '<div class="'+classe+'">'+t.map(function(x,i){return '<button type="button" class="scv-touche"'+(x.special==='sensibilite'?' data-sens="1"':'')+(x.special==='musique'?' data-musique="1"':'')+' onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.special==='sensibilite'?libelleSens():x.special==='musique'?libelleMusique():x.n)+'</button>';}).join('')+'</div>';
   }
   /* Envoie la touche au jeu (événements clavier dans la fenêtre du jeu, même origine : le moteur les lit comme une vraie frappe). */
   window.__scvTouche__=function(i){
     try{
       const t=touchesDuJeu(),x=t&&t[i],w=fenetreJeu();
       if(x&&x.special==='sensibilite'){try{window.localStorage.setItem(CLE_SENS,facteurSouris()===1?'0':'1');}catch(_e){}Array.prototype.forEach.call(document.querySelectorAll('[data-sens]'),function(b){b.textContent=libelleSens();});return;}
-      if(x&&x.special==='verbes'){try{window.localStorage.setItem(CLE_VERBES,verbesJeuVisibles()?'0':'1');}catch(_e){}majVoile();return;}
+      if(x&&x.special==='musique'){try{window.localStorage.setItem(CLE_MUSIQUE,musiqueActive()?'0':'1');}catch(_e){}Array.prototype.forEach.call(document.querySelectorAll('[data-musique]'),function(b){b.textContent=libelleMusique();});relancerMoteur();return;}
       if(!x||!w||!w.document)return;
       const cible=w.document.activeElement||w.document.body;
       ['keydown','keyup'].forEach(function(type){
@@ -251,6 +225,13 @@
   };
 
   /* ---------- hôte, iframe, couverture ---------- */
+  /* Relance le moteur dans le même iframe (changement de réglage du son) : la partie reprend à la dernière sauvegarde automatique. */
+  function relancerMoteur(){
+    if(!iframe||!jeuCourant)return;
+    const u=urlLancement(jeuCourant),ifr=iframe;
+    try{ifr.src='about:blank';}catch(_e){}
+    window.setTimeout(function(){if(iframe===ifr){iframeSrcLe=Date.now();ifr.src=u;}},400);
+  }
   function creerHote(){
     if(host)return;
     host=document.createElement('div');host.id='scvHoteV1';host.className='scv-cache';host.setAttribute('data-morph-garder','');
@@ -327,7 +308,7 @@
     iframe.setAttribute('allow','autoplay; fullscreen');
     iframe.setAttribute('title',jeuCourant.nom||'');
     iframe.style.touchAction='none';
-    iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();installerSouris(fenetreJeu());majVoile();setTimeout(majVoile,1500);setTimeout(majVoile,5000);});
+    iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();installerSouris(fenetreJeu());});
     host.insertBefore(iframe,cover);
     /* Autosave rapproché (Norman, 2026-11-22 : un objet pris puis perdu dans la minute n'était pas vu avec 60 s) : le réglage autosave_period de ScummVM est écrit dans sa config (IndexedDB) AVANT le lancement ; sans IndexedDB on lance tout de suite. */
     const lancer=function(){if(iframe&&!iframe.src){iframeSrcLe=Date.now();iframe.src=urlLancement(jeuCourant);}};
