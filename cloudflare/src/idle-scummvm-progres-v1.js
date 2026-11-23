@@ -43,6 +43,27 @@ export function idleScummvmAnnulerCreditsV1(state) {
   if (total > 0 && state.currencies) state.currencies.ap = Math.max(0, (Number.isFinite(Number(state.currencies.ap)) ? Number(state.currencies.ap) : 0) - total);
   return true;
 }
+/*
+ * REMISE À ZÉRO UNIQUE (Norman, 2026-11-23 : « je veux que ma partie soit à 0, je ne veux pas les AP, je les aurai de manière légitime ») : les crédits d'Énigmes faits AVANT cette version (enregistrement de jeu sans la marque v = 2) sont retirés une fois
+ * des AP du joueur et l'enregistrement est effacé ; tout crédit fait ensuite porte v = 2 et n'est jamais retiré. Doit s'exécuter AVANT toute action de progrès (syncIdleNguState, qui précède chaque opération) : sinon un ancien enregistrement bloquerait les nouveaux gains.
+ * Idempotent. Renvoie vrai si quelque chose a été retiré.
+ */
+export const IDLE_SCUMMVM_VERSION_CREDITS_V1 = 2;
+export function idleScummvmCorrectionUniqueV1(state) {
+  const sys = state && state.systems && state.systems.scummvm;
+  const jeux = sys && sys.data && sys.data.jeux;
+  if (!jeux || typeof jeux !== "object") return false;
+  let total = 0, change = false;
+  for (const id of Object.keys(jeux)) {
+    const j = jeux[id];
+    if (!j || typeof j !== "object" || j.v === IDLE_SCUMMVM_VERSION_CREDITS_V1) continue;
+    const pris = Math.max(0, Math.floor(Number.isFinite(Number(j.apCredite)) ? Number(j.apCredite) : 0)) + Math.max(0, Math.floor(Number.isFinite(Number(j.bonus)) ? Number(j.bonus) : 0));
+    if (!(pris > 0)) continue;
+    total += pris; delete jeux[id]; change = true;
+  }
+  if (total > 0 && state.currencies) state.currencies.ap = Math.max(0, (Number.isFinite(Number(state.currencies.ap)) ? Number(state.currencies.ap) : 0) - total);
+  return change;
+}
 const RIEN_V1 = (extra) => Object.assign({ ap: 0, apCredite: 0, unites: 0, nouveaux: [], ignore: true, desactive: true }, extra || {});
 /* Garde-fous de forme : identifiant de jeu court, nombre d'unités plausible (une sauvegarde SCUMM ne dépasse pas quelques milliers de faits). */
 const UNITES_MAX_V1 = 100000;
@@ -87,7 +108,7 @@ export function idleScummvmProgresV1(state, payload) {
     cible = n >= reference ? limite : Math.floor(limite * (Math.pow(r, n) - 1) / (Math.pow(r, reference) - 1));
   }
   const ap = Math.max(0, Math.min(cible - dejaAp, limite - dejaAp));
-  jeux[id] = { unites: Math.max(dejaUnites, unites), apCredite: dejaAp + ap };
+  jeux[id] = { unites: Math.max(dejaUnites, unites), apCredite: dejaAp + ap, v: IDLE_SCUMMVM_VERSION_CREDITS_V1 };
   if (jeu.bonus > 0) jeux[id].bonus = Math.floor(num(jeu.bonus, 0));   /* déjà reçu : conservé */
   if (ap > 0) state.currencies.ap = Math.max(0, num(state.currencies.ap, 0)) + ap;   /* AP brut : jamais de multiplicateur */
   /* BONUS DE FIN (Norman, 2026-11-23 : « 50 000 AP offerts à ceux qui débloquent les 150 000 ») : une seule fois, quand le plafond du jeu est atteint ; montant { bonus } du catalogue, borné par la borne absolue ; non compté dans le plafond ni dans le compteur « x / plafond ». */
@@ -149,7 +170,7 @@ export function idleScummvmTropheesV1(state, payload) {
     apCredite += ap;
     total += ap;
   }
-  jeux[id] = { unites: Math.max(0, Math.floor(num(jeu.unites, 0))), apCredite, trophees, ordre };
+  jeux[id] = { unites: Math.max(0, Math.floor(num(jeu.unites, 0))), apCredite, trophees, ordre, v: IDLE_SCUMMVM_VERSION_CREDITS_V1 };
   if (total > 0) state.currencies.ap = Math.max(0, num(state.currencies.ap, 0)) + total;   /* AP brut : jamais de multiplicateur */
   return { ap: total, apCredite, nouveaux, ignore: nouveaux.length === 0 };
 }

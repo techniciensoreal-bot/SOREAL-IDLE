@@ -42,4 +42,19 @@ assert.equal(e.currencies.ap, a100, "l'AP du joueur est crédité du même monta
   assert.equal(e3.currencies.ap, e2.currencies.ap, "le bonus n'est offert qu'une fois");
   assert.equal(e3.systems.scummvm.data.jeux.dott.bonus, 50000);
 }
+// remise à zéro unique : un ancien crédit (sans v = 2) est retiré une fois ; les crédits suivants (v = 2) ne le sont jamais
+{
+  let e = syncIdleNguState({}, ctx, t0);
+  e.currencies.ap = 1000 + 139000;
+  e.systems.scummvm.data = { jeux: { dott: { unites: 197, apCredite: 139000 } } };
+  e = syncIdleNguState(e, ctx, t0 + 1000);
+  assert.equal(e.currencies.ap, 1000, "l'ancien crédit de 139 000 AP est retiré");
+  assert.deepEqual(e.systems.scummvm.data.jeux, {}, "l'ancien enregistrement est effacé");
+  e = applyIdleNguAction(e, Object.assign({ action: "scummvmProgres", unites: 60 }, P), ctx, t0 + 2000).state;
+  const gagne = e.currencies.ap - 1000;
+  assert.ok(gagne > 0 && e.systems.scummvm.data.jeux.dott.v === 2, "un nouveau gain légitime est marqué v = 2 : " + gagne);
+  const e2 = syncIdleNguState(JSON.parse(JSON.stringify(e)), ctx, t0 + 3000);
+  assert.equal(e2.currencies.ap, 1000 + gagne, "le gain légitime n'est jamais retiré");
+  assert.equal(syncIdleNguState(JSON.parse(JSON.stringify(e2)), ctx, t0 + 4000).currencies.ap, 1000 + gagne, "idempotent");
+}
 console.log("idle-scummvm-ap-exponentiel-v1: OK (1re " + premier + ", 100e cumul " + a100 + ", dernière " + dernier + ")");

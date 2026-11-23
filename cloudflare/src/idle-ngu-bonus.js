@@ -5,7 +5,7 @@
  */
 import { idleAchievementsBpV1, idleAchievementsApMultiplierV1, IDLE_ACHIEVEMENTS_V1, idleAchievementBossRequisV1 } from "./idle-achievements-v1.js";
 import { span } from "./idle-spans-v1.js";
-import { idleScummvmAnnulerCreditsV1 } from "./idle-scummvm-progres-v1.js";
+import { idleScummvmAnnulerCreditsV1, idleScummvmCorrectionUniqueV1 } from "./idle-scummvm-progres-v1.js";
 import { IDLE_NGU_TIERS_V1, IDLE_NGU_CATALOG_V1, IDLE_NGU_MAX_LEVEL_V1, nguEffectsV1, nguEffectPctV1, nguActiveTiersV1, nguParamsV1 } from "./idle-ngu-catalog-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { idleQuirkNiveauxV1, idlePerkNiveauxV1, idleWishTracksActifsV1 } from "./idle-difficulty-gates-v1.js";
@@ -118,6 +118,7 @@ export function achievementsSnapshotV1(state) {
 
 export function syncIdleNguState(raw, context = {}, now = Date.now()) {
   const state = span("sync:normaliser", () => normalizeIdleNguState(raw, context, now));
+  idleScummvmCorrectionUniqueV1(state);   /* crédits d'Énigmes d'avant la version 2 : retirés une fois (Norman, 2026-11-23) */
   idleScummvmAnnulerCreditsV1(state);   /* gain d'AP d'Énigmes coupé : retire ce qui avait été crédité (idle-scummvm-progres-v1.js) */
   const elapsed = Math.max(0, (nowMs(now) - state.updatedAt) / 1000);
   return span("sync:avancer", () => advanceIdleNguState(state, elapsed, context, now, true));

@@ -29,18 +29,18 @@ const DOTT = { jeu: "dott", plafond: 150000, parUnite: 53 };
   let r = agir(ouvert(), Object.assign({ unites: 3 }, DOTT));
   assert.equal(r.result.ap, 159);
   assert.equal(r.state.currencies.ap, 159, "3 x 53 AP dans la monnaie AP");
-  assert.deepEqual(r.state.systems.scummvm.data.jeux.dott, { unites: 3, apCredite: 159 });
+  assert.deepEqual(r.state.systems.scummvm.data.jeux.dott, { unites: 3, apCredite: 159, v: 2 });
   /* 2 unités de plus : seules les nouvelles comptent */
   r = agir(r.state, Object.assign({ unites: 5 }, DOTT), t0 + 2000);
   assert.equal(r.result.ap, 106);
   assert.equal(r.state.currencies.ap, 265);
-  assert.deepEqual(r.state.systems.scummvm.data.jeux.dott, { unites: 5, apCredite: 265 });
+  assert.deepEqual(r.state.systems.scummvm.data.jeux.dott, { unites: 5, apCredite: 265, v: 2 });
   /* même valeur ou valeur plus basse : rien, jamais de retrait */
   for (const u of [5, 4, 0]) {
     const s = agir(r.state, Object.assign({ unites: u }, DOTT), t0 + 3000);
     assert.equal(s.result.ap, 0, "valeur " + u + " : aucun crédit");
     assert.equal(s.state.currencies.ap, 265, "AP intacts");
-    assert.deepEqual(s.state.systems.scummvm.data.jeux.dott, { unites: 5, apCredite: 265 }, "le nombre d'unités ne redescend pas");
+    assert.deepEqual(s.state.systems.scummvm.data.jeux.dott, { unites: 5, apCredite: 265, v: 2 }, "le nombre d'unités ne redescend pas");
   }
   /* jamais de champ horodaté ni aléatoire dans l'état du jeu (le mémo du moteur est indexé sur son contenu) */
   assert.ok(!/At|Ms|time|date|random/i.test(Object.keys(r.state.systems.scummvm.data.jeux.dott).join(",")), "état sans horodatage");
@@ -79,7 +79,7 @@ const DOTT = { jeu: "dott", plafond: 150000, parUnite: 53 };
   assert.equal(r.state.currencies.ap, 230, "l'autre jeu rouvre de nouveaux points");
   r = agir(r.state, { jeu: "dott", unites: 9, plafond: 200, parUnite: 100 }, t0 + 3000);
   assert.equal(r.state.currencies.ap, 230, "dott reste plafonné");
-  assert.deepEqual(r.state.systems.scummvm.data.jeux, { dott: { unites: 9, apCredite: 200 }, autre: { unites: 3, apCredite: 30 } });
+  assert.deepEqual(r.state.systems.scummvm.data.jeux, { dott: { unites: 9, apCredite: 200, v: 2 }, autre: { unites: 3, apCredite: 30, v: 2 } });
 }
 
 /* 5. menu verrouillé : action refusée, aucun AP (règle n°2) */
