@@ -122,6 +122,7 @@
       catalogue=d.jeux;
       jeuCourant=choisirJeu(catalogue,difficulteCourante);
       majCouverture();
+      try{synchroniser();}catch(_e){}   /* le jeu est connu : la reprise directe (afficher) peut se faire sans attendre un redessin de la page */
       demarrerPrechargeSiBesoin();
       chargerTropheesDuJeu();
     });
@@ -436,7 +437,7 @@
     const jeu=jeuCourant;
     /* l'ancien iframe disparaît d'abord : il ne doit plus écrire de sauvegarde pendant ni après l'effacement */
     if(iframe){try{if(iframe.parentNode)iframe.parentNode.removeChild(iframe);}catch(_e){}}
-    iframe=null;iframeCharge=false;moteurPret=false;chargeLe=0;pause=false;gestePage=false;
+    iframe=null;iframeCharge=false;moteurPret=false;chargeLe=0;pause=false;gestePage=false;ecrire('');   /* le jeu repart de zéro : « Jouer » est redemandé */
     const S=window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__,P=progresMod();
     const fin=function(res){
       try{if(res&&res.ok===true&&P&&P.reinitialiser)P.reinitialiser(jeu.id);}catch(_e){}
@@ -489,8 +490,12 @@
     host.classList.add('scv-cache');
     suspendre(true);
   }
+  /* Reprise directe (Norman, 2026-11-23) : le PREMIER lancement exige un clic sur « Jouer » ; ensuite (état 'lance', préférence liée au compte, donc aussi sur un autre appareil) le jeu reprend seul à l'arrivée sur la page, sans clic. Le son part
+     parce que la page a déjà reçu un geste de l'utilisateur (le clic qui a ouvert le menu) ; sans geste (rechargement de la page sans clic), l'écran « Jouer » reste. */
+  function activationPage(){try{return Boolean(navigator.userActivation&&navigator.userActivation.hasBeenActive);}catch(_e){return false;}}
   function afficher(z){
     creerHote();
+    if(!gestePage&&jeuCourant&&lire()==='lance'&&activationPage()){gestePage=true;if(!iframe)creerIframe(false);}
     const etait=host.classList.contains('scv-cache');
     placer(z);
     host.classList.remove('scv-cache');
@@ -501,6 +506,13 @@
     couvrir(!jeuCourant||!(gestePage&&moteurPret));
     if(gestePage&&!moteurPret){majCouverture();attendrePret();}
   }
+  /* Page ouverte directement sur Énigmes (menu restauré, aucun geste encore) : dès le premier clic ou la première touche, si la partie a déjà été lancée une fois (état 'lance'), la reprise se fait sans cliquer sur « Jouer ». */
+  ['click','keydown','touchend'].forEach(function(t){
+    window.addEventListener(t,function(){
+      if(gestePage||!host||!estVisible()||lire()!=='lance')return;
+      window.setTimeout(function(){try{synchroniser();}catch(_e){}},0);
+    },{capture:true,passive:true});
+  });
   function recaler(){
     if(!host||plein||!estVisible())return;
     const z=document.getElementById('scvZoneV1');
@@ -517,7 +529,7 @@
     attente=window.setTimeout(function(){
       attente=0;
       if(iframe&&moteurEstPret())moteurPret=true;
-      if(moteurPret){if(estVisible())couvrir(false);return;}
+      if(moteurPret){if(estVisible()){couvrir(false);debloquerSon();}return;}
       /* moteur muet depuis 90 s (réseau coupé pendant le téléchargement, page d'erreur dans l'iframe) : UNE relance, sans toucher à la partie (les sauvegardes restent dans IndexedDB) */
       if(iframe&&iframeSrcLe&&relancesMoteur<1&&Date.now()-iframeSrcLe>90000&&jeuCourant){
         relancesMoteur++;iframeSrcLe=Date.now();
@@ -610,7 +622,7 @@
     if(total!==tTotal){tTotalEl.textContent=nombreLisible(total);tTotal=total;}   /* comparé à la dernière valeur écrite, jamais à textContent */
   }
 
-  /* AP déjà gagnés avec le jeu courant (règle n°2 : seulement ce qui est gagné, jamais le plafond ni le nombre d'unités possibles). Rien si le jeu n'a pas de gain d'AP dans le catalogue. */
+  /* AP déjà gagnés avec le jeu courant, affichés « obtenus / plafond » (exception du 2026-11-23 à la règle n°2 : le plafond d'AP est montré, jamais le nombre d'unités possibles). Rien si le jeu n'a pas de gain d'AP dans le catalogue. */
   function apCredites(j,jeu){
     const l=j&&j.systemes&&Array.isArray(j.systemes.systems)?j.systemes.systems:[];
     const s=l.find(function(x){return x&&x.id==='scummvm';});
@@ -623,7 +635,9 @@
     if(!jeuCourant||!jeuCourant.ap)return '';
     const P=progresMod();
     if(P&&P.tropheesDe(jeuCourant.id)!==null)return '';   /* jeu avec une liste de trophées (ou liste en cours de lecture) : le total est dans le bloc des trophées, rien tant qu'aucun n'est obtenu */
-    return '<div class="scv-ap"><span>AP gagnés avec ce jeu :</span> <b>'+esc(String(apCredites(j,jeuCourant)))+'</b></div>';
+    /* Compteur « obtenus / total » (Norman, 2026-11-23 : « un compteur d'AP obtenu, exemple 50/150000 ») : EXCEPTION à la règle n°2, le total d'AP possible de ce jeu est montré (AP seulement : jamais le nombre d'unités ni de trophées). */
+    const plafond=Math.floor(Number(jeuCourant.ap.plafond));
+    return '<div class="scv-ap"><span>AP obtenus :</span> <b>'+esc(nombreLisible(apCredites(j,jeuCourant)))+(plafond>0?' / '+esc(nombreLisible(plafond)):'')+'</b></div>';
   }
 
   function page(j){
