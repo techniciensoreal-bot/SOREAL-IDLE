@@ -612,8 +612,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 359,
-  "sha": "833e8fd7d734afd3c5ecad1dbf65b5b56ccfd9a2"
+  "pin": 360,
+  "sha": "e05bd45bd8eecb7331af2ff60c3a826bd4af8e09"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -760,20 +760,20 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 10,
-  "sha": "bd626727ee434900546d0075899fde7250aacf46"
+  "pin": 11,
+  "sha": "3c22e2b991d50e36967505f6d83acdfc5c7b246d"
  },
  "/modules/scummvm-progres-v1.js": {
-  "pin": 7,
-  "sha": "30255865140b060cb7c656be3824e47c414ea612"
+  "pin": 8,
+  "sha": "36295d99e06e48ac536729a1ff6ca5e2df8a8e37"
  },
  "/modules/scummvm-sauvegarde-v1.js": {
   "pin": 1,
   "sha": "3af8831b9ad7618cabdeeb6cab7f8218787c6fb3"
  },
  "/modules/scummvm-sync-v1.js": {
-  "pin": 1,
-  "sha": "8e23b35c358385de1bc0cfeacdcdb4c93504c61c"
+  "pin": 2,
+  "sha": "9600129d778cebe80a20aef4756342c626a9796c"
  },
  "/modules/sets-zoom-v1.js": {
   "pin": 1,
@@ -848,12 +848,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1147,
-  "sha": "cca7f8956956309edfedd162e203041f07e848c5"
+  "pin": 1148,
+  "sha": "07019ff4fe180a9fa6b02cae1ebfa267731a4225"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 967,
-  "sha": "f35cfa7ee5a6d58b00f06f2e61a7bde7cb1122a1"
+  "pin": 968,
+  "sha": "f3fdff9e4b742e02c7826dd2f4e32f169e29c919"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

@@ -301,6 +301,69 @@
     debloquerSon();
   }
 
+  /* ---------- « Recommencer la partie » (Norman, 2026-11-23 : « tu peux effacer ma partie… je dois tout recommencer pour que tu suives l'avancée ») ----------
+     Confirmation DANS la page en deux étapes (jamais alert/confirm natifs) : « Recommencer la partie » -> « Effacer ma partie ? » + « Oui, effacer » + « Annuler » ; retour à l'état normal après 8 s sans action
+     (UN SEUL setTimeout, jamais de minuterie en boucle). « Oui » : l'ancien iframe est retiré (il ne doit plus écrire de sauvegarde), le serveur puis l'appareil effacent (scummvm-sync-v1.js), le suivi est remis à zéro
+     (scummvm-progres-v1.js), puis un iframe NEUF est créé (même hôte, même couverture : l'écran « Jouer » revient). C'est le SEUL cas où l'iframe est recréé. Règle n°4 : nœud persistant (data-morph-vivant) rempli ici,
+     ses boutons portent data-morph-garder. Aucun texte de progression. */
+  const TEXTE_RECOMMENCER='Recommencer la partie',TEXTE_CONFIRMER='Effacer ma partie ?',TEXTE_OUI='Oui, effacer',TEXTE_NON='Annuler',TEXTE_ERREUR_EFFACER='Impossible d’effacer pour l’instant, réessaie.';
+  const DELAI_CONFIRMATION_MS=8000;
+  let rNoeud=null,rEtape=0,rOccupe=false,rTimer=0,rErreur=false,rB={};
+  function rMaj(){
+    if(!rNoeud||!rB.recom)return;
+    const montre=function(e,oui){const v=oui?'':'none';if(e.style.display!==v)e.style.display=v;};
+    montre(rB.recom,rEtape===0);montre(rB.question,rEtape===1);montre(rB.oui,rEtape===1);montre(rB.non,rEtape===1);montre(rB.erreur,rErreur&&rEtape===0);
+    rB.recom.disabled=rOccupe;rB.oui.disabled=rOccupe;rB.non.disabled=rOccupe;
+  }
+  function rEtapeVers(n){
+    if(rTimer){window.clearTimeout(rTimer);rTimer=0;}
+    rEtape=n;
+    if(n===1)rTimer=window.setTimeout(function(){rTimer=0;if(!rOccupe){rEtape=0;rMaj();}},DELAI_CONFIRMATION_MS);
+    rMaj();
+  }
+  function rBouton(texte,classe,f){
+    const b=document.createElement('button');b.type='button';b.className=classe;b.textContent=texte;b.setAttribute('data-morph-garder','');
+    b.addEventListener('click',f);return b;
+  }
+  function majRecommencer(){
+    const noeud=document.getElementById('scvRecomV1');
+    if(!noeud)return;
+    if(!jeuCourant){while(noeud.firstChild)noeud.removeChild(noeud.firstChild);rNoeud=null;rB={};return;}   /* visible seulement quand un jeu est affiché */
+    if(noeud!==rNoeud||!rB.recom||!rB.recom.isConnected){
+      while(noeud.firstChild)noeud.removeChild(noeud.firstChild);
+      rB={};
+      rB.recom=rBouton(TEXTE_RECOMMENCER,'soreal-idle-expand-button-v25',function(){rErreur=false;rEtapeVers(1);});
+      rB.question=document.createElement('span');rB.question.className='scv-recom-q';rB.question.textContent=TEXTE_CONFIRMER;rB.question.setAttribute('data-morph-garder','');
+      rB.oui=rBouton(TEXTE_OUI,'soreal-idle-expand-button-v25',function(){recommencer();});
+      rB.non=rBouton(TEXTE_NON,'soreal-idle-expand-button-v25',function(){if(!rOccupe)rEtapeVers(0);});
+      rB.erreur=document.createElement('span');rB.erreur.className='scv-recom-err';rB.erreur.setAttribute('role','status');rB.erreur.textContent=TEXTE_ERREUR_EFFACER;rB.erreur.setAttribute('data-morph-garder','');
+      [rB.recom,rB.question,rB.oui,rB.non,rB.erreur].forEach(function(e){noeud.appendChild(e);});
+      rNoeud=noeud;
+    }
+    rMaj();
+  }
+  function recommencer(){
+    if(rOccupe||!jeuCourant)return;
+    rOccupe=true;rMaj();
+    if(rTimer){window.clearTimeout(rTimer);rTimer=0;}
+    const jeu=jeuCourant;
+    /* l'ancien iframe disparaît d'abord : il ne doit plus écrire de sauvegarde pendant ni après l'effacement */
+    if(iframe){try{if(iframe.parentNode)iframe.parentNode.removeChild(iframe);}catch(_e){}}
+    iframe=null;iframeCharge=false;moteurPret=false;chargeLe=0;pause=false;gestePage=false;
+    const S=window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__,P=progresMod();
+    const fin=function(res){
+      try{if(res&&res.ok===true&&P&&P.reinitialiser)P.reinitialiser(jeu.id);}catch(_e){}
+      rErreur=!(res&&res.ok===true);
+      rOccupe=false;rEtape=0;
+      try{creerIframe(true);}catch(_e){}   /* iframe neuf : le jeu repart de la sauvegarde restante (rien si l'effacement a réussi) */
+      majCouverture();couvrir(true);
+      try{majRecommencer();majTrophees();}catch(_e){}
+    };
+    let p;
+    try{p=S&&S.effacer?S.effacer(jeu):Promise.resolve({ok:false});}catch(_e){p=Promise.resolve({ok:false});}
+    p.then(fin,function(){fin({ok:false});});
+  }
+
   /* ---------- plein écran ---------- */
   function pleinEcran(oui){
     if(!host)return;
@@ -383,6 +446,7 @@
       if(j&&scummvmDebloque(j)&&estOuvert()){difficulteCourante=difficulteDe(j);chargerCatalogue();}
       synchroniser();
       majTrophees();
+      majRecommencer();
     }catch(_e){}
   });
 
@@ -474,8 +538,8 @@
     const REG=window.__SOREAL_IDLE_REG__||{};
     const entete=typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
     return entete+'<div class="scv-page"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div>'+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
-      '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button></div></div>';
+      '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button> <span id="scvRecomV1" class="scv-recom" data-morph-vivant></span></div></div>';
   }
 
-  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe,reglerAutosave:reglerAutosave,apCredites:apCredites,majTrophees:majTrophees,tropheesObtenus:tropheesObtenus};
+  window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe,reglerAutosave:reglerAutosave,apCredites:apCredites,majTrophees:majTrophees,majRecommencer:majRecommencer,recommencer:recommencer,tropheesObtenus:tropheesObtenus};
 })();

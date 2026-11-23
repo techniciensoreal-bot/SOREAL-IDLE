@@ -307,7 +307,7 @@ const dico = JSON.parse(readFileSync("cloudflare/public/modules/traduction-angla
 assert.equal(dico["Partie reprise sur un autre appareil : recharge pour la retrouver."], "Game resumed on another device: reload to get it back.");
 assert.equal(dico["Reprendre ici"], "Resume here");
 const index = readFileSync("cloudflare/public/index.html", "utf8");
-const iSync = index.indexOf('<script defer src="/modules/scummvm-sync-v1.js?v=1"></script>');
+const iSync = index.search(/<script defer src="\/modules\/scummvm-sync-v1\.js\?v=[0-9]+"><\/script>/);   /* le numéro ?v= monte à chaque modification (maj-pins) */
 assert.ok(iSync > 0 && iSync < index.indexOf("/modules/scummvm-page-v1.js"), "script chargé avant scummvm-page-v1.js");
 
 console.log("idle-scummvm-sauvegardes-client-v1: OK");

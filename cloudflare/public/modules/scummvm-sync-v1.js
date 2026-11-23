@@ -292,6 +292,48 @@
       });
     }catch(_e){}
   }
+  /* --- « Recommencer la partie » (Norman, 2026-11-23) : le serveur efface d'abord (toutes les sauvegardes du compte pour ce jeu + date d'effacement : un autre appareil ne peut plus ressusciter l'ancienne partie),
+     puis seulement ensuite les fichiers de saves/ du jeu dans IndexedDB (la base n'est ni créée ni supprimée). Serveur injoignable : RIEN n'est effacé localement. Résout { ok:true } ou { ok:false, message }. --- */
+  const TEXTE_ERREUR_EFFACER='Impossible d’effacer pour l’instant, réessaie.';
+  function effacerLocaux(cible){
+    return ouvrir(false).then(function(db){
+      if(!db)return true;   /* pas de base : rien à effacer */
+      return new Promise(function(resolve){
+        let ok=false;
+        const clore=function(){try{db.close();}catch(_e){}resolve(ok);};
+        try{
+          const tx=db.transaction(TABLE,'readwrite');
+          const st=tx.objectStore(TABLE);
+          tx.oncomplete=function(){ok=true;clore();};
+          tx.onerror=tx.onabort=clore;
+          const cur=st.openCursor(window.IDBKeyRange.bound(DOSSIER,DOSSIER+'￿'));
+          cur.onerror=clore;
+          cur.onsuccess=function(){
+            const c=cur.result;
+            if(!c)return;
+            if(nomValide(String(c.key).slice(DOSSIER.length),cible))st.delete(c.key);
+            c.continue();
+          };
+        }catch(_e){clore();}
+      });
+    });
+  }
+  function effacer(jeu){
+    const echec={ok:false,message:TEXTE_ERREUR_EFFACER};
+    try{
+      if(!jeu||!jeu.id||!jeu.cible)return Promise.resolve(echec);
+      const cible=String(jeu.cible);
+      return appeler({action:'effacer',jeu:String(jeu.id)}).then(function(r){
+        if(!r||r.ok!==true)return echec;
+        return effacerLocaux(cible).then(function(ok){
+          if(!ok)return echec;
+          if(etat.jeu&&String(etat.jeu.id)===String(jeu.id)){etat.connu={};etat.dernierTs={};etat.lu=true;etat.conflit=false;etat.force=false;messageConflit(false);}
+          return {ok:true};
+        });
+      }).catch(function(){return echec;});
+    }catch(_e){return Promise.resolve(echec);}
+  }
+
   window.addEventListener('pagehide',envoiFinal);
   document.addEventListener('visibilitychange',function(){try{if(document.visibilityState==='hidden')envoiFinal();}catch(_e){}});
 
@@ -302,5 +344,5 @@
       planifier();
     }catch(_e){}
   }
-  window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__={reprendre:reprendre,suivre:suivre,forcer:forcer,tour:tour,etat:etat,nomValide:nomValide,TEXTE_CONFLIT:TEXTE_CONFLIT,TEXTE_BOUTON:TEXTE_BOUTON};
+  window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__={reprendre:reprendre,suivre:suivre,forcer:forcer,effacer:effacer,TEXTE_ERREUR_EFFACER:TEXTE_ERREUR_EFFACER,tour:tour,etat:etat,nomValide:nomValide,TEXTE_CONFLIT:TEXTE_CONFLIT,TEXTE_BOUTON:TEXTE_BOUTON};
 })();

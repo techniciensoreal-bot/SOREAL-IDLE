@@ -11,6 +11,8 @@
  * `maj` = millisecondes à l'HEURE DU SERVEUR (le client corrige l'horloge de l'appareil par l'écart mesuré) ; un `maj` au-delà de maintenant + 5 min est refusé.
  * Fusion PAR FICHIER : le serveur garde la version dont `maj` est la plus récente (égalité : le serveur). `base` (facultatif) = le `maj` du serveur que l'appareil a vu pour ce fichier ;
  * s'il a changé depuis (un autre appareil a joué), le fichier n'est PAS écrasé : il revient dans `conflits` (jamais d'écrasement silencieux). `force:true` (« Reprendre ici ») remplace sans comparer.
+ * Action { action:'effacer', jeu } (« Recommencer la partie », Norman, 2026-11-23) -> { ok, effaces:n } : supprime TOUTES les lignes (compte, jeu), jamais d'autres comptes ni d'autres jeux, et garde la date
+ * `effacee_ms` (heure du serveur) dans idle_scummvm_effacements : un envoi dont le `maj` est antérieur à cet effacement (un autre appareil encore ouvert avec l'ancienne partie) revient en conflit, même avec `force`.
  * Le compte n'est que celui du jeton de session : le client n'envoie jamais d'identité.
  */
 import { sqlRows } from "./core/sqlite-core.js";
@@ -28,6 +30,7 @@ const TABLES_PRETES_V1 = new WeakSet();
 export function idleScummvmSauvegardesAssurerTableV1(sql) {
   if (sql && typeof sql === "object" && TABLES_PRETES_V1.has(sql)) return;
   sql.exec("CREATE TABLE IF NOT EXISTS idle_scummvm_sauvegardes(compte TEXT NOT NULL, jeu TEXT NOT NULL, nom TEXT NOT NULL, donnees TEXT NOT NULL, maj INTEGER NOT NULL, taille INTEGER NOT NULL, PRIMARY KEY(compte, jeu, nom))");
+  sql.exec("CREATE TABLE IF NOT EXISTS idle_scummvm_effacements(compte TEXT NOT NULL, jeu TEXT NOT NULL, effacee_ms INTEGER NOT NULL, PRIMARY KEY(compte, jeu))");
   if (sql && typeof sql === "object") TABLES_PRETES_V1.add(sql);
 }
 
@@ -58,6 +61,13 @@ export async function idleScummvmSauvegardesTraiterV1(sql, compte, corps, ctx = 
     const lignes = sqlRows(sql.exec("SELECT nom,donnees,maj FROM idle_scummvm_sauvegardes WHERE compte=? AND jeu=? ORDER BY nom", email, jeu));
     return { ok: true, fichiers: lignes.map((l) => ({ nom: String(l.nom), maj: Number(l.maj), donnees: String(l.donnees) })) };
   }
+  if (c.action === "effacer") {
+    const n = Number(sqlRows(sql.exec("SELECT COUNT(*) AS n FROM idle_scummvm_sauvegardes WHERE compte=? AND jeu=?", email, jeu))[0]?.n) || 0;
+    sql.exec("DELETE FROM idle_scummvm_sauvegardes WHERE compte=? AND jeu=?", email, jeu);
+    const quand = ctx.maintenant === undefined ? Date.now() : ctx.maintenant;
+    sql.exec("INSERT INTO idle_scummvm_effacements(compte,jeu,effacee_ms) VALUES(?,?,?) ON CONFLICT(compte,jeu) DO UPDATE SET effacee_ms=excluded.effacee_ms", email, jeu, quand);
+    return { ok: true, effaces: n };
+  }
   if (c.action !== "ecrire") return { ok: false, code: "SCUMMVM_SAUV_ACTION" };
   const maintenant = ctx.maintenant === undefined ? Date.now() : ctx.maintenant;
   const entrants = c.fichiers;
@@ -75,7 +85,10 @@ export async function idleScummvmSauvegardesTraiterV1(sql, compte, corps, ctx = 
   /* décision par fichier, sans rien écrire encore */
   const aEcrire = [];
   const conflits = [];
+  const eff = sqlRows(sql.exec("SELECT effacee_ms FROM idle_scummvm_effacements WHERE compte=? AND jeu=?", email, jeu))[0];
+  const effaceeMs = eff ? Number(eff.effacee_ms) : 0;
   for (const f of entrants) {
+    if (f.maj < effaceeMs) { conflits.push(f.nom); continue; }   /* partie antérieure à « Recommencer » : jamais ressuscitée */
     const ex = existants.get(f.nom);
     if (!ex) { aEcrire.push(f); continue; }
     if (force) { aEcrire.push(f); continue; }

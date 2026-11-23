@@ -132,6 +132,27 @@
       window.localStorage.setItem(CLE_JOURNAL,JSON.stringify(jr));
     }catch(_e){}
   }
+  /* « Recommencer la partie » (Norman, 2026-11-23) : retire l'entrée du jeu de la mémoire « déjà vu » / trophées envoyés et du journal ; les autres jeux ne bougent pas ; un objet devenu vide retire la clé.
+     Écriture seulement par localStorage.setItem / removeItem (règle n°6). La liste des trophées du jeu (donnée du catalogue, pas une progression) reste en mémoire. */
+  function retirerEntree(journalOui,id){
+    const cle=journalOui?CLE_JOURNAL:CLE;
+    try{
+      const brut=window.localStorage.getItem(cle);
+      if(brut===null||brut===undefined)return;
+      let v=null;try{v=JSON.parse(brut);}catch(_e){v=null;}
+      if(!v||typeof v!=='object'||Array.isArray(v)||!Object.prototype.hasOwnProperty.call(v,id))return;
+      delete v[id];
+      const texte=JSON.stringify(v),vide=!Object.keys(v).length;
+      if(journalOui){if(vide)window.localStorage.removeItem(CLE_JOURNAL);else window.localStorage.setItem(CLE_JOURNAL,texte);}
+      else if(vide)window.localStorage.removeItem(CLE);else window.localStorage.setItem(CLE,texte);
+    }catch(_e){}
+  }
+  function reinitialiser(jeuId){
+    const id=String(jeuId==null?'':jeuId);
+    if(!id)return;
+    retirerEntree(false,id);
+    retirerEntree(true,id);
+  }
   /* Lecture du journal (console du navigateur) : chaque entrée est annotée { type:'objet', id } ou { type:'bit', id } quand le profil du jeu est connu ; les NOMS des objets ne sont pas dans le client. */
   function journal(){
     const jr=lireJournal(),sortie={};
@@ -228,5 +249,5 @@
   }
   window.addEventListener('pagehide',function(){verifier();});   /* à la fermeture de la page */
 
-  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,definirApActif:function(v){AP_ACTIF=Boolean(v);},validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
+  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,definirApActif:function(v){AP_ACTIF=Boolean(v);},validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,reinitialiser:reinitialiser,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
 })();
