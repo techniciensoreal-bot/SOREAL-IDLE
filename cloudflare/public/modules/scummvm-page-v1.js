@@ -160,8 +160,38 @@
     {n:'Fermer',key:'c',code:'KeyC',kc:67},{n:'Utiliser',key:'u',code:'KeyU',kc:85},{n:'Prendre',key:'p',code:'KeyP',kc:80},
     {n:'Parler',key:'t',code:'KeyT',kc:84},{n:'Pousser',key:'s',code:'KeyS',kc:83},{n:'Tirer',key:'y',code:'KeyY',kc:89},
     {n:'⏸ Pause',key:' ',code:'Space',kc:32},{n:'☰ Menu',key:'F5',code:'F5',kc:116},
-    {n:'👁 Verbes du jeu',special:'verbes'}
+    {n:'👁 Verbes du jeu',special:'verbes'},{n:'',special:'sensibilite'}
   ];
+  /* SOURIS ÉMULÉE LENTE (Norman, 2026-11-23 : « la sensibilité de la souris émulée sur téléphone beaucoup plus lente ») : en mode pavé tactile ScummVM déplace le curseur du même déplacement que le doigt ; on RALENTIT ce déplacement en
+     réécrivant les événements tactiles AVANT le moteur (dans la fenêtre du jeu, phase de capture) : la position transmise = position de départ + déplacement du doigt × facteur. Facteur 0,3 par défaut (« beaucoup plus lente »), 1 = normal ;
+     choix SOREAL (non publié), bouton « Souris » pour alterner, préférence liée au compte (clé soreal_idle_scummvm_sensibilite_v1). Les appuis (clic) ne sont pas modifiés. */
+  const CLE_SENS='soreal_idle_scummvm_sensibilite_v1',FACTEUR_LENT=0.3;
+  function facteurSouris(){try{return window.localStorage.getItem(CLE_SENS)==='1'?1:FACTEUR_LENT;}catch(_e){return FACTEUR_LENT;}}
+  function libelleSens(){return facteurSouris()===1?'🖱 Souris normale':'🖱 Souris lente';}
+  function installerSouris(w){
+    try{
+      if(!w||w.__scvSens||!w.TouchEvent||!w.Touch)return;
+      w.__scvSens=true;
+      const virt={},dern={};let synth=false;
+      const filtre=function(e){
+        if(synth||(!e.isTrusted&&!w.__scvTest))return;
+        const k=facteurSouris();if(k===1)return;
+        const liste=function(tl){return Array.prototype.map.call(tl,function(t){
+          const id=t.identifier;
+          if(e.type==='touchstart'||!virt[id]){virt[id]={x:t.clientX,y:t.clientY};dern[id]={x:t.clientX,y:t.clientY};}
+          else if(e.type==='touchmove'){virt[id].x+=(t.clientX-dern[id].x)*k;virt[id].y+=(t.clientY-dern[id].y)*k;dern[id]={x:t.clientX,y:t.clientY};}
+          return new w.Touch({identifier:id,target:t.target,clientX:virt[id].x,clientY:virt[id].y,pageX:virt[id].x+w.pageXOffset,pageY:virt[id].y+w.pageYOffset,screenX:t.screenX,screenY:t.screenY,radiusX:t.radiusX,radiusY:t.radiusY,force:t.force});
+        });};
+        const touches=liste(e.touches),changed=liste(e.changedTouches),cibles=liste(e.targetTouches);
+        if(e.type==='touchend'||e.type==='touchcancel')Array.prototype.forEach.call(e.changedTouches,function(t){delete virt[t.identifier];delete dern[t.identifier];});
+        e.stopImmediatePropagation();if(e.cancelable)e.preventDefault();
+        synth=true;
+        try{e.target.dispatchEvent(new w.TouchEvent(e.type,{touches:touches,targetTouches:cibles,changedTouches:changed,bubbles:true,cancelable:true,view:w,ctrlKey:e.ctrlKey,shiftKey:e.shiftKey,altKey:e.altKey,metaKey:e.metaKey}));}
+        finally{synth=false;}
+      };
+      ['touchstart','touchmove','touchend','touchcancel'].forEach(function(t){w.addEventListener(t,filtre,{capture:true,passive:false});});
+    }catch(_e){}
+  }
   /* Les 9 verbes dessinés par le jeu (en bas à gauche) sont cachés par un voile noir posé sur le canvas, DANS la fenêtre du jeu (l'inventaire à droite et la ligne de phrase restent visibles et cliquables). Position mesurée sur le canvas 640 x 480 :
      verbes = 0 à 291 px sur 640 (45,5 % : jusqu'à la ligne noire verticale qui sépare les verbes de la colonne de flèches de l'inventaire, x = 287 à 290), 76,2 à 100 % de la hauteur (bord haut du cadre à 76,7 %), mesurés pixel par pixel sur le canvas. Le bouton « Verbes du jeu » les réaffiche ; le choix est gardé (clé soreal_idle_scummvm_verbes_v1, liée au compte). */
   const CLE_VERBES='soreal_idle_scummvm_verbes_v1';
@@ -196,12 +226,13 @@
   function htmlTouches(classe){
     const t=touchesDuJeu();if(!t)return '';
     /* les 9 verbes sont NOS boutons posés à la place de ceux du jeu (voile, ci-dessous) ; la rangée du dessous n'a que pause, menu et le bouton des verbes du jeu */
-    return '<div class="'+classe+'">'+t.map(function(x,i){return i<NB_VERBES?'':'<button type="button" class="scv-touche" onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.n)+'</button>';}).join('')+'</div>';
+    return '<div class="'+classe+'">'+t.map(function(x,i){return i<NB_VERBES?'':'<button type="button" class="scv-touche"'+(x.special==='sensibilite'?' data-sens="1"':'')+' onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.special==='sensibilite'?libelleSens():x.n)+'</button>';}).join('')+'</div>';
   }
   /* Envoie la touche au jeu (événements clavier dans la fenêtre du jeu, même origine : le moteur les lit comme une vraie frappe). */
   window.__scvTouche__=function(i){
     try{
       const t=touchesDuJeu(),x=t&&t[i],w=fenetreJeu();
+      if(x&&x.special==='sensibilite'){try{window.localStorage.setItem(CLE_SENS,facteurSouris()===1?'0':'1');}catch(_e){}Array.prototype.forEach.call(document.querySelectorAll('[data-sens]'),function(b){b.textContent=libelleSens();});return;}
       if(x&&x.special==='verbes'){try{window.localStorage.setItem(CLE_VERBES,verbesJeuVisibles()?'0':'1');}catch(_e){}majVoile();return;}
       if(!x||!w||!w.document)return;
       const cible=w.document.activeElement||w.document.body;
@@ -284,7 +315,7 @@
     iframe.setAttribute('allow','autoplay; fullscreen');
     iframe.setAttribute('title',jeuCourant.nom||'');
     iframe.style.touchAction='none';
-    iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();majVoile();setTimeout(majVoile,1500);setTimeout(majVoile,5000);});
+    iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();installerSouris(fenetreJeu());majVoile();setTimeout(majVoile,1500);setTimeout(majVoile,5000);});
     host.insertBefore(iframe,cover);
     /* Autosave rapproché (Norman, 2026-11-22 : un objet pris puis perdu dans la minute n'était pas vu avec 60 s) : le réglage autosave_period de ScummVM est écrit dans sa config (IndexedDB) AVANT le lancement ; sans IndexedDB on lance tout de suite. */
     const lancer=function(){if(iframe&&!iframe.src)iframe.src=urlLancement(jeuCourant);};
