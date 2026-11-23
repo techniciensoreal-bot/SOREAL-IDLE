@@ -172,20 +172,31 @@
       const d=w.document,c=d.querySelector('canvas');
       let v=d.getElementById('scvVoileV1');
       if(!c||!touchesDuJeu()||verbesJeuVisibles()){if(v)v.style.display='none';return;}
-      if(!v){v=d.createElement('div');v.id='scvVoileV1';v.style.cssText='position:fixed;background:#000;z-index:5;pointer-events:auto;';d.body.appendChild(v);
+      if(!v){v=d.createElement('div');v.id='scvVoileV1';v.style.cssText='position:fixed;background:#000;z-index:5;pointer-events:auto;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:4%;padding:2% 3%;box-sizing:border-box;';
+        TOUCHES_TENTACLE_FR.slice(0,NB_VERBES).forEach(function(x,i){
+          const b=d.createElement('button');b.type='button';b.textContent=x.n;
+          b.style.cssText='min-width:0;border:1px solid #6d7dff88;border-radius:6px;background:#1b2238;color:#fff;font-family:inherit;font-weight:700;cursor:pointer;touch-action:manipulation;padding:0;';
+          b.addEventListener('click',function(){try{w.parent.__scvTouche__(i);}catch(_e){}});
+          v.appendChild(b);
+        });
+        d.body.appendChild(v);
         if(w.ResizeObserver&&!c.__scvObs){c.__scvObs=new w.ResizeObserver(function(){majVoile();});c.__scvObs.observe(c);}
         w.addEventListener('resize',majVoile);}
       const r=c.getBoundingClientRect();
-      v.style.display='block';v.style.left=r.left+'px';v.style.top=(r.top+r.height*0.77)+'px';v.style.width=(r.width*0.45)+'px';v.style.height=(r.height*0.21)+'px';
+      /* le jeu (4:3) est dessiné au centre du canvas, qui peut être plus large : on mesure la zone réellement dessinée, pas le canvas */
+      const jh=Math.min(r.height,r.width*0.75),jw=jh*4/3,jx=r.left+(r.width-jw)/2,jy=r.top+(r.height-jh)/2;
+      v.style.display='grid';v.style.left=jx+'px';v.style.top=(jy+jh*0.77)+'px';v.style.width=(jw*0.465)+'px';v.style.height=(jh*0.23)+'px';v.style.fontSize=Math.max(9,Math.round(jh*0.032))+'px';
     }catch(_e){}
   }
+  const NB_VERBES=9;
   function touchesDuJeu(){
     if(!jeuCourant||jeuCourant.cible!=='tentacle'||langueJeu()==='en')return null;
     return TOUCHES_TENTACLE_FR;
   }
   function htmlTouches(classe){
     const t=touchesDuJeu();if(!t)return '';
-    return '<div class="'+classe+'">'+t.map(function(x,i){return '<button type="button" class="scv-touche" onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.n)+'</button>';}).join('')+'</div>';
+    /* les 9 verbes sont NOS boutons posés à la place de ceux du jeu (voile, ci-dessous) ; la rangée du dessous n'a que pause, menu et le bouton des verbes du jeu */
+    return '<div class="'+classe+'">'+t.map(function(x,i){return i<NB_VERBES?'':'<button type="button" class="scv-touche" onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.n)+'</button>';}).join('')+'</div>';
   }
   /* Envoie la touche au jeu (événements clavier dans la fenêtre du jeu, même origine : le moteur les lit comme une vraie frappe). */
   window.__scvTouche__=function(i){

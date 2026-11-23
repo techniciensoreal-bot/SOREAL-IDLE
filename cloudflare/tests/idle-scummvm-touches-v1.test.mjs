@@ -8,7 +8,8 @@ for (const [nom, k] of Object.entries(attendu)) {
   assert.ok(new RegExp("\{n:'" + nom + "',key:'" + k + "',code:'Key" + k.toUpperCase() + "'").test(src), "touche de " + nom + " = " + k);
 }
 assert.ok(!/Passer la scène/.test(src), "pas de bouton « Passer la scène » (demande de Norman)");
-assert.ok(/scvVoileV1/.test(src) && src.includes("r.height*0.77") && /special:'verbes'/.test(src), "voile sur les verbes du jeu + bouton pour les réafficher");
+assert.ok(/scvVoileV1/.test(src) && src.includes("jh*0.77") && /special:'verbes'/.test(src), "voile sur les verbes du jeu + bouton pour les réafficher");
+assert.ok(/NB_VERBES=9/.test(src) && src.includes("w.parent.__scvTouche__(i)"), "nos 9 boutons de verbes posés à la place de ceux du jeu");
 assert.ok(/key:' ',code:'Space',kc:32/.test(src) && /key:'F5',code:'F5',kc:116/.test(src), "Espace, F5");
 assert.ok(/langueJeu\(\)==='en'\)return null/.test(src) && /cible!=='tentacle'/.test(src), "aucun bouton en anglais ni pour un autre jeu");
 assert.ok(/htmlTouches\('scv-touches'\)/.test(src) && /scv-touches-plein/.test(src), "rangée sous le jeu + bande en plein écran");

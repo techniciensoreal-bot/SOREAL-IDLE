@@ -1,6 +1,7 @@
 /* Page « Énigmes » (jeu ScummVM dans un iframe) : modules/scummvm-page-v1.js. L'hôte est fixé sur <body> et se cale sur la zone de la page. */
 .scv-page{display:flex;flex-direction:column;gap:10px}
-.scv-zone{width:100%;aspect-ratio:16/10;max-height:calc(100dvh - 150px);min-height:200px;background:#000;border-radius:8px}
+/* 4:3 = la forme du jeu : aucune bande noire sur les côtés (Norman, 2026-11-23) ; la largeur suit la hauteur disponible au lieu de rogner la hauteur */
+.scv-zone{width:min(100%,calc((100dvh - 190px) * 4 / 3));aspect-ratio:4/3;min-height:200px;margin:0 auto;background:#000;border-radius:8px}
 #scvHoteV1{position:fixed;z-index:20;background:#000;border-radius:8px;overflow:hidden;touch-action:none;margin:0}
 #scvHoteV1.scv-cache{transform:translateX(-200vw);visibility:hidden;pointer-events:none}
 #scvHoteV1.scv-plein{left:0;top:0;width:100vw;height:100dvh;border-radius:0;z-index:2147483000}
