@@ -40,6 +40,14 @@
       "description": "Souris emulee des telephones (menu Enigmes) : le deplacement du doigt est multiplie par 0,3 (FACTEUR_LENT) avant d'arriver a ScummVM, bouton Souris lente/normale. Demande de Norman (2026-11-23 : beaucoup plus lente) ; le facteur est ma proposition, a ajuster apres essai sur telephone.",
       "statut": "à valider par Norman",
       "date": "2026-11-23"
+    },
+    {
+      "fichier": "modules/scummvm-page-v1.js",
+      "marqueur": "choix soreal",
+      "repere": "Choix SOREAL, non mesuré sur un vrai téléphone. Préférence l",
+      "description": "Son du menu Enigmes sur appareil tactile (le son craquait sur telephone) : musique coupee par defaut (--music-driver=null), mixage a 22050 Hz, tampon audio de 8192 echantillons, emulateur OPL le plus leger ; bouton Musique pour la remettre. Reglages proposes par moi, non mesures sur un vrai telephone ; a ajuster apres essai de Norman.",
+      "statut": "à valider par Norman",
+      "date": "2026-11-23"
     }
   ]
 }
