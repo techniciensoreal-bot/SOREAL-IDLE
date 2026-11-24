@@ -31,6 +31,14 @@
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Petits réglages de fiabilité et de fluidité après la mise à jour d’hier.'
+          ]},
+          {menu:'scummvm', titre:'Énigmes', points:[
+            'Le menu Énigmes s’ouvre pour tous ceux qui ont vaincu le boss 120.',
+            'Cthulhu t’accueille à la première visite, et le jeu s’affiche dans un décor de vieux bureau à la bougie.',
+            'Les AP arrivent environ une seconde après chaque objet, avec un « +N AP » qui s’envole.',
+            'Le jeu se met en pause quand tu quittes le menu ou l’onglet.',
+            'Sur téléphone : la musique est toujours jouée et la souris est plus lente.',
+            'Dans En direct, les gains d’AP d’Énigmes sont annoncés aux joueurs qui ont ce menu.'
           ]}
         ]
       },

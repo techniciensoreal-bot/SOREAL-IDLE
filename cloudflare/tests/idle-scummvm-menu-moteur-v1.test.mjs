@@ -8,7 +8,7 @@ import { IDLE_NGU_SYSTEMS, IDLE_SCUMMVM_BOSS_V1 } from "../src/idle-ngu-catalogu
  * Anti-spoil (règle n°2) : absent de la réponse tant qu'il n'est pas débloqué (ni nom, ni icône, ni boss) ; aucun contenu de jeu ni d'AP dans son état.
  */
 const t0 = 1_000_000;
-assert.equal(IDLE_SCUMMVM_BOSS_V1, 30, "seuil nommé : boss 30");
+assert.equal(IDLE_SCUMMVM_BOSS_V1, 120, "seuil nommé : boss 120");
 const def = IDLE_NGU_SYSTEMS.find((d) => d.id === "scummvm");
 assert.ok(def && def.unlock.bosses === IDLE_SCUMMVM_BOSS_V1 && def.kind === "permanent", "système déclaré, permanent, seuil = la constante");
 

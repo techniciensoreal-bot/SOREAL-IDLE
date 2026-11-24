@@ -40,6 +40,11 @@ export const IDLE_FLUX_DELAI_BOOST_MS_V1 = 60 * 1000;
 export const IDLE_FLUX_DELAI_RITUEL_MS_V1 = 60 * 1000;
 /* Énergie ou Magie ajoutée à la Machine temporelle (Norman, 2026-11-08) : une annonce par minute au plus, avec l'Or par seconde qu'elle produit. */
 export const IDLE_FLUX_DELAI_TM_OR_MS_V1 = 60 * 1000;
+/* Énigmes, Day of the Tentacle (Norman, 2026-11-24 : « des phrases dans En direct quand des joueurs gagnent de l'AP dans DOTT, et de temps en temps le total déjà récupéré, seulement pour celui qui joue ») :
+   une annonce de gain au plus toutes les 90 s (le gain annoncé cumule ce qui est arrivé entre-temps) ; le total n'est dit que si le joueur a gagné de l'AP dans DOTT depuis moins de 5 minutes (il joue), au plus toutes les 15 minutes. */
+export const IDLE_FLUX_DELAI_DOTT_MS_V1 = 90 * 1000;
+export const IDLE_FLUX_DOTT_JEU_MS_V1 = 5 * 60 * 1000;
+export const IDLE_FLUX_DELAI_DOTT_TOTAL_MS_V1 = 15 * 60 * 1000;
 
 /* audit 2026-10-13 : le schéma n'est créé qu'une fois par connexion SQL (avant : des instructions DDL à chaque battement et à chaque synchro) */
 const __fluxPretV1 = new WeakSet();
@@ -186,11 +191,15 @@ export function instantaneJoueurV1({ bossVaincus = 0, stats = null } = {}) {
   const diggersNiveaux = diggersListe.reduce((t, x) => t + Math.max(entier(x && x.maxLevel), entier(x && x.runLevel)), 0);
   const tourEtage = entier(sys("tower").highestFloor);
   const avanceNiveaux = Object.values(sys("advancedTraining").tracks || {}).reduce((t, x) => t + Math.max(entier(x && x.level), entier(x && x.tempLevel)), 0);
+  /* AP gagnés dans Day of the Tentacle (crédits + bonus de fin), lus dans l'état d'Énigmes ; jamais le détail. */
+  const dottJeu = (sys("scummvm").jeux && sys("scummvm").jeux.dott) || {};
+  const dottAp = entier(dottJeu.apCredite) + entier(dottJeu.bonus);
   const puitsAt = Math.max(0, Math.floor(N(puits.lastTossAt, 0)));
   const puitsJet = dernierPuits ? { cout: Math.max(0, N(dernierPuits.cost, 0)), recompense: recompenseSure(dernierPuits.reward), boost: Boolean(dernierPuits.boost) } : null;
   const roueN = Math.max(0, Math.floor(N(roue.totalSpins, 0)));
   const roueJet = dernierRoue ? { recompense: recompenseSure(dernierRoue.reward) } : null;
   return {
+    dottAp,
     tmVitesse,
     tmOr,
     tmAlloc,
@@ -399,7 +408,11 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     nettoyeVu: precedent ? N(precedent.nettoyeVu, 0) : 0,
     nettoyeApVu: precedent ? N(precedent.nettoyeApVu, 0) : 0,
     rituelAt: precedent ? N(precedent.rituelAt, 0) : 0,
-    tmOrAt: precedent ? N(precedent.tmOrAt, 0) : 0
+    tmOrAt: precedent ? N(precedent.tmOrAt, 0) : 0,
+    dottVuAp: precedent && Number.isFinite(precedent.dottVuAp) ? N(precedent.dottVuAp, 0) : N(instantane.dottAp, 0),   /* premier passage : le total actuel sert de point de départ, rien n'est annoncé en rattrapage */
+    dottAt: precedent ? N(precedent.dottAt, 0) : 0,
+    dottJeuAt: precedent ? N(precedent.dottJeuAt, 0) : 0,
+    dottTotalAt: precedent ? N(precedent.dottTotalAt, 0) : 0
   });
   let ajoutes = 0;
   /* Absence : le dernier battement date de plus de 90 s -> pas d'annonce de rattrapage, seulement la mémorisation du nouvel état. */
@@ -436,6 +449,28 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
       evenements.push({ type: "nettoyageAp", donnees: { ap: N(activite.nettoyeAp), lieu: activite.nettoyeLieu === "valise" ? "valise" : "coffre", rare: activite.nettoyeRare === true } });
       etat.nettoyeApVu = N(activite.nettoyeApN);
     }
+    /* Day of the Tentacle (Norman, 2026-11-24) : gain d'AP annoncé (au plus toutes les 90 s, le gain cumule ce qui est arrivé depuis la dernière annonce), puis, de temps en temps, le total déjà récupéré par un joueur qui est en train de jouer. */
+    {
+      const total = N(instantane.dottAp, 0);
+      const vu = N(etat.dottVuAp, 0);
+      let gainAnnonce = false;
+      if (total > vu) {
+        etat.dottJeuAt = now;
+        if (now - N(precedent.dottAt, 0) >= IDLE_FLUX_DELAI_DOTT_MS_V1) {
+          evenements.push({ type: "dottAp", donnees: { gain: total - vu, total } });
+          etat.dottVuAp = total;
+          etat.dottAt = now;
+          if (N(etat.dottTotalAt, 0) === 0) etat.dottTotalAt = now;   /* le premier « total » vient 15 minutes après le début de la partie */
+          gainAnnonce = true;
+        }
+      } else if (total < vu) {
+        etat.dottVuAp = total;   /* partie remise à zéro */
+      }
+      if (!gainAnnonce && total > 0 && now - N(etat.dottJeuAt, 0) <= IDLE_FLUX_DOTT_JEU_MS_V1 && now - N(precedent.dottTotalAt, 0) >= IDLE_FLUX_DELAI_DOTT_TOTAL_MS_V1) {
+        evenements.push({ type: "dottTotal", donnees: { total } });
+        etat.dottTotalAt = now;
+      }
+    }
     /* Les boosts s'enchaînent vite (automatisation) : au plus une annonce de boost par minute (la dernière l'emporte), sans quoi le fil serait noyé. */
     const sortie = evenements.filter((e) => {
       if (e.type === "rituel") return now - N(precedent.rituelAt, 0) >= IDLE_FLUX_DELAI_RITUEL_MS_V1;
@@ -464,6 +499,7 @@ export function enregistrerJalonsV1(sql, { email, nom, visible = true, instantan
     if (activite && N(activite.accident) > 0) etat.accidentVu = N(activite.accident);
     if (activite && N(activite.nettoye) > 0) etat.nettoyeVu = N(activite.nettoye);
     if (activite && N(activite.nettoyeApN) > 0) etat.nettoyeApVu = N(activite.nettoyeApN);
+    etat.dottVuAp = N(instantane.dottAp, 0);   /* ce qui a été gagné pendant une absence n'est jamais annoncé en rattrapage */
   }
   sql.exec("INSERT OR REPLACE INTO idle_flux_etat(email,etat,maj) VALUES(?,?,?)", cle, JSON.stringify(etat), now);
   if (ajoutes) {

@@ -680,7 +680,7 @@ export const IDLE_NGU_TRACKS = Object.freeze({
  * Menu « Énigmes » (jeu ScummVM dans un iframe, ajout SOREAL, Norman, 2026-11-22) : il n'existe pas dans le jeu d'origine. Le boss qui l'ouvre est un
  * choix SOREAL de conception (non publié, rien à voir avec une valeur du jeu), à ajuster par Norman.
  */
-export const IDLE_SCUMMVM_BOSS_V1 = 30;
+export const IDLE_SCUMMVM_BOSS_V1 = 120;   /* 2026-11-24 : Norman, « déverrouille le menu Énigmes pour les joueurs qui ont battu le boss 120 » (avant : 30) */
 
 export const IDLE_NGU_SYSTEMS = Object.freeze([
   { id: "achievements", name: "Achievements", icon: "🏆", kind: "permanent", resources: [], unlock: {} },

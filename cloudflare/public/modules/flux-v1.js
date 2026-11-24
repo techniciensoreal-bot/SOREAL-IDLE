@@ -115,6 +115,20 @@
   }
 
   /* Phrases du fil pour le nettoyage (Norman, 2026-10-30 / 2026-10-31) : {nom} = le joueur qui a nettoyé, {ap} = son gain. Phrase choisie d'après le numéro de l'événement (la même pour tous les lecteurs). */
+  const PHRASES_DOTT_AP=[
+    '{nom} vient de gagner {ap} AP dans Day of the Tentacle.',
+    '{nom} a fouillé le manoir et empoché {ap} AP dans Day of the Tentacle.',
+    '{ap} AP de plus pour {nom} dans Day of the Tentacle : ramasser, ça rapporte.',
+    '{nom} avance dans Day of the Tentacle : +{ap} AP.',
+    'Encore un objet pour {nom} dans Day of the Tentacle, et {ap} AP au passage.',
+    '{nom} résout les énigmes de Day of the Tentacle : {ap} AP de gagnés.'
+  ];
+  const PHRASES_DOTT_TOTAL=[
+    '{nom} a déjà récupéré {total} AP dans Day of the Tentacle.',
+    '{nom} en est à {total} AP au total dans Day of the Tentacle.',
+    'Day of the Tentacle a déjà rapporté {total} AP à {nom}.',
+    '{nom} cumule {total} AP dans Day of the Tentacle, et ce n’est pas fini.'
+  ];
   const PHRASES_NETTOYAGE_AP={
     coffre:[
       '{nom} a du caca jusqu’aux coudes, mais ça valait le coup pour ses {ap} AP.',
@@ -326,6 +340,21 @@
        * Récompense en AP du nettoyage du Coffre ou de la Valise (Norman, 2026-10-31) : le joueur, lui, ne voit que « +N AP » ; les AUTRES lisent une phrase comique avec son nom (ex. « Sébastien a du vomi partout sur lui mais ça valait le coup pour ses 20 AP »).
        * Même anti-spoil que l'accident : seulement pour les lecteurs qui ont déjà le menu Aventure.
        */
+      /* Énigmes / Day of the Tentacle (Norman, 2026-11-24) : annoncé seulement aux lecteurs qui connaissent déjà le menu Énigmes (sinon on révélerait son existence). */
+      case 'dottAp':{
+        if(!k.menus.scummvm)return null;
+        const ap=Math.max(0,Math.floor(Number(d.gain)||0)).toLocaleString('fr-FR');
+        if(it.moi)return {icone:'🕹️',texte:'Tu as gagné '+ap+' AP dans Day of the Tentacle'};
+        const l=PHRASES_DOTT_AP;
+        return {icone:'🕹️',texte:l[Math.abs(Number(it.id)||0)%l.length].split('{nom}').join(nom).split('{ap}').join(ap)};
+      }
+      case 'dottTotal':{
+        if(!k.menus.scummvm)return null;
+        const t=Math.max(0,Math.floor(Number(d.total)||0)).toLocaleString('fr-FR');
+        if(it.moi)return {icone:'🏆',texte:'Tu as déjà récupéré '+t+' AP dans Day of the Tentacle'};
+        const l=PHRASES_DOTT_TOTAL;
+        return {icone:'🏆',texte:l[Math.abs(Number(it.id)||0)%l.length].split('{nom}').join(nom).split('{total}').join(t)};
+      }
       case 'nettoyageAp':{
         if(!k.menus.aventure)return null;
         const ap=Math.max(0,Math.floor(Number(d.ap)||0));
