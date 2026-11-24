@@ -519,8 +519,8 @@
     host.classList.toggle('scv-plein',oui);
     if(oui)majBarrePlein();
     host.classList.toggle('scv-avec-touches',Boolean(oui&&touchesDuJeu()));
-    if(oui){host.style.left='';host.style.top='';host.style.width='';host.style.height='';}
-    /* « Plein écran » = le jeu est agrandi PAR-DESSUS l'interface de Soreal IDLE (hôte fixé sur toute la fenêtre), jamais le vrai plein écran du navigateur ni un verrouillage d'orientation (Norman, 2026-11-24 : « pas un vrai plein écran », ordinateur comme téléphone). Le bouton « Quitter » le referme. */
+    /* « Plein écran » = le jeu est AGRANDI DANS SON MENU : il remplit la zone de contenu (toute la largeur de la page Énigmes, du bas du bandeau du haut au bas de la fenêtre) ; les menus de Soreal IDLE restent visibles (Norman, 2026-11-24 : « le jeu doit juste être agrandi dans son menu, pas sur toute l'interface »). Jamais le vrai plein écran du navigateur ni un verrouillage d'orientation. Le bouton « Quitter » le referme. */
+    if(oui)placerPlein();
     if(!oui)synchroniser();
   }
   window.__scvPleinEcran__=function(){
@@ -529,8 +529,23 @@
   };
 
   /* ---------- calage sur la zone de la page ---------- */
+  /* Zone de contenu du menu : colonne de la page Énigmes (gauche et largeur de .scv-page), sous le bandeau fixe du haut s'il y en a un, jusqu'en bas de la fenêtre. */
+  function placerPlein(){
+    if(!host)return;
+    const p=document.querySelector('.scv-page'),W=window.innerWidth||1000,H=window.innerHeight||700;
+    const r=p?p.getBoundingClientRect():null;
+    let gauche=0,largeur=W;
+    if(r&&r.width>50){gauche=Math.max(0,r.left);largeur=Math.min(W-gauche,r.width);}
+    let haut=0;
+    try{
+      let e=document.elementFromPoint(gauche+largeur/2,4);
+      while(e&&e!==document.body){const cs=getComputedStyle(e);if((cs.position==='fixed'||cs.position==='sticky')&&e.id!=='scvHoteV1'){const b=e.getBoundingClientRect().bottom;if(b<H*0.4)haut=Math.max(haut,b+4);break;}e=e.parentElement;}
+    }catch(_e){}
+    const s=host.style;s.left=gauche+'px';s.top=haut+'px';s.width=largeur+'px';s.height=Math.max(120,H-haut)+'px';
+  }
+  window.addEventListener('resize',function(){if(plein)placerPlein();});
   function placer(z){
-    if(plein)return;
+    if(plein){placerPlein();return;}
     const r=z.getBoundingClientRect();
     const s=host.style;
     s.left=r.left+'px';s.top=r.top+'px';s.width=r.width+'px';s.height=r.height+'px';
