@@ -137,7 +137,7 @@ const progres = (etat, p, t = t0 + 1000) => applyIdleNguAction(etat, Object.assi
   let r = trophees(base, { trophees: [{ id: "zz", ap: 1800 }, { id: "10", ap: 700 }, { id: "aa", ap: 5 }] });
   assert.equal(r.result.ap, 2505, "somme brute, sans multiplicateur");
   assert.equal(r.state.currencies.ap, 2505);
-  assert.deepEqual(r.state.systems.scummvm.data.jeux.dott, { unites: 0, apCredite: 2505, trophees: { zz: 1800, 10: 700, aa: 5 }, ordre: ["zz", "10", "aa"], v: 2 }, "ordre d'obtention conservé même pour un id numérique");
+  assert.deepEqual(r.state.systems.scummvm.data.jeux.dott, { unites: 0, apCredite: 2505, trophees: { zz: 1800, 10: 700, aa: 5 }, ordre: ["zz", "10", "aa"], v: 3 }, "ordre d'obtention conservé même pour un id numérique");
   assert.deepEqual(r.result.nouveaux, ["zz", "10", "aa"]);
   /* jamais deux fois, même si l'ap du fichier change ; les nouveaux s'ajoutent à la fin */
   r = trophees(r.state, { trophees: [{ id: "zz", ap: 99999 }, { id: "bb", ap: 300 }] }, t0 + 2000);

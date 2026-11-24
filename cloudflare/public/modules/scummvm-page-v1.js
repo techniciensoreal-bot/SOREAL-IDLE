@@ -149,6 +149,8 @@
       catalogue=d.jeux;
       jeuCourant=choisirJeu(catalogue,difficulteCourante);
       majCouverture();
+      /* REMISE À ZÉRO UNIQUE par compte (Norman, 2026-11-24 : « reset le menu Énigmes pour moi, comme si je venais de le débloquer ») : partie effacée (appareil et serveur), suivi remis à zéro, état « Jouer » et introduction de Cthulhu rejoués ; les AP déjà crédités sont retirés par le moteur (version 3 des crédits). Repère lié au compte : une seule fois. */
+      try{if(window.localStorage.getItem('soreal_idle_scummvm_reinit_v3')!=='1'){window.localStorage.setItem('soreal_idle_scummvm_reinit_v3','1');window.setTimeout(recommencer,0);}}catch(_e){}
       try{synchroniser();}catch(_e){}   /* le jeu est connu : la reprise directe (afficher) peut se faire sans attendre un redessin de la page */
       demarrerPrechargeSiBesoin();
       chargerTropheesDuJeu();

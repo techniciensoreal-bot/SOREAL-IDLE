@@ -15,3 +15,10 @@ assert.ok(src.includes("try{synchroniser();}catch(_e){}   /* le jeu est connu"),
 // compteur d'AP « obtenus / total » (exception du 2026-11-23 à la règle n°2, voir AGENTS.md)
 assert.ok(src.includes("AP obtenus :") && src.includes("' / '+esc(nombreLisible(plafond))"), "compteur d'AP obtenus / plafond");
 console.log("idle-scummvm-demarrage-v1: OK");
+// remise à zéro unique par compte (Norman, 2026-11-24) : repère lié au compte, partie effacée une seule fois, introduction rejouée ; crédits version 3 retirés par le moteur
+{
+  const s2 = src;
+  assert.ok(s2.includes("soreal_idle_scummvm_reinit_v3") && s2.includes("window.setTimeout(recommencer,0)"), "remise à zéro unique au premier affichage");
+  const m = readFileSync("cloudflare/src/idle-scummvm-progres-v1.js", "utf8");
+  assert.ok(m.includes("IDLE_SCUMMVM_VERSION_CREDITS_V1 = 3"), "crédits version 3");
+}

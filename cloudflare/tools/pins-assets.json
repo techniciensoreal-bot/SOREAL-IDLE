@@ -612,8 +612,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 366,
-  "sha": "5751742483145bef85040f9f7fb152fc06327d28"
+  "pin": 367,
+  "sha": "6c01ee0956882a9d5070f37ded9a4971d9c829c7"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -760,8 +760,8 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 47,
-  "sha": "1c7640af5da5ec622dfa9d7025ecfa4e13354ef3"
+  "pin": 48,
+  "sha": "6d7fef757e8d427a9b6934c211a187bc7edb9859"
  },
  "/modules/scummvm-progres-v1.js": {
   "pin": 15,

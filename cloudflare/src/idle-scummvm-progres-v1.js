@@ -48,7 +48,7 @@ export function idleScummvmAnnulerCreditsV1(state) {
  * des AP du joueur et l'enregistrement est effacé ; tout crédit fait ensuite porte v = 2 et n'est jamais retiré. Doit s'exécuter AVANT toute action de progrès (syncIdleNguState, qui précède chaque opération) : sinon un ancien enregistrement bloquerait les nouveaux gains.
  * Idempotent. Renvoie vrai si quelque chose a été retiré.
  */
-export const IDLE_SCUMMVM_VERSION_CREDITS_V1 = 2;
+export const IDLE_SCUMMVM_VERSION_CREDITS_V1 = 3;   /* 2026-11-24 : version 3 = remise à zéro demandée par Norman (« supprime l’AP que j’ai eu avec le jeu et reset le menu Énigmes, comme si je venais de le débloquer ») : tout crédit sans v = 3 est retiré une fois */
 export function idleScummvmCorrectionUniqueV1(state) {
   const sys = state && state.systems && state.systems.scummvm;
   const jeux = sys && sys.data && sys.data.jeux;
