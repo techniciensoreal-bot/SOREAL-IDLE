@@ -35,6 +35,21 @@
   let pause=false,plein=false,preSuivi=false,preFini=false,attente=0,observeur=null,zoneObservee=null;
   const precharge={octets:0,total:0};
 
+  /* Introduction de Cthulhu à la première arrivée (Norman, 2026-11-24 : « quand on débloque le menu Énigmes, le jeu ne se charge pas tout de suite : Cthulhu fait un speech, puis on clique sur Jouer »). Jouée une seule fois par compte (préférence liée au compte) ; un joueur dont la partie est déjà lancée ne la voit jamais. */
+  const CLE_INTRO='soreal_idle_scummvm_intro_v1';
+  const INTRO_ETAPES=[{"titre":"Tiens, une porte que tu n’avais pas vue…","texte":"Ici, on ne se bat pas : on réfléchit. Des histoires, des énigmes, des objets à ramasser.","menu":"scummvm","placement":"centre","humeur":"arrive"},{"titre":"Chaque objet compte","texte":"Ramasse, utilise, donne, pousse : chaque objet te rapporte des AP, de plus en plus à mesure que tu avances. Les premiers sont modestes, les derniers beaucoup moins.","menu":"scummvm","placement":"centre","humeur":"content"},{"titre":"Quand tu seras prêt","texte":"Ta partie est sauvegardée toute seule et te suivra sur tous tes appareils. Appuie sur « Jouer » quand tu veux commencer.","menu":"scummvm","placement":"centre","humeur":"coucou"}];
+  let introEnCours=false;
+  function introVue(){try{return window.localStorage.getItem(CLE_INTRO)==='1';}catch(_e){return false;}}
+  function introAttendue(){return !gestePage&&lire()!=='lance'&&!introVue();}
+  function lancerIntro(){
+    if(introEnCours||!introAttendue())return;
+    const T=window.__SOREAL_IDLE_TUTORIEL_V1__;
+    if(!T||typeof T.jouer!=='function'){try{window.localStorage.setItem(CLE_INTRO,'1');}catch(_e){}return;}   /* sans le module du tutoriel : pas d'introduction, « Jouer » reste disponible */
+    introEnCours=true;
+    const fin=function(){introEnCours=false;try{window.localStorage.setItem(CLE_INTRO,'1');}catch(_e){}try{majCouverture();}catch(_e){}};
+    const ok=T.jouer({id:'scummvm-intro',titre:'Énigmes',vuId:'scummvm-intro',mascotte:true,etapes:INTRO_ETAPES},{apresFin:fin});
+    if(!ok)fin();
+  }
   function lire(){try{return window.localStorage.getItem(CLE_ETAT)||'';}catch(_e){return '';}}
   function ecrire(v){try{window.localStorage.setItem(CLE_ETAT,v);}catch(_e){}}
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -251,6 +266,7 @@
     if(catalogue!==null&&!jeuCourant){cover.innerHTML='<b>Aucun jeu disponible pour l’instant.</b>';return;}
     if(!jeuCourant){cover.innerHTML='<b>Chargement…</b>';return;}
     const nom=esc(jeuCourant.nom||'');
+    if(!gestePage&&introEnCours){cover.innerHTML='<b>'+nom+'</b>';return;}   /* Cthulhu parle d'abord : pas de bouton « Jouer » avant la fin de son introduction */
     if(!gestePage){cover.innerHTML='<b>'+nom+'</b><button type="button" class="soreal-idle-expand-button-v25">▶ Jouer</button>';return;}
     const pct=precharge.total>0?Math.min(100,Math.round(precharge.octets/precharge.total*100)):0;
     cover.innerHTML='<b>'+nom+'</b><div class="scv-barre"><i style="width:'+(preFini?100:pct)+'%"></i></div><span>Chargement…</span>';
@@ -440,6 +456,7 @@
     /* l'ancien iframe disparaît d'abord : il ne doit plus écrire de sauvegarde pendant ni après l'effacement */
     if(iframe){try{if(iframe.parentNode)iframe.parentNode.removeChild(iframe);}catch(_e){}}
     iframe=null;iframeCharge=false;moteurPret=false;chargeLe=0;pause=false;gestePage=false;ecrire('');   /* le jeu repart de zéro : « Jouer » est redemandé */
+    try{window.localStorage.removeItem(CLE_INTRO);}catch(_e){}   /* et Cthulhu refait son introduction */
     const S=window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__,P=progresMod();
     const fin=function(res){
       try{if(res&&res.ok===true&&P&&P.reinitialiser)P.reinitialiser(jeu.id);}catch(_e){}
@@ -506,6 +523,7 @@
     if(!iframe&&jeuCourant&&lire()==='lance')creerIframe(false);
     if(iframe&&!moteurPret&&moteurEstPret())moteurPret=true;
     couvrir(!jeuCourant||!(gestePage&&moteurPret));
+    if(jeuCourant&&introAttendue()){lancerIntro();majCouverture();}
     if(gestePage&&!moteurPret){majCouverture();attendrePret();}
   }
   /* Page ouverte directement sur Énigmes (menu restauré, aucun geste encore) : dès le premier clic ou la première touche, si la partie a déjà été lancée une fois (état 'lance'), la reprise se fait sans cliquer sur « Jouer ». */

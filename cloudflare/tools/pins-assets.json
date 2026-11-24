@@ -760,8 +760,8 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 34,
-  "sha": "5d8e1ec447a123cbc4c8713bf5284d89960d11e1"
+  "pin": 37,
+  "sha": "437972b6c2e1a39482219f2b3ecb66deb6416d19"
  },
  "/modules/scummvm-progres-v1.js": {
   "pin": 15,
@@ -848,12 +848,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1151,
-  "sha": "f248fece5a917e3ec4749be28ba50d95affb65fb"
+  "pin": 1152,
+  "sha": "02c257aebeab051d7c926819d83f618c9451035a"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 971,
-  "sha": "de5eace98c2cdd77f6c517785669d8bc7c1b67c2"
+  "pin": 972,
+  "sha": "af75c91644b616961d845ad5aea7967a82a0d192"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
