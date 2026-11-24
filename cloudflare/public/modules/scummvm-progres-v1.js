@@ -209,7 +209,7 @@
       if(!liste&&!(parUnite>0)&&!(reference>=2&&croissance>1))return -1;
       profilsDe[J.id]=profil;
       const a=await lireAutosave(J.cible);
-      if(!a)return -1;
+      if(!a){etat={ok:false,raison:'aucune sauvegarde lue',le:Date.now()};return -1;}
       const m=lireMemoire();
       const e=m[J.id]&&typeof m[J.id]==='object'?m[J.id]:{};
       const taille=(L.unitesPossibles(profil)+7)>>3;
@@ -218,7 +218,8 @@
       if(!(e.ts&&a.ts&&e.ts===a.ts)){   /* même sauvegarde que la dernière fois : rien à relire (les trophées sont tout de même évalués sur l'ensemble déjà vu) */
         const brut=await L.decompresser(a.octets);
         const lu=brut?L.lire(brut,profil):null;
-        if(!lu||lu.erreur)return -1;   /* format non reconnu : aucun crédit, jamais de valeur devinée */
+        if(!brut){etat={ok:false,raison:'décompression impossible sur cet appareil',le:Date.now()};return -1;}
+        if(!lu||lu.erreur){etat={ok:false,raison:'format de sauvegarde non reconnu',le:Date.now()};return -1;}   /* format non reconnu : aucun crédit, jamais de valeur devinée */
         const avant=vu.slice();
         L.unites(lu,profil).forEach(function(i){vu[i>>3]|=1<<(i&7);});
         const nouvelles=[];
@@ -226,6 +227,7 @@
         noterJournal(J.id,nouvelles,Date.now());
         ts=a.ts||0;
       }
+      etat={ok:true,raison:'',le:Date.now()};
       const nb=compter(vu);
       const envoye=Math.max(0,Number(e.envoye)||0);
       const f=window.__actionMetaIdleV130__;
@@ -255,6 +257,8 @@
   function planifier(){
     minuteur=window.setTimeout(function(){minuteur=0;verifier().then(planifier,planifier);},INTERVALLE_MS);
   }
+  /* Dernier état du suivi (affiché par la page quand il échoue : « Suivi des AP indisponible : … »). */
+  let etat={ok:true,raison:'',le:0};
   function demarrer(j,dossier){
     dossierJeu=String(dossier||"");
     jeu=j&&j.ap?j:null;
@@ -263,5 +267,5 @@
   }
   window.addEventListener('pagehide',function(){verifier();});   /* à la fermeture de la page */
 
-  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,definirApActif:function(v){AP_ACTIF=Boolean(v);},validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,reinitialiser:reinitialiser,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
+  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={etat:function(){return etat;},CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,definirApActif:function(v){AP_ACTIF=Boolean(v);},validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,reinitialiser:reinitialiser,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
 })();

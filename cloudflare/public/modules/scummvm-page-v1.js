@@ -806,7 +806,9 @@
     if(P&&P.tropheesDe(jeuCourant.id)!==null)return '';   /* jeu avec une liste de trophées (ou liste en cours de lecture) : le total est dans le bloc des trophées, rien tant qu'aucun n'est obtenu */
     /* Compteur « obtenus / total » (Norman, 2026-11-23 : « un compteur d'AP obtenu, exemple 50/150000 ») : EXCEPTION à la règle n°2, le total d'AP possible de ce jeu est montré (AP seulement : jamais le nombre d'unités ni de trophées). */
     const plafond=Math.floor(Number(jeuCourant.ap.plafond));
-    return '<div class="scv-ap"><span>AP obtenus :</span> <b>'+esc(nombreLisible(apCredites(j,jeuCourant)))+(plafond>0?' / '+esc(nombreLisible(plafond)):'')+'</b></div>'+(bonusRecu(j,jeuCourant)>0?'<div class="scv-ap"><span>Bonus de fin obtenu :</span> <b>+'+esc(nombreLisible(bonusRecu(j,jeuCourant)))+'</b></div>':'');
+    const suivi=P&&P.etat?P.etat():null;
+    const alerte=suivi&&suivi.ok===false&&suivi.raison&&Date.now()-suivi.le<15000&&iframe?'<div class="scv-ap scv-suivi-ko">Suivi des AP indisponible : '+esc(suivi.raison)+'</div>':'';
+    return alerte+'<div class="scv-ap"><span>AP obtenus :</span> <b>'+esc(nombreLisible(apCredites(j,jeuCourant)))+(plafond>0?' / '+esc(nombreLisible(plafond)):'')+'</b></div>'+(bonusRecu(j,jeuCourant)>0?'<div class="scv-ap"><span>Bonus de fin obtenu :</span> <b>+'+esc(nombreLisible(bonusRecu(j,jeuCourant)))+'</b></div>':'');
   }
 
   function page(j){

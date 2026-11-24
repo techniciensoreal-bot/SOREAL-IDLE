@@ -190,14 +190,129 @@
     }catch(e){return {erreur:String(e&&e.message||e)};}
   }
 
+
+  /*
+   * Décompresseur DEFLATE de secours (Norman, 2026-11-24 : « je ramasse des objets et je ne débloque pas d'AP sur téléphone »). La lecture de la sauvegarde s'appuyait sur DecompressionStream, absent de certains navigateurs de téléphone (Safari avant 16.4, anciens
+   * navigateurs Android) : la lecture échouait EN SILENCE, donc aucun AP. Ici, un inflate complet en JavaScript (blocs stockés, Huffman fixe et dynamique), méthode de puff.c (zlib), vérifié contre zlib dans cloudflare/tests/idle-scummvm-inflate-v1.test.mjs.
+   */
+  const L_BASE=[3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258],L_EXT=[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+  const D_BASE=[1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577],D_EXT=[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+  const ORDRE_LONGUEURS=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+  function tableHuffman(longueurs,n){
+    const compte=new Uint16Array(16),symbole=new Uint16Array(n),offs=new Uint16Array(16);
+    for(let i=0;i<n;i++)compte[longueurs[i]]++;
+    for(let l=1;l<15;l++)offs[l+1]=offs[l]+compte[l];
+    for(let i=0;i<n;i++)if(longueurs[i]!==0)symbole[offs[longueurs[i]]++]=i;
+    return {compte:compte,symbole:symbole};
+  }
+  function inflateBrut(src,debut){
+    let pos=debut,tampon=0,nbits=0,sortie=new Uint8Array(Math.max(1024,src.length*4)),n=0;
+    function bits(k){
+      let v=tampon;
+      while(nbits<k){if(pos>=src.length)throw new Error('flux tronqué');v|=src[pos++]<<nbits;nbits+=8;}
+      tampon=v>>>k;nbits-=k;
+      return v&((1<<k)-1);
+    }
+    function reserver(plus){if(n+plus>sortie.length){const g=new Uint8Array(Math.max(sortie.length*2,n+plus));g.set(sortie.subarray(0,n));sortie=g;}}
+    function decoder(h){
+      let code=0,premier=0,index=0;
+      for(let l=1;l<=15;l++){
+        code|=bits(1);
+        const c=h.compte[l];
+        if(code-c<premier)return h.symbole[index+(code-premier)];
+        index+=c;premier+=c;premier<<=1;code<<=1;
+      }
+      throw new Error('code invalide');
+    }
+    let fixeL=null,fixeD=null;
+    function codes(hl,hd){
+      for(;;){
+        const s=decoder(hl);
+        if(s<256){reserver(1);sortie[n++]=s;}
+        else if(s===256)return;
+        else{
+          const i=s-257;if(i>=29)throw new Error('longueur invalide');
+          const len=L_BASE[i]+bits(L_EXT[i]);
+          const d=decoder(hd);if(d>=30)throw new Error('distance invalide');
+          const dist=D_BASE[d]+bits(D_EXT[d]);
+          if(dist>n)throw new Error('distance trop grande');
+          reserver(len);
+          for(let k=0;k<len;k++){sortie[n]=sortie[n-dist];n++;}
+        }
+      }
+    }
+    let dernier;
+    do{
+      dernier=bits(1);
+      const type=bits(2);
+      if(type===0){
+        tampon=0;nbits=0;   /* alignement sur l'octet */
+        if(pos+4>src.length)throw new Error('bloc stocké tronqué');
+        const len=src[pos]|(src[pos+1]<<8),nlen=src[pos+2]|(src[pos+3]<<8);pos+=4;
+        if((len^0xffff)!==nlen)throw new Error('bloc stocké invalide');
+        if(pos+len>src.length)throw new Error('bloc stocké tronqué');
+        reserver(len);sortie.set(src.subarray(pos,pos+len),n);n+=len;pos+=len;
+      }else if(type===1){
+        if(!fixeL){
+          const l=new Uint8Array(288);for(let i=0;i<144;i++)l[i]=8;for(let i=144;i<256;i++)l[i]=9;for(let i=256;i<280;i++)l[i]=7;for(let i=280;i<288;i++)l[i]=8;
+          const d=new Uint8Array(30).fill(5);fixeL=tableHuffman(l,288);fixeD=tableHuffman(d,30);
+        }
+        codes(fixeL,fixeD);
+      }else if(type===2){
+        const nl=bits(5)+257,nd=bits(5)+1,nc=bits(4)+4;
+        if(nl>286||nd>30)throw new Error('table invalide');
+        const lc=new Uint8Array(19);for(let i=0;i<nc;i++)lc[ORDRE_LONGUEURS[i]]=bits(3);
+        const hc=tableHuffman(lc,19),lg=new Uint8Array(nl+nd);
+        let i=0;
+        while(i<nl+nd){
+          const s=decoder(hc);
+          if(s<16)lg[i++]=s;
+          else{
+            let rep,val=0;
+            if(s===16){if(i===0)throw new Error('répétition sans précédent');val=lg[i-1];rep=3+bits(2);}
+            else if(s===17)rep=3+bits(3);
+            else rep=11+bits(7);
+            if(i+rep>nl+nd)throw new Error('trop de longueurs');
+            while(rep--)lg[i++]=val;
+          }
+        }
+        codes(tableHuffman(lg.subarray(0,nl),nl),tableHuffman(lg.subarray(nl),nd));
+      }else throw new Error('type de bloc invalide');
+    }while(!dernier);
+    return sortie.subarray(0,n);
+  }
+  /* En-tête gzip (1f 8b) ou zlib (78 xx) : retourne l'octet où commence le flux DEFLATE, ou -1. */
+  function debutDeflate(b){
+    if(b.length>=10&&b[0]===0x1f&&b[1]===0x8b){
+      const fl=b[3];let p=10;
+      if(fl&4){p+=2+(b[p]|(b[p+1]<<8));}
+      if(fl&8){while(p<b.length&&b[p]!==0)p++;p++;}
+      if(fl&16){while(p<b.length&&b[p]!==0)p++;p++;}
+      if(fl&2)p+=2;
+      return p;
+    }
+    if(b.length>=2&&(b[0]&0x0f)===8)return 2;
+    return -1;
+  }
+  function inflater(octets){
+    const b=octets instanceof Uint8Array?octets:new Uint8Array(octets);
+    const p=debutDeflate(b);if(p<0)return null;
+    return inflateBrut(b,p);
+  }
   async function decompresser(octets){
     const b=octets instanceof Uint8Array?octets:new Uint8Array(octets);
     if(b.length<2)return null;
     /* gzip : 1f 8b ; zlib : 78 xx */
     const format=(b[0]===0x1f&&b[1]===0x8b)?'gzip':((b[0]&0x0f)===8?'deflate':'');
-    if(!format||typeof DecompressionStream!=='function')return null;
-    const flux=new Blob([b]).stream().pipeThrough(new DecompressionStream(format));
-    return new Uint8Array(await new Response(flux).arrayBuffer());
+    if(!format)return null;
+    /* DecompressionStream si le navigateur l'a ; sinon (ou en cas d'échec) le décompresseur de secours ci-dessus */
+    try{
+      if(typeof DecompressionStream==='function'&&typeof Blob==='function'&&Blob.prototype&&typeof Blob.prototype.stream==='function'){
+        const flux=new Blob([b]).stream().pipeThrough(new DecompressionStream(format));
+        return new Uint8Array(await new Response(flux).arrayBuffer());
+      }
+    }catch(_e){}
+    try{return inflater(b);}catch(_e){return null;}
   }
 
   /* Unités de progrès atteintes dans une sauvegarde lue : tableau d'entiers triés, 0 à objetsGlobaux-1 = objet possédé par un acteur, objetsGlobaux + n = bit n de bitVars à 1.
@@ -216,5 +331,5 @@
   /* Nombre d'unités POSSIBLES du lecteur (sert à calculer parUnite : plafond / possibles). */
   function unitesPossibles(profil){return profil.objetsGlobaux+profil.bits;}
 
-  R.__SOREAL_IDLE_SCUMMVM_SAVE_V1__={PROFILS:PROFILS,VERSION_FORMAT:VERSION_FORMAT,TAILLE_ACTEUR:TAILLE_ACTEUR,lire:lire,decompresser:decompresser,unites:unites,unitesPossibles:unitesPossibles};
+  R.__SOREAL_IDLE_SCUMMVM_SAVE_V1__={PROFILS:PROFILS,VERSION_FORMAT:VERSION_FORMAT,TAILLE_ACTEUR:TAILLE_ACTEUR,lire:lire,decompresser:decompresser,inflater:inflater,unites:unites,unitesPossibles:unitesPossibles};
 })();

@@ -760,16 +760,16 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 56,
-  "sha": "55f21608f30202f07affb085e34ca93ae53d7b4b"
+  "pin": 57,
+  "sha": "075fec87bd3d84fed2dd9a9504c083767c968a20"
  },
  "/modules/scummvm-progres-v1.js": {
-  "pin": 15,
-  "sha": "a8f7d925cd5c101b9deefa521b13b1256e06bba0"
+  "pin": 16,
+  "sha": "af7c8646b37a4c701d441102bc673aed09c9a102"
  },
  "/modules/scummvm-sauvegarde-v1.js": {
-  "pin": 1,
-  "sha": "3af8831b9ad7618cabdeeb6cab7f8218787c6fb3"
+  "pin": 2,
+  "sha": "5f965b918a3be6f225b571af2ee0aec23f0b8ede"
  },
  "/modules/scummvm-sync-v1.js": {
   "pin": 4,
@@ -1164,8 +1164,8 @@
   "sha": "a5842ac2de89e3be4f477314dc8002e382f93062"
  },
  "/soreal-idle-scummvm-v1.css": {
-  "pin": 13,
-  "sha": "57ff3bf22ec3aef3d0e9ba9a882eedb746c45ec3"
+  "pin": 14,
+  "sha": "2b67d7967a24000fc8c3cfdb7e3e48f6b5096114"
  },
  "/soreal-idle-stabilite-v1.css": {
   "pin": 2,
