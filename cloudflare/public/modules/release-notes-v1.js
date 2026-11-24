@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.8',
+    courante:'6.9',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'6.9',
+        nom:'Petits ajustements',
+        date:'2026-11-24',
+        groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Petits réglages de fiabilité et de fluidité après la mise à jour d’hier.'
+          ]}
+        ]
+      },
       {
         version:'6.8',
         nom:'Petits réglages',
