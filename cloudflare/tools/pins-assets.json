@@ -612,8 +612,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 368,
-  "sha": "b1ac7ed2c51f8ca7296e4878863d3115a83d3d6a"
+  "pin": 369,
+  "sha": "a32aa8cad8f684151db9d35d9c95d9212089a638"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -736,8 +736,8 @@
   "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1094,
-  "sha": "7fcc765d33dd3e6f9b135aec2ea66f7e236571f2"
+  "pin": 1095,
+  "sha": "3459e7fa12633a6530c7347d6a7820d1ba62a140"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,
@@ -836,8 +836,8 @@
   "sha": "2a59908604dca36ef8bdd3b2c8ea1efda39a2188"
  },
  "/modules/titans-v1.js": {
-  "pin": 25,
-  "sha": "7367944efea7ce69b9cdf5464afd2ff3c831b4aa"
+  "pin": 26,
+  "sha": "b67f1bc6e29d8bd7aa5a949e6403cc64563deb73"
  },
  "/modules/tm-bulles-canvas-v1.js": {
   "pin": 5,
@@ -848,12 +848,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1154,
-  "sha": "8d8f66712ccdc16c9d80ab282301360ecc607633"
+  "pin": 1155,
+  "sha": "8ff7abb7fc44694d0fec1c97fe56db998aee907e"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 974,
-  "sha": "d6767173b719533a30da76aa68e531cec751422a"
+  "pin": 975,
+  "sha": "4155f734acadd2e41054ebfb200603b82bb48028"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,

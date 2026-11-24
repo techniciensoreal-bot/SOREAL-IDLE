@@ -173,8 +173,7 @@ export function startTitanFight(s,ctx,t,id,difficulty){
   if(!c)throw Error("TITAN_SANS_STATS");
   const nomBase=IDLE_TITAN_COMBAT_V1[pre.id]?.nom||pre.d.name||pre.id;
   const stats=ctx.stats||{};
-  /* Norman (2026-10-13) : « on ne doit pas pouvoir affronter un titan quand notre puissance en manuel n'est pas atteinte » : le combat exige les stats Manuel (Power / Toughness) de la page Adventure_Mode du wiki pour ce titan (ce palier ou cette forme). Avant (2026-10-02) on pouvait perdre sans seuil. */
-  if(pre.tier&&(Number(pre.tier.p)>0||Number(pre.tier.t)>0)&&(N(stats.power)<N(pre.tier.p)||N(stats.toughness)<N(pre.tier.t)))throw Error("PUISSANCE_INSUFFISANTE");
+  /* Norman (2026-11-24) : « on doit pouvoir affronter un titan quand on le débloque, même si on n'a pas les statistiques nécessaires pour le battre » : plus aucun refus PUISSANCE_INSUFFISANTE pour le COMBAT de titan (startTitanFight). Il remplace la règle du 2026-10-13 (stats Manuel exigées). Les seuils p / t restent des repères affichés par l'interface (stats conseillées) ; l'action instantanée « titan » (kill sans combat) garde, elle, ses seuils. */
   const playerHpMax=playerHpMaxForAdventureV1(stats);
   const playerHp=ctx.restHp!=null?C(N(ctx.restHp),0,playerHpMax):playerHpMax;
   versZoneSureV1(s,"titan","Un titan t'attend : le combat se déroule en Zone sûre");

@@ -118,6 +118,7 @@ function seuilsRecommandes(t,palier){
   var blocs=[];
   function ajouter(nom,p,tt){
     if(p==null||tt==null)return;
+    if(!(Number(p)>0||Number(tt)>0))return;   /* aucun seuil dans le jeu pour ce mode (ex. SKELETON GUARDIAN) : jamais « 0 Puissance / 0 Endurance » */
     var okP=moi&&moi.power>=p,okT=moi&&moi.toughness>=tt;
     var verdict='';
     if(!moi)verdict='<span class="ttn-verdict">Tes stats se chargent…</span>';
@@ -454,49 +455,12 @@ function demanderPlace_(t,suite){
   document.body.appendChild(m);
   try{m.querySelector('.confirm').focus();}catch(_e){}
 }
-/*
- * Stats Manuel exigées (Norman, 2026-10-13) : « on ne doit pas pouvoir affronter un titan quand notre puissance en manuel n'est pas atteinte : Montez vos stats avant de penser pouvoir affronter ce Titan ». Mêmes seuils que le serveur
- * (qui refuse aussi : PUISSANCE_INSUFFISANTE) : Puissance et Endurance du palier ou de la forme choisis.
- */
-function manque_(t,palier){
-  var s=null;
-  if(Array.isArray(t.forms)&&t.forms.length)s=t.forms[formeIndex(t)];
-  else if(t.difficulties&&typeof t.difficulties==='object')s=t.difficulties[palier]||t.difficulties[Object.keys(t.difficulties)[0]];
-  else s=t;
-  var moi=statsJoueur();
-  if(!s||!moi)return null;
-  var p=Number(s.p),tt=Number(s.t),m=[];
-  if(p>0&&moi.power<p)m.push('⚔️ Puissance : il te manque <b>'+gn(p-moi.power,2)+'</b>');
-  if(tt>0&&moi.toughness<tt)m.push('🛡️ Endurance : il te manque <b>'+gn(tt-moi.toughness,2)+'</b>');
-  return m.length?m:null;
-}
-function avertirStats_(t,lignes){
-  var ancien=document.getElementById('ttnPopupPlaceV1');
-  if(ancien&&ancien.parentNode)ancien.parentNode.removeChild(ancien);
-  var nom=String(t.nomComplet||t.name||t.id);
-  var m=document.createElement('div');
-  m.id='ttnPopupPlaceV1';m.className='soreal-idle-modal-backdrop-v63 ttn-popup';
-  m.innerHTML='<div class="soreal-idle-modal-card-v63 ttn-popup-carte" role="dialog" aria-modal="true" aria-label="Stats insuffisantes">'+
-    '<div class="ttn-popup-sac" aria-hidden="true">💪</div>'+
-    '<div class="ttn-popup-titre">Trop faible !</div>'+
-    '<div class="ttn-popup-texte">Montez vos stats avant de penser pouvoir affronter ce Titan.<br><small>'+h(nom)+' exige les stats Manuel :</small></div>'+
-    '<div class="ttn-popup-manque">'+lignes.map(function(l){return '<div>'+l+'</div>';}).join('')+'</div>'+
-    '<div class="soreal-idle-modal-actions-v63"><button type="button" class="soreal-idle-modal-button-v63 confirm">Compris</button></div>'+
-    '</div>';
-  function fermer(){if(m.parentNode)m.parentNode.removeChild(m);document.removeEventListener('keydown',clavier,true);}
-  function clavier(e){if(e.key==='Escape'||e.key==='Enter'){e.preventDefault();e.stopPropagation();fermer();}}
-  m.addEventListener('click',function(e){if(e.target===m)fermer();});
-  m.querySelector('.confirm').addEventListener('click',fermer);
-  document.addEventListener('keydown',clavier,true);
-  document.body.appendChild(m);
-  try{m.querySelector('.confirm').focus();}catch(_e){}
-}
+/* (2026-11-24) Les « stats Manuel exigées » de la règle du 2026-10-13 sont supprimées : un titan débloqué s'affronte toujours. */
 window.__affronterTitanV1__=function(id){
   var t=registre[id];
   if(!t)return;
   var sel=document.getElementById('ttnPalier_'+id);
-  var lignes=manque_(t,sel&&sel.value?String(sel.value):choixPalier[id]);
-  if(lignes){avertirStats_(t,lignes);return;}
+  /* Norman (2026-11-24) : « on doit pouvoir affronter un titan quand on le débloque, même sans les stats nécessaires » : plus de popup « Trop faible » ni de refus ; les stats conseillées ne sont qu'une information (« Es-tu assez costaud ? »). */
   demanderPlace_(t,function(){lancerCombatTitan_(id);});
 };
 function lancerCombatTitan_(id){

@@ -32,9 +32,10 @@ assert.equal(s.fight.playerHp, 120, "PV de repos repris");
 assert.equal(s.fight.zone, s.selectedZone, "zone cohérente avec resolveZoneFight");
 assert.equal(s.fight.mobName, "Gordon Ramsay Bolton");
 
-// 2 bis. Stats Manuel insuffisantes : combat refusé (Montez vos stats avant de penser pouvoir affronter ce Titan).
-assert.throws(() => agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 1299, toughness: 5000, hp: 500 } }), /PUISSANCE_INSUFFISANTE/, "Puissance Manuel du wiki (1 300) non atteinte");
-assert.throws(() => agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 5000, toughness: 1299, hp: 500 } }), /PUISSANCE_INSUFFISANTE/, "Endurance Manuel du wiki (1 300) non atteinte");
+// 2 bis. Norman (2026-11-24) : un titan débloqué s'affronte MÊME sans les stats conseillées (plus de PUISSANCE_INSUFFISANTE pour le combat).
+assert.ok(agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 1299, toughness: 5000, hp: 500 } }).state.fight.active, "Puissance sous le seuil conseillé : combat possible");
+assert.ok(agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 5000, toughness: 1299, hp: 500 } }).state.fight.active, "Endurance sous le seuil conseillé : combat possible");
+assert.ok(agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 1, toughness: 1, hp: 50 } }).state.fight.active, "stats minuscules : combat possible");
 assert.ok(agir(normalizeIdleAdventureStateV47({}), { action: "startTitanFight", titan: "t1" }, 10_000, { bosses: 100, stats: { power: 1300, toughness: 1300, hp: 500 } }).state.fight.active, "stats Manuel exactement atteintes : combat possible");
 
 // 3. Verrous inchangés : titan non débloqué, difficulté absente.

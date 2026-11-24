@@ -32,6 +32,9 @@
           {menu:'general', titre:'Général', points:[
             'Petits réglages de fiabilité et de fluidité après la mise à jour d’hier.'
           ]},
+          {menu:'titans', titre:'Titans', points:[
+            'Tu peux affronter un Titan dès qu’il est débloqué, même sans les stats conseillées. Les stats conseillées restent affichées à titre d’indication.'
+          ]},
           {menu:'scummvm', titre:'Énigmes', points:[
             'Le menu Énigmes s’ouvre pour tous ceux qui ont vaincu le boss 120.',
             'Cthulhu t’accueille à la première visite, et le jeu s’affiche dans un décor de vieux bureau à la bougie.',
