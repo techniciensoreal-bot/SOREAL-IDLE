@@ -25,7 +25,7 @@ import { idleCardsActionV1, idleCardsMultiplierV1 } from "./idle-cards-v1.js";
 import { quirkBonusesV1 } from "./idle-quirks-v1.js";
 import { IDLE_NGU_AUGMENTATIONS, IDLE_NGU_NORMAL_CHALLENGES, IDLE_NGU_SYSTEMS, IDLE_NGU_TRACKS, IDLE_NGU_YGG_FRUITS, REBIRTH_UNLOCK_BOSS_V1, RESOURCE_KEYS, challengePermanentBonuses, clamp, clone, int, nowMs, num, ressourceDecouverteV1 } from "./idle-ngu-catalogues.js";
 import { FENETRE_INSTANT_CLIC_MS_V1 } from "./idle-instant-clic-v1.js";
-import { idleScummvmProgresV1, idleScummvmTropheesV1 } from "./idle-scummvm-progres-v1.js";
+import { idleScummvmProgresV1, idleScummvmTropheesV1, idleScummvmReinitialiserV1 } from "./idle-scummvm-progres-v1.js";
 import { apWithBonusV1, applyNguTargetsV1, clearNguAllocationsV1, convertActiveBeardOnRebirth, gearSpecialsV1, hackFxV1, idleAdventureCombatStatsV1, idleNguBonuses, idleNguBonusesLectureV1, setNguAdvanceV1, setNguAllocationV1, setNguTargetV1, setNguTierV1, syncIdleNguState, syncNguAllocationTotalsV1 } from "./idle-ngu-bonus.js";
 import { buyNewbieOffer, buyPerkMaxV1, buyPerkV1, buyQuirkV1, buyQuirkMaxV1, buyResource, challengeAction, capAllNguV1, collectSystem, crediterRecompensesAventure, daycareFragmentsExtV1, daycareSkinsEnvV1, marquerDropsFiltresV1, minRebirthSecondsV1, photoRecompensesAventure, portraitEnvV1, questingEnvV1, questRewardFactorTitansV1, questButterFactorTitansV1, selectAugment, selectRitual, selectTrack, selectWandoosOs, setAugmentAllocationV214_, titanFight, tossMoneyPit, wishLevelV1, wishLevelsMapV1 } from "./idle-ngu-snapshot.js";
 import { augApplyTargetsV1, idleNguEffectiveResourceStatV1, idleNguResourceGenerationPerSecond, reclaimAllocatedResource, refreshRebirthState, setAllocation, setAugmentAdvanceV1, setAugmentTargetV1, verifierCapApresEquipementV1 } from "./idle-ngu-ressources.js";
@@ -486,9 +486,9 @@ export function applyIdleNguAction(raw, payload = {}, context = {}, now = Date.n
   } else if (action === "consumeGiantSeed") {
     /* A Giant Seed réutilisée : max(1, ⌊L + L²/100⌋) graines (idle-yggdrasil-extra-v1.js). */
     result = idleYggConsumeGiantSeedV1(state, String(payload.itemId || payload.id || ""));
-  } else if (action === "scummvmProgres" || action === "scummvmTrophees") {
+  } else if (action === "scummvmProgres" || action === "scummvmTrophees" || action === "scummvmReinitialiser") {
     /* Énigmes (ScummVM) : AP BRUT par progrès (scummvmProgres) ou par trophée du jeu (scummvmTrophees), plafond par jeu (idle-scummvm-progres-v1.js ; décision de Norman, 2026-11-22). */
-    result = action === "scummvmProgres" ? idleScummvmProgresV1(state, payload) : idleScummvmTropheesV1(state, payload);
+    result = action === "scummvmProgres" ? idleScummvmProgresV1(state, payload) : action === "scummvmTrophees" ? idleScummvmTropheesV1(state, payload) : idleScummvmReinitialiserV1(state, payload);   /* scummvmReinitialiser : remise à zéro d'un jeu (AP retiré, enregistrement effacé) */
   } else if (action === "buyQuirk" || action === "buyQuirkMax") {
     result = action === "buyQuirk" ? buyQuirkV1(state, payload.quirkId) : buyQuirkMaxV1(state, payload.quirkId);
   } else if (/^quest[A-Z]/.test(action)) {

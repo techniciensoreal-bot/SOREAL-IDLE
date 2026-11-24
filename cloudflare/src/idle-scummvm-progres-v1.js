@@ -64,6 +64,22 @@ export function idleScummvmCorrectionUniqueV1(state) {
   if (total > 0 && state.currencies) state.currencies.ap = Math.max(0, (Number.isFinite(Number(state.currencies.ap)) ? Number(state.currencies.ap) : 0) - total);
   return change;
 }
+/*
+ * REMISE À ZÉRO d'un jeu pour le joueur (Norman, 2026-11-24 : « enlève-moi les 2 811 AP que j'ai eus grâce au jeu, reset ma progression sur DOTT, je veux recommencer à 0 ») : l'enregistrement du jeu est effacé et l'AP qu'il avait rapporté (crédits + bonus de fin) est retiré de l'AP du joueur
+ * (jamais sous 0). Action `scummvmReinitialiser` { jeu } ; déclenchée par la page seulement pour le compte administrateur (modules/scummvm-page-v1.js) ; sans enregistrement : rien. Renvoie { retire, ignore }.
+ */
+export function idleScummvmReinitialiserV1(state, payload) {
+  const id = String(payload?.jeu ?? "");
+  if (!/^[A-Za-z0-9_-]{1,40}$/.test(id)) throw new Error("PAYLOAD_INVALIDE");
+  const jeux = state?.systems?.scummvm?.data?.jeux;
+  const j = jeux && typeof jeux === "object" ? jeux[id] : null;
+  if (!j || typeof j !== "object") return { retire: 0, ignore: true };
+  const nombre = (v) => (Number.isFinite(Number(v)) ? Math.max(0, Math.floor(Number(v))) : 0);
+  const retire = nombre(j.apCredite) + nombre(j.bonus);
+  delete jeux[id];
+  if (retire > 0 && state.currencies) state.currencies.ap = Math.max(0, nombre(state.currencies.ap) - retire);
+  return { retire, ap: 0, ignore: retire === 0 };
+}
 const RIEN_V1 = (extra) => Object.assign({ ap: 0, apCredite: 0, unites: 0, nouveaux: [], ignore: true, desactive: true }, extra || {});
 /* Garde-fous de forme : identifiant de jeu court, nombre d'unités plausible (une sauvegarde SCUMM ne dépasse pas quelques milliers de faits). */
 const UNITES_MAX_V1 = 100000;

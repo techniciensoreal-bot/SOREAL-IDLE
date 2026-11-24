@@ -150,6 +150,15 @@
       jeuCourant=choisirJeu(catalogue,difficulteCourante);
       majCouverture();
       /* REMISE À ZÉRO UNIQUE par compte (Norman, 2026-11-24 : « reset le menu Énigmes pour moi, comme si je venais de le débloquer ») : partie effacée (appareil et serveur), suivi remis à zéro, état « Jouer » et introduction de Cthulhu rejoués ; les AP déjà crédités sont retirés par le moteur (version 3 des crédits). Repère lié au compte : une seule fois. */
+      /* REMISE À ZÉRO de Day of the Tentacle pour l'ADMINISTRATEUR (Norman, 2026-11-24 : « reset ma progression sur DOTT, je veux recommencer à 0 ; enlève-moi les 2 811 AP ») : une seule fois par compte (repère lié au compte), jamais pour un autre joueur. */
+      try{
+        const R=window.__SOREAL_IDLE_REG__||{};
+        if(typeof R.estAdminSorealIdle_==='function'&&R.estAdminSorealIdle_()&&window.localStorage.getItem('soreal_idle_scummvm_reset_admin_v2')!=='1'){
+          let essais=0;
+          const tenter=function(){if(recommencer(true)){try{window.localStorage.setItem('soreal_idle_scummvm_reset_admin_v2','1');}catch(_e){}}else if(++essais<8)window.setTimeout(tenter,1500);};
+          window.setTimeout(tenter,2500);
+        }
+      }catch(_e){}
       try{if(window.localStorage.getItem('soreal_idle_scummvm_reinit_v3')!=='1'){window.localStorage.setItem('soreal_idle_scummvm_reinit_v3','1');window.setTimeout(recommencer,0);}}catch(_e){}
       try{synchroniser();}catch(_e){}   /* le jeu est connu : la reprise directe (afficher) peut se faire sans attendre un redessin de la page */
       demarrerPrechargeSiBesoin();
@@ -548,8 +557,9 @@
     }
     rMaj();
   }
-  function recommencer(){
-    if(rOccupe||!jeuCourant)return;
+  /* remiseAZero (administrateur, 2026-11-24) : en plus d'effacer la partie, remet à zéro le compteur de découvertes ET retire l'AP gagné avec le jeu (action scummvmReinitialiser). Renvoie vrai si la remise a démarré. */
+  function recommencer(remiseAZero){
+    if(rOccupe||!jeuCourant)return false;
     rOccupe=true;rMaj();
     if(rTimer){window.clearTimeout(rTimer);rTimer=0;}
     const jeu=jeuCourant;
@@ -562,6 +572,10 @@
       /* COMPTEUR CUMULATIF (Norman, 2026-11-24 : « pas grave s'il faut faire le jeu plusieurs fois pour tout avoir ») : « Recommencer la partie » efface la partie mais GARDE les unités déjà découvertes (dialogues et objets) : en rejouant, on complète ce qu'on a raté, sans que rien soit compté deux fois ni perdu (l'AP déjà crédité ne change pas). Le suivi n'est donc plus remis à zéro ici. */
       rErreur=!(res&&res.ok===true);
       rOccupe=false;rEtape=0;
+      if(remiseAZero===true){
+        try{if(P&&P.reinitialiser)P.reinitialiser(jeu.id);}catch(_e){}
+        try{const f=window.__actionMetaIdleV130__;if(typeof f==='function')f({action:'scummvmReinitialiser',jeu:String(jeu.id)});}catch(_e){}
+      }
       /* aucun iframe en arrière-plan : le jeu ne démarre qu'au clic sur « Jouer » (il repart alors de la sauvegarde restante, rien si l'effacement a réussi) */
       majCouverture();couvrir(true);
       try{majRecommencer();majTrophees();}catch(_e){}
@@ -569,6 +583,7 @@
     let p;
     try{p=S&&S.effacer?S.effacer(jeu):Promise.resolve({ok:false});}catch(_e){p=Promise.resolve({ok:false});}
     p.then(fin,function(){fin({ok:false});});
+    return true;
   }
 
   /* ---------- plein écran ---------- */
