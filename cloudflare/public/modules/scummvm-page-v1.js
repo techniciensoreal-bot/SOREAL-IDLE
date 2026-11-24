@@ -200,7 +200,7 @@
      Touches MESURÉES dans le vrai jeu (Day of the Tentacle, version française, ScummVM) en envoyant chaque touche et en lisant la ligne de phrase : O Ouvrir, G Donner, C Fermer, P Prendre, L Regarder, T Parler à, U Utiliser, S Pousser, Y Tirer ;
      Échap passe la scène, Espace met en pause, F5 ouvre le menu du jeu. Version anglaise : lettres des verbes non mesurées, donc aucun bouton (jamais de touche devinée). */
   const TOUCHES_TENTACLE_FR=[
-    {n:'⏸ Pause',key:' ',code:'Space',kc:32},{n:'☰ Menu',key:'F5',code:'F5',kc:116},
+    {n:'⏸ Pause',key:' ',code:'Space',kc:32},{n:'☰ Menu (F5)',key:'F5',code:'F5',kc:116},
     {n:'',special:'sensibilite'},{n:'',special:'musique'}
   ];
   /* SOURIS ÉMULÉE LENTE (Norman, 2026-11-23 : « la sensibilité de la souris émulée sur téléphone beaucoup plus lente ») : en mode pavé tactile ScummVM déplace le curseur du même déplacement que le doigt ; on RALENTIT ce déplacement en
