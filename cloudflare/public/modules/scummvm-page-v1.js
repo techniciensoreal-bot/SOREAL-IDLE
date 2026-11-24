@@ -211,7 +211,7 @@
    * Comment : le moteur (ScummVM / SDL3) lit des PointerEvent sur son canvas (mesuré le 2026-11-24 : pointerenter + pointermove déplacent le curseur et changent le survol ; les MouseEvent et TouchEvent simulés sont ignorés) ; on lui envoie donc des PointerEvent
    * (type « mouse ») dans la fenêtre du jeu (même origine). Le nœud du pavé est persistant (data-morph-vivant) ; les écouteurs sont sur le document (règle n°4 : rien à remettre après un redessin).
    */
-  function htmlPad(){return appareilTactile()&&jeuCourant?'<div id="scvPadV1" class="scv-pad" data-morph-vivant role="application" aria-label="Pavé tactile"><span class="scv-pad-aide">Pavé tactile</span></div>':'';}
+  function htmlPad(){return appareilTactile()&&jeuCourant?'<div id="scvPadV1" class="scv-pad" data-morph-vivant data-no-swipe="1" role="application" aria-label="Pavé tactile"><span class="scv-pad-aide">Pavé tactile</span></div>':'';}
   const PAD={id:null,x:0,y:0,t:0,bouge:0,cx:null,cy:null,minuterie:0,droit:false,entre:null};
   function cibleJeu(){
     const w=fenetreJeu();let c=null;
