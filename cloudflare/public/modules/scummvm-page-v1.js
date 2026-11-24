@@ -205,6 +205,64 @@
      choix SOREAL (non publié), bouton « Souris » pour alterner, préférence liée au compte (clé soreal_idle_scummvm_sensibilite_v1). Les appuis (clic) ne sont pas modifiés. */
   const CLE_SENS='soreal_idle_scummvm_sensibilite_v1',FACTEUR_LENT=0.3;
   function facteurSouris(){try{return window.localStorage.getItem(CLE_SENS)==='1'?1:FACTEUR_LENT;}catch(_e){return FACTEUR_LENT;}}
+  /*
+   * PAVÉ TACTILE (Norman, 2026-11-24 : « sur téléphone, une zone vide sous le jeu à côté du bouton Menu : je voudrais un carré qui serve de track pad dans le jeu »). Appareils tactiles seulement : un carré sous le jeu ; le doigt qui glisse dessus DÉPLACE le curseur du jeu (mouvement relatif,
+   * comme un pavé d'ordinateur portable), un appui bref clique, un appui long fait un clic droit. Le doigt ne cache donc jamais le jeu.
+   * Comment : le moteur (ScummVM / SDL3) lit des PointerEvent sur son canvas (mesuré le 2026-11-24 : pointerenter + pointermove déplacent le curseur et changent le survol ; les MouseEvent et TouchEvent simulés sont ignorés) ; on lui envoie donc des PointerEvent
+   * (type « mouse ») dans la fenêtre du jeu (même origine). Le nœud du pavé est persistant (data-morph-vivant) ; les écouteurs sont sur le document (règle n°4 : rien à remettre après un redessin).
+   */
+  function htmlPad(){return appareilTactile()&&jeuCourant?'<div id="scvPadV1" class="scv-pad" data-morph-vivant role="application" aria-label="Pavé tactile"><span class="scv-pad-aide">Pavé tactile</span></div>':'';}
+  const PAD={id:null,x:0,y:0,t:0,bouge:0,cx:null,cy:null,minuterie:0,droit:false,entre:null};
+  function cibleJeu(){
+    const w=fenetreJeu();let c=null;
+    try{c=w&&w.document&&w.document.getElementById('canvas');}catch(_e){c=null;}
+    return w&&c&&typeof w.PointerEvent==='function'?{w:w,c:c}:null;
+  }
+  function evPointeur(w,type,x,y,o){
+    return new w.PointerEvent(type,Object.assign({pointerId:77,pointerType:'mouse',isPrimary:true,clientX:x,clientY:y,screenX:x,screenY:y,bubbles:true,cancelable:true,view:w,width:1,height:1},o||{}));
+  }
+  function envoyerAuJeu(type,x,y,o){
+    const g=cibleJeu();if(!g)return;
+    try{
+      if(PAD.entre!==g.w){PAD.entre=g.w;g.c.dispatchEvent(evPointeur(g.w,'pointerenter',x,y,{bubbles:false}));}
+      g.c.dispatchEvent(evPointeur(g.w,type,x,y,o));
+    }catch(_e){}
+  }
+  function limitesJeu(){const g=cibleJeu();return g?{w:Math.max(1,g.w.innerWidth||g.c.clientWidth||320),h:Math.max(1,g.w.innerHeight||g.c.clientHeight||240)}:null;}
+  function cliquerAuJeu(bouton){
+    const l=limitesJeu();if(!l)return;
+    if(PAD.cx==null){PAD.cx=l.w/2;PAD.cy=l.h/2;}
+    const b=bouton===2?2:0,m=bouton===2?2:1;
+    envoyerAuJeu('pointermove',PAD.cx,PAD.cy,{buttons:0});
+    envoyerAuJeu('pointerdown',PAD.cx,PAD.cy,{button:b,buttons:m});
+    window.setTimeout(function(){envoyerAuJeu('pointerup',PAD.cx,PAD.cy,{button:b,buttons:0});},40);
+  }
+  function surPad(e){return e&&e.target&&e.target.closest?e.target.closest('#scvPadV1'):null;}
+  document.addEventListener('pointerdown',function(e){
+    const p=surPad(e);if(!p||PAD.id!==null)return;
+    e.preventDefault();
+    PAD.id=e.pointerId;PAD.x=e.clientX;PAD.y=e.clientY;PAD.t=Date.now();PAD.bouge=0;PAD.droit=false;
+    try{p.setPointerCapture(e.pointerId);}catch(_e){}
+    const l=limitesJeu();if(l&&PAD.cx==null){PAD.cx=l.w/2;PAD.cy=l.h/2;}
+    if(PAD.minuterie)window.clearTimeout(PAD.minuterie);
+    PAD.minuterie=window.setTimeout(function(){PAD.minuterie=0;if(PAD.id!==null&&PAD.bouge<8){PAD.droit=true;cliquerAuJeu(2);}},450);   /* appui long immobile : clic droit */
+  },true);
+  document.addEventListener('pointermove',function(e){
+    if(PAD.id===null||e.pointerId!==PAD.id)return;
+    const p=document.getElementById('scvPadV1'),l=limitesJeu();if(!p||!l)return;
+    e.preventDefault();
+    const dx=e.clientX-PAD.x,dy=e.clientY-PAD.y;PAD.x=e.clientX;PAD.y=e.clientY;PAD.bouge+=Math.abs(dx)+Math.abs(dy);
+    const base=(l.w/Math.max(40,p.clientWidth))*(facteurSouris()===1?1.1:0.7);   /* traverser le pavé = environ 70 % de la largeur du jeu (souris lente) ou 110 % (souris normale) */
+    PAD.cx=Math.max(0,Math.min(l.w-1,PAD.cx+dx*base));PAD.cy=Math.max(0,Math.min(l.h-1,PAD.cy+dy*base));
+    envoyerAuJeu('pointermove',PAD.cx,PAD.cy,{buttons:0,movementX:dx*base,movementY:dy*base});
+  },true);
+  function finPad(e){
+    if(PAD.id===null||e.pointerId!==PAD.id)return;
+    PAD.id=null;if(PAD.minuterie){window.clearTimeout(PAD.minuterie);PAD.minuterie=0;}
+    if(e.type==='pointerup'&&!PAD.droit&&PAD.bouge<8&&Date.now()-PAD.t<350)cliquerAuJeu(0);   /* appui bref : clic gauche */
+  }
+  document.addEventListener('pointerup',finPad,true);
+  document.addEventListener('pointercancel',finPad,true);
   function libelleSens(){return facteurSouris()===1?'🖱 Souris normale':'🖱 Souris lente';}
   function installerSouris(w){
     try{
@@ -758,7 +816,7 @@
     if(catalogue!==null)jeuCourant=choisirJeu(catalogue,difficulteCourante);
     const REG=window.__SOREAL_IDLE_REG__||{};
     const entete=typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
-    return entete+'<div class="scv-page"><div class="scv-decor"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div><div class="scv-bas">'+htmlTouches('scv-touches')+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
+    return entete+'<div class="scv-page"><div class="scv-decor"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div><div class="scv-bas"><div class="scv-ctrl">'+htmlTouches('scv-touches')+htmlPad()+'</div>'+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button> <span id="scvRecomV1" class="scv-recom" data-morph-vivant></span></div></div></div></div>';
   }
 

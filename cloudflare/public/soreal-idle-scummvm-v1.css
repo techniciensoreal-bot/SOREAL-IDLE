@@ -33,6 +33,16 @@
 
 /* Boutons de touches (2026-11-23) : sous le jeu (rangée qui passe à la ligne) et, en plein écran, une bande en bas qui défile à l'horizontale ; le jeu est raccourci de la hauteur de la bande pour qu'elle ne le recouvre pas. */
 .scv-touches{display:flex;flex-wrap:wrap;gap:6px}
+/* Téléphone : boutons à gauche, pavé tactile CARRÉ à droite (Norman, 2026-11-24) ; ailleurs le conteneur est transparent. */
+.scv-ctrl{display:contents}
+.scv-pad{display:none}
+@media (hover:none) and (pointer:coarse){
+  .scv-ctrl{display:flex;gap:10px;align-items:stretch}
+  .scv-ctrl .scv-touches{flex:1;min-width:0;flex-direction:column;align-items:flex-start;align-content:flex-start}
+  .scv-pad{display:flex;flex:none;width:min(46vw,190px);aspect-ratio:1/1;align-items:flex-end;justify-content:center;box-sizing:border-box;padding:6px;border:2px solid #ffffff3a;border-radius:14px;background:radial-gradient(circle at 50% 45%,#2a3a66 0%,#141b30 70%);color:#ffffff66;font-size:.72rem;letter-spacing:.04em;text-transform:uppercase;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  .scv-pad:active{border-color:#7fb0ff99}
+  .scv-pad-aide{pointer-events:none}
+}
 .scv-touche{padding:8px 12px;min-height:40px;border-radius:8px;border:1px solid #fff4;background:#1b2238;color:#fff;font:inherit;font-size:.9rem;touch-action:manipulation}
 .scv-touche:active{background:#2c3a66}
 .scv-touches-plein{display:none}
