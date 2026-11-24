@@ -95,12 +95,13 @@
   const REGLAGES_INI_TACTILE={audio_buffer_size:'8192',output_rate:'22050'};
   /* Le son CRAQUAIT beaucoup sur téléphone malgré l'émulateur OPL léger (Norman, 2026-11-23). La musique est le gros du calcul (carte AdLib émulée) : sur appareil tactile elle est COUPÉE par défaut (--music-driver=null) et la fréquence de mixage baissée (output_rate=22050 dans scummvm.ini : l'option de ligne de commande --output-rate n'existe pas, le moteur démarrait sur son lanceur) ;
      la voix et les bruitages restent. Bouton « Musique » pour la remettre (le jeu est relancé, sa partie reprend à la dernière sauvegarde automatique). Choix SOREAL, non mesuré sur un vrai téléphone. Préférence liée au compte. */
+  /* Cause trouvée (Norman, 2026-11-24 : « le son craque à cause du MIDI, pas des voix ») : avec la musique ACTIVÉE et aucun pilote imposé, ScummVM choisit tout seul le pilote WebMIDI du navigateur (le moteur contient requestMIDIAccess : c'est la demande « modifier un truc MIDI » vue sur le téléphone) et envoie la musique au synthétiseur du téléphone, lent et saccadé. Sur appareil tactile, la musique passe donc TOUJOURS par l'émulateur AdLib intégré (--music-driver=adlib, OPL léger), jamais par le MIDI de l'appareil. */
   const CLE_MUSIQUE='soreal_idle_scummvm_musique_v1';
   function musiqueActive(){try{return window.localStorage.getItem(CLE_MUSIQUE)==='1';}catch(_e){return false;}}
   function libelleMusique(){return musiqueActive()?'🎵 Musique : oui':'🎵 Musique : non';}
   function urlLancement(jeu){
     /* --path : ScummVM détecte le jeu par son dossier (mesuré le 2026-11-22 avec Day of the Tentacle) : aucune entrée à écrire dans scummvm.ini, un nouveau jeu n'a besoin que de son dossier sur R2. */
-    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+(appareilTactile()?' --opl-driver=db'+(musiqueActive()?'':' --music-driver=null'):'')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
+    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+(appareilTactile()?' --opl-driver=db'+(musiqueActive()?' --music-driver=adlib':' --music-driver=null'):'')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
   }
   function difficulteDe(j){
     const d=j&&j.systemes&&j.systemes.difficulty;

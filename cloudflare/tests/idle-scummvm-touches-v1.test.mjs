@@ -14,6 +14,7 @@ assert.ok(/aspect-ratio:4\/3/.test(css), "zone de jeu 4:3 (aucune bande noire su
 assert.ok(src.includes("FACTEUR_LENT=0.3") && src.includes("installerSouris(fenetreJeu())") && src.includes("soreal_idle_scummvm_sensibilite_v1"), "souris émulée ralentie (facteur 0,3, bouton pour alterner)");
 // son léger (téléphone seulement)
 assert.ok(src.includes("--opl-driver=db") && src.includes("--music-driver=null") && src.includes("appareilTactile()?"), "téléphone : OPL léger, 22 kHz, musique coupée par défaut");
+assert.ok(src.includes("' --music-driver=adlib'") && !/musiqueActive()?'':/.test(src), "téléphone, musique active : pilote AdLib imposé (jamais le MIDI WebMIDI de l'appareil)");
 assert.ok(src.includes("soreal_idle_scummvm_musique_v1") && src.includes("relancerMoteur()"), "bouton Musique (préférence du compte) qui relance le moteur");
 assert.ok(src.includes("audio_buffer_size:'8192',output_rate:'22050'"), "tampon audio plus grand dans scummvm.ini (tactile)");
 console.log("idle-scummvm-touches-v1: OK");
