@@ -117,8 +117,8 @@
     try{const g=JSON.parse(window.localStorage.getItem('soreal_idle_google_session_v1')||'null');if(g&&g.token)return String(g.token);}catch(_e){}
     try{return String(window.localStorage.getItem('horsligne_soreal_jeton_v1')||'');}catch(_e){return '';}
   }
-  /* L'exe Windows (pont window.sorealDesktop) et l'APK hors ligne (pont window.AndroidSoreal) ne relaient pas encore les fichiers du jeu (moteur, jeux) : le menu y reste CACHÉ plutôt que cassé (2026-11-22). Le site (navigateur, application TWA) fonctionne. */
-  function horsSite(){try{return Boolean(window.sorealDesktop||window.AndroidSoreal);}catch(_e){return false;}}
+  /* L'APK hors ligne (pont window.AndroidSoreal) ne relaie pas encore les fichiers du jeu (moteur, jeux) : le menu y reste CACHÉ plutôt que cassé (2026-11-22). Le site (navigateur, application TWA) fonctionne ; l'exe Windows (pont window.sorealDesktop) les relaie depuis le serveur (desktop/src/liaison.mjs, 2026-11-24). */
+  function horsSite(){try{return Boolean(window.AndroidSoreal);}catch(_e){return false;}}
   function interroger(){
     if(horsSite()){ouvert=false;ouvertLeMs=Date.now();return;}
     if(ouvertEnCours)return;

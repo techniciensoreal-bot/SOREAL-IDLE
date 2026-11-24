@@ -196,8 +196,17 @@ const jeux = [
   assert.equal(f.iframes.length, 0);
   assert.equal(acces(f).length, 1, "pas de requête à chaque redessin");
   assert.equal(f.sb.__SOREAL_IDLE_SCUMMVM_BASE_V1__(), "/api/idle/scummvm/", "aucun jeton gardé");
-  /* exe Windows (window.sorealDesktop) et APK hors ligne (window.AndroidSoreal) : les fichiers du jeu n'y sont pas relayés : menu fermé, aucune requête (2026-11-22) */
-  for (const pont of ["sorealDesktop", "AndroidSoreal"]) {
+  /* exe Windows (window.sorealDesktop, 2026-11-24) : les fichiers du jeu sont relayés depuis le serveur par le cœur de l'application (desktop/src/liaison.mjs) : la demande d'accès part et le menu s'ouvre comme sur le site */
+  {
+    const e = faux({ differe: true });
+    e.sb.sorealDesktop = {};
+    e.demarrer();
+    await attendre();
+    assert.equal(e.sb.__SOREAL_IDLE_SCUMMVM_OUVERT_V1__(), true, "exe : menu ouvert");
+    assert.equal(acces(e).length, 1, "exe : une demande d'accès");
+  }
+  /* APK hors ligne (window.AndroidSoreal) : les fichiers du jeu n'y sont pas relayés : menu fermé, aucune requête (2026-11-22) */
+  for (const pont of ["AndroidSoreal"]) {
     const x = faux({ differe: true });
     x.sb[pont] = {};
     x.demarrer();

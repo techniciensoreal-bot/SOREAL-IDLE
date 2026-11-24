@@ -142,7 +142,57 @@ export function ecrireLiaison(dossier, { jeton, email, expire, decision }, chiff
 const ROUTES_ADMIN = ["/api/v1/voice-upload", "/api/v1/story-upload", "/api/v1/voice-purge"];
 export function estRouteAdmin(chemin) { return ROUTES_ADMIN.includes(chemin); }
 export function transmissible(chemin) {
-  return chemin === "/api/v1/call" || chemin === "/api/v1/profil-badavatar" || chemin === "/api/v1/scummvm-acces" ||chemin.startsWith("/api/v1/local/") || ROUTES_ADMIN.includes(chemin);
+  return chemin === "/api/v1/call" || chemin === "/api/v1/profil-badavatar" || chemin === "/api/v1/scummvm-acces" || chemin === "/api/v1/scummvm-sauvegardes" ||chemin.startsWith("/api/v1/local/") || ROUTES_ADMIN.includes(chemin);
+}
+/*
+ * Menu Énigmes dans l'exe (Norman, 2026-11-24 : « fais-moi le menu Énigmes dans l'exe ») : le moteur ScummVM et le jeu restent sur le serveur (R2, ~100 Mo, jeu du commerce : fichiers protégés par un JETON de compte) ; l'exe les relaie à la demande vers le serveur
+ * (GET/HEAD, requêtes partielles « Range » comprises), sans rien embarquer. Le jeton est dans l'adresse (`/api/idle/scummvm/<jeton>/…`) ; le moteur demande aussi des chemins ABSOLUS sans jeton (`/data/…`, `/scummvm.ini`, `/api/idle/scummvm/jeux/…`) : le jeton est alors
+ * repris du Referer de la page (la page du moteur, qui porte le jeton) et inséré dans l'adresse envoyée au serveur : le serveur n'a besoin d'aucun en-tête Referer (celui de l'exe est « app://soreal », pas la même origine).
+ */
+const PREFIXE_SCUMMVM = "/api/idle/scummvm/";
+const FORME_JETON = /^[A-Za-z0-9_-]{8,}.[A-Za-z0-9_-]{20,}$/;
+export function estFichierScummvm(chemin) {
+  const p = String(chemin || "");
+  return p.startsWith(PREFIXE_SCUMMVM) || p === "/scummvm.ini" || p.startsWith("/data/");
+}
+export function jetonDuReferer(referer) {
+  try {
+    const u = new URL(String(referer || ""));
+    if (!u.pathname.startsWith(PREFIXE_SCUMMVM)) return "";
+    const seg = u.pathname.slice(PREFIXE_SCUMMVM.length).split("/")[0];
+    return FORME_JETON.test(seg) ? seg : "";
+  } catch (_e) { return ""; }
+}
+/* Chemin à demander au serveur (toujours AVEC jeton), ou null si le jeton manque. */
+export function cheminScummvmServeur(chemin, referer) {
+  const p = String(chemin || "");
+  if (p.includes("..")) return null;
+  if (p.startsWith(PREFIXE_SCUMMVM)) {
+    const premier = p.slice(PREFIXE_SCUMMVM.length).split("/")[0];
+    if (FORME_JETON.test(premier)) return p;
+    const j = jetonDuReferer(referer);
+    return j ? PREFIXE_SCUMMVM + j + "/" + p.slice(PREFIXE_SCUMMVM.length) : null;
+  }
+  if (p === "/scummvm.ini" || p.startsWith("/data/")) {
+    const j = jetonDuReferer(referer);
+    return j ? PREFIXE_SCUMMVM + j + "/moteur" + p : null;
+  }
+  return null;
+}
+/* Relais d'un fichier du jeu : réponse en FLUX (jamais mise en mémoire en entier : un fichier peut peser 80 Mo), en-têtes utiles conservés (type, taille, plage). Retourne une Response, ou null (pas de réseau). */
+export async function transmettreFichierScummvm({ urlBase = URL_PRODUCTION, methode, chemin, recherche = "", entetes = {}, fetchFn = fetch, delaiMs = 60000 }) {
+  try {
+    const h = {};
+    for (const nom of ["range", "if-none-match", "if-modified-since", "accept"]) if (entetes[nom]) h[nom] = entetes[nom];
+    const r = await fetchFn(urlBase + chemin + recherche, { method: methode, headers: h, signal: AbortSignal.timeout(delaiMs) });
+    const sortie = new Headers();
+    r.headers.forEach((v, k) => { if (["content-type", "content-length", "content-range", "accept-ranges", "etag", "last-modified", "cache-control"].includes(k)) sortie.set(k, v); });
+    return new Response(methode === "HEAD" || r.status === 304 ? null : r.body, { status: r.status, headers: sortie });
+  } catch (e) {
+    const cause = e && e.cause ? (e.cause.code || e.cause.message || String(e.cause)) : "";
+    derniereErreurTransmission = String((e && e.name) || "Error") + " : " + String((e && e.message) || e) + (cause ? " (" + cause + ")" : "");
+    return null;
+  }
 }
 /* Retourne { reponse } (la réponse du serveur, ré-emballée), { expiree: true } (jeton refusé), ou null (pas de réseau : la page doit voir une erreur réseau, pas une réponse). */
 /* Raison du dernier échec réseau (message, code de la cause) : lue par l'application pour l'expliquer à l'administrateur et la consigner (Norman, 2026-10-29 : « Failed to fetch quand je veux générer »). */

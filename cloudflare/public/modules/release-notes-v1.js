@@ -41,6 +41,7 @@
             'Les AP arrivent environ une seconde après chaque objet, avec un « +N AP » qui s’envole.',
             'Le jeu se met en pause quand tu quittes le menu ou l’onglet.',
             'Sur téléphone : la musique est toujours jouée et la souris est plus lente.',
+            'Le menu Énigmes est aussi disponible dans l’application Windows (compte relié et connexion internet nécessaires).',
             'Dans En direct, les gains d’AP d’Énigmes sont annoncés aux joueurs qui ont ce menu.'
           ]}
         ]
