@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Petits réglages de fiabilité et de fluidité après la mise à jour d’hier."
+    "Le chargement est un peu plus rapide : les fichiers du moteur local restent plus longtemps en cache.",
+    "Moins de ralentissements pendant les longues parties : certains calculs sont mieux gardés en mémoire."
   ] };
 })();

@@ -40,7 +40,9 @@
         date:'2026-11-23',
         groupes:[
           {menu:'general', titre:'Général', points:[
-            'Petits réglages d’affichage et de fluidité après la grande mise à jour d’hier.'
+            'Petits réglages d’affichage et de fluidité après la grande mise à jour d’hier.',
+            'Le chargement est un peu plus rapide : les fichiers du moteur local restent plus longtemps en cache.',
+            'Moins de ralentissements pendant les longues parties : certains calculs sont mieux gardés en mémoire.'
           ]}
         ]
       },
