@@ -520,18 +520,9 @@
     if(oui)majBarrePlein();
     host.classList.toggle('scv-avec-touches',Boolean(oui&&touchesDuJeu()));
     if(oui){host.style.left='';host.style.top='';host.style.width='';host.style.height='';}
-    try{
-      if(oui){
-        if(host.requestFullscreen)host.requestFullscreen().catch(function(){});
-        if(window.screen&&screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){});
-      }else{
-        if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(function(){});
-        if(window.screen&&screen.orientation&&screen.orientation.unlock)screen.orientation.unlock();
-      }
-    }catch(_e){}
+    /* « Plein écran » = le jeu est agrandi PAR-DESSUS l'interface de Soreal IDLE (hôte fixé sur toute la fenêtre), jamais le vrai plein écran du navigateur ni un verrouillage d'orientation (Norman, 2026-11-24 : « pas un vrai plein écran », ordinateur comme téléphone). Le bouton « Quitter » le referme. */
     if(!oui)synchroniser();
   }
-  document.addEventListener('fullscreenchange',function(){if(plein&&!document.fullscreenElement)pleinEcran(false);});
   window.__scvPleinEcran__=function(){
     if(!host)creerHote();
     pleinEcran(!plein);

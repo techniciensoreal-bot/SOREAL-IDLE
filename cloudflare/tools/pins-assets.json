@@ -760,8 +760,8 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 49,
-  "sha": "59a9c7bd180b90a639267a9286ac9d2fc1264032"
+  "pin": 50,
+  "sha": "ffb64cdac5124fd5cf28924dc10fe63d9e205f4a"
  },
  "/modules/scummvm-progres-v1.js": {
   "pin": 15,
