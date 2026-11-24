@@ -3,5 +3,7 @@
  * FICHIER GÉNÉRÉ par `node cloudflare/tools/marquer-nouveautes-push.mjs` (à lancer avant le commit d'un push ; la liste est remplacée, jamais cumulée). Ne pas l'éditer à la main.
  */
 (function(){
-  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [] };
+  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Tu peux affronter un Titan dès qu’il est débloqué, même sans les stats conseillées. Les stats conseillées restent affichées à titre d’indication."
+  ] };
 })();
