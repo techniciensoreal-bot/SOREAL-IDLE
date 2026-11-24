@@ -34,7 +34,7 @@ function faux(opts = {}) {
   const sb = {
     console, Promise, Date, Math, JSON, Object, Array, String, Number, Boolean, Set, Error,
     localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); } },
-    navigator: { maxTouchPoints: 0 },
+    navigator: { maxTouchPoints: 0, userActivation: { hasBeenActive: true } },
     sessionStorage: { getItem: (k) => (k === "soreal_idle_session_v1" && sb.__session ? sb.__session : null) },
     document: {
       head: el("head"), body: el("body"),

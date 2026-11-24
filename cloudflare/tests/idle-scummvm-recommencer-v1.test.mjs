@@ -171,7 +171,7 @@ function fauxPage() {
   const sb = {
     console, Promise, Date, Math, JSON, Object, Array, String, Number, Boolean, Set, Error,
     localStorage: { getItem: (k) => (k in stock ? stock[k] : null), setItem: (k, v) => { stock[k] = String(v); } },
-    navigator: {}, sessionStorage: { getItem: (k) => (k === "soreal_idle_session_v1" ? "s" : null) },
+    navigator: { userActivation: { hasBeenActive: true } }, sessionStorage: { getItem: (k) => (k === "soreal_idle_session_v1" ? "s" : null) },
     document: { head: el("head"), body: el("body"), createElement: el, getElementById: (id) => (id === "scvZoneV1" ? zone : id === "scvRecomV1" ? zoneRecom : null), addEventListener() {} },
     setTimeout: (f, d) => { timers.push({ f, d, actif: true }); return timers.length; }, clearTimeout: (i) => { if (timers[i - 1]) timers[i - 1].actif = false; },
     requestAnimationFrame: () => 1, screen: {}, addEventListener() {}, alert() { throw new Error("alert natif"); }, confirm() { throw new Error("confirm natif"); },
@@ -212,10 +212,10 @@ function fauxPage() {
   bR.click(); const ancien = f.iframes[0]; const avantHotes = f.sb.document.body.children.length;
   bOui.click(); await attendre();
   assert.equal(f.sb.__effacements.join(), "dott"); assert.equal(f.sb.__reinit.join(), "dott");
-  assert.equal(f.iframes.length, 2, "iframe recréé une seule fois"); assert.equal(ancien.parentNode, null, "l'ancien est retiré");
+  assert.equal(f.iframes.length, 1, "aucun iframe neuf en arrière-plan : le jeu ne repart qu'au clic sur Jouer"); assert.equal(ancien.parentNode, null, "l'ancien est retiré");
   assert.equal(f.sb.document.body.children.length, avantHotes, "même hôte");
   const hote = f.sb.document.body.children.find((c) => c.id === "scvHoteV1");
-  assert.equal(hote.children.filter((c) => c.tag === "iframe").length, 1, "un seul iframe dans l'hôte");
+  assert.equal(hote.children.filter((c) => c.tag === "iframe").length, 0, "aucun iframe dans l'hôte avant Jouer");
   assert.equal(hote.children.find((c) => c.className === "scv-couv").style.display, "flex", "écran de couverture « Jouer » de retour");
   assert.ok(/Jouer/.test(hote.children.find((c) => c.className === "scv-couv").innerHTML));
   assert.deepEqual(visible(), [true, false, false, false]); assert.equal(recom.children[4].style.display, "none", "pas d'erreur");

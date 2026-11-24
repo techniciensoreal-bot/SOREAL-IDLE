@@ -93,15 +93,10 @@
      plus légers, appliqués SEULEMENT sur un appareil tactile : émulateur OPL le plus léger (opl_driver=db, option de ligne de commande) et un tampon audio plus grand (audio_buffer_size dans scummvm.ini). Réglages non mesurés sur un vrai téléphone : à ajuster. */
   function appareilTactile(){try{return Boolean(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches)||((navigator.maxTouchPoints||0)>1&&'ontouchstart' in window);}catch(_e){return false;}}
   const REGLAGES_INI_TACTILE={audio_buffer_size:'8192',output_rate:'22050'};
-  /* Le son CRAQUAIT beaucoup sur téléphone malgré l'émulateur OPL léger (Norman, 2026-11-23). La musique est le gros du calcul (carte AdLib émulée) : sur appareil tactile elle est COUPÉE par défaut (--music-driver=null) et la fréquence de mixage baissée (output_rate=22050 dans scummvm.ini : l'option de ligne de commande --output-rate n'existe pas, le moteur démarrait sur son lanceur) ;
-     la voix et les bruitages restent. Bouton « Musique » pour la remettre (le jeu est relancé, sa partie reprend à la dernière sauvegarde automatique). Choix SOREAL, non mesuré sur un vrai téléphone. Préférence liée au compte. */
-  /* Cause trouvée (Norman, 2026-11-24 : « le son craque à cause du MIDI, pas des voix ») : avec la musique ACTIVÉE et aucun pilote imposé, ScummVM choisit tout seul le pilote WebMIDI du navigateur (le moteur contient requestMIDIAccess : c'est la demande « modifier un truc MIDI » vue sur le téléphone) et envoie la musique au synthétiseur du téléphone, lent et saccadé. Sur appareil tactile, la musique passe donc TOUJOURS par l'émulateur AdLib intégré (--music-driver=adlib, OPL léger), jamais par le MIDI de l'appareil. */
-  const CLE_MUSIQUE='soreal_idle_scummvm_musique_v1';
-  function musiqueActive(){try{return window.localStorage.getItem(CLE_MUSIQUE)==='1';}catch(_e){return false;}}
-  function libelleMusique(){return musiqueActive()?'🎵 Musique : oui':'🎵 Musique : non';}
+  /* TÉLÉPHONE, SON (Norman, 2026-11-24 : « il faut que les sons soient joués, juste les voix ça ne va pas ; le MIDI fait craquer ») : la musique est TOUJOURS jouée, par l'émulateur AdLib intégré au jeu (OPL léger, mixage à 22 kHz dans scummvm.ini). Sans pilote imposé, ScummVM choisit tout seul le pilote WebMIDI du navigateur (le moteur contient requestMIDIAccess : c'est la demande « modifier un truc MIDI » vue sur le téléphone) et envoie la musique au synthétiseur du téléphone, lent et saccadé : on le contourne. Choix SOREAL, à confirmer à l'écoute sur un vrai téléphone. */
   function urlLancement(jeu){
     /* --path : ScummVM détecte le jeu par son dossier (mesuré le 2026-11-22 avec Day of the Tentacle) : aucune entrée à écrire dans scummvm.ini, un nouveau jeu n'a besoin que de son dossier sur R2. */
-    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+(appareilTactile()?' --opl-driver=db'+(musiqueActive()?' --music-driver=adlib':' --music-driver=null'):'')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
+    return BASE()+'moteur/scummvm.html#--path=/data/games/'+dossierDe(jeu).replace(/[^A-Za-z0-9._+()-]/g,'')+(langueJeu()==='en'?' --no-subtitles':' --subtitles')+(appareilTactile()?' --opl-driver=db --music-driver=adlib':'')+' --save-slot=0 '+jeu.cible;   /* Norman, 2026-11-22 : sous-titres en français si le jeu Soreal est en français, désactivés en anglais (--no-subtitles écrase aussi un réglage gardé par ScummVM) */
   }
   function difficulteDe(j){
     const d=j&&j.systemes&&j.systemes.difficulty;
@@ -169,7 +164,7 @@
     const lancer=function(){
       const m=menuActif();
       if(m==='combat'||m==='aventure'){window.setTimeout(lancer,30000);return;}
-      precharger(jeuCourant).then(function(){preFini=true;majCouverture();if(lire()==='lance')creerIframe(true);});
+      precharger(jeuCourant).then(function(){preFini=true;majCouverture();});   /* fichiers en cache seulement : le jeu ne démarre JAMAIS en arrière-plan (Norman, 2026-11-24) */
     };
     if(typeof window.requestIdleCallback==='function')window.requestIdleCallback(lancer,{timeout:20000});else window.setTimeout(lancer,5000);
   }
@@ -201,7 +196,7 @@
      Échap passe la scène, Espace met en pause, F5 ouvre le menu du jeu. Version anglaise : lettres des verbes non mesurées, donc aucun bouton (jamais de touche devinée). */
   const TOUCHES_TENTACLE_FR=[
     {n:'⏸ Pause',key:' ',code:'Space',kc:32},{n:'☰ Menu (F5)',key:'F5',code:'F5',kc:116},
-    {n:'',special:'sensibilite'},{n:'',special:'musique'}
+    {n:'',special:'sensibilite'}
   ];
   /* SOURIS ÉMULÉE LENTE (Norman, 2026-11-23 : « la sensibilité de la souris émulée sur téléphone beaucoup plus lente ») : en mode pavé tactile ScummVM déplace le curseur du même déplacement que le doigt ; on RALENTIT ce déplacement en
      réécrivant les événements tactiles AVANT le moteur (dans la fenêtre du jeu, phase de capture) : la position transmise = position de départ + déplacement du doigt × facteur. Facteur 0,3 par défaut (« beaucoup plus lente »), 1 = normal ;
@@ -211,8 +206,10 @@
   function libelleSens(){return facteurSouris()===1?'🖱 Souris normale':'🖱 Souris lente';}
   function installerSouris(w){
     try{
-      if(!w||w.__scvSens||!w.TouchEvent||!w.Touch)return;
-      w.__scvSens=true;
+      /* Écouteurs sur le DOCUMENT du jeu, repère posé sur lui (Norman, 2026-11-24 : « la souris lente ne change rien ») : la fenêtre du premier chargement (about:blank) est RÉUTILISÉE par le vrai document, qui efface ses écouteurs mais garde le repère posé sur elle : le filtre n'était alors jamais réinstallé. */
+      const d=w&&w.document;
+      if(!d||d.__scvSens||!w.TouchEvent||!w.Touch)return;
+      d.__scvSens=true;
       const virt={},dern={};let synth=false;
       const filtre=function(e){
         if(synth||(!e.isTrusted&&!w.__scvTest))return;
@@ -230,23 +227,22 @@
         try{e.target.dispatchEvent(new w.TouchEvent(e.type,{touches:touches,targetTouches:cibles,changedTouches:changed,bubbles:true,cancelable:true,view:w,ctrlKey:e.ctrlKey,shiftKey:e.shiftKey,altKey:e.altKey,metaKey:e.metaKey}));}
         finally{synth=false;}
       };
-      ['touchstart','touchmove','touchend','touchcancel'].forEach(function(t){w.addEventListener(t,filtre,{capture:true,passive:false});});
+      ['touchstart','touchmove','touchend','touchcancel'].forEach(function(t){d.addEventListener(t,filtre,{capture:true,passive:false});});
     }catch(_e){}
   }
   function touchesDuJeu(){
     if(!jeuCourant)return null;
-    return TOUCHES_TENTACLE_FR.filter(function(x){return x.special!=='sensibilite'&&x.special!=='musique'||appareilTactile();});   /* souris lente et musique : appareils tactiles seulement */
+    return TOUCHES_TENTACLE_FR.filter(function(x){return x.special!=='sensibilite'||appareilTactile();});   /* souris lente : appareils tactiles seulement */
   }
   function htmlTouches(classe){
     const t=touchesDuJeu();if(!t)return '';
-    return '<div class="'+classe+'">'+t.map(function(x,i){return '<button type="button" class="scv-touche"'+(x.special==='sensibilite'?' data-sens="1"':'')+(x.special==='musique'?' data-musique="1"':'')+' onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.special==='sensibilite'?libelleSens():x.special==='musique'?libelleMusique():x.n)+'</button>';}).join('')+'</div>';
+    return '<div class="'+classe+'">'+t.map(function(x,i){return '<button type="button" class="scv-touche"'+(x.special==='sensibilite'?' data-sens="1"':'')+' onmousedown="event.preventDefault()" onclick="window.__scvTouche__('+i+')">'+esc(x.special==='sensibilite'?libelleSens():x.n)+'</button>';}).join('')+'</div>';
   }
   /* Envoie la touche au jeu (événements clavier dans la fenêtre du jeu, même origine : le moteur les lit comme une vraie frappe). */
   window.__scvTouche__=function(i){
     try{
       const t=touchesDuJeu(),x=t&&t[i],w=fenetreJeu();
       if(x&&x.special==='sensibilite'){try{window.localStorage.setItem(CLE_SENS,facteurSouris()===1?'0':'1');}catch(_e){}Array.prototype.forEach.call(document.querySelectorAll('[data-sens]'),function(b){b.textContent=libelleSens();});return;}
-      if(x&&x.special==='musique'){try{window.localStorage.setItem(CLE_MUSIQUE,musiqueActive()?'0':'1');}catch(_e){}Array.prototype.forEach.call(document.querySelectorAll('[data-musique]'),function(b){b.textContent=libelleMusique();});relancerMoteur();return;}
       if(!x||!w||!w.document)return;
       const cible=w.document.activeElement||w.document.body;
       ['keydown','keyup'].forEach(function(type){
@@ -505,7 +501,7 @@
       try{if(res&&res.ok===true&&P&&P.reinitialiser)P.reinitialiser(jeu.id);}catch(_e){}
       rErreur=!(res&&res.ok===true);
       rOccupe=false;rEtape=0;
-      try{creerIframe(true);}catch(_e){}   /* iframe neuf : le jeu repart de la sauvegarde restante (rien si l'effacement a réussi) */
+      /* aucun iframe en arrière-plan : le jeu ne démarre qu'au clic sur « Jouer » (il repart alors de la sauvegarde restante, rien si l'effacement a réussi) */
       majCouverture();couvrir(true);
       try{majRecommencer();majTrophees();}catch(_e){}
     };
@@ -563,7 +559,7 @@
     host.classList.remove('scv-cache');
     /* l'iframe existe déjà (préparé en arrière-plan ou vu avant) : on le réveille tout de suite */
     if(etait&&iframe)suspendre(false);
-    if(!iframe&&jeuCourant&&lire()==='lance')creerIframe(false);
+    if(!iframe&&jeuCourant&&gestePage)creerIframe(false);
     if(iframe&&!moteurPret&&moteurEstPret())moteurPret=true;
     couvrir(!jeuCourant||!(gestePage&&moteurPret));
     if(jeuCourant&&introAttendue()){lancerIntro();majCouverture();}
