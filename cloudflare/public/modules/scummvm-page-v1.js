@@ -808,7 +808,10 @@
     const plafond=Math.floor(Number(jeuCourant.ap.plafond));
     const suivi=P&&P.etat?P.etat():null;
     const alerte=suivi&&suivi.ok===false&&suivi.raison&&Date.now()-suivi.le<15000&&iframe?'<div class="scv-ap scv-suivi-ko">Suivi des AP indisponible : '+esc(suivi.raison)+'</div>':'';
-    return alerte+'<div class="scv-ap"><span>AP obtenus :</span> <b>'+esc(nombreLisible(apCredites(j,jeuCourant)))+(plafond>0?' / '+esc(nombreLisible(plafond)):'')+'</b></div>'+(bonusRecu(j,jeuCourant)>0?'<div class="scv-ap"><span>Bonus de fin obtenu :</span> <b>+'+esc(nombreLisible(bonusRecu(j,jeuCourant)))+'</b></div>':'');
+    /* « Découvertes : N » (Norman, 2026-11-24) : le nombre d'objets et de dialogues déjà découverts, SANS total (règle n°2) ; il monte à chaque nouveauté, même quand l'AP gagné est trop petit pour se voir. */
+    const nbDecouvertes=P&&typeof P.decouvertes==='function'?P.decouvertes(jeuCourant.id):0;
+    const decouvertes='<div class="scv-ap scv-decouvertes"><span>Découvertes :</span> <b>'+esc(nombreLisible(nbDecouvertes))+'</b></div>';
+    return alerte+'<div class="scv-ap"><span>AP obtenus :</span> <b>'+esc(nombreLisible(apCredites(j,jeuCourant)))+(plafond>0?' / '+esc(nombreLisible(plafond)):'')+'</b></div>'+decouvertes+(bonusRecu(j,jeuCourant)>0?'<div class="scv-ap"><span>Bonus de fin obtenu :</span> <b>+'+esc(nombreLisible(bonusRecu(j,jeuCourant)))+'</b></div>':'');
   }
 
   function page(j){

@@ -257,6 +257,13 @@
   function planifier(){
     minuteur=window.setTimeout(function(){minuteur=0;verifier().then(planifier,planifier);},INTERVALLE_MS);
   }
+  /* Nombre d'unités DÉJÀ découvertes (objets et dialogues) d'un jeu : la mémoire cumulative du compte (jamais de total : règle n°2). */
+  function decouvertes(jeuId){
+    try{
+      const e=lireMemoire()[String(jeuId||'')];
+      return e&&e.vu?compter(depuisBase64(e.vu,4096)):0;
+    }catch(_e){return 0;}
+  }
   /* Dernier état du suivi (affiché par la page quand il échoue : « Suivi des AP indisponible : … »). */
   let etat={ok:true,raison:'',le:0};
   function demarrer(j,dossier){
@@ -267,5 +274,5 @@
   }
   window.addEventListener('pagehide',function(){verifier();});   /* à la fermeture de la page */
 
-  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={etat:function(){return etat;},CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,definirApActif:function(v){AP_ACTIF=Boolean(v);},validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,reinitialiser:reinitialiser,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
+  window.__SOREAL_IDLE_SCUMMVM_PROGRES_V1__={etat:function(){return etat;},decouvertes:decouvertes,CLE:CLE,CLE_JOURNAL:CLE_JOURNAL,JOURNAL_MAX:JOURNAL_MAX,definirApActif:function(v){AP_ACTIF=Boolean(v);},validerTrophees:validerTrophees,tropheesRemplis:tropheesRemplis,chargerTrophees:chargerTrophees,tropheesDe:function(id){return tropheesDe[id];},journal:journal,reinitialiser:reinitialiser,INTERVALLE_MS:INTERVALLE_MS,demarrer:demarrer,verifier:verifier,lireAutosave:lireAutosave,compter:compter,versBase64:versBase64,depuisBase64:depuisBase64};
 })();

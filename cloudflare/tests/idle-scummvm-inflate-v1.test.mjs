@@ -63,3 +63,12 @@ assert.ok(progres.includes("décompression impossible sur cet appareil") && prog
 const page = readFileSync("cloudflare/public/modules/scummvm-page-v1.js", "utf8");
 assert.ok(page.includes("Suivi des AP indisponible : "), "la page affiche la raison");
 console.log("idle-scummvm-inflate-v1: OK (" + n + " décompressions comparées à zlib)");
+// compteur « Découvertes : N » (Norman, 2026-11-24) : le nombre déjà découvert, JAMAIS de total (règle n°2)
+{
+  const pg = readFileSync("cloudflare/public/modules/scummvm-page-v1.js", "utf8");
+  const pr = readFileSync("cloudflare/public/modules/scummvm-progres-v1.js", "utf8");
+  assert.ok(pg.includes("Découvertes :") && pg.includes("P.decouvertes(jeuCourant.id)"), "la page montre le compteur");
+  assert.ok(!/Découvertes :<\/span> <b>'\+[^;]*' \/ '/.test(pg), "aucun dénominateur");
+  assert.ok(pr.includes("function decouvertes(jeuId)") && pr.includes("decouvertes:decouvertes"), "le suivi l'expose");
+  console.log("compteur Découvertes : OK");
+}
