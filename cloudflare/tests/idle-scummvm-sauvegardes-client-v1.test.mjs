@@ -310,4 +310,15 @@ const index = readFileSync("cloudflare/public/index.html", "utf8");
 const iSync = index.search(/<script defer src="\/modules\/scummvm-sync-v1\.js\?v=[0-9]+"><\/script>/);   /* le numéro ?v= monte à chaque modification (maj-pins) */
 assert.ok(iSync > 0 && iSync < index.indexOf("/modules/scummvm-page-v1.js"), "script chargé avant scummvm-page-v1.js");
 
+/* 13. HORLOGE D'APPAREIL EN RETARD et pont qui n'a pas encore mesuré l'écart (bug du 2026-11-24 : « ma partie n'a pas repris là où j'étais ») : la partie LOCALE plus récente ne doit JAMAIS être remplacée par une sauvegarde distante plus ancienne. L'écart est pris sur l'heure que le serveur renvoie. */
+{
+  const maintenant = Date.now();
+  await idleScummvmSauvegardesTraiterV1(sql, "autre@x.fr", { action: "ecrire", jeu: "dott", fichiers: [{ nom: "tentacle.s00", maj: maintenant - 30_000, donnees: b64("ancienne-distante"), base: 0 }] }, { autorise: async () => true });
+  const retard = appareil({ init: { ...base }, jeton: "jeton-autre", decalage: -600_000, sansEcart: true });   /* horloge 10 min en retard, écart du pont inconnu */
+  poser(retard, "tentacle.s00", "locale-plus-recente", maintenant - 5_000 - 600_000);   /* écrite il y a 5 s (vraie heure) = date d'appareil en retard de 10 min */
+  const avant = fichierLocal(retard, "tentacle.s00");
+  await retard.S.reprendre(JEU);
+  assert.equal(fichierLocal(retard, "tentacle.s00"), avant, "partie locale plus récente : intacte, malgré l'horloge en retard et l'écart inconnu");
+  assert.equal(texte(fichierLocal(retard, "tentacle.s00").contents), "locale-plus-recente");
+}
 console.log("idle-scummvm-sauvegardes-client-v1: OK");

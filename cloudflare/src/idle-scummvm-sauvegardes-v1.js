@@ -57,19 +57,19 @@ export async function idleScummvmSauvegardesTraiterV1(sql, compte, corps, ctx = 
   const jeu = c.jeu;
   if (typeof jeu !== "string" || !IDLE_SCUMMVM_SAUV_JEU_V1.test(jeu)) return { ok: false, code: "SCUMMVM_SAUV_JEU" };
   idleScummvmSauvegardesAssurerTableV1(sql);
+  const maintenant = ctx.maintenant === undefined ? Date.now() : ctx.maintenant;   /* heure du serveur, lue UNE fois : sert aux dates ET est renvoyée au client pour régler son horloge */
   if (c.action === "lire") {
     const lignes = sqlRows(sql.exec("SELECT nom,donnees,maj FROM idle_scummvm_sauvegardes WHERE compte=? AND jeu=? ORDER BY nom", email, jeu));
-    return { ok: true, fichiers: lignes.map((l) => ({ nom: String(l.nom), maj: Number(l.maj), donnees: String(l.donnees) })) };
+    return { ok: true, fichiers: lignes.map((l) => ({ nom: String(l.nom), maj: Number(l.maj), donnees: String(l.donnees) })), maintenant };
   }
   if (c.action === "effacer") {
     const n = Number(sqlRows(sql.exec("SELECT COUNT(*) AS n FROM idle_scummvm_sauvegardes WHERE compte=? AND jeu=?", email, jeu))[0]?.n) || 0;
     sql.exec("DELETE FROM idle_scummvm_sauvegardes WHERE compte=? AND jeu=?", email, jeu);
-    const quand = ctx.maintenant === undefined ? Date.now() : ctx.maintenant;
+    const quand = maintenant;
     sql.exec("INSERT INTO idle_scummvm_effacements(compte,jeu,effacee_ms) VALUES(?,?,?) ON CONFLICT(compte,jeu) DO UPDATE SET effacee_ms=excluded.effacee_ms", email, jeu, quand);
     return { ok: true, effaces: n };
   }
   if (c.action !== "ecrire") return { ok: false, code: "SCUMMVM_SAUV_ACTION" };
-  const maintenant = ctx.maintenant === undefined ? Date.now() : ctx.maintenant;
   const entrants = c.fichiers;
   if (!Array.isArray(entrants) || !entrants.length || entrants.length > IDLE_SCUMMVM_SAUV_MAX_FICHIERS_V1) return { ok: false, code: "SCUMMVM_SAUV_LISTE" };
   const noms = new Set();
@@ -107,5 +107,5 @@ export async function idleScummvmSauvegardesTraiterV1(sql, compte, corps, ctx = 
     sql.exec("INSERT INTO idle_scummvm_sauvegardes(compte,jeu,nom,donnees,maj,taille) VALUES(?,?,?,?,?,?) ON CONFLICT(compte,jeu,nom) DO UPDATE SET donnees=excluded.donnees,maj=excluded.maj,taille=excluded.taille", email, jeu, f.nom, f.donnees, f.maj, f.donnees.length);
   }
   const etat = [...apres.entries()].sort((a, b) => (a[0] < b[0] ? -1 : 1)).map(([nom, v]) => ({ nom, maj: v.maj }));
-  return { ok: true, fichiers: etat, conflits };
+  return { ok: true, fichiers: etat, conflits, maintenant };
 }

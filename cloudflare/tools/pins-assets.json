@@ -576,8 +576,8 @@
   "sha": "a5688fb34e5b915f8804f5ecf9859ca24923f0d9"
  },
  "/modules/meta-progression-v130.js": {
-  "pin": 202610186,
-  "sha": "713492c240a86a61606412a5fbf1d9584bfc2487"
+  "pin": 202610187,
+  "sha": "0ec393216901593ac484cdba6a0c9b3f57fd2dd0"
  },
  "/modules/mobs-types-v1.js": {
   "pin": 9,
@@ -612,8 +612,8 @@
   "sha": "af70ee175e60eb5e6dc1747732b66ca60d36b918"
  },
  "/modules/moteur-local-v1.js": {
-  "pin": 364,
-  "sha": "6af66d2b19a28cb09d55c8b933d2f38bd031792e"
+  "pin": 366,
+  "sha": "5751742483145bef85040f9f7fb152fc06327d28"
  },
  "/modules/musique-titan-v1.js": {
   "pin": 2,
@@ -760,20 +760,20 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 31,
-  "sha": "5bbed32741057236acfb29a6b57a42460ae39ef6"
+  "pin": 32,
+  "sha": "46fff815a33df9f32ecd288ad4dd7edd195ac439"
  },
  "/modules/scummvm-progres-v1.js": {
-  "pin": 12,
-  "sha": "18f3875508b63e32e39b0f64fb5540b1c7a5825e"
+  "pin": 13,
+  "sha": "a449b8e0d80deaf5922c31cb46c860acffff10ce"
  },
  "/modules/scummvm-sauvegarde-v1.js": {
   "pin": 1,
   "sha": "3af8831b9ad7618cabdeeb6cab7f8218787c6fb3"
  },
  "/modules/scummvm-sync-v1.js": {
-  "pin": 2,
-  "sha": "9600129d778cebe80a20aef4756342c626a9796c"
+  "pin": 4,
+  "sha": "5623562dd078b897e133f2bef63d83498a8dd7c1"
  },
  "/modules/sets-zoom-v1.js": {
   "pin": 1,

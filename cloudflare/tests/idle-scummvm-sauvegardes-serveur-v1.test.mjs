@@ -21,7 +21,8 @@ const lire = (compte, jeu = "dott") => appel(compte, { action: "lire", jeu });
 
 /* lecture vide */
 let r = await lire("a@x.fr");
-assert.deepEqual(r, { ok: true, fichiers: [] });
+assert.deepEqual(r, { ok: true, fichiers: [], maintenant: r.maintenant });
+assert.ok(Number.isFinite(r.maintenant) && r.maintenant > 0, "l'heure du serveur est renvoyée (le client règle son horloge dessus)");
 
 /* accès : compte non autorisé (ou autorisation absente) = refus, rien n'est écrit */
 r = await appel("a@x.fr", { action: "ecrire", jeu: "dott", fichiers: [{ nom: "tentacle.s00", maj: NOW, donnees: b64("abcd") }] }, non);

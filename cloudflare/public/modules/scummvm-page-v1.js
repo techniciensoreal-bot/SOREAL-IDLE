@@ -259,7 +259,7 @@
 
   /* Écrit autosave_period=15 dans /home/web_user/scummvm.ini (base IndexedDB d'IDBFS, table FILE_DATA) si la config existe déjà (un profil neuf la reçoit déjà réglée du moteur sur R2) ; au plus 1,5 s d'attente, jamais d'erreur. */
   /* Sauvegarde automatique rapprochée : des objets pris puis donnés ou utilisés en quelques secondes (diamant, badge, boule de poussière, etc.) échappaient au suivi avec 15 s (Norman, 2026-11-23 : « j'ai eu tous les objets cités »). 5 s sur ordinateur, 10 s sur téléphone (le son y craque déjà ; une écriture de sauvegarde coûte). */
-  const AUTOSAVE_S=appareilTactile()?10:5,CLE_INI='/home/web_user/scummvm.ini';
+  const AUTOSAVE_S=appareilTactile()?3:1,CLE_INI='/home/web_user/scummvm.ini';
   function reglerAutosave(){
     return new Promise(function(resolve){
       let fini=false;
@@ -513,6 +513,16 @@
       if(gestePage||!host||!estVisible()||lire()!=='lance')return;
       window.setTimeout(function(){try{synchroniser();}catch(_e){}},0);
     },{capture:true,passive:true});
+  });
+  /* « +N AP » qui s'envole du jeu à chaque gain (Norman, 2026-11-24 : « je veux voir l'AP s'envoler comme quand on nettoie le coffre ») : même effet que le nettoyage (nettoyage-ap-v1.js), au centre de la zone de jeu ; le bonus de fin s'envole en doré (« rare »). */
+  window.addEventListener('soreal-enigmes-ap',function(e){
+    try{
+      const N=window.__SOREAL_IDLE_NETTOYAGE_AP_V1__,d=(e&&e.detail)||{};
+      if(!N||!(Number(d.ap)>0))return;
+      const z=document.getElementById('scvZoneV1'),r=z&&z.getBoundingClientRect();
+      const x=r&&r.width?r.left+r.width/2:window.innerWidth/2,y=r&&r.height?r.top+r.height*0.4:window.innerHeight*0.4;
+      N.montrer(Number(d.ap),Number(d.bonus)>0,x,y);
+    }catch(_e){}
   });
   function recaler(){
     if(!host||plein||!estVisible())return;

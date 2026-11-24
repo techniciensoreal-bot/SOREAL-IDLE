@@ -42,10 +42,26 @@
     if(!t)return Promise.resolve({ok:false});
     const opts={method:'POST',headers:{'content-type':'application/json',authorization:'Bearer '+t},body:JSON.stringify(corps)};
     if(keepalive)opts.keepalive=true;
-    return window.fetch((a?a.base:'')+ROUTE,opts).then(function(r){return r.json().catch(function(){return {ok:false};});}).catch(function(){return {ok:false};});
+    const debut=Date.now();
+    return window.fetch((a?a.base:'')+ROUTE,opts).then(function(r){return r.json().catch(function(){return {ok:false};});}).then(function(j){
+      /* l'écart serveur - appareil mesuré sur CETTE réponse (milieu de l'aller-retour) : sert quand le pont n'a pas encore mesuré le sien */
+      try{if(j&&Number.isFinite(Number(j.maintenant))&&Number(j.maintenant)>0)etat.ecartPropre=Number(j.maintenant)-(debut+Date.now())/2;}catch(_e){}
+      return j;
+    }).catch(function(){return {ok:false};});
   }
+  /* Écart serveur - appareil. Bug trouvé le 2026-11-24 (« ma partie n'a pas repris là où j'étais ») : tant que le pont n'avait rien mesuré, l'écart valait 0 ; avec une horloge d'appareil en retard, les sauvegardes distantes paraissaient plus récentes
+     et REMPLAÇAIENT la partie locale par une plus ancienne. Maintenant : écart du pont s'il est connu, sinon celui mesuré sur la dernière réponse du serveur, sinon 0. */
   function ecart(){
-    try{const f=window.__SOREAL_IDLE_ECART_V1__;const v=typeof f==='function'?Number(f()):0;return Number.isFinite(v)?v:0;}catch(_e){return 0;}
+    try{const f=window.__SOREAL_IDLE_ECART_V1__;const b=typeof f==='function'?f():null;if(b!==null&&b!==undefined&&Number.isFinite(Number(b)))return Number(b);}catch(_e){}
+    return Number.isFinite(etat.ecartPropre)?etat.ecartPropre:0;
+  }
+  /* Diagnostic de reprise (jamais le contenu d'une sauvegarde) : les dernières décisions, pour comprendre une partie qui ne reprend pas. Clé exclue de la synchro des préférences (préfixe soreal_idle_diag_v1). */
+  function diag(o){
+    try{
+      const l=JSON.parse(window.localStorage.getItem('soreal_idle_diag_v1_scummvm')||'[]');
+      l.push(Object.assign({t:Date.now()},o));
+      window.localStorage.setItem('soreal_idle_diag_v1_scummvm',JSON.stringify(l.slice(-8)));
+    }catch(_e){}
   }
 
   /* --- noms de fichiers du jeu --- */
@@ -159,6 +175,7 @@
           }else if(l&&Math.abs(d.maj-lm)<=TOLERANCE_MS)etat.dernierTs[d.nom]=l.ts;   /* déjà identique : rien à renvoyer */
           /* sinon : le local est plus récent, il est conservé et sera envoyé (dernierTs non renseigné) */
         });
+        try{diag({ev:'reprise',ecart:Math.round(ecart()),distants:distants.map(function(d){return [d.nom,d.maj];}),locaux:Array.from(locaux.entries()).map(function(e){return [e[0],majLocal(e[1])];}),ecrits:aEcrire.map(function(f){return f.nom;})});}catch(_e){}
         if(!aEcrire.length)return true;
         if(essai.abandon)return false;
         return ecrireLocaux(aEcrire).then(function(ok){

@@ -332,6 +332,10 @@
               if(payload&&payload.action==='cleanMess'&&res.resultat&&Number(res.resultat.ap)>0){
                 try{window.dispatchEvent(new CustomEvent('soreal-nettoyage-ap',{detail:{ap:Number(res.resultat.ap),rare:Boolean(res.resultat.rare),lieu:String(res.resultat.lieu||'')}}));}catch(_e){}
               }
+              /* Énigmes : un fait de plus dans le jeu rapporte des AP tout de suite, la page les fait s'envoler (modules/scummvm-page-v1.js, même effet que le nettoyage du Coffre). */
+              if(payload&&payload.action==='scummvmProgres'&&res.resultat&&Number(res.resultat.ap)>0){
+                try{window.dispatchEvent(new CustomEvent('soreal-enigmes-ap',{detail:{ap:Number(res.resultat.ap),bonus:Number(res.resultat.bonus)||0}}));}catch(_e){}
+              }
               if(
                 res.resultat &&
                 Object.keys(res.resultat).length
