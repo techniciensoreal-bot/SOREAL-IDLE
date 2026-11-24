@@ -211,7 +211,7 @@ function fauxPage() {
   /* Oui : effacer, réinitialiser, un iframe neuf, couverture revenue */
   bR.click(); const ancien = f.iframes[0]; const avantHotes = f.sb.document.body.children.length;
   bOui.click(); await attendre();
-  assert.equal(f.sb.__effacements.join(), "dott"); assert.equal(f.sb.__reinit.join(), "dott");
+  assert.equal(f.sb.__effacements.join(), "dott"); assert.equal(f.sb.__reinit.length, 0, "compteur cumulatif : les unités déjà découvertes sont gardées (2026-11-24)");
   assert.equal(f.iframes.length, 1, "aucun iframe neuf en arrière-plan : le jeu ne repart qu'au clic sur Jouer"); assert.equal(ancien.parentNode, null, "l'ancien est retiré");
   assert.equal(f.sb.document.body.children.length, avantHotes, "même hôte");
   const hote = f.sb.document.body.children.find((c) => c.id === "scvHoteV1");

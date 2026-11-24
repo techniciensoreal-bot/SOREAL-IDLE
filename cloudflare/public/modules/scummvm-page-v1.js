@@ -500,7 +500,7 @@
     try{window.localStorage.removeItem(CLE_INTRO);}catch(_e){}   /* et Cthulhu refait son introduction */
     const S=window.__SOREAL_IDLE_SCUMMVM_SYNC_V1__,P=progresMod();
     const fin=function(res){
-      try{if(res&&res.ok===true&&P&&P.reinitialiser)P.reinitialiser(jeu.id);}catch(_e){}
+      /* COMPTEUR CUMULATIF (Norman, 2026-11-24 : « pas grave s'il faut faire le jeu plusieurs fois pour tout avoir ») : « Recommencer la partie » efface la partie mais GARDE les unités déjà découvertes (dialogues et objets) : en rejouant, on complète ce qu'on a raté, sans que rien soit compté deux fois ni perdu (l'AP déjà crédité ne change pas). Le suivi n'est donc plus remis à zéro ici. */
       rErreur=!(res&&res.ok===true);
       rOccupe=false;rEtape=0;
       /* aucun iframe en arrière-plan : le jeu ne démarre qu'au clic sur « Jouer » (il repart alors de la sauvegarde restante, rien si l'effacement a réussi) */

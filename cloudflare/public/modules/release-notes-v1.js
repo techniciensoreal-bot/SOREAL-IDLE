@@ -40,6 +40,7 @@
             'Cthulhu t’accueille à la première visite, et le jeu s’affiche dans un décor de vieux bureau à la bougie.',
             'Les AP arrivent environ une seconde après chaque objet, avec un « +N AP » qui s’envole.',
             'Le jeu se met en pause quand tu quittes le menu ou l’onglet.',
+            '« Recommencer la partie » garde ce que tu as déjà découvert (dialogues et objets) : en rejouant, tu complètes ce que tu as raté, rien n’est compté deux fois.',
             'Sur téléphone : la musique est toujours jouée et la souris est plus lente.',
             'Le menu Énigmes est aussi disponible dans l’application Windows (compte relié et connexion internet nécessaires).',
             'Dans En direct, les gains d’AP d’Énigmes sont annoncés aux joueurs qui ont ce menu.'
