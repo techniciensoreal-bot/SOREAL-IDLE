@@ -186,7 +186,8 @@ export async function transmettreFichierScummvm({ urlBase = URL_PRODUCTION, meth
     for (const nom of ["range", "if-none-match", "if-modified-since", "accept"]) if (entetes[nom]) h[nom] = entetes[nom];
     const r = await fetchFn(urlBase + chemin + recherche, { method: methode, headers: h, signal: AbortSignal.timeout(delaiMs) });
     const sortie = new Headers();
-    r.headers.forEach((v, k) => { if (["content-type", "content-length", "content-range", "accept-ranges", "etag", "last-modified", "cache-control"].includes(k)) sortie.set(k, v); });
+    /* PAS de content-length (Norman, 2026-11-24 : le jeu restait bloqué sur l'écran de chargement du moteur, ~10 Mo téléchargés) : le serveur compresse le moteur (en-tête content-encoding), la pile réseau de Chromium DÉCOMPRESSE, donc la taille annoncée (compressée) est plus petite que le flux réel ; la page coupait le fichier à cette taille. Sans content-length le flux va jusqu'au bout. content-range (requêtes partielles, jamais compressées) reste. */
+    r.headers.forEach((v, k) => { if (["content-type", "content-range", "accept-ranges", "etag", "last-modified", "cache-control"].includes(k)) sortie.set(k, v); });
     return new Response(methode === "HEAD" || r.status === 304 ? null : r.body, { status: r.status, headers: sortie });
   } catch (e) {
     const cause = e && e.cause ? (e.cause.code || e.cause.message || String(e.cause)) : "";

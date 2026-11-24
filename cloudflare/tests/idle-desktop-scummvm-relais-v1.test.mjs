@@ -24,7 +24,7 @@ assert.equal(cheminScummvmServeur("/api/v1/call", REF), null);
 
 // Relais : plage demandée transmise, flux rendu tel quel, en-têtes utiles conservés, jamais l'autorisation de la page
 let vu = null;
-const faux = async (url, opts) => { vu = { url, opts }; return new Response("abcd", { status: 206, headers: { "content-type": "application/octet-stream", "content-range": "bytes 0-3/10", "accept-ranges": "bytes", "set-cookie": "x=1", "x-secret": "1" } }); };
+const faux = async (url, opts) => { vu = { url, opts }; return new Response("abcd", { status: 206, headers: { "content-type": "application/octet-stream", "content-range": "bytes 0-3/10", "accept-ranges": "bytes", "set-cookie": "x=1", "x-secret": "1", "content-length": "4", "content-encoding": "br" } }); };
 const r = await transmettreFichierScummvm({ urlBase: "https://prod.exemple", methode: "GET", chemin: "/api/idle/scummvm/" + JETON + "/jeux/DOTT/TENTACLE.001", entetes: { range: "bytes=0-3", authorization: "Bearer local", cookie: "z" }, fetchFn: faux });
 assert.equal(r.status, 206);
 assert.equal(vu.url, "https://prod.exemple/api/idle/scummvm/" + JETON + "/jeux/DOTT/TENTACLE.001");
@@ -32,6 +32,7 @@ assert.equal(vu.opts.headers.range, "bytes=0-3");
 assert.ok(!vu.opts.headers.authorization && !vu.opts.headers.cookie, "aucun jeton de session de la page n'est envoyé");
 assert.equal(r.headers.get("content-range"), "bytes 0-3/10");
 assert.ok(!r.headers.get("set-cookie") && !r.headers.get("x-secret"), "seuls les en-têtes utiles sont gardés");
+assert.ok(!r.headers.get("content-length") && !r.headers.get("content-encoding"), "jamais la taille annoncée (compressée) : le flux décompressé irait au-delà et serait coupé");
 assert.equal(await r.text(), "abcd");
 assert.equal(await transmettreFichierScummvm({ methode: "GET", chemin: "/x", fetchFn: async () => { throw new Error("hors ligne"); } }), null, "pas de réseau : null (l'exe renvoie une erreur réseau)");
 
