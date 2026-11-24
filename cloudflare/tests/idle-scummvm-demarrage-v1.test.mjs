@@ -22,3 +22,11 @@ console.log("idle-scummvm-demarrage-v1: OK");
   const m = readFileSync("cloudflare/src/idle-scummvm-progres-v1.js", "utf8");
   assert.ok(m.includes("IDLE_SCUMMVM_VERSION_CREDITS_V1 = 3"), "crédits version 3");
 }
+// décor d'Énigmes (Norman, 2026-11-24) : le jeu est calé sur le rectangle mesuré de fond-enigmes-v1.webp (x 408..1126, y 141..679 sur 1536 x 1024), grand écran à souris seulement
+{
+  const css = readFileSync("cloudflare/public/soreal-idle-scummvm-v1.css", "utf8");
+  assert.ok(css.includes("fond-enigmes-v1.webp") && css.includes("left:26.5625%") && css.includes("top:13.7695%") && css.includes("width:46.8099%") && css.includes("height:52.6367%"), "zone du jeu calée sur le rectangle de l'image");
+  assert.ok(Math.abs(408 / 1536 * 100 - 26.5625) < 1e-4 && Math.abs(141 / 1024 * 100 - 13.7695) < 1e-3 && Math.abs(719 / 1536 * 100 - 46.8099) < 1e-3 && Math.abs(539 / 1024 * 100 - 52.6367) < 1e-3, "pourcentages = pixels / taille de l'image");
+  assert.ok(Math.abs(719 / 539 - 4 / 3) < 0.002, "zone exactement 4:3");
+  assert.ok(css.includes("(hover:hover) and (pointer:fine)"), "pas de décor sur téléphone");
+}

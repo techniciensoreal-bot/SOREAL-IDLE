@@ -2,6 +2,12 @@
 .scv-page{display:flex;flex-direction:column;gap:10px}
 /* 4:3 = la forme du jeu : aucune bande noire sur les côtés (Norman, 2026-11-23) ; la largeur suit la hauteur disponible au lieu de rogner la hauteur */
 .scv-zone{width:min(100%,calc((100dvh - 190px) * 4 / 3));aspect-ratio:4/3;min-height:200px;margin:0 auto;background:#000;border-radius:8px}
+/* DÉCOR (Norman, 2026-11-24) : sur grand écran à souris, le jeu est « accroché » dans le cadre d'un vieux bureau éclairé à la bougie (fond-enigmes-v1.webp, 1536 x 1024). Le rectangle de l'écran de jeu est mesuré sur l'image : x 408..1126, y 141..679 (719 x 539, exactement 4:3) ; les positions sont des pourcentages de l'image, donc le jeu reste calé à toute taille. Téléphone, tablette et petites fenêtres : pas de décor, le jeu prend toute la largeur comme avant. */
+.scv-decor{display:contents}
+@media (min-width:900px) and (hover:hover) and (pointer:fine){
+  .scv-decor{display:block;position:relative;width:min(100%,calc((100dvh - 150px) * 1536 / 1024));aspect-ratio:1536/1024;margin:0 auto;background:#000 url(/fond-enigmes-v1.webp) center/100% 100% no-repeat;border-radius:10px;overflow:hidden}
+  .scv-decor .scv-zone{position:absolute;left:26.5625%;top:13.7695%;width:46.8099%;height:52.6367%;aspect-ratio:auto;min-height:0;margin:0;border-radius:0}
+}
 #scvHoteV1{position:fixed;z-index:20;background:#000;border-radius:8px;overflow:hidden;touch-action:none;margin:0}
 #scvHoteV1.scv-cache{transform:translateX(-200vw);visibility:hidden;pointer-events:none}
 #scvHoteV1.scv-plein{left:0;top:0;width:100vw;height:100dvh;border-radius:0;z-index:2147483000}

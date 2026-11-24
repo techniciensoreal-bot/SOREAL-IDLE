@@ -727,7 +727,7 @@
     if(catalogue!==null)jeuCourant=choisirJeu(catalogue,difficulteCourante);
     const REG=window.__SOREAL_IDLE_REG__||{};
     const entete=typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
-    return entete+'<div class="scv-page"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div>'+htmlTouches('scv-touches')+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
+    return entete+'<div class="scv-page"><div class="scv-decor"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div></div>'+htmlTouches('scv-touches')+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button> <span id="scvRecomV1" class="scv-recom" data-morph-vivant></span></div></div>';
   }
 

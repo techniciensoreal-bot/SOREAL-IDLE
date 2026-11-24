@@ -15,7 +15,7 @@ FICHIER GÉNÉRÉ par `node cloudflare/tools/inventaire-visuels.mjs --ecrire` (n
 - mortsNouvelles : **5**
 - effetsReglables : **5**
 - sonsEffets : **82**
-- dossiersDeRessources : **25**
+- dossiersDeRessources : **26**
 
 ## Menus
 Basic Training (`entrainement`) · Fight Boss (`combat`) · Adventure (`aventure`) · Rebirth (`renaissance`) · Augmentations (`augmentations`) · Advanced Training (`avance`) · Time Machine (`machine`) · Blood Magic (`sang`) · ITOPOD (`tower`) · Item Daycare (`daycare`) · Challenges (`challenges`) · Titans (`titans`) · NGU (`ngu`) · Wandoos (`wandoos`) · Yggdrasil (`yggdrasil`) · Labos (`diggers`) · Beards (`beards`) · MacGuffins (`macguffins`) · Hacks (`hacks`) · Questing (`questing`) · Quirks (`quirks`) · Wishes (`wishes`) · Cards (`cards`) · Cooking (`cooking`) · Énigmes (`scummvm`) · Boutique (`shop`) · Chroniques (`chroniques`) · Chat (`chat`) · Settings (`parametres`) · Admin (`admin`)
@@ -44,6 +44,7 @@ Chaque module expose son API ici : une animation se REJOUE en direct dans le nav
 `modules/apparition-boss-v1.js` (7) · `modules/aug-led-barres-v1.js` (5) · `modules/borne-led-v1.js` (3) · `modules/machine-dessin-v1.js` (1) · `modules/moqueurs-fuite-v1.js` (1) · `modules/mort-joueur-v1.js` (2) · `modules/morts-boss-nouvelles-v1.js` (7) · `modules/morts-joueur-nouvelles-v1.js` (2) · `modules/profil-visage-v1.js` (3) · `modules/sang-rituel-decor-v1.js` (2) · `modules/steam-v1.js` (1) · `modules/tm-bulles-canvas-v1.js` (3) · `modules/victoire-boss-arcade-v1.js` (3)
 
 ## Ressources par dossier
+- `.` : 1
 - `chargement` : 3
 - `cthulhu` : 30
 - `dos-cartes/normal` : 18
