@@ -25,8 +25,9 @@ console.log("idle-scummvm-demarrage-v1: OK");
 // décor d'Énigmes (Norman, 2026-11-24) : le jeu est calé sur le rectangle mesuré de fond-enigmes-v1.webp (x 408..1126, y 141..679 sur 1536 x 1024), grand écran à souris seulement
 {
   const css = readFileSync("cloudflare/public/soreal-idle-scummvm-v1.css", "utf8");
-  assert.ok(css.includes("fond-enigmes-v1.webp") && css.includes("left:26.5625%") && css.includes("top:13.7695%") && css.includes("width:46.8099%") && css.includes("height:52.6367%"), "zone du jeu calée sur le rectangle de l'image");
-  assert.ok(Math.abs(408 / 1536 * 100 - 26.5625) < 1e-4 && Math.abs(141 / 1024 * 100 - 13.7695) < 1e-3 && Math.abs(719 / 1536 * 100 - 46.8099) < 1e-3 && Math.abs(539 / 1024 * 100 - 52.6367) < 1e-3, "pourcentages = pixels / taille de l'image");
-  assert.ok(Math.abs(719 / 539 - 4 / 3) < 0.002, "zone exactement 4:3");
+  assert.ok(css.includes("fond-enigmes-v1.webp") && css.includes("center/cover"), "le décor COUVRE toute la zone (plus de fond mauve)");
+const pg = readFileSync("cloudflare/public/modules/scummvm-page-v1.js", "utf8");
+assert.ok(pg.includes("const DECOR_IMG={w:1536,h:1024,x:396,y:141,lw:743,lh:539}") && pg.includes("Math.max(W/DECOR_IMG.w,H/DECOR_IMG.h)"), "zone du jeu recalculée selon l'échelle cover de l'image");
+    assert.ok(Math.abs(743 / 539 - 1.3785) < 0.001, "fenêtre du cadre 743 x 539");
   assert.ok(css.includes("(hover:hover) and (pointer:fine)"), "pas de décor sur téléphone");
 }

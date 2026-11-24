@@ -344,6 +344,7 @@
     iframe.style.touchAction='none';
     iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();installerSouris(fenetreJeu());suivrePause(fenetreJeu());});
     host.insertBefore(iframe,cover);
+    calerDecor();
     /* Autosave rapproché (Norman, 2026-11-22 : un objet pris puis perdu dans la minute n'était pas vu avec 60 s) : le réglage autosave_period de ScummVM est écrit dans sa config (IndexedDB) AVANT le lancement ; sans IndexedDB on lance tout de suite. */
     const lancer=function(){if(iframe&&!iframe.src){iframeSrcLe=Date.now();iframe.src=urlLancement(jeuCourant);}};
     /* Sauvegardes liées au compte (modules/scummvm-sync-v1.js, Norman, 2026-11-22) : la reprise de la dernière partie du compte (autre appareil) se fait AVANT le lancement (3 s au plus, jamais d'erreur), le suivi (envoi des fichiers changés) après. */
@@ -559,7 +560,30 @@
   /* Reprise directe (Norman, 2026-11-23) : le PREMIER lancement exige un clic sur « Jouer » ; ensuite (état 'lance', préférence liée au compte, donc aussi sur un autre appareil) le jeu reprend seul à l'arrivée sur la page, sans clic. Le son part
      parce que la page a déjà reçu un geste de l'utilisateur (le clic qui a ouvert le menu) ; sans geste (rechargement de la page sans clic), l'écran « Jouer » reste. */
   function activationPage(){try{return Boolean(navigator.userActivation&&navigator.userActivation.hasBeenActive);}catch(_e){return false;}}
+  /* DÉCOR (Norman, 2026-11-24 : « l'image de fond prend tout le cadre, plus de fond mauve ; le jeu agrandi pour prendre la fenêtre ») : sur grand écran à souris, l'image fond-enigmes-v1.webp (1536 x 1024) COUVRE toute la zone de la page (background-size: cover, centrée) ;
+     l'écran du jeu est la fenêtre de l'image mesurée (x 396..1138, y 141..679 : 743 x 539), recalculée ici selon l'échelle « cover » ; le jeu 4:3 est étiré en largeur pour remplir cette fenêtre (jamais rogné : les verbes restent entiers). Téléphone, tablette, petites fenêtres : pas de décor. */
+  const DECOR_IMG={w:1536,h:1024,x:396,y:141,lw:743,lh:539};
+  function decorActif(){try{return Boolean(window.matchMedia&&window.matchMedia('(min-width:900px) and (hover:hover) and (pointer:fine)').matches);}catch(_e){return false;}}
+  function calerDecor(){
+    try{
+      const d=document.querySelector('.scv-decor'),z=document.getElementById('scvZoneV1');
+      if(!d||!z)return;
+      if(!decorActif()){
+        d.style.height='';z.style.left='';z.style.top='';z.style.width='';z.style.height='';
+        if(iframe)iframe.style.transform='';
+        return;
+      }
+      const W=d.clientWidth||Math.round(d.getBoundingClientRect().width),H=Math.max(420,Math.round((window.innerHeight||800)-170));
+      if(!(W>50))return;
+      const s=Math.max(W/DECOR_IMG.w,H/DECOR_IMG.h),ox=(W-DECOR_IMG.w*s)/2,oy=(H-DECOR_IMG.h*s)/2;
+      d.style.height=H+'px';
+      z.style.left=Math.round(ox+DECOR_IMG.x*s)+'px';z.style.top=Math.round(oy+DECOR_IMG.y*s)+'px';
+      z.style.width=Math.round(DECOR_IMG.lw*s)+'px';z.style.height=Math.round(DECOR_IMG.lh*s)+'px';
+      if(iframe&&!plein)iframe.style.transform='scaleX('+((DECOR_IMG.lw/DECOR_IMG.lh)/(4/3)).toFixed(4)+')';
+    }catch(_e){}
+  }
   function afficher(z){
+    calerDecor();
     creerHote();
     if(!gestePage&&jeuCourant&&lire()==='lance'&&activationPage()){gestePage=true;if(!iframe)creerIframe(false);}
     const etait=host.classList.contains('scv-cache');
@@ -594,6 +618,7 @@
     if(!host||plein||!estVisible())return;
     const z=document.getElementById('scvZoneV1');
     if(!z||!z.isConnected){masquer();return;}
+    calerDecor();
     placer(z);
   }
   function observer(z){
@@ -733,8 +758,8 @@
     if(catalogue!==null)jeuCourant=choisirJeu(catalogue,difficulteCourante);
     const REG=window.__SOREAL_IDLE_REG__||{};
     const entete=typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
-    return entete+'<div class="scv-page"><div class="scv-decor"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div></div>'+htmlTouches('scv-touches')+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
-      '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button> <span id="scvRecomV1" class="scv-recom" data-morph-vivant></span></div></div>';
+    return entete+'<div class="scv-page"><div class="scv-decor"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div><div class="scv-bas">'+htmlTouches('scv-touches')+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
+      '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button> <span id="scvRecomV1" class="scv-recom" data-morph-vivant></span></div></div></div></div>';
   }
 
   window.__SOREAL_IDLE_SCUMMVM_PAGE_V1__={page:page,choisirJeu:choisirJeu,urlLancement:urlLancement,CLE_ETAT:CLE_ETAT,dossierDe:dossierDe,reglerAutosave:reglerAutosave,apCredites:apCredites,majTrophees:majTrophees,majRecommencer:majRecommencer,recommencer:recommencer,tropheesObtenus:tropheesObtenus};
