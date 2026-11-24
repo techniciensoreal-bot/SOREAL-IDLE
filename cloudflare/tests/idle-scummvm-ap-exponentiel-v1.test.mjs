@@ -27,6 +27,23 @@ let e = cumul(50); e = cumul(100, e); const e2 = cumul(40, e);
 assert.equal(ap(e), a100, "par paliers = d'un coup");
 assert.equal(ap(e2), a100, "une valeur plus basse n'enlève rien");
 assert.equal(e.currencies.ap, a100, "l'AP du joueur est crédité du même montant (brut)");
+// Changement de courbe (Norman, 2026-11-24 : « je suis passé de 67 à 68 découvertes mais l'AP n'est pas montée ») : l'AP crédité sur une ANCIENNE courbe (seuil 190) dépasse la nouvelle (seuil 400) ; une unité nouvelle doit quand même rapporter
+// F(après) − F(avant) sur la courbe actuelle, ajouté à ce qui est déjà crédité.
+{
+  const P190 = Object.assign({}, P, { reference: 190 }), P400 = Object.assign({}, P, { reference: 400 });
+  const prog = (e, n, PP) => applyIdleNguAction(e, Object.assign({ action: "scummvmProgres", unites: n }, PP), ctx, t0 + 1000).state;
+  const ancien = prog(syncIdleNguState({}, ctx, t0), 67, P190);
+  const credite = ancien.systems.scummvm.data.jeux.dott.apCredite;
+  const nouveau = prog(ancien, 68, P400);
+  const gain = nouveau.systems.scummvm.data.jeux.dott.apCredite - credite;
+  assert.ok(credite > 3000, "sur l'ancienne courbe, 67 unités avaient déjà rapporté beaucoup : " + credite);
+  assert.ok(gain >= 20 && gain <= 60, "la 68e unité rapporte son AP sur la courbe actuelle (≈ 37) : " + gain);
+  assert.equal(nouveau.currencies.ap - ancien.currencies.ap, gain, "l'AP du joueur est crédité du même montant");
+  assert.equal(prog(nouveau, 68, P400).currencies.ap, nouveau.currencies.ap, "idempotent : la même unité ne rapporte pas deux fois");
+  assert.equal(prog(nouveau, 60, P400).currencies.ap, nouveau.currencies.ap, "un total plus bas n'enlève ni n'ajoute rien");
+  const fin = prog(nouveau, 400, P400);
+  assert.equal(fin.systems.scummvm.data.jeux.dott.apCredite, 150000, "au seuil : le plafond, quelle que soit la courbe d'avant");
+}
 // bonus de fin : 50 000 AP, une seule fois, quand le plafond est atteint
 {
   const PB = Object.assign({}, P, { bonus: 50000 });

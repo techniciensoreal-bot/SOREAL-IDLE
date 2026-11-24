@@ -104,8 +104,12 @@ export function idleScummvmProgresV1(state, payload) {
   let cible = nouvelles * parUnite + dejaAp;
   if (expo) {
     const r = Math.pow(croissance, 1 / (reference - 1));
-    const n = Math.min(Math.max(dejaUnites, unites), reference);
-    cible = n >= reference ? limite : Math.floor(limite * (Math.pow(r, n) - 1) / (Math.pow(r, reference) - 1));
+    const F = (n) => (n >= reference ? limite : Math.floor(limite * (Math.pow(r, n) - 1) / (Math.pow(r, reference) - 1)));
+    const avant = Math.min(dejaUnites, reference);
+    const apres = Math.min(Math.max(dejaUnites, unites), reference);
+    /* GAIN INCRÉMENTAL (Norman, 2026-11-24 : « je suis passé de 67 à 68 découvertes mais l'AP n'est pas montée ») : chaque unité nouvelle rapporte F(après) − F(avant) sur la courbe ACTUELLE, ajouté à ce qui est déjà crédité. Avant, on visait F(après) − (déjà crédité) :
+       après un changement de courbe (seuil de la partie complète passé de 200 à 190 puis 400), l'AP déjà crédité sur l'ancienne courbe dépassait F(après) et plus rien n'était crédité avant d'avoir rattrapé ce total. Idempotent comme avant (« avant » = meilleur total d'unités déjà vu) ; au seuil, le total est le plafond. */
+    cible = apres >= reference ? limite : dejaAp + (F(apres) - F(avant));
   }
   const ap = Math.max(0, Math.min(cible - dejaAp, limite - dejaAp));
   jeux[id] = { unites: Math.max(dejaUnites, unites), apCredite: dejaAp + ap, v: IDLE_SCUMMVM_VERSION_CREDITS_V1 };
