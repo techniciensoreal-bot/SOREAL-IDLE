@@ -182,11 +182,14 @@ async function demarrerJeu() {
   if (liaison.lie && !liaisonPerimee) env.definirSessionExterne({ token: liaison.jeton, expiresAt: liaison.expire });
   else if (liaisonPerimee) liaison = { lie: false };   /* échue : l'application joue comme avant la liaison (session locale ET appels du jeu traités ici, pas envoyés au serveur : il les refuserait et la page afficherait « Changer de compte »), jusqu'à une nouvelle liaison dans les Réglages */
 
+  let dernierJetonScummvm = "";
   protocol.handle("app", async (requete) => {
     const url = new URL(requete.url);
     /* Énigmes (ScummVM) : fichiers du moteur et du jeu relayés depuis le serveur (jeton de compte dans l'adresse ou repris du Referer), en flux ; voir desktop/src/liaison.mjs. */
     if ((requete.method === "GET" || requete.method === "HEAD") && liaisonModule.estFichierScummvm(url.pathname)) {
-      const chemin = liaisonModule.cheminScummvmServeur(url.pathname, requete.headers.get("referer") || requete.referrer || "");
+      const jetonVu = liaisonModule.jetonDuChemin(url.pathname);
+      if (jetonVu) dernierJetonScummvm = jetonVu;   /* la page du moteur et ses fichiers portent le jeton : il sert aux chemins absolus qui n'en ont pas (aucun Referer dans l'exe) */
+      const chemin = liaisonModule.cheminScummvmServeur(url.pathname, requete.headers.get("referer") || requete.referrer || "", dernierJetonScummvm);
       if (!chemin) return new Response("Introuvable", { status: 404, headers: { "cache-control": "no-store" } });
       const r = await liaisonModule.transmettreFichierScummvm({ urlBase: process.env.SOREAL_LIAISON_URL || majModule.URL_PRODUCTION, methode: requete.method, chemin, recherche: url.search, entetes: Object.fromEntries(requete.headers), fetchFn: (u, o) => net.fetch(u, Object.assign({}, o, { bypassCustomProtocolHandlers: true })) });
       return r || Response.error();

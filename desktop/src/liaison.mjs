@@ -163,18 +163,29 @@ export function jetonDuReferer(referer) {
     return FORME_JETON.test(seg) ? seg : "";
   } catch (_e) { return ""; }
 }
-/* Chemin à demander au serveur (toujours AVEC jeton), ou null si le jeton manque. */
-export function cheminScummvmServeur(chemin, referer) {
+/* Jeton porté par une adresse « /api/idle/scummvm/<jeton>/… » (chaîne vide sinon). */
+export function jetonDuChemin(chemin) {
+  const p = String(chemin || "");
+  if (!p.startsWith(PREFIXE_SCUMMVM)) return "";
+  const seg = p.slice(PREFIXE_SCUMMVM.length).split("/")[0];
+  return FORME_JETON.test(seg) ? seg : "";
+}
+/*
+ * Chemin à demander au serveur (toujours AVEC jeton), ou null si le jeton manque.
+ * Dans l'exe, les requêtes de la page du moteur n'ont AUCUN Referer (mesuré dans Electron le 2026-11-24 : « ref=NON » même pour la page du moteur) : le jeton des chemins absolus (/data/…, /scummvm.ini, …/jeux/…) vient donc, à défaut du Referer, du
+ * DERNIER jeton vu dans une adresse du moteur (`jetonSecours`, tenu par l'exe : la page du moteur et ses fichiers « /api/idle/scummvm/<jeton>/… » passent toujours avant les chemins absolus).
+ */
+export function cheminScummvmServeur(chemin, referer, jetonSecours = "") {
   const p = String(chemin || "");
   if (p.includes("..")) return null;
   if (p.startsWith(PREFIXE_SCUMMVM)) {
     const premier = p.slice(PREFIXE_SCUMMVM.length).split("/")[0];
     if (FORME_JETON.test(premier)) return p;
-    const j = jetonDuReferer(referer);
+    const j = jetonDuReferer(referer) || (FORME_JETON.test(String(jetonSecours)) ? String(jetonSecours) : "");
     return j ? PREFIXE_SCUMMVM + j + "/" + p.slice(PREFIXE_SCUMMVM.length) : null;
   }
   if (p === "/scummvm.ini" || p.startsWith("/data/")) {
-    const j = jetonDuReferer(referer);
+    const j = jetonDuReferer(referer) || (FORME_JETON.test(String(jetonSecours)) ? String(jetonSecours) : "");
     return j ? PREFIXE_SCUMMVM + j + "/moteur" + p : null;
   }
   return null;

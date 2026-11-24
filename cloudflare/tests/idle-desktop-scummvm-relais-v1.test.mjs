@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { transmissible, estFichierScummvm, jetonDuReferer, cheminScummvmServeur, transmettreFichierScummvm } from "../../desktop/src/liaison.mjs";
+import { transmissible, estFichierScummvm, jetonDuReferer, jetonDuChemin, cheminScummvmServeur, transmettreFichierScummvm } from "../../desktop/src/liaison.mjs";
 
 /* Menu Énigmes dans l'exe (Norman, 2026-11-24) : les fichiers du moteur et du jeu sont relayés depuis le serveur, avec le jeton de compte (dans l'adresse ou repris du Referer de la page du moteur). */
 const JETON = "abcdEFGH12345.zyxwvutsrqponmlkjihgfedcba_-ABC";
@@ -19,6 +19,14 @@ assert.equal(cheminScummvmServeur("/data/index.json", REF), "/api/idle/scummvm/"
 assert.equal(cheminScummvmServeur("/scummvm.ini", REF), "/api/idle/scummvm/" + JETON + "/moteur/scummvm.ini");
 assert.equal(cheminScummvmServeur("/api/idle/scummvm/jeux/DOTT/index.json", REF), "/api/idle/scummvm/" + JETON + "/jeux/DOTT/index.json");
 assert.equal(cheminScummvmServeur("/data/index.json", ""), null);
+// Dans l'exe aucune requête n'a de Referer : le dernier jeton vu dans une adresse du moteur sert de secours
+assert.equal(jetonDuChemin("/api/idle/scummvm/" + JETON + "/moteur/scummvm.wasm"), JETON);
+assert.equal(jetonDuChemin("/data/index.json"), "");
+assert.equal(jetonDuChemin("/api/idle/scummvm/jeux/DOTT/index.json"), "", "« jeux » n'est pas un jeton");
+assert.equal(cheminScummvmServeur("/data/index.json", "", JETON), "/api/idle/scummvm/" + JETON + "/moteur/data/index.json");
+assert.equal(cheminScummvmServeur("/scummvm.ini", "", JETON), "/api/idle/scummvm/" + JETON + "/moteur/scummvm.ini");
+assert.equal(cheminScummvmServeur("/api/idle/scummvm/jeux/DOTT/TENTACLE.001", "", JETON), "/api/idle/scummvm/" + JETON + "/jeux/DOTT/TENTACLE.001");
+assert.equal(cheminScummvmServeur("/data/index.json", "", "pas un jeton"), null, "jeton de secours invalide : refus");
 assert.equal(cheminScummvmServeur("/data/../../etc", REF), null, "pas de remontée de dossier");
 assert.equal(cheminScummvmServeur("/api/v1/call", REF), null);
 
@@ -38,5 +46,6 @@ assert.equal(await transmettreFichierScummvm({ methode: "GET", chemin: "/x", fet
 
 // Branchement dans le cœur de l'exe : avant l'envoi au Worker local
 const coeur = fs.readFileSync(new URL("../../desktop/coeur.js", import.meta.url), "utf8");
+assert.ok(coeur.includes("dernierJetonScummvm") && coeur.includes("jetonDuChemin(url.pathname)"), "le jeton vu est gardé pour les chemins absolus");
 assert.ok(coeur.indexOf("estFichierScummvm(url.pathname)") > 0 && coeur.indexOf("estFichierScummvm(url.pathname)") < coeur.indexOf("liaisonModule.transmissible(url.pathname)"), "relais des fichiers du jeu avant les appels du jeu");
 console.log("idle-desktop-scummvm-relais-v1: OK");
