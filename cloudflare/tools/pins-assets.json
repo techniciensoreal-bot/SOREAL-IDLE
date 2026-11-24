@@ -256,8 +256,8 @@
   "sha": "3257c42322cd96e4d7552c579a780f8d9d8e3c4b"
  },
  "/modules/cthulhu-scene-v1.js": {
-  "pin": 17,
-  "sha": "b45997d38a979321e02b588af5839c5a23abe773"
+  "pin": 21,
+  "sha": "138dcd06fa3743eebc3d3bd77ed0998433b403d8"
  },
  "/modules/cthulhu-v1.js": {
   "pin": 2,

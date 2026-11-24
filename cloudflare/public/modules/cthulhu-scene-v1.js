@@ -170,7 +170,7 @@
     });
   }
   /* Arrivée d'Énigmes (Norman, 2026-11-24) : il entre par la droite EN VOLANT mais beaucoup trop près (il remplit l'écran) ; la phrase « Wow, un peu trop près » s'affiche ; puis il se retourne (son dos en gros plan, 2 s) et s'éloigne en volant jusqu'à être vu en entier. */
-  function placeProche(){var v=V(),k=Math.max(1.5*v.H,1.15*v.W)/BASE,S=BASE*k;return {x:(v.W-S)/2,y:(v.H-S)/2+0.08*v.H,k:k};}
+  function placeProche(){var v=V(),k=Math.max(1.5*v.H,1.15*v.W)/BASE,S=BASE*k;return {x:(v.W-S)/2,y:(v.H-S)/2-0.04*v.H,k:k};}
   function proche(){
     var v=V(),p=placeProche(),jeton=etat.jeton;
     creer('vole');
@@ -185,9 +185,10 @@
     var jeton=etat.jeton,p=placeProche();
     if(!etat.racine||etat.mode!=='proche'){creer('vole');poser(p.x,p.y,p.k);}
     tourner('dos');etat.dos=false;
+    poser(p.x,V().H/2-0.745*BASE*p.k,p.k);   /* son derrière (bas du dos, repère mesuré à l écran : l astérisque du dos, à 74,5 % de la hauteur de la boîte) est CENTRÉ face au joueur (Norman, 2026-11-24) */
     return attendre(2000).then(function(){
       if(jeton!==etat.jeton)return;
-      var g=placeGrand();
+      var g=placeGrand();g.y=Math.max(4,0.1*V().H);   /* plus haut que d'habitude (Norman, 2026-11-24) */
       return aller(g.x,g.y,g.k,1400,'cubic-bezier(.45,0,.3,1)',false);
     }).then(function(){
       if(jeton!==etat.jeton)return;
