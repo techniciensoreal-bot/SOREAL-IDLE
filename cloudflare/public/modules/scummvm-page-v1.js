@@ -45,11 +45,11 @@
     const T=en?[
       ['Hello again'+(n?', '+n:'')+'!','You have unlocked the Puzzles menu.','arrive'],
       ['Up to 200,000 AP','Thanks to it, you will be able to earn up to 200,000 AP. The further you progress, the bigger the rewards get.','content'],
-      ['A piece of advice','Never use a walkthrough: it would really spoil a masterpiece. This kind of game is meant to be savoured. Press “Play” when you are ready.','coucou']
+      ['A piece of advice','My advice: play without a walkthrough. Follow the story, let it carry you, and play with the sound on: this game was made for it. A masterpiece like this is meant to be savoured. Press “Play” when you are ready.','coucou']
     ]:[
       ['Rebonjour'+(n?' '+n:'')+' !','Tu as débloqué le menu Énigmes.','arrive'],
       ['Jusqu’à 200 000 AP','Grâce à lui, tu vas pouvoir récolter jusqu’à 200 000 AP. Plus tu progresseras, plus les gains monteront.','content'],
-      ['Un conseil','N’utilise jamais de solution : ce serait vraiment te spoiler un chef-d’œuvre. Ce genre de jeu se savoure. Appuie sur « Jouer » quand tu es prêt.','coucou']
+      ['Un conseil','Je te conseille de le faire sans solution : suis l’histoire, laisse-toi porter, et joue avec le son, ce jeu est fait pour ça. Ce genre de chef-d’œuvre se savoure. Appuie sur « Jouer » quand tu es prêt.','coucou']
     ];
     const ouv=en?['Cthulhu','Wow, a bit too close!']:['Cthulhu','Wow, un peu trop près !'];
     return [{titre:ouv[0],texte:ouv[1],menu:'scummvm',placement:'centre',humeur:'surpris',scene:'proche'}].concat(T.map(function(t,i){const e={titre:t[0],texte:(i===0?t[0]+' ':'')+t[1],menu:'scummvm',placement:'centre',humeur:t[2]};if(i===0)e.scene='eloigne';   /* la bulle de Cthulhu n'affiche que le texte : le salut en fait partie */return e;}));
