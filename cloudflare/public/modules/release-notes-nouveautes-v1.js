@@ -3,8 +3,5 @@
  * FICHIER GÉNÉRÉ par `node cloudflare/tools/marquer-nouveautes-push.mjs` (à lancer avant le commit d'un push ; la liste est remplacée, jamais cumulée). Ne pas l'éditer à la main.
  */
 (function(){
-  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Le chargement est un peu plus rapide : les fichiers du moteur local restent plus longtemps en cache.",
-    "Moins de ralentissements pendant les longues parties : certains calculs sont mieux gardés en mémoire."
-  ] };
+  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [] };
 })();
