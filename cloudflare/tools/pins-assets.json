@@ -760,12 +760,12 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 32,
-  "sha": "46fff815a33df9f32ecd288ad4dd7edd195ac439"
+  "pin": 34,
+  "sha": "5d8e1ec447a123cbc4c8713bf5284d89960d11e1"
  },
  "/modules/scummvm-progres-v1.js": {
-  "pin": 13,
-  "sha": "a449b8e0d80deaf5922c31cb46c860acffff10ce"
+  "pin": 15,
+  "sha": "a8f7d925cd5c101b9deefa521b13b1256e06bba0"
  },
  "/modules/scummvm-sauvegarde-v1.js": {
   "pin": 1,

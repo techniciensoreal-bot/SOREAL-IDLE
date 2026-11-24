@@ -307,6 +307,7 @@
     if(iframe||!jeuCourant||!jetonFichiers)return;   /* sans jeton valide : rien (le serveur répondrait 404) ; l'iframe est créé au prochain affichage */
     creerHote();
     iframe=document.createElement('iframe');
+    window.__SOREAL_IDLE_SCUMMVM_FENETRE_V1__=function(){try{return iframe&&iframe.contentWindow;}catch(_e){return null;}};   /* lecture directe de l'autosave en mémoire par scummvm-progres-v1.js */
     iframe.setAttribute('allow','autoplay; fullscreen');
     iframe.setAttribute('title',jeuCourant.nom||'');
     iframe.style.touchAction='none';

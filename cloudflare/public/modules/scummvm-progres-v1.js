@@ -17,7 +17,7 @@
   const TABLE_IDB='FILE_DATA';
   /* Gain d'AP COUPÉ (Norman, 2026-11-23 : « je ne veux pas le gain avant qu'on ait terminé de calculer ») : le suivi lit les sauvegardes mais n'envoie aucun crédit et ne note aucun trophée comme envoyé (ils partiront tous quand l'interrupteur passera à vrai, avec celui du moteur : idle-scummvm-progres-v1.js). */
   let AP_ACTIF=true;
-  const INTERVALLE_MS=1000;   /* 10 s (Norman, 2026-11-22 : un objet ramassé puis utilisé dans la minute n'était pas vu avec 30 s) ; l'autosave de ScummVM se règle par autosave_period dans scummvm.ini (la page l'écrit avant le lancement) */
+  const INTERVALLE_MS=300;   /* 10 s (Norman, 2026-11-22 : un objet ramassé puis utilisé dans la minute n'était pas vu avec 30 s) ; l'autosave de ScummVM se règle par autosave_period dans scummvm.ini (la page l'écrit avant le lancement) */
 
   let jeu=null,minuteur=0,enCours=false,dossierJeu="";
   const CLE_JOURNAL='soreal_idle_scummvm_journal_v1';   /* journal d'étalonnage (diagnostic, jamais affiché ; exclu de la synchro du compte : prefs-compte-v1.js) */
@@ -41,7 +41,21 @@
   function compter(octets){let n=0;for(let i=0;i<octets.length;i++){let b=octets[i];while(b){n+=b&1;b>>=1;}}return n;}
 
   /* Lit le fichier d'autosave dans IndexedDB ; renvoie { octets, ts } ou null (pas de base, pas de fichier). Ne crée jamais la base. */
+  /* Lecture DIRECTE en mémoire du moteur (Norman, 2026-11-24 : « je veux que ce soit instantané ») : le fichier écrit par ScummVM existe dans le système de fichiers de l'iframe (même origine) dès la fin de l'autosave, bien avant son recopie dans IndexedDB. Repli : IndexedDB. */
+  function lireMemoireMoteur(cible){
+    try{
+      const g=window.__SOREAL_IDLE_SCUMMVM_FENETRE_V1__,w=typeof g==='function'?g():null,FS=w&&w.Module&&w.Module.FS;
+      if(!FS||typeof FS.readFile!=='function')return null;
+      const chemin=BASE_IDB+'/saves/'+cible+'.s00';
+      const st=FS.stat(chemin);
+      const octets=FS.readFile(chemin);
+      if(!octets||!octets.length)return null;
+      return {octets:new Uint8Array(octets),ts:st&&st.mtime?+new Date(st.mtime):0};
+    }catch(_e){return null;}
+  }
   function lireAutosave(cible){
+    const m=lireMemoireMoteur(cible);
+    if(m)return Promise.resolve(m);
     return new Promise(function(resolve){
       let fini=false;
       const fin=function(v){if(!fini){fini=true;resolve(v);}};
