@@ -343,7 +343,7 @@
     iframe.setAttribute('allow','autoplay; fullscreen');
     iframe.setAttribute('title',jeuCourant.nom||'');
     iframe.style.touchAction='none';
-    iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();installerSouris(fenetreJeu());});
+    iframe.addEventListener('load',function(){iframeCharge=true;chargeLe=Date.now();espionnerAudio();installerSouris(fenetreJeu());suivrePause(fenetreJeu());});
     host.insertBefore(iframe,cover);
     /* Autosave rapproché (Norman, 2026-11-22 : un objet pris puis perdu dans la minute n'était pas vu avec 60 s) : le réglage autosave_period de ScummVM est écrit dans sa config (IndexedDB) AVANT le lancement ; sans IndexedDB on lance tout de suite. */
     const lancer=function(){if(iframe&&!iframe.src){iframeSrcLe=Date.now();iframe.src=urlLancement(jeuCourant);}};
@@ -399,7 +399,33 @@
   }
 
   /* Pause du SON seulement (mesuré, 2026-11-22) : AudioContext suspendu / repris. Module.pauseMainLoop ne sert à rien ici (ScummVM n'utilise pas la boucle emscripten : resumeMainLoop lève une exception) ; le moteur reste actif, sans son, tant que l'iframe existe. */
+  /* JEU en pause quand on quitte l'onglet ou la page (Norman, 2026-11-24) : la touche Espace du jeu BASCULE la pause ; on suit donc l'état (frappes du joueur, de la barre de touches et les nôtres) pour ne jamais inverser une pause que le joueur a lui-même mise. Au retour, on ne relâche que la pause que NOUS avons posée. */
+  let jeuEnPause=false,geleParNous=false,frappeNous=false;
+  function frappeEspace(w){
+    try{
+      const cible=w.document.activeElement||w.document.body;frappeNous=true;
+      ['keydown','keyup'].forEach(function(type){
+        const e=new w.KeyboardEvent(type,{key:' ',code:'Space',bubbles:true,cancelable:true});
+        try{Object.defineProperty(e,'keyCode',{get:function(){return 32;}});Object.defineProperty(e,'which',{get:function(){return 32;}});}catch(_e){}
+        cible.dispatchEvent(e);
+      });
+    }catch(_e){}
+    frappeNous=false;
+  }
+  function geler(oui){
+    const w=fenetreJeu();if(!w||!w.document||!iframe||!moteurPret)return;
+    if(oui){if(jeuEnPause||geleParNous)return;frappeEspace(w);jeuEnPause=true;geleParNous=true;}
+    else if(geleParNous){if(jeuEnPause)frappeEspace(w);jeuEnPause=false;geleParNous=false;}
+  }
+  function suivrePause(w){
+    try{w.document.addEventListener('keydown',function(e){if(frappeNous||e.repeat)return;if(e.key===' '||e.code==='Space'){jeuEnPause=!jeuEnPause;if(!jeuEnPause)geleParNous=false;}},true);}catch(_e){}
+    jeuEnPause=false;geleParNous=false;
+  }
+  document.addEventListener('visibilitychange',function(){
+    try{if(document.hidden)geler(true);else if(host&&!host.classList.contains('scv-cache'))geler(false);}catch(_e){}
+  });
   function suspendre(oui){
+    if(oui)geler(true);else geler(false);
     if(pause===oui)return;
     const w=fenetreJeu();if(!w)return;
     pause=oui;
