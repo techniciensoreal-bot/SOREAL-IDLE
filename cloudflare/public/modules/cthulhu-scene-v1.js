@@ -169,6 +169,33 @@
       etat.mode='grand';   /* zoomé, il vole encore */
     });
   }
+  /* Arrivée d'Énigmes (Norman, 2026-11-24) : il entre par la droite EN VOLANT mais beaucoup trop près (il remplit l'écran) ; la phrase « Wow, un peu trop près » s'affiche ; puis il se retourne (son dos en gros plan, 2 s) et s'éloigne en volant jusqu'à être vu en entier. */
+  function placeProche(){var v=V(),k=Math.max(1.5*v.H,1.15*v.W)/BASE,S=BASE*k;return {x:(v.W-S)/2,y:(v.H-S)/2+0.08*v.H,k:k};}
+  function proche(){
+    var v=V(),p=placeProche(),jeton=etat.jeton;
+    creer('vole');
+    if(etat.racine)etat.racine.style.zIndex='99990';   /* trop près : il passe SOUS la bulle du guide (100000) pour qu'on puisse la lire */
+    poser(v.W+30,p.y,p.k);
+    return aller(p.x,p.y,p.k,1100,'cubic-bezier(.2,.6,.3,1)',false).then(function(){
+      if(jeton!==etat.jeton)return;
+      etat.mode='proche';
+    });
+  }
+  function eloigne(){
+    var jeton=etat.jeton,p=placeProche();
+    if(!etat.racine||etat.mode!=='proche'){creer('vole');poser(p.x,p.y,p.k);}
+    tourner('dos');etat.dos=false;
+    return attendre(2000).then(function(){
+      if(jeton!==etat.jeton)return;
+      var g=placeGrand();
+      return aller(g.x,g.y,g.k,1400,'cubic-bezier(.45,0,.3,1)',false);
+    }).then(function(){
+      if(jeton!==etat.jeton)return;
+      etat.mode='grand';
+      if(etat.racine)etat.racine.style.zIndex='';
+      return tourner('vole');
+    });
+  }
   function pose(selecteur){
     var jeton=etat.jeton;
     var g=placeGrand();
@@ -218,9 +245,11 @@
       tourner('dos');etat.dos=true;etat.mode='grand';
       return Promise.resolve();
     }
+    if(scene==='proche'){etat.jeton++;etat.mode='';if(etat.arretSuivi){etat.arretSuivi();etat.arretSuivi=null;}return proche();}
+    if(scene==='eloigne')return eloigne();
     if(scene==='pose')return pose(sur);
     if(scene==='place'){etat.jeton++;return place(sur);}
     return Promise.resolve();
   }
-  window.__SOREAL_IDLE_CTHULHU_SCENE_V1__={jouer:jouer,enlever:enlever,partir:partir,rect:function(){var r=document.getElementById(ID);return r?r.getBoundingClientRect():null;},existe:function(){return Boolean(document.getElementById(ID));},SCENES:['arrivee','retourne','pose','place']};
+  window.__SOREAL_IDLE_CTHULHU_SCENE_V1__={jouer:jouer,enlever:enlever,partir:partir,rect:function(){var r=document.getElementById(ID);return r?r.getBoundingClientRect():null;},existe:function(){return Boolean(document.getElementById(ID));},SCENES:['arrivee','retourne','pose','place','proche','eloigne']};
 })();

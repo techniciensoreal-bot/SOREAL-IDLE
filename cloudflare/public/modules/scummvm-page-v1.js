@@ -37,7 +37,23 @@
 
   /* Introduction de Cthulhu à la première arrivée (Norman, 2026-11-24 : « quand on débloque le menu Énigmes, le jeu ne se charge pas tout de suite : Cthulhu fait un speech, puis on clique sur Jouer »). Jouée une seule fois par compte (préférence liée au compte) ; un joueur dont la partie est déjà lancée ne la voit jamais. */
   const CLE_INTRO='soreal_idle_scummvm_intro_v1';
-  const INTRO_ETAPES=[{"titre":"Tiens, une porte que tu n’avais pas vue…","texte":"Ici, on ne se bat pas : on réfléchit. Des histoires, des énigmes, des objets à ramasser.","menu":"scummvm","placement":"centre","humeur":"arrive"},{"titre":"Chaque objet compte","texte":"Ramasse, utilise, donne, pousse : chaque objet te rapporte des AP, de plus en plus à mesure que tu avances. Les premiers sont modestes, les derniers beaucoup moins.","menu":"scummvm","placement":"centre","humeur":"content"},{"titre":"Quand tu seras prêt","texte":"Ta partie est sauvegardée toute seule et te suivra sur tous tes appareils. Appuie sur « Jouer » quand tu veux commencer.","menu":"scummvm","placement":"centre","humeur":"coucou"}];
+  /* Textes de Norman (2026-11-24) ; le prénom est inséré ici (le dictionnaire ne peut pas traduire une phrase qui contient un nom), donc l'anglais est choisi ici aussi. */
+  function nomJoueur(){try{const h=window.__SOREAL_IDLE_META_HOST_V130__,j=h&&typeof h.getIdleEtat==='function'?h.getIdleEtat():null,id=j&&j.identite;return String((id&&(id.nomAffiche||id.pseudo))||'').trim();}catch(_e){return '';}}
+  function langueEn(){try{return window.localStorage.getItem('soreal_idle_langue_v1')==='en';}catch(_e){return false;}}
+  function introEtapes(){
+    const n=nomJoueur(),en=langueEn();
+    const T=en?[
+      ['Hello again'+(n?', '+n:'')+'!','You have unlocked the Puzzles menu.','arrive'],
+      ['Up to 200,000 AP','Thanks to it, you will be able to earn up to 200,000 AP. The further you progress, the bigger the rewards get.','content'],
+      ['A piece of advice','Never use a walkthrough: it would really spoil a masterpiece. This kind of game is meant to be savoured. Press “Play” when you are ready.','coucou']
+    ]:[
+      ['Rebonjour'+(n?' '+n:'')+' !','Tu as débloqué le menu Énigmes.','arrive'],
+      ['Jusqu’à 200 000 AP','Grâce à lui, tu vas pouvoir récolter jusqu’à 200 000 AP. Plus tu progresseras, plus les gains monteront.','content'],
+      ['Un conseil','N’utilise jamais de solution : ce serait vraiment te spoiler un chef-d’œuvre. Ce genre de jeu se savoure. Appuie sur « Jouer » quand tu es prêt.','coucou']
+    ];
+    const ouv=en?['Cthulhu','Wow, a bit too close!']:['Cthulhu','Wow, un peu trop près !'];
+    return [{titre:ouv[0],texte:ouv[1],menu:'scummvm',placement:'centre',humeur:'surpris',scene:'proche'}].concat(T.map(function(t,i){const e={titre:t[0],texte:(i===0?t[0]+' ':'')+t[1],menu:'scummvm',placement:'centre',humeur:t[2]};if(i===0)e.scene='eloigne';   /* la bulle de Cthulhu n'affiche que le texte : le salut en fait partie */return e;}));
+  }
   let introEnCours=false;
   function introVue(){try{return window.localStorage.getItem(CLE_INTRO)==='1';}catch(_e){return false;}}
   function introAttendue(){return !gestePage&&lire()!=='lance'&&!introVue();}
@@ -47,7 +63,7 @@
     if(!T||typeof T.jouer!=='function'){try{window.localStorage.setItem(CLE_INTRO,'1');}catch(_e){}return;}   /* sans le module du tutoriel : pas d'introduction, « Jouer » reste disponible */
     introEnCours=true;
     const fin=function(){introEnCours=false;try{window.localStorage.setItem(CLE_INTRO,'1');}catch(_e){}try{majCouverture();}catch(_e){}};
-    const ok=T.jouer({id:'scummvm-intro',titre:'Énigmes',vuId:'scummvm-intro',mascotte:true,etapes:INTRO_ETAPES},{apresFin:fin});
+    const ok=T.jouer({id:'scummvm-intro',titre:'Énigmes',vuId:'scummvm-intro',mascotte:true,etapes:introEtapes()},{apresFin:fin});
     if(!ok)fin();
   }
   function lire(){try{return window.localStorage.getItem(CLE_ETAT)||'';}catch(_e){return '';}}

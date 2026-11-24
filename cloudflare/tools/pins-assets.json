@@ -256,8 +256,8 @@
   "sha": "3257c42322cd96e4d7552c579a780f8d9d8e3c4b"
  },
  "/modules/cthulhu-scene-v1.js": {
-  "pin": 15,
-  "sha": "a6fc090b5fca39df80d87992b5adc56949b28388"
+  "pin": 17,
+  "sha": "b45997d38a979321e02b588af5839c5a23abe773"
  },
  "/modules/cthulhu-v1.js": {
   "pin": 2,
@@ -760,8 +760,8 @@
   "sha": "7b4d6094b02b443fcc8b4dae48704cdbbbfd0037"
  },
  "/modules/scummvm-page-v1.js": {
-  "pin": 37,
-  "sha": "437972b6c2e1a39482219f2b3ecb66deb6416d19"
+  "pin": 40,
+  "sha": "8fe755da83a0dd37254b853b4f917feba4df6cad"
  },
  "/modules/scummvm-progres-v1.js": {
   "pin": 15,
@@ -848,12 +848,12 @@
   "sha": "fcc4aaa0b8a50ea56ea231b7bfbc0455409f427b"
  },
  "/modules/traduction-anglais-dict-v1.json": {
-  "pin": 1152,
-  "sha": "02c257aebeab051d7c926819d83f618c9451035a"
+  "pin": 1153,
+  "sha": "f248fece5a917e3ec4749be28ba50d95affb65fb"
  },
  "/modules/traduction-anglais-v1.js": {
-  "pin": 972,
-  "sha": "af75c91644b616961d845ad5aea7967a82a0d192"
+  "pin": 973,
+  "sha": "0d012d51fe3f9ef567dfcc95a724c94a1fd2c503"
  },
  "/modules/traduction-interface-v1.js": {
   "pin": 12,
