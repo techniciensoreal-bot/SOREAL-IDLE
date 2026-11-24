@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Tu peux affronter un Titan dès qu’il est débloqué, même sans les stats conseillées. Les stats conseillées restent affichées à titre d’indication."
+    "Le menu Énigmes est aussi disponible dans l’application Windows (compte relié et connexion internet nécessaires)."
   ] };
 })();
