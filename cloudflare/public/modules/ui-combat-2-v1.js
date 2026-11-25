@@ -700,15 +700,15 @@
                 REG.idleEtat=
                   res.joueur;
 
+                /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-167 */
+                REG.idleEtat.combatBossActif=false;
+
                 if(combatAvantNukeV1){
                   const aventureServeurNukeV1=aventureMetaIdleV47_(REG.idleEtat)||aventureAvantNukeV1;
                   REG.idleEtat.systemes=Object.assign({},REG.idleEtat.systemes);
                   REG.idleEtat.systemes.adventure=Object.assign({},aventureServeurNukeV1,{fight:combatAvantNukeV1});
                   if(restPvAvantNukeV1!=null)REG.idleEtat.adventureRestPv=restPvAvantNukeV1;
                 }
-
-                /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-167 */
-                REG.idleEtat.combatBossActif=false;
 
                 rendreIdleEtat_({
                   ok:true,

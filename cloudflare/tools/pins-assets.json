@@ -732,8 +732,8 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 459,
-  "sha": "d800703df352fa75234da76b2b4228bc5b26bcb3"
+  "pin": 460,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
   "pin": 1103,
@@ -924,8 +924,8 @@
   "sha": "3f9349346f7ddcda335ae178a1e295e1ac4ee88a"
  },
  "/modules/ui-combat-2-v1.js": {
-  "pin": 64,
-  "sha": "f9cb44a2b21ee64719c86fe72efe86d33d87ae31"
+  "pin": 65,
+  "sha": "a2b1cce41dfc711390acf01862b2542f8f1d1d11"
  },
  "/modules/ui-divers-v1.js": {
   "pin": 1,
