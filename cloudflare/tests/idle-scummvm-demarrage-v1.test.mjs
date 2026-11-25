@@ -28,7 +28,7 @@ console.log("idle-scummvm-demarrage-v1: OK");
   const css = readFileSync("cloudflare/public/soreal-idle-scummvm-v1.css", "utf8");
   assert.ok(css.includes("fond-enigmes-v1.webp") && css.includes("center/100% 100%"), "l'image du décor est affichée ENTIÈRE (jamais coupée, 2026-11-25)");
 const pg = readFileSync("cloudflare/public/modules/scummvm-page-v1.js", "utf8");
-assert.ok(pg.includes("const DECOR_IMG={w:1536,h:1024,x:396,y:141,lw:743,lh:539}") && pg.includes("Math.min(W,H*DECOR_IMG.w/DECOR_IMG.h)"), "zone du jeu recalculée selon l'échelle de l'image entière");
+assert.ok(pg.includes("const DECOR_IMG={w:1536,h:1024,x:396,y:141,lw:743,lh:539}") && pg.includes("const s=W/DECOR_IMG.w"), "zone du jeu recalculée selon l'échelle de l'image entière");
     assert.ok(Math.abs(743 / 539 - 1.3785) < 0.001, "fenêtre du cadre 743 x 539");
   assert.ok(css.includes("(hover:hover) and (pointer:fine)"), "pas de décor sur téléphone");
 }

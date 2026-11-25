@@ -647,10 +647,10 @@
         return;
       }
       /* hauteur = de la position réelle du décor jusqu'au bas de la fenêtre : l'image remplit tout le cadre, sans rien qui déborde */
-      const pa=d.parentElement,W=(pa&&pa.clientWidth)||Math.round(d.getBoundingClientRect().width),haut=Math.max(0,Math.round(d.getBoundingClientRect().top)),H=Math.max(420,Math.round((window.innerHeight||800)-(haut>0&&haut<400?haut:90)-12));
+      const pa=d.parentElement,W=(pa&&pa.clientWidth)||Math.round(d.getBoundingClientRect().width);
       if(!(W>50))return;
-      /* IMAGE ENTIÈRE, jamais coupée (Norman, 2026-11-25) : la boîte du décor a exactement la forme de l'image (3:2), la plus grande qui tienne dans la largeur et la hauteur disponibles, centrée ; le jeu se place donc au pixel près dans le cadre de l'image (échelle s, aucun décalage). */
-      const bw=Math.min(W,H*DECOR_IMG.w/DECOR_IMG.h),s=bw/DECOR_IMG.w,ox=0,oy=0;
+      /* IMAGE ENTIÈRE sur TOUTE la largeur (Norman, 2026-11-25 : « agrandis le cadre pour que la résolution corresponde à l'image ») : le cadre prend toute la largeur de la page et la hauteur de l'image (3:2) ; si la fenêtre est moins haute, la page défile au lieu de réduire l'image. Le jeu se place au pixel près dans la fenêtre de l'image (échelle s, aucun décalage). */
+      const s=W/DECOR_IMG.w,ox=0,oy=0;
       d.style.width=Math.round(DECOR_IMG.w*s)+'px';d.style.height=Math.round(DECOR_IMG.h*s)+'px';
       z.style.left=Math.round(ox+DECOR_IMG.x*s)+'px';z.style.top=Math.round(oy+DECOR_IMG.y*s)+'px';
       z.style.width=Math.round(DECOR_IMG.lw*s)+'px';z.style.height=Math.round(DECOR_IMG.lh*s)+'px';
