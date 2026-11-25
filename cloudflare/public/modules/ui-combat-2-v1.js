@@ -694,8 +694,18 @@
                 REG.idleProchainCoupJoueurV116=0;
                 REG.idleProchainCoupBossV116=0;
 
+                /* Combat d'Aventure en cours (Norman, 2026-11-25 : « quand l'auto nuke se produit, ça reset la barre de vie du mob en aventure ») : le Nuke concerne les boss, pas la zone ; la réponse du moteur ne connaît pas l'avancement du combat joué dans la page. Comme à chaque synchro (ui-combat-1-v1.js), le combat local et la vie de repos du joueur sont gardés. */
+                const aventureAvantNukeV1=aventureMetaIdleV47_(REG.idleEtat),combatAvantNukeV1=aventureAvantNukeV1&&aventureAvantNukeV1.fight&&aventureAvantNukeV1.fight.active?aventureAvantNukeV1.fight:null,restPvAvantNukeV1=REG.idleEtat&&REG.idleEtat.adventureRestPv;
+
                 REG.idleEtat=
                   res.joueur;
+
+                if(combatAvantNukeV1){
+                  const aventureServeurNukeV1=aventureMetaIdleV47_(REG.idleEtat)||aventureAvantNukeV1;
+                  REG.idleEtat.systemes=Object.assign({},REG.idleEtat.systemes);
+                  REG.idleEtat.systemes.adventure=Object.assign({},aventureServeurNukeV1,{fight:combatAvantNukeV1});
+                  if(restPvAvantNukeV1!=null)REG.idleEtat.adventureRestPv=restPvAvantNukeV1;
+                }
 
                 /* Historique V8: docs/UI-MONOLITH-HISTORY.md#bloc-167 */
                 REG.idleEtat.combatBossActif=false;

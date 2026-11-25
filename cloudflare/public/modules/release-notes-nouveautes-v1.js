@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Énigmes : sur PC, l’avancement (AP obtenus, découvertes) se place juste sous le cadre, au-dessus des boutons."
+    "Aventure : quand le Nuke automatique se déclenche, la barre de vie du monstre en combat n’est plus remise à zéro."
   ] };
 })();
