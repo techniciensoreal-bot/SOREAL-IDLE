@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Énigmes : le « +N AP » qui s’envole suit maintenant le jeu lui-même (y compris en plein écran), il ne disparaît plus hors de l’écran, et le jeu n’est plus redimensionné inutilement (moins de saccades)."
+    "Énigmes : sur PC, l’avancement (AP obtenus, découvertes) se place juste sous le cadre, au-dessus des boutons."
   ] };
 })();

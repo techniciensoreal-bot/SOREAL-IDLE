@@ -18,5 +18,5 @@ assert.ok(menus.includes("[data-no-swipe]"), "la navigation par glissement respe
 assert.ok(!/setInterval\(/.test(src.replace(/\/\*[\s\S]*?\*\//g, "")), "aucune minuterie répétée");
 assert.ok(/\.scv-pad\{display:flex;[^}]*aspect-ratio:1\/1/.test(css) && css.includes("touch-action:none"), "carré, sans défilement de page");
 assert.ok(css.includes("@media (hover:none) and (pointer:coarse)") && /\.scv-pad\{display:none\}/.test(css), "caché hors appareil tactile");
-assert.ok(src.includes("<div class=\"scv-ctrl\">'+htmlTouches('scv-touches')+htmlPad()+'</div>'"), "boutons à gauche, pavé à droite");
+assert.ok(src.includes("<div class=\"scv-ctrl\">'+htmlTouches('scv-touches')+htmlPad()+'</div>"), "boutons à gauche, pavé à droite");
 console.log("idle-scummvm-pad-v1: OK");

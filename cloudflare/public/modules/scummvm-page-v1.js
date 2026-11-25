@@ -642,7 +642,7 @@
       const d=document.querySelector('.scv-decor'),z=document.getElementById('scvZoneV1');
       if(!d||!z)return;
       if(!decorActif()){
-        d.__scvCle='';d.style.height='';d.style.width='';z.style.left='';z.style.top='';z.style.width='';z.style.height='';
+        d.__scvCle='';d.style.height='';d.style.width='';{const bas=d.querySelector('.scv-bas');if(bas)bas.style.top='';}z.style.left='';z.style.top='';z.style.width='';z.style.height='';
         if(iframe)iframe.style.transform='';
         return;
       }
@@ -658,6 +658,8 @@
         d.style.width=Math.round(DECOR_IMG.w*s)+'px';d.style.height=Math.round(DECOR_IMG.h*s)+'px';
         z.style.left=Math.round(ox+DECOR_IMG.x*s)+'px';z.style.top=Math.round(oy+DECOR_IMG.y*s)+'px';
         z.style.width=Math.round(DECOR_IMG.lw*s)+'px';z.style.height=Math.round(DECOR_IMG.lh*s)+'px';
+        /* l'avancement (AP, découvertes) se place juste sous le cadre, au-dessus des boutons (Norman, 2026-11-25) */
+        const bas=d.querySelector('.scv-bas');if(bas)bas.style.top=Math.round(oy+(DECOR_IMG.y+DECOR_IMG.lh)*s+6)+'px';
       }
       if(iframe&&iframe.style.transform!==tr)iframe.style.transform=tr;
     }catch(_e){}
@@ -848,7 +850,7 @@
     const REG=window.__SOREAL_IDLE_REG__||{};
     /* PC (décor) : plus de cadre-titre au-dessus de la page (Norman, 2026-11-25) ; téléphone et petites fenêtres : titre conservé */
     const entete=!decorActif()&&typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
-    return entete+'<div class="scv-page"><div class="scv-decor"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div><div class="scv-bas"><div class="scv-ctrl">'+htmlTouches('scv-touches')+htmlPad()+'</div>'+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
+    return entete+'<div class="scv-page"><div class="scv-decor"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div><div class="scv-bas">'+apGagnes(j)+'<div class="scv-ctrl">'+htmlTouches('scv-touches')+htmlPad()+'</div><div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button> <span id="scvRecomV1" class="scv-recom" data-morph-vivant></span></div></div></div></div>';
   }
 

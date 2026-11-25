@@ -8,7 +8,7 @@
   .scv-page{gap:0}
   .scv-decor{display:block;flex:none;position:relative;width:100%;height:640px;margin:0 auto;background:#0a0705 url(/fond-enigmes-v1.webp) center/100% 100% no-repeat;border-radius:10px;overflow:hidden}
   .scv-decor .scv-zone{position:absolute;left:26%;top:14%;width:48%;height:52%;aspect-ratio:auto;min-height:0;margin:0;border-radius:0}
-  .scv-bas{display:flex;flex-direction:column;align-items:center;gap:6px;position:absolute;left:0;right:0;bottom:0;z-index:1;padding:22px 14px 10px;color:#f4e7cf;text-shadow:0 1px 3px #000;background:linear-gradient(to top,rgba(0,0,0,.78),rgba(0,0,0,0))}
+  .scv-bas{display:flex;flex-direction:column;align-items:center;gap:6px;position:absolute;left:0;right:0;top:68%;z-index:1;padding:0 14px 10px;color:#f4e7cf;text-shadow:0 1px 3px #000}
 }
 #scvHoteV1{position:fixed;z-index:20;background:#000;border-radius:8px;overflow:hidden;touch-action:none;margin:0}
 #scvHoteV1.scv-cache{transform:translateX(-200vw);visibility:hidden;pointer-events:none}

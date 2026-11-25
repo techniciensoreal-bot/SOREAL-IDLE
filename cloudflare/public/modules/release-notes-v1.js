@@ -31,7 +31,8 @@
         groupes:[
           {menu:'scummvm', titre:'Énigmes', points:[
             'Énigmes : sur PC, l’image de fond s’affiche maintenant en entier, sans être coupée, et le jeu est placé pile dans le cadre de l’image ; le titre au-dessus de la page est retiré.',
-            'Énigmes : le « +N AP » qui s’envole suit maintenant le jeu lui-même (y compris en plein écran), il ne disparaît plus hors de l’écran, et le jeu n’est plus redimensionné inutilement (moins de saccades).'
+            'Énigmes : le « +N AP » qui s’envole suit maintenant le jeu lui-même (y compris en plein écran), il ne disparaît plus hors de l’écran, et le jeu n’est plus redimensionné inutilement (moins de saccades).',
+            'Énigmes : sur PC, l’avancement (AP obtenus, découvertes) se place juste sous le cadre, au-dessus des boutons.'
           ]}
         ]
       },
