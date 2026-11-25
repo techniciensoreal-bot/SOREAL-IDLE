@@ -642,15 +642,16 @@
       const d=document.querySelector('.scv-decor'),z=document.getElementById('scvZoneV1');
       if(!d||!z)return;
       if(!decorActif()){
-        d.style.height='';z.style.left='';z.style.top='';z.style.width='';z.style.height='';
+        d.style.height='';d.style.width='';z.style.left='';z.style.top='';z.style.width='';z.style.height='';
         if(iframe)iframe.style.transform='';
         return;
       }
       /* hauteur = de la position réelle du décor jusqu'au bas de la fenêtre : l'image remplit tout le cadre, sans rien qui déborde */
-      const W=d.clientWidth||Math.round(d.getBoundingClientRect().width),haut=Math.max(0,Math.round(d.getBoundingClientRect().top)),H=Math.max(420,Math.round((window.innerHeight||800)-(haut>0&&haut<400?haut:90)-12));
+      const pa=d.parentElement,W=(pa&&pa.clientWidth)||Math.round(d.getBoundingClientRect().width),haut=Math.max(0,Math.round(d.getBoundingClientRect().top)),H=Math.max(420,Math.round((window.innerHeight||800)-(haut>0&&haut<400?haut:90)-12));
       if(!(W>50))return;
-      const s=Math.max(W/DECOR_IMG.w,H/DECOR_IMG.h),ox=(W-DECOR_IMG.w*s)/2,oy=(H-DECOR_IMG.h*s)/2;
-      d.style.height=H+'px';
+      /* IMAGE ENTIÈRE, jamais coupée (Norman, 2026-11-25) : la boîte du décor a exactement la forme de l'image (3:2), la plus grande qui tienne dans la largeur et la hauteur disponibles, centrée ; le jeu se place donc au pixel près dans le cadre de l'image (échelle s, aucun décalage). */
+      const bw=Math.min(W,H*DECOR_IMG.w/DECOR_IMG.h),s=bw/DECOR_IMG.w,ox=0,oy=0;
+      d.style.width=Math.round(DECOR_IMG.w*s)+'px';d.style.height=Math.round(DECOR_IMG.h*s)+'px';
       z.style.left=Math.round(ox+DECOR_IMG.x*s)+'px';z.style.top=Math.round(oy+DECOR_IMG.y*s)+'px';
       z.style.width=Math.round(DECOR_IMG.lw*s)+'px';z.style.height=Math.round(DECOR_IMG.lh*s)+'px';
       if(iframe&&!plein)iframe.style.transform='scaleX('+((DECOR_IMG.lw/DECOR_IMG.lh)/(4/3)).toFixed(4)+')';
@@ -683,7 +684,9 @@
     try{
       const N=window.__SOREAL_IDLE_NETTOYAGE_AP_V1__,d=(e&&e.detail)||{};
       if(!N||!(Number(d.ap)>0))return;
-      const z=document.getElementById('scvZoneV1'),r=z&&z.getBoundingClientRect();
+      /* Position : le jeu LUI-MÊME (l'hôte fixe), pas la zone de la page : en plein écran ou page défilée, la zone n'est plus là où le jeu s'affiche et le « +N AP » s'envolait hors de l'écran (2026-11-25). */
+      const hr=host&&!host.classList.contains('scv-cache')?host.getBoundingClientRect():null;
+      const z=document.getElementById('scvZoneV1'),r=hr&&hr.width>0&&hr.height>0?hr:(z&&z.getBoundingClientRect());
       const x=r&&r.width?r.left+r.width/2:window.innerWidth/2,y=r&&r.height?r.top+r.height*0.4:window.innerHeight*0.4;
       N.montrer(Number(d.ap),Number(d.bonus)>0,x,y);
     }catch(_e){}

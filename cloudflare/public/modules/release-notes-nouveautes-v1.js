@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Énigmes : sur PC, le titre au-dessus de la page est retiré et l’image de fond occupe toute la hauteur disponible, sans que le jeu déborde du cadre."
+    "Énigmes : sur PC, l’image de fond s’affiche maintenant en entier, sans être coupée, et le jeu est placé pile dans le cadre de l’image ; le titre au-dessus de la page est retiré.",
+    "Énigmes : le « +N AP » qui s’envole suit maintenant le jeu lui-même (y compris en plein écran), il ne disparaît plus hors de l’écran."
   ] };
 })();
