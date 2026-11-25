@@ -642,7 +642,7 @@
       const d=document.querySelector('.scv-decor'),z=document.getElementById('scvZoneV1');
       if(!d||!z)return;
       if(!decorActif()){
-        d.__scvCle='';d.style.height='';d.style.width='';{const bas=d.querySelector('.scv-bas');if(bas)bas.style.top='';}z.style.left='';z.style.top='';z.style.width='';z.style.height='';
+        d.style.height='';d.style.width='';{const bas=d.querySelector('.scv-bas');if(bas)bas.style.top='';}z.style.left='';z.style.top='';z.style.width='';z.style.height='';
         if(iframe)iframe.style.transform='';
         return;
       }
@@ -652,15 +652,15 @@
       /* IMAGE ENTIÈRE sur TOUTE la largeur (Norman, 2026-11-25 : « agrandis le cadre pour que la résolution corresponde à l'image ») : le cadre prend toute la largeur de la page et la hauteur de l'image (3:2) ; si la fenêtre est moins haute, la page défile au lieu de réduire l'image. Le jeu se place au pixel près dans la fenêtre de l'image (échelle s, aucun décalage). */
       const s=W/DECOR_IMG.w,ox=0,oy=0;
       /* rien n'est réécrit si les mesures sont les mêmes : un redimensionnement inutile du jeu en cours le fait saccader (2026-11-25) */
-      const cle=[W,Math.round(s*1000)].join('|'),tr=iframe&&!plein?'scaleX('+((DECOR_IMG.lw/DECOR_IMG.lh)/(4/3)).toFixed(4)+')':'';
-      if(d.__scvCle!==cle){
-        d.__scvCle=cle;
-        d.style.width=Math.round(DECOR_IMG.w*s)+'px';d.style.height=Math.round(DECOR_IMG.h*s)+'px';
+      const wd=Math.round(DECOR_IMG.w*s)+'px',tr=iframe&&!plein?'scaleX('+((DECOR_IMG.lw/DECOR_IMG.lh)/(4/3)).toFixed(4)+')':'';
+      /* la comparaison porte sur les styles RÉELLEMENT posés (un redessin de la page les retire : le décor reprenait alors sa taille par défaut et s'écrasait au retour du plein écran) */
+      if(d.style.width!==wd||d.style.height!==Math.round(DECOR_IMG.h*s)+'px'||z.style.width!==Math.round(DECOR_IMG.lw*s)+'px'||z.style.left!==Math.round(ox+DECOR_IMG.x*s)+'px'||z.style.top!==Math.round(oy+DECOR_IMG.y*s)+'px'||z.style.height!==Math.round(DECOR_IMG.lh*s)+'px'){
+        d.style.width=wd;d.style.height=Math.round(DECOR_IMG.h*s)+'px';
         z.style.left=Math.round(ox+DECOR_IMG.x*s)+'px';z.style.top=Math.round(oy+DECOR_IMG.y*s)+'px';
         z.style.width=Math.round(DECOR_IMG.lw*s)+'px';z.style.height=Math.round(DECOR_IMG.lh*s)+'px';
-        /* l'avancement (AP, découvertes) se place juste sous le cadre, au-dessus des boutons (Norman, 2026-11-25) */
-        const bas=d.querySelector('.scv-bas');if(bas)bas.style.top=Math.round(oy+(DECOR_IMG.y+DECOR_IMG.lh)*s+6)+'px';
       }
+      /* l'avancement (AP, découvertes) se place juste sous le cadre, au-dessus des boutons (Norman, 2026-11-25) ; relu à chaque passage : un redessin de la page retire ce style */
+      const bas=d.querySelector('.scv-bas'),hb=Math.round(oy+(DECOR_IMG.y+DECOR_IMG.lh)*s+6)+'px';if(bas&&bas.style.top!==hb)bas.style.top=hb;
       if(iframe&&iframe.style.transform!==tr)iframe.style.transform=tr;
     }catch(_e){}
   }
