@@ -646,7 +646,8 @@
         if(iframe)iframe.style.transform='';
         return;
       }
-      const W=d.clientWidth||Math.round(d.getBoundingClientRect().width),H=Math.max(420,Math.round((window.innerHeight||800)-170));
+      /* hauteur = de la position réelle du décor jusqu'au bas de la fenêtre : l'image remplit tout le cadre, sans rien qui déborde */
+      const W=d.clientWidth||Math.round(d.getBoundingClientRect().width),haut=Math.max(0,Math.round(d.getBoundingClientRect().top)),H=Math.max(420,Math.round((window.innerHeight||800)-(haut>0&&haut<400?haut:90)-12));
       if(!(W>50))return;
       const s=Math.max(W/DECOR_IMG.w,H/DECOR_IMG.h),ox=(W-DECOR_IMG.w*s)/2,oy=(H-DECOR_IMG.h*s)/2;
       d.style.height=H+'px';
@@ -835,7 +836,8 @@
     chargerCatalogue();
     if(catalogue!==null)jeuCourant=choisirJeu(catalogue,difficulteCourante);
     const REG=window.__SOREAL_IDLE_REG__||{};
-    const entete=typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
+    /* PC (décor) : plus de cadre-titre au-dessus de la page (Norman, 2026-11-25) ; téléphone et petites fenêtres : titre conservé */
+    const entete=!decorActif()&&typeof REG.entetePageIdleV28_==='function'?REG.entetePageIdleV28_('🕹️ Énigmes',''):'';
     return entete+'<div class="scv-page"><div class="scv-decor"><div id="scvZoneV1" class="scv-zone" data-morph-vivant></div><div class="scv-bas"><div class="scv-ctrl">'+htmlTouches('scv-touches')+htmlPad()+'</div>'+apGagnes(j)+'<div id="scvTropheesV1" class="scv-troph" data-morph-vivant></div>'+
       '<div><button type="button" class="soreal-idle-expand-button-v25" onclick="window.__scvPleinEcran__()">⛶ Plein écran</button> <span id="scvRecomV1" class="scv-recom" data-morph-vivant></span></div></div></div></div>';
   }

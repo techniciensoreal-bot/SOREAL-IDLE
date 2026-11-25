@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'6.9',
+    courante:'7.0',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'7.0',
+        nom:'Énigmes à l’écran',
+        date:'2026-11-25',
+        groupes:[
+          {menu:'scummvm', titre:'Énigmes', points:[
+            'Énigmes : sur PC, le titre au-dessus de la page est retiré et l’image de fond occupe toute la hauteur disponible, sans que le jeu déborde du cadre.'
+          ]}
+        ]
+      },
       {
         version:'6.9',
         nom:'Petits ajustements',

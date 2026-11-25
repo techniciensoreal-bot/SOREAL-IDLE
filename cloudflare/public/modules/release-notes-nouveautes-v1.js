@@ -3,5 +3,7 @@
  * FICHIER GÉNÉRÉ par `node cloudflare/tools/marquer-nouveautes-push.mjs` (à lancer avant le commit d'un push ; la liste est remplacée, jamais cumulée). Ne pas l'éditer à la main.
  */
 (function(){
-  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [] };
+  window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Énigmes : sur PC, le titre au-dessus de la page est retiré et l’image de fond occupe toute la hauteur disponible, sans que le jeu déborde du cadre."
+  ] };
 })();
