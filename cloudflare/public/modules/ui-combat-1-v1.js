@@ -16,6 +16,18 @@
   function synchroniserJeuIdleV7_(){return REG.synchroniserJeuIdleV7_.apply(null,arguments);}
   function multiplicateurFureurLocaleIdleV70_(){return REG.multiplicateurFureurLocaleIdleV70_.apply(null,arguments);}
   function aventureMetaIdleV47_(){return REG.aventureMetaIdleV47_.apply(null,arguments);}
+  /* Audit 2026-11-26 : une réponse du moteur remplace l'état du joueur mais ne connaît pas l'avancement du combat d'Aventure joué dans la page (barre de vie du monstre) ni la vie de repos ; on les remet comme le fait la synchro (voir aussi le Nuke, ui-combat-2-v1.js). Renvoie l'état à adopter. */
+  function garderCombatAventureLocalIdleV1_(ancien,nouveau){
+    try{
+      const av=ancien&&aventureMetaIdleV47_(ancien),fight=av&&av.fight&&av.fight.active?av.fight:null;
+      if(!fight||!nouveau)return nouveau;
+      const etat=Object.assign({},nouveau),srv=aventureMetaIdleV47_(nouveau)||av;
+      etat.systemes=Object.assign({},nouveau.systemes);
+      etat.systemes.adventure=Object.assign({},srv,{fight:fight});
+      if(ancien.adventureRestPv!=null)etat.adventureRestPv=ancien.adventureRestPv;
+      return etat;
+    }catch(_e){return nouveau;}
+  }
   function ajouterLogAventureIdleV1_(){return REG.ajouterLogAventureIdleV1_.apply(null,arguments);}
   function ajouterActionRapideIdleV60_(){return REG.ajouterActionRapideIdleV60_.apply(null,arguments);}
   function fusionnerBasicTrainingPlusAvanceIdleV166_(){return REG.fusionnerBasicTrainingPlusAvanceIdleV166_.apply(null,arguments);}
@@ -276,6 +288,7 @@
                 REG.idlePrevisionBossV1={actif:false,vaincus:0,debut:0};
                 arreterSurveillanceVictoireBossIdleV1_();
                 REG.idleCombatArmeLocalV206=false;
+                etat.joueur=garderCombatAventureLocalIdleV1_(REG.idleEtat,etat.joueur);
                 REG.idleEtat=etat.joueur;
                 rendreIdleEtat_({ok:true,joueur:etat.joueur});
                 if(bandeau.isConnected)attendre();
@@ -443,6 +456,7 @@
             google.script.run
               .withSuccessHandler(function(etat){
                 if(PAGE_ACTIVE!=='idle'||!REG.idleVictoireBossLocaleV49||!etat||!etat.ok||!etat.joueur)return;
+                etat.joueur=garderCombatAventureLocalIdleV1_(REG.idleEtat,etat.joueur);
                 REG.idleEtat=etat.joueur;
                 REG.idleCombatArmeLocalV206=false;
                 rendreIdleEtat_({ok:true,joueur:etat.joueur});

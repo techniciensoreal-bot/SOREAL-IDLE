@@ -13,3 +13,9 @@ assert.ok(avant > 0 && adopte > avant, "le combat local est lu AVANT d'adopter l
 assert.ok(remis > adopte, "le combat local est remis APRÈS l'adoption");
 assert.ok(corps.includes("adventureRestPv=restPvAvantNukeV1"), "la vie de repos est conservée");
 console.log("idle-nuke-garde-combat-aventure-v1: OK");
+
+/* Audit 2026-11-26 : mêmes garanties pour les deux rafraîchissements d'état après une victoire de boss (ui-combat-1-v1.js). */
+const c1 = readFileSync("cloudflare/public/modules/ui-combat-1-v1.js", "utf8").replace(/\r\n/g, "\n");
+assert.ok(c1.includes("function garderCombatAventureLocalIdleV1_(ancien,nouveau)"), "assistant présent");
+assert.equal(c1.split("etat.joueur=garderCombatAventureLocalIdleV1_(REG.idleEtat,etat.joueur);").length - 1, 2, "les deux rafraîchissements de victoire de boss gardent le combat d'Aventure");
+console.log("idle-nuke-garde-combat-aventure-v1 (victoire de boss): OK");

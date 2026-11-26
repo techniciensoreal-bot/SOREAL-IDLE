@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.0',
+    courante:'7.1',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'7.1',
+        nom:'Audit de fiabilité',
+        date:'2026-11-26',
+        groupes:[
+          {menu:'aventure', titre:'Aventure', points:[
+            'Aventure : la barre de vie du monstre en combat n’est plus remise à zéro quand un boss est vaincu en même temps.'
+          ]}
+        ]
+      },
       {
         version:'7.0',
         nom:'Énigmes à l’écran',
