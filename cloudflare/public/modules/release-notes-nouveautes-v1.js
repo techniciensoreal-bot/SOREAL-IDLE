@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
+    "Application Windows : le bouton « Envoyer ma partie vers le serveur » n’affiche plus « Ta partie est sur le serveur » quand le compte n’est pas relié ou que la connexion a expiré ; il le dit clairement et demande de relier le compte.",
     "Aventure : la barre de vie du monstre en combat n’est plus remise à zéro quand un boss est vaincu en même temps."
   ] };
 })();

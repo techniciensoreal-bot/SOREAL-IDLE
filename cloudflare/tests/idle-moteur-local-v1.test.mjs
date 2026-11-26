@@ -144,3 +144,6 @@ const h = (f) => crypto.createHash("sha256").update(fs.readFileSync(new URL("../
 assert.ok(mod.includes("moteur-local-worker-v1.js?v=" + h("moteur-local-worker-v1.js")), "relancer node cloudflare/tools/build-moteur-local.mjs");
 assert.ok(mod.includes("sql-wasm-v1.wasm?v=" + h("sql-wasm-v1.wasm")), "relancer node cloudflare/tools/build-moteur-local.mjs");
 console.log("idle-moteur-local-v1: OK");
+
+// bouton « Envoyer ma partie » : jamais « ✅ sur le serveur » si l'exe n'est pas relié (liaisonEtat) — 2026-11-26
+{const m=fs.readFileSync(new URL('../public/modules/moteur-local-v1.js', import.meta.url),'utf8');assert.ok(/liaisonEtat()[sS]{0,120}!i.lie||i.expiree[sS]{0,400}PAS été envoyée[sS]{0,300}envoyerMaintenant()/.test(m),'envoi refusé et dit clairement si exe non relié');}

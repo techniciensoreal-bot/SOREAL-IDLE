@@ -29,6 +29,9 @@
         nom:'Audit de fiabilité',
         date:'2026-11-26',
         groupes:[
+          {menu:'general', titre:'Général', points:[
+            'Application Windows : le bouton « Envoyer ma partie vers le serveur » n’affiche plus « Ta partie est sur le serveur » quand le compte n’est pas relié ou que la connexion a expiré ; il le dit clairement et demande de relier le compte.'
+          ]},
           {menu:'aventure', titre:'Aventure', points:[
             'Aventure : la barre de vie du monstre en combat n’est plus remise à zéro quand un boss est vaincu en même temps.'
           ]}

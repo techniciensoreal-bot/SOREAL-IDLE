@@ -530,6 +530,8 @@
     if(bouton)bouton.disabled=true;
     if(etat)etat.textContent="Envoi en cours…";
     let ok=false;
+    /* Application Windows non reliée ou liaison échue : l'exe traite alors l'envoi LUI-MÊME (base locale), rien n'atteint le serveur : jamais de « ✅ sur le serveur » dans ce cas (2026-11-26, partie du bureau introuvable chez soi). */
+    try{const d=window.sorealDesktop;if(d&&typeof d.liaisonEtat==="function"){const i=await d.liaisonEtat();if(!i||!i.lie||i.expiree){if(etat)etat.textContent="⚠️ Ton compte n’est pas relié (ou la connexion a expiré) : ta partie n’a PAS été envoyée au serveur. Relie ton compte dans la section « Compte », puis réessaie.";if(bouton)bouton.disabled=false;return;}}}catch(_){}
     try{ok=Boolean(await ML.envoyerMaintenant());}catch(_){ok=false;}
     if(etat)etat.textContent=ok?"✅ Ta partie est sur le serveur. Tu peux ouvrir le jeu sur l’autre appareil.":"⚠️ L’envoi a échoué. Vérifie ta connexion et réessaie.";
     if(bouton)bouton.disabled=false;
