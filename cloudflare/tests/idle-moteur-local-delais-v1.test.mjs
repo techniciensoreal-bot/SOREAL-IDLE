@@ -11,7 +11,7 @@ const src = readFileSync(new URL("../public/modules/moteur-local-v1.js", import.
 assert.ok(src.includes("function avecDelai(promesse,ms,code)"), "assistant de délai");
 assert.ok(src.includes('}),4000,"IDB_LENTE");') && src.includes('r.onblocked=function(){ko(new Error("IDB_BLOQUEE"));}'), "ouverture de la base bornée (4 s) et blocage signalé");
 assert.ok((src.match(/"IDB_LENTE"/g) || []).length >= 2, "lecture et écriture de la base bornées");
-assert.ok(src.includes('25000,"EXPORT_LOCAL_LENT"'), "export borné");
+assert.ok(src.includes('LIMITE_EXPORT_MS,"EXPORT_LOCAL_LENT"') && src.includes("LIMITE_EXPORT_MS=180000"), "export borné");
 assert.ok(src.includes('20000,"MOTEUR_LOCAL_DEMARRAGE_LENT"') && src.includes("worker.terminate()"), "démarrage du Worker borné, Worker arrêté au dépassement");
 assert.ok(src.includes("echec=true;raison=String(e&&e.message||e).slice(0,120);return null;"), "au dépassement, le jeu retombe sur le serveur");
 console.log("idle-moteur-local-delais-v1: OK");

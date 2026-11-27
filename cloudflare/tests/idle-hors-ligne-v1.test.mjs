@@ -27,7 +27,7 @@ assert.ok(pont.includes("horsLigneV1()") && pont.includes("reseauAbsent=!(erreur
 assert.ok(pont.includes('localStorage.removeItem(DERNIER_JETON_KEY)') && pont.includes('localStorage.removeItem(ACCES_OK_KEY)'), "la déconnexion efface jeton et accès mémorisés");
 
 // moteur : repli sur le dernier export, jamais sur un refus du serveur
-assert.ok(moteur.includes('const CLE_EXPORT="export-dernier"') && moteur.includes("const g=rep?null:await exportGarde(jeton);"), "repli seulement si AUCUNE réponse HTTP (rep absent), jamais sur un refus du serveur");
+assert.ok(moteur.includes('const CLE_EXPORT="export-dernier"') && moteur.includes("const g=(rep||!vraimentHorsLigne)?null:await exportGarde(jeton);"), "repli seulement si AUCUNE réponse HTTP (rep absent), jamais sur un refus du serveur");
 assert.ok(moteur.includes('g.jeton===(await empreinteJeton(jeton))') && !/jeton:jeton|jeton:String\(jeton\)/.test(moteur), "l'export est rangé sous l'empreinte du jeton, jamais le jeton lui-même");
 assert.ok(moteur.includes("copie=JSON.parse(JSON.stringify(exp))") && moteur.includes("if(!horsLigne)garderExport(jeton,exp);"), "copie prise avant la fusion de la partie de l'appareil, gardée seulement après un vrai export");
 console.log("idle-hors-ligne-v1: OK");

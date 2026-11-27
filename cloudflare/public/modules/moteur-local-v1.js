@@ -198,17 +198,20 @@
     const ecart=ecartInitial;
     empreinteJeton(jeton).then(function(h){return kv("ecrire",CLE_EXPORT,{jeton:h,export:copie,ecart:ecart,at:Date.now()});}).catch(function(){});
   }
+  /* Téléchargement de la partie du serveur au démarrage : on attend jusqu'à 3 minutes (connexion très lente) ; un échec en moins de 15 s = pas de réseau. */
+  const LIMITE_EXPORT_MS=180000,DELAI_REFUS_RAPIDE_MS=15000;
   let horsLigne=false;
   async function demarrer(jeton){
     session=jeton;
     const t0=Date.now();
     let rep=null,exp=null;
     try{
-      rep=await avecDelai(fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil)+"&langue="+langueTextes(),{headers:{accept:"application/json",authorization:"Bearer "+jeton}}),25000,"EXPORT_LOCAL_LENT");
-      exp=await avecDelai(rep.json(),25000,"EXPORT_LOCAL_LENT");
+      rep=await avecDelai(fetch("/api/v1/local/export?appareil="+encodeURIComponent(appareil)+"&langue="+langueTextes(),{headers:{accept:"application/json",authorization:"Bearer "+jeton}}),LIMITE_EXPORT_MS,"EXPORT_LOCAL_LENT");
+      exp=await avecDelai(rep.json(),LIMITE_EXPORT_MS,"EXPORT_LOCAL_LENT");
     }catch(e){
-      /* Aucune réponse du serveur : repli sur le dernier export de cet appareil, s'il y en a un pour ce compte. */
-      const g=rep?null:await exportGarde(jeton);
+      /* Aucune réponse du serveur : repli sur le dernier export de cet appareil, s'il y en a un pour ce compte, MAIS seulement si l'appareil est vraiment hors ligne (internet coupé : refus immédiat, ou navigator.onLine faux). Une connexion LENTE (Norman, 2026-11-27 : le PC du bureau, très lent, ouvrait dans l'exe SOREAL TV l'ancienne partie gardée au lieu d'attendre celle du serveur ; dans Chrome, sans export gardé, le jeu attendait le serveur) n'ouvre JAMAIS l'ancien export : le jeu attend jusqu'à LIMITE_EXPORT_MS, puis retombe sur le mode serveur, qui lit la vraie partie. */
+      const vraimentHorsLigne=(function(){try{return navigator.onLine===false;}catch(_){return false;}})()||Date.now()-t0<DELAI_REFUS_RAPIDE_MS;
+      const g=(rep||!vraimentHorsLigne)?null:await exportGarde(jeton);
       if(!g)throw e;
       exp=g.export;rep={ok:true};horsLigne=true;
       ecartInitial=Number(g.ecart)||0;

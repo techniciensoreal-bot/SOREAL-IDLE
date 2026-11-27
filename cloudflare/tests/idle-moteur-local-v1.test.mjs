@@ -159,5 +159,6 @@ assert.ok(/id="sorealIdleBandeauSauvegardeV1"|"sorealIdleBandeauSauvegardeV1"/.t
 {
   const m = fs.readFileSync(new URL("../public/modules/moteur-local-v1.js", import.meta.url), "utf8");
   assert.ok(m.includes('if(cle==="session"){const b=document.createElement("button")') && m.includes("location.reload()") && m.includes('"Recharger le jeu"'), "bouton Recharger dans le bandeau de session");
-  assert.ok(!m.includes("LIMITE_EXPORT_MS"), "pas de délai d'export rallongé");
+  assert.ok(m.includes("LIMITE_EXPORT_MS=180000") && !m.includes('25000,"EXPORT_LOCAL_LENT"'), "export : jusqu'à 3 min, plus de 25 s");
+  assert.ok(m.includes("const g=(rep||!vraimentHorsLigne)?null:await exportGarde(jeton);") && m.includes("navigator.onLine===false") && m.includes("DELAI_REFUS_RAPIDE_MS"), "ancien export gardé : seulement si internet est vraiment coupé");
 }
