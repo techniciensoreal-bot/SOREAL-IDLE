@@ -154,3 +154,6 @@ assert.ok(/rep\.status===401\|\|rep\.status===403\)afficherBandeauSauvegarde\("s
 assert.ok(/if\(horsLigne\)afficherBandeauSauvegarde\("horsligne"\)/.test(m),'démarrage hors ligne = bandeau');
 assert.ok(/retirerRefusDurable\(\);retirerBandeauSauvegarde\(\)/.test(m),'envoi accepté retire le bandeau');
 assert.ok(/id="sorealIdleBandeauSauvegardeV1"|"sorealIdleBandeauSauvegardeV1"/.test(m)&&m.includes('setAttribute("data-morph-garder","")'),'bandeau gardé par le morph');}
+
+// bandeau « partie PAS envoyée » : bouton qui recharge le jeu (2026-11-27)
+{const m=fs.readFileSync(new URL('../public/modules/moteur-local-v1.js', import.meta.url),'utf8');assert.ok(/cle==="session"){const b=document.createElement("button")[sS]{0,260}location.reload()/.test(m),'bouton Recharger dans le bandeau de session');assert.ok(!m.includes('LIMITE_EXPORT_MS'),'pas de délai d'export rallongé');}

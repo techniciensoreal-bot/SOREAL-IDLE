@@ -314,7 +314,11 @@
         document.body.appendChild(d);
       }
       const t=TEXTES_BANDEAU_SAUVEGARDE[cle]||TEXTES_BANDEAU_SAUVEGARDE.session;
-      if(d.getAttribute("data-cle")!==cle){d.textContent=t;d.setAttribute("data-cle",cle);}
+      if(d.getAttribute("data-cle")!==cle){
+        d.textContent=t;d.setAttribute("data-cle",cle);
+        /* Session refusée : un clic recharge le jeu (nouvelle connexion, partie du serveur) ; la page SOREAL TV réduite n'est jamais rechargée toute seule. */
+        if(cle==="session"){const b=document.createElement("button");b.type="button";b.textContent="Recharger le jeu";b.style.cssText="display:block;margin:8px auto 0;padding:8px 16px;border-radius:8px;border:0;background:#ff5a76;color:#fff;font:inherit;font-weight:700;cursor:pointer";b.addEventListener("click",function(){try{location.reload();}catch(_){}});d.appendChild(b);}
+      }
     }catch(_){}
   }
   function retirerBandeauSauvegarde(){try{const d=document.getElementById("sorealIdleBandeauSauvegardeV1");if(d&&d.parentNode)d.parentNode.removeChild(d);}catch(_){}}
