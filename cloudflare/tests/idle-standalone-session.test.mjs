@@ -56,6 +56,11 @@ function fakeSqlV1() {
         const row = sessions.get(bindings[0]);
         return row ? [{ ...row }] : [];
       }
+      if (q.startsWith("UPDATE idle_sessions SET expires_at=? WHERE session_token=?")) {
+        const row = sessions.get(bindings[1]);
+        if (row && row.revoked_at == null) row.expires_at = bindings[0];
+        return [];
+      }
       if (q === "DELETE FROM idle_sessions WHERE session_token=?") {
         sessions.delete(bindings[0]);
         return [];
@@ -174,3 +179,24 @@ assert.equal((await deniedResponse.json()).error, "SOREAL_IDLE_ACCES_REFUSE");
 assert.equal(deniedSql.tickets.size, 0);
 
 console.log("idle standalone session: ok");
+
+// Renouvellement à l'usage (2026-11-27) : moins de 4 h restantes -> prolongée à 8 h, jamais au-delà de 14 jours après la création ; inutilisée = expire ; révoquée = jamais prolongée
+{
+  const H = 3600 * 1000, now = Date.now();
+  const mk = (jeton, creeIlYa, expireDans, revoque = null) => sql.sessions.set(jeton, { session_token: jeton, user_json: JSON.stringify({ email: "a@b.c" }), created_at: now - creeIlYa, expires_at: now + expireDans, revoked_at: revoque });
+  mk("ils_ren1", 7 * H, 1 * H);
+  const r1 = coordinator.standaloneSessionV1("ils_ren1");
+  assert.equal(r1.ok, true);
+  assert.ok(sql.sessions.get("ils_ren1").expires_at >= now + 8 * H - 5000, "session proche de l'expiration prolongée à ~8 h");
+  mk("ils_ren2", 1 * H, 7 * H);
+  coordinator.standaloneSessionV1("ils_ren2");
+  assert.ok(Math.abs(sql.sessions.get("ils_ren2").expires_at - (now + 7 * H)) < 5000, "plus de 4 h restantes : inchangée");
+  mk("ils_ren3", 14 * 24 * H - 1 * H, 1 * H);
+  coordinator.standaloneSessionV1("ils_ren3");
+  assert.ok(sql.sessions.get("ils_ren3").expires_at <= now + 1 * H + 5000, "jamais au-delà de 14 jours après la création");
+  mk("ils_ren4", 9 * H, -1 * H);
+  assert.equal(coordinator.standaloneSessionV1("ils_ren4").ok, false, "session déjà expirée : refusée, jamais ressuscitée");
+  mk("ils_ren5", 2 * H, 1 * H, now - 1000);
+  assert.equal(coordinator.standaloneSessionV1("ils_ren5").ok, false, "session révoquée : refusée");
+  console.log("idle-standalone-session renouvellement: ok");
+}

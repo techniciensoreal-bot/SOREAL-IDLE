@@ -38,6 +38,8 @@ const IDLE_LAUNCH_TICKET_TTL_MS_V1 = 90 * 1000;
 const IDLE_SESSION_TTL_MS_V1 = 8 * 60 * 60 * 1000;
 /* Session d'un joueur connecté par Google (hors APP / TV) : il revient sans se reconnecter à chaque fois. */
 const IDLE_GOOGLE_SESSION_TTL_MS_V1 = 14 * 24 * 60 * 60 * 1000;
+const IDLE_SESSION_RENEW_SEUIL_MS_V1 = 4 * 60 * 60 * 1000;
+const IDLE_SESSION_DUREE_MAX_MS_V1 = 14 * 24 * 60 * 60 * 1000;
 
 function normalizeIdleLaunchUserV1(user) {
   if (!user || typeof user !== "object") return null;
@@ -300,7 +302,20 @@ export class SorealIdleCoordinatorV1 {
     let user = null;
     try { user = JSON.parse(String(row.user_json || "{}")); } catch (_) {}
     if (!user || typeof user !== "object") return { ok: false, error: "IDLE_SESSION_INVALID" };
-    return { ok: true, user, expiresAt: Number(row.expires_at || 0) };
+    /*
+     * Renouvellement à l'usage (Norman, 2026-11-27 : une session de lanceur (SOREAL TV) tombait au bout de 8 h même en pleine partie ; le jeu local continuait sans rien pouvoir envoyer, et la partie jouée ensuite ne partait jamais). Une session utilisée dont il reste moins de 4 h
+     * est prolongée à 8 h après cet usage, sans jamais dépasser 14 jours après sa création (la durée d'une connexion Google). Une session inutilisée expire comme avant ; une session révoquée ne passe jamais ici.
+     */
+    let expiresAt = Number(row.expires_at || 0);
+    if (expiresAt - now < IDLE_SESSION_RENEW_SEUIL_MS_V1) {
+      const plafond = Number(row.created_at || now) + IDLE_SESSION_DUREE_MAX_MS_V1;
+      const prolongee = Math.min(now + IDLE_SESSION_TTL_MS_V1, plafond);
+      if (prolongee > expiresAt) {
+        this.sql.exec("UPDATE idle_sessions SET expires_at=? WHERE session_token=? AND revoked_at IS NULL", prolongee, sessionToken);
+        expiresAt = prolongee;
+      }
+    }
+    return { ok: true, user, expiresAt };
   }
 
   /* Droit de jouer de la session (même décision que l'opération obtenirAccesSorealIdle) : false si refusé ou en cas d'erreur. */

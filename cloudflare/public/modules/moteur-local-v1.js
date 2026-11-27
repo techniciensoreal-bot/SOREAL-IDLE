@@ -244,7 +244,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=8d4f0013e0");
+    worker=new Worker("/moteur-local-worker-v1.js?v=08ab992cdc");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;
@@ -266,6 +266,7 @@
       throw e;
     }
     vivant=true;
+    if(horsLigne)afficherBandeauSauvegarde("horsligne");   /* démarré sur le dernier export gardé, pas sur la partie du serveur */
     try{if(window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__)window.__SOREAL_IDLE_CHARGEMENT_ETAPE_V1__(80);}catch(_e){}
     /* Chronométrage par phase du moteur : demandé seulement à l'administrateur (journal de fluidité). Réessayé quelques fois : le statut d'administrateur n'est connu qu'après les premières réponses. */
     (function demanderSpans(essais){
@@ -298,6 +299,25 @@
     d.textContent="Ta partie n’est plus enregistrée sur le serveur. Recharge la page ; si ça continue, exporte ta partie dans les Réglages.";
     document.body.appendChild(d);
   }
+  /* Partie PAS enregistrée sur le serveur (Norman, 2026-11-27 : la session d'un lanceur tombait après 8 h, le jeu local continuait sans rien pouvoir envoyer, et la partie jouée ensuite était perdue au changement d'appareil ; ou le jeu démarrait sur la copie de l'appareil sans le dire). Bandeau permanent, ajouté à <body> (hors de la page redessinée, règle n°4), retiré dès qu'un envoi est accepté. */
+  const TEXTES_BANDEAU_SAUVEGARDE={
+    session:"⚠️ Ta partie n’est PAS envoyée au serveur : ta connexion a expiré. Ferme puis relance le jeu depuis SOREAL TV (ou reconnecte ton compte) avant de changer d’appareil.",
+    horsligne:"⚠️ Partie ouverte hors ligne : ce n’est peut-être pas ta dernière partie du serveur. Ferme puis relance le jeu avant de continuer à jouer."
+  };
+  function afficherBandeauSauvegarde(cle){
+    try{
+      let d=document.getElementById("sorealIdleBandeauSauvegardeV1");
+      if(!d){
+        d=document.createElement("div");
+        d.id="sorealIdleBandeauSauvegardeV1";d.setAttribute("role","alert");d.setAttribute("data-morph-garder","");
+        d.style.cssText="position:fixed;left:8px;right:8px;top:8px;z-index:2147482500;background:#3a1020;color:#ffe3e8;border:2px solid #ff5a76;border-radius:10px;padding:10px 12px;font-size:14px;text-align:center";
+        document.body.appendChild(d);
+      }
+      const t=TEXTES_BANDEAU_SAUVEGARDE[cle]||TEXTES_BANDEAU_SAUVEGARDE.session;
+      if(d.getAttribute("data-cle")!==cle){d.textContent=t;d.setAttribute("data-cle",cle);}
+    }catch(_){}
+  }
+  function retirerBandeauSauvegarde(){try{const d=document.getElementById("sorealIdleBandeauSauvegardeV1");if(d&&d.parentNode)d.parentNode.removeChild(d);}catch(_){}}
   function retirerRefusDurable(){const d=document.getElementById("sorealIdleRefusDurableV1");if(d&&d.parentNode)d.parentNode.removeChild(d);}
   async function envoyer(fin,forcer){
     /* Une synchro sans action (le joueur laisse tourner) fait avancer la ligne : envoyée au plus une fois par minute, pour les classements. */
@@ -321,6 +341,8 @@
       delaiEnvoi=ctl?setTimeout(function(){try{ctl.abort();}catch(_){}},DELAI_ENVOI_MS):0;
       const rep=await fetch("/api/v1/local/push",{signal:ctl?ctl.signal:undefined,method:"POST",keepalive:Boolean(fin)&&JSON.stringify(sortant).length<60000,headers:{"content-type":"application/json",authorization:"Bearer "+session},body:JSON.stringify(sortant)});
       const reponse=await rep.json().catch(function(){return null;});
+      /* Session refusée (expirée ou révoquée) : rien ne part tant qu'elle n'est pas renouvelée ; le signaler tout de suite et en continu. */
+      if(rep.status===401||rep.status===403)afficherBandeauSauvegarde("session");
       /* Reçus par le serveur (même si la LIGNE est refusée) : les événements quittent la file du Worker. */
       if(reponse&&reponse.ok&&!reponse.conflit){try{await parler({type:"acquitter",fluxJusqua:dernierN(envoyes.flux.slice(0,Number.isFinite(reponse.fluxTraites)?reponse.fluxTraites:undefined)),gainsJusqua:dernierN(envoyes.gains.slice(0,Number.isFinite(reponse.gainsTraites)?reponse.gainsTraites:undefined))});}catch(_){}}
       if(reponse&&reponse.conflit){conflit=true;sale=false;afficherConflit();}
@@ -335,7 +357,7 @@
         }
       }
       else{
-        revAcquittee=Math.max(revAcquittee,revEnvoyee);refus=0;retirerRefusDurable();
+        revAcquittee=Math.max(revAcquittee,revEnvoyee);refus=0;retirerRefusDurable();retirerBandeauSauvegarde();
         if(!sale&&rev===revEnvoyee&&!copieEnAttente)await kv("effacer",cleSauve);
       }   /* écriture confirmée ET aucune action depuis : la copie de l'appareil n'a plus d'utilité */
     }catch(_){sale=true;}

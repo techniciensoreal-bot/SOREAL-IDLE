@@ -147,3 +147,10 @@ console.log("idle-moteur-local-v1: OK");
 
 // bouton « Envoyer ma partie » : jamais « ✅ sur le serveur » si l'exe n'est pas relié (liaisonEtat) — 2026-11-26
 {const m=fs.readFileSync(new URL('../public/modules/moteur-local-v1.js', import.meta.url),'utf8');assert.ok(/liaisonEtat()[sS]{0,120}!i.lie||i.expiree[sS]{0,400}PAS été envoyée[sS]{0,300}envoyerMaintenant()/.test(m),'envoi refusé et dit clairement si exe non relié');}
+
+// bandeau permanent « partie PAS envoyée » (session refusée 401/403 ou démarrage hors ligne), 2026-11-27
+{const m=fs.readFileSync(new URL('../public/modules/moteur-local-v1.js', import.meta.url),'utf8');
+assert.ok(/rep\.status===401\|\|rep\.status===403\)afficherBandeauSauvegarde\("session"\)/.test(m),'envoi refusé 401/403 = bandeau');
+assert.ok(/if\(horsLigne\)afficherBandeauSauvegarde\("horsligne"\)/.test(m),'démarrage hors ligne = bandeau');
+assert.ok(/retirerRefusDurable\(\);retirerBandeauSauvegarde\(\)/.test(m),'envoi accepté retire le bandeau');
+assert.ok(/id="sorealIdleBandeauSauvegardeV1"|"sorealIdleBandeauSauvegardeV1"/.test(m)&&m.includes('setAttribute("data-morph-garder","")'),'bandeau gardé par le morph');}

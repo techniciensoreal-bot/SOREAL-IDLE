@@ -30,6 +30,7 @@
         date:'2026-11-26',
         groupes:[
           {menu:'general', titre:'Général', points:[
+            'Sauvegarde : une session lancée depuis SOREAL TV n’expire plus au bout de 8 h tant que tu joues (elle se prolonge à chaque envoi, 14 jours au plus) ; si ta partie ne peut plus être envoyée (connexion expirée) ou si le jeu s’est ouvert hors ligne sur une ancienne copie, un bandeau rouge le dit et reste affiché.',
             'Application Windows : le bouton « Envoyer ma partie vers le serveur » n’affiche plus « Ta partie est sur le serveur » quand le compte n’est pas relié ou que la connexion a expiré ; il le dit clairement et demande de relier le compte.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[

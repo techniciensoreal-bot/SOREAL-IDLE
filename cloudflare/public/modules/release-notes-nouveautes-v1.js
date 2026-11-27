@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Application Windows : le bouton « Envoyer ma partie vers le serveur » n’affiche plus « Ta partie est sur le serveur » quand le compte n’est pas relié ou que la connexion a expiré ; il le dit clairement et demande de relier le compte.",
-    "Aventure : la barre de vie du monstre en combat n’est plus remise à zéro quand un boss est vaincu en même temps."
+    "Sauvegarde : une session lancée depuis SOREAL TV n’expire plus au bout de 8 h tant que tu joues (elle se prolonge à chaque envoi, 14 jours au plus) ; si ta partie ne peut plus être envoyée (connexion expirée) ou si le jeu s’est ouvert hors ligne sur une ancienne copie, un bandeau rouge le dit et reste affiché."
   ] };
 })();
