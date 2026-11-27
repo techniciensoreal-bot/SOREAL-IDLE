@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Combat de boss : si le moteur dit que le combat est fini (défaite pendant que l’onglet était caché, ordre ignoré), l’écran ne continue plus à se battre tout seul : il suit le moteur au bout de quelques secondes.",
-    "Combat de boss : le bouton « Combattre » de la carte d’un boss ne soigne plus le joueur et ne remplit plus le boss quand tu es déjà sur ce boss."
+    "Combat de boss : un Fight lancé à 0 PV ne compte plus une défaite ni un essai de plus sans combat."
   ] };
 })();

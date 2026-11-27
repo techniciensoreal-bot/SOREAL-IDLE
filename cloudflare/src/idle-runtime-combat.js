@@ -293,21 +293,7 @@ export function definirCombatBossSorealIdle(
     }
 
     if (Boolean(actif)) {
-      const niveau =
-        Math.max(
-          1,
-          Math.floor(
-            nombreSorealIdle_(
-              feuille
-                .getRange(
-                  ligne,
-                  c.NIVEAU
-                )
-                .getValue(),
-              1
-            )
-          )
-        );
+      const niveau = Math.max(1, Math.floor(nombreSorealIdle_(feuille.getRange(ligne, c.NIVEAU).getValue(), 1)));
 
       const bossVaincus =
         bossVaincusCourant;
@@ -322,6 +308,11 @@ export function definirCombatBossSorealIdle(
 
       /* BossController::beginFight : bossID > 300 => isFighting = false, aucun combat (audit 2026-11-16, E3). */
       if (bossFinDesBossAtteinteSorealIdle_(bossIndex)) return {ok:true,actif:false,ignore:true,finDesBoss:true,bossSelection:bossIndex+1};
+
+      /* Audit Fight Boss (2026-11-27), A7 : un Fight a 0 PV ne demarre pas (le client le refuse deja) : sans cette garde le moteur comptait aussitot une defaite et un essai de plus, sans combat. Le joueur regenere hors combat. */
+      if (nombreSorealIdle_(feuille.getRange(ligne, c.PV_JOUEUR).getValue(), 0) <= 0) {
+        return {ok:true,actif:false,ignore:true,pvJoueurNul:true,bossSelection:bossIndex+1};
+      }
 
       const niveauRequis =
         niveauRequisBossSorealIdle_(
