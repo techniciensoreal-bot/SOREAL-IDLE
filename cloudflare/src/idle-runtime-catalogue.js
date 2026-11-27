@@ -459,7 +459,40 @@ function bossCatalogueConstruireSorealIdle_(table) {
     })
     .sort(function(a, b) {
       return a.id - b.id;
+    })
+    .reduce(bossCatalogueCombleTrousSorealIdleV1_, []);
+}
+
+/*
+ * Audit Fight Boss (2026-11-27) : le moteur lit le catalogue par POSITION (catalogue[n - 1]). La feuille de production n'a pas de ligne pour le boss 80
+ * (300 lignes, IDs 1..79 puis 81..301) : à partir du boss 80, chronique, conseil, image et nom du Collection venaient du boss SUIVANT et le boss 301 sortait
+ * du catalogue (« Le Barbare +1 »). Un trou entre deux IDs est comblé par une ligne neutre (les stats du boss viennent de la référence du jeu, pas de la feuille) :
+ * la position n - 1 est alors toujours le boss n.
+ */
+function bossCatalogueCombleTrousSorealIdleV1_(liste, boss) {
+  let attendu = liste.length ? liste[liste.length - 1].id + 1 : 1;
+  while (liste.length && attendu < boss.id) {
+    liste.push({
+      id: attendu,
+      nom: String((NGU_BOSS_NAMES_FR_V1.get(attendu)) || 'Boss'),
+      pv: 500,
+      attaque: 2,
+      xp: 0,
+      pieces: 5,
+      chanceLoot: 0.45,
+      image: '',
+      driveFileId: '',
+      histoire: histoireComplementBossV1(attendu, ''),
+      mortVivant: false,
+      conseil: '',
+      niveauRequis: attendu,
+      capacites: [],
+      bossCible: attendu
     });
+    attendu += 1;
+  }
+  liste.push(boss);
+  return liste;
 }
 
 function indexImagesAventureSorealIdle_() {
