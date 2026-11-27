@@ -4,6 +4,8 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Sauvegarde : sur une connexion très lente, le jeu attend maintenant jusqu’à 3 minutes la partie du serveur avant de s’ouvrir (il n’ouvre plus l’ancienne copie gardée sur l’appareil) ; seule une vraie coupure d’internet l’ouvre hors ligne, avec le bandeau rouge."
+    "Combat de boss : les chroniques, les noms du Collection et la scène de fin ne se décalent plus d’un boss à l’autre.",
+    "Combat de boss : l’EXP annoncée pour un boss est maintenant celle que tu reçois vraiment (y compris le bonus de première victoire).",
+    "Sauvegarde : une copie ancienne gardée sur un appareil, avec un boss moins avancé que celui du serveur, ne remplace plus ta partie."
   ] };
 })();

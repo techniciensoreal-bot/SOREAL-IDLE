@@ -83,6 +83,7 @@
     }catch(_){return null;}
   }
   /* Copies écartées : les 3 dernières sont gardées (« :ecartee » la plus récente, puis « -1 », « -2 ») ; un nouvel écartement décale les précédentes au lieu de les détruire (audit anti-rollback R3, 2026-10-21). */
+  function recordBossPlusBas(copie,serveur){try{const r=function(t){const o=JSON.parse(t);return Number(o&&o.metaNgu&&o.metaNgu.records&&o.metaNgu.records.highestBoss)||0;};return r(copie)<r(serveur);}catch(_){return false;}}
   async function ecarter(rec){
     const base=cleSauve+":ecartee";
     const p1=await kv("lire",base+"-1"),p0=await kv("lire",base);
@@ -234,7 +235,8 @@
       const refServeurMs=Number(exp&&exp.progressionAt)>0?Number(exp.progressionAt):enMs(srv[15]);
       /* Garde anti-retour (Sébastien, 2026-11-12 : une vieille copie du 7 novembre, 225 renaissances, a écrasé la partie du serveur à 228) : le nombre de renaissances ne redescend JAMAIS ; une copie qui en compte moins que le serveur est une vieille copie, quelle que soit sa date (colonne 25). */
       let statsIllisible=false;if(typeof rec.cells[37]==='string'&&rec.cells[37]!==''){try{const so=JSON.parse(rec.cells[37]);statsIllisible=!(so&&typeof so==='object'&&!Array.isArray(so));}catch(_){statsIllisible=true;}}   /* audit 2026-11-14 : une copie dont le « Stats JSON » est tronqué (quota plein, fermeture brutale) ne remplace jamais la partie du serveur : mise de côté comme une copie en retard */
-      const copieEnRetard=statsIllisible||Number(rec.cells[24])<Number(srv[24]);
+      /* Audit Fight Boss (2026-11-27, S1) : une copie issue d'un vieil export garde une date « fraîche » (jeu hors ligne) mais son record de boss (records.highestBoss, jamais remis à 0 par un Rebirth ni un défi) est plus bas que celui du serveur : c'est une vieille copie, elle ne remplace pas la partie (mise de côté, jamais détruite). */
+      const copieEnRetard=statsIllisible||Number(rec.cells[24])<Number(srv[24])||recordBossPlusBas(rec.cells[37],srv[37]);
       if(!copieEnRetard&&enMs(rec.cells[15])>refServeurMs){
         const fusion=rec.cells.slice();
         [0,1,17,18,19].forEach(function(c){fusion[c]=srv[c];});
@@ -247,7 +249,7 @@
         else copieEnAttente=true;   /* mise de côté non confirmée : la copie d'origine reste en place */
       }
     }
-    worker=new Worker("/moteur-local-worker-v1.js?v=ce9c36632d");
+    worker=new Worker("/moteur-local-worker-v1.js?v=15568c5896");
     worker.onmessage=function(ev){
       const m=ev.data||{},a=attentes.get(m.id);
       if(!a)return;

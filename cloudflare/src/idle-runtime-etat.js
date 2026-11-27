@@ -18,7 +18,7 @@ import { apparencesSorealIdle_, banniereSorealIdleDriveFileId_, bossCatalogueSor
 import { classementDebloqueSorealIdle_, estAdministrateurSorealIdle_, identiteJoueurSorealIdle_, nomJeuDepuisLigneSorealIdle_ } from "./idle-runtime-joueurs.js";
 import { ameliorationsSorealIdle_, bonusAmeliorationsSorealIdle_, construireAventureSorealIdle_, coutAmeliorationSorealIdle_, niveauxParBarreEntrainementSorealIdle_ } from "./idle-runtime-aventure.js";
 import { __idleCtx, accesOuvertSorealIdle_, accesPublicSorealIdle_ } from "./idle-sqlite-runtime.js";
-import { facteurExpBossPerkSorealIdle_, nukeTueUnBossSorealIdle_ } from "./idle-runtime-combat.js";
+import { facteurExpBossPerkSorealIdle_, nukeTueUnBossSorealIdle_, xpVictoireBossSorealIdle_ } from "./idle-runtime-combat.js";
 import { idleStatsBreakdownV1 } from "./idle-stats-breakdown-v1.js";
 
 /* Étape extraite de construireEtatJoueurSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 151 lignes. */
@@ -1426,7 +1426,7 @@ banniereDriveFileId:
           bossNomParle: String(def.nomParle || ''),
           bossMortVivant: Boolean(def.mortVivant),
           recompenseBossActuel: {
-            xp: Math.max(0, Math.round(recompenseXpBossNiveauSorealIdle_(idx, niveauEtat) * xpMult * facteurExpBossPerkSorealIdle_(bonus, idx))),
+            xp: xpVictoireBossSorealIdle_(statsEtat.metaNgu, bonus, idx, niveauEtat),
             xpBase: xpBossSorealIdle_(idx),
             xpMultiplicateur: xpMult,
             niveauRequis: 1
@@ -1435,29 +1435,7 @@ banniereDriveFileId:
       })(),
 
     recompenseBossActuel: {
-      xp:
-        Math.max(
-          0,
-          Math.round(
-            recompenseXpBossNiveauSorealIdle_(
-              bossSelectionIndex,
-              niveauEtat
-            ) *
-            Math.max(
-              1,
-              nombreSorealIdle_(
-                idleNguBonuses(
-                  statsEtat.metaNgu
-                ).xpMultiplier,
-                1
-              )
-            ) *
-            facteurExpBossPerkSorealIdle_(
-              idleNguBonuses(statsEtat.metaNgu),
-              bossSelectionIndex
-            )
-          )
-        ),
+      xp: xpVictoireBossSorealIdle_(statsEtat.metaNgu, idleNguBonuses(statsEtat.metaNgu), bossSelectionIndex, niveauEtat),
 
       xpBase:
         xpBossSorealIdle_(

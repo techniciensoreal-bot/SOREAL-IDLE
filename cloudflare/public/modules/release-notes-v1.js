@@ -35,7 +35,10 @@
             'Application Windows : le bouton « Envoyer ma partie vers le serveur » n’affiche plus « Ta partie est sur le serveur » quand le compte n’est pas relié ou que la connexion a expiré ; il le dit clairement et demande de relier le compte.'
           ]},
           {menu:'aventure', titre:'Aventure', points:[
-            'Aventure : la barre de vie du monstre en combat n’est plus remise à zéro quand un boss est vaincu en même temps.'
+            'Aventure : la barre de vie du monstre en combat n’est plus remise à zéro quand un boss est vaincu en même temps.',
+            'Combat de boss : les chroniques, les noms du Collection et la scène de fin ne se décalent plus d’un boss à l’autre.',
+            'Combat de boss : l’EXP annoncée pour un boss est maintenant celle que tu reçois vraiment (y compris le bonus de première victoire).',
+            'Sauvegarde : une copie ancienne gardée sur un appareil, avec un boss moins avancé que celui du serveur, ne remplace plus ta partie.'
           ]}
         ]
       },

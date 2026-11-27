@@ -506,6 +506,17 @@ export function facteurExpBossPerkSorealIdle_(bonus, indexBoss) {
 }
 
 /*
+ * EXP d'une victoire contre ce boss, telle que le moteur la DONNE (audit Fight Boss 2026-11-27 : l'affichage arrondissait la base et ignorait le bonus de 1re victoire,
+ * boss 1 : « +0 XP » affiches pour 2 donnes). Lu dans le jeu (BossController::rewardExp) : le bonus « une fois » REMPLACE la base ; addExp arrondit vers le bas.
+ */
+export function xpVictoireBossSorealIdle_(metaNgu, bonus, indexBoss, niveau) {
+  const premiereFois = indexBoss >= highestBossJamaisAtteintSorealIdle_(metaNgu);
+  const bonusBrut = premiereFois ? xpBonusPremiereFoisSorealIdle_(indexBoss) : 0;
+  const base = bonusBrut > 0 ? bonusBrut : recompenseXpBossNiveauSorealIdle_(indexBoss, niveau);
+  return Math.max(0, Math.floor(base * Math.max(1, nombreSorealIdle_(bonus && bonus.xpMultiplier, 1)) * facteurExpBossPerkSorealIdle_(bonus, indexBoss)));
+}
+
+/*
  * Lu dans le jeu (BossController::nukeBosses, build 1260, audit 2026-11-16, E2) : le NUKE s'arrête quand bossID >= highestBoss ET bossID < 124 ; highestBoss est le record en difficulté NORMAL
  * (nombre de boss vaincus). Il ne passe donc un boss d'index < 124 que s'il a déjà été vaincu en Normal ; dès l'index 124 il peut tuer de nouveaux boss.
  */
