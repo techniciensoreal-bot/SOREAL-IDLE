@@ -1110,10 +1110,18 @@
             !REG.idleVictoireBossLocaleV49 &&
             !REG.idleCombatEnPauseApresDefaiteV1
           ){
-            return true;
+            /* Audit Fight Boss (2026-11-27), combat fantome : le moteur dit « combat inactif » (defaite pendant un onglet cache, ordre Fight ignore) et le client gardait son combat sans limite. Aucun ordre en vol et le desaccord dure depuis plus de 8 s : on fait foi au moteur (comme pour la vie). */
+            const maintenantFantomeV1=Date.now();
+            const ordreEnVolV1=REG.idleCombatLotEnVolV1||REG.idleFastPendingV60.combat!==null;
+            if(ordreEnVolV1||!REG.idleCombatDesaccordDepuisV1)REG.idleCombatDesaccordDepuisV1=maintenantFantomeV1;
+            if(maintenantFantomeV1-REG.idleCombatDesaccordDepuisV1<8000)return true;
+            REG.idleCombatDesaccordDepuisV1=0;
+            REG.idleCombatArmeLocalV206=false;
+            return false;
           }
           return false;
         }
+        REG.idleCombatDesaccordDepuisV1=0;
 
         const bossLocal=
           idleNombre_(REG.idleEtat.bossPv);

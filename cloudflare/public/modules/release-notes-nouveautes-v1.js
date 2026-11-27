@@ -4,8 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Combat de boss : un boss dont les PV sont énormes ne reste plus vivant à « 0 % » après sa mort, et un boss ou un joueur encore vivant n’est plus arrondi à 0 PV.",
-    "Combat de boss : si le boss et le joueur tombent à 0 PV en même temps, c’est une victoire, sans défaite comptée en plus.",
-    "Combat de boss : le calque noir sur le boss suivant ne reste plus après un combat arrêté, et un Fight lancé pendant un Nuke (ou l’inverse) n’est plus perdu en silence."
+    "Combat de boss : si le moteur dit que le combat est fini (défaite pendant que l’onglet était caché, ordre ignoré), l’écran ne continue plus à se battre tout seul : il suit le moteur au bout de quelques secondes.",
+    "Combat de boss : le bouton « Combattre » de la carte d’un boss ne soigne plus le joueur et ne remplit plus le boss quand tu es déjà sur ce boss."
   ] };
 })();

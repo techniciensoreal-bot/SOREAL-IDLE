@@ -775,6 +775,8 @@
           );
 
         REG.idleCombatArmeLocalV206=false;
+        /* Audit Fight Boss (2026-11-27) : « Combattre » depuis la carte du boss deja selectionne ne soigne plus le joueur et ne remplit plus le boss (le moteur n'accepte de toute facon que le boss suivant) ; un joueur a 0 PV reste bloque. */
+        const memeBossIdleV1=idleEntier_(REG.idleEtat.bossSelection)===n;
         REG.idleEtat.bossSelection=n;
 
         const b=
@@ -794,12 +796,14 @@
 
         if(b){
           REG.idleEtat.bossActuel=b.nom;
-          REG.idleEtat.bossPv=b.pv;
           REG.idleEtat.bossPvMax=b.pv;
           REG.idleEtat.attaqueBoss=b.attaque;
 
-          REG.idleEtat.pvJoueur=
-            REG.idleEtat.pvJoueurMax;
+          if(!memeBossIdleV1){
+            REG.idleEtat.bossPv=b.pv;
+            REG.idleEtat.pvJoueur=
+              REG.idleEtat.pvJoueurMax;
+          }
 
           REG.idleEtat.bossCatalogue.forEach(
             function(x){

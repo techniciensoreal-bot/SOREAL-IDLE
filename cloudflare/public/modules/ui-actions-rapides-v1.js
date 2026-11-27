@@ -443,6 +443,17 @@
           }
         }
 
+        /* Audit Fight Boss (2026-11-27), combat fantome : un ordre Fight que le moteur ignore (« obsolete » : boss different) ne laisse plus le client se battre seul ; le combat local est desarme et la synchro qui suit adopte l'etat du moteur. */
+        if(
+          res&&res.ok&&(res.obsolete||res.ignore)&&
+          lot&&lot.type==='combat'&&lot.payload&&lot.payload.actif&&
+          REG.idleEtat&&REG.idleEtat.combatBossActif&&!REG.idleVictoireBossLocaleV49
+        ){
+          REG.idleEtat.combatBossActif=false;
+          REG.idleCombatArmeLocalV206=false;
+          try{rafraichirCommandesFightBossIdleV167_();}catch(_e){}
+        }
+
         if(
           idleFastPendingV60_()
         ){
