@@ -732,12 +732,12 @@
   "sha": "44eb3f3046ebf2be08a5e68d7c974e367e00b2df"
  },
  "/modules/release-notes-nouveautes-v1.js": {
-  "pin": 463,
-  "sha": "f396b87aad46419a0ae61958fb11e321b96039e4"
+  "pin": 464,
+  "sha": "caf10c85dc2bdc5d6f93e7322770a7372e30fc2f"
  },
  "/modules/release-notes-v1.js": {
-  "pin": 1107,
-  "sha": "3f7519d9fcc1cada8290d427743c291a37db779e"
+  "pin": 1109,
+  "sha": "d91da88afb638bec0d4c9acc8d47367ec1d12407"
  },
  "/modules/renaissance-fenetre-v1.js": {
   "pin": 2,

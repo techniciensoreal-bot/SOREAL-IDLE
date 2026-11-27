@@ -20,14 +20,14 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.1',
+    courante:'7.2',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
       {
-        version:'7.1',
-        nom:'Audit de fiabilité',
-        date:'2026-11-26',
+        version:'7.2',
+        nom:'Sauvegarde fiable',
+        date:'2026-11-27',
         groupes:[
           {menu:'general', titre:'Général', points:[
             'Sauvegarde : une session lancée depuis SOREAL TV n’expire plus au bout de 8 h tant que tu joues (elle se prolonge à chaque envoi, 14 jours au plus) ; si ta partie ne peut plus être envoyée (connexion expirée) ou si le jeu s’est ouvert hors ligne sur une ancienne copie, un bandeau rouge le dit et reste affiché.',
