@@ -398,6 +398,9 @@
           return;
         }
 
+        /* Audit Fight Boss (2026-11-27) : un Fight clique pendant un Nuke (appel en vol ou cascade en cours) demarrait puis etait ecrase par l'etat de la reponse du Nuke : il est ignore (le Nuke a la priorite, il ne dure que quelques secondes). */
+        if(actif&&(REG.idleNukeEnCoursV1||REG.idleNukeCascadeV1))return;
+
         /*
          * Fight cliqué pendant que la victoire n'est pas encore confirmée par le serveur (Norman, 2026-10-02 : « quand je tue un boss, je ne peux plus faire Fight ; je dois
          * changer d'écran »). Le boss suivant est déjà affiché mais le serveur, plus lent (1 à 4 s par appel), n'a pas encore enregistré le kill : lui envoyer un combat
@@ -647,7 +650,11 @@
           !REG.idleEtat ||
           !SOREAL_SESSION ||
           REG.idleEtat.combatBossActif ||
-          REG.idleEtat.bossBloqueRenaissance
+          REG.idleEtat.bossBloqueRenaissance ||
+          /* un ordre Fight deja envoye (en attente ou en vol) serait jete en silence par le Nuke : on ne le lance pas */
+          REG.idleFastPendingV60.combat!==null ||
+          REG.idleCombatLotEnVolV1 ||
+          REG.idleNukeCascadeV1
         ){
           return;
         }
@@ -686,9 +693,12 @@
                 ?res.nuke.defeated
                 :[];
 
+            REG.idleNukeCascadeV1=true;
+            setTimeout(function(){REG.idleNukeCascadeV1=false;},15000);   /* filet : la cascade ne bloque jamais Fight plus de 15 s */
             lancerCascadeNukeIdleV1_(
               defeated,
               function(){
+                REG.idleNukeCascadeV1=false;
                 REG.idleFastPendingV60.combat=null;
                 REG.idleCombatIdentiteV116='';
                 REG.idleProchainCoupJoueurV116=0;

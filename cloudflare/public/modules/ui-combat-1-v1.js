@@ -64,8 +64,16 @@
           REG.idleCombatIdentiteV116='';
           REG.idleProchainCoupJoueurV116=0;
           REG.idleProchainCoupBossV116=0;
+          /* Audit Fight Boss (2026-11-27) : le drapeau « combat en cours » (qui fait couvrir le boss suivant d'un calque noir) n'etait remis a faux que par la mort ou la fuite ; apres une defaite, un arret par popup ou par carte il restait vrai et le boss suivant restait cache jusqu'a 12 s. Combat inactif depuis plus de 4 s, hors ecran de victoire : on le baisse. */
+          if(window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__){
+            if(!REG.idleCombatInactifDepuisV1)REG.idleCombatInactifDepuisV1=Date.now();
+            else if(Date.now()-REG.idleCombatInactifDepuisV1>=4000&&!window.__SOREAL_IDLE_VICTOIRE_EN_COURS__){
+              window.__SOREAL_IDLE_COMBAT_EN_COURS_V1__=false;REG.idleCombatDebutV1=0;REG.idleCombatBossNumV1=0;REG.idleCombatInactifDepuisV1=0;
+            }
+          }else REG.idleCombatInactifDepuisV1=0;
           return;
         }
+        REG.idleCombatInactifDepuisV1=0;
 
         const identite=
           String(idleEntier_(REG.idleEtat.bossSelection||1))+

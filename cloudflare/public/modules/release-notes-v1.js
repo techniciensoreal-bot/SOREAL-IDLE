@@ -38,6 +38,9 @@
             'Aventure : la barre de vie du monstre en combat n’est plus remise à zéro quand un boss est vaincu en même temps.',
             'Combat de boss : les chroniques, les noms du Collection et la scène de fin ne se décalent plus d’un boss à l’autre.',
             'Combat de boss : l’EXP annoncée pour un boss est maintenant celle que tu reçois vraiment (y compris le bonus de première victoire).',
+            'Combat de boss : un boss dont les PV sont énormes ne reste plus vivant à « 0 % » après sa mort, et un boss ou un joueur encore vivant n’est plus arrondi à 0 PV.',
+            'Combat de boss : si le boss et le joueur tombent à 0 PV en même temps, c’est une victoire, sans défaite comptée en plus.',
+            'Combat de boss : le calque noir sur le boss suivant ne reste plus après un combat arrêté, et un Fight lancé pendant un Nuke (ou l’inverse) n’est plus perdu en silence.',
             'Sauvegarde : une copie ancienne gardée sur un appareil, avec un boss moins avancé que celui du serveur, ne remplace plus ta partie.'
           ]}
         ]

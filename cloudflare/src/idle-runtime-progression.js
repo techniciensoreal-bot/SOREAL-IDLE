@@ -1225,18 +1225,27 @@ function appliquerProgressionEnergieSorealIdle__p5(bossCombatIndex, bossPv, boss
         tempsPourDefaite
       );
 
+    /*
+     * Audit Fight Boss (2026-11-27) : quand ce segment est celui qui TUE le boss (segment = bossPv / dps), le produit segment x dps retombe parfois 1 ulp sous bossPv et laissait un reste
+     * de l'ordre de bossPv x 1e-16, bien au-dessus du seuil absolu de 1e-9 des qu'il depasse ~1e7 : le boss restait vivant a « 0 % » jusqu'a la synchro suivante (0,6 a 0,85 % des
+     * victoires a 1e30 PV et au-dela). Le segment qui tue enleve donc exactement les PV restants ; meme chose pour la mort du joueur.
+     */
     const dommageBoss =
-      Math.min(
-        bossPv,
-        segment *
-        dpsBossNet
-      );
+      segment === tempsPourBoss
+        ? bossPv
+        : Math.min(
+            bossPv,
+            segment *
+            dpsBossNet
+          );
 
     const dommageJoueur =
-      Math.min(
-        pvJoueur,
-        segment * degatsRecusSec
-      );
+      segment === tempsPourDefaite
+        ? pvJoueur
+        : Math.min(
+            pvJoueur,
+            segment * degatsRecusSec
+          );
   /* @sortie */ return {attaqueBoss:attaqueBoss,degatsRecusSec:degatsRecusSec,soinJoueurSec:soinJoueurSec,multiplicateurDpsBoss:multiplicateurDpsBoss,multiplicateurSceau:multiplicateurSceau,multiplicateurVulnerabilite:multiplicateurVulnerabilite,regenBossSec:regenBossSec,defenseBossCombat:defenseBossCombat,dpsJoueurBase:dpsJoueurBase,dpsBossNet:dpsBossNet,tempsPourBoss:tempsPourBoss,tempsPourDefaite:tempsPourDefaite,segment:segment,dommageBoss:dommageBoss,dommageJoueur:dommageJoueur};
 }
 
@@ -1438,6 +1447,8 @@ function appliquerProgressionEnergieSorealIdle__p6(bossBattusMaintenant, bossBlo
 
 /* Étape extraite de appliquerProgressionEnergieSorealIdle_ (découpage d'une très grande fonction, 2026-10-16) : 19 lignes. */
 function appliquerProgressionEnergieSorealIdle__p7(bossCombatIndex, combatBossActif, joueurBattu, koSubis, pvJoueur, statsCombat){
+  /* Audit Fight Boss (2026-11-27) : boss et joueur a 0 PV dans le meme segment = victoire (p6 a deja arrete le combat) : pas de defaite en plus. */
+  joueurBattu = joueurBattu && combatBossActif;
   if (joueurBattu) {
       /*
        * Défaite Fight Boss façon NGU :
@@ -2100,14 +2111,14 @@ function appliquerProgressionEnergieSorealIdle__p16(bossActuel, bossPv, bossPvMa
   feuille.getRange(ligne,c.ENERGIE_MAX).setValue(energieMax);
   feuille.getRange(ligne,c.PROD_SECONDE).setValue(prodSeconde);
   feuille.getRange(ligne,c.BOSS_ACTUEL).setValue(bossActuel);
-  feuille.getRange(ligne,c.BOSS_PV).setValue(Math.max(0,Math.round(bossPv)));
+  feuille.getRange(ligne,c.BOSS_PV).setValue(pvEntierVivantSorealIdleV1_(bossPv));
   feuille.getRange(ligne,c.BOSS_PV_MAX).setValue(bossPvMax);
   feuille.getRange(ligne,c.BOSS_VAINCUS).setValue(bossVaincus);
   feuille.getRange(ligne,c.PIECES).setValue(pieces);
   feuille.getRange(ligne,c.STATS_JSON).setValue(JSON.stringify(statsCombat));
   feuille.getRange(ligne,c.INVENTAIRE_JSON).setValue(JSON.stringify(inventaire));
   feuille.getRange(ligne,c.EQUIPEMENT_JSON).setValue(JSON.stringify(equipement));
-  feuille.getRange(ligne,c.PV_JOUEUR).setValue(Math.max(0,Math.round(pvJoueur)));
+  feuille.getRange(ligne,c.PV_JOUEUR).setValue(pvEntierVivantSorealIdleV1_(pvJoueur));
   feuille.getRange(ligne,c.PV_JOUEUR_MAX).setValue(pvJoueurMax);
 
   /*
@@ -2557,3 +2568,9 @@ appliquerProgressionEnergieSorealIdle__p14 = enveloppeSpan("prog:p14", appliquer
 appliquerProgressionEnergieSorealIdle__p15 = enveloppeSpan("prog:p15", appliquerProgressionEnergieSorealIdle__p15);
 appliquerProgressionEnergieSorealIdle__p16 = enveloppeSpan("prog:p16", appliquerProgressionEnergieSorealIdle__p16);
 appliquerProgressionEnergieSorealIdle_ = enveloppeSpan("prog:TOTAL", appliquerProgressionEnergieSorealIdle_);
+
+/* Audit Fight Boss (2026-11-27) : les PV s'ecrivent en entiers ; un boss ou un joueur ENCORE VIVANT avec moins de 0,5 PV s'arrondissait a 0 (boss remis a 100 % ou joueur declare mort). Un vivant garde au moins 1 PV ; un mort reste a 0. */
+function pvEntierVivantSorealIdleV1_(pv) {
+  const v = Number(pv);
+  return !(v > 0) ? 0 : Math.max(1, Math.round(v));
+}
