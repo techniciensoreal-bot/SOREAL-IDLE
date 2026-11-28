@@ -4,6 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Combat de boss : un Fight lancé à 0 PV ne compte plus une défaite ni un essai de plus sans combat."
+    "Défis : pendant le défi des 100 niveaux (comme pour les défis 24 heures et Troll), le compteur « Temps écoulé » ne défile plus quand le jeu est fermé."
   ] };
 })();

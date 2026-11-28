@@ -1767,8 +1767,8 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
     ? PLAFOND_HORS_LIGNE_DEFIS_SECONDES_V1
     : EARLY_GAME_MAX_OFFLINE_SECONDS;
   const secs = clamp(seconds, 0, offlineCap);
-  /* 24 Hour Challenge : « Offline Progress will be disabled during this challenge. But, the timer won't run either. » -> le temps non joué est retiré du chrono. */
-  if (state.challenge?.active === "twentyFourHours" && seconds > secs && state.challenge.startedAt > 0) state.challenge.startedAt += (clamp(seconds, 0, EARLY_GAME_MAX_OFFLINE_SECONDS) - secs) * 1000;
+  /* 24 Hour Challenge : « Offline Progress will be disabled during this challenge. But, the timer won't run either. » -> le temps non joué est retiré du chrono. Norman (2026-11-28) : pareil pour 100 Levels et Troll (le compteur « Temps écoulé » défilait hors ligne). */
+  if (IDLE_CHALLENGE_OFFLINE_DISABLED_IDS.includes(state.challenge?.active) && seconds > secs && state.challenge.startedAt > 0) state.challenge.startedAt += (clamp(seconds, 0, EARLY_GAME_MAX_OFFLINE_SECONDS) - secs) * 1000;
   state.records.playSeconds = num(state.records.playSeconds, 0) + secs;
 
   /*

@@ -20,10 +20,20 @@
 (function(){
   'use strict';
   window.__SOREAL_IDLE_RELEASE_NOTES_V1__={
-    courante:'7.2',
+    courante:'7.3',
     /* Hommage (Norman, 2026-10-08) : une ligne en bas de CHAQUE note de mise à jour, à conserver dans toutes les versions à venir. */
     hommage:'🐾 En hommage à Grizboule',
     versions:[
+      {
+        version:'7.3',
+        nom:'Chrono des défis',
+        date:'2026-11-28',
+        groupes:[
+          {menu:'challenges', titre:'Défis', points:[
+            'Défis : pendant le défi des 100 niveaux (comme pour les défis 24 heures et Troll), le compteur « Temps écoulé » ne défile plus quand le jeu est fermé.'
+          ]}
+        ]
+      },
       {
         version:'7.2',
         nom:'Sauvegarde fiable',
