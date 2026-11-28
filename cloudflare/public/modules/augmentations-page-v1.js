@@ -1041,6 +1041,8 @@
           if(duree>0){const fr=Math.max(0,Math.min(1,(duree-reste)/duree));vue[c[0]+'Fill']=fr;vue[c[0]+'Fraction']=fr;}
         });
         vue.__at=maintenant;
+        /* Recul de barre (Norman, 2026-11-28) : les chiffres de la vue valent maintenant « à cet instant », mais l'ancre du compte à rebours (__ancreTmV1, ui-machine-temporelle-v1.js) restait celle de la réponse du moteur d'origine. Quand un redessin de la page retire l'ancre (data-tm-eta-at), le minuteur la recalculait depuis cette vieille ancre : la barre partait en avance de (âge de l'ancre x vitesse), 5 à 16 points mesurés, puis le patch suivant la ramenait en arrière. Mesuré dans le navigateur : 4 à 6 reculs par série de 8 rafales ; avec l'ancre remise à maintenant : 0 sur 12 rafales. */
+        if(typeof performance!=='undefined')vue.__ancreTmV1=performance.now();
       }
 
       function recalculerTimeMachineLocalIdleV1_(j,ressource,alloc){

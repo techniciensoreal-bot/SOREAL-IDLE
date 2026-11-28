@@ -297,6 +297,7 @@
                 arreterSurveillanceVictoireBossIdleV1_();
                 REG.idleCombatArmeLocalV206=false;
                 etat.joueur=garderCombatAventureLocalIdleV1_(REG.idleEtat,etat.joueur);
+                if(typeof window.__appliquerAllocationsVouluesIdleV1__==='function')window.__appliquerAllocationsVouluesIdleV1__(etat.joueur);
                 REG.idleEtat=etat.joueur;
                 rendreIdleEtat_({ok:true,joueur:etat.joueur});
                 if(bandeau.isConnected)attendre();
@@ -465,6 +466,7 @@
               .withSuccessHandler(function(etat){
                 if(PAGE_ACTIVE!=='idle'||!REG.idleVictoireBossLocaleV49||!etat||!etat.ok||!etat.joueur)return;
                 etat.joueur=garderCombatAventureLocalIdleV1_(REG.idleEtat,etat.joueur);
+                if(typeof window.__appliquerAllocationsVouluesIdleV1__==='function')window.__appliquerAllocationsVouluesIdleV1__(etat.joueur);
                 REG.idleEtat=etat.joueur;
                 REG.idleCombatArmeLocalV206=false;
                 rendreIdleEtat_({ok:true,joueur:etat.joueur});
@@ -793,10 +795,9 @@
         return true;
       }
 
-      function appliquerSynchroCombatSansReflowIdleV116_(
-        joueurServeur
-      ){
+      function appliquerSynchroCombatSansReflowIdleV116_(joueurServeur){
         signalerRetourSafeIdleV1_(joueurServeur);
+        /* Allocations voulues (Norman, 2026-11-28 : clics rendus, voir idle-alloc-voulues-reponses-action-v1) : tout état qui arrive les reçoit. */ if(joueurServeur&&typeof window.__appliquerAllocationsVouluesIdleV1__==='function')window.__appliquerAllocationsVouluesIdleV1__(joueurServeur);
         if(REG.idlePrevisionBossV1.actif&&joueurServeur){
           const confirmee=idleEntier_(joueurServeur.bossVaincus)>=REG.idlePrevisionBossV1.vaincus;
           if(!confirmee&&Date.now()-REG.idlePrevisionBossV1.debut<=15000)return true;
