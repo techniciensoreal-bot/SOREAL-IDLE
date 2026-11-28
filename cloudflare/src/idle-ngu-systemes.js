@@ -1769,6 +1769,8 @@ export function advanceIdleNguState(raw, seconds, context = {}, now = Date.now()
   const secs = clamp(seconds, 0, offlineCap);
   /* 24 Hour Challenge : « Offline Progress will be disabled during this challenge. But, the timer won't run either. » -> le temps non joué est retiré du chrono. Norman (2026-11-28) : pareil pour 100 Levels et Troll (le compteur « Temps écoulé » défilait hors ligne). */
   if (IDLE_CHALLENGE_OFFLINE_DISABLED_IDS.includes(state.challenge?.active) && seconds > secs && state.challenge.startedAt > 0) state.challenge.startedAt += (clamp(seconds, 0, EARLY_GAME_MAX_OFFLINE_SECONDS) - secs) * 1000;
+  /* Norman (2026-11-28) : « Facteur de temps de Renaissance » comptait aussi le temps passe hors ligne pendant un defi (100 niveaux, Troll, 24 Hour) alors que la progression hors ligne y est coupee : le temps non joue est retire du temps de la Renaissance en cours (le jeu n'ajoute rien a son compteur de Rebirth sans progression hors ligne). */
+  if (IDLE_CHALLENGE_OFFLINE_DISABLED_IDS.includes(state.challenge?.active) && seconds > secs && state.runStartedAt > 0) state.runStartedAt = Math.min(nowMs(now), state.runStartedAt + (seconds - secs) * 1000);
   state.records.playSeconds = num(state.records.playSeconds, 0) + secs;
 
   /*

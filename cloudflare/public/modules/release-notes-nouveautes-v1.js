@@ -4,7 +4,6 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Machine temporelle : la barre ne saute plus en arrière (de 5 à 16 points avant) quand tu ajoutes ou retires de l’énergie très vite.",
-    "Machine temporelle (et tous les menus où l’on place de l’énergie ou de la magie) : quand tu en prends ou en mets très vite, les clics ne te sont plus rendus par une réponse en retard du jeu en arrière-plan."
+    "Défis : le « Facteur de temps de Renaissance » ne compte plus le temps passé hors ligne pendant un défi sans progression hors ligne (100 niveaux, 24 heures, Troll)."
   ] };
 })();

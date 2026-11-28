@@ -18,4 +18,17 @@ for (const id of ["hundredLevels", "twentyFourHours", "troll"]) {
   const apres = advanceIdleNguState(s, 3600, { bosses: 10 }, T0 + 3600_000);
   assert.equal(apres.challenge.startedAt, T0, "basic : chrono inchange");
 }
+/* « Facteur de temps de Renaissance » : le temps hors ligne d'un defi sans hors ligne n'entre pas dans le temps de la Renaissance (Norman, 2026-11-28) */
+for (const id of ["hundredLevels", "twentyFourHours", "troll"]) {
+  const s = normalizeIdleNguState({}, { bosses: 10 }, T0);
+  s.challenge.active = id; s.challenge.startedAt = T0; s.runStartedAt = T0;
+  const apres = advanceIdleNguState(s, 3600, { bosses: 10 }, T0 + 3600_000);
+  assert.ok((T0 + 3600_000 - apres.runStartedAt) / 1000 <= 60, id + " : une heure hors ligne ne compte que 60 s dans le temps de la Renaissance");
+}
+{
+  const s = normalizeIdleNguState({}, { bosses: 10 }, T0);
+  s.challenge.active = ""; s.runStartedAt = T0;
+  const apres = advanceIdleNguState(s, 3600, { bosses: 10 }, T0 + 3600_000);
+  assert.equal(apres.runStartedAt, T0, "hors defi : le temps de la Renaissance est inchange");
+}
 console.log("idle-defi-chrono-hors-ligne-v1: OK");

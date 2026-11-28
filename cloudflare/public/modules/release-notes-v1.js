@@ -34,6 +34,7 @@
             'Machine temporelle (et tous les menus où l’on place de l’énergie ou de la magie) : quand tu en prends ou en mets très vite, les clics ne te sont plus rendus par une réponse en retard du jeu en arrière-plan.'
           ]},
           {menu:'challenges', titre:'Défis', points:[
+            'Défis : le « Facteur de temps de Renaissance » ne compte plus le temps passé hors ligne pendant un défi sans progression hors ligne (100 niveaux, 24 heures, Troll).',
             'Défis : pendant le défi des 100 niveaux (comme pour les défis 24 heures et Troll), le compteur « Temps écoulé » ne défile plus quand le jeu est fermé.'
           ]}
         ]

@@ -151,6 +151,7 @@ const start = (s, id, now = 1_000_000, bosses = 100) => applyIdleNguAction(s, { 
   const t = advanceIdleNguState(s, 1, { bosses: 30 }, 1_001_000);
   assert.equal(t.challenge.troll.flags.ngu, true);
   t.rebirth.canRebirth = true;
+  t.runStartedAt = 1;   /* une longue partie : depuis le 2026-11-28 le temps hors ligne d'un defi sans hors ligne ne compte plus dans le temps de la Renaissance (le saut de 500 s du test en serait retire) */
   const reborn = rebirthIdleNguState(t, { bosses: 30 }, 1_500_000).state ?? rebirthIdleNguState(t, { bosses: 30 }, 1_500_000);
   assert.equal(reborn.challenge.troll.flags.ngu, false, "les drapeaux tombent au Rebirth");
   assert.equal(reborn.challenge.active, "troll", "le défi continue");
