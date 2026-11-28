@@ -1437,7 +1437,12 @@
               const actuel=(Number(anim.currentTime)||0)%duration;
               let ecart=cible-actuel;
               if(ecart>duration/2)ecart-=duration;else if(ecart<-duration/2)ecart+=duration;
-              if(Math.abs(ecart)>Math.max(80,duration*0.05))anim.currentTime=cible;
+              /* Recul de barre (Norman, 2026-11-28) : un lot de clics d'énergie (10 en 600 ms) accélère la barre de l'écran clic après clic, alors que le moteur reçoit l'allocation finale d'un seul coup : à sa réponse la cible était en retard d'environ 0,2 cycle et ce recalage RAMENAIT la barre en arrière d'un coup (mesuré : un recul de 0,19 à 0,21 par lot de 10 clics, Augmentations et Blood Magic, même fonction). Un écart de moins de 40 % du cycle est maintenant rattrapé EN DOUCEUR par la vitesse de lecture (la barre ralentit ou accélère un peu, ne saute plus) ; au-delà (niveau gagné, autre appareil) elle se cale tout de suite. */
+              const grand=Math.abs(ecart)>duration*0.4;
+              if(Math.abs(ecart)>Math.max(80,duration*0.05)){
+                if(grand){anim.currentTime=cible;if(anim.playbackRate!==1)anim.playbackRate=1;}
+                else{const fonte=Math.max(600,Math.abs(ecart)*2),vitesse=1+ecart/fonte;if(Math.abs(anim.playbackRate-vitesse)>.002)anim.playbackRate=vitesse;}
+              }else if(anim.playbackRate!==1)anim.playbackRate=1;
             }
           }
         }

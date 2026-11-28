@@ -33,6 +33,12 @@
             'Machine temporelle : la barre ne saute plus en arrière (de 5 à 16 points avant) quand tu ajoutes ou retires de l’énergie très vite.',
             'Machine temporelle (et tous les menus où l’on place de l’énergie ou de la magie) : quand tu en prends ou en mets très vite, les clics ne te sont plus rendus par une réponse en retard du jeu en arrière-plan.'
           ]},
+          {menu:'augmentations', titre:'Augmentations', points:[
+            'Augmentations : quand tu places beaucoup d’énergie d’un coup sur une piste, la barre ne recule plus d’un bond à la réponse du jeu : elle ralentit un instant puis reprend son rythme.'
+          ]},
+          {menu:'sang', titre:'Magie du sang', points:[
+            'Magie du sang : même correction, la barre d’un rituel ne recule plus quand tu places de la magie très vite.'
+          ]},
           {menu:'challenges', titre:'Défis', points:[
             'Défis : le « Facteur de temps de Renaissance » ne compte plus le temps passé hors ligne pendant un défi sans progression hors ligne (100 niveaux, 24 heures, Troll).',
             'Défis : pendant le défi des 100 niveaux (comme pour les défis 24 heures et Troll), le compteur « Temps écoulé » ne défile plus quand le jeu est fermé.'

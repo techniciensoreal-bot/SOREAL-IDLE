@@ -59,6 +59,7 @@ assert.equal(v2.defs.milk.progress, 0, "barre à 0 faute d'Or (lu dans le jeu)")
 console.log("idle-augmentation-repere-sans-redessin-v1: OK");
 
 // Recalage de phase : la barre (animation du navigateur) se cale sur le repère dès que l'écart dépasse 80 ms ou 5 % du cycle.
-assert.ok(ui.includes("if(Math.abs(ecart)>Math.max(80,duration*0.05))anim.currentTime=cible;"), "recalage de phase de la barre");
+/* 2026-11-28 : un petit écart est rattrapé en douceur (vitesse de lecture), seul un grand écart cale la barre d'un coup (idle-aug-recalage-phase-doux-v1). */
+assert.ok(ui.includes("if(Math.abs(ecart)>Math.max(80,duration*0.05)){") && ui.includes("if(grand){anim.currentTime=cible;"), "recalage de phase de la barre");
 // Le niveau affiché ne recule pas d'un cran à l'arrivée du serveur (écart infime).
 assert.ok(ui.includes("nivEl.__idleNivAfficheV1"), "niveau affiché monotone");

@@ -4,6 +4,7 @@
  */
 (function(){
   window.__SOREAL_IDLE_NOTES_NOUVEAUTES_V1__ = { lignes: [
-    "Défis : le « Facteur de temps de Renaissance » ne compte plus le temps passé hors ligne pendant un défi sans progression hors ligne (100 niveaux, 24 heures, Troll)."
+    "Augmentations : quand tu places beaucoup d’énergie d’un coup sur une piste, la barre ne recule plus d’un bond à la réponse du jeu : elle ralentit un instant puis reprend son rythme.",
+    "Magie du sang : même correction, la barre d’un rituel ne recule plus quand tu places de la magie très vite."
   ] };
 })();
